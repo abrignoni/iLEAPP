@@ -1,68 +1,70 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph009_1BurstAvalanchePhDaPsql': {
-        'name': 'Ph009.1-Burst Avalanche-PhDaPsql',
-        'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for burst avalanche assets'
-                       ' and supports iOS. The results for this script will contain'
-                       ' one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-26',
-        'reuirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-Burst-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "layers",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-            'felix_ios17': 'iOS 17.6.1 | 3 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 0 rows',
-            'iphone12_ios18': 'iOS 18.7 | 0 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 0 rows',
-            'abe_ios16': 'iOS 16.5 | 948 rows',
-            'felix23_ios16': 'iOS 16.5 | 3 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-            'hickman_ios14': 'iOS 14.3 | 0 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    },
-    'Ph009_3BurstAvalancheGenPlayPsql': {
-        'name': 'Ph009.3-Burst Avalanche-GenPlayPsql',
-        'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for burst avalanche assets'
-                       ' and supports iOS. The results for this script will contain'
-                       ' one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '2.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-Burst-GenPlaygrndPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "layers",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-        }
-	}
+'Ph009_1BurstAvalanchePhDaPsql': {
+'name': 'Ph009.1-Burst Avalanche-PhDaPsql',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for burst avalanche assets'
+' and supports iOS. The results for this script will contain'
+' one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-26',
+'reuirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-Assets-Burst-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "layers",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+'felix_ios17': 'iOS 17.6.1 | 3 rows',
+'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'iphone12_ios18': 'iOS 18.7 | 0 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 0 rows',
+'abe_ios16': 'iOS 16.5 | 948 rows',
+'felix23_ios16': 'iOS 16.5 | 3 rows',
+'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 0 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+},
+'Ph009_3BurstAvalancheGenPlayPsql': {
+'name': 'Ph009.3-Burst Avalanche-GenPlayPsql',
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for burst avalanche assets'
+' and supports iOS. The results for this script will contain'
+' one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '2.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
+'category': 'Photos.sqlite-Assets-Burst-GenPlaygrndPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "layers",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+}
+}
 }
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph009_1BurstAvalanchePhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph009_1BurstAvalanchePhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
-        
+
         if source_path.endswith('.sqlite'):
             break
 
@@ -127,22 +129,22 @@ def Ph009_1BurstAvalanchePhDaPsql(files_found, report_folder, seeker, wrap_text,
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12]))
+            row[10], row[11], row[12]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Avalanche_Pick_Type-BurstAsset-1',
-                        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-2',
-                        'zAsset-Visibility State-3',
-                        'zAsset-Directory-Path-4',
-                        'zAsset-Filename-5',
-                        'zAddAssetAttr- Original Filename-6',
-                        'zCldMast- Original Filename-7',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-8',
-                        'zAsset-zPK-9',
-                        'zAddAssetAttr-zPK-10',
-                        'zAsset-UUID = store.cloudphotodb-11',
-                        'zAddAssetAttr-Master Fingerprint-12')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Avalanche_Pick_Type-BurstAsset-1',
+        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-2',
+        'zAsset-Visibility State-3',
+        'zAsset-Directory-Path-4',
+        'zAsset-Filename-5',
+        'zAddAssetAttr- Original Filename-6',
+        'zCldMast- Original Filename-7',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-8',
+        'zAsset-zPK-9',
+        'zAddAssetAttr-zPK-10',
+        'zAsset-UUID = store.cloudphotodb-11',
+        'zAddAssetAttr-Master Fingerprint-12')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -201,22 +203,22 @@ def Ph009_1BurstAvalanchePhDaPsql(files_found, report_folder, seeker, wrap_text,
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12]))
+            row[10], row[11], row[12]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Avalanche_Pick_Type-BurstAsset-1',
-                        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-2',
-                        'zAsset-Visibility State-3',
-                        'zAsset-Directory-Path-4',
-                        'zAsset-Filename-5',
-                        'zAddAssetAttr- Original Filename-6',
-                        'zCldMast- Original Filename-7',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-8',
-                        'zAsset-zPK-9',
-                        'zAddAssetAttr-zPK-10',
-                        'zAsset-UUID = store.cloudphotodb-11',
-                        'zAddAssetAttr-Master Fingerprint-12')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Avalanche_Pick_Type-BurstAsset-1',
+        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-2',
+        'zAsset-Visibility State-3',
+        'zAsset-Directory-Path-4',
+        'zAsset-Filename-5',
+        'zAddAssetAttr- Original Filename-6',
+        'zCldMast- Original Filename-7',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-8',
+        'zAsset-zPK-9',
+        'zAddAssetAttr-zPK-10',
+        'zAsset-UUID = store.cloudphotodb-11',
+        'zAddAssetAttr-Master Fingerprint-12')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -281,32 +283,35 @@ def Ph009_1BurstAvalanchePhDaPsql(files_found, report_folder, seeker, wrap_text,
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14]))
+            row[10], row[11], row[12], row[13], row[14]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Avalanche_Kind-1',
-                        'zAsset-Avalanche_Pick_Type-BurstAsset-2',
-                        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-3',
-                        'zAsset-Visibility State-4',
-                        'zAsset-Directory-Path-5',
-                        'zAsset-Filename-6',
-                        'zAddAssetAttr- Original Filename-7',
-                        'zCldMast- Original Filename-8',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-9',
-                        'zAsset-zPK-10',
-                        'zAddAssetAttr-zPK-11',
-                        'zAsset-UUID = store.cloudphotodb-12',
-                        'zAddAssetAttr-Original Stable Hash-13',
-                        'zAddAssetAttr.Adjusted Stable Hash-14')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Avalanche_Kind-1',
+        'zAsset-Avalanche_Pick_Type-BurstAsset-2',
+        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-3',
+        'zAsset-Visibility State-4',
+        'zAsset-Directory-Path-5',
+        'zAsset-Filename-6',
+        'zAddAssetAttr- Original Filename-7',
+        'zCldMast- Original Filename-8',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-9',
+        'zAsset-zPK-10',
+        'zAddAssetAttr-zPK-11',
+        'zAsset-UUID = store.cloudphotodb-12',
+        'zAddAssetAttr-Original Stable Hash-13',
+        'zAddAssetAttr.Adjusted Stable Hash-14')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph009_3BurstAvalancheGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph009_3BurstAvalancheGenPlayPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
-        
+
         if source_path.endswith('.sqlite'):
             break
 
@@ -377,23 +382,23 @@ def Ph009_3BurstAvalancheGenPlayPsql(files_found, report_folder, seeker, wrap_te
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14]))
+            row[10], row[11], row[12], row[13], row[14]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Avalanche_Kind-1',
-                        'zAsset-Avalanche_Pick_Type-BurstAsset-2',
-                        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-3',
-                        'zAsset-Visibility State-4',
-                        'zAsset-Directory-Path-5',
-                        'zAsset-Filename-6',
-                        'zAddAssetAttr- Original Filename-7',
-                        'zCldMast- Original Filename-8',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-9',
-                        'zAsset-zPK-10',
-                        'zAddAssetAttr-zPK-11',
-                        'zAsset-UUID = store.cloudphotodb-12',
-                        'zAddAssetAttr-Original Stable Hash-13',
-                        'zAddAssetAttr.Adjusted Stable Hash-14')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Avalanche_Kind-1',
+        'zAsset-Avalanche_Pick_Type-BurstAsset-2',
+        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-3',
+        'zAsset-Visibility State-4',
+        'zAsset-Directory-Path-5',
+        'zAsset-Filename-6',
+        'zAddAssetAttr- Original Filename-7',
+        'zCldMast- Original Filename-8',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-9',
+        'zAsset-zPK-10',
+        'zAddAssetAttr-zPK-11',
+        'zAsset-UUID = store.cloudphotodb-12',
+        'zAddAssetAttr-Original Stable Hash-13',
+        'zAddAssetAttr.Adjusted Stable Hash-14')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

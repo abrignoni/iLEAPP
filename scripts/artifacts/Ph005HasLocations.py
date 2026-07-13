@@ -1,106 +1,108 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph005_1AssetshavevalidlocationsPhDaPsql': {
-        'name': 'Ph005.1-Assets have valid locations-PhDaPsql',
-        'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets that have valid'
-                       ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields'
-                       ' and supports various iOS versions. The results for this script will contain'
-                       ' one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-withLocations-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "map-pin",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 250 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 1059 rows',
-            'felix_ios17': 'iOS 17.6.1 | 27 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 15 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 18 rows',
-            'iphone11_ios17': 'iOS 17.3 | 175 rows',
-            'iphone12_ios18': 'iOS 18.7 | 2 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 475 rows',
-            'abe_ios16': 'iOS 16.5 | 1839 rows',
-            'felix23_ios16': 'iOS 16.5 | 22 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 4 rows',
-            'hickman_ios14': 'iOS 14.3 | 5 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 77 rows',
-        }
-    },
-    'Ph005_2AssetshavevalidlocationsSyndPL': {
-        'name': 'Ph005.2-Assets have valid locations-SyndPL',
-        'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite'
-                       ' for assets that have valid locations from the ZASSET and ZEXTENDEDATTRIBUTES table'
-                       ' ZLATITUDE fields and supports various iOS versions. The results for this script will contain'
-                       ' one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-withLocations-SyndicationPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "map-pin",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 13 rows',
-            'felix_ios17': 'iOS 17.6.1 | 6 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 6 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 2 rows',
-            'iphone12_ios18': 'iOS 18.7 | 0 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 7 rows',
-            'abe_ios16': 'iOS 16.5 | 9 rows',
-            'felix23_ios16': 'iOS 16.5 | 6 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    },
-    'Ph005_3AssetshavevalidlocationsGenPlayPsql': {
-        'name': 'Ph005.3-Assets have valid locations-GenPlayPsql',
-        'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets that have valid'
-                       ' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields'
-                       ' and supports various iOS versions. The results for this script will contain'
-                       ' one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '2.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-withLocations-GenPlaygrndPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "map-pin",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-        }
-	}
+'Ph005_1AssetshavevalidlocationsPhDaPsql': {
+'name': 'Ph005.1-Assets have valid locations-PhDaPsql',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets that have valid'
+' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields'
+' and supports various iOS versions. The results for this script will contain'
+' one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-Assets-withLocations-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "map-pin",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 250 rows',
+'dexter_ios18': 'iOS 18.3.2 | 1059 rows',
+'felix_ios17': 'iOS 17.6.1 | 27 rows',
+'fsfull002_ios17': 'iOS 17.1 | 15 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 18 rows',
+'iphone11_ios17': 'iOS 17.3 | 175 rows',
+'iphone12_ios18': 'iOS 18.7 | 2 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 475 rows',
+'abe_ios16': 'iOS 16.5 | 1839 rows',
+'felix23_ios16': 'iOS 16.5 | 22 rows',
+'hickman_ios13': 'iOS 13.3.1 | 4 rows',
+'hickman_ios14': 'iOS 14.3 | 5 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 77 rows',
+}
+},
+'Ph005_2AssetshavevalidlocationsSyndPL': {
+'name': 'Ph005.2-Assets have valid locations-SyndPL',
+'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite'
+' for assets that have valid locations from the ZASSET and ZEXTENDEDATTRIBUTES table'
+' ZLATITUDE fields and supports various iOS versions. The results for this script will contain'
+' one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
+'category': 'Photos.sqlite-Assets-withLocations-SyndicationPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "map-pin",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 13 rows',
+'felix_ios17': 'iOS 17.6.1 | 6 rows',
+'fsfull002_ios17': 'iOS 17.1 | 6 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 2 rows',
+'iphone12_ios18': 'iOS 18.7 | 0 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 7 rows',
+'abe_ios16': 'iOS 16.5 | 9 rows',
+'felix23_ios16': 'iOS 16.5 | 6 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+},
+'Ph005_3AssetshavevalidlocationsGenPlayPsql': {
+'name': 'Ph005.3-Assets have valid locations-GenPlayPsql',
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets that have valid'
+' locations from the ZASSET and ZEXTENDEDATTRIBUTES table ZLATITUDE fields'
+' and supports various iOS versions. The results for this script will contain'
+' one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '2.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
+'category': 'Photos.sqlite-Assets-withLocations-GenPlaygrndPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "map-pin",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+}
+}
 }
 
 import os
 import plistlib
 import nska_deserialize as nd
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph005_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -193,30 +195,30 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, 
                             aaareverselocation_geoplaceresult = val
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                            aaashiftedlocation_geoplaceresult,
-                            row[11], row[12],
-                            aaareverselocation_geoplaceresult,
-                            row[14], row[15], row[16], row[17]))
+            aaashiftedlocation_geoplaceresult,
+            row[11], row[12],
+            aaareverselocation_geoplaceresult,
+            row[14], row[15], row[16], row[17]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zAsset-Longitude-2',
-                        'zAsset-Directory-Path-3',
-                        'zAsset-Filename-4',
-                        'zAddAssetAttr- Original Filename-5',
-                        'zCldMast- Original Filename-6',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
-                        'zAddAssetAttr-Shifted Location Valid-8',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
-                        'zAddAssetAttr-Shifted Location Data-geoPlaceResult-10',
-                        'zAddAssetAttr-Reverse Location Is Valid-11',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-12',
-                        'zAddAssetAttr-Reverse Location Data-geoPlaceResult-13',
-                        'zAsset-zPK-14',
-                        'zAddAssetAttr-zPK-15',
-                        'zAsset-UUID = store.cloudphotodb-16',
-                        'zAddAssetAttr-Master Fingerprint-17')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zAsset-Longitude-2',
+        'zAsset-Directory-Path-3',
+        'zAsset-Filename-4',
+        'zAddAssetAttr- Original Filename-5',
+        'zCldMast- Original Filename-6',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zAddAssetAttr-Shifted Location Valid-8',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
+        'zAddAssetAttr-Shifted Location Data-geoPlaceResult-10',
+        'zAddAssetAttr-Reverse Location Is Valid-11',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-12',
+        'zAddAssetAttr-Reverse Location Data-geoPlaceResult-13',
+        'zAsset-zPK-14',
+        'zAddAssetAttr-zPK-15',
+        'zAsset-UUID = store.cloudphotodb-16',
+        'zAddAssetAttr-Master Fingerprint-17')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -346,37 +348,37 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, 
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                            aaashiftedlocation_postal_address,
-                            row[11], row[12],
-                            aaareverselocation_postal_address,
-                            row[14], row[15], row[16], row[17], row[18],
-                            row[19], row[20], row[21], row[22], row[23]))
+            aaashiftedlocation_postal_address,
+            row[11], row[12],
+            aaareverselocation_postal_address,
+            row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zAsset-Longitude-2',
-                        'zAsset-Directory-Path-3',
-                        'zAsset-Filename-4',
-                        'zAddAssetAttr- Original Filename-5',
-                        'zCldMast- Original Filename-6',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
-                        'zAddAssetAttr-Shifted Location Valid-8',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-10',
-                        'zAddAssetAttr-Reverse Location Is Valid-11',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-12',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-13',
-                        'AAAzCldMastMedData-zOPT-14',
-                        'zAddAssetAttr-Media Metadata Type-15',
-                        'AAAzCldMastMedData-Data-16',
-                        'CldMasterzCldMastMedData-zOPT-17',
-                        'zCldMast-Media Metadata Type-18',
-                        'CMzCldMastMedData-Data-19',
-                        'zAsset-zPK-20',
-                        'zAddAssetAttr-zPK-21',
-                        'zAsset-UUID = store.cloudphotodb-22',
-                        'zAddAssetAttr-Master Fingerprint-23')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zAsset-Longitude-2',
+        'zAsset-Directory-Path-3',
+        'zAsset-Filename-4',
+        'zAddAssetAttr- Original Filename-5',
+        'zCldMast- Original Filename-6',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zAddAssetAttr-Shifted Location Valid-8',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-10',
+        'zAddAssetAttr-Reverse Location Is Valid-11',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-12',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-13',
+        'AAAzCldMastMedData-zOPT-14',
+        'zAddAssetAttr-Media Metadata Type-15',
+        'AAAzCldMastMedData-Data-16',
+        'CldMasterzCldMastMedData-zOPT-17',
+        'zCldMast-Media Metadata Type-18',
+        'CMzCldMastMedData-Data-19',
+        'zAsset-zPK-20',
+        'zAddAssetAttr-zPK-21',
+        'zAsset-UUID = store.cloudphotodb-22',
+        'zAddAssetAttr-Master Fingerprint-23')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -514,41 +516,41 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, 
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                            row[10], row[11], row[12],
-                            aaashiftedlocation_postal_address,
-                            row[14], row[15],
-                            aaareverselocation_postal_address,
-                            row[17], row[18],
-                            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26]))
+            row[10], row[11], row[12],
+            aaashiftedlocation_postal_address,
+            row[14], row[15],
+            aaareverselocation_postal_address,
+            row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zExtAttr-Latitude-2',
-                        'zAsset-Longitude-3',
-                        'zExtAttr-Longitude-4',
-                        'zAddAssetAttr-GPS Horizontal Accuracy-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr-Shifted Location Valid-11',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-12',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-13',
-                        'zAddAssetAttr-Reverse Location Is Valid-14',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-15',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-16',
-                        'AAAzCldMastMedData-zOPT-17',
-                        'zAddAssetAttr-Media Metadata Type-18',
-                        'AAAzCldMastMedData-Data-19',
-                        'CldMasterzCldMastMedData-zOPT-20',
-                        'zCldMast-Media Metadata Type-21',
-                        'CMzCldMastMedData-Data-22',
-                        'zAsset-zPK-23',
-                        'zAddAssetAttr-zPK-24',
-                        'zAsset-UUID = store.cloudphotodb-25',
-                        'zAddAssetAttr-Master Fingerprint-26')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zExtAttr-Latitude-2',
+        'zAsset-Longitude-3',
+        'zExtAttr-Longitude-4',
+        'zAddAssetAttr-GPS Horizontal Accuracy-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr-Shifted Location Valid-11',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-12',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-13',
+        'zAddAssetAttr-Reverse Location Is Valid-14',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-15',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-16',
+        'AAAzCldMastMedData-zOPT-17',
+        'zAddAssetAttr-Media Metadata Type-18',
+        'AAAzCldMastMedData-Data-19',
+        'CldMasterzCldMastMedData-zOPT-20',
+        'zCldMast-Media Metadata Type-21',
+        'CMzCldMastMedData-Data-22',
+        'zAsset-zPK-23',
+        'zAddAssetAttr-zPK-24',
+        'zAsset-UUID = store.cloudphotodb-25',
+        'zAddAssetAttr-Master Fingerprint-26')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -687,42 +689,42 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, 
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                            row[10], row[11], row[12], row[13],
-                            aaashiftedlocation_postal_address,
-                            row[15], row[16],
-                            aaareverselocation_postal_address,
-                            row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                            row[26], row[27]))
+            row[10], row[11], row[12], row[13],
+            aaashiftedlocation_postal_address,
+            row[15], row[16],
+            aaareverselocation_postal_address,
+            row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+            row[26], row[27]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zExtAttr-Latitude-2',
-                        'zAsset-Longitude-3',
-                        'zExtAttr-Longitude-4',
-                        'zAddAssetAttr-GPS Horizontal Accuracy-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAddAssetAttr-Shifted Location Valid-12',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
-                        'zAddAssetAttr-Reverse Location Is Valid-15',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
-                        'AAAzCldMastMedData-zOPT-18',
-                        'zAddAssetAttr-Media Metadata Type-19',
-                        'AAAzCldMastMedData-Data-20',
-                        'CldMasterzCldMastMedData-zOPT-21',
-                        'zCldMast-Media Metadata Type-22',
-                        'CMzCldMastMedData-Data-23',
-                        'zAsset-zPK-24',
-                        'zAddAssetAttr-zPK-25',
-                        'zAsset-UUID = store.cloudphotodb-26',
-                        'zAddAssetAttr-Master Fingerprint-27')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zExtAttr-Latitude-2',
+        'zAsset-Longitude-3',
+        'zExtAttr-Longitude-4',
+        'zAddAssetAttr-GPS Horizontal Accuracy-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAddAssetAttr-Shifted Location Valid-12',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
+        'zAddAssetAttr-Reverse Location Is Valid-15',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
+        'AAAzCldMastMedData-zOPT-18',
+        'zAddAssetAttr-Media Metadata Type-19',
+        'AAAzCldMastMedData-Data-20',
+        'CldMasterzCldMastMedData-zOPT-21',
+        'zCldMast-Media Metadata Type-22',
+        'CMzCldMastMedData-Data-23',
+        'zAsset-zPK-24',
+        'zAddAssetAttr-zPK-25',
+        'zAsset-UUID = store.cloudphotodb-26',
+        'zAddAssetAttr-Master Fingerprint-27')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -862,48 +864,51 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, 
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                            row[10], row[11], row[12], row[13],
-                            aaashiftedlocation_postal_address,
-                            row[15], row[16],
-                            aaareverselocation_postal_address,
-                            row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                            row[26], row[27], row[28]))
+            row[10], row[11], row[12], row[13],
+            aaashiftedlocation_postal_address,
+            row[15], row[16],
+            aaareverselocation_postal_address,
+            row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+            row[26], row[27], row[28]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zExtAttr-Latitude-2',
-                        'zAsset-Longitude-3',
-                        'zExtAttr-Longitude-4',
-                        'zAddAssetAttr-GPS Horizontal Accuracy-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAddAssetAttr-Shifted Location Valid-12',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
-                        'zAddAssetAttr-Reverse Location Is Valid-15',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
-                        'AAAzCldMastMedData-zOPT-18',
-                        'zAddAssetAttr-Media Metadata Type-19',
-                        'AAAzCldMastMedData-Data-20',
-                        'CldMasterzCldMastMedData-zOPT-21',
-                        'zCldMast-Media Metadata Type-22',
-                        'CMzCldMastMedData-Data-23',
-                        'zAsset-zPK-24',
-                        'zAddAssetAttr-zPK-25',
-                        'zAsset-UUID = store.cloudphotodb-26',
-                        'zAddAssetAttr-Original Stable Hash-27',
-                        'zAddAssetAttr.Adjusted Stable Hash-28')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zExtAttr-Latitude-2',
+        'zAsset-Longitude-3',
+        'zExtAttr-Longitude-4',
+        'zAddAssetAttr-GPS Horizontal Accuracy-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAddAssetAttr-Shifted Location Valid-12',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
+        'zAddAssetAttr-Reverse Location Is Valid-15',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
+        'AAAzCldMastMedData-zOPT-18',
+        'zAddAssetAttr-Media Metadata Type-19',
+        'AAAzCldMastMedData-Data-20',
+        'CldMasterzCldMastMedData-zOPT-21',
+        'zCldMast-Media Metadata Type-22',
+        'CMzCldMastMedData-Data-23',
+        'zAsset-zPK-24',
+        'zAddAssetAttr-zPK-25',
+        'zAsset-UUID = store.cloudphotodb-26',
+        'zAddAssetAttr-Original Stable Hash-27',
+        'zAddAssetAttr.Adjusted Stable Hash-28')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph005_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph005_2AssetshavevalidlocationsSyndPL(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
@@ -1002,30 +1007,30 @@ def Ph005_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wr
                             aaareverselocation_geoplaceresult = val
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              aaashiftedlocation_geoplaceresult,
-                              row[11], row[12],
-                              aaareverselocation_geoplaceresult,
-                              row[14], row[15], row[16], row[17]))
+            aaashiftedlocation_geoplaceresult,
+            row[11], row[12],
+            aaareverselocation_geoplaceresult,
+            row[14], row[15], row[16], row[17]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zAsset-Longitude-2',
-                        'zAsset-Directory-Path-3',
-                        'zAsset-Filename-4',
-                        'zAddAssetAttr- Original Filename-5',
-                        'zCldMast- Original Filename-6',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
-                        'zAddAssetAttr-Shifted Location Valid-8',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
-                        'zAddAssetAttr-Shifted Location Data-geoPlaceResult-10',
-                        'zAddAssetAttr-Reverse Location Is Valid-11',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-12',
-                        'zAddAssetAttr-Reverse Location Data-geoPlaceResult-13',
-                        'zAsset-zPK-14',
-                        'zAddAssetAttr-zPK-15',
-                        'zAsset-UUID = store.cloudphotodb-16',
-                        'zAddAssetAttr-Master Fingerprint-17')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zAsset-Longitude-2',
+        'zAsset-Directory-Path-3',
+        'zAsset-Filename-4',
+        'zAddAssetAttr- Original Filename-5',
+        'zCldMast- Original Filename-6',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zAddAssetAttr-Shifted Location Valid-8',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
+        'zAddAssetAttr-Shifted Location Data-geoPlaceResult-10',
+        'zAddAssetAttr-Reverse Location Is Valid-11',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-12',
+        'zAddAssetAttr-Reverse Location Data-geoPlaceResult-13',
+        'zAsset-zPK-14',
+        'zAddAssetAttr-zPK-15',
+        'zAsset-UUID = store.cloudphotodb-16',
+        'zAddAssetAttr-Master Fingerprint-17')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1155,37 +1160,37 @@ def Ph005_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wr
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[4])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              aaashiftedlocation_postal_address,
-                              row[11], row[12],
-                              aaareverselocation_postal_address,
-                              row[14], row[15], row[16], row[17], row[18],
-                              row[19], row[20], row[21], row[22], row[23]))
+            aaashiftedlocation_postal_address,
+            row[11], row[12],
+            aaareverselocation_postal_address,
+            row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zAsset-Longitude-2',
-                        'zAsset-Directory-Path-3',
-                        'zAsset-Filename-4',
-                        'zAddAssetAttr- Original Filename-5',
-                        'zCldMast- Original Filename-6',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
-                        'zAddAssetAttr-Shifted Location Valid-8',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-10',
-                        'zAddAssetAttr-Reverse Location Is Valid-11',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-12',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-13',
-                        'AAAzCldMastMedData-zOPT-14',
-                        'zAddAssetAttr-Media Metadata Type-15',
-                        'AAAzCldMastMedData-Data-16',
-                        'CldMasterzCldMastMedData-zOPT-17',
-                        'zCldMast-Media Metadata Type-18',
-                        'CMzCldMastMedData-Data-19',
-                        'zAsset-zPK-20',
-                        'zAddAssetAttr-zPK-21',
-                        'zAsset-UUID = store.cloudphotodb-22',
-                        'zAddAssetAttr-Master Fingerprint-23')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zAsset-Longitude-2',
+        'zAsset-Directory-Path-3',
+        'zAsset-Filename-4',
+        'zAddAssetAttr- Original Filename-5',
+        'zCldMast- Original Filename-6',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zAddAssetAttr-Shifted Location Valid-8',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-10',
+        'zAddAssetAttr-Reverse Location Is Valid-11',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-12',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-13',
+        'AAAzCldMastMedData-zOPT-14',
+        'zAddAssetAttr-Media Metadata Type-15',
+        'AAAzCldMastMedData-Data-16',
+        'CldMasterzCldMastMedData-zOPT-17',
+        'zCldMast-Media Metadata Type-18',
+        'CMzCldMastMedData-Data-19',
+        'zAsset-zPK-20',
+        'zAddAssetAttr-zPK-21',
+        'zAsset-UUID = store.cloudphotodb-22',
+        'zAddAssetAttr-Master Fingerprint-23')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1323,41 +1328,41 @@ def Ph005_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wr
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12],
-                              aaashiftedlocation_postal_address,
-                              row[14], row[15],
-                              aaareverselocation_postal_address,
-                              row[17], row[18],
-                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26]))
+            row[10], row[11], row[12],
+            aaashiftedlocation_postal_address,
+            row[14], row[15],
+            aaareverselocation_postal_address,
+            row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zExtAttr-Latitude-2',
-                        'zAsset-Longitude-3',
-                        'zExtAttr-Longitude-4',
-                        'zAddAssetAttr-GPS Horizontal Accuracy-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr-Shifted Location Valid-11',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-12',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-13',
-                        'zAddAssetAttr-Reverse Location Is Valid-14',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-15',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-16',
-                        'AAAzCldMastMedData-zOPT-17',
-                        'zAddAssetAttr-Media Metadata Type-18',
-                        'AAAzCldMastMedData-Data-19',
-                        'CldMasterzCldMastMedData-zOPT-20',
-                        'zCldMast-Media Metadata Type-21',
-                        'CMzCldMastMedData-Data-22',
-                        'zAsset-zPK-23',
-                        'zAddAssetAttr-zPK-24',
-                        'zAsset-UUID = store.cloudphotodb-25',
-                        'zAddAssetAttr-Master Fingerprint-26')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zExtAttr-Latitude-2',
+        'zAsset-Longitude-3',
+        'zExtAttr-Longitude-4',
+        'zAddAssetAttr-GPS Horizontal Accuracy-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr-Shifted Location Valid-11',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-12',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-13',
+        'zAddAssetAttr-Reverse Location Is Valid-14',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-15',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-16',
+        'AAAzCldMastMedData-zOPT-17',
+        'zAddAssetAttr-Media Metadata Type-18',
+        'AAAzCldMastMedData-Data-19',
+        'CldMasterzCldMastMedData-zOPT-20',
+        'zCldMast-Media Metadata Type-21',
+        'CMzCldMastMedData-Data-22',
+        'zAsset-zPK-23',
+        'zAddAssetAttr-zPK-24',
+        'zAsset-UUID = store.cloudphotodb-25',
+        'zAddAssetAttr-Master Fingerprint-26')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1496,42 +1501,42 @@ def Ph005_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wr
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13],
-                              aaashiftedlocation_postal_address,
-                              row[15], row[16],
-                              aaareverselocation_postal_address,
-                              row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                              row[26], row[27]))
+            row[10], row[11], row[12], row[13],
+            aaashiftedlocation_postal_address,
+            row[15], row[16],
+            aaareverselocation_postal_address,
+            row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+            row[26], row[27]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zExtAttr-Latitude-2',
-                        'zAsset-Longitude-3',
-                        'zExtAttr-Longitude-4',
-                        'zAddAssetAttr-GPS Horizontal Accuracy-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAddAssetAttr-Shifted Location Valid-12',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
-                        'zAddAssetAttr-Reverse Location Is Valid-15',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
-                        'AAAzCldMastMedData-zOPT-18',
-                        'zAddAssetAttr-Media Metadata Type-19',
-                        'AAAzCldMastMedData-Data-20',
-                        'CldMasterzCldMastMedData-zOPT-21',
-                        'zCldMast-Media Metadata Type-22',
-                        'CMzCldMastMedData-Data-23',
-                        'zAsset-zPK-24',
-                        'zAddAssetAttr-zPK-25',
-                        'zAsset-UUID = store.cloudphotodb-26',
-                        'zAddAssetAttr-Master Fingerprint-27')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zExtAttr-Latitude-2',
+        'zAsset-Longitude-3',
+        'zExtAttr-Longitude-4',
+        'zAddAssetAttr-GPS Horizontal Accuracy-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAddAssetAttr-Shifted Location Valid-12',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
+        'zAddAssetAttr-Reverse Location Is Valid-15',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
+        'AAAzCldMastMedData-zOPT-18',
+        'zAddAssetAttr-Media Metadata Type-19',
+        'AAAzCldMastMedData-Data-20',
+        'CldMasterzCldMastMedData-zOPT-21',
+        'zCldMast-Media Metadata Type-22',
+        'CMzCldMastMedData-Data-23',
+        'zAsset-zPK-24',
+        'zAddAssetAttr-zPK-25',
+        'zAsset-UUID = store.cloudphotodb-26',
+        'zAddAssetAttr-Master Fingerprint-27')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1628,7 +1633,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wr
           (zExtAttr.ZLATITUDE > 0)
         ORDER BY zAsset.ZDATECREATED
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
@@ -1671,54 +1676,57 @@ def Ph005_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wr
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13],
-                              aaashiftedlocation_postal_address,
-                              row[15], row[16],
-                              aaareverselocation_postal_address,
-                              row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                              row[26], row[27], row[28]))
+            row[10], row[11], row[12], row[13],
+            aaashiftedlocation_postal_address,
+            row[15], row[16],
+            aaareverselocation_postal_address,
+            row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+            row[26], row[27], row[28]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zExtAttr-Latitude-2',
-                        'zAsset-Longitude-3',
-                        'zExtAttr-Longitude-4',
-                        'zAddAssetAttr-GPS Horizontal Accuracy-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAddAssetAttr-Shifted Location Valid-12',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
-                        'zAddAssetAttr-Reverse Location Is Valid-15',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
-                        'AAAzCldMastMedData-zOPT-18',
-                        'zAddAssetAttr-Media Metadata Type-19',
-                        'AAAzCldMastMedData-Data-20',
-                        'CldMasterzCldMastMedData-zOPT-21',
-                        'zCldMast-Media Metadata Type-22',
-                        'CMzCldMastMedData-Data-23',
-                        'zAsset-zPK-24',
-                        'zAddAssetAttr-zPK-25',
-                        'zAsset-UUID = store.cloudphotodb-26',
-                        'zAddAssetAttr-Original Stable Hash-27',
-                        'zAddAssetAttr.Adjusted Stable Hash-28')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zExtAttr-Latitude-2',
+        'zAsset-Longitude-3',
+        'zExtAttr-Longitude-4',
+        'zAddAssetAttr-GPS Horizontal Accuracy-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAddAssetAttr-Shifted Location Valid-12',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
+        'zAddAssetAttr-Reverse Location Is Valid-15',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
+        'AAAzCldMastMedData-zOPT-18',
+        'zAddAssetAttr-Media Metadata Type-19',
+        'AAAzCldMastMedData-Data-20',
+        'CldMasterzCldMastMedData-zOPT-21',
+        'zCldMast-Media Metadata Type-22',
+        'CMzCldMastMedData-Data-23',
+        'zAsset-zPK-24',
+        'zAddAssetAttr-zPK-25',
+        'zAsset-UUID = store.cloudphotodb-26',
+        'zAddAssetAttr-Original Stable Hash-27',
+        'zAddAssetAttr.Adjusted Stable Hash-28')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph005_3AssetshavevalidlocationsGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -1861,42 +1869,42 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(files_found, report_folder, seeke
                             logfunc('Error reading exported plist from zAsset-Filename ' + row[7])
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                            row[10], row[11], row[12], row[13],
-                            aaashiftedlocation_postal_address,
-                            row[15], row[16],
-                            aaareverselocation_postal_address,
-                            row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                            row[26], row[27], row[28]))
+            row[10], row[11], row[12], row[13],
+            aaashiftedlocation_postal_address,
+            row[15], row[16],
+            aaareverselocation_postal_address,
+            row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+            row[26], row[27], row[28]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Latitude-1',
-                        'zExtAttr-Latitude-2',
-                        'zAsset-Longitude-3',
-                        'zExtAttr-Longitude-4',
-                        'zAddAssetAttr-GPS Horizontal Accuracy-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAddAssetAttr-Shifted Location Valid-12',
-                        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
-                        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
-                        'zAddAssetAttr-Reverse Location Is Valid-15',
-                        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
-                        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
-                        'AAAzCldMastMedData-zOPT-18',
-                        'zAddAssetAttr-Media Metadata Type-19',
-                        'AAAzCldMastMedData-Data-20',
-                        'CldMasterzCldMastMedData-zOPT-21',
-                        'zCldMast-Media Metadata Type-22',
-                        'CMzCldMastMedData-Data-23',
-                        'zAsset-zPK-24',
-                        'zAddAssetAttr-zPK-25',
-                        'zAsset-UUID = store.cloudphotodb-26',
-                        'zAddAssetAttr-Original Stable Hash-27',
-                        'zAddAssetAttr.Adjusted Stable Hash-28')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Latitude-1',
+        'zExtAttr-Latitude-2',
+        'zAsset-Longitude-3',
+        'zExtAttr-Longitude-4',
+        'zAddAssetAttr-GPS Horizontal Accuracy-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAddAssetAttr-Shifted Location Valid-12',
+        'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
+        'zAddAssetAttr-Shifted Location Data-bplist_postal_address-14',
+        'zAddAssetAttr-Reverse Location Is Valid-15',
+        'zAddAssetAttr-Reverse Location Data-HasDataIndicator-16',
+        'zAddAssetAttr-Reverse Location Data-bplist_postal_address-17',
+        'AAAzCldMastMedData-zOPT-18',
+        'zAddAssetAttr-Media Metadata Type-19',
+        'AAAzCldMastMedData-Data-20',
+        'CldMasterzCldMastMedData-zOPT-21',
+        'zCldMast-Media Metadata Type-22',
+        'CMzCldMastMedData-Data-23',
+        'zAsset-zPK-24',
+        'zAddAssetAttr-zPK-25',
+        'zAsset-UUID = store.cloudphotodb-26',
+        'zAddAssetAttr-Original Stable Hash-27',
+        'zAddAssetAttr.Adjusted Stable Hash-28')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

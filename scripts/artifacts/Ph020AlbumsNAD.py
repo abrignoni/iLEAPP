@@ -1,110 +1,112 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph020_1AlbumRecordswithNADPhDaPsql': {
-        'name': 'Ph020.1-Album Records NAD-PhDaPsql',
-        'description': 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table'
-                       ' and supports iOS. Parses Album records only no asset data being parsed.'
-                       ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
-                       ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
-                       ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
-                       ' Please see the album type specific scripts to view more data for each album type.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Albums-NAD-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "book",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 38 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 87 rows',
-            'felix_ios17': 'iOS 17.6.1 | 47 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 55 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 50 rows',
-            'iphone11_ios17': 'iOS 17.3 | 73 rows',
-            'iphone12_ios18': 'iOS 18.7 | 173 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 48 rows',
-            'otto_ios17': 'iOS 17.5.1 | 57 rows',
-            'abe_ios16': 'iOS 16.5 | 56 rows',
-            'felix23_ios16': 'iOS 16.5 | 46 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 40 rows',
-            'hickman_ios14': 'iOS 14.3 | 0 rows',
-            'jess_ios15': 'iOS 15.0.2 | 41 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 45 rows',
-        }
-    },
-    'Ph020_2AlbumRecordswithNADSyndPL': {
-        'name': 'Ph020.2-Album Records NAD-SyndPL',
-        'description': 'Parses Basic Album records found in the Syndication.photoslibrary-database-Photos.sqlite'
-                       ' ZGENERICALBUM Table and supports iOS. Parses Album records only no asset data'
-                       ' being parsed. Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
-                       ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
-                       ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
-                       ' Please see the album type specific scripts to view more data for each album type.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Albums-NAD-SyndicationPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "book",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 83 rows',
-            'felix_ios17': 'iOS 17.6.1 | 63 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 94 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 73 rows',
-            'iphone11_ios17': 'iOS 17.3 | 79 rows',
-            'iphone12_ios18': 'iOS 18.7 | 58 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 52 rows',
-            'otto_ios17': 'iOS 17.5.1 | 65 rows',
-            'abe_ios16': 'iOS 16.5 | 65 rows',
-            'felix23_ios16': 'iOS 16.5 | 53 rows',
-            'jess_ios15': 'iOS 15.0.2 | 48 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 45 rows',
-        }
-    },
-    'Ph020_3AlbumRecordswithNADGenPlayPsql': {
-        'name': 'Ph020.3-Album Records NAD-GenPlayPsql',
-        'description': 'Parses Basic Album records found in the GenPlay-Photos.sqlite ZGENERICALBUM Table'
-                       ' and supports iOS. Parses Album records only no asset data being parsed.'
-                       ' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
-                       ' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
-                       ' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
-                       ' Please see the album type specific scripts to view more data for each album type.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '2.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
-        'category': 'Photos.sqlite-Albums-NAD-GenPlaygrndPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "book",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 47 rows',
-        }
-	}
+'Ph020_1AlbumRecordswithNADPhDaPsql': {
+'name': 'Ph020.1-Album Records NAD-PhDaPsql',
+'description': 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table'
+' and supports iOS. Parses Album records only no asset data being parsed.'
+' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
+' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
+' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
+' Please see the album type specific scripts to view more data for each album type.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-Albums-NAD-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "book",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 38 rows',
+'dexter_ios18': 'iOS 18.3.2 | 87 rows',
+'felix_ios17': 'iOS 17.6.1 | 47 rows',
+'fsfull002_ios17': 'iOS 17.1 | 55 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 50 rows',
+'iphone11_ios17': 'iOS 17.3 | 73 rows',
+'iphone12_ios18': 'iOS 18.7 | 173 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 48 rows',
+'otto_ios17': 'iOS 17.5.1 | 57 rows',
+'abe_ios16': 'iOS 16.5 | 56 rows',
+'felix23_ios16': 'iOS 16.5 | 46 rows',
+'hickman_ios13': 'iOS 13.3.1 | 40 rows',
+'hickman_ios14': 'iOS 14.3 | 0 rows',
+'jess_ios15': 'iOS 15.0.2 | 41 rows',
+'magnet_ios16': 'iOS 16.1.1 | 45 rows',
+}
+},
+'Ph020_2AlbumRecordswithNADSyndPL': {
+'name': 'Ph020.2-Album Records NAD-SyndPL',
+'description': 'Parses Basic Album records found in the Syndication.photoslibrary-database-Photos.sqlite'
+' ZGENERICALBUM Table and supports iOS. Parses Album records only no asset data'
+' being parsed. Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
+' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
+' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
+' Please see the album type specific scripts to view more data for each album type.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
+'category': 'Photos.sqlite-Albums-NAD-SyndicationPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "book",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 83 rows',
+'felix_ios17': 'iOS 17.6.1 | 63 rows',
+'fsfull002_ios17': 'iOS 17.1 | 94 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 73 rows',
+'iphone11_ios17': 'iOS 17.3 | 79 rows',
+'iphone12_ios18': 'iOS 18.7 | 58 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 52 rows',
+'otto_ios17': 'iOS 17.5.1 | 65 rows',
+'abe_ios16': 'iOS 16.5 | 65 rows',
+'felix23_ios16': 'iOS 16.5 | 53 rows',
+'jess_ios15': 'iOS 15.0.2 | 48 rows',
+'magnet_ios16': 'iOS 16.1.1 | 45 rows',
+}
+},
+'Ph020_3AlbumRecordswithNADGenPlayPsql': {
+'name': 'Ph020.3-Album Records NAD-GenPlayPsql',
+'description': 'Parses Basic Album records found in the GenPlay-Photos.sqlite ZGENERICALBUM Table'
+' and supports iOS. Parses Album records only no asset data being parsed.'
+' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
+' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
+' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
+' Please see the album type specific scripts to view more data for each album type.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '2.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
+'category': 'Photos.sqlite-Albums-NAD-GenPlaygrndPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "book",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 47 rows',
+}
+}
 }
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph020_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph020_1AlbumRecordswithNADPhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('-') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -157,21 +159,21 @@ def Ph020_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11]))
+            row[8], row[9], row[10], row[11]))
 
         data_headers = (('zGenAlbum-Start Date', 'datetime'),
-                        ('zGenAlbum-End Date', 'datetime'),
-                        'zGenAlbum-Album Kind',
-                        'zGenAlbum-Title',
-                        'zGenAlbum-Import Session ID',
-                        'zGenAlbum-Cached Photos Count',
-                        'zGenAlbum-Cached Videos Count',
-                        'zGenAlbum-Cached Count',
-                        'zGenAlbum-Trashed State',
-                        ('zGenAlbum-Trash Date', 'datetime'),
-                        'zGenAlbum-UUID',
-                        'zGenAlbum-Cloud GUID')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-End Date', 'datetime'),
+        'zGenAlbum-Album Kind',
+        'zGenAlbum-Title',
+        'zGenAlbum-Import Session ID',
+        'zGenAlbum-Cached Photos Count',
+        'zGenAlbum-Cached Videos Count',
+        'zGenAlbum-Cached Count',
+        'zGenAlbum-Trashed State',
+        ('zGenAlbum-Trash Date', 'datetime'),
+        'zGenAlbum-UUID',
+        'zGenAlbum-Cloud GUID')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -223,23 +225,23 @@ def Ph020_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+            row[8], row[9], row[10], row[11], row[12], row[13]))
 
         data_headers = (('zGenAlbum-Creation Date', 'datetime'),
-                        ('zGenAlbum-Start Date', 'datetime'),
-                        ('zGenAlbum-End Date', 'datetime'),
-                        'zGenAlbum-Album Kind',
-                        'zGenAlbum-Title',
-                        'zGenAlbum-Import Session ID',
-                        'zGenAlbum-Creator Bundle Identifier',
-                        'zGenAlbum-Cached Photos Count',
-                        'zGenAlbum-Cached Videos Count',
-                        'zGenAlbum-Cached Count',
-                        'zGenAlbum-Trashed State',
-                        ('zGenAlbum-Trash Date', 'datetime'),
-                        'zGenAlbum-UUID',
-                        'zGenAlbum-Cloud GUID')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-Start Date', 'datetime'),
+        ('zGenAlbum-End Date', 'datetime'),
+        'zGenAlbum-Album Kind',
+        'zGenAlbum-Title',
+        'zGenAlbum-Import Session ID',
+        'zGenAlbum-Creator Bundle Identifier',
+        'zGenAlbum-Cached Photos Count',
+        'zGenAlbum-Cached Videos Count',
+        'zGenAlbum-Cached Count',
+        'zGenAlbum-Trashed State',
+        ('zGenAlbum-Trash Date', 'datetime'),
+        'zGenAlbum-UUID',
+        'zGenAlbum-Cloud GUID')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -291,23 +293,23 @@ def Ph020_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+            row[8], row[9], row[10], row[11], row[12], row[13]))
 
         data_headers = (('zGenAlbum-Creation Date', 'datetime'),
-                        ('zGenAlbum-Start Date', 'datetime'),
-                        ('zGenAlbum-End Date', 'datetime'),
-                        'zGenAlbum-Album Kind',
-                        'zGenAlbum-Title',
-                        'zGenAlbum-Import Session ID',
-                        'zGenAlbum-Imported by Bundle Identifier',
-                        'zGenAlbum-Cached Photos Count',
-                        'zGenAlbum-Cached Videos Count',
-                        'zGenAlbum-Cached Count',
-                        'zGenAlbum-Trashed State',
-                        ('zGenAlbum-Trash Date', 'datetime'),
-                        'zGenAlbum-UUID',
-                        'zGenAlbum-Cloud GUID')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-Start Date', 'datetime'),
+        ('zGenAlbum-End Date', 'datetime'),
+        'zGenAlbum-Album Kind',
+        'zGenAlbum-Title',
+        'zGenAlbum-Import Session ID',
+        'zGenAlbum-Imported by Bundle Identifier',
+        'zGenAlbum-Cached Photos Count',
+        'zGenAlbum-Cached Videos Count',
+        'zGenAlbum-Cached Count',
+        'zGenAlbum-Trashed State',
+        ('zGenAlbum-Trash Date', 'datetime'),
+        'zGenAlbum-UUID',
+        'zGenAlbum-Cloud GUID')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -359,28 +361,31 @@ def Ph020_1AlbumRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+            row[8], row[9], row[10], row[11], row[12], row[13]))
 
         data_headers = (('zGenAlbum-Creation Date-0', 'datetime'),
-                        ('zGenAlbum-Start Date-1', 'datetime'),
-                        ('zGenAlbum-End Date-2', 'datetime'),
-                        'zGenAlbum-Album Kind-3',
-                        'zGenAlbum-Title-4',
-                        'zGenAlbum-Import Session ID-5',
-                        'zGenAlbum-Imported by Bundle Identifier-6',
-                        'zGenAlbum-Cached Photos Count-7',
-                        'zGenAlbum-Cached Videos Count-8',
-                        'zGenAlbum-Cached Count-9',
-                        'zGenAlbum-Trashed State-10',
-                        ('zGenAlbum-Trash Date-11', 'datetime'),
-                        'zGenAlbum-UUID-12',
-                        'zGenAlbum-Cloud GUID-13')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-Start Date-1', 'datetime'),
+        ('zGenAlbum-End Date-2', 'datetime'),
+        'zGenAlbum-Album Kind-3',
+        'zGenAlbum-Title-4',
+        'zGenAlbum-Import Session ID-5',
+        'zGenAlbum-Imported by Bundle Identifier-6',
+        'zGenAlbum-Cached Photos Count-7',
+        'zGenAlbum-Cached Videos Count-8',
+        'zGenAlbum-Cached Count-9',
+        'zGenAlbum-Trashed State-10',
+        ('zGenAlbum-Trash Date-11', 'datetime'),
+        'zGenAlbum-UUID-12',
+        'zGenAlbum-Cloud GUID-13')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph020_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph020_2AlbumRecordswithNADSyndPL(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
@@ -435,25 +440,25 @@ def Ph020_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_te
         FROM ZGENERICALBUM zGenAlbum
         ORDER BY zGenAlbum.ZSTARTDATE
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11]))
+            row[8], row[9], row[10], row[11]))
 
         data_headers = (('zGenAlbum-Start Date', 'datetime'),
-                        ('zGenAlbum-End Date', 'datetime'),
-                        'zGenAlbum-Album Kind',
-                        'zGenAlbum-Title',
-                        'zGenAlbum-Import Session ID',
-                        'zGenAlbum-Cached Photos Count',
-                        'zGenAlbum-Cached Videos Count',
-                        'zGenAlbum-Cached Count',
-                        'zGenAlbum-Trashed State',
-                        ('zGenAlbum-Trash Date', 'datetime'),
-                        'zGenAlbum-UUID',
-                        'zGenAlbum-Cloud GUID')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-End Date', 'datetime'),
+        'zGenAlbum-Album Kind',
+        'zGenAlbum-Title',
+        'zGenAlbum-Import Session ID',
+        'zGenAlbum-Cached Photos Count',
+        'zGenAlbum-Cached Videos Count',
+        'zGenAlbum-Cached Count',
+        'zGenAlbum-Trashed State',
+        ('zGenAlbum-Trash Date', 'datetime'),
+        'zGenAlbum-UUID',
+        'zGenAlbum-Cloud GUID')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -501,27 +506,27 @@ def Ph020_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_te
         FROM ZGENERICALBUM zGenAlbum
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+            row[8], row[9], row[10], row[11], row[12], row[13]))
 
         data_headers = (('zGenAlbum-Creation Date', 'datetime'),
-                        ('zGenAlbum-Start Date', 'datetime'),
-                        ('zGenAlbum-End Date', 'datetime'),
-                        'zGenAlbum-Album Kind',
-                        'zGenAlbum-Title',
-                        'zGenAlbum-Import Session ID',
-                        'zGenAlbum-Creator Bundle Identifier',
-                        'zGenAlbum-Cached Photos Count',
-                        'zGenAlbum-Cached Videos Count',
-                        'zGenAlbum-Cached Count',
-                        'zGenAlbum-Trashed State',
-                        ('zGenAlbum-Trash Date', 'datetime'),
-                        'zGenAlbum-UUID',
-                        'zGenAlbum-Cloud GUID')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-Start Date', 'datetime'),
+        ('zGenAlbum-End Date', 'datetime'),
+        'zGenAlbum-Album Kind',
+        'zGenAlbum-Title',
+        'zGenAlbum-Import Session ID',
+        'zGenAlbum-Creator Bundle Identifier',
+        'zGenAlbum-Cached Photos Count',
+        'zGenAlbum-Cached Videos Count',
+        'zGenAlbum-Cached Count',
+        'zGenAlbum-Trashed State',
+        ('zGenAlbum-Trash Date', 'datetime'),
+        'zGenAlbum-UUID',
+        'zGenAlbum-Cloud GUID')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -573,23 +578,23 @@ def Ph020_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_te
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+            row[8], row[9], row[10], row[11], row[12], row[13]))
 
         data_headers = (('zGenAlbum-Creation Date', 'datetime'),
-                        ('zGenAlbum-Start Date', 'datetime'),
-                        ('zGenAlbum-End Date', 'datetime'),
-                        'zGenAlbum-Album Kind',
-                        'zGenAlbum-Title',
-                        'zGenAlbum-Import Session ID',
-                        'zGenAlbum-Imported by Bundle Identifier',
-                        'zGenAlbum-Cached Photos Count',
-                        'zGenAlbum-Cached Videos Count',
-                        'zGenAlbum-Cached Count',
-                        'zGenAlbum-Trashed State',
-                        ('zGenAlbum-Trash Date', 'datetime'),
-                        'zGenAlbum-UUID',
-                        'zGenAlbum-Cloud GUID')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-Start Date', 'datetime'),
+        ('zGenAlbum-End Date', 'datetime'),
+        'zGenAlbum-Album Kind',
+        'zGenAlbum-Title',
+        'zGenAlbum-Import Session ID',
+        'zGenAlbum-Imported by Bundle Identifier',
+        'zGenAlbum-Cached Photos Count',
+        'zGenAlbum-Cached Videos Count',
+        'zGenAlbum-Cached Count',
+        'zGenAlbum-Trashed State',
+        ('zGenAlbum-Trash Date', 'datetime'),
+        'zGenAlbum-UUID',
+        'zGenAlbum-Cloud GUID')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -641,34 +646,37 @@ def Ph020_2AlbumRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_te
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+            row[8], row[9], row[10], row[11], row[12], row[13]))
 
         data_headers = (('zGenAlbum-Creation Date-0', 'datetime'),
-                        ('zGenAlbum-Start Date-1', 'datetime'),
-                        ('zGenAlbum-End Date-2', 'datetime'),
-                        'zGenAlbum-Album Kind-3',
-                        'zGenAlbum-Title-4',
-                        'zGenAlbum-Import Session ID-5',
-                        'zGenAlbum-Imported by Bundle Identifier-6',
-                        'zGenAlbum-Cached Photos Count-7',
-                        'zGenAlbum-Cached Videos Count-8',
-                        'zGenAlbum-Cached Count-9',
-                        'zGenAlbum-Trashed State-10',
-                        ('zGenAlbum-Trash Date-11', 'datetime'),
-                        'zGenAlbum-UUID-12',
-                        'zGenAlbum-Cloud GUID-13')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-Start Date-1', 'datetime'),
+        ('zGenAlbum-End Date-2', 'datetime'),
+        'zGenAlbum-Album Kind-3',
+        'zGenAlbum-Title-4',
+        'zGenAlbum-Import Session ID-5',
+        'zGenAlbum-Imported by Bundle Identifier-6',
+        'zGenAlbum-Cached Photos Count-7',
+        'zGenAlbum-Cached Videos Count-8',
+        'zGenAlbum-Cached Count-9',
+        'zGenAlbum-Trashed State-10',
+        ('zGenAlbum-Trash Date-11', 'datetime'),
+        'zGenAlbum-UUID-12',
+        'zGenAlbum-Cloud GUID-13')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph020_3AlbumRecordswithNADGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph020_3AlbumRecordswithNADGenPlayPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('-') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -723,22 +731,22 @@ def Ph020_3AlbumRecordswithNADGenPlayPsql(files_found, report_folder, seeker, wr
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13]))
+            row[8], row[9], row[10], row[11], row[12], row[13]))
 
         data_headers = (('zGenAlbum-Creation Date-0', 'datetime'),
-                        ('zGenAlbum-Start Date-1', 'datetime'),
-                        ('zGenAlbum-End Date-2', 'datetime'),
-                        'zGenAlbum-Album Kind-3',
-                        'zGenAlbum-Title-4',
-                        'zGenAlbum-Import Session ID-5',
-                        'zGenAlbum-Imported by Bundle Identifier-6',
-                        'zGenAlbum-Cached Photos Count-7',
-                        'zGenAlbum-Cached Videos Count-8',
-                        'zGenAlbum-Cached Count-9',
-                        'zGenAlbum-Trashed State-10',
-                        ('zGenAlbum-Trash Date-11', 'datetime'),
-                        'zGenAlbum-UUID-12',
-                        'zGenAlbum-Cloud GUID-13')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zGenAlbum-Start Date-1', 'datetime'),
+        ('zGenAlbum-End Date-2', 'datetime'),
+        'zGenAlbum-Album Kind-3',
+        'zGenAlbum-Title-4',
+        'zGenAlbum-Import Session ID-5',
+        'zGenAlbum-Imported by Bundle Identifier-6',
+        'zGenAlbum-Cached Photos Count-7',
+        'zGenAlbum-Cached Videos Count-8',
+        'zGenAlbum-Cached Count-9',
+        'zGenAlbum-Trashed State-10',
+        ('zGenAlbum-Trash Date-11', 'datetime'),
+        'zGenAlbum-UUID-12',
+        'zGenAlbum-Cloud GUID-13')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

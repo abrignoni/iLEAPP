@@ -1,26 +1,26 @@
 __artifacts_v2__ = {
-    'Ph087UFEDdevcievaluesplist': {
-        'name': 'Ph087-UFED-device-values-Plist',
-        'description': 'Parses basic data from */device_values.plist which is a part of a'
-                       ' UFED Advance Logical acquisitions with non-encrypted backups.'
-                       ' The parsing of this file will allow for iLEAPP to parse some basic'
-                       ' information such as */PhotoData/Photos.sqlite. Based on research'
-                       ' and published blogs written by Scott Koenig'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-		'version': '1.0',
-		'date': '2025-01-05',
-		'requirements': 'Acquisition that contains device_values.plist',
-		'category': 'Photos.sqlite-Y-Settings-UFED-Device-Info',
-		'notes': '',
-		'paths': ('*/device_values.plist',),
-		"output_types": ["standard", "tsv", "none"],
-		"artifact_icon": "settings"
-    }
+'Ph087UFEDdevcievaluesplist': {
+'name': 'Ph087-UFED-device-values-Plist',
+'description': 'Parses basic data from */device_values.plist which is a part of a'
+' UFED Advance Logical acquisitions with non-encrypted backups.'
+' The parsing of this file will allow for iLEAPP to parse some basic'
+' information such as */PhotoData/Photos.sqlite. Based on research'
+' and published blogs written by Scott Koenig'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '1.0',
+'date': '2025-01-05',
+'requirements': 'Acquisition that contains device_values.plist',
+'category': 'Photos.sqlite-Y-Settings-UFED-Device-Info',
+'notes': '',
+'paths': ('*/device_values.plist',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "settings"
+}
 }
 
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content, logfunc, \
-    device_info, iOS
+device_info, iOS
 
 
 @artifact_processor

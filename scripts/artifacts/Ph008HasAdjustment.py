@@ -1,68 +1,70 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph008_1HasAdjustmentPhDaPsql': {
-        'name': 'Ph008.1-Has Adjustment-PhDaPsql',
-        'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for adjusted assets'
-                       ' and supports iOS. The results for this script will contain'
-                       ' one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-Adjusted-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "edit",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 40 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 207 rows',
-            'felix_ios17': 'iOS 17.6.1 | 0 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 5 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 4 rows',
-            'iphone12_ios18': 'iOS 18.7 | 2066 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 14 rows',
-            'abe_ios16': 'iOS 16.5 | 19 rows',
-            'felix23_ios16': 'iOS 16.5 | 0 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 3 rows',
-            'hickman_ios14': 'iOS 14.3 | 4 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    },
-    'Ph008_3HasAdjustmentGenPlayPsql': {
-        'name': 'Ph008.3-Has Adjustment-GenPlayPsql',
-        'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for adjusted assets'
-                       ' and supports iOS. The results for this script will contain'
-                       ' one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '2.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-Adjusted-GenPlaygrndPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "edit",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-        }
-	}
+'Ph008_1HasAdjustmentPhDaPsql': {
+'name': 'Ph008.1-Has Adjustment-PhDaPsql',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for adjusted assets'
+' and supports iOS. The results for this script will contain'
+' one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-Assets-Adjusted-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "edit",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 40 rows',
+'dexter_ios18': 'iOS 18.3.2 | 207 rows',
+'felix_ios17': 'iOS 17.6.1 | 0 rows',
+'fsfull002_ios17': 'iOS 17.1 | 5 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 4 rows',
+'iphone12_ios18': 'iOS 18.7 | 2066 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 14 rows',
+'abe_ios16': 'iOS 16.5 | 19 rows',
+'felix23_ios16': 'iOS 16.5 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | 3 rows',
+'hickman_ios14': 'iOS 14.3 | 4 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+},
+'Ph008_3HasAdjustmentGenPlayPsql': {
+'name': 'Ph008.3-Has Adjustment-GenPlayPsql',
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for adjusted assets'
+' and supports iOS. The results for this script will contain'
+' one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '2.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
+'category': 'Photos.sqlite-Assets-Adjusted-GenPlaygrndPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "edit",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+}
+}
 }
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph008_1HasAdjustmentPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph008_1HasAdjustmentPhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
-        
+
         if source_path.endswith('.sqlite'):
             break
 
@@ -132,25 +134,25 @@ def Ph008_1HasAdjustmentPhDaPsql(files_found, report_folder, seeker, wrap_text, 
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15]))
+            row[10], row[11], row[12], row[13], row[14], row[15]))
 
         data_headers = (('zUnmAdj-Adjustment Timestamp', 'datetime'),
-                        'zAsset-Has Adjustments-Camera-Effects-Filters',
-                        'zAddAssetAttr-Editor Bundle ID',
-                        'zUnmAdj-Editor Localized Name',
-                        'zUnmAdj-Adjustment Format ID',
-                        'zUnmAdj-Adjustment Render Types',
-                        'zUnmAdj-Adjustment Format Version',
-                        'zAsset-Directory-Path',
-                        'zAsset-Filename',
-                        'zAddAssetAttr- Original Filename',
-                        'zCldMast- Original Filename',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting',
-                        'zAsset-zPK',
-                        'zAddAssetAttr-zPK',
-                        'zAsset-UUID = store.cloudphotodb',
-                        'zAddAssetAttr-Master Fingerprint')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Has Adjustments-Camera-Effects-Filters',
+        'zAddAssetAttr-Editor Bundle ID',
+        'zUnmAdj-Editor Localized Name',
+        'zUnmAdj-Adjustment Format ID',
+        'zUnmAdj-Adjustment Render Types',
+        'zUnmAdj-Adjustment Format Version',
+        'zAsset-Directory-Path',
+        'zAsset-Filename',
+        'zAddAssetAttr- Original Filename',
+        'zCldMast- Original Filename',
+        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zAsset-zPK',
+        'zAddAssetAttr-zPK',
+        'zAsset-UUID = store.cloudphotodb',
+        'zAddAssetAttr-Master Fingerprint')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -215,26 +217,26 @@ def Ph008_1HasAdjustmentPhDaPsql(files_found, report_folder, seeker, wrap_text, 
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16]))
 
         data_headers = (('zUnmAdj-Adjustment Timestamp-0', 'datetime'),
-                        'zAsset-Has Adjustments-Camera-Effects-Filters-1',
-                        'zAddAssetAttr-Editor Bundle ID-2',
-                        'zUnmAdj-Editor Localized Name-3',
-                        'zUnmAdj-Adjustment Format ID-4',
-                        'zUnmAdj-Adjustment Render Types-5',
-                        'zUnmAdj-Adjustment Format Version-6',
-                        'zAsset-Directory-Path-7',
-                        'zAsset-Filename-8',
-                        'zAddAssetAttr- Original Filename-9',
-                        'zCldMast- Original Filename-10',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-11',
-                        'zAsset-zPK-12',
-                        'zAddAssetAttr-zPK-13',
-                        'zAsset-UUID = store.cloudphotodb-14',
-                        'zAddAssetAttr-Master Fingerprint-15',
-                        'zAddAssetAttr.Adjusted Fingerprint-16')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Has Adjustments-Camera-Effects-Filters-1',
+        'zAddAssetAttr-Editor Bundle ID-2',
+        'zUnmAdj-Editor Localized Name-3',
+        'zUnmAdj-Adjustment Format ID-4',
+        'zUnmAdj-Adjustment Render Types-5',
+        'zUnmAdj-Adjustment Format Version-6',
+        'zAsset-Directory-Path-7',
+        'zAsset-Filename-8',
+        'zAddAssetAttr- Original Filename-9',
+        'zCldMast- Original Filename-10',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-11',
+        'zAsset-zPK-12',
+        'zAddAssetAttr-zPK-13',
+        'zAsset-UUID = store.cloudphotodb-14',
+        'zAddAssetAttr-Master Fingerprint-15',
+        'zAddAssetAttr.Adjusted Fingerprint-16')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -334,52 +336,55 @@ def Ph008_1HasAdjustmentPhDaPsql(files_found, report_folder, seeker, wrap_text, 
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                            row[28], row[29], row[30], row[31], row[32]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30], row[31], row[32]))
 
         data_headers = (('zUnmAdj-Adjustment Timestamp-0', 'datetime'),
-                        'zAsset-Adjustments_State/Camera-Effects-Filters-1',
-                        'zCompSyncAttr-Cloud_Compute_State_Last_Updated_Date-2',
-                        'zCompSyncAttr-Local_Analysis_Major_Version-3',
-                        'zAddAssetAttr-Editor Bundle ID-4',
-                        'zUnmAdj-Editor Localized Name-5',
-                        'zUnmAdj-Adjustment Format ID-6',
-                        'zUnmAdj-Adjustment Render Types-7',
-                        'zUnmAdj-Adjustment Format Version-8',
-                        'zAsset-Is_Detected_Screenshot-9',
-                        'zAsset-Is_Recently_Saved-10',
-                        'zAsset-Directory-Path-11',
-                        'zAsset-Filename-12',
-                        'zAddAssetAttr- Original Filename-13',
-                        'zCldMast- Original Filename-14',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-15',
-                        'zCompSyncAttr-Local_Analysis_Stage-16',
-                        'zCompSyncAttr-Cloud_Compute_State_Version-17',
-                        'zAsset-zPK-18',
-                        'zAddAssetAttr-zPK-19',
-                        'zAsset-Compute_Sync_Attributes= zCompSyncAttr-zPK-20',
-                        'zCompSyncAttr-zPK= zAsset-zCompSyncAttr-21',
-                        'zCompSyncAttr-zAsset= zAsset-zPK-22',
-                        'zCompSyncAttr-zENT-23',
-                        'zCompSyncAttr-zOPT-24',
-                        'zAsset-UUID = store.cloudphotodb-25',
-                        'zAddAssetAttr-Original Stable Hash-26',
-                        'zAddAssetAttr.Adjusted Stable Hash-27',
-                        'zUnmAdj-Other Adjustments Fingerprint-28',
-                        'zUnmAdj-Similar to Orig Adjustments Fingerprint-29',
-                        'zCompSyncAttr-Cloud_Compute_State_Adjustment_Fingerprint-30',
-                        'zExtAttr-Generative_AI_Type-31',
-                        'zExtAttr-Credit-32')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Adjustments_State/Camera-Effects-Filters-1',
+        'zCompSyncAttr-Cloud_Compute_State_Last_Updated_Date-2',
+        'zCompSyncAttr-Local_Analysis_Major_Version-3',
+        'zAddAssetAttr-Editor Bundle ID-4',
+        'zUnmAdj-Editor Localized Name-5',
+        'zUnmAdj-Adjustment Format ID-6',
+        'zUnmAdj-Adjustment Render Types-7',
+        'zUnmAdj-Adjustment Format Version-8',
+        'zAsset-Is_Detected_Screenshot-9',
+        'zAsset-Is_Recently_Saved-10',
+        'zAsset-Directory-Path-11',
+        'zAsset-Filename-12',
+        'zAddAssetAttr- Original Filename-13',
+        'zCldMast- Original Filename-14',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-15',
+        'zCompSyncAttr-Local_Analysis_Stage-16',
+        'zCompSyncAttr-Cloud_Compute_State_Version-17',
+        'zAsset-zPK-18',
+        'zAddAssetAttr-zPK-19',
+        'zAsset-Compute_Sync_Attributes= zCompSyncAttr-zPK-20',
+        'zCompSyncAttr-zPK= zAsset-zCompSyncAttr-21',
+        'zCompSyncAttr-zAsset= zAsset-zPK-22',
+        'zCompSyncAttr-zENT-23',
+        'zCompSyncAttr-zOPT-24',
+        'zAsset-UUID = store.cloudphotodb-25',
+        'zAddAssetAttr-Original Stable Hash-26',
+        'zAddAssetAttr.Adjusted Stable Hash-27',
+        'zUnmAdj-Other Adjustments Fingerprint-28',
+        'zUnmAdj-Similar to Orig Adjustments Fingerprint-29',
+        'zCompSyncAttr-Cloud_Compute_State_Adjustment_Fingerprint-30',
+        'zExtAttr-Generative_AI_Type-31',
+        'zExtAttr-Credit-32')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph008_3HasAdjustmentGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph008_3HasAdjustmentGenPlayPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
-        
+
         if source_path.endswith('.sqlite'):
             break
 
@@ -485,43 +490,43 @@ def Ph008_3HasAdjustmentGenPlayPsql(files_found, report_folder, seeker, wrap_tex
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                            row[28], row[29], row[30], row[31], row[32]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30], row[31], row[32]))
 
         data_headers = (('zUnmAdj-Adjustment Timestamp-0', 'datetime'),
-                        'zAsset-Adjustments_State/Camera-Effects-Filters-1',
-                        'zCompSyncAttr-Cloud_Compute_State_Last_Updated_Date-2',
-                        'zCompSyncAttr-Local_Analysis_Major_Version-3',
-                        'zAddAssetAttr-Editor Bundle ID-4',
-                        'zUnmAdj-Editor Localized Name-5',
-                        'zUnmAdj-Adjustment Format ID-6',
-                        'zUnmAdj-Adjustment Render Types-7',
-                        'zUnmAdj-Adjustment Format Version-8',
-                        'zAsset-Is_Detected_Screenshot-9',
-                        'zAsset-Is_Recently_Saved-10',
-                        'zAsset-Directory-Path-11',
-                        'zAsset-Filename-12',
-                        'zAddAssetAttr- Original Filename-13',
-                        'zCldMast- Original Filename-14',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-15',
-                        'zCompSyncAttr-Local_Analysis_Stage-16',
-                        'zCompSyncAttr-Cloud_Compute_State_Version-17',
-                        'zAsset-zPK-18',
-                        'zAddAssetAttr-zPK-19',
-                        'zAsset-Compute_Sync_Attributes= zCompSyncAttr-zPK-20',
-                        'zCompSyncAttr-zPK= zAsset-zCompSyncAttr-21',
-                        'zCompSyncAttr-zAsset= zAsset-zPK-22',
-                        'zCompSyncAttr-zENT-23',
-                        'zCompSyncAttr-zOPT-24',
-                        'zAsset-UUID = store.cloudphotodb-25',
-                        'zAddAssetAttr-Original Stable Hash-26',
-                        'zAddAssetAttr.Adjusted Stable Hash-27',
-                        'zUnmAdj-Other Adjustments Fingerprint-28',
-                        'zUnmAdj-Similar to Orig Adjustments Fingerprint-29',
-                        'zCompSyncAttr-Cloud_Compute_State_Adjustment_Fingerprint-30',
-                        'zExtAttr-Generative_AI_Type-31',
-                        'zExtAttr-Credit-32')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Adjustments_State/Camera-Effects-Filters-1',
+        'zCompSyncAttr-Cloud_Compute_State_Last_Updated_Date-2',
+        'zCompSyncAttr-Local_Analysis_Major_Version-3',
+        'zAddAssetAttr-Editor Bundle ID-4',
+        'zUnmAdj-Editor Localized Name-5',
+        'zUnmAdj-Adjustment Format ID-6',
+        'zUnmAdj-Adjustment Render Types-7',
+        'zUnmAdj-Adjustment Format Version-8',
+        'zAsset-Is_Detected_Screenshot-9',
+        'zAsset-Is_Recently_Saved-10',
+        'zAsset-Directory-Path-11',
+        'zAsset-Filename-12',
+        'zAddAssetAttr- Original Filename-13',
+        'zCldMast- Original Filename-14',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-15',
+        'zCompSyncAttr-Local_Analysis_Stage-16',
+        'zCompSyncAttr-Cloud_Compute_State_Version-17',
+        'zAsset-zPK-18',
+        'zAddAssetAttr-zPK-19',
+        'zAsset-Compute_Sync_Attributes= zCompSyncAttr-zPK-20',
+        'zCompSyncAttr-zPK= zAsset-zCompSyncAttr-21',
+        'zCompSyncAttr-zAsset= zAsset-zPK-22',
+        'zCompSyncAttr-zENT-23',
+        'zCompSyncAttr-zOPT-24',
+        'zAsset-UUID = store.cloudphotodb-25',
+        'zAddAssetAttr-Original Stable Hash-26',
+        'zAddAssetAttr.Adjusted Stable Hash-27',
+        'zUnmAdj-Other Adjustments Fingerprint-28',
+        'zUnmAdj-Similar to Orig Adjustments Fingerprint-29',
+        'zCompSyncAttr-Cloud_Compute_State_Adjustment_Fingerprint-30',
+        'zExtAttr-Generative_AI_Type-31',
+        'zExtAttr-Credit-32')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

@@ -1,51 +1,53 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph034iCloudSharedLinkRecordswithNADPhDaPsql': {
-        'name': 'Ph034-iCloud Shared Link Records with NAD-PhDaPsql',
-        'description': 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table'
-                       ' and supports iOS. Parses iCloud Shared Link records only no asset data being parsed.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-27',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Shared-iCldLinks-NAD-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "link",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-            'felix_ios17': 'iOS 17.6.1 | 0 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 0 rows',
-            'iphone12_ios18': 'iOS 18.7 | 0 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 0 rows',
-            'abe_ios16': 'iOS 16.5 | 0 rows',
-            'felix23_ios16': 'iOS 16.5 | 0 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-            'hickman_ios14': 'iOS 14.3 | 0 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    }
+'Ph034iCloudSharedLinkRecordswithNADPhDaPsql': {
+'name': 'Ph034-iCloud Shared Link Records with NAD-PhDaPsql',
+'description': 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table'
+' and supports iOS. Parses iCloud Shared Link records only no asset data being parsed.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-27',
+'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-Shared-iCldLinks-NAD-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "link",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+'felix_ios17': 'iOS 17.6.1 | 0 rows',
+'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'iphone12_ios18': 'iOS 18.7 | 0 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 0 rows',
+'abe_ios16': 'iOS 16.5 | 0 rows',
+'felix23_ios16': 'iOS 16.5 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 0 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+}
 }
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -146,47 +148,47 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seek
         WHERE zShare.ZSCOPETYPE = 2
         ORDER BY zShare.ZCREATIONDATE
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                              row[28], row[29], row[30], row[31]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30], row[31]))
 
         data_headers = (('zShare-Creation Date-0', 'datetime'),
-                        ('zShare-Start Date-1', 'datetime'),
-                        ('zShare-End Date-2', 'datetime'),
-                        ('zShare-Expiry Date-3', 'datetime'),
-                        'zShare-UUID-4',
-                        'zShare-Originating Scope ID-5',
-                        'zShare-Status-6',
-                        'zShare-Scope Type-7',
-                        'zShare-Asset Count-CMM-8',
-                        'zShare-Force Sync Attempted-CMM-9',
-                        'zShare-Photos Count-CMM-10',
-                        'zShare-Uploaded Photos Count-CMM-11',
-                        'zShare-Videos Count-CMM-12',
-                        'zShare-Uploaded Videos Count-CMM-13',
-                        'zShare-Scope ID-14',
-                        'zShare-Title-SPL-15',
-                        'zShare-Share URL-16',
-                        'zShare-Local Publish State-17',
-                        'zShare-Public Permission-18',
-                        'zSharePartic-Acceptance Status-19',
-                        'zSharePartic-User ID-20',
-                        'zSharePartic-zPK-21',
-                        'zSharePartic-Email Address-22',
-                        'zSharePartic-Phone Number-23',
-                        'zSharePartic-Is Current User-24',
-                        'zSharePartic-Role-25',
-                        'zSharePartic-Premission-26',
-                        'zShare-Should Notify On Upload Completion-27',
-                        'zShare-Should Ignor Budgets-28',
-                        'zShare-Trashed State-29',
-                        'zShare-Cloud Delete State-30',
-                        'zShare-zENT-31')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zShare-Start Date-1', 'datetime'),
+        ('zShare-End Date-2', 'datetime'),
+        ('zShare-Expiry Date-3', 'datetime'),
+        'zShare-UUID-4',
+        'zShare-Originating Scope ID-5',
+        'zShare-Status-6',
+        'zShare-Scope Type-7',
+        'zShare-Asset Count-CMM-8',
+        'zShare-Force Sync Attempted-CMM-9',
+        'zShare-Photos Count-CMM-10',
+        'zShare-Uploaded Photos Count-CMM-11',
+        'zShare-Videos Count-CMM-12',
+        'zShare-Uploaded Videos Count-CMM-13',
+        'zShare-Scope ID-14',
+        'zShare-Title-SPL-15',
+        'zShare-Share URL-16',
+        'zShare-Local Publish State-17',
+        'zShare-Public Permission-18',
+        'zSharePartic-Acceptance Status-19',
+        'zSharePartic-User ID-20',
+        'zSharePartic-zPK-21',
+        'zSharePartic-Email Address-22',
+        'zSharePartic-Phone Number-23',
+        'zSharePartic-Is Current User-24',
+        'zSharePartic-Role-25',
+        'zSharePartic-Premission-26',
+        'zShare-Should Notify On Upload Completion-27',
+        'zShare-Should Ignor Budgets-28',
+        'zShare-Trashed State-29',
+        'zShare-Cloud Delete State-30',
+        'zShare-zENT-31')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -336,67 +338,67 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seek
         WHERE zShare.ZSCOPETYPE = 2
         ORDER BY zShare.ZCREATIONDATE
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
-                              row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                              row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
-                              row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
-                              row[44], row[45], row[46]))
+            row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
+            row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+            row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
+            row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
+            row[44], row[45], row[46]))
 
         data_headers = (('zShare-Creation Date-0', 'datetime'),
-                        ('zShare-Start Date-1', 'datetime'),
-                        ('zShare-End Date-2', 'datetime'),
-                        ('zShare-Expiry Date-3', 'datetime'),
-                        'zShare-UUID-4',
-                        'zShare-Originating Scope ID-5',
-                        'zSharePartic-z54SHARE-6',
-                        'zShare-Status-7',
-                        'zShare-Scope Type-8',
-                        'zShare-Asset Count-CMM-9',
-                        'zShare-Force Sync Attempted-CMM-10',
-                        'zShare-Photos Count-CMM-11',
-                        'zShare-Uploaded Photos Count-CMM-12',
-                        'zShare-Videos Count-CMM-13',
-                        'zShare-Uploaded Videos Count-CMM-14',
-                        'zShare-Scope ID-15',
-                        'zShare-Title-SPL-16',
-                        'zShare-Share URL-17',
-                        'zShare-Local Publish State-18',
-                        'zShare-Public Permission-19',
-                        'zShare-Cloud Local State-20',
-                        'zShare-Scope Syncing State-21',
-                        'zShare-Auto Share Policy-22',
-                        'zSharePartic-Acceptance Status-23',
-                        'zSharePartic-User ID-24',
-                        'zSharePartic-zPK-25',
-                        'zSharePartic-Email Address-26',
-                        'zSharePartic-Phone Number-27',
-                        'zSharePartic-Participant ID-28',
-                        'zSharePartic-UUID-29',
-                        'zSharePartic-Is Current User-30',
-                        'zSharePartic-Role-31',
-                        'zSharePartic-Premission-32',
-                        'zShare-Participant Cloud Update State-33',
-                        'zSharePartic-Exit State-34',
-                        'zShare-Preview State-35',
-                        'zShare-Should Notify On Upload Completion-36',
-                        'zShare-Should Ignore Budgets-37',
-                        'zShare-Exit Source-38',
-                        'zShare-Exit State-39',
-                        'zShare-Exit Type-40',
-                        'zShare-Trashed State-41',
-                        'zShare-Cloud Delete State-42',
-                        ('zShare-Trashed Date-43', 'datetime'),
-                        ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
-                        ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
-                        'zShare-zENT-46')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zShare-Start Date-1', 'datetime'),
+        ('zShare-End Date-2', 'datetime'),
+        ('zShare-Expiry Date-3', 'datetime'),
+        'zShare-UUID-4',
+        'zShare-Originating Scope ID-5',
+        'zSharePartic-z54SHARE-6',
+        'zShare-Status-7',
+        'zShare-Scope Type-8',
+        'zShare-Asset Count-CMM-9',
+        'zShare-Force Sync Attempted-CMM-10',
+        'zShare-Photos Count-CMM-11',
+        'zShare-Uploaded Photos Count-CMM-12',
+        'zShare-Videos Count-CMM-13',
+        'zShare-Uploaded Videos Count-CMM-14',
+        'zShare-Scope ID-15',
+        'zShare-Title-SPL-16',
+        'zShare-Share URL-17',
+        'zShare-Local Publish State-18',
+        'zShare-Public Permission-19',
+        'zShare-Cloud Local State-20',
+        'zShare-Scope Syncing State-21',
+        'zShare-Auto Share Policy-22',
+        'zSharePartic-Acceptance Status-23',
+        'zSharePartic-User ID-24',
+        'zSharePartic-zPK-25',
+        'zSharePartic-Email Address-26',
+        'zSharePartic-Phone Number-27',
+        'zSharePartic-Participant ID-28',
+        'zSharePartic-UUID-29',
+        'zSharePartic-Is Current User-30',
+        'zSharePartic-Role-31',
+        'zSharePartic-Premission-32',
+        'zShare-Participant Cloud Update State-33',
+        'zSharePartic-Exit State-34',
+        'zShare-Preview State-35',
+        'zShare-Should Notify On Upload Completion-36',
+        'zShare-Should Ignore Budgets-37',
+        'zShare-Exit Source-38',
+        'zShare-Exit State-39',
+        'zShare-Exit Type-40',
+        'zShare-Trashed State-41',
+        'zShare-Cloud Delete State-42',
+        ('zShare-Trashed Date-43', 'datetime'),
+        ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
+        ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
+        'zShare-zENT-46')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
-	
+
     elif (version.parse(iosversion) >= version.parse("17.6")) & (version.parse(iosversion) < version.parse("18")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
@@ -543,64 +545,64 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seek
         WHERE zShare.ZSCOPETYPE = 2
         ORDER BY zShare.ZCREATIONDATE
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
-                              row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                              row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
-                              row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
-                              row[44], row[45], row[46]))
+            row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
+            row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+            row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
+            row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
+            row[44], row[45], row[46]))
 
         data_headers = (('zShare-Creation Date-0', 'datetime'),
-                        ('zShare-Start Date-1', 'datetime'),
-                        ('zShare-End Date-2', 'datetime'),
-                        ('zShare-Expiry Date-3', 'datetime'),
-                        'zShare-UUID-4',
-                        'zShare-Originating Scope ID-5',
-                        'zSharePartic-z55SHARE-6',
-                        'zShare-Status-7',
-                        'zShare-Scope Type-8',
-                        'zShare-Asset Count-CMM-9',
-                        'zShare-Force Sync Attempted-CMM-10',
-                        'zShare-Photos Count-CMM-11',
-                        'zShare-Uploaded Photos Count-CMM-12',
-                        'zShare-Videos Count-CMM-13',
-                        'zShare-Uploaded Videos Count-CMM-14',
-                        'zShare-Scope ID-15',
-                        'zShare-Title-SPL-16',
-                        'zShare-Share URL-17',
-                        'zShare-Local Publish State-18',
-                        'zShare-Public Permission-19',
-                        'zShare-Cloud Local State-20',
-                        'zShare-Scope Syncing State-21',
-                        'zShare-Auto Share Policy-22',
-                        'zSharePartic-Acceptance Status-23',
-                        'zSharePartic-User ID-24',
-                        'zSharePartic-zPK-25',
-                        'zSharePartic-Email Address-26',
-                        'zSharePartic-Phone Number-27',
-                        'zSharePartic-Participant ID-28',
-                        'zSharePartic-UUID-29',
-                        'zSharePartic-Is Current User-30',
-                        'zSharePartic-Role-31',
-                        'zSharePartic-Premission-32',
-                        'zShare-Participant Cloud Update State-33',
-                        'zSharePartic-Exit State-34',
-                        'zShare-Preview State-35',
-                        'zShare-Should Notify On Upload Completion-36',
-                        'zShare-Should Ignore Budgets-37',
-                        'zShare-Exit Source-38',
-                        'zShare-Exit State-39',
-                        'zShare-Exit Type-40',
-                        'zShare-Trashed State-41',
-                        'zShare-Cloud Delete State-42',
-                        ('zShare-Trashed Date-43', 'datetime'),
-                        ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
-                        ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
-                        'zShare-zENT-46')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zShare-Start Date-1', 'datetime'),
+        ('zShare-End Date-2', 'datetime'),
+        ('zShare-Expiry Date-3', 'datetime'),
+        'zShare-UUID-4',
+        'zShare-Originating Scope ID-5',
+        'zSharePartic-z55SHARE-6',
+        'zShare-Status-7',
+        'zShare-Scope Type-8',
+        'zShare-Asset Count-CMM-9',
+        'zShare-Force Sync Attempted-CMM-10',
+        'zShare-Photos Count-CMM-11',
+        'zShare-Uploaded Photos Count-CMM-12',
+        'zShare-Videos Count-CMM-13',
+        'zShare-Uploaded Videos Count-CMM-14',
+        'zShare-Scope ID-15',
+        'zShare-Title-SPL-16',
+        'zShare-Share URL-17',
+        'zShare-Local Publish State-18',
+        'zShare-Public Permission-19',
+        'zShare-Cloud Local State-20',
+        'zShare-Scope Syncing State-21',
+        'zShare-Auto Share Policy-22',
+        'zSharePartic-Acceptance Status-23',
+        'zSharePartic-User ID-24',
+        'zSharePartic-zPK-25',
+        'zSharePartic-Email Address-26',
+        'zSharePartic-Phone Number-27',
+        'zSharePartic-Participant ID-28',
+        'zSharePartic-UUID-29',
+        'zSharePartic-Is Current User-30',
+        'zSharePartic-Role-31',
+        'zSharePartic-Premission-32',
+        'zShare-Participant Cloud Update State-33',
+        'zSharePartic-Exit State-34',
+        'zShare-Preview State-35',
+        'zShare-Should Notify On Upload Completion-36',
+        'zShare-Should Ignore Budgets-37',
+        'zShare-Exit Source-38',
+        'zShare-Exit State-39',
+        'zShare-Exit Type-40',
+        'zShare-Trashed State-41',
+        'zShare-Cloud Delete State-42',
+        ('zShare-Trashed Date-43', 'datetime'),
+        ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
+        ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
+        'zShare-zENT-46')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -750,63 +752,63 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(files_found, report_folder, seek
         WHERE zShare.ZSCOPETYPE = 2
         ORDER BY zShare.ZCREATIONDATE
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                              row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
-                              row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
-                              row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
-                              row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
-                              row[44], row[45], row[46]))
+            row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16],
+            row[17], row[18], row[19], row[20], row[21], row[22], row[23], row[24], row[25],
+            row[26], row[27], row[28], row[29], row[30], row[31], row[32], row[33], row[34],
+            row[35], row[36], row[37], row[38], row[39], row[40], row[41], row[42], row[43],
+            row[44], row[45], row[46]))
 
         data_headers = (('zShare-Creation Date-0', 'datetime'),
-                        ('zShare-Start Date-1', 'datetime'),
-                        ('zShare-End Date-2', 'datetime'),
-                        ('zShare-Expiry Date-3', 'datetime'),
-                        'zShare-UUID-4',
-                        'zShare-Originating Scope ID-5',
-                        'zSharePartic-z61SHARE-6',
-                        'zShare-Status-7',
-                        'zShare-Scope Type-8',
-                        'zShare-Asset Count-CMM-9',
-                        'zShare-Force Sync Attempted-CMM-10',
-                        'zShare-Photos Count-CMM-11',
-                        'zShare-Uploaded Photos Count-CMM-12',
-                        'zShare-Videos Count-CMM-13',
-                        'zShare-Uploaded Videos Count-CMM-14',
-                        'zShare-Scope ID-15',
-                        'zShare-Title-SPL-16',
-                        'zShare-Share URL-17',
-                        'zShare-Local Publish State-18',
-                        'zShare-Public Permission-19',
-                        'zShare-Cloud Local State-20',
-                        'zShare-Scope Syncing State-21',
-                        'zShare-Auto Share Policy-22',
-                        'zSharePartic-Acceptance Status-23',
-                        'zSharePartic-User ID-24',
-                        'zSharePartic-zPK-25',
-                        'zSharePartic-Email Address-26',
-                        'zSharePartic-Phone Number-27',
-                        'zSharePartic-Participant ID-28',
-                        'zSharePartic-UUID-29',
-                        'zSharePartic-Is Current User-30',
-                        'zSharePartic-Role-31',
-                        'zSharePartic-Premission-32',
-                        'zShare-Participant Cloud Update State-33',
-                        'zSharePartic-Exit State-34',
-                        'zShare-Preview State-35',
-                        'zShare-Should Notify On Upload Completion-36',
-                        'zShare-Should Ignore Budgets-37',
-                        'zShare-Exit Source-38',
-                        'zShare-Exit State-39',
-                        'zShare-Exit Type-40',
-                        'zShare-Trashed State-41',
-                        'zShare-Cloud Delete State-42',
-                        ('zShare-Trashed Date-43', 'datetime'),
-                        ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
-                        ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
-                        'zShare-zENT-46')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zShare-Start Date-1', 'datetime'),
+        ('zShare-End Date-2', 'datetime'),
+        ('zShare-Expiry Date-3', 'datetime'),
+        'zShare-UUID-4',
+        'zShare-Originating Scope ID-5',
+        'zSharePartic-z61SHARE-6',
+        'zShare-Status-7',
+        'zShare-Scope Type-8',
+        'zShare-Asset Count-CMM-9',
+        'zShare-Force Sync Attempted-CMM-10',
+        'zShare-Photos Count-CMM-11',
+        'zShare-Uploaded Photos Count-CMM-12',
+        'zShare-Videos Count-CMM-13',
+        'zShare-Uploaded Videos Count-CMM-14',
+        'zShare-Scope ID-15',
+        'zShare-Title-SPL-16',
+        'zShare-Share URL-17',
+        'zShare-Local Publish State-18',
+        'zShare-Public Permission-19',
+        'zShare-Cloud Local State-20',
+        'zShare-Scope Syncing State-21',
+        'zShare-Auto Share Policy-22',
+        'zSharePartic-Acceptance Status-23',
+        'zSharePartic-User ID-24',
+        'zSharePartic-zPK-25',
+        'zSharePartic-Email Address-26',
+        'zSharePartic-Phone Number-27',
+        'zSharePartic-Participant ID-28',
+        'zSharePartic-UUID-29',
+        'zSharePartic-Is Current User-30',
+        'zSharePartic-Role-31',
+        'zSharePartic-Premission-32',
+        'zShare-Participant Cloud Update State-33',
+        'zSharePartic-Exit State-34',
+        'zShare-Preview State-35',
+        'zShare-Should Notify On Upload Completion-36',
+        'zShare-Should Ignore Budgets-37',
+        'zShare-Exit Source-38',
+        'zShare-Exit State-39',
+        'zShare-Exit Type-40',
+        'zShare-Trashed State-41',
+        'zShare-Cloud Delete State-42',
+        ('zShare-Trashed Date-43', 'datetime'),
+        ('zShare-LastParticipant Asset Trash Notification Date-44', 'datetime'),
+        ('zShare-Last Participant Asset Trash Notification View Date-45', 'datetime'),
+        'zShare-zENT-46')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

@@ -1,102 +1,104 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph003_1TrashedRecentlyDeletedPhDaPsql': {
-        'name': 'Ph003.1-Trashed Recently Deleted-PhDaPsql',
-        'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for trashed-recently deleted'
-                       ' assets and supports various iOS versions. The results for this script will contain one row'
-                       ' per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-Trashed-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "trash-2",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 3 rows',
-            'felix_ios17': 'iOS 17.6.1 | 0 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 0 rows',
-            'iphone12_ios18': 'iOS 18.7 | 5 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 2 rows',
-            'abe_ios16': 'iOS 16.5 | 538 rows',
-            'felix23_ios16': 'iOS 16.5 | 0 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 5 rows',
-            'hickman_ios14': 'iOS 14.3 | 3 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    },
-    'Ph003_2RemovedfromCameraRollSyndPL': {
-        'name': 'Ph003.2-Removed from Camera Roll-SyndPL',
-        'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite'
-                       ' for syndication PL asserts remvoed from camera roll and supports supports various iOS versions.'
-                       ' These assets may have been displayed in the camera roll, then deleted from'
-                       ' the camera roll view. The results for this script will contain one row per asset.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-Trashed-SyndicationPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "delete",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-            'felix_ios17': 'iOS 17.6.1 | 0 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 0 rows',
-            'iphone12_ios18': 'iOS 18.7 | 0 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 0 rows',
-            'abe_ios16': 'iOS 16.5 | 0 rows',
-            'felix23_ios16': 'iOS 16.5 | 0 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    },
-    'Ph003_3TrashedRecentlyDeletedGenPlayPsql': {
-        'name': 'Ph003.3-Trashed Recently Deleted-GenPlayPsql',
-        'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for trashed-recently deleted'
-                       ' assets and supports various iOS versions. The results for this script will contain one row'
-                       ' per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '2.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-Trashed-GenPlaygrndPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "trash-2",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-        }
-	}
+'Ph003_1TrashedRecentlyDeletedPhDaPsql': {
+'name': 'Ph003.1-Trashed Recently Deleted-PhDaPsql',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for trashed-recently deleted'
+' assets and supports various iOS versions. The results for this script will contain one row'
+' per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-Assets-Trashed-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "trash-2",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'dexter_ios18': 'iOS 18.3.2 | 3 rows',
+'felix_ios17': 'iOS 17.6.1 | 0 rows',
+'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'iphone12_ios18': 'iOS 18.7 | 5 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 2 rows',
+'abe_ios16': 'iOS 16.5 | 538 rows',
+'felix23_ios16': 'iOS 16.5 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | 5 rows',
+'hickman_ios14': 'iOS 14.3 | 3 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+},
+'Ph003_2RemovedfromCameraRollSyndPL': {
+'name': 'Ph003.2-Removed from Camera Roll-SyndPL',
+'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite'
+' for syndication PL asserts remvoed from camera roll and supports supports various iOS versions.'
+' These assets may have been displayed in the camera roll, then deleted from'
+' the camera roll view. The results for this script will contain one row per asset.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
+'category': 'Photos.sqlite-Assets-Trashed-SyndicationPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "delete",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+'felix_ios17': 'iOS 17.6.1 | 0 rows',
+'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'iphone12_ios18': 'iOS 18.7 | 0 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 0 rows',
+'abe_ios16': 'iOS 16.5 | 0 rows',
+'felix23_ios16': 'iOS 16.5 | 0 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+},
+'Ph003_3TrashedRecentlyDeletedGenPlayPsql': {
+'name': 'Ph003.3-Trashed Recently Deleted-GenPlayPsql',
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for trashed-recently deleted'
+' assets and supports various iOS versions. The results for this script will contain one row'
+' per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '2.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
+'category': 'Photos.sqlite-Assets-Trashed-GenPlaygrndPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "trash-2",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+}
+}
 }
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph003_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
-        
+
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -137,20 +139,20 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wr
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10]))
+            row[10]))
 
         data_headers = (('zAsset-Trashed Date-0', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
-                        'zAsset-Directory-Path-2',
-                        'zAsset-Filename-3',
-                        'zAddAssetAttr- Original Filename-4',
-                        'zCldMast- Original Filename-5',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
-                        'zAsset-zPK-7',
-                        'zAddAssetAttr-zPK-8',
-                        'zAsset-UUID = store.cloudphotodb-9',
-                        'zAddAssetAttr-Master Fingerprint-10')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
+        'zAsset-Directory-Path-2',
+        'zAsset-Filename-3',
+        'zAddAssetAttr- Original Filename-4',
+        'zCldMast- Original Filename-5',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zAsset-zPK-7',
+        'zAddAssetAttr-zPK-8',
+        'zAsset-UUID = store.cloudphotodb-9',
+        'zAddAssetAttr-Master Fingerprint-10')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -188,20 +190,20 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wr
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10]))
+            row[10]))
 
         data_headers = (('zAsset-Trashed Date-0', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
-                        'zAsset-Directory-Path-2',
-                        'zAsset-Filename-3',
-                        'zAddAssetAttr- Original Filename-4',
-                        'zCldMast- Original Filename-5',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
-                        'zAsset-zPK-7',
-                        'zAddAssetAttr-zPK-8',
-                        'zAsset-UUID = store.cloudphotodb-9',
-                        'zAddAssetAttr-Master Fingerprint-10')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
+        'zAsset-Directory-Path-2',
+        'zAsset-Filename-3',
+        'zAddAssetAttr- Original Filename-4',
+        'zCldMast- Original Filename-5',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zAsset-zPK-7',
+        'zAddAssetAttr-zPK-8',
+        'zAsset-UUID = store.cloudphotodb-9',
+        'zAddAssetAttr-Master Fingerprint-10')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -250,22 +252,22 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wr
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], row[12]))
+            row[10], row[11], row[12]))
 
         data_headers = (('zAsset-Trashed Date-0', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
-                        'zAsset-Directory-Path-2',
-                        'zAsset-Filename-3',
-                        'zAddAssetAttr- Original Filename-4',
-                        'zCldMast- Original Filename-5',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
-                        'zAsset-Syndication State-8',
-                        'zAsset-zPK-9',
-                        'zAddAssetAttr-zPK-10',
-                        'zAsset-UUID = store.cloudphotodb-11',
-                        'zAddAssetAttr-Master Fingerprint-12')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
+        'zAsset-Directory-Path-2',
+        'zAsset-Filename-3',
+        'zAddAssetAttr- Original Filename-4',
+        'zCldMast- Original Filename-5',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+        'zAsset-Syndication State-8',
+        'zAsset-zPK-9',
+        'zAddAssetAttr-zPK-10',
+        'zAsset-UUID = store.cloudphotodb-11',
+        'zAddAssetAttr-Master Fingerprint-12')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -321,26 +323,26 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wr
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16]))
 
         data_headers = (('zAsset-Trashed Date-0', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
-                        'zAsset-Trashed by Participant= zShareParticipant_zPK-2',
-                        'SPLzSharePartic-zPK= TrashedByParticipant-3',
-                        'SPLzSharePartic-Email Address-4',
-                        'SPLzSharePartic-Phone Number-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAsset-Syndication State-12',
-                        'zAsset-zPK-13',
-                        'zAddAssetAttr-zPK-14',
-                        'zAsset-UUID = store.cloudphotodb-15',
-                        'zAddAssetAttr-Master Fingerprint-16')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-2',
+        'SPLzSharePartic-zPK= TrashedByParticipant-3',
+        'SPLzSharePartic-Email Address-4',
+        'SPLzSharePartic-Phone Number-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAsset-Syndication State-12',
+        'zAsset-zPK-13',
+        'zAddAssetAttr-zPK-14',
+        'zAsset-UUID = store.cloudphotodb-15',
+        'zAddAssetAttr-Master Fingerprint-16')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -397,32 +399,35 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(files_found, report_folder, seeker, wr
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
 
         data_headers = (('zAsset-Trashed Date-0', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
-                        'zAsset-Trashed by Participant= zShareParticipant_zPK-2',
-                        'SPLzSharePartic-zPK= TrashedByParticipant-3',
-                        'SPLzSharePartic-Email Address-4',
-                        'SPLzSharePartic-Phone Number-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAsset-Syndication State-12',
-                        'zAsset-zPK-13',
-                        'zAddAssetAttr-zPK-14',
-                        'zAsset-UUID = store.cloudphotodb-15',
-                        'zAddAssetAttr-Original Stable Hash-16',
-                        'zAddAssetAttr.Adjusted Stable Hash-17')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-2',
+        'SPLzSharePartic-zPK= TrashedByParticipant-3',
+        'SPLzSharePartic-Email Address-4',
+        'SPLzSharePartic-Phone Number-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAsset-Syndication State-12',
+        'zAsset-zPK-13',
+        'zAddAssetAttr-zPK-14',
+        'zAsset-UUID = store.cloudphotodb-15',
+        'zAddAssetAttr-Original Stable Hash-16',
+        'zAddAssetAttr.Adjusted Stable Hash-17')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph003_2RemovedfromCameraRollSyndPL(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph003_2RemovedfromCameraRollSyndPL(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
@@ -482,23 +487,23 @@ def Ph003_2RemovedfromCameraRollSyndPL(files_found, report_folder, seeker, wrap_
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                      row[10], row[11], row[12], row[13]))
+            row[10], row[11], row[12], row[13]))
 
         data_headers = (('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-0', 'datetime'),
-                        'zAsset-Syndication State-1',
-                        'zAsset-Directory-Path-2',
-                        'zAsset-Filename-3',
-                        'zAddAssetAttr- Original Filename-4',
-                        'zCldMast- Original Filename-5',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
-                        ('zAsset-Trashed Date-8', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-9',
-                        'zAsset-zPK-10',
-                        'zAddAssetAttr-zPK-11',
-                        'zAsset-UUID = store.cloudphotodb-12',
-                        'zAddAssetAttr-Master Fingerprint-13')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Syndication State-1',
+        'zAsset-Directory-Path-2',
+        'zAsset-Filename-3',
+        'zAddAssetAttr- Original Filename-4',
+        'zCldMast- Original Filename-5',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+        ('zAsset-Trashed Date-8', 'datetime'),
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-9',
+        'zAsset-zPK-10',
+        'zAddAssetAttr-zPK-11',
+        'zAsset-UUID = store.cloudphotodb-12',
+        'zAddAssetAttr-Master Fingerprint-13')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -556,27 +561,27 @@ def Ph003_2RemovedfromCameraRollSyndPL(files_found, report_folder, seeker, wrap_
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                      row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
 
         data_headers = (('zAddAssetAttr-Last Upload Attempt Date-SWY_Files-0', 'datetime'),
-                        'zAsset-Syndication State-1',
-                        'zAsset-Directory-Path-2',
-                        'zAsset-Filename-3',
-                        'zAddAssetAttr- Original Filename-4',
-                        'zCldMast- Original Filename-5',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
-                        ('zAsset-Trashed Date-8', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-9',
-                        'zAsset-Trashed by Participant= zShareParticipant_zPK-10',
-                        'SPLzSharePartic-zPK= TrashedByParticipant-11',
-                        'SPLzSharePartic-Email Address-12',
-                        'SPLzSharePartic-Phone Number-13',
-                        'zAsset-zPK-14',
-                        'zAddAssetAttr-zPK-15',
-                        'zAsset-UUID = store.cloudphotodb-16',
-                        'zAddAssetAttr-Master Fingerprint-17')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Syndication State-1',
+        'zAsset-Directory-Path-2',
+        'zAsset-Filename-3',
+        'zAddAssetAttr- Original Filename-4',
+        'zCldMast- Original Filename-5',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-6',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+        ('zAsset-Trashed Date-8', 'datetime'),
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-9',
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-10',
+        'SPLzSharePartic-zPK= TrashedByParticipant-11',
+        'SPLzSharePartic-Email Address-12',
+        'SPLzSharePartic-Phone Number-13',
+        'zAsset-zPK-14',
+        'zAddAssetAttr-zPK-15',
+        'zAsset-UUID = store.cloudphotodb-16',
+        'zAddAssetAttr-Master Fingerprint-17')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -633,38 +638,41 @@ def Ph003_2RemovedfromCameraRollSyndPL(files_found, report_folder, seeker, wrap_
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                      row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
 
         data_headers = (('zAsset-Trashed Date-0', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
-                        'zAsset-Trashed by Participant= zShareParticipant_zPK-2',
-                        'SPLzSharePartic-zPK= TrashedByParticipant-3',
-                        'SPLzSharePartic-Email Address-4',
-                        'SPLzSharePartic-Phone Number-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAsset-Syndication State-12',
-                        'zAsset-zPK-13',
-                        'zAddAssetAttr-zPK-14',
-                        'zAsset-UUID = store.cloudphotodb-15',
-                        'zAddAssetAttr-Original Stable Hash-16',
-                        'zAddAssetAttr.Adjusted Stable Hash-17')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-2',
+        'SPLzSharePartic-zPK= TrashedByParticipant-3',
+        'SPLzSharePartic-Email Address-4',
+        'SPLzSharePartic-Phone Number-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAsset-Syndication State-12',
+        'zAsset-zPK-13',
+        'zAddAssetAttr-zPK-14',
+        'zAsset-UUID = store.cloudphotodb-15',
+        'zAddAssetAttr-Original Stable Hash-16',
+        'zAddAssetAttr.Adjusted Stable Hash-17')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph003_3TrashedRecentlyDeletedGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph003_3TrashedRecentlyDeletedGenPlayPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
-        
+
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -724,26 +732,26 @@ def Ph003_3TrashedRecentlyDeletedGenPlayPsql(files_found, report_folder, seeker,
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]))
 
         data_headers = (('zAsset-Trashed Date-0', 'datetime'),
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
-                        'zAsset-Trashed by Participant= zShareParticipant_zPK-2',
-                        'SPLzSharePartic-zPK= TrashedByParticipant-3',
-                        'SPLzSharePartic-Email Address-4',
-                        'SPLzSharePartic-Phone Number-5',
-                        'zAsset-Directory-Path-6',
-                        'zAsset-Filename-7',
-                        'zAddAssetAttr- Original Filename-8',
-                        'zCldMast- Original Filename-9',
-                        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
-                        'zAsset-Syndication State-12',
-                        'zAsset-zPK-13',
-                        'zAddAssetAttr-zPK-14',
-                        'zAsset-UUID = store.cloudphotodb-15',
-                        'zAddAssetAttr-Original Stable Hash-16',
-                        'zAddAssetAttr.Adjusted Stable Hash-17')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-1',
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-2',
+        'SPLzSharePartic-zPK= TrashedByParticipant-3',
+        'SPLzSharePartic-Email Address-4',
+        'SPLzSharePartic-Phone Number-5',
+        'zAsset-Directory-Path-6',
+        'zAsset-Filename-7',
+        'zAddAssetAttr- Original Filename-8',
+        'zCldMast- Original Filename-9',
+        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
+        'zAsset-Syndication State-12',
+        'zAsset-zPK-13',
+        'zAddAssetAttr-zPK-14',
+        'zAsset-UUID = store.cloudphotodb-15',
+        'zAddAssetAttr-Original Stable Hash-16',
+        'zAddAssetAttr.Adjusted Stable Hash-17')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

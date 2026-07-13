@@ -1,54 +1,56 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph032iCloudSPLAssetswithContributorPhDaPsql': {
-        'name': 'Ph032-iCloud SPL Assets with Contributor-PhDaPsql',
-        'description': 'Parses Assets in iCloud Shared Photo Library with contributor information from'
-                       ' PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
-                       ' Parses basic asset data and iCloud SPL and contributor information.'
-                       ' If you are attempting to match SPL count with results please check'
-                       ' hidden, trashed, and burst assets.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '5.0',
-        'date': '2026-05-27',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-Assets-iCloudSPL-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "upload-cloud",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 864 rows',
-            'felix_ios17': 'iOS 17.6.1 | 0 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 0 rows',
-            'iphone12_ios18': 'iOS 18.7 | 0 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 0 rows',
-            'abe_ios16': 'iOS 16.5 | 0 rows',
-            'felix23_ios16': 'iOS 16.5 | 0 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-            'hickman_ios14': 'iOS 14.3 | 0 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    }
+'Ph032iCloudSPLAssetswithContributorPhDaPsql': {
+'name': 'Ph032-iCloud SPL Assets with Contributor-PhDaPsql',
+'description': 'Parses Assets in iCloud Shared Photo Library with contributor information from'
+' PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
+' Parses basic asset data and iCloud SPL and contributor information.'
+' If you are attempting to match SPL count with results please check'
+' hidden, trashed, and burst assets.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '5.0',
+'date': '2026-05-27',
+'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-Assets-iCloudSPL-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "upload-cloud",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'dexter_ios18': 'iOS 18.3.2 | 864 rows',
+'felix_ios17': 'iOS 17.6.1 | 0 rows',
+'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'iphone12_ios18': 'iOS 18.7 | 0 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 0 rows',
+'abe_ios16': 'iOS 16.5 | 0 rows',
+'felix23_ios16': 'iOS 16.5 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 0 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+}
 }
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph032iCloudSPLAssetswithContributorPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph032iCloudSPLAssetswithContributorPhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('-') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -228,68 +230,68 @@ def Ph032iCloudSPLAssetswithContributorPhDaPsql(files_found, report_folder, seek
         WHERE zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE = 1
         ORDER BY zAsset.ZDATECREATED     
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                              row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                              row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                              row[46], row[47], row[48], row[49], row[50]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+            row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+            row[46], row[47], row[48], row[49], row[50]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Active Library Scope Participation State-1',
-                        'zAsset-zPK-2',
-                        'zAsset-Directory-Path-3',
-                        'zAsset-Filename-4',
-                        'zAddAssetAttr- Original Filename-5',
-                        'zCldMast- Original Filename-6',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
-                        'zAsset-Syndication State-8',
-                        'zAsset-Bundle Scope-9',
-                        'zAddAssetAttr-Imported by-10',
-                        'zExtAttr-Camera Make-11',
-                        'zExtAttr-Camera Model-12',
-                        'zAddAssetAttr.Imported by Bundle Identifier-13',
-                        'zAddAssetAttr-Imported By Display Name-14',
-                        'zAsset-Visibility State-15',
-                        'zAsset-Saved Asset Type-16',
-                        'zAddAssetAttr-Share Type-17',
-                        ('zAsset- SortToken -CameraRoll-18', 'datetime'),
-                        ('zAsset-Added Date-19', 'datetime'),
-                        ('zCldMast-Creation Date-20', 'datetime'),
-                        'zAddAssetAttr-Time Zone Name-21',
-                        'zAddAssetAttr-EXIF-String-22',
-                        ('zAsset-Modification Date-23', 'datetime'),
-                        ('zAsset-Last Shared Date-24', 'datetime'),
-                        'zAsset-Hidden-25',
-                        'zAsset-Avalanche_Pick_Type-BurstAsset-26',
-                        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-27',
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-28',
-                        ('zAsset-Trashed Date-29', 'datetime'),
-                        'zAsset-Trashed by Participant= zShareParticipant_zPK-30',
-                        'zAddAssetAttr-zPK-31',
-                        'zAsset-UUID = store.cloudphotodb-32',
-                        'zAddAssetAttr-Master Fingerprint-33',
-                        'zAddAssetAttr.Adjusted Fingerprint-34',
-                        'SPLzSharePartic-Is Current User-35',
-                        'SPLzSharePartic-Role-36',
-                        'zAsstContrib-Participant= zSharePartic-zPK-37',
-                        'SPLzSharePartic-Email Address-38',
-                        'SPLzSharePartic-Phone Number-39',
-                        'SPLzShare-Title-SPL-40',
-                        'SPLzShare-Share URL-SPL-41',
-                        'SPLzShare-Scope ID-SPL-42',
-                        ('SPLzShare-Creation Date-SPL-43', 'datetime'),
-                        ('SPLzShare-Expiry Date-SPL-44', 'datetime'),
-                        'SPLzShare-Cloud Photo Count-SPL-45',
-                        'SPLzShare-Assets AddedByCamera SmartSharing-46',
-                        'SPLzShare-Cloud Video Count-SPL-47',
-                        'SPLzSharePartic-z54SHARE-48',
-                        'SPLzShare-Status-49',
-                        'SPLzShare-Scope Type-50')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Active Library Scope Participation State-1',
+        'zAsset-zPK-2',
+        'zAsset-Directory-Path-3',
+        'zAsset-Filename-4',
+        'zAddAssetAttr- Original Filename-5',
+        'zCldMast- Original Filename-6',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+        'zAsset-Syndication State-8',
+        'zAsset-Bundle Scope-9',
+        'zAddAssetAttr-Imported by-10',
+        'zExtAttr-Camera Make-11',
+        'zExtAttr-Camera Model-12',
+        'zAddAssetAttr.Imported by Bundle Identifier-13',
+        'zAddAssetAttr-Imported By Display Name-14',
+        'zAsset-Visibility State-15',
+        'zAsset-Saved Asset Type-16',
+        'zAddAssetAttr-Share Type-17',
+        ('zAsset- SortToken -CameraRoll-18', 'datetime'),
+        ('zAsset-Added Date-19', 'datetime'),
+        ('zCldMast-Creation Date-20', 'datetime'),
+        'zAddAssetAttr-Time Zone Name-21',
+        'zAddAssetAttr-EXIF-String-22',
+        ('zAsset-Modification Date-23', 'datetime'),
+        ('zAsset-Last Shared Date-24', 'datetime'),
+        'zAsset-Hidden-25',
+        'zAsset-Avalanche_Pick_Type-BurstAsset-26',
+        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-27',
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-28',
+        ('zAsset-Trashed Date-29', 'datetime'),
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-30',
+        'zAddAssetAttr-zPK-31',
+        'zAsset-UUID = store.cloudphotodb-32',
+        'zAddAssetAttr-Master Fingerprint-33',
+        'zAddAssetAttr.Adjusted Fingerprint-34',
+        'SPLzSharePartic-Is Current User-35',
+        'SPLzSharePartic-Role-36',
+        'zAsstContrib-Participant= zSharePartic-zPK-37',
+        'SPLzSharePartic-Email Address-38',
+        'SPLzSharePartic-Phone Number-39',
+        'SPLzShare-Title-SPL-40',
+        'SPLzShare-Share URL-SPL-41',
+        'SPLzShare-Scope ID-SPL-42',
+        ('SPLzShare-Creation Date-SPL-43', 'datetime'),
+        ('SPLzShare-Expiry Date-SPL-44', 'datetime'),
+        'SPLzShare-Cloud Photo Count-SPL-45',
+        'SPLzShare-Assets AddedByCamera SmartSharing-46',
+        'SPLzShare-Cloud Video Count-SPL-47',
+        'SPLzSharePartic-z54SHARE-48',
+        'SPLzShare-Status-49',
+        'SPLzShare-Scope Type-50')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -466,68 +468,68 @@ def Ph032iCloudSPLAssetswithContributorPhDaPsql(files_found, report_folder, seek
         WHERE zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE = 1
         ORDER BY zAsset.ZDATECREATED     
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                              row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                              row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                              row[46], row[47], row[48], row[49], row[50]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+            row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+            row[46], row[47], row[48], row[49], row[50]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Active Library Scope Participation State-1',
-                        'zAsset-zPK-2',
-                        'zAsset-Directory-Path-3',
-                        'zAsset-Filename-4',
-                        'zAddAssetAttr- Original Filename-5',
-                        'zCldMast- Original Filename-6',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
-                        'zAsset-Syndication State-8',
-                        'zAsset-Bundle Scope-9',
-                        'zAddAssetAttr-Imported by-10',
-                        'zExtAttr-Camera Make-11',
-                        'zExtAttr-Camera Model-12',
-                        'zAddAssetAttr.Imported by Bundle Identifier-13',
-                        'zAddAssetAttr-Imported By Display Name-14',
-                        'zAsset-Visibility State-15',
-                        'zAsset-Saved Asset Type-16',
-                        'zAddAssetAttr-Share Type-17',
-                        ('zAsset- SortToken -CameraRoll-18', 'datetime'),
-                        ('zAsset-Added Date-19', 'datetime'),
-                        ('zCldMast-Creation Date-20', 'datetime'),
-                        'zAddAssetAttr-Time Zone Name-21',
-                        'zAddAssetAttr-EXIF-String-22',
-                        ('zAsset-Modification Date-23', 'datetime'),
-                        ('zAsset-Last Shared Date-24', 'datetime'),
-                        'zAsset-Hidden-25',
-                        'zAsset-Avalanche_Pick_Type-BurstAsset-26',
-                        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-27',
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-28',
-                        ('zAsset-Trashed Date-29', 'datetime'),
-                        'zAsset-Trashed by Participant= zShareParticipant_zPK-30',
-                        'zAddAssetAttr-zPK-31',
-                        'zAsset-UUID = store.cloudphotodb-32',
-                        'zAddAssetAttr-Master Fingerprint-33',
-                        'zAddAssetAttr.Adjusted Fingerprint-34',
-                        'SPLzSharePartic-Is Current User-35',
-                        'SPLzSharePartic-Role-36',
-                        'zAsstContrib-Participant= zSharePartic-zPK-37',
-                        'SPLzSharePartic-Email Address-38',
-                        'SPLzSharePartic-Phone Number-39',
-                        'SPLzShare-Title-SPL-40',
-                        'SPLzShare-Share URL-SPL-41',
-                        'SPLzShare-Scope ID-SPL-42',
-                        ('SPLzShare-Creation Date-SPL-43', 'datetime'),
-                        ('SPLzShare-Expiry Date-SPL-44', 'datetime'),
-                        'SPLzShare-Cloud Photo Count-SPL-45',
-                        'SPLzShare-Assets AddedByCamera SmartSharing-46',
-                        'SPLzShare-Cloud Video Count-SPL-47',
-                        'SPLzSharePartic-z55SHARE-48',
-                        'SPLzShare-Status-49',
-                        'SPLzShare-Scope Type-50')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Active Library Scope Participation State-1',
+        'zAsset-zPK-2',
+        'zAsset-Directory-Path-3',
+        'zAsset-Filename-4',
+        'zAddAssetAttr- Original Filename-5',
+        'zCldMast- Original Filename-6',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+        'zAsset-Syndication State-8',
+        'zAsset-Bundle Scope-9',
+        'zAddAssetAttr-Imported by-10',
+        'zExtAttr-Camera Make-11',
+        'zExtAttr-Camera Model-12',
+        'zAddAssetAttr.Imported by Bundle Identifier-13',
+        'zAddAssetAttr-Imported By Display Name-14',
+        'zAsset-Visibility State-15',
+        'zAsset-Saved Asset Type-16',
+        'zAddAssetAttr-Share Type-17',
+        ('zAsset- SortToken -CameraRoll-18', 'datetime'),
+        ('zAsset-Added Date-19', 'datetime'),
+        ('zCldMast-Creation Date-20', 'datetime'),
+        'zAddAssetAttr-Time Zone Name-21',
+        'zAddAssetAttr-EXIF-String-22',
+        ('zAsset-Modification Date-23', 'datetime'),
+        ('zAsset-Last Shared Date-24', 'datetime'),
+        'zAsset-Hidden-25',
+        'zAsset-Avalanche_Pick_Type-BurstAsset-26',
+        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-27',
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-28',
+        ('zAsset-Trashed Date-29', 'datetime'),
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-30',
+        'zAddAssetAttr-zPK-31',
+        'zAsset-UUID = store.cloudphotodb-32',
+        'zAddAssetAttr-Master Fingerprint-33',
+        'zAddAssetAttr.Adjusted Fingerprint-34',
+        'SPLzSharePartic-Is Current User-35',
+        'SPLzSharePartic-Role-36',
+        'zAsstContrib-Participant= zSharePartic-zPK-37',
+        'SPLzSharePartic-Email Address-38',
+        'SPLzSharePartic-Phone Number-39',
+        'SPLzShare-Title-SPL-40',
+        'SPLzShare-Share URL-SPL-41',
+        'SPLzShare-Scope ID-SPL-42',
+        ('SPLzShare-Creation Date-SPL-43', 'datetime'),
+        ('SPLzShare-Expiry Date-SPL-44', 'datetime'),
+        'SPLzShare-Cloud Photo Count-SPL-45',
+        'SPLzShare-Assets AddedByCamera SmartSharing-46',
+        'SPLzShare-Cloud Video Count-SPL-47',
+        'SPLzSharePartic-z55SHARE-48',
+        'SPLzShare-Status-49',
+        'SPLzShare-Scope Type-50')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -714,70 +716,70 @@ def Ph032iCloudSPLAssetswithContributorPhDaPsql(files_found, report_folder, seek
         WHERE zAsset.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE = 1
         ORDER BY zAsset.ZDATECREATED     
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                              row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
-                              row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
-                              row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30], row[31], row[32], row[33], row[34], row[35], row[36],
+            row[37], row[38], row[39], row[40], row[41], row[42], row[43], row[44], row[45],
+            row[46], row[47], row[48], row[49], row[50], row[51], row[52], row[53]))
 
         data_headers = (('zAsset-Date Created-0', 'datetime'),
-                        'zAsset-Active Library Scope Participation State-1',
-                        'zAsset-zPK-2',
-                        'zAsset-Directory-Path-3',
-                        'zAsset-Filename-4',
-                        'zAddAssetAttr- Original Filename-5',
-                        'zCldMast- Original Filename-6',
-                        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
-                        'zAsset-Syndication State-8',
-                        'zAsset-Bundle Scope-9',
-                        'zAddAssetAttr-Imported by-10',
-                        'zExtAttr-Camera Make-11',
-                        'zExtAttr-Camera Model-12',
-                        'zAddAssetAttr- Imported by Bundle Identifier-13',
-                        'zAddAssetAttr- Imported By Display Name-14',
-                        'zAsset-Visibility State-15',
-                        'zAsset-Is_Recently_Saved-16',
-                        'zAsset-Saved Asset Type-17',
-                        'zAddAssetAttr-Share Type-18',
-                        ('zAsset- SortToken -CameraRoll-19', 'datetime'),
-                        ('zAsset-Added Date-20', 'datetime'),
-                        ('zCldMast-Creation Date-21', 'datetime'),
-                        'zAddAssetAttr-Time Zone Name-22',
-                        'zAddAssetAttr-EXIF-String-23',
-                        ('zAsset-Modification Date-24', 'datetime'),
-                        ('zAsset-Last Shared Date-25', 'datetime'),
-                        'zAsset-Is_Detected_Screenshot-26',
-                        'zAsset-Hidden-27',
-                        'zAsset-Adjustments_State-Camera-Effects-Filters-28',
-                        'zAsset-Avalanche_Kind-29',
-                        'zAsset-Avalanche_Pick_Type-BurstAsset-30',
-                        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-31',
-                        'zAsset-Trashed State-LocalAssetRecentlyDeleted-32',
-                        ('zAsset-Trashed Date-33', 'datetime'),
-                        'zAsset-Trashed by Participant= zShareParticipant_zPK-34',
-                        'zAddAssetAttr-zPK-35',
-                        'zAsset-UUID = store.cloudphotodb-36',
-                        'zAddAssetAttr-Original Stable Hash-37',
-                        'zAddAssetAttr.Adjusted Stable Hash-38',
-                        'SPLzSharePartic-Is Current User-39',
-                        'SPLzSharePartic-Role-40',
-                        'zAsstContrib-Participant= zSharePartic-zPK-41',
-                        'SPLzSharePartic-Email Address-42',
-                        'SPLzSharePartic-Phone Number-43',
-                        'SPLzShare-Title-SPL-44',
-                        'SPLzShare-Share URL-SPL-45',
-                        'SPLzShare-Scope ID-SPL-46',
-                        ('SPLzShare-Creation Date-SPL-47', 'datetime'),
-                        ('SPLzShare-Expiry Date-SPL-48', 'datetime'),
-                        'SPLzShare-Cloud Photo Count-SPL-49',
-                        'SPLzShare-Assets AddedByCamera SmartSharing-50',
-                        'SPLzShare-Cloud Video Count-SPL-51',
-                        'zExtAttr-Generative_AI_Type-52',
-                        'zExtAttr-Credit-53')
-        # data_list = get_sqlite_db_records(source_path, query)
+        'zAsset-Active Library Scope Participation State-1',
+        'zAsset-zPK-2',
+        'zAsset-Directory-Path-3',
+        'zAsset-Filename-4',
+        'zAddAssetAttr- Original Filename-5',
+        'zCldMast- Original Filename-6',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-7',
+        'zAsset-Syndication State-8',
+        'zAsset-Bundle Scope-9',
+        'zAddAssetAttr-Imported by-10',
+        'zExtAttr-Camera Make-11',
+        'zExtAttr-Camera Model-12',
+        'zAddAssetAttr- Imported by Bundle Identifier-13',
+        'zAddAssetAttr- Imported By Display Name-14',
+        'zAsset-Visibility State-15',
+        'zAsset-Is_Recently_Saved-16',
+        'zAsset-Saved Asset Type-17',
+        'zAddAssetAttr-Share Type-18',
+        ('zAsset- SortToken -CameraRoll-19', 'datetime'),
+        ('zAsset-Added Date-20', 'datetime'),
+        ('zCldMast-Creation Date-21', 'datetime'),
+        'zAddAssetAttr-Time Zone Name-22',
+        'zAddAssetAttr-EXIF-String-23',
+        ('zAsset-Modification Date-24', 'datetime'),
+        ('zAsset-Last Shared Date-25', 'datetime'),
+        'zAsset-Is_Detected_Screenshot-26',
+        'zAsset-Hidden-27',
+        'zAsset-Adjustments_State-Camera-Effects-Filters-28',
+        'zAsset-Avalanche_Kind-29',
+        'zAsset-Avalanche_Pick_Type-BurstAsset-30',
+        'zAddAssetAttr-Cloud_Avalanche_Pick_Type-BurstAsset-31',
+        'zAsset-Trashed State-LocalAssetRecentlyDeleted-32',
+        ('zAsset-Trashed Date-33', 'datetime'),
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-34',
+        'zAddAssetAttr-zPK-35',
+        'zAsset-UUID = store.cloudphotodb-36',
+        'zAddAssetAttr-Original Stable Hash-37',
+        'zAddAssetAttr.Adjusted Stable Hash-38',
+        'SPLzSharePartic-Is Current User-39',
+        'SPLzSharePartic-Role-40',
+        'zAsstContrib-Participant= zSharePartic-zPK-41',
+        'SPLzSharePartic-Email Address-42',
+        'SPLzSharePartic-Phone Number-43',
+        'SPLzShare-Title-SPL-44',
+        'SPLzShare-Share URL-SPL-45',
+        'SPLzShare-Scope ID-SPL-46',
+        ('SPLzShare-Creation Date-SPL-47', 'datetime'),
+        ('SPLzShare-Expiry Date-SPL-48', 'datetime'),
+        'SPLzShare-Cloud Photo Count-SPL-49',
+        'SPLzShare-Assets AddedByCamera SmartSharing-50',
+        'SPLzShare-Cloud Video Count-SPL-51',
+        'zExtAttr-Generative_AI_Type-52',
+        'zExtAttr-Credit-53')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

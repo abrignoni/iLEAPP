@@ -1,95 +1,97 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph017_1GenAIDetectedPhDaPsql': {
-        'name': 'Ph017.1-Gen_AI_Detected-PhDaPsql',
-        'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets'
-                       ' with Gen AI Type >0 and supports iOS. The results for this script'
-					   ' will contain one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '2.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-GenAIDetected-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-		"artifact_icon": "edit",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 20 rows',
-            'felix_ios17': 'iOS 17.6.1 | 0 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 0 rows',
-            'iphone12_ios18': 'iOS 18.7 | 0 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 0 rows',
-            'abe_ios16': 'iOS 16.5 | 0 rows',
-            'felix23_ios16': 'iOS 16.5 | 0 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-            'hickman_ios14': 'iOS 14.3 | 0 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    },
-    'Ph017_2GenAIDetectedSyndPL': {
-        'name': 'Ph017.2-Gen_AI_Detected-SyndPL',
-        'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets'
-                       ' with Gen AI Type >0 and supports iOS. The results for this script'
-					   ' will contain one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '2.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-GenAIDetected-SyndicationPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-		"artifact_icon": "edit",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 2 rows',
-            'felix_ios17': 'iOS 17.6.1 | 0 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 0 rows',
-            'iphone12_ios18': 'iOS 18.7 | 0 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 0 rows',
-            'abe_ios16': 'iOS 16.5 | 0 rows',
-            'felix23_ios16': 'iOS 16.5 | 0 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }	
-    },
-    'Ph017_3GenAIDetectedGenPlayPsql': {
-        'name': 'Ph017.3-Gen_AI_Detected-GenPlayPsql',
-        'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets'
-                       ' with Gen AI Type >0 and supports iOS. The results for this script'
-					   ' will contain one row per ZASSET table Z_PK value.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '2.0',
-        'date': '2026-05-26',
-        'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
-        'category': 'Photos.sqlite-GenAIDetected-GenPlaygrndPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-		"artifact_icon": "edit",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 27 rows',
-        }
-    }	
+'Ph017_1GenAIDetectedPhDaPsql': {
+'name': 'Ph017.1-Gen_AI_Detected-PhDaPsql',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets'
+' with Gen AI Type >0 and supports iOS. The results for this script'
+' will contain one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '2.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-GenAIDetected-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "edit",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'dexter_ios18': 'iOS 18.3.2 | 20 rows',
+'felix_ios17': 'iOS 17.6.1 | 0 rows',
+'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'iphone12_ios18': 'iOS 18.7 | 0 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 0 rows',
+'abe_ios16': 'iOS 16.5 | 0 rows',
+'felix23_ios16': 'iOS 16.5 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 0 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+},
+'Ph017_2GenAIDetectedSyndPL': {
+'name': 'Ph017.2-Gen_AI_Detected-SyndPL',
+'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets'
+' with Gen AI Type >0 and supports iOS. The results for this script'
+' will contain one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '2.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
+'category': 'Photos.sqlite-GenAIDetected-SyndicationPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "edit",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 2 rows',
+'felix_ios17': 'iOS 17.6.1 | 0 rows',
+'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'iphone12_ios18': 'iOS 18.7 | 0 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 0 rows',
+'abe_ios16': 'iOS 16.5 | 0 rows',
+'felix23_ios16': 'iOS 16.5 | 0 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}	
+},
+'Ph017_3GenAIDetectedGenPlayPsql': {
+'name': 'Ph017.3-Gen_AI_Detected-GenPlayPsql',
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets'
+' with Gen AI Type >0 and supports iOS. The results for this script'
+' will contain one row per ZASSET table Z_PK value.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '2.0',
+'date': '2026-05-26',
+'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
+'category': 'Photos.sqlite-GenAIDetected-GenPlaygrndPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "edit",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 27 rows',
+}
+}	
 }
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph017_1GenAIDetectedPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph017_1GenAIDetectedPhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
@@ -201,51 +203,54 @@ def Ph017_1GenAIDetectedPhDaPsql(files_found, report_folder, seeker, wrap_text, 
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30]))
 
         data_headers = (
-            ('zAsset-Date Created-0', 'datetime'),
-            ('zAsset- SortToken -CameraRoll-1', 'datetime'),
-            ('zAsset-Added Date-2', 'datetime'),
-            ('zCldMast-Creation Date-3', 'datetime'),
-            'zAddAssetAttr-Time Zone Name-4',
-            'zAddAssetAttr-EXIF-String-5',
-            ('zAsset-Modification Date-6', 'datetime'),
-            ('zAsset-Last Shared Date-7', 'datetime'),
-            ('zAsset-Trashed Date-8', 'datetime'),
-            'zAsset-Trashed by Participant= zShareParticipant_zPK-9',
-            'zAsset-Directory-Path-10',
-            'zAsset-Filename-11',
-            'zAddAssetAttr- Original Filename-12',
-            'zCldMast- Original Filename-13',
-            'zAddAssetAttr- Syndication Identifier-SWY-Files-14',
-            'zAddAssetAttr- Imported by Bundle Identifier-15',
-            'zAddAssetAttr- Imported By Display Name-16',
-            'zAsset-Is_Recently_Saved-17',
-            'zAsset-Saved Asset Type-18',
-            'zAsset-Syndication State-19',
-            'zAsset-Bundle Scope-20',
-            'zAddAssetAttr-Share Type-21',
-            'zAsset-Active Library Scope Participation State-22',
-            'zAsset-Visibility State-23',
-            'zAsset-zPK-24',
-            'zAddAssetAttr-zPK-25',
-            'zAsset-UUID = store.cloudphotodb-26',
-            'zAddAssetAttr-Original Stable Hash-27',
-            'zAddAssetAttr.Adjusted Stable Hash-28',
-			'zExtAttr-Generative_AI_Type-29',
-			'zExtAttr-Credit-30')
+        ('zAsset-Date Created-0', 'datetime'),
+        ('zAsset- SortToken -CameraRoll-1', 'datetime'),
+        ('zAsset-Added Date-2', 'datetime'),
+        ('zCldMast-Creation Date-3', 'datetime'),
+        'zAddAssetAttr-Time Zone Name-4',
+        'zAddAssetAttr-EXIF-String-5',
+        ('zAsset-Modification Date-6', 'datetime'),
+        ('zAsset-Last Shared Date-7', 'datetime'),
+        ('zAsset-Trashed Date-8', 'datetime'),
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-9',
+        'zAsset-Directory-Path-10',
+        'zAsset-Filename-11',
+        'zAddAssetAttr- Original Filename-12',
+        'zCldMast- Original Filename-13',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-14',
+        'zAddAssetAttr- Imported by Bundle Identifier-15',
+        'zAddAssetAttr- Imported By Display Name-16',
+        'zAsset-Is_Recently_Saved-17',
+        'zAsset-Saved Asset Type-18',
+        'zAsset-Syndication State-19',
+        'zAsset-Bundle Scope-20',
+        'zAddAssetAttr-Share Type-21',
+        'zAsset-Active Library Scope Participation State-22',
+        'zAsset-Visibility State-23',
+        'zAsset-zPK-24',
+        'zAddAssetAttr-zPK-25',
+        'zAsset-UUID = store.cloudphotodb-26',
+        'zAddAssetAttr-Original Stable Hash-27',
+        'zAddAssetAttr.Adjusted Stable Hash-28',
+        'zExtAttr-Generative_AI_Type-29',
+        'zExtAttr-Credit-30')
 
-        # data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
     return (), [], source_path
 
 @artifact_processor
-def Ph017_2GenAIDetectedSyndPL(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph017_2GenAIDetectedSyndPL(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
@@ -357,50 +362,53 @@ def Ph017_2GenAIDetectedSyndPL(files_found, report_folder, seeker, wrap_text, ti
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30]))
 
         data_headers = (
-            ('zAsset-Date Created-0', 'datetime'),
-            ('zAsset- SortToken -CameraRoll-1', 'datetime'),
-            ('zAsset-Added Date-2', 'datetime'),
-            ('zCldMast-Creation Date-3', 'datetime'),
-            'zAddAssetAttr-Time Zone Name-4',
-            'zAddAssetAttr-EXIF-String-5',
-            ('zAsset-Modification Date-6', 'datetime'),
-            ('zAsset-Last Shared Date-7', 'datetime'),
-            ('zAsset-Trashed Date-8', 'datetime'),
-            'zAsset-Trashed by Participant= zShareParticipant_zPK-9',
-            'zAsset-Directory-Path-10',
-            'zAsset-Filename-11',
-            'zAddAssetAttr- Original Filename-12',
-            'zCldMast- Original Filename-13',
-            'zAddAssetAttr- Syndication Identifier-SWY-Files-14',
-            'zAddAssetAttr- Imported by Bundle Identifier-15',
-            'zAddAssetAttr- Imported By Display Name-16',
-            'zAsset-Is_Recently_Saved-17',
-            'zAsset-Saved Asset Type-18',
-            'zAsset-Syndication State-19',
-            'zAsset-Bundle Scope-20',
-            'zAddAssetAttr-Share Type-21',
-            'zAsset-Active Library Scope Participation State-22',
-            'zAsset-Visibility State-23',
-            'zAsset-zPK-24',
-            'zAddAssetAttr-zPK-25',
-            'zAsset-UUID = store.cloudphotodb-26',
-            'zAddAssetAttr-Original Stable Hash-27',
-            'zAddAssetAttr.Adjusted Stable Hash-28',
-			'zExtAttr-Generative_AI_Type-29',
-			'zExtAttr-Credit-30')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('zAsset-Date Created-0', 'datetime'),
+        ('zAsset- SortToken -CameraRoll-1', 'datetime'),
+        ('zAsset-Added Date-2', 'datetime'),
+        ('zCldMast-Creation Date-3', 'datetime'),
+        'zAddAssetAttr-Time Zone Name-4',
+        'zAddAssetAttr-EXIF-String-5',
+        ('zAsset-Modification Date-6', 'datetime'),
+        ('zAsset-Last Shared Date-7', 'datetime'),
+        ('zAsset-Trashed Date-8', 'datetime'),
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-9',
+        'zAsset-Directory-Path-10',
+        'zAsset-Filename-11',
+        'zAddAssetAttr- Original Filename-12',
+        'zCldMast- Original Filename-13',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-14',
+        'zAddAssetAttr- Imported by Bundle Identifier-15',
+        'zAddAssetAttr- Imported By Display Name-16',
+        'zAsset-Is_Recently_Saved-17',
+        'zAsset-Saved Asset Type-18',
+        'zAsset-Syndication State-19',
+        'zAsset-Bundle Scope-20',
+        'zAddAssetAttr-Share Type-21',
+        'zAsset-Active Library Scope Participation State-22',
+        'zAsset-Visibility State-23',
+        'zAsset-zPK-24',
+        'zAddAssetAttr-zPK-25',
+        'zAsset-UUID = store.cloudphotodb-26',
+        'zAddAssetAttr-Original Stable Hash-27',
+        'zAddAssetAttr.Adjusted Stable Hash-28',
+        'zExtAttr-Generative_AI_Type-29',
+        'zExtAttr-Credit-30')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
     return (), [], source_path
 
 @artifact_processor
-def Ph017_3GenAIDetectedGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph017_3GenAIDetectedGenPlayPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
@@ -512,43 +520,43 @@ def Ph017_3GenAIDetectedGenPlayPsql(files_found, report_folder, seeker, wrap_tex
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                  row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                                  row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
-                                  row[28], row[29], row[30]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19], row[20], row[21], row[22], row[23], row[24], row[25], row[26], row[27],
+            row[28], row[29], row[30]))
 
         data_headers = (
-            ('zAsset-Date Created-0', 'datetime'),
-            ('zAsset- SortToken -CameraRoll-1', 'datetime'),
-            ('zAsset-Added Date-2', 'datetime'),
-            ('zCldMast-Creation Date-3', 'datetime'),
-            'zAddAssetAttr-Time Zone Name-4',
-            'zAddAssetAttr-EXIF-String-5',
-            ('zAsset-Modification Date-6', 'datetime'),
-            ('zAsset-Last Shared Date-7', 'datetime'),
-            ('zAsset-Trashed Date-8', 'datetime'),
-            'zAsset-Trashed by Participant= zShareParticipant_zPK-9',
-            'zAsset-Directory-Path-10',
-            'zAsset-Filename-11',
-            'zAddAssetAttr- Original Filename-12',
-            'zCldMast- Original Filename-13',
-            'zAddAssetAttr- Syndication Identifier-SWY-Files-14',
-            'zAddAssetAttr- Imported by Bundle Identifier-15',
-            'zAddAssetAttr- Imported By Display Name-16',
-            'zAsset-Is_Recently_Saved-17',
-            'zAsset-Saved Asset Type-18',
-            'zAsset-Syndication State-19',
-            'zAsset-Bundle Scope-20',
-            'zAddAssetAttr-Share Type-21',
-            'zAsset-Active Library Scope Participation State-22',
-            'zAsset-Visibility State-23',
-            'zAsset-zPK-24',
-            'zAddAssetAttr-zPK-25',
-            'zAsset-UUID = store.cloudphotodb-26',
-            'zAddAssetAttr-Original Stable Hash-27',
-			'zAddAssetAttr.Adjusted Stable Hash-28',
-			'zExtAttr-Generative_AI_Type-29',
-			'zExtAttr-Credit-30')
+        ('zAsset-Date Created-0', 'datetime'),
+        ('zAsset- SortToken -CameraRoll-1', 'datetime'),
+        ('zAsset-Added Date-2', 'datetime'),
+        ('zCldMast-Creation Date-3', 'datetime'),
+        'zAddAssetAttr-Time Zone Name-4',
+        'zAddAssetAttr-EXIF-String-5',
+        ('zAsset-Modification Date-6', 'datetime'),
+        ('zAsset-Last Shared Date-7', 'datetime'),
+        ('zAsset-Trashed Date-8', 'datetime'),
+        'zAsset-Trashed by Participant= zShareParticipant_zPK-9',
+        'zAsset-Directory-Path-10',
+        'zAsset-Filename-11',
+        'zAddAssetAttr- Original Filename-12',
+        'zCldMast- Original Filename-13',
+        'zAddAssetAttr- Syndication Identifier-SWY-Files-14',
+        'zAddAssetAttr- Imported by Bundle Identifier-15',
+        'zAddAssetAttr- Imported By Display Name-16',
+        'zAsset-Is_Recently_Saved-17',
+        'zAsset-Saved Asset Type-18',
+        'zAsset-Syndication State-19',
+        'zAsset-Bundle Scope-20',
+        'zAddAssetAttr-Share Type-21',
+        'zAsset-Active Library Scope Participation State-22',
+        'zAsset-Visibility State-23',
+        'zAsset-zPK-24',
+        'zAddAssetAttr-zPK-25',
+        'zAsset-UUID = store.cloudphotodb-26',
+        'zAddAssetAttr-Original Stable Hash-27',
+        'zAddAssetAttr.Adjusted Stable Hash-28',
+        'zExtAttr-Generative_AI_Type-29',
+        'zExtAttr-Credit-30')
 
-        # data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

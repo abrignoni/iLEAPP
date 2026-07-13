@@ -1,83 +1,84 @@
-# pylint: disable=W0611,W0613,W0631
 __artifacts_v2__ = {
-    'Ph025_1SWYConversationRecordswithNADPhDaPsql': {
-        'name': 'Ph025.1-SWY Conversation Records NAD-PhDaPsql',
-        'description': 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite'
-                       ' ZGENERICALBUM Table and supports iOS. Parses Share with You Conversation Album'
-                       ' records only, no asset data being parsed.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '6.0',
-        'date': '2026-05-27',
-        'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-        'category': 'Photos.sqlite-SWY-ChatThreadsOnly-PhotoData-Psql',
-        'notes': '',
-        'paths': ('*/PhotoData/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "message-square",
-        'sample_data': {
-            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
-            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
-            'felix_ios17': 'iOS 17.6.1 | 0 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-            'iphone11_ios17': 'iOS 17.3 | 0 rows',
-            'iphone12_ios18': 'iOS 18.7 | 0 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-            'otto_ios17': 'iOS 17.5.1 | 0 rows',
-            'abe_ios16': 'iOS 16.5 | 0 rows',
-            'felix23_ios16': 'iOS 16.5 | 0 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-            'hickman_ios14': 'iOS 14.3 | 0 rows',
-            'jess_ios15': 'iOS 15.0.2 | 0 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    },
-    'Ph025_2SWYConversationRecordswithNADSyndPL': {
-        'name': 'Ph025.2-SWY Conversation Records NAD-SyndPL',
-        'description': 'Parses SWY Conversation Album Records found in the'
-                       ' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and supports iOS.'
-                       ' Parses Share with You Conversation Album records only, no asset data being parsed.'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '5.0',
-        'date': '2026-05-27',
-        'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-        'category': 'Photos.sqlite-SWY-ChatThreadsOnly-SyndicationPL-Psql',
-        'notes': '',
-        'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "message-square",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 56 rows',
-            'felix_ios17': 'iOS 17.6.1 | 24 rows',
-            'fsfull002_ios17': 'iOS 17.1 | 65 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 26 rows',
-            'iphone11_ios17': 'iOS 17.3 | 37 rows',
-            'iphone12_ios18': 'iOS 18.7 | 11 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 5 rows',
-            'otto_ios17': 'iOS 17.5.1 | 33 rows',
-            'abe_ios16': 'iOS 16.5 | 35 rows',
-            'felix23_ios16': 'iOS 16.5 | 14 rows',
-            'jess_ios15': 'iOS 15.0.2 | 7 rows',
-            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-        }
-    }
+'Ph025_1SWYConversationRecordswithNADPhDaPsql': {
+'name': 'Ph025.1-SWY Conversation Records NAD-PhDaPsql',
+'description': 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite'
+' ZGENERICALBUM Table and supports iOS. Parses Share with You Conversation Album'
+' records only, no asset data being parsed.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '6.0',
+'date': '2026-05-27',
+'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
+'category': 'Photos.sqlite-SWY-ChatThreadsOnly-PhotoData-Psql',
+'notes': '',
+'paths': ('*/PhotoData/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "message-square",
+'sample_data': {
+'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+'felix_ios17': 'iOS 17.6.1 | 0 rows',
+'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 0 rows',
+'iphone12_ios18': 'iOS 18.7 | 0 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 0 rows',
+'abe_ios16': 'iOS 16.5 | 0 rows',
+'felix23_ios16': 'iOS 16.5 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 0 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+},
+'Ph025_2SWYConversationRecordswithNADSyndPL': {
+'name': 'Ph025.2-SWY Conversation Records NAD-SyndPL',
+'description': 'Parses SWY Conversation Album Records found in the'
+' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and supports iOS.'
+' Parses Share with You Conversation Album records only, no asset data being parsed.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '5.0',
+'date': '2026-05-27',
+'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
+'category': 'Photos.sqlite-SWY-ChatThreadsOnly-SyndicationPL-Psql',
+'notes': '',
+'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "message-square",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 56 rows',
+'felix_ios17': 'iOS 17.6.1 | 24 rows',
+'fsfull002_ios17': 'iOS 17.1 | 65 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 26 rows',
+'iphone11_ios17': 'iOS 17.3 | 37 rows',
+'iphone12_ios18': 'iOS 18.7 | 11 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 5 rows',
+'otto_ios17': 'iOS 17.5.1 | 33 rows',
+'abe_ios16': 'iOS 16.5 | 35 rows',
+'felix23_ios16': 'iOS 16.5 | 14 rows',
+'jess_ios15': 'iOS 15.0.2 | 7 rows',
+'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+}
+}
 }
 
-import glob
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, open_sqlite_db_readonly, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
-def Ph025_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
         if source_path.endswith('.sqlite'):
             break
-      
+
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
@@ -176,32 +177,32 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, see
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK',
-                        'SWYConverszGenAlbum- Import Session ID-SWY',
-                        'SWYzGenAlbum-Imported by Bundle Identifier',
-                        'SWYConverszGenAlbum-Album Kind',
-                        'SWYConverszGenAlbum-Cloud_Local_State',
-                        'SWYConverszGenAlbum- Syndicate',
-                        'SWYConverszGenAlbum-Sync Event Order Key',
-                        'SWYConverszGenAlbum-Pinned',
-                        'SWYConverszGenAlbum-Custom Sort Key',
-                        'SWYConverszGenAlbum-Custom Sort Ascending',
-                        'SWYConverszGenAlbum-Is Prototype',
-                        'SWYConverszGenAlbum-Project Document Type',
-                        'SWYConverszGenAlbum-Custom Query Type',
-                        'SWYConverszGenAlbum-Trashed State',
-                        ('SWYConverszGenAlbum-Trash Date', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date', 'datetime'),
+        ('SWYConverszGenAlbum-End Date', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK',
+        'SWYConverszGenAlbum- Import Session ID-SWY',
+        'SWYzGenAlbum-Imported by Bundle Identifier',
+        'SWYConverszGenAlbum-Album Kind',
+        'SWYConverszGenAlbum-Cloud_Local_State',
+        'SWYConverszGenAlbum- Syndicate',
+        'SWYConverszGenAlbum-Sync Event Order Key',
+        'SWYConverszGenAlbum-Pinned',
+        'SWYConverszGenAlbum-Custom Sort Key',
+        'SWYConverszGenAlbum-Custom Sort Ascending',
+        'SWYConverszGenAlbum-Is Prototype',
+        'SWYConverszGenAlbum-Project Document Type',
+        'SWYConverszGenAlbum-Custom Query Type',
+        'SWYConverszGenAlbum-Trashed State',
+        ('SWYConverszGenAlbum-Trash Date', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -303,37 +304,37 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, see
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date-0', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK-3',
-                        'SWYConverszGenAlbum- Import Session ID-SWY-4',
-                        'SWYzGenAlbum-Imported by Bundle Identifier-5',
-                        'SWYConverszGenAlbum-Album Kind-6',
-                        'SWYConverszGenAlbum-Cloud_Local_State-7',
-                        'SWYConverszGenAlbum- Syndicate-8',
-                        'SWYConverszGenAlbum-Sync Event Order Key-9',
-                        'SWYConverszGenAlbum-Pinned-10',
-                        'SWYConverszGenAlbum-Custom Sort Key-11',
-                        'SWYConverszGenAlbum-Custom Sort Ascending-12',
-                        'SWYConverszGenAlbum-Is Prototype-13',
-                        'SWYConverszGenAlbum-Project Document Type-14',
-                        'SWYConverszGenAlbum-Custom Query Type-15',
-                        'SWYConverszGenAlbum-Trashed State-16',
-                        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State-18',
-                        'SWYConverszGenAlbum-Privacy State-19')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
+        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK-3',
+        'SWYConverszGenAlbum- Import Session ID-SWY-4',
+        'SWYzGenAlbum-Imported by Bundle Identifier-5',
+        'SWYConverszGenAlbum-Album Kind-6',
+        'SWYConverszGenAlbum-Cloud_Local_State-7',
+        'SWYConverszGenAlbum- Syndicate-8',
+        'SWYConverszGenAlbum-Sync Event Order Key-9',
+        'SWYConverszGenAlbum-Pinned-10',
+        'SWYConverszGenAlbum-Custom Sort Key-11',
+        'SWYConverszGenAlbum-Custom Sort Ascending-12',
+        'SWYConverszGenAlbum-Is Prototype-13',
+        'SWYConverszGenAlbum-Project Document Type-14',
+        'SWYConverszGenAlbum-Custom Query Type-15',
+        'SWYConverszGenAlbum-Trashed State-16',
+        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State-18',
+        'SWYConverszGenAlbum-Privacy State-19')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
-	
+
     elif (version.parse(iosversion) >= version.parse("17.6")) & (version.parse(iosversion) < version.parse("18")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
@@ -432,34 +433,34 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, see
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date-0', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK-3',
-                        'SWYConverszGenAlbum- Import Session ID-SWY-4',
-                        'SWYzGenAlbum-Imported by Bundle Identifier-5',
-                        'SWYConverszGenAlbum-Album Kind-6',
-                        'SWYConverszGenAlbum-Cloud_Local_State-7',
-                        'SWYConverszGenAlbum- Syndicate-8',
-                        'SWYConverszGenAlbum-Sync Event Order Key-9',
-                        'SWYConverszGenAlbum-Pinned-10',
-                        'SWYConverszGenAlbum-Custom Sort Key-11',
-                        'SWYConverszGenAlbum-Custom Sort Ascending-12',
-                        'SWYConverszGenAlbum-Is Prototype-13',
-                        'SWYConverszGenAlbum-Project Document Type-14',
-                        'SWYConverszGenAlbum-Custom Query Type-15',
-                        'SWYConverszGenAlbum-Trashed State-16',
-                        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State-18',
-                        'SWYConverszGenAlbum-Privacy State-19')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
+        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK-3',
+        'SWYConverszGenAlbum- Import Session ID-SWY-4',
+        'SWYzGenAlbum-Imported by Bundle Identifier-5',
+        'SWYConverszGenAlbum-Album Kind-6',
+        'SWYConverszGenAlbum-Cloud_Local_State-7',
+        'SWYConverszGenAlbum- Syndicate-8',
+        'SWYConverszGenAlbum-Sync Event Order Key-9',
+        'SWYConverszGenAlbum-Pinned-10',
+        'SWYConverszGenAlbum-Custom Sort Key-11',
+        'SWYConverszGenAlbum-Custom Sort Ascending-12',
+        'SWYConverszGenAlbum-Is Prototype-13',
+        'SWYConverszGenAlbum-Project Document Type-14',
+        'SWYConverszGenAlbum-Custom Query Type-15',
+        'SWYConverszGenAlbum-Trashed State-16',
+        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State-18',
+        'SWYConverszGenAlbum-Privacy State-19')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -561,37 +562,37 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, see
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date-0', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK-3',
-                        'SWYConverszGenAlbum- Import Session ID-SWY-4',
-                        'SWYzGenAlbum-Imported by Bundle Identifier-5',
-                        'SWYConverszGenAlbum-Album Kind-6',
-                        'SWYConverszGenAlbum-Cloud_Local_State-7',
-                        'SWYConverszGenAlbum- Syndicate-8',
-                        'SWYConverszGenAlbum-Sync Event Order Key-9',
-                        'SWYConverszGenAlbum-Pinned-10',
-                        'SWYConverszGenAlbum-Custom Sort Key-11',
-                        'SWYConverszGenAlbum-Custom Sort Ascending-12',
-                        'SWYConverszGenAlbum-Is Prototype-13',
-                        'SWYConverszGenAlbum-Project Document Type-14',
-                        'SWYConverszGenAlbum-Custom Query Type-15',
-                        'SWYConverszGenAlbum-Trashed State-16',
-                        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State-18',
-                        'SWYConverszGenAlbum-Privacy State-19')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
+        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK-3',
+        'SWYConverszGenAlbum- Import Session ID-SWY-4',
+        'SWYzGenAlbum-Imported by Bundle Identifier-5',
+        'SWYConverszGenAlbum-Album Kind-6',
+        'SWYConverszGenAlbum-Cloud_Local_State-7',
+        'SWYConverszGenAlbum- Syndicate-8',
+        'SWYConverszGenAlbum-Sync Event Order Key-9',
+        'SWYConverszGenAlbum-Pinned-10',
+        'SWYConverszGenAlbum-Custom Sort Key-11',
+        'SWYConverszGenAlbum-Custom Sort Ascending-12',
+        'SWYConverszGenAlbum-Is Prototype-13',
+        'SWYConverszGenAlbum-Project Document Type-14',
+        'SWYConverszGenAlbum-Custom Query Type-15',
+        'SWYConverszGenAlbum-Trashed State-16',
+        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State-18',
+        'SWYConverszGenAlbum-Privacy State-19')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
-        
+
     elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
@@ -690,39 +691,42 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, see
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date-0', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK-3',
-                        'SWYConverszGenAlbum- Import Session ID-SWY-4',
-                        'SWYzGenAlbum-Imported by Bundle Identifier-5',
-                        'SWYConverszGenAlbum-Album Kind-6',
-                        'SWYConverszGenAlbum-Cloud_Local_State-7',
-                        'SWYConverszGenAlbum- Syndicate-8',
-                        'SWYConverszGenAlbum-Sync Event Order Key-9',
-                        'SWYConverszGenAlbum-Pinned-10',
-                        'SWYConverszGenAlbum-Custom Sort Key-11',
-                        'SWYConverszGenAlbum-Custom Sort Ascending-12',
-                        'SWYConverszGenAlbum-Is Prototype-13',
-                        'SWYConverszGenAlbum-Project Document Type-14',
-                        'SWYConverszGenAlbum-Custom Query Type-15',
-                        'SWYConverszGenAlbum-Trashed State-16',
-                        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State-18',
-                        'SWYConverszGenAlbum-Privacy State-19')
-        data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
+        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK-3',
+        'SWYConverszGenAlbum- Import Session ID-SWY-4',
+        'SWYzGenAlbum-Imported by Bundle Identifier-5',
+        'SWYConverszGenAlbum-Album Kind-6',
+        'SWYConverszGenAlbum-Cloud_Local_State-7',
+        'SWYConverszGenAlbum- Syndicate-8',
+        'SWYConverszGenAlbum-Sync Event Order Key-9',
+        'SWYConverszGenAlbum-Pinned-10',
+        'SWYConverszGenAlbum-Custom Sort Key-11',
+        'SWYConverszGenAlbum-Custom Sort Ascending-12',
+        'SWYConverszGenAlbum-Is Prototype-13',
+        'SWYConverszGenAlbum-Project Document Type-14',
+        'SWYConverszGenAlbum-Custom Query Type-15',
+        'SWYConverszGenAlbum-Trashed State-16',
+        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State-18',
+        'SWYConverszGenAlbum-Privacy State-19')
+        data_list = list(get_sqlite_db_records(source_path, query))
 
         return data_headers, data_list, source_path
 
 @artifact_processor
-def Ph025_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph025_2SWYConversationRecordswithNADSyndPL(context):
+    files_found = context.get_files_found()
+    report_folder = context.get_report_folder()
+    source_path = ''
     for source_path in files_found:
         source_path = str(source_path)
 
@@ -827,32 +831,32 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeke
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK',
-                        'SWYConverszGenAlbum- Import Session ID-SWY',
-                        'SWYzGenAlbum-Imported by Bundle Identifier',
-                        'SWYConverszGenAlbum-Album Kind',
-                        'SWYConverszGenAlbum-Cloud_Local_State',
-                        'SWYConverszGenAlbum- Syndicate',
-                        'SWYConverszGenAlbum-Sync Event Order Key',
-                        'SWYConverszGenAlbum-Pinned',
-                        'SWYConverszGenAlbum-Custom Sort Key',
-                        'SWYConverszGenAlbum-Custom Sort Ascending',
-                        'SWYConverszGenAlbum-Is Prototype',
-                        'SWYConverszGenAlbum-Project Document Type',
-                        'SWYConverszGenAlbum-Custom Query Type',
-                        'SWYConverszGenAlbum-Trashed State',
-                        ('SWYConverszGenAlbum-Trash Date', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date', 'datetime'),
+        ('SWYConverszGenAlbum-End Date', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK',
+        'SWYConverszGenAlbum- Import Session ID-SWY',
+        'SWYzGenAlbum-Imported by Bundle Identifier',
+        'SWYConverszGenAlbum-Album Kind',
+        'SWYConverszGenAlbum-Cloud_Local_State',
+        'SWYConverszGenAlbum- Syndicate',
+        'SWYConverszGenAlbum-Sync Event Order Key',
+        'SWYConverszGenAlbum-Pinned',
+        'SWYConverszGenAlbum-Custom Sort Key',
+        'SWYConverszGenAlbum-Custom Sort Ascending',
+        'SWYConverszGenAlbum-Is Prototype',
+        'SWYConverszGenAlbum-Project Document Type',
+        'SWYConverszGenAlbum-Custom Query Type',
+        'SWYConverszGenAlbum-Trashed State',
+        ('SWYConverszGenAlbum-Trash Date', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -954,37 +958,37 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeke
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date-0', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK-3',
-                        'SWYConverszGenAlbum- Import Session ID-SWY-4',
-                        'SWYzGenAlbum-Imported by Bundle Identifier-5',
-                        'SWYConverszGenAlbum-Album Kind-6',
-                        'SWYConverszGenAlbum-Cloud_Local_State-7',
-                        'SWYConverszGenAlbum- Syndicate-8',
-                        'SWYConverszGenAlbum-Sync Event Order Key-9',
-                        'SWYConverszGenAlbum-Pinned-10',
-                        'SWYConverszGenAlbum-Custom Sort Key-11',
-                        'SWYConverszGenAlbum-Custom Sort Ascending-12',
-                        'SWYConverszGenAlbum-Is Prototype-13',
-                        'SWYConverszGenAlbum-Project Document Type-14',
-                        'SWYConverszGenAlbum-Custom Query Type-15',
-                        'SWYConverszGenAlbum-Trashed State-16',
-                        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State-18',
-                        'SWYConverszGenAlbum-Privacy State-19')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
+        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK-3',
+        'SWYConverszGenAlbum- Import Session ID-SWY-4',
+        'SWYzGenAlbum-Imported by Bundle Identifier-5',
+        'SWYConverszGenAlbum-Album Kind-6',
+        'SWYConverszGenAlbum-Cloud_Local_State-7',
+        'SWYConverszGenAlbum- Syndicate-8',
+        'SWYConverszGenAlbum-Sync Event Order Key-9',
+        'SWYConverszGenAlbum-Pinned-10',
+        'SWYConverszGenAlbum-Custom Sort Key-11',
+        'SWYConverszGenAlbum-Custom Sort Ascending-12',
+        'SWYConverszGenAlbum-Is Prototype-13',
+        'SWYConverszGenAlbum-Project Document Type-14',
+        'SWYConverszGenAlbum-Custom Query Type-15',
+        'SWYConverszGenAlbum-Trashed State-16',
+        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State-18',
+        'SWYConverszGenAlbum-Privacy State-19')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
-	
+
     elif (version.parse(iosversion) >= version.parse("17.6")) & (version.parse(iosversion) < version.parse("18")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
@@ -1083,34 +1087,34 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeke
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date-0', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK-3',
-                        'SWYConverszGenAlbum- Import Session ID-SWY-4',
-                        'SWYzGenAlbum-Imported by Bundle Identifier-5',
-                        'SWYConverszGenAlbum-Album Kind-6',
-                        'SWYConverszGenAlbum-Cloud_Local_State-7',
-                        'SWYConverszGenAlbum- Syndicate-8',
-                        'SWYConverszGenAlbum-Sync Event Order Key-9',
-                        'SWYConverszGenAlbum-Pinned-10',
-                        'SWYConverszGenAlbum-Custom Sort Key-11',
-                        'SWYConverszGenAlbum-Custom Sort Ascending-12',
-                        'SWYConverszGenAlbum-Is Prototype-13',
-                        'SWYConverszGenAlbum-Project Document Type-14',
-                        'SWYConverszGenAlbum-Custom Query Type-15',
-                        'SWYConverszGenAlbum-Trashed State-16',
-                        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State-18',
-                        'SWYConverszGenAlbum-Privacy State-19')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
+        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK-3',
+        'SWYConverszGenAlbum- Import Session ID-SWY-4',
+        'SWYzGenAlbum-Imported by Bundle Identifier-5',
+        'SWYConverszGenAlbum-Album Kind-6',
+        'SWYConverszGenAlbum-Cloud_Local_State-7',
+        'SWYConverszGenAlbum- Syndicate-8',
+        'SWYConverszGenAlbum-Sync Event Order Key-9',
+        'SWYConverszGenAlbum-Pinned-10',
+        'SWYConverszGenAlbum-Custom Sort Key-11',
+        'SWYConverszGenAlbum-Custom Sort Ascending-12',
+        'SWYConverszGenAlbum-Is Prototype-13',
+        'SWYConverszGenAlbum-Project Document Type-14',
+        'SWYConverszGenAlbum-Custom Query Type-15',
+        'SWYConverszGenAlbum-Trashed State-16',
+        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State-18',
+        'SWYConverszGenAlbum-Privacy State-19')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1212,37 +1216,37 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeke
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date-0', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK-3',
-                        'SWYConverszGenAlbum- Import Session ID-SWY-4',
-                        'SWYzGenAlbum-Imported by Bundle Identifier-5',
-                        'SWYConverszGenAlbum-Album Kind-6',
-                        'SWYConverszGenAlbum-Cloud_Local_State-7',
-                        'SWYConverszGenAlbum- Syndicate-8',
-                        'SWYConverszGenAlbum-Sync Event Order Key-9',
-                        'SWYConverszGenAlbum-Pinned-10',
-                        'SWYConverszGenAlbum-Custom Sort Key-11',
-                        'SWYConverszGenAlbum-Custom Sort Ascending-12',
-                        'SWYConverszGenAlbum-Is Prototype-13',
-                        'SWYConverszGenAlbum-Project Document Type-14',
-                        'SWYConverszGenAlbum-Custom Query Type-15',
-                        'SWYConverszGenAlbum-Trashed State-16',
-                        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State-18',
-                        'SWYConverszGenAlbum-Privacy State-19')
-        # data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
+        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK-3',
+        'SWYConverszGenAlbum- Import Session ID-SWY-4',
+        'SWYzGenAlbum-Imported by Bundle Identifier-5',
+        'SWYConverszGenAlbum-Album Kind-6',
+        'SWYConverszGenAlbum-Cloud_Local_State-7',
+        'SWYConverszGenAlbum- Syndicate-8',
+        'SWYConverszGenAlbum-Sync Event Order Key-9',
+        'SWYConverszGenAlbum-Pinned-10',
+        'SWYConverszGenAlbum-Custom Sort Key-11',
+        'SWYConverszGenAlbum-Custom Sort Ascending-12',
+        'SWYConverszGenAlbum-Is Prototype-13',
+        'SWYConverszGenAlbum-Project Document Type-14',
+        'SWYConverszGenAlbum-Custom Query Type-15',
+        'SWYConverszGenAlbum-Trashed State-16',
+        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State-18',
+        'SWYConverszGenAlbum-Privacy State-19')
+# data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
-        
+
     elif (version.parse(iosversion) >= version.parse("26")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
@@ -1341,34 +1345,33 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeke
         WHERE SWYConverszGenAlbum.ZKIND = 1509
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
-        
+
         db_records = get_sqlite_db_records(source_path, query)
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                              row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
-                              row[19]))
+            row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
+            row[19]))
 
         data_headers = (('SWYConverszGenAlbum-Creation Date-0', 'datetime'),
-                        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
-                        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
-                        'zAsset- Conversation= zGenAlbum_zPK-3',
-                        'SWYConverszGenAlbum- Import Session ID-SWY-4',
-                        'SWYzGenAlbum-Imported by Bundle Identifier-5',
-                        'SWYConverszGenAlbum-Album Kind-6',
-                        'SWYConverszGenAlbum-Cloud_Local_State-7',
-                        'SWYConverszGenAlbum- Syndicate-8',
-                        'SWYConverszGenAlbum-Sync Event Order Key-9',
-                        'SWYConverszGenAlbum-Pinned-10',
-                        'SWYConverszGenAlbum-Custom Sort Key-11',
-                        'SWYConverszGenAlbum-Custom Sort Ascending-12',
-                        'SWYConverszGenAlbum-Is Prototype-13',
-                        'SWYConverszGenAlbum-Project Document Type-14',
-                        'SWYConverszGenAlbum-Custom Query Type-15',
-                        'SWYConverszGenAlbum-Trashed State-16',
-                        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
-                        'SWYConverszGenAlbum-Cloud Delete State-18',
-                        'SWYConverszGenAlbum-Privacy State-19')
-        data_list = get_sqlite_db_records(source_path, query)
+        ('SWYConverszGenAlbum-Start Date-1', 'datetime'),
+        ('SWYConverszGenAlbum-End Date-2', 'datetime'),
+        'zAsset- Conversation= zGenAlbum_zPK-3',
+        'SWYConverszGenAlbum- Import Session ID-SWY-4',
+        'SWYzGenAlbum-Imported by Bundle Identifier-5',
+        'SWYConverszGenAlbum-Album Kind-6',
+        'SWYConverszGenAlbum-Cloud_Local_State-7',
+        'SWYConverszGenAlbum- Syndicate-8',
+        'SWYConverszGenAlbum-Sync Event Order Key-9',
+        'SWYConverszGenAlbum-Pinned-10',
+        'SWYConverszGenAlbum-Custom Sort Key-11',
+        'SWYConverszGenAlbum-Custom Sort Ascending-12',
+        'SWYConverszGenAlbum-Is Prototype-13',
+        'SWYConverszGenAlbum-Project Document Type-14',
+        'SWYConverszGenAlbum-Custom Query Type-15',
+        'SWYConverszGenAlbum-Trashed State-16',
+        ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
+        'SWYConverszGenAlbum-Cloud Delete State-18',
+        'SWYConverszGenAlbum-Privacy State-19')
+        data_list = list(get_sqlite_db_records(source_path, query))
 
         return data_headers, data_list, source_path
-        

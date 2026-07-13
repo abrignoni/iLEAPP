@@ -1,43 +1,40 @@
-# pylint: disable=W0611,W0613
 __artifacts_v2__ = {
-    'Ph085accountsdcloudServiceEnableLogPlist': {
-        'name': 'Ph085-accountsd-cloud-Service-Enable-Log-Plist',
-        'description': 'Parses basic data from */PhotoData/private/com.apple.accountsd/cloudServiceEnableLog.plist'
-                       ' which is a plist that tracks when Cloud Photos Library (CPL) and Shared Albums have been'
-                       ' enabled. Based on research and published blogs written by Scott Koenig'
-                       ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-        'author': 'Scott Koenig',
-        'version': '5.0',
-        'date': '2025-01-05',
-        'requirements': 'Acquisition that contains accountsd cloudServiceEnableLog.plist',
-        'category': 'Photos.sqlite-Y-Settings-Plist-CPL-Service-Enabled',
-        'notes': '',
-        'paths': ('*/com.apple.accountsd/cloudServiceEnableLog.plist',),
-        "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "settings",
-        'sample_data': {
-            'dexter_ios18': 'iOS 18.3.2 | 2 rows',
-            'hc_ios18_7': 'iOS 18.7.8 | 2 rows',
-            'iphone11_ios17': 'iOS 17.3 | 2 rows',
-            'iphone12_ios18': 'iOS 18.7 | 2 rows',
-            'iphone14plus_ios18': 'iOS 18.0 | 2 rows',
-            'otto_ios17': 'iOS 17.5.1 | 6 rows',
-            'felix23_ios16': 'iOS 16.5 | 2 rows',
-            'hickman_ios14': 'iOS 14.3 | 2 rows',
-            'jess_ios15': 'iOS 15.0.2 | 1 row',
-            'magnet_ios16': 'iOS 16.1.1 | 2 rows',
-        }
-    }
+'Ph085accountsdcloudServiceEnableLogPlist': {
+'name': 'Ph085-accountsd-cloud-Service-Enable-Log-Plist',
+'description': 'Parses basic data from */PhotoData/private/com.apple.accountsd/cloudServiceEnableLog.plist'
+' which is a plist that tracks when Cloud Photos Library (CPL) and Shared Albums have been'
+' enabled. Based on research and published blogs written by Scott Koenig'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'author': 'Scott Koenig',
+'version': '5.0',
+'date': '2025-01-05',
+'requirements': 'Acquisition that contains accountsd cloudServiceEnableLog.plist',
+'category': 'Photos.sqlite-Y-Settings-Plist-CPL-Service-Enabled',
+'notes': '',
+'paths': ('*/com.apple.accountsd/cloudServiceEnableLog.plist',),
+"output_types": ["standard", "tsv", "none"],
+"artifact_icon": "settings",
+'sample_data': {
+'dexter_ios18': 'iOS 18.3.2 | 2 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 2 rows',
+'iphone11_ios17': 'iOS 17.3 | 2 rows',
+'iphone12_ios18': 'iOS 18.7 | 2 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 2 rows',
+'otto_ios17': 'iOS 17.5.1 | 6 rows',
+'felix23_ios16': 'iOS 16.5 | 2 rows',
+'hickman_ios14': 'iOS 14.3 | 2 rows',
+'jess_ios15': 'iOS 15.0.2 | 1 row',
+'magnet_ios16': 'iOS 16.1.1 | 2 rows',
+}
+}
 }
 
-import datetime
-import os
 import plistlib
-import nska_deserialize as nd
-from scripts.ilapfuncs import artifact_processor, logfunc, device_info, get_file_path
+from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
-def Ph085accountsdcloudServiceEnableLogPlist(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def Ph085accountsdcloudServiceEnableLogPlist(context):
+    files_found = context.get_files_found()
     data_list = []
     source_path = str(files_found[0])
 
@@ -61,7 +58,7 @@ def Ph085accountsdcloudServiceEnableLogPlist(files_found, report_folder, seeker,
             data_list.append((timestamputc, servicetype, enabledstate))
 
     data_headers = (
-        'TimestampUTC',
-        'Service-Type',
-        'Enabled-State')
+    'TimestampUTC',
+    'Service-Type',
+    'Enabled-State')
     return data_headers, data_list, source_path
