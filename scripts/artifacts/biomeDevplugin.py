@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
+        "paths": ('*/Biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
         "sample_data": {
