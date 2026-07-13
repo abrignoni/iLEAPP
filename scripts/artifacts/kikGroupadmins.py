@@ -73,7 +73,7 @@ def _decode_entity_blob(blob):
 
 
 @artifact_processor
-def kikGroupadmins(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def kikGroupadmins(context):
     data_headers = ('User ID', 'Display Name', 'Username', 'Profile Pic URL', 'Member Group ID',
                     'Group Tag', 'Group Name', 'Group ID', 'Group Pic URL', 'Blob User',
                     'Blob Description', 'Blob Interests', 'Additional Info User A',
@@ -81,7 +81,7 @@ def kikGroupadmins(files_found, _report_folder, _seeker, _wrap_text, _timezone_o
     data_list = []
 
     source_path = ''
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('kik.sqlite'):
             source_path = file_found

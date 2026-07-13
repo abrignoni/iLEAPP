@@ -205,8 +205,8 @@ def truncate_after_last_bracket(file_path):
         print("No closing bracket `]` found.")
 
 @artifact_processor
-def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, 'logarchive*.json')
+def logarchive(context):
+    source_path = get_file_path(context.get_files_found(), 'logarchive*.json')
     data_list = []
 
     incval = 0
@@ -233,8 +233,8 @@ def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_artifacts(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
 
     query = '''
@@ -383,8 +383,8 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_time_change(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_time_change(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -400,8 +400,8 @@ def logarchive_time_change(files_found, report_folder, seeker, wrap_text, timezo
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_flashlight(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_flashlight(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -418,8 +418,8 @@ def logarchive_flashlight(files_found, report_folder, seeker, wrap_text, timezon
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_executed_apps(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_executed_apps(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -437,8 +437,8 @@ def logarchive_executed_apps(files_found, report_folder, seeker, wrap_text, time
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_motionstate(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_motionstate(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -454,8 +454,8 @@ def logarchive_motionstate(files_found, report_folder, seeker, wrap_text, timezo
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_tethering(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_tethering(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -473,8 +473,8 @@ def logarchive_tethering(files_found, report_folder, seeker, wrap_text, timezone
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_airplane_mode(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_airplane_mode(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -502,8 +502,8 @@ def logarchive_airplane_mode(files_found, report_folder, seeker, wrap_text, time
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_lock_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_lock_status(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -527,8 +527,8 @@ def logarchive_lock_status(files_found, report_folder, seeker, wrap_text, timezo
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_wifi_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_wifi_status(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -567,8 +567,8 @@ def logarchive_wifi_status(files_found, report_folder, seeker, wrap_text, timezo
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_bluetooth_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_bluetooth_status(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -612,8 +612,8 @@ def logarchive_bluetooth_status(files_found, report_folder, seeker, wrap_text, t
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_audio_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_audio_status(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -637,8 +637,8 @@ def logarchive_audio_status(files_found, report_folder, seeker, wrap_text, timez
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_navigation(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_navigation(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''

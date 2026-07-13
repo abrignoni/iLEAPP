@@ -29,13 +29,13 @@ from collections import defaultdict
 from pathlib import Path
 
 @artifact_processor
-def skg_archive(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def skg_archive(context):
 
     data_list = []
     dedupe = 0
     grouped_files = defaultdict(list)
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         path = Path(file_found)
         grouped_files[path.parent].append(path.name)
 

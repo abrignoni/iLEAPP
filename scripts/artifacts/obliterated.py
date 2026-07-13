@@ -34,8 +34,8 @@ import os
 from scripts.ilapfuncs import logdevinfo, artifact_processor
 
 @artifact_processor
-def get_obliterated(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    file_found = str(files_found[0])
+def get_obliterated(context):
+    file_found = str(context.get_files_found()[0])
     
     modified_time = os.path.getmtime(file_found)
     utc_modified_date = datetime.datetime.fromtimestamp(modified_time, tz=timezone.utc)

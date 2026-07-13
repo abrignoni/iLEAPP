@@ -36,9 +36,9 @@ import plistlib
 from scripts.ilapfuncs import artifact_processor, device_info
 
 @artifact_processor
-def preferencesPlist(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def preferencesPlist(context):
     data_list = []
-    source_path = str(files_found[0])
+    source_path = str(context.get_files_found()[0])
     with open(source_path, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():

@@ -122,8 +122,8 @@ def decode_varint(source_data, offset): # Taken from https://github.com/Whee30/A
     return value, offset
 
 @artifact_processor
-def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'tgdata.db')
+def potatochat_chats(context):
+    source_path = get_file_path(context.get_files_found(), 'tgdata.db')
     data_list = []
     #The table names aren't fix and change the trailing number from time to time
     messages_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'messages_v__';"
@@ -411,8 +411,8 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
     return data_headers, data_list, source_path
 
 @artifact_processor
-def potatochat_users(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'tgdata.db')
+def potatochat_users(context):
+    source_path = get_file_path(context.get_files_found(), 'tgdata.db')
     data_list = []
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
     users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
@@ -455,9 +455,9 @@ def potatochat_users(files_found, _report_folder, _seeker, _wrap_text, _timezone
     return data_headers, data_list, source_path
 
 @artifact_processor
-def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'tgdata.db')
-    share_dialog = get_file_path(files_found, 'shareDialogList.db')
+def potatochat_group_chats(context):
+    source_path = get_file_path(context.get_files_found(), 'tgdata.db')
+    share_dialog = get_file_path(context.get_files_found(), 'shareDialogList.db')
     data_list = []
     media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
     media_cache_nr = get_sqlite_db_records(source_path, media_cache_query)[0]['name']
