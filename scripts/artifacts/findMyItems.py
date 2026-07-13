@@ -96,7 +96,7 @@ __artifacts_v2__ = {
 
 import json
 from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.ilapfuncs import convert_unix_ts_to_timezone
+from scripts.ilapfuncs import convert_unix_ts_to_utc
 
 
 def _read_items_json(source_path):
@@ -116,9 +116,9 @@ def _read_items_json(source_path):
 
 
 @artifact_processor
-def findMyItemsInfo(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def findMyItemsInfo(context):
     data_list = []
-    source_path = str(files_found[0])
+    source_path = str(context.get_files_found()[0])
 
     deserialized = _read_items_json(source_path)
     if deserialized:
@@ -151,15 +151,15 @@ def findMyItemsInfo(files_found, _report_folder, _seeker, _wrap_text, _timezone_
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsLocations(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def findMyItemsLocations(context):
     data_list = []
-    source_path = str(files_found[0])
+    source_path = str(context.get_files_found()[0])
     
     deserialized = _read_items_json(source_path)
     if deserialized:
         for x in deserialized:
             ltimestamp = (x['location'].get('timeStamp'))
-            ltimestamp = convert_unix_ts_to_timezone(ltimestamp, timezone_offset)
+            ltimestamp = convert_unix_ts_to_utc(ltimestamp)
             name = (x['name'])
             serial = (x['serialNumber'])
             item_id = (x['identifier'])
@@ -216,9 +216,9 @@ def findMyItemsLocations(files_found, _report_folder, _seeker, _wrap_text, timez
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsSafeLocations(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def findMyItemsSafeLocations(context):
     data_list = []
-    source_path = str(files_found[0])
+    source_path = str(context.get_files_found()[0])
     
     deserialized = _read_items_json(source_path)
     if deserialized:
@@ -231,7 +231,7 @@ def findMyItemsSafeLocations(files_found, _report_folder, _seeker, _wrap_text, t
             ris = (x['role'].get('identifier'))
             for safeloc in x.get('safeLocations'):
                 stimestamp = (safeloc['location'].get('timeStamp'))
-                stimestamp = convert_unix_ts_to_timezone(stimestamp, timezone_offset)
+                stimestamp = convert_unix_ts_to_utc(stimestamp)
                 sname = (safeloc.get('name'))
                 stype = (safeloc.get('type'))
                 sid = (safeloc.get('identifier'))
@@ -270,15 +270,15 @@ def findMyItemsSafeLocations(files_found, _report_folder, _seeker, _wrap_text, t
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsCrowdsourcedLocations(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def findMyItemsCrowdsourcedLocations(context):
     data_list = []
-    source_path = str(files_found[0])
+    source_path = str(context.get_files_found()[0])
     
     deserialized = _read_items_json(source_path)
     if deserialized:
         for x in deserialized:
             crowdtimestamp= (x['crowdSourcedLocation'].get('timeStamp'))
-            crowdtimestamp = convert_unix_ts_to_timezone(crowdtimestamp, timezone_offset)
+            crowdtimestamp = convert_unix_ts_to_utc(crowdtimestamp)
             name = (x['name'])
             serial = (x['serialNumber'])
             item_id = (x['identifier'])
