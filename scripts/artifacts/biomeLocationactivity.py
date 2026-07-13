@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/biome/streams/restricted/_DKEvent.App.LocationActivity/local/*'),
+        "paths": ('*/Biome/streams/restricted/_DKEvent.App.LocationActivity/local/*'),
         "output_types": "standard",
         "artifact_icon": "map-pin",
         "sample_data": {

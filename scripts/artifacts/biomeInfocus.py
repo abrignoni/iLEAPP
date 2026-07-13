@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/biome/streams/restricted/App.InFocus/local/*'),
+        "paths": ('*/Biome/streams/restricted/App.InFocus/local/*'),
         "output_types": "standard",
         "artifact_icon": "focus-2"
     }
