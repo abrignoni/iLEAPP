@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple App Store application foreground events",
         "author": "@stark4n6",
         "creation_date": "2025-07-21",
-        "last_update_date": "2026-03-19",
+        "last_update_date": "2026-07-13",
         "requirements": "none",
         "category": "App Usage",
         "notes": "",
