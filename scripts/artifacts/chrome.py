@@ -293,7 +293,6 @@ __artifacts_v2__ = {
 }
 
 import os
-import textwrap
 import urllib.parse
 import json
 import datetime
@@ -361,7 +360,7 @@ def get_valid_date(d1, d2):
 
 
 @artifact_processor
-def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
+def chromeWebHistory(context):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -374,7 +373,7 @@ def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_o
 
     report_file = 'Unknown'
     
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -408,18 +407,15 @@ def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_o
             report_name = f'{browser_name} - Web History'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
 
             for row in all_rows:
                 dt = convert_ts_human_to_utc(row[0])
-                if wrap_text:
-                    data_list.append((dt,textwrap.fill(row[1], width=100),row[2],row[3],row[4],row[5],row[6]))
-                else:
-                    data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
+                data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -447,7 +443,7 @@ def chromeWebHistory(files_found, report_folder, _seeker, wrap_text, _timezone_o
 
 
 @artifact_processor
-def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
+def chromeWebVisits(context):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -460,7 +456,7 @@ def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_of
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -519,18 +515,15 @@ def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_of
             report_name = f'{browser_name} - Web Visits'
             report = ArtifactHtmlReport(report_name)
             #check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
             data_list = []
             for row in all_rows:
                 dt = convert_ts_human_to_utc(row[0])
-                if wrap_text:
-                    data_list.append((dt,textwrap.fill(row[1], width=100),row[2],row[3],row[4],row[5],row[6]))
-                else:
-                    data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
+                data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -559,7 +552,7 @@ def chromeWebVisits(files_found, report_folder, _seeker, wrap_text, _timezone_of
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
+def chromeWebSearch(context):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -573,7 +566,7 @@ def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_of
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -602,9 +595,9 @@ def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_of
             report_name = f'{browser_name} - Web Search'
             report = ArtifactHtmlReport(report_name)
             #check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
             data_list = []
@@ -612,10 +605,7 @@ def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_of
                 dt = convert_ts_human_to_utc(row[3])
                 search = row[0].split('search?q=')[1].split('&')[0]
                 search = urllib.parse.unquote(search).replace('+', ' ')
-                if wrap_text:
-                    data_list.append((dt, search, (textwrap.fill(row[0], width=100)),row[1],row[2]))
-                else:
-                    data_list.append((dt, search, row[0], row[1], row[2]))
+                data_list.append((dt, search, row[0], row[1], row[2]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -646,7 +636,7 @@ def chromeWebSearch(files_found, report_folder, _seeker, wrap_text, _timezone_of
 
 
 @artifact_processor
-def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeDownloads(context):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -663,7 +653,7 @@ def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_o
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -772,9 +762,9 @@ def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             report_name = f'{browser_name} - Downloads'
             report = ArtifactHtmlReport(report_name)
             #check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -808,7 +798,7 @@ def chromeDownloads(files_found, report_folder, _seeker, _wrap_text, _timezone_o
 
 
 @artifact_processor
-def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
+def chromeKeywordSearchTerms(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -821,7 +811,7 @@ def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _ti
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -851,17 +841,14 @@ def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _ti
             report_name = f'{browser_name} - Keyword Search Terms'
             report = ArtifactHtmlReport(report_name)
             #check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
                 dt = convert_ts_human_to_utc(row[4])
-                if wrap_text:
-                    data_list.append((dt, row[1],(textwrap.fill(row[3], width=100))))
-                else:
-                    data_list.append((dt, row[1], row[3]))
+                data_list.append((dt, row[1], row[3]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -891,7 +878,7 @@ def chromeKeywordSearchTerms(files_found, report_folder, _seeker, wrap_text, _ti
 
 
 @artifact_processor
-def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeAutofillEntries(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -908,7 +895,7 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
             continue
@@ -939,9 +926,9 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
                 report_name = f'{browser_name} - Autofill - Entries'
                 report = ArtifactHtmlReport(report_name)
                 # check for existing and get next name for report file, so report from another file does not get overwritten
-                report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+                report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
                 report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-                report.start_artifact_report(report_folder, os.path.basename(report_path))
+                report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
                 report.add_script()
 
                 data_list = []
@@ -986,9 +973,9 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
                 report_name = f'{browser_name} - Autofill - Entries'
                 report = ArtifactHtmlReport(report_name)
                 # check for existing and get next name for report file, so report from another file does not get overwritten
-                report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+                report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
                 report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-                report.start_artifact_report(report_folder, os.path.basename(report_path))
+                report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
                 report.add_script()
                 data_list = []
                 for row in all_rows:
@@ -1021,7 +1008,7 @@ def chromeAutofillEntries(files_found, report_folder, _seeker, _wrap_text, _time
 
 
 @artifact_processor
-def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeAutofillProfiles(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1035,7 +1022,7 @@ def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _tim
     
     report_file = 'Unknown'
     
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
             continue
@@ -1078,9 +1065,9 @@ def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _tim
                 report_name = f'{browser_name} - Autofill - Profiles'
                 report = ArtifactHtmlReport(report_name)
                 # check for existing and get next name for report file, so report from another file does not get overwritten
-                report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+                report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
                 report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-                report.start_artifact_report(report_folder, os.path.basename(report_path))
+                report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
                 report.add_script()
 
                 data_list = []
@@ -1121,7 +1108,7 @@ def chromeAutofillProfiles(files_found, report_folder, _seeker, _wrap_text, _tim
 
 
 @artifact_processor
-def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeBookmarks(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1135,7 +1122,7 @@ def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_o
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         file_path = os.path.basename(file_found)
 
@@ -1177,9 +1164,9 @@ def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             report_name = f'{browser_name} - Bookmarks'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -1208,7 +1195,7 @@ def chromeBookmarks(files_found, report_folder, _seeker, _wrap_text, _timezone_o
 
 
 @artifact_processor
-def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
+def chromeCookies(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1224,7 +1211,7 @@ def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offs
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Cookies':  # skip -journal and other files
             continue
@@ -1278,20 +1265,16 @@ def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offs
             report_name = f'{browser_name} - Cookies'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
                 last_accessed_dt = convert_ts_human_to_utc(row[0])
                 created_dt = convert_ts_human_to_utc(row[4])
                 expiration_dt = convert_ts_human_to_utc(row[5])
-                if wrap_text:
-                    data_list.append(
-                        (last_accessed_dt, row[1], (textwrap.fill(row[2], width=50)), row[3], created_dt, expiration_dt, row[6]))
-                else:
-                    data_list.append((last_accessed_dt, row[1], row[2], row[3], created_dt, expiration_dt, row[6]))
+                data_list.append((last_accessed_dt, row[1], row[2], row[3], created_dt, expiration_dt, row[6]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -1321,7 +1304,7 @@ def chromeCookies(files_found, report_folder, _seeker, wrap_text, _timezone_offs
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeLoginData(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1334,7 +1317,7 @@ def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_o
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Login Data':  # skip -journal and other files
             continue
@@ -1367,9 +1350,9 @@ def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_o
             report_name = f'{browser_name} - Login Data'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -1408,7 +1391,7 @@ def chromeLoginData(files_found, report_folder, _seeker, _wrap_text, _timezone_o
 
 
 @artifact_processor
-def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeTopSites(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1420,7 +1403,7 @@ def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_of
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Top Sites':  # skip -journal and other files
             continue
@@ -1452,9 +1435,9 @@ def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_of
             report_name = f'{browser_name} - Top Sites'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -1489,7 +1472,7 @@ def chromeTopSites(files_found, report_folder, _seeker, _wrap_text, _timezone_of
 
 
 @artifact_processor
-def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone_offset):
+def chromeOfflinePages(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1504,7 +1487,7 @@ def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'OfflinePages.db':  # skip -journal and other files
             continue
@@ -1533,19 +1516,15 @@ def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone
             report_name = f'{browser_name} - Offline Pages'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
                 created_dt = convert_ts_human_to_utc(row[0])
                 last_accessed_dt = convert_ts_human_to_utc(row[1])
-                if wrap_text:
-                    data_list.append(
-                        (created_dt, last_accessed_dt, (textwrap.fill(row[2], width=75)), row[3], row[4], row[5], row[6]))
-                else:
-                    data_list.append((created_dt, last_accessed_dt, row[2], row[3], row[4], row[5], row[6]))
+                data_list.append((created_dt, last_accessed_dt, row[2], row[3], row[4], row[5], row[6]))
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1575,7 +1554,7 @@ def chromeOfflinePages(files_found, report_folder, _seeker, wrap_text, _timezone
 
 
 @artifact_processor
-def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeMediaHistorySessions(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1589,7 +1568,7 @@ def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, 
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Media History'):
             continue  # Skip all other files
@@ -1621,9 +1600,9 @@ def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, 
             report_name = f'{browser_name} - Media History - Sessions'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -1657,7 +1636,7 @@ def chromeMediaHistorySessions(files_found, report_folder, _seeker, _wrap_text, 
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeMediaHistoryPlaybacks(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1671,7 +1650,7 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text,
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Media History'):
             continue  # Skip all other files
@@ -1707,9 +1686,9 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text,
             report_name = f'{browser_name} - Media History - Playbacks'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -1744,7 +1723,7 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, _seeker, _wrap_text,
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeMediaHistoryOrigins(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1757,7 +1736,7 @@ def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Media History'):
             continue  # Skip all other files
@@ -1785,9 +1764,9 @@ def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _
             report_name = f'{browser_name} - Media History - Origins'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -1823,7 +1802,7 @@ def chromeMediaHistoryOrigins(files_found, report_folder, _seeker, _wrap_text, _
 
 
 @artifact_processor
-def chromeNetworkActionPredictor(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
+def chromeNetworkActionPredictor(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1836,7 +1815,7 @@ def chromeNetworkActionPredictor(files_found, report_folder, _seeker, _wrap_text
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Network Action Predictor'):
             continue  # Skip all other files
@@ -1863,9 +1842,9 @@ def chromeNetworkActionPredictor(files_found, report_folder, _seeker, _wrap_text
             report_name = f'{browser_name} - Network Action Predictor'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
             data_list = []
