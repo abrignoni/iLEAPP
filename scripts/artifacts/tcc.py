@@ -39,8 +39,8 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 @artifact_processor
-def tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, 'TCC.db')
+def tcc(context):
+    source_path = get_file_path(context.get_files_found(), 'TCC.db')
     data_list = []
 
     last_modified_timestamp_exists = does_column_exist_in_db(

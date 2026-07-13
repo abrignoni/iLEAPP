@@ -34,12 +34,12 @@ _MARKER = ('[MCMGroupManager _removeGroupContainersIfNeededforUser:groupContaine
 
 
 @artifact_processor
-def mobileContainerManager(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def mobileContainerManager(context):
     data_headers = (('Datetime', 'datetime'), 'Removed', 'Line')
     data_list = []
     source_path = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         source_path = source_path or file_found
         try:

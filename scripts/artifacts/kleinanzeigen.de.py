@@ -71,8 +71,8 @@ import datetime
 from scripts.ilapfuncs import artifact_processor, get_file_path
 
 @artifact_processor
-def get_kleinanzeigenmessagecache(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'conversation_cache')
+def get_kleinanzeigenmessagecache(context):
+    source_path = get_file_path(context.get_files_found(), 'conversation_cache')
     data_list = []
 
     with open(source_path, 'r', encoding='utf-8') as ka_in:
@@ -149,8 +149,8 @@ def get_kleinanzeigenmessagecache(files_found, _report_folder, _seeker, _wrap_te
     return data_headers, data_list, source_path
 
 @artifact_processor
-def get_kleinanzeigenlastquery(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, '.last_search_query')
+def get_kleinanzeigenlastquery(context):
+    source_path = get_file_path(context.get_files_found(), '.last_search_query')
     data_list = []
 
     with open(source_path, 'r', encoding='utf-8') as ka_in:
@@ -171,8 +171,8 @@ def get_kleinanzeigenlastquery(files_found, _report_folder, _seeker, _wrap_text,
     return data_headers, data_list, source_path
 
 @artifact_processor
-def get_kleinanzeigenuser(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'com.ebaykleinanzeigen.ebc.plist')
+def get_kleinanzeigenuser(context):
+    source_path = get_file_path(context.get_files_found(), 'com.ebaykleinanzeigen.ebc.plist')
     data_list = []
 
     with open(source_path, 'rb') as ka_in:
@@ -197,8 +197,8 @@ def get_kleinanzeigenuser(files_found, _report_folder, _seeker, _wrap_text, _tim
     return data_headers, data_list, source_path
 
 @artifact_processor
-def get_kleinanzeigensearchhistory(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'com.ebaykleinanzeigen.ebc.plist')
+def get_kleinanzeigensearchhistory(context):
+    source_path = get_file_path(context.get_files_found(), 'com.ebaykleinanzeigen.ebc.plist')
     data_list = []
 
     with open(source_path, 'rb') as ka_in:

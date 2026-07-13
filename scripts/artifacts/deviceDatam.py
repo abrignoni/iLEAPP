@@ -37,9 +37,9 @@ from datetime import datetime, timedelta
 from scripts.ilapfuncs import artifact_processor, device_info, webkit_timestampsconv
 
 @artifact_processor
-def deviceDatam(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def deviceDatam(context):
     data_list = []
-    file_found = str(files_found[0])
+    file_found = str(context.get_files_found()[0])
     
     timestamp_keys = [
         'AccountCreationTimestamp',

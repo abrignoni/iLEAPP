@@ -34,12 +34,12 @@ def get_name(name_with_prefix):
 
 
 @artifact_processor
-def medicalID(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def medicalID(context):
     data_headers = ('Key', 'Value')
     data_list = []
 
     source_path = ''
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('MedicalIDData.archive'):
             source_path = file_found

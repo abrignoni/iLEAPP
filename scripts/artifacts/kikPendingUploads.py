@@ -33,13 +33,13 @@ from scripts.ilapfuncs import artifact_processor, check_in_media
 
 
 @artifact_processor
-def kikPendingUploads(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def kikPendingUploads(context):
     data_headers = ('Upload Start Time', 'App ID', 'Content ID', 'Progress', 'Retries Remaining',
                     'State', ('Pending File', 'media'))
     data_list = []
     source_path = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('pending_uploads'):
             continue
@@ -68,7 +68,7 @@ def kikPendingUploads(files_found, _report_folder, _seeker, _wrap_text, _timezon
         content_id = a_dict.get('contentID', '')
         media = ''
         if content_id:
-            for match in files_found:
+            for match in context.get_files_found():
                 match = str(match)
                 if content_id in match and os.path.isfile(match):
                     media = check_in_media(match) or ''

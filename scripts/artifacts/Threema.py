@@ -59,8 +59,8 @@ from scripts.ilapfuncs import artifact_processor, \
     check_in_media, check_in_embedded_media
 
 @artifact_processor
-def threema_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'ThreemaData.sqlite')
+def threema_chats(context):
+    source_path = get_file_path(context.get_files_found(), 'ThreemaData.sqlite')
     data_list = []
 
     chat_query = '''
@@ -233,8 +233,8 @@ def threema_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_of
     return data_headers, data_list, source_path
 
 @artifact_processor
-def threema_users(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'ThreemaData.sqlite')
+def threema_users(context):
+    source_path = get_file_path(context.get_files_found(), 'ThreemaData.sqlite')
     data_list = []
 
     user_query = '''

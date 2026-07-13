@@ -36,7 +36,7 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc, device_info
 
 @artifact_processor
-def subscriberInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def subscriberInfo(context):
     data_list = []
     db_file = ''
     db_records = []
@@ -50,7 +50,7 @@ def subscriberInfo(files_found, report_folder, seeker, wrap_text, timezone_offse
     FROM subscriber_info
     '''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('CellularUsage.db'):
             db_file = file_found
             db_records = get_sqlite_db_records(db_file, query)

@@ -31,14 +31,14 @@ from scripts.ilapfuncs import artifact_processor, check_in_embedded_media
 
 
 @artifact_processor
-def kikBplistmeta(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def kikBplistmeta(context):
     data_headers = ('Content ID', 'Filename', 'File Size', 'Allow Forward', 'Layout', 'App Name',
                     'App ID', 'SHA1 Original', 'SHA1 Scaled', 'Blockhash Scaled',
                     ('Internal Thumbnail', 'media'))
     data_list = []
     source_path = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if os.path.isdir(file_found):
             continue

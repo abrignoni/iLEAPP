@@ -33,14 +33,14 @@ from scripts.ilapfuncs import artifact_processor, get_file_path, \
     get_sqlite_db_records, logfunc, open_sqlite_db_readonly
 
 @artifact_processor
-def plz_interaction(files_found, _report_folder, _seeker, _wrap_text):
-    source_path = get_file_path(files_found, "favorites_prediction_db.sqlite")
+def plz_interaction(context):
+    source_path = get_file_path(context.get_files_found(), "favorites_prediction_db.sqlite")
     data_list = []
     cursor = None
     prediction_db = ""
     localdata_db = ""
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith("favorites_prediction_db.sqlite"):
             prediction_db = file_found
@@ -84,12 +84,12 @@ def plz_interaction(files_found, _report_folder, _seeker, _wrap_text):
         logfunc('No Swissmeteo')
 
 @artifact_processor
-def swissmeteo_plz(files_found, _report_folder, _seeker, _wrap_text):
-    source_path = get_file_path(files_found, "favorites_prediction_db.sqlite")
+def swissmeteo_plz(context):
+    source_path = get_file_path(context.get_files_found(), "favorites_prediction_db.sqlite")
     data_list = []
     prediction_db = ""
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('favorites_prediction_db.sqlite'):
             prediction_db = file_found

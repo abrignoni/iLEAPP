@@ -82,11 +82,11 @@ def _find_db(files_found):
 
 
 @artifact_processor
-def kikMessages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def kikMessages(context):
     data_headers = (('Received Time', 'datetime'), ('Timestamp', 'datetime'), 'Message', 'Type',
                     'User', 'Display Name', 'User Name', 'Attachment Name', ('Attachment', 'media'))
     data_list = []
-    source_path = _find_db(files_found)
+    source_path = _find_db(context.get_files_found())
     if not source_path:
         return data_headers, data_list, ''
 
@@ -121,11 +121,11 @@ def kikMessages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offs
 
 
 @artifact_processor
-def kikUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def kikUsers(context):
     data_headers = ('PK', 'Display Name', 'User Name', 'Email', 'JID', 'First Name', 'Last Name',
                     ('Profile Pic Timestamp', 'datetime'), 'Profile Pic URL')
     data_list = []
-    source_path = _find_db(files_found)
+    source_path = _find_db(context.get_files_found())
     if not source_path:
         return data_headers, data_list, ''
 

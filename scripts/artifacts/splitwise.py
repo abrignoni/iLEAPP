@@ -102,8 +102,8 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_unix_ts_to_utc
 
 @artifact_processor
-def splitwiseUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseUsers(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
 
     query = '''
@@ -149,8 +149,8 @@ def splitwiseUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_o
 
 
 @artifact_processor
-def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseExpenses(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
 
     query = '''
@@ -196,8 +196,8 @@ def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezon
 
 
 @artifact_processor
-def splitwiseExpenseBalances(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseExpenseBalances(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
 
     query = '''
@@ -231,8 +231,8 @@ def splitwiseExpenseBalances(files_found, _report_folder, _seeker, _wrap_text, _
 
 
 @artifact_processor
-def splitwiseTotalBalances(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseTotalBalances(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
 
     query = '''
@@ -268,8 +268,8 @@ def splitwiseTotalBalances(files_found, _report_folder, _seeker, _wrap_text, _ti
 
 
 @artifact_processor
-def splitwiseGroups(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseGroups(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
     data_list_html = []
 
@@ -330,8 +330,8 @@ def splitwiseGroups(files_found, _report_folder, _seeker, _wrap_text, _timezone_
 
 
 @artifact_processor
-def splitwiseNotifications(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseNotifications(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
     data_list_html = []
 

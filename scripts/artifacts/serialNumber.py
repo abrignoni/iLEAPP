@@ -35,10 +35,10 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, device_info
 
 @artifact_processor
-def serialNumber(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def serialNumber(context):
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('consolidated.db'):
             db_file = file_found
             break
