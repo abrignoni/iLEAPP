@@ -24,8 +24,14 @@ __artifacts_v2__ = {
                  "findings. JPEG (C2PA + XMP + signature) is validated against test files and real "
                  "Google/Gemini images; PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) containers are handled "
                  "per the C2PA specification.",
-        "paths": ('*.jpg', '*.jpeg', '*.jpe', '*.png', '*.heic', '*.heif', '*.avif',
-                  '*.webp', '*.tif', '*.tiff', '*.dng', '*.mp4', '*.mov', '*.m4v'),
+        "paths": (  # case-insensitive extensions; fnmatch '*' already spans '/', so these
+                    # match media at ANY depth. Uppercase forms catch iOS defaults (.HEIC/.JPG/.MOV).
+            '*.[jJ][pP][gG]', '*.[jJ][pP][eE][gG]', '*.[jJ][pP][eE]',
+            '*.[pP][nN][gG]', '*.[hH][eE][iI][cC]', '*.[hH][eE][iI][fF]',
+            '*.[hH][iI][fF]', '*.[aA][vV][iI][fF]', '*.[wW][eE][bB][pP]',
+            '*.[jJ][xX][lL]', '*.[tT][iI][fF]', '*.[tT][iI][fF][fF]',
+            '*.[dD][nN][gG]', '*.[mM][pP]4', '*.[mM][oO][vV]', '*.[mM]4[vV]',
+        ),
         "output_types": "all",
         "artifact_icon": "certificate",
     }
