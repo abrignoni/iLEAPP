@@ -13,7 +13,7 @@ __artifacts_v2__ = {
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
-"artifact_icon": "smile",
+"artifact_icon": "mood-smile",
 'sample_data': {
 'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 729 rows',
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
-"artifact_icon": "smile",
+"artifact_icon": "mood-smile",
 'sample_data': {
 'dexter_ios18': 'iOS 18.3.2 | 4 rows',
 'felix_ios17': 'iOS 17.6.1 | 0 rows',

@@ -19,7 +19,7 @@ __artifacts_v2__ = {
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
-"artifact_icon": "info",
+"artifact_icon": "info-circle",
 'sample_data': {
 'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 2 rows',
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
-"artifact_icon": "info",
+"artifact_icon": "info-circle",
 'sample_data': {
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
 }

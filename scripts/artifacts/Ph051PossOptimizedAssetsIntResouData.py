@@ -17,7 +17,7 @@ __artifacts_v2__ = {
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
-"artifact_icon": "upload-cloud",
+"artifact_icon": "cloud-upload",
 'sample_data': {
 'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 684 rows',
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, does_column_exist_in_db, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
 def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
@@ -59,6 +59,12 @@ def Ph051PossibleOptimizedAssetsIntResouPhDaPsql(context):
     if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
+    # Devices upgraded to iOS 16+ can carry an unmigrated database missing
+    # newer columns (see #1410/#1411); skip cleanly instead of erroring out.
+    if source_path and version.parse(iosversion) >= version.parse("16"):
+        if not does_column_exist_in_db(source_path, 'ZADDITIONALASSETATTRIBUTES', 'ZDUPLICATEDETECTORPERCEPTUALPROCESSINGSTATE'):
+            logfunc('Ph051: ZADDITIONALASSETATTRIBUTES.ZDUPLICATEDETECTORPERCEPTUALPROCESSINGSTATE not found - unmigrated database, skipping')
+            return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
         source_path = get_file_path(files_found, "Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):

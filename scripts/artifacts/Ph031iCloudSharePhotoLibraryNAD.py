@@ -13,7 +13,7 @@ __artifacts_v2__ = {
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
-"artifact_icon": "upload-cloud",
+"artifact_icon": "cloud-upload",
 'sample_data': {
 'ctf2020_ios12': 'iOS 12.4 | 0 rows',
 'dexter_ios18': 'iOS 18.3.2 | 3 rows',

@@ -77,7 +77,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, does_column_exist_in_db, get_file_path, get_sqlite_db_records, logfunc, iOS
 
 @artifact_processor
 def Ph006_1ViewandPlayDataPhDaPsql(context):
@@ -96,6 +96,12 @@ def Ph006_1ViewandPlayDataPhDaPsql(context):
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
+    # Devices upgraded to iOS 16+ can carry an unmigrated database missing
+    # newer columns (see #1410/#1411); skip cleanly instead of erroring out.
+    if source_path and version.parse(iosversion) >= version.parse("16"):
+        if not does_column_exist_in_db(source_path, 'ZADDITIONALASSETATTRIBUTES', 'ZLASTVIEWEDDATE'):
+            logfunc('Ph006: ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE not found - unmigrated database, skipping')
+            return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("13")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
@@ -529,6 +535,12 @@ def Ph006_2ViewandPlayDataSyndPL(context):
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotosData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
+    # Devices upgraded to iOS 16+ can carry an unmigrated database missing
+    # newer columns (see #1410/#1411); skip cleanly instead of erroring out.
+    if source_path and version.parse(iosversion) >= version.parse("16"):
+        if not does_column_exist_in_db(source_path, 'ZADDITIONALASSETATTRIBUTES', 'ZLASTVIEWEDDATE'):
+            logfunc('Ph006: ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE not found - unmigrated database, skipping')
+            return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("13")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
@@ -962,6 +974,12 @@ def Ph006_3ViewandPlayDataGenPlayPsql(context):
     if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
+    # Devices upgraded to iOS 16+ can carry an unmigrated database missing
+    # newer columns (see #1410/#1411); skip cleanly instead of erroring out.
+    if source_path and version.parse(iosversion) >= version.parse("16"):
+        if not does_column_exist_in_db(source_path, 'ZADDITIONALASSETATTRIBUTES', 'ZLASTVIEWEDDATE'):
+            logfunc('Ph006: ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE not found - unmigrated database, skipping')
+            return (), [], source_path
     if (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):

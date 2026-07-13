@@ -12,7 +12,7 @@ __artifacts_v2__ = {
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
-"artifact_icon": "book-open",
+"artifact_icon": "book-2",
 'sample_data': {
 'ctf2020_ios12': 'iOS 12.4 | 5 rows',
 'dexter_ios18': 'iOS 18.3.2 | 920 rows',
