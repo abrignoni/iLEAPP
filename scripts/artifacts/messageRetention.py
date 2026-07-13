@@ -37,7 +37,8 @@ import os
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content, device_info
 
 @artifact_processor
-def messageRetention(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def messageRetention(context):
+    seeker = context.get_seeker()
     source_path_one = seeker.search('*/mobile/Library/Preferences/com.apple.MobileSMS.plist', return_on_first_hit=True, force=True)
     data_list = []
 

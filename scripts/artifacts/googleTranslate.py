@@ -56,8 +56,8 @@ from scripts.filetype import audio_match
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_table_exist_in_db, convert_unix_ts_to_utc
 
 @artifact_processor
-def googleTranslateHistory(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "translate.db")
+def googleTranslateHistory(context):
+    source_path = get_file_path(context.get_files_found(), "translate.db")
     data_list = []
 
     query = '''
@@ -94,8 +94,8 @@ def googleTranslateHistory(files_found, _report_folder, _seeker, _wrap_text, _ti
 
 
 @artifact_processor
-def googleTranslateStarred(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "translate.db")
+def googleTranslateStarred(context):
+    source_path = get_file_path(context.get_files_found(), "translate.db")
     data_list = []
 
     query = '''
@@ -121,8 +121,9 @@ def googleTranslateStarred(files_found, _report_folder, _seeker, _wrap_text, _ti
 
 
 @artifact_processor
-def googleTranslateTts(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "translate.db")
+def googleTranslateTts(context):
+    report_folder = context.get_report_folder()
+    source_path = get_file_path(context.get_files_found(), "translate.db")
     data_list = []
     data_list_html = []
 
