@@ -66,18 +66,18 @@ This document outlines the various device information collected by LEAPP modules
 | Vehicle | Last Disconnected | carCD |
 | Vehicle | Type | carCD |
 | WiFi | Keep Wifi Powered Airplane Mode | appleWifiPlist |
-| com.apple.mobileslideshow.plist | PhotosSharedLibrarySyncingIsActive | Ph80comappleMobileSlideShowPlist |
-| com.apple.mobileslideshow.plist | downloadAndKeepOriginals | Ph80comappleMobileSlideShowPlist |
-| com.apple.purplebuddy.plist | SetupState | Ph83comapplePurpleBuddyPlist |
-| devicevaluesplist-ufedadvlog | Build Version | Ph100UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Device Name | Ph100UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Hardware Model | Ph100UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | IMEI | Ph100UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Password Protected | Ph100UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Product Type | Ph100UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Product Version | Ph100UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Serial Number | Ph100UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | TimeZone | Ph100UFEDdevcievaluesplist |
+| com.apple.mobileslideshow.plist | PhotosSharedLibrarySyncingIsActive | Ph080comappleMobileSlideShowPlist |
+| com.apple.mobileslideshow.plist | downloadAndKeepOriginals | Ph080comappleMobileSlideShowPlist |
+| com.apple.purplebuddy.plist | SetupState | Ph083comapplePurpleBuddyPlist |
+| devicevaluesplist-ufedadvlog | Build Version | Ph087UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Device Name | Ph087UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Hardware Model | Ph087UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | IMEI | Ph087UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Password Protected | Ph087UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Product Type | Ph087UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Product Version | Ph087UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | Serial Number | Ph087UFEDdevcievaluesplist |
+| devicevaluesplist-ufedadvlog | TimeZone | Ph087UFEDdevcievaluesplist |
 <!-- DEVICE_INFO_END -->
 
 ### logdevinfo() Usage
