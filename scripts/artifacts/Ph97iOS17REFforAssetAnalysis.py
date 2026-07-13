@@ -3950,7 +3950,7 @@ def Ph97_1iOS17RefforAssetAnalysisPhDaPsql(files_found, report_folder, seeker, w
 						'z3MemoryBCAs-44Memories Being Custom User Assets-1091',
 						'z3MemoryBCAs-3Custom User Assets-1092',
 						'z3MemoryBCAs-FOK-3Custom User Assets-1093')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 	
@@ -7819,7 +7819,7 @@ def Ph97_1iOS17RefforAssetAnalysisPhDaPsql(files_found, report_folder, seeker, w
 						'z3MemoryBCAs-45Memories Being Custom User Assets-1091',
 						'z3MemoryBCAs-3Custom User Assets-1092',
 						'z3MemoryBCAs-FOK-3Custom User Assets-1093')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -11701,7 +11701,7 @@ def Ph97_2iOS17RefforAssetAnalysisSyndPL(files_found, report_folder, seeker, wra
 						'z3MemoryBCAs-44Memories Being Custom User Assets-1091',
 						'z3MemoryBCAs-3Custom User Assets-1092',
 						'z3MemoryBCAs-FOK-3Custom User Assets-1093')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 	
@@ -15570,6 +15570,6 @@ def Ph97_2iOS17RefforAssetAnalysisSyndPL(files_found, report_folder, seeker, wra
 						'z3MemoryBCAs-45Memories Being Custom User Assets-1091',
 						'z3MemoryBCAs-3Custom User Assets-1092',
 						'z3MemoryBCAs-FOK-3Custom User Assets-1093')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path

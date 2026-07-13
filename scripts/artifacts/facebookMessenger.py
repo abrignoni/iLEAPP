@@ -250,6 +250,9 @@ def facebookMessengerCalls(context):
                 sender_id = record[2]
                 call_type = record[3]
                 call_duration = record[4]
+                # NOTE: this pattern is repeated on this file and it can be
+                #   replaced by unpacking the record over the variables
+                #   we don't even need to initialize the varibles beforehand
 
                 data_list.append(
                     (

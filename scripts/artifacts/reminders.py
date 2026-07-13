@@ -54,7 +54,11 @@ def reminders(context):
             continue
 
         rel_path = context.get_relative_path(file_found)
-        rows = get_sqlite_db_records(file_found, query)
+        rows = list( get_sqlite_db_records(file_found, query) )
+        # NOTE: we could actually change this one to just consume the generator
+        #   if we think for more than the 15 seconds I thought of this
+        #   as per previous comments: big change, trying to change as little as
+        #   possible  -- bconstanzo
         if not rows:
             continue
         for row in rows:

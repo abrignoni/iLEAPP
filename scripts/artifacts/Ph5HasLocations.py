@@ -213,7 +213,7 @@ def Ph5_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, wr
                         'zAddAssetAttr-zPK-15',
                         'zAsset-UUID = store.cloudphotodb-16',
                         'zAddAssetAttr-Master Fingerprint-17')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -373,7 +373,7 @@ def Ph5_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, wr
                         'zAddAssetAttr-zPK-21',
                         'zAsset-UUID = store.cloudphotodb-22',
                         'zAddAssetAttr-Master Fingerprint-23')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -545,7 +545,7 @@ def Ph5_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, wr
                         'zAddAssetAttr-zPK-24',
                         'zAsset-UUID = store.cloudphotodb-25',
                         'zAddAssetAttr-Master Fingerprint-26')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -719,7 +719,7 @@ def Ph5_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, wr
                         'zAddAssetAttr-zPK-25',
                         'zAsset-UUID = store.cloudphotodb-26',
                         'zAddAssetAttr-Master Fingerprint-27')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -895,7 +895,7 @@ def Ph5_1AssetshavevalidlocationsPhDaPsql(files_found, report_folder, seeker, wr
                         'zAsset-UUID = store.cloudphotodb-26',
                         'zAddAssetAttr-Original Stable Hash-27',
                         'zAddAssetAttr.Adjusted Stable Hash-28')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1022,7 +1022,7 @@ def Ph5_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wrap
                         'zAddAssetAttr-zPK-15',
                         'zAsset-UUID = store.cloudphotodb-16',
                         'zAddAssetAttr-Master Fingerprint-17')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1182,7 +1182,7 @@ def Ph5_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wrap
                         'zAddAssetAttr-zPK-21',
                         'zAsset-UUID = store.cloudphotodb-22',
                         'zAddAssetAttr-Master Fingerprint-23')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1354,7 +1354,7 @@ def Ph5_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wrap
                         'zAddAssetAttr-zPK-24',
                         'zAsset-UUID = store.cloudphotodb-25',
                         'zAddAssetAttr-Master Fingerprint-26')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1528,7 +1528,7 @@ def Ph5_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wrap
                         'zAddAssetAttr-zPK-25',
                         'zAsset-UUID = store.cloudphotodb-26',
                         'zAddAssetAttr-Master Fingerprint-27')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1704,7 +1704,7 @@ def Ph5_2AssetshavevalidlocationsSyndPL(files_found, report_folder, seeker, wrap
                         'zAsset-UUID = store.cloudphotodb-26',
                         'zAddAssetAttr-Original Stable Hash-27',
                         'zAddAssetAttr.Adjusted Stable Hash-28')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1894,6 +1894,6 @@ def Ph5_3AssetshavevalidlocationsGenPlayPsql(files_found, report_folder, seeker,
                         'zAsset-UUID = store.cloudphotodb-26',
                         'zAddAssetAttr-Original Stable Hash-27',
                         'zAddAssetAttr.Adjusted Stable Hash-28')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

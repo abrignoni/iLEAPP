@@ -161,8 +161,10 @@ def notes(context):
             continue
 
         rows = get_sqlite_db_records(file_found, _query_for_db(file_found))
-        if not rows:
-            continue
+        # if not rows:
+        #     continue
+        # NOTE: if the generator is empty, it won't loop, so we don't have to
+        #   skip it here
 
         for row in rows:
             if row[6] == 'No' and row[16] is not None:

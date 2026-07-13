@@ -3910,7 +3910,7 @@ def Ph96_1iOS16RefforAssetAnalysisPhDaPsql(files_found, report_folder, seeker, w
 						'z3MemoryBCAs-44Memories Being Custom User Assets-1080',
 						'z3MemoryBCAs-3Custom User Assets-1081',
 						'z3MemoryBCAs-FOK-3Custom User Assets-1082')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -7753,6 +7753,6 @@ def Ph96_2iOS16RefforAssetAnalysisSyndPL(files_found, report_folder, seeker, wra
 						'z3MemoryBCAs-44Memories Being Custom User Assets-1080',
 						'z3MemoryBCAs-3Custom User Assets-1081',
 						'z3MemoryBCAs-FOK-3Custom User Assets-1082')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path

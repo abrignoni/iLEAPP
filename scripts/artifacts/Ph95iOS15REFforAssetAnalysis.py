@@ -3134,7 +3134,7 @@ def Ph95_1iOS15RefforAssetAnalysisPhDaPsql(files_found, report_folder, seeker, w
 						'z27Assets-27Albums= zGenAlbum-zPK-848',
 						'z27Assets-3Asset Key= zAsset-zPK in the Album-849',
 						'z27Asset-FOK-3Assets= zAsset.Z_FOK_CLOUDFEEDASSETSENTRY-850')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -6200,6 +6200,6 @@ def Ph95_2iOS15RefforAssetAnalysisSyndPL(files_found, report_folder, seeker, wra
 						'z27Assets-27Albums= zGenAlbum-zPK-848',
 						'z27Assets-3Asset Key= zAsset-zPK in the Album-849',
 						'z27Asset-FOK-3Assets= zAsset.Z_FOK_CLOUDFEEDASSETSENTRY-850')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path

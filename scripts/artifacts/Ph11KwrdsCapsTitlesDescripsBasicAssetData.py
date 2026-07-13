@@ -314,7 +314,7 @@ def Ph11_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(files_found, report_
                         'zAddAssetAttr-zPK-68',
                         'zAsset-UUID = store.cloudphotodb-69',
                         'zAddAssetAttr-Master Fingerprint-70')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -580,7 +580,7 @@ def Ph11_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(files_found, report_
                         'zAddAssetAttr-zPK-73',
                         'zAsset-UUID = store.cloudphotodb-74',
                         'zAddAssetAttr-Master Fingerprint-75')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -854,7 +854,7 @@ def Ph11_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(files_found, report_
                         'zAddAssetAttr-zPK-75',
                         'zAsset-UUID = store.cloudphotodb-76',
                         'zAddAssetAttr-Master Fingerprint-77')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -1128,7 +1128,7 @@ def Ph11_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(files_found, report_
                         'zAddAssetAttr-zPK-75',
                         'zAsset-UUID = store.cloudphotodb-76',
                         'zAddAssetAttr-Master Fingerprint-77')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1410,7 +1410,7 @@ def Ph11_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(files_found, report_
                         'zAsset-UUID = store.cloudphotodb-77',
                         'zAddAssetAttr-Original Stable Hash-78',
                         'zAddAssetAttr.Adjusted Stable Hash-79')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1706,6 +1706,6 @@ def Ph11_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(files_found, repo
                         'zAsset-UUID = store.cloudphotodb-77',
                         'zAddAssetAttr-Original Stable Hash-78',
                         'zAddAssetAttr.Adjusted Stable Hash-79')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

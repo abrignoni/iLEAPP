@@ -127,13 +127,13 @@ def potatochat_chats(context):
     data_list = []
     #The table names aren't fix and change the trailing number from time to time
     messages_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'messages_v__';"
-    messages_nr = get_sqlite_db_records(source_path, messages_query)[0]['name']
+    messages_nr = next( get_sqlite_db_records(source_path, messages_query) )['name']
     media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
-    media_cache_nr = get_sqlite_db_records(source_path, media_cache_query)[0]['name']
+    media_cache_nr = next( get_sqlite_db_records(source_path, media_cache_query) )['name']
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
     conversations_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'convesations_v__' OR 'conversations_v__';"
-    conversations_nr = get_sqlite_db_records(source_path, conversations_query)[0]['name']
+    conversations_nr = next( get_sqlite_db_records(source_path, conversations_query) )['name']
 
     media_query = f'''
         SELECT
@@ -190,10 +190,12 @@ def potatochat_chats(context):
         FROM {users_nr}
     '''
         
-    media_records = get_sqlite_db_records(source_path, media_query)
+    # NOTE: for the moment I'm list-ing the queries that may be walked over
+    #   more than once
+    media_records = list( get_sqlite_db_records(source_path, media_query) )
     db_records = get_sqlite_db_records(source_path, chat_query)
-    conv_records = get_sqlite_db_records(source_path, conv_query)
-    u_cid_records = get_sqlite_db_records(source_path, user_cid_query)
+    conv_records = list( get_sqlite_db_records(source_path, conv_query) )
+    u_cid_records = list( get_sqlite_db_records(source_path, user_cid_query) )
 
 
     for record in db_records:
@@ -415,9 +417,9 @@ def potatochat_users(context):
     source_path = get_file_path(context.get_files_found(), 'tgdata.db')
     data_list = []
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
     contact_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'contacts_v__';"
-    contact_nr = get_sqlite_db_records(source_path, contact_query)[0]['name']
+    contact_nr = next( get_sqlite_db_records(source_path, contact_query) )['name']
     list_query = f'''
         SELECT
             u.uid,
@@ -460,16 +462,16 @@ def potatochat_group_chats(context):
     share_dialog = get_file_path(context.get_files_found(), 'shareDialogList.db')
     data_list = []
     media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
-    media_cache_nr = get_sqlite_db_records(source_path, media_cache_query)[0]['name']
+    media_cache_nr = next( get_sqlite_db_records(source_path, media_cache_query) )['name']
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
     group_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'share_dialog_list_users_v__';"
-    group_nr = get_sqlite_db_records(share_dialog, group_query)[0]['name']
+    group_nr = next( get_sqlite_db_records(share_dialog, group_query) )['name']
     channels_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'channel_messages_v__';"
-    channels_nr = get_sqlite_db_records(source_path, channels_query)[0]['name']
+    channels_nr = next( get_sqlite_db_records(source_path, channels_query) )['name']
     group_query = f"SELECT userInfosJson FROM {group_nr} WHERE typeId=2"
     try:
-        group_json = get_sqlite_db_records(share_dialog, group_query)[0]['userInfosJson'] 
+        group_json = next( get_sqlite_db_records(share_dialog, group_query) )['userInfosJson'] 
         groups = json.loads(group_json)
     except (IndexError, KeyError):
         group_json = None
@@ -498,8 +500,8 @@ def potatochat_group_chats(context):
             {media_cache_nr}
     '''
 
-    media_records = get_sqlite_db_records(source_path, media_query)
-    u_cid_records = get_sqlite_db_records(source_path, user_cid_query)
+    media_records = list( get_sqlite_db_records(source_path, media_query) )
+    u_cid_records = list( get_sqlite_db_records(source_path, user_cid_query) )
     db_records = get_sqlite_db_records(source_path, chat_query)
     for record in db_records:
         #message_id = record['mid']

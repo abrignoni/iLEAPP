@@ -117,7 +117,7 @@ def Ph4_1HiddenPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_
                         'zAddAssetAttr-zPK-8',
                         'zAsset-UUID = store.cloudphotodb-9',
                         'zAddAssetAttr-Master Fingerprint-10')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -168,7 +168,7 @@ def Ph4_1HiddenPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_
                         'zAddAssetAttr-zPK-8',
                         'zAsset-UUID = store.cloudphotodb-9',
                         'zAddAssetAttr-Master Fingerprint-10')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -221,7 +221,7 @@ def Ph4_1HiddenPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_
                         'zAddAssetAttr-zPK-9',
                         'zAsset-UUID = store.cloudphotodb-10',
                         'zAddAssetAttr-Master Fingerprint-11')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -276,7 +276,7 @@ def Ph4_1HiddenPhDaPsql(files_found, report_folder, seeker, wrap_text, timezone_
                         'zAsset-UUID = store.cloudphotodb-10',
                         'zAddAssetAttr-Original Stable Hash-11',
                         'zAddAssetAttr.Adjusted Stable Hash-12')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -345,6 +345,6 @@ def Ph4_3HiddenGenPlayPsql(files_found, report_folder, seeker, wrap_text, timezo
                         'zAsset-UUID = store.cloudphotodb-10',
                         'zAddAssetAttr-Original Stable Hash-11',
                         'zAddAssetAttr.Adjusted Stable Hash-12')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

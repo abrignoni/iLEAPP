@@ -37,7 +37,7 @@ def _get_contact_name(source_path, telephone, phone_columns):
         FROM ZCONTACTMODEL
         WHERE {phone_column} LIKE '%{escaped_telephone}%'
         '''
-        contact_rows = get_sqlite_db_records(source_path, query)
+        contact_rows = list( get_sqlite_db_records(source_path, query) )
         if contact_rows:
             return contact_rows[0][0]
     return ''

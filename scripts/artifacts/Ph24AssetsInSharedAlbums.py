@@ -371,7 +371,7 @@ def Ph24AssetinSharedAlbumsInvitesPhDaPsql(files_found, report_folder, seeker, w
                         'zCldShareAlbumInvRec-Album GUID-75',
                         'zCldShareAlbumInvRec-Cloud GUID-76',
                         'zAlbumList-Needs Reordering Number-77')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -699,7 +699,7 @@ def Ph24AssetinSharedAlbumsInvitesPhDaPsql(files_found, report_folder, seeker, w
                         'zCldShareAlbumInvRec-Album GUID-75',
                         'zCldShareAlbumInvRec-Cloud GUID-76',
                         'zAlbumList-Needs Reordering Number-77')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1043,7 +1043,7 @@ def Ph24AssetinSharedAlbumsInvitesPhDaPsql(files_found, report_folder, seeker, w
                         'zCldShareAlbumInvRec-Cloud GUID-81',
                         'zGenAlbum-Project Render UUID-82',
                         'zAlbumList-Needs Reordering Number-83')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1403,7 +1403,7 @@ def Ph24AssetinSharedAlbumsInvitesPhDaPsql(files_found, report_folder, seeker, w
                         'zCldShareAlbumInvRec-Cloud GUID-85',
                         'zGenAlbum-Project Render UUID-86',
                         'zAlbumList-Needs Reordering Number-87')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1784,7 +1784,7 @@ def Ph24AssetinSharedAlbumsInvitesPhDaPsql(files_found, report_folder, seeker, w
                         'zCldShareAlbumInvRec-Cloud GUID-88',
                         'zGenAlbum-Project Render UUID-89',
                         'zAlbumList-Needs Reordering Number-90')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -2197,7 +2197,7 @@ def Ph24AssetinSharedAlbumsInvitesPhDaPsql(files_found, report_folder, seeker, w
                         'zCldShareAlbumInvRec-Cloud GUID-94',
                         'zGenAlbum-Project Render UUID-95',
                         'zAlbumList-Needs Reordering Number-96')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -2610,7 +2610,7 @@ def Ph24AssetinSharedAlbumsInvitesPhDaPsql(files_found, report_folder, seeker, w
                         'zCldShareAlbumInvRec-Cloud GUID-94',
                         'zGenAlbum-Project Render UUID-95',
                         'zAlbumList-Needs Reordering Number-96')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -3025,6 +3025,6 @@ def Ph24AssetinSharedAlbumsInvitesPhDaPsql(files_found, report_folder, seeker, w
                         'zCldShareAlbumInvRec-Cloud GUID-95',
                         'zGenAlbum-Project Render UUID-96',
                         'zAlbumList-Needs Reordering Number-97')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

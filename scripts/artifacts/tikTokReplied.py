@@ -106,7 +106,7 @@ def _table_exists(db_path, table_name):
         WHERE type = 'table'
             AND name = {_quote_literal(table_name)}
     """
-    return bool(get_sqlite_db_records(db_path, query))
+    return bool( list( get_sqlite_db_records(db_path, query) ) )
 
 
 def _table_columns(db_path, table_name, attach_query):

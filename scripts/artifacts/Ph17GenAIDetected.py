@@ -235,7 +235,7 @@ def Ph17_1GenAIDetectedPhDaPsql(files_found, report_folder, seeker, wrap_text, t
 			'zExtAttr-Generative_AI_Type-29',
 			'zExtAttr-Credit-30')
 
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -390,7 +390,7 @@ def Ph17_2GenAIDetectedSyndPL(files_found, report_folder, seeker, wrap_text, tim
             'zAddAssetAttr.Adjusted Stable Hash-28',
 			'zExtAttr-Generative_AI_Type-29',
 			'zExtAttr-Credit-30')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -546,6 +546,6 @@ def Ph17_3GenAIDetectedGenPlayPsql(files_found, report_folder, seeker, wrap_text
 			'zExtAttr-Generative_AI_Type-29',
 			'zExtAttr-Credit-30')
 
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

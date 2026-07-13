@@ -121,8 +121,12 @@ def callHistory(context):
     from call
     '''
 
-    db_records = get_sqlite_db_records(db_path, query)
-    temp_db_records = get_sqlite_db_records(temp_db_path, query)
+    # NOTE: I think it could be changed for a better pattern, for the moment
+    #   I'm just list()-ing everything to keep the logic working.
+    #   maybe later on we can review it and improve the code quality.
+    #           - bconstanzo
+    db_records = list( get_sqlite_db_records(db_path, query) )
+    temp_db_records = list( get_sqlite_db_records(temp_db_path, query) )
     if db_path or temp_db_path:
         if db_records and temp_db_records:
             source_path = "Source file path in the report below"
@@ -132,7 +136,7 @@ def callHistory(context):
             records = db_records if db_records else temp_db_records
             source_path = db_path if db_path else temp_db_path
     elif old_db_path:
-        records = get_sqlite_db_records(old_db_path, old_query)
+        records = list( get_sqlite_db_records(old_db_path, old_query) )
         source_path = old_db_path if records else ''
     
     for record in records:
@@ -142,6 +146,8 @@ def callHistory(context):
         an = str(record[5])
         an = an.replace("b'", "")
         an = an.replace("'", "")
+        # NOTE: these last 3 lines looks like maybe we should .decode()
+        #   record[5] ???
 
         facetime_data = convert_bytes_to_unit(record[8])
 

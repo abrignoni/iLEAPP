@@ -199,7 +199,7 @@ def Ph25_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, seek
                         'SWYConverszGenAlbum-Trashed State',
                         ('SWYConverszGenAlbum-Trash Date', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -328,7 +328,7 @@ def Ph25_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, seek
                         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-18',
                         'SWYConverszGenAlbum-Privacy State-19')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -457,7 +457,7 @@ def Ph25_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, seek
                         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-18',
                         'SWYConverszGenAlbum-Privacy State-19')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -586,7 +586,7 @@ def Ph25_1SWYConversationRecordswithNADPhDaPsql(files_found, report_folder, seek
                         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-18',
                         'SWYConverszGenAlbum-Privacy State-19')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -721,7 +721,7 @@ def Ph25_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeker
                         'SWYConverszGenAlbum-Trashed State',
                         ('SWYConverszGenAlbum-Trash Date', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -850,7 +850,7 @@ def Ph25_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeker
                         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-18',
                         'SWYConverszGenAlbum-Privacy State-19')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -979,7 +979,7 @@ def Ph25_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeker
                         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-18',
                         'SWYConverszGenAlbum-Privacy State-19')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1108,7 +1108,7 @@ def Ph25_2SWYConversationRecordswithNADSyndPL(files_found, report_folder, seeker
                         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
                         'SWYConverszGenAlbum-Cloud Delete State-18',
                         'SWYConverszGenAlbum-Privacy State-19')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 

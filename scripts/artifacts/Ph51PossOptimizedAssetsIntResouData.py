@@ -1033,7 +1033,7 @@ def Ph51PossibleOptimizedAssetsIntResouPhDaPsql(files_found, report_folder, seek
 						'zMedAnlyAstAttr-zEnt-231',
 						'zMedAnlyAstAttr-zOpt-232',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-233')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -2123,7 +2123,7 @@ def Ph51PossibleOptimizedAssetsIntResouPhDaPsql(files_found, report_folder, seek
 						'zMedAnlyAstAttr-zEnt-255',
 						'zMedAnlyAstAttr-zOpt-256',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-257')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -3258,7 +3258,7 @@ def Ph51PossibleOptimizedAssetsIntResouPhDaPsql(files_found, report_folder, seek
 						'zMedAnlyAstAttr-zEnt-265',
 						'zMedAnlyAstAttr-zOpt-266',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-267')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -4423,7 +4423,7 @@ def Ph51PossibleOptimizedAssetsIntResouPhDaPsql(files_found, report_folder, seek
 						'zMedAnlyAstAttr-zEnt-272',
 						'zMedAnlyAstAttr-zOpt-273',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-274')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -5685,6 +5685,6 @@ def Ph51PossibleOptimizedAssetsIntResouPhDaPsql(files_found, report_folder, seek
 						'zMedAnlyAstAttr-zEnt-300',
 						'zMedAnlyAstAttr-zOpt-301',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-302')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path

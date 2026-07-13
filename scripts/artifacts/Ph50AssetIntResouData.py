@@ -1112,7 +1112,7 @@ def Ph50_1AssetIntResouPhDaPsql(files_found, report_folder, seeker, wrap_text, t
 						'zMedAnlyAstAttr-zEnt-236',
 						'zMedAnlyAstAttr-zOpt-237',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-238')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -2223,7 +2223,7 @@ def Ph50_1AssetIntResouPhDaPsql(files_found, report_folder, seeker, wrap_text, t
 						'zMedAnlyAstAttr-zEnt-260',
 						'zMedAnlyAstAttr-zOpt-261',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-262')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -3378,7 +3378,7 @@ def Ph50_1AssetIntResouPhDaPsql(files_found, report_folder, seeker, wrap_text, t
 						'zMedAnlyAstAttr-zEnt-269',
 						'zMedAnlyAstAttr-zOpt-270',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-271')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -4542,7 +4542,7 @@ def Ph50_1AssetIntResouPhDaPsql(files_found, report_folder, seeker, wrap_text, t
 						'zMedAnlyAstAttr-zEnt-272',
 						'zMedAnlyAstAttr-zOpt-273',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-274')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -5803,7 +5803,7 @@ def Ph50_1AssetIntResouPhDaPsql(files_found, report_folder, seeker, wrap_text, t
 						'zMedAnlyAstAttr-zEnt-301',
 						'zMedAnlyAstAttr-zOpt-302',
 						'zMedAnlyAstAttr-Asset= zAsset-Zpk-303')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -6819,7 +6819,7 @@ def Ph50_2AssetIntResouSyndPL(files_found, report_folder, seeker, wrap_text, tim
 						'zMedAnlyAstAttr-zEnt-236',
 						'zMedAnlyAstAttr-zOpt-237',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-238')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -7930,7 +7930,7 @@ def Ph50_2AssetIntResouSyndPL(files_found, report_folder, seeker, wrap_text, tim
 						'zMedAnlyAstAttr-zEnt-260',
 						'zMedAnlyAstAttr-zOpt-261',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-262')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -9085,7 +9085,7 @@ def Ph50_2AssetIntResouSyndPL(files_found, report_folder, seeker, wrap_text, tim
 						'zMedAnlyAstAttr-zEnt-269',
 						'zMedAnlyAstAttr-zOpt-270',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-271')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -10249,7 +10249,7 @@ def Ph50_2AssetIntResouSyndPL(files_found, report_folder, seeker, wrap_text, tim
 						'zMedAnlyAstAttr-zEnt-272',
 						'zMedAnlyAstAttr-zOpt-273',
 						'zMedAnlyAstAttr-Asset= zAsset-zPK-274')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -11510,7 +11510,7 @@ def Ph50_2AssetIntResouSyndPL(files_found, report_folder, seeker, wrap_text, tim
 						'zMedAnlyAstAttr-zEnt-301',
 						'zMedAnlyAstAttr-zOpt-302',
 						'zMedAnlyAstAttr-Asset= zAsset-Zpk-303')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path
 
@@ -12785,6 +12785,6 @@ def Ph50_3AssetIntResouGenPlayPsql(files_found, report_folder, seeker, wrap_text
 						'zMedAnlyAstAttr-zEnt-301',
 						'zMedAnlyAstAttr-zOpt-302',
 						'zMedAnlyAstAttr-Asset= zAsset-Zpk-303')
-		data_list = get_sqlite_db_records(source_path, query)
+		# data_list = get_sqlite_db_records(source_path, query)
 
 		return data_headers, data_list, source_path

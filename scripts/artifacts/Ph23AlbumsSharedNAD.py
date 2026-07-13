@@ -310,7 +310,7 @@ def Ph23SharedAlbumRecordsInviteswithNADPhDaPsql(files_found, report_folder, see
                         'zCldShareAlbumInvRec-Album GUID-55',
                         'zCldShareAlbumInvRec-Cloud GUID-56',
                         'zAlbumList-Needs Reordering Number-57')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -576,7 +576,7 @@ def Ph23SharedAlbumRecordsInviteswithNADPhDaPsql(files_found, report_folder, see
                         'zCldShareAlbumInvRec-Album GUID-55',
                         'zCldShareAlbumInvRec-Cloud GUID-56',
                         'zAlbumList-Needs Reordering Number-57')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -857,7 +857,7 @@ def Ph23SharedAlbumRecordsInviteswithNADPhDaPsql(files_found, report_folder, see
                         'zCldShareAlbumInvRec-Cloud GUID-61',
                         'zGenAlbum-Project Render UUID-62',
                         'zAlbumList-Needs Reordering Number-63')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1147,7 +1147,7 @@ def Ph23SharedAlbumRecordsInviteswithNADPhDaPsql(files_found, report_folder, see
                         'zCldShareAlbumInvRec-Cloud GUID-63',
                         'zGenAlbum-Project Render UUID-64',
                         'zAlbumList-Needs Reordering Number-65')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1437,7 +1437,7 @@ def Ph23SharedAlbumRecordsInviteswithNADPhDaPsql(files_found, report_folder, see
                         'zCldShareAlbumInvRec-Cloud GUID-63',
                         'zGenAlbum-Project Render UUID-64',
                         'zAlbumList-Needs Reordering Number-65')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1750,7 +1750,7 @@ def Ph23SharedAlbumRecordsInviteswithNADPhDaPsql(files_found, report_folder, see
                         'zCldShareAlbumInvRec-Cloud GUID-67',
                         'zGenAlbum-Project Render UUID-68',
                         'zAlbumList-Needs Reordering Number-69')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 	
@@ -2063,7 +2063,7 @@ def Ph23SharedAlbumRecordsInviteswithNADPhDaPsql(files_found, report_folder, see
                         'zCldShareAlbumInvRec-Cloud GUID-67',
                         'zGenAlbum-Project Render UUID-68',
                         'zAlbumList-Needs Reordering Number-69')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -2376,6 +2376,6 @@ def Ph23SharedAlbumRecordsInviteswithNADPhDaPsql(files_found, report_folder, see
                         'zCldShareAlbumInvRec-Cloud GUID-67',
                         'zGenAlbum-Project Render UUID-68',
                         'zAlbumList-Needs Reordering Number-69')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

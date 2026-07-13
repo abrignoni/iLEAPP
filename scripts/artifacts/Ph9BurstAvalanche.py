@@ -140,7 +140,7 @@ def Ph9_1BurstAvalanchePhDaPsql(files_found, report_folder, seeker, wrap_text, t
                         'zAddAssetAttr-zPK-10',
                         'zAsset-UUID = store.cloudphotodb-11',
                         'zAddAssetAttr-Master Fingerprint-12')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -214,7 +214,7 @@ def Ph9_1BurstAvalanchePhDaPsql(files_found, report_folder, seeker, wrap_text, t
                         'zAddAssetAttr-zPK-10',
                         'zAsset-UUID = store.cloudphotodb-11',
                         'zAddAssetAttr-Master Fingerprint-12')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -296,7 +296,7 @@ def Ph9_1BurstAvalanchePhDaPsql(files_found, report_folder, seeker, wrap_text, t
                         'zAsset-UUID = store.cloudphotodb-12',
                         'zAddAssetAttr-Original Stable Hash-13',
                         'zAddAssetAttr.Adjusted Stable Hash-14')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -392,6 +392,6 @@ def Ph9_3BurstAvalancheGenPlayPsql(files_found, report_folder, seeker, wrap_text
                         'zAsset-UUID = store.cloudphotodb-12',
                         'zAddAssetAttr-Original Stable Hash-13',
                         'zAddAssetAttr.Adjusted Stable Hash-14')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path

@@ -496,7 +496,7 @@ def Ph15_1PeopleFacesNADPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zPerson-Person UUID-89',
                         'zPerson-Person URI-90',
                         'zDetFaceGroup-UUID-91')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1020,7 +1020,7 @@ def Ph15_1PeopleFacesNADPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zPerson-Person UUID-105',
                         'zPerson-Person URI-106',
                         'zDetFaceGroup-UUID-107')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -1549,7 +1549,7 @@ def Ph15_1PeopleFacesNADPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zPerson-Person UUID-107',
                         'zPerson-Person URI-108',
                         'zDetFaceGroup-UUID-109')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -2086,7 +2086,7 @@ def Ph15_1PeopleFacesNADPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zPerson-Person UUID-111',
                         'zPerson-Person URI-112',
                         'zDetFaceGroup-UUID-113')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -2625,7 +2625,7 @@ def Ph15_1PeopleFacesNADPhDaPsql(files_found, report_folder, seeker, wrap_text, 
                         'zPerson-Person UUID-112',
                         'zPerson-Person URI-113',
                         'zDetFaceGroup-UUID-114')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -3058,7 +3058,7 @@ def Ph15_2PeopleFacesNADSyndPL(files_found, report_folder, seeker, wrap_text, ti
                         'zPerson-Person UUID-89',
                         'zPerson-Person URI-90',
                         'zDetFaceGroup-UUID-91')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -3582,7 +3582,7 @@ def Ph15_2PeopleFacesNADSyndPL(files_found, report_folder, seeker, wrap_text, ti
                         'zPerson-Person UUID-105',
                         'zPerson-Person URI-106',
                         'zDetFaceGroup-UUID-107')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -4111,7 +4111,7 @@ def Ph15_2PeopleFacesNADSyndPL(files_found, report_folder, seeker, wrap_text, ti
                         'zPerson-Person UUID-107',
                         'zPerson-Person URI-108',
                         'zDetFaceGroup-UUID-109')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -4648,7 +4648,7 @@ def Ph15_2PeopleFacesNADSyndPL(files_found, report_folder, seeker, wrap_text, ti
                         'zPerson-Person UUID-111',
                         'zPerson-Person URI-112',
                         'zDetFaceGroup-UUID-113')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
@@ -5188,7 +5188,7 @@ def Ph15_2PeopleFacesNADSyndPL(files_found, report_folder, seeker, wrap_text, ti
                         'zPerson-Person UUID-112',
                         'zPerson-Person URI-113',
                         'zDetFaceGroup-UUID-114')
-        data_list = get_sqlite_db_records(source_path, query)
+        # data_list = get_sqlite_db_records(source_path, query)
 
         return data_headers, data_list, source_path
 
