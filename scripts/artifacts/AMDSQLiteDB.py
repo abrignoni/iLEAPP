@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple App Store application foreground events",
         "author": "@stark4n6",
         "creation_date": "2025-07-21",
-        "last_update_date": "2026-03-19",
+        "last_update_date": "2026-07-13",
         "requirements": "none",
         "category": "App Usage",
         "notes": "",
@@ -115,31 +115,55 @@ def AMDSQLiteDB_UsageEvents(context):
     source_path = get_file_path(files_found, "AMDSQLite.db.0")
     
     storeUserDB = get_file_path(files_found, "storeUser.db")
-    attach_query = attach_sqlite_db_readonly(storeUserDB, 'storeUser')
     
-    query = '''
-    select
-    AMDAppStoreUsageEvents.time,
-    case AMDAppStoreUsageEvents.type
-        when "0" then "Install/Update"
-        when "1" then "Uninstall"
-        when "2" then "Open"
-        else AMDAppStoreUsageEvents.type
-    end as "App Action",
-    storeUser.current_apps.bundle_id,
-    AMDAppStoreUsageEvents.adamId,
-    AMDAppStoreUsageEvents.appVersion,
-    AMDAppStoreUsageEvents.foregroundDuration,
-    storeUser.account_events.apple_id,
-    AMDAppStoreUsageEvents.userId,
-    storeUser.current_apps.item_name,
-    storeUser.current_apps.vendor_name
-    from AMDAppStoreUsageEvents
-    left join storeUser.current_apps on AMDAppStoreUsageEvents.adamId = storeUser.current_apps.item_id
-    left join storeUser.account_events on AMDAppStoreUsageEvents.userId = storeUser.account_events.account_id
-    '''
+    if storeUserDB:
+        logfunc("storeUser.db found. Running combined database query.")
+        attach_query = attach_sqlite_db_readonly(storeUserDB, 'storeUser')
+        query = '''
+        select
+        AMDAppStoreUsageEvents.time,
+        case AMDAppStoreUsageEvents.type
+            when "0" then "Install/Update"
+            when "1" then "Uninstall"
+            when "2" then "Open"
+            else AMDAppStoreUsageEvents.type
+        end as "App Action",
+        storeUser.current_apps.bundle_id,
+        AMDAppStoreUsageEvents.adamId,
+        AMDAppStoreUsageEvents.appVersion,
+        AMDAppStoreUsageEvents.foregroundDuration,
+        storeUser.account_events.apple_id,
+        AMDAppStoreUsageEvents.userId,
+        storeUser.current_apps.item_name,
+        storeUser.current_apps.vendor_name
+        from AMDAppStoreUsageEvents
+        left join storeUser.current_apps on AMDAppStoreUsageEvents.adamId = storeUser.current_apps.item_id
+        left join storeUser.account_events on AMDAppStoreUsageEvents.userId = storeUser.account_events.account_id
+        '''
+        db_records = get_sqlite_db_records(source_path, query, attach_query)
+    else:
+        logfunc("storeUser.db NOT found. Adjusting query to skip storeUser database references.")
+        query = '''
+        select
+        AMDAppStoreUsageEvents.time,
+        case AMDAppStoreUsageEvents.type
+            when "0" then "Install/Update"
+            when "1" then "Uninstall"
+            when "2" then "Open"
+            else AMDAppStoreUsageEvents.type
+        end as "App Action",
+        NULL as bundle_id,
+        AMDAppStoreUsageEvents.adamId,
+        AMDAppStoreUsageEvents.appVersion,
+        AMDAppStoreUsageEvents.foregroundDuration,
+        NULL as apple_id,
+        AMDAppStoreUsageEvents.userId,
+        NULL as item_name,
+        NULL as vendor_name
+        from AMDAppStoreUsageEvents
+        '''
+        db_records = get_sqlite_db_records(source_path, query)
 
-    db_records = get_sqlite_db_records(source_path, query, attach_query)
     for record in db_records:
         time = convert_unix_ts_to_utc(record[0])
 
