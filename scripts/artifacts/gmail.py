@@ -46,16 +46,16 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_utc
 
 @artifact_processor
-def gmailOfflineSearch(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def gmailOfflineSearch(context):
     data_list = []
     data_headers = ()
     source_path = ''
     
     file_found = ''
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         source_path = str(file_found)
         if file_found.endswith('searchsqlitedb'):
             break
@@ -80,7 +80,7 @@ def gmailOfflineSearch(files_found, _report_folder, _seeker, _wrap_text, timezon
     all_rows = cursor.fetchall()
         
     for row in all_rows:
-        timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+        timestamp = convert_ts_human_to_utc(row[0])
 
         sender = row[1]
         sender_split = [sender_split.strip() for sender_split in sender.split(',')]
@@ -112,13 +112,13 @@ def gmailOfflineSearch(files_found, _report_folder, _seeker, _wrap_text, timezon
     return data_headers, data_list, source_path
 
 @artifact_processor
-def gmailLabelDetails(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def gmailLabelDetails(context):
     data_list = []
     data_headers = ()
     source_path = ''
     
     file_found = ''
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         source_path = str(file_found)
         if file_found.endswith('sqlitedb'):
             break

@@ -237,14 +237,14 @@ __artifacts_v2__ = {
 
 import plistlib
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, does_column_exist_in_db, \
-    convert_ts_human_to_timezone_offset
+    convert_ts_human_to_utc
 
 @artifact_processor
-def knowledgeC_BatteryPercentage(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_BatteryPercentage(context):
     data_list = []
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
@@ -270,9 +270,9 @@ def knowledgeC_BatteryPercentage(files_found, _report_folder, _seeker, _wrap_tex
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[-1])
             data_list.append((start_time, end_time, row[2], row[3], added_time))
 
     data_headers = (
@@ -281,12 +281,12 @@ def knowledgeC_BatteryPercentage(files_found, _report_folder, _seeker, _wrap_tex
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_DevicePluginStatus(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_DevicePluginStatus(context):
     data_list = []
     data_headers = ()
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
@@ -332,9 +332,9 @@ def knowledgeC_DevicePluginStatus(files_found, _report_folder, _seeker, _wrap_te
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[-1])
             if does_adapteriswireless_exist:
                 data_list.append((start_time, end_time, row[2], row[3], added_time))
             else:
@@ -343,12 +343,12 @@ def knowledgeC_DevicePluginStatus(files_found, _report_folder, _seeker, _wrap_te
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_MediaPlaying(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_MediaPlaying(context):
     data_list = []
     data_headers = ()
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
@@ -407,9 +407,9 @@ def knowledgeC_MediaPlaying(files_found, _report_folder, _seeker, _wrap_text, ti
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[-1])
 
             if does_airplayvideo_exist:
                 output_device = ''
@@ -429,11 +429,11 @@ def knowledgeC_MediaPlaying(files_found, _report_folder, _seeker, _wrap_text, ti
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_DoNotDisturb(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_DoNotDisturb(context):
     data_list = []
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
@@ -460,9 +460,9 @@ def knowledgeC_DoNotDisturb(files_found, _report_folder, _seeker, _wrap_text, ti
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[3],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[3])
             data_list.append((start_time, end_time, row[2], added_time))
 
     data_headers = (
@@ -471,12 +471,12 @@ def knowledgeC_DoNotDisturb(files_found, _report_folder, _seeker, _wrap_text, ti
 
 
 @artifact_processor
-def knowledgeC_AppUsage(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_AppUsage(context):
     ''' parse /app/usage entries from knowledgeC.db '''
 
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
@@ -499,9 +499,9 @@ def knowledgeC_AppUsage(files_found, _report_folder, _seeker, _wrap_text, timezo
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
             data_list.append((start_time, end_time, added_time, row[3]))
 
     data_headers = (
@@ -511,7 +511,7 @@ def knowledgeC_AppUsage(files_found, _report_folder, _seeker, _wrap_text, timezo
 
 
 @artifact_processor
-def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_AppUsage_EndTime(context):
     ''' Parse /app/usage entries from knowledgeC.db with End Time as first column'''
 
     # NOTE: there is no need to add this to html and lava output, the only
@@ -520,7 +520,7 @@ def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text
 
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
@@ -543,9 +543,9 @@ def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            end_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            start_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            end_time = convert_ts_human_to_utc(row[0])
+            start_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
             data_list.append((end_time, start_time, added_time, row[3]))
 
     data_headers = (
@@ -554,12 +554,12 @@ def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text
 
 
 @artifact_processor
-def knowledgeC_isLocked(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_isLocked(context):
     ''' parse /device/isLocked entries from knowledgeC.db '''
 
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
@@ -585,9 +585,9 @@ def knowledgeC_isLocked(files_found, _report_folder, _seeker, _wrap_text, timezo
 
         all_rows = cursor.fetchall()
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
             data_list.append((start_time, end_time, added_time, row[3]))
 
     data_headers = (
@@ -596,12 +596,12 @@ def knowledgeC_isLocked(files_found, _report_folder, _seeker, _wrap_text, timezo
 
 
 @artifact_processor
-def knowledgeC_isBacklit(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_isBacklit(context):
     ''' parse /display/isBacklit entries from knowledgeC.db '''
 
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
@@ -628,9 +628,9 @@ def knowledgeC_isBacklit(files_found, _report_folder, _seeker, _wrap_text, timez
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
             data_list.append((start_time, end_time, added_time, row[3]))
 
     data_headers = (
