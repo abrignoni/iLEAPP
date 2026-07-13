@@ -678,6 +678,7 @@ def _fmt(items):
 def c2paProvenance(context):
     data_headers = (
         ('Media', 'media'),
+        'Media State',
         'AI Generated?',
         'Digital Source Type',
         'Metadata Source',
@@ -749,10 +750,18 @@ def c2paProvenance(context):
         rel = context.get_relative_path(file_found)
         sources.append(rel)
 
-        for r in c2pa_rows:
+        n_states = len(c2pa_rows)
+        for i, r in enumerate(c2pa_rows, 1):
             sig = r['sig'] or {}
+            # Each C2PA manifest is one provenance state of the SAME media file;
+            # number them so multiple rows don't read as separate pictures. The
+            # last manifest in the store is the active (current) one.
+            state = f'{i} of {n_states}'
+            if n_states > 1 and i == n_states:
+                state += ' (current)'
             data_list.append((
                 thumb,
+                state,
                 _ai_str(r['ai']),
                 _fmt(sorted(r['digital_source'])),
                 'C2PA',
@@ -776,6 +785,7 @@ def c2paProvenance(context):
         if xmp_has_signal:
             data_list.append((
                 thumb,
+                'IPTC tag',
                 _ai_str(xmp['ai']),
                 xmp['digital_source_label'] or xmp['digital_source'],
                 'XMP/IPTC',
