@@ -3,7 +3,8 @@ United Airlines (com.united.UnitedCustomerFacingIPhone) artifact module.
 
 Parses MileagePlus account data, saved travelers, wallet trips/passengers,
 PNR documents, booking and flight-status searches, boarding status logs,
-inflight entertainment watch history, and Watch complications trip summaries.
+inflight entertainment watch history, Watch complications trip summaries,
+and United iMessage extension recipient cache.
 """
 
 __artifacts_v2__ = {
@@ -209,6 +210,30 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "watch",
+    },
+    "united_imessage_recipients": {
+        "name": "United - iMessage Recipients",
+        "description": (
+            "Phone numbers cached for the United Airlines iMessage balloon plugin."
+        ),
+        "author": "James Habben",
+        "creation_date": "2026-07-16",
+        "last_update_date": "2026-07-16",
+        "requirements": "none",
+        "category": "United Airlines",
+        "notes": (
+            "Source: MobileSMS PluginMetaDataCache plist for "
+            "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension. "
+            "Shows handles the plugin has been used with; not full message content. "
+            "Prefer the AppDomain-com.apple.MobileSMS copy over the notification-extension stub."
+        ),
+        "paths": (
+            "*/Library/SMS/PluginMetaDataCache/*/com.apple.messages."
+            "MSMessageExtensionBalloonPlugin:*:"
+            "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension.plist",
+        ),
+        "output_types": "standard",
+        "artifact_icon": "message-circle",
     },
 }
 
@@ -1364,3 +1389,94 @@ def united_watch_complications(context):
         "Source File",
     )
     return data_headers, data_list, source_path or "No United Watch complications plist found"
+
+
+@artifact_processor
+def united_imessage_recipients(context):
+    """Parse United iMessage plugin recipient cache from SMS PluginMetaDataCache."""
+    data_list = []
+    source_paths = []
+    imessage_prefix = "iMessage;-;"
+    plugin_suffix = (
+        "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension.plist"
+    )
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith(plugin_suffix):
+            continue
+        if "PluginMetaDataCache" not in file_found.replace("\\", "/"):
+            continue
+        if not os.path.isfile(file_found):
+            continue
+
+        plist = get_plist_file_content(file_found)
+        if not isinstance(plist, dict):
+            continue
+
+        relative = context.get_relative_path(file_found)
+        local_id = plist.get("localID") or ""
+
+        # Collapse bare +E.164 and iMessage;-;+E.164 keys into one row per number.
+        by_number = {}
+        for key, value in plist.items():
+            if key == "localID" or not isinstance(key, str):
+                continue
+            handle_type = "Phone"
+            number = key
+            if key.startswith(imessage_prefix):
+                handle_type = "iMessage"
+                number = key[len(imessage_prefix):]
+            if not number.startswith("+"):
+                continue
+            entry = by_number.setdefault(
+                number,
+                {
+                    "phone": number,
+                    "has_phone": False,
+                    "has_imessage": False,
+                    "phone_uuid": "",
+                    "imessage_uuid": "",
+                },
+            )
+            cache_id = value if isinstance(value, str) else str(value) if value is not None else ""
+            if handle_type == "iMessage":
+                entry["has_imessage"] = True
+                entry["imessage_uuid"] = cache_id
+            else:
+                entry["has_phone"] = True
+                entry["phone_uuid"] = cache_id
+
+        if not by_number:
+            # Notification-extension stubs often only have localID — skip empty noise.
+            continue
+
+        source_paths.append(relative)
+        for number in sorted(by_number):
+            entry = by_number[number]
+            handle_types = []
+            if entry["has_phone"]:
+                handle_types.append("Phone")
+            if entry["has_imessage"]:
+                handle_types.append("iMessage")
+            data_list.append((
+                entry["phone"],
+                ", ".join(handle_types),
+                entry["phone_uuid"],
+                entry["imessage_uuid"],
+                local_id,
+                relative,
+            ))
+
+    data_headers = (
+        ("Phone Number", "phonenumber"),
+        "Handle Types",
+        "Phone Cache ID",
+        "iMessage Cache ID",
+        "Local ID",
+        "Source File",
+    )
+    source_path = "\n".join(source_paths) if source_paths else (
+        "No United iMessage plugin recipient cache found"
+    )
+    return data_headers, data_list, source_path
