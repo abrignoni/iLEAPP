@@ -18,8 +18,7 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": "Core Data table: ZUACDUSER.",
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*",
         ),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -38,8 +37,7 @@ __artifacts_v2__ = {
             "Column may be absent on older app versions."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -57,8 +55,7 @@ __artifacts_v2__ = {
             "ZUACDWALLETPASTRESERVATION, ZUACDWALLETPASTRESERVATIONSEGMENT."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "navigation",
@@ -76,8 +73,7 @@ __artifacts_v2__ = {
             "(pnr.passengers); falls back to ZUACDWALLETMBP when reservation JSON is empty."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -95,8 +91,7 @@ __artifacts_v2__ = {
             "Often present on older app versions when wallet reservation JSON is empty."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "credit-card",
@@ -114,8 +109,7 @@ __artifacts_v2__ = {
             "ZUACDRESERVATIONRESPONSEJSON (ZRESPONSEJSON)."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -130,8 +124,7 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": "Core Data table: ZUACDBOOKINGRECENTSEARCH.",
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "search",
@@ -146,8 +139,7 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": "Core Data table: ZUACDFLIFORECENTSEARCH.",
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -184,8 +176,7 @@ __artifacts_v2__ = {
             "com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys)."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
             "*/com.united.UnitedCustomerFacingIPhone/Library/Preferences/"
             "com.united.UnitedCustomerFacingIPhone.plist",
         ),
