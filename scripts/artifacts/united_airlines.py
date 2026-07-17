@@ -13,13 +13,12 @@ __artifacts_v2__ = {
         "description": "MileagePlus account profile from United Core Data.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": "Core Data table: ZUACDUSER.",
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*",
         ),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -29,7 +28,7 @@ __artifacts_v2__ = {
         "description": "Saved travelers / companions from the United profile.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
@@ -38,8 +37,7 @@ __artifacts_v2__ = {
             "Column may be absent on older app versions."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -49,7 +47,7 @@ __artifacts_v2__ = {
         "description": "Active and past United wallet reservations and flight segments.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
@@ -57,8 +55,7 @@ __artifacts_v2__ = {
             "ZUACDWALLETPASTRESERVATION, ZUACDWALLETPASTRESERVATIONSEGMENT."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "navigation",
@@ -68,7 +65,7 @@ __artifacts_v2__ = {
         "description": "Passengers on United trips, including MileagePlus IDs and KTNs when present.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
@@ -76,8 +73,7 @@ __artifacts_v2__ = {
             "(pnr.passengers); falls back to ZUACDWALLETMBP when reservation JSON is empty."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -87,7 +83,7 @@ __artifacts_v2__ = {
         "description": "Mobile boarding passes (MBP) from United wallet Core Data.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
@@ -95,8 +91,7 @@ __artifacts_v2__ = {
             "Often present on older app versions when wallet reservation JSON is empty."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "credit-card",
@@ -106,7 +101,7 @@ __artifacts_v2__ = {
         "description": "Cached PNR documents and reservation response summaries from the United app.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
@@ -114,8 +109,7 @@ __artifacts_v2__ = {
             "ZUACDRESERVATIONRESPONSEJSON (ZRESPONSEJSON)."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -125,13 +119,12 @@ __artifacts_v2__ = {
         "description": "Recent United flight booking searches.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": "Core Data table: ZUACDBOOKINGRECENTSEARCH.",
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "search",
@@ -141,13 +134,12 @@ __artifacts_v2__ = {
         "description": "Recent United flight status (FLIFO) lookups.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": "Core Data table: ZUACDFLIFORECENTSEARCH.",
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
         ),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -176,7 +168,7 @@ __artifacts_v2__ = {
         "description": "Inflight entertainment watch / resume history from prefs and Core Data.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-17",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
@@ -184,8 +176,7 @@ __artifacts_v2__ = {
             "com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys)."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone*/UnitediPhoneCoreData.sqlite*",
+            "*/UnitediPhoneCoreData.sqlite*"
             "*/com.united.UnitedCustomerFacingIPhone/Library/Preferences/"
             "com.united.UnitedCustomerFacingIPhone.plist",
         ),
