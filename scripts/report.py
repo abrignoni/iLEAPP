@@ -24,7 +24,7 @@ from leapp_functions.data_sources.json_files import get_json_file_content
 def get_tabler_icon_names():
     """Returns a set of available tabler icon names by parsing the scripts/_elements/tabler-icons.css file."""
     tabler_icons_css_content = get_txt_file_content(
-        Path.cwd().joinpath("scripts/_elements/tabler-icons.css"), line_by_line=True)
+        Path(__file__).resolve().parent.joinpath("_elements", "tabler-icons.css"), line_by_line=True)
     return set(line[4:line.find(":")] for line in tabler_icons_css_content if line.startswith(".ti-"))
 
 
@@ -36,8 +36,10 @@ def generate_report(reportfolderbase, time_in_secs, time_hms, extraction_type, i
     """
 
     tabler_icon_names = get_tabler_icon_names()
-    tabler_icon_correction = get_json_file_content('scripts/data/tabler_icon_correction.json')
-    feather_to_tabler_icon_names = get_json_file_content('scripts/data/feather_to_tabler_icon_names.json')
+    tabler_icon_correction = get_json_file_content(
+        Path(__file__).resolve().parent.joinpath("data", "tabler_icon_correction.json"))
+    feather_to_tabler_icon_names = get_json_file_content(
+        Path(__file__).resolve().parent.joinpath("data", "feather_to_tabler_icon_names.json"))
 
     control = None
     side_heading = \
