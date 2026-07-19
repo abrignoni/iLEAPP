@@ -29,6 +29,7 @@ import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import webkit_timestampsconv, artifact_processor
+from scripts.html_safe import safe_source
 
 @artifact_processor
 def get_biomeNotes(context):
@@ -69,7 +70,7 @@ def get_biomeNotes(context):
                 identifier1 = protostuff['1']
                 identifier2 = protostuff['2']
                 message = protostuff['5']
-                messagehtml = (message.replace('\n', '<br>'))
+                messagehtml = safe_source(message)
                 data_list.append((ts, time, record.state.name, record_counter, identifier1, identifier2, message, filename, record.data_start_offset))
                 data_list_html.append((ts, time, record.state.name, record_counter, identifier1, identifier2, messagehtml, filename, record.data_start_offset))
 

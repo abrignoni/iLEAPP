@@ -221,6 +221,7 @@ import plistlib
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, logfunc
+from scripts.html_safe import esc
 
 # Cocoa/NSDate epoch (2001-01-01 UTC) as Unix seconds.
 COCOA_EPOCH = 978307200
@@ -553,7 +554,7 @@ def oura_find_my_ring_location(context):
     if isinstance(loc, dict) and "latitude" in loc and "longitude" in loc:
         lat = loc.get("latitude", "")
         lon = loc.get("longitude", "")
-        map_link = (f'<a href="https://www.google.com/maps?q={lat},{lon}" '
+        map_link = (f'<a href="https://www.google.com/maps?q={esc(lat)},{esc(lon)}" '
                     f'target="_blank">View on map</a>') if lat != "" and lon != "" else ""
         data_list.append((
             ts_cocoa(loc.get("timestamp")),

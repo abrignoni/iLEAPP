@@ -69,6 +69,7 @@ from scripts.ilapfuncs import (
     artifact_processor,
     logfunc
     )
+from scripts.html_safe import esc
 
 ASCII_STRINGS_RE = re.compile(rb'[\x20-\x7e]{4,}')
 _extraction_cache = {}
@@ -155,8 +156,8 @@ def process_journal_files(context):
             f'{os.path.basename(report_folder)}/{output_filename}'
         )
         report_link = (
-            f'<a href="{relative_output_path}" target="_blank" '
-            f'style="color:blue">{journal_name}</a>'
+            f'<a href="{esc(relative_output_path)}" target="_blank" '
+            f'style="color:blue">{esc(journal_name)}</a>'
         )
         summary_row = (
             relative_output_path,
