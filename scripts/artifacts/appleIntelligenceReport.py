@@ -29,47 +29,40 @@ from datetime import datetime, timezone, timedelta
 
 from scripts.ilapfuncs import artifact_processor
 
-# ---------------------------------------------------------------------------
-# Lookup maps
-# ---------------------------------------------------------------------------
-
 USE_CASE_TRIGGER_MAP = {
-    "summarization":                                    "Summarize",
-    "synopsis":                                         "Summarize",
-    "text_summarizer":                                  "Summarize",
-    "textComposition.OpenEndedTone":                    "Compose",
-    "textComposition.OpenEndedToneQueryResponseV2":     "Compose",
-    "writingTools.compose":                             "Compose",
-    "textComposition.TakeawaysTransform":               "Key Points",
-    "takeaways_transform":                              "Key Points",
-    "textComposition.BulletsTransform":                 "List",
-    "bullets_transform":                                "List",
-    "textComposition.TablesTransform":                  "Table",
-    "tables_transform":                                 "Table",
-    "GenerativeAssistant.knowledge":                    "Knowledge",
-    "GenerativeAssistant.knowledgeFallback":            "Knowledge",
-    "GenerativeAssistant.composition":                  "Compose",
-    "GenerativeAssistant.visualIntelligenceCamera":     "Visual Intelligence",
-    "VisualGeneration.GenerativePlayground":            "Image Generation",
-    "memoryCreation":                                   "Memory Creation",
-    "photos_memories":                                  "Memory Creation",
+    "summarization": "Summarize",
+    "synopsis": "Summarize",
+    "text_summarizer": "Summarize",
+    "textComposition.OpenEndedTone": "Compose",
+    "textComposition.OpenEndedToneQueryResponseV2": "Compose",
+    "writingTools.compose": "Compose",
+    "textComposition.TakeawaysTransform": "Key Points",
+    "takeaways_transform": "Key Points",
+    "textComposition.BulletsTransform": "List",
+    "bullets_transform": "List",
+    "textComposition.TablesTransform": "Table",
+    "tables_transform": "Table",
+    "GenerativeAssistant.knowledge": "Knowledge",
+    "GenerativeAssistant.knowledgeFallback": "Knowledge",
+    "GenerativeAssistant.composition": "Compose",
+    "GenerativeAssistant.visualIntelligenceCamera": "Visual Intelligence",
+    "VisualGeneration.GenerativePlayground": "Image Generation",
+    "memoryCreation": "Memory Creation",
+    "photos_memories": "Memory Creation",
 }
 
 CLIENT_APP_MAP = {
-    "com.apple.siri":                   "Siri",
-    "com.apple.WritingToolsUIService":  "Writing Tools",
-    "com.apple.GenerativePlaygroundApp":"Image Playground",
-    "com.apple.mobileslideshow":        "Photos",
-    "com.apple.mobilesafari":           "Safari",
-    "com.apple.mail":                   "Mail",
-    "com.apple.mobilemail":             "Mail",
-    "com.apple.MobileSMS":              "Messages",
-    "com.apple.Notes":                  "Notes",
+    "com.apple.siri": "Siri",
+    "com.apple.WritingToolsUIService": "Writing Tools",
+    "com.apple.GenerativePlaygroundApp": "Image Playground",
+    "com.apple.mobileslideshow": "Photos",
+    "com.apple.mobilesafari": "Safari",
+    "com.apple.mail": "Mail",
+    "com.apple.mobilemail": "Mail",
+    "com.apple.MobileSMS": "Messages",
+    "com.apple.Notes": "Notes",
 }
 
-# ---------------------------------------------------------------------------
-# Helper functions
-# ---------------------------------------------------------------------------
 
 def _epoch_to_utc(ts):
     try:
@@ -79,7 +72,6 @@ def _epoch_to_utc(ts):
 
 
 def _epoch_to_local(ts, tz_offset):
-    """Convert epoch to local time using iLEAPP-provided timezone offset (minutes)."""
     try:
         local_tz = timezone(timedelta(minutes=tz_offset))
         return datetime.fromtimestamp(ts, tz=local_tz).strftime("%Y-%m-%d %H:%M:%S")
@@ -192,15 +184,11 @@ def _extract_response(response_text):
     return s[:500] + "..." if len(s) > 500 else s
 
 
-# ---------------------------------------------------------------------------
-# iLEAPP artifact processor
-# ---------------------------------------------------------------------------
-
 @artifact_processor
 def appleIntelligenceReport(files_found, report_folder, seeker, wrap_text, timezone_offset):
     """
     Parses Apple Intelligence Report JSON files.
-    Author: Bhargav Rathod (@malwr4n6) — https://malwr4n6.com
+    Author: Bhargav Rathod (@malwr4n6) - https://malwr4n6.com
     """
     data_list = []
     source_path = ""
@@ -211,58 +199,56 @@ def appleIntelligenceReport(files_found, report_folder, seeker, wrap_text, timez
         try:
             with open(source_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-        except (json.JSONDecodeError, OSError) as e:
+        except (json.JSONDecodeError, OSError):
             continue
 
         model_reqs = data.get("modelRequests", [])
-        pcc_reqs   = data.get("privateCloudComputeRequests", [])
+        pcc_reqs = data.get("privateCloudComputeRequests", [])
 
-        # -- Model Requests --------------------------------------------------
         for e in model_reqs:
-            ts       = e.get("timestamp", 0)
-            prompt   = e.get("prompt", "")
+            ts = e.get("timestamp", 0)
+            prompt = e.get("prompt", "")
             use_case = e.get("useCase", "")
-            model    = e.get("model", "")
+            model = e.get("model", "")
 
             data_list.append((
-                _epoch_to_utc(ts),                                          # Timestamp (UTC)
-                _epoch_to_local(ts, timezone_offset),                       # Timestamp (Local)
-                e.get("identifier", ""),                                     # Event ID
-                _extract_user_trigger(use_case, prompt, model),              # User Trigger
-                use_case,                                                    # Use Case (Raw)
-                _extract_source_app(e.get("clientIdentifier", ""), use_case),# Source App
-                _extract_request(prompt),                                    # Request
-                _extract_response(e.get("response", "")),                   # Response
-                model,                                                       # Model
-                "Model Request",                                             # Type
+                _epoch_to_utc(ts),
+                _epoch_to_local(ts, timezone_offset),
+                e.get("identifier", ""),
+                _extract_user_trigger(use_case, prompt, model),
+                use_case,
+                _extract_source_app(e.get("clientIdentifier", ""), use_case),
+                _extract_request(prompt),
+                _extract_response(e.get("response", "")),
+                model,
+                "Model Request",
             ))
 
-        # -- Private Cloud Compute Requests ----------------------------------
         for e in pcc_reqs:
-            ts       = e.get("timestamp", 0)
+            ts = e.get("timestamp", 0)
             pipeline = e.get("pipelineKind", "")
-            params   = {}
+            params = {}
             try:
                 params = json.loads(e.get("pipelineParameters", "{}"))
             except (json.JSONDecodeError, TypeError):
                 pass
 
-            adapter   = params.get("adapter", "")
-            model     = params.get("model", "")
-            nodes     = e.get("nodes", [])
+            adapter = params.get("adapter", "")
+            model = params.get("model", "")
+            nodes = e.get("nodes", [])
             validated = sum(1 for n in nodes if n.get("nodeState") == "Validated")
 
             data_list.append((
-                _epoch_to_utc(ts),                                          # Timestamp (UTC)
-                _epoch_to_local(ts, timezone_offset),                       # Timestamp (Local)
-                e.get("requestId", ""),                                      # Event ID
-                _extract_user_trigger("", "", adapter),                      # User Trigger
-                pipeline,                                                    # Use Case (Raw)
-                f"PCC ({pipeline})",                                         # Source App
-                f"Pipeline: {pipeline}",                                     # Request
-                f"Adapter: {adapter} | Model: {model} | Nodes: {len(nodes)} ({validated} validated)",  # Response
-                model,                                                       # Model
-                "PCC Request",                                               # Type
+                _epoch_to_utc(ts),
+                _epoch_to_local(ts, timezone_offset),
+                e.get("requestId", ""),
+                _extract_user_trigger("", "", adapter),
+                pipeline,
+                f"PCC ({pipeline})",
+                f"Pipeline: {pipeline}",
+                f"Adapter: {adapter} | Model: {model} | Nodes: {len(nodes)} ({validated} validated)",
+                model,
+                "PCC Request",
             ))
 
     data_headers = (
