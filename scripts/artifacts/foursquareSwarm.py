@@ -331,6 +331,7 @@ from scripts.filetype import get_type
 from scripts.ilapfuncs import get_sqlite_db_records, open_sqlite_db_readonly, \
     does_column_exist_in_db, get_plist_content, check_in_embedded_media, \
     convert_unix_ts_to_utc, get_birthdate, check_in_media, artifact_processor, logfunc
+from scripts.html_safe import safe_join
 
 # Constants
 COMMA_SEP = ', '
@@ -3940,15 +3941,15 @@ def foursquare_swarm_feed(context):
             # Extract social intelligence
             participants = _extract_zblob_participants(entities_blob, target_blob)
             p_participants = LIST_SEP.join(participants)
-            h_participants = HTML_LINE_BREAK.join(participants)
+            h_participants = safe_join(participants, HTML_LINE_BREAK)
 
             replies = _extract_zblob_replies(entities_blob, target_blob)
             p_replies = LIST_SEP.join(replies)
-            h_replies = HTML_LINE_BREAK.join(replies)
+            h_replies = safe_join(replies, HTML_LINE_BREAK)
 
             social_actors = _extract_zblob_social_actors(entities_blob, target_blob)
             p_social_actors = LIST_SEP.join(social_actors)
-            h_social_actors = HTML_LINE_BREAK.join(social_actors)
+            h_social_actors = safe_join(social_actors, HTML_LINE_BREAK)
 
             # Fallback mechanism: extract strings directly from the decoded Core Data object
             if not text:

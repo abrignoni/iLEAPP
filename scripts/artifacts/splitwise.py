@@ -100,6 +100,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_unix_ts_to_utc
+from scripts.html_safe import esc
 
 @artifact_processor
 def splitwiseUsers(context):
@@ -323,7 +324,7 @@ def splitwiseGroups(context):
             (created_ts, updated_ts, record[2], members, record[4], group_title, record[6], 
              record[7], record[8], record[9]))
         data_list_html.append(
-            (created_ts, updated_ts, record[2], members.replace(chr(13), '<br>')[:-2], record[4], 
+            (created_ts, updated_ts, record[2], esc(members).replace(chr(13), '<br>')[:-2], record[4],
              group_title, record[6], record[7], record[8], record[9]))
 
     return data_headers, (data_list, data_list_html), source_path
@@ -354,7 +355,7 @@ def splitwiseNotifications(context):
 
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
-        data_list_html.append((created_ts, record[1], record[2], record[3]))
+        data_list_html.append((created_ts, esc(record[1]), record[2], record[3]))
         remove_html = record[1].replace('<strong>', '').replace('</strong>', '')
         data_list.append((created_ts, remove_html, record[2], record[3]))
 
