@@ -27,6 +27,7 @@ import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import convert_time_obj_to_utc, get_plist_content, logfunc, artifact_processor
+from scripts.html_safe import esc, safe_source
 
 from datetime import datetime as _dt
 
@@ -115,16 +116,19 @@ def get_biomeIntents(context):
                 if typeofintent == 'com.burbn.instagram':
                     datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
                     datos = datoshtml
+                    datoshtml = safe_source(datoshtml)
 
                 #snapchat
                 elif typeofintent == 'com.toyopagroup.picaboo':
                     datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
                     datos = datoshtml
+                    datoshtml = safe_source(datoshtml)
 
                 #notes
                 elif typeofintent == 'com.apple.assistant_service':
                     datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
                     datos = datoshtml
+                    datoshtml = safe_source(datoshtml)
 
                 #notes
                 elif typeofintent == 'com.apple.mobilenotes':
@@ -133,12 +137,13 @@ def get_biomeIntents(context):
                     c = (protostuffinner['2']['2']) #message
 
                     datos = f'Action: {a}, Data Field 1: {b}, Data Field 2: {c}'
-                    datoshtml = (datos.replace(',', '<br>'))
+                    datoshtml = (esc(datos).replace(',', '<br>'))
 
                 #telegraph
                 elif typeofintent == 'ph.telegra.Telegraph':
                     datoshtml = deserialized_plist['intent']['backingStore']['bytes'].decode('latin-1')
                     datos = datoshtml
+                    datoshtml = safe_source(datoshtml)
 
                 #calls
                 elif typeofintent == 'com.apple.InCallService':
@@ -151,16 +156,18 @@ def get_biomeIntents(context):
                         #print(protostuffinner)
 
                     datos = f'Number: {a}'
-                    datoshtml = (datos.replace(',', '<br>'))
+                    datoshtml = (esc(datos).replace(',', '<br>'))
 
                 #whatsapp
                 elif typeofintent == 'net.whatsapp.WhatsApp':
                     datoshtml = str(protostuffinner)
                     datos = datoshtml
+                    datoshtml = safe_source(datoshtml)
 
                 elif typeofintent == 'org.whispersystems.signal':
                     datoshtml = str(protostuffinner)
                     datos = datoshtml
+                    datoshtml = safe_source(datoshtml)
 
                 #sms
                 elif typeofintent == 'com.apple.MobileSMS':
@@ -181,7 +188,7 @@ def get_biomeIntents(context):
                             d = ''
 
                         datos = f'Thread ID: {b}, Sender ID: {c}, Content:, {a}'
-                        datoshtml = (datos.replace(',', '<br>'))
+                        datoshtml = (esc(datos).replace(',', '<br>'))
                     else:
                         print('Mobile SMS' + str(protostuffinner))
                 #maps
@@ -201,7 +208,7 @@ def get_biomeIntents(context):
                         h = (protostuffinner['4'][2]['2']['2']['2'].decode()) #value of above
 
                         datos = f'{a}: {b}, {c}: {d}, {e}: {f}, {g}: {h}'
-                        datoshtml = (datos.replace(',', '<br>'))
+                        datoshtml = (esc(datos).replace(',', '<br>'))
 
                     else:
                         datos = ''
@@ -218,7 +225,7 @@ def get_biomeIntents(context):
                                 b = loopy['2']
                             datos = datos + f'{a}: {b},'
 
-                        datoshtml = (datos.replace(',', '<br>'))
+                        datoshtml = (esc(datos).replace(',', '<br>'))
 
                         #logfunc('Maps' + str(protostuffinner))
 

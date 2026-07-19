@@ -98,20 +98,23 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.html_safe import esc
 
 def get_google_map_link(latitude_value, longitude_value):
     if latitude_value is None or longitude_value is None:
         return ""
-    
-    return f"<a href='https://www.google.com/maps?q={latitude_value},{longitude_value}' target='_blank'>https://www.google.com/maps?q={latitude_value},{longitude_value}</a>"
+
+    lat = esc(latitude_value)
+    lon = esc(longitude_value)
+    return f"<a href='https://www.google.com/maps?q={lat},{lon}' target='_blank'>https://www.google.com/maps?q={lat},{lon}</a>"
 
 def get_google_dir_link(o_latitude_value, o_longitude_value, d_latitude_value, d_longitude_value, mode):
     if o_latitude_value is None or o_longitude_value is None or d_latitude_value is None or d_longitude_value is None:
         return ""
-    
+
     base_url = "https://www.google.com/maps/dir/?api=1"
-    origin = f"&origin={o_latitude_value},{o_longitude_value}"
-    destination = f"&destination={d_latitude_value},{d_longitude_value}"
+    origin = f"&origin={esc(o_latitude_value)},{esc(o_longitude_value)}"
+    destination = f"&destination={esc(d_latitude_value)},{esc(d_longitude_value)}"
 
     # Travel mode
     if mode == 1:

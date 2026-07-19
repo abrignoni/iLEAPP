@@ -97,6 +97,7 @@ __artifacts_v2__ = {
 from urllib.parse import unquote
 from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db,\
     convert_ts_human_to_utc, artifact_processor, get_birthdate
+from scripts.html_safe import esc
 
 
 def get_sharees(cursor):
@@ -115,6 +116,7 @@ def get_sharees(cursor):
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
     data_dict = {}
+    data_dict_csv = {}
     if usageentries > 0:
         for row in all_rows:
             key = row[0]
@@ -122,14 +124,24 @@ def get_sharees(cursor):
             name = f' ({row[2]})' if row[2] else ''
             participant = f'{address}{name}'
             sharing_participant = f'''{participant} -> {row[3]}'''
+            participant_html = f'{esc(address)}{esc(name)}'
+            sharing_participant_html = f'''{participant_html} -> {esc(row[3])}'''
+
             sharing_participants = data_dict.get(key, '')
             if sharing_participants:
-                sharing_participants += f',<br>{sharing_participant}'
+                sharing_participants += f',<br>{sharing_participant_html}'
             else:
-                sharing_participants = sharing_participant
+                sharing_participants = sharing_participant_html
             data_dict[key] = sharing_participants
 
-    return data_dict
+            sharing_participants_csv = data_dict_csv.get(key, '')
+            if sharing_participants_csv:
+                sharing_participants_csv += f', {sharing_participant}'
+            else:
+                sharing_participants_csv = sharing_participant
+            data_dict_csv[key] = sharing_participants_csv
+
+    return data_dict, data_dict_csv
 
 
 def get_invitees(cursor):
@@ -158,6 +170,7 @@ def get_invitees(cursor):
         for row in all_rows:
             key = row[0]
             participant = f'{row[1]} - {row[2]}' if row[1] else row[2]
+            participant_html = f'{esc(row[1])} - {esc(row[2])}' if row[1] else esc(row[2])
             status = row[3]
             if status == 'No response':
                 html_status = '<span style="color: gray;" title="No response">&#11044;</span>'
@@ -169,7 +182,7 @@ def get_invitees(cursor):
                 html_status = '<span style="color: orange;" title="Maybe">&#11044;</span>'
             else:
                 html_status = ''
-            sharing_participant = f'{html_status} {participant}'
+            sharing_participant = f'{html_status} {participant_html}'
 
             sharing_participants = data_dict.get(key, '')
             if sharing_participants:
@@ -190,9 +203,9 @@ def get_invitees(cursor):
 
 def get_calendar_name(name, color):
     if color:
-        calendar_name = f'<span style="color: {color};">&#9673; </span>{name}'
+        calendar_name = f'<span style="color: {esc(color)};">&#9673; </span>{esc(name)}'
     else:
-        calendar_name = f'&#9711; {name}'
+        calendar_name = f'&#9711; {esc(name)}'
     return calendar_name
 
 @artifact_processor
@@ -296,8 +309,8 @@ def calendarEvents(context):
 
                     if latitude and longitude:
                         location_coordinates_tag = f'''
-                        {location_coordinates} &nbsp; 
-                        <a href="https://www.openstreetmap.org/?lat={latitude}&lon=%20{longitude}&zoom=17&layers=M" target="_blank">
+                        {esc(location_coordinates)} &nbsp;
+                        <a href="https://www.openstreetmap.org/?lat={esc(latitude)}&lon=%20{esc(longitude)}&zoom=17&layers=M" target="_blank">
                         &#x1F5FA;</a>
                         '''
                     else:
@@ -406,15 +419,15 @@ def calendarList(context):
             usageentries = len(all_rows)
             if usageentries > 0:
 
-                sharees = get_sharees(cursor)
+                sharees_html, sharees_csv = get_sharees(cursor)
                 for row in all_rows:
                     calendar_name = row[1]
                     calendar_name_tag = get_calendar_name(row[1], row[2])
                     owner_email = row[6].replace('mailto:', '') if row[6] else ''
                     owner_email = unquote(owner_email)
-                    if sharees:
-                        sharing_participants_html = sharees.get(row[0], '')
-                        sharing_participants = sharees.get(row[0], '').replace('<br>', ' ')
+                    if sharees_html:
+                        sharing_participants_html = sharees_html.get(row[0], '')
+                        sharing_participants = sharees_csv.get(row[0], '')
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7],
                                           sharing_participants_html, row[8], context.get_relative_path(file_found)))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7],

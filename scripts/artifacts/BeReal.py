@@ -239,6 +239,7 @@ from base64 import standard_b64decode
 from urllib.parse import urlparse, urlunparse
 from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_content, get_plist_file_content, convert_unix_ts_to_utc, \
     convert_cocoa_core_data_ts_to_utc, check_in_embedded_media, artifact_processor, logfunc, is_platform_windows
+from scripts.html_safe import esc, safe_url, safe_join
 
 
 
@@ -369,7 +370,7 @@ def generic_url(value, html_format=False):
         if not bool(u[0]) and u[2].startswith('www'):
             u = u._replace(scheme='http')
         url = urlunparse(u)
-        return value if not html_format else f'<a href="{url}" target="_blank">{value}</>'
+        return value if not html_format else safe_url(url, value)
     else:
         return None
 
@@ -403,7 +404,8 @@ def get_realmojis(obj, html_format=False):
             real_moji = real_mojis[i]
             # emoji->url
             url_moji = generic_url(real_moji.get('media', {}).get('url'), html_format)
-            all_mojis.append(f"{real_moji.get('emoji')} {url_moji}")
+            emoji = esc(real_moji.get('emoji')) if html_format else real_moji.get('emoji')
+            all_mojis.append(f"{emoji} {url_moji}")
         if html_format:
             return '<br />'.join(all_mojis)
         else:
@@ -424,7 +426,8 @@ def get_realmojis(obj, html_format=False):
             #reaction_date = convert_cocoa_core_data_ts_to_utc(real_moji.get('date'))
             # emoji->uri
             uri_moji = generic_url(real_moji.get('uri'), html_format)
-            all_mojis.append(f"{real_moji.get('emoji')} {uri_moji}")
+            emoji = esc(real_moji.get('emoji')) if html_format else real_moji.get('emoji')
+            all_mojis.append(f"{emoji} {uri_moji}")
 
         return '<br />'.join(all_mojis) if html_format else '\n'.join(all_mojis)
     # none
@@ -482,7 +485,7 @@ def get_tags(obj, html_format=False, user_map=None):
                     user = f"{tag_id} ({username})"
 
             if bool(user):
-                tag_list.append(user)
+                tag_list.append(esc(user) if html_format else user)
                 
 
     return '<br />'.join(tag_list) if html_format else '\n'.join(tag_list)
@@ -601,10 +604,10 @@ def bereal_accounts(context):
             dev_info = '\n'.join(dev_info)
             app_ver = '\n'.join(app_ver)
             timezone = '\n'.join(timezone)
-            dev_uid_html = '<br />'.join(dev_uid_html)
-            dev_info_html = '<br />'.join(dev_info_html)
-            app_ver_html = '<br />'.join(app_ver_html)
-            timezone_html = '<br />'.join(timezone_html)
+            dev_uid_html = safe_join(dev_uid_html, '<br />')
+            dev_info_html = safe_join(dev_info_html, '<br />')
+            app_ver_html = safe_join(app_ver_html, '<br />')
+            timezone_html = safe_join(timezone_html, '<br />')
             # is private?
             is_private = account.get('isPrivate')
             # realmojis
@@ -1082,7 +1085,7 @@ def bereal_posts(context):
                     # html row
                     data_list_html.append((taken_at, moment_at, post_type, author, p_mt, p_url_html, s_mt, s_url_html,
                                            None, None, caption, latitude, longitude, retake_counter, late_secs, tags_html,
-                                           moment_id, bereal_id, file_rel_path, location))
+                                           moment_id, bereal_id, esc(file_rel_path), location))
                     # lava row
                     data_list.append((taken_at, moment_at, post_type, author, p_mt, p_url, s_mt, s_url,
                                       None, None, caption, latitude, longitude, retake_counter, late_secs, tags,
@@ -1167,7 +1170,7 @@ def bereal_posts(context):
                         # html row
                         data_list_html.append((taken_at, moment_at, post_type, author, p_mt, p_url_html, s_mt, s_url_html,
                                                t_mt, t_url_html, caption, latitude, longitude, retake_counter, late_secs, tags_html,
-                                               moment_id, bereal_id, file_rel_path, location))
+                                               moment_id, bereal_id, esc(file_rel_path), location))
                         # lava row
                         data_list.append((taken_at, moment_at, post_type, author, p_mt, p_url, s_mt, s_url,
                                           t_mt, t_url, caption, latitude, longitude, retake_counter, late_secs, tags,
@@ -1245,7 +1248,7 @@ def bereal_posts(context):
                             # html row
                             data_list_html.append((taken_at, moment_at, post_type, author, p_mt, p_url_html, s_mt, s_url_html,
                                                    t_mt, t_url_html, caption, latitude, longitude, retake_counter, late_secs, tags_html,
-                                                   moment_id, bereal_id, file_rel_path, location))
+                                                   moment_id, bereal_id, esc(file_rel_path), location))
                             # lava row
                             data_list.append((taken_at, moment_at, post_type, author, p_mt, p_url, s_mt, s_url,
                                               t_mt, t_url, caption, latitude, longitude, retake_counter, late_secs, tags,
@@ -1299,7 +1302,7 @@ def bereal_pinned_memories(context):
 
         # html row
         data_list_html.append((taken_at, moment_day, post_type, author_id, p_mt, p_url_html, s_mt, s_url_html,
-                               moment_id, pin_id, file_rel_path, location))
+                               moment_id, pin_id, esc(file_rel_path), esc(location)))
         # lava row
         data_list.append((taken_at, moment_day, post_type, author_id, p_mt, p_url, s_mt, s_url,
                           moment_id, pin_id, file_rel_path, location))
@@ -1977,7 +1980,7 @@ def bereal_chat_list(context):
             admins_list.append(format_userid(a, user_map=user_map))
         if bool(admins_list):
             admins = '\n'.join(admins_list)
-        admins_html = admins.replace('\n', '<br />')
+        admins_html = esc(admins).replace('\n', '<br />')
 
         # participants (plist)
         participants = get_plist_content(record[7])
@@ -1986,7 +1989,7 @@ def bereal_chat_list(context):
             participants_list.append(format_userid(p, user_map=user_map))
         if bool(participants_list):
             participants = '\n'.join(participants_list)
-        participants_html = participants.replace('\n', '<br />')
+        participants_html = esc(participants).replace('\n', '<br />')
 
         # body
         body = record[8].decode('utf-8') if bool(record[8]) else record[8]

@@ -192,6 +192,7 @@ import pytz
 from scripts.ilapfuncs import get_sqlite_db_records, \
     get_plist_content, get_plist_file_content, convert_plist_date_to_utc, \
     convert_unix_ts_to_utc, check_in_media, artifact_processor, logfunc
+from scripts.html_safe import esc, safe_join
 
 def _safe_plist_date(value):
     """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
@@ -259,9 +260,9 @@ def unordered_list(values: list[str] | None, html_format: bool = False) -> str |
     """
     Format a list of strings as an unordered list.
     - If the input list is None or empty, return None.
-    - If html_format=True, join items using <br> tags.
-    - Otherwise, join items using line breaks.
-   
+    - If html_format=True, HTML-escape each evidence value and join with <br> tags.
+    - Otherwise, join items using line breaks (plain text / TSV path, not escaped).
+
     Args:
         values: A list of string items to format.
         html_format: If True, format output for HTML.
@@ -273,9 +274,14 @@ def unordered_list(values: list[str] | None, html_format: bool = False) -> str |
     if not values:
         return None
 
-    separator = HTML_LINE_BREAK if html_format else LINE_BREAK
+    # HTML path: escape each dynamic value so evidence cannot inject markup/script.
+    if html_format:
+        if isinstance(values, list):
+            return safe_join(values, HTML_LINE_BREAK)
+        return esc(values)
 
-    return separator.join(values) if isinstance(values, list) else values
+    # Plain text / TSV path: left unescaped by design.
+    return LINE_BREAK.join(values) if isinstance(values, list) else values
 
 
 # Pattern to normalize timezone offsets from +HHMM -> +HH:MM
@@ -1864,13 +1870,16 @@ def _format_routes(routes: list) -> tuple:
                 meta_p.append(dst_p)
             results_plain.append(unordered_list(meta_p, html_format=False))
 
-            # Reconstruct the data hierarchy for HTML
-            meta_h = [f"Route {i} - {r_date}"]
+            # Reconstruct the data hierarchy for HTML. src_h/dst_h are already
+            # escaped HTML fragments from _format_airports; the header holds only a
+            # loop index and a date object. Escape the header and join without
+            # re-escaping the fragments (unordered_list would double-escape them).
+            meta_h = [esc(f"Route {i} - {r_date}")]
             if src_h:
                 meta_h.append(src_h)
             if dst_h:
                 meta_h.append(dst_h)
-            results_html.append(unordered_list(meta_h, html_format=True))
+            results_html.append(HTML_LINE_BREAK.join(meta_h))
 
         except (TypeError, ValueError):
             # Gracefully skip routes with malformed or missing dates
