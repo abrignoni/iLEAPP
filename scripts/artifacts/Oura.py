@@ -1,4 +1,8 @@
 __artifacts_v2__ = {
+    # The segment/zendesk/account-UID patterns below also match same-named SDK
+    # plists inside other apps' containers (Life360, etc.). Parsing is anchored
+    # to the directory that holds com.ouraring.oura.plist (_load_oura_plists),
+    # so those foreign matches are never read.
     "oura_account_identity_profile": {
         "name": "Oura - Account, Identity & Profile",
         "description": "Account identity, paired-ring hardware, demographics, health "
@@ -6,7 +10,7 @@ __artifacts_v2__ = {
                        "by category.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-07-18",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Merges the account/device, user-profile and identifier data into one view.",
@@ -36,7 +40,7 @@ __artifacts_v2__ = {
                        "and accuracy. Exportable to KML.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-06-02",
+        "last_update_date": "2026-07-18",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "From 'findMyRingLastKnownLocation'; timestamp is Apple Cocoa/NSDate.",
@@ -67,7 +71,7 @@ __artifacts_v2__ = {
                        "firmware date, last-seen date and ring/UTC time mapping.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-07-18",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Battery/notification timestamps are Apple Cocoa/NSDate values.",
@@ -97,7 +101,7 @@ __artifacts_v2__ = {
                        "syncs, token refresh, uploads, PPG/stress sensing, and more.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-06-02",
+        "last_update_date": "2026-07-18",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Mixed ISO/Unix/Cocoa timestamps are normalised to UTC.",
@@ -127,7 +131,7 @@ __artifacts_v2__ = {
                        "window, with window and most-recent timestamps.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
-        "last_update_date": "2026-06-04",
+        "last_update_date": "2026-07-18",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "From 'widgetInfo.daytimeHeartRate'; a cached summary, not the full series.",
@@ -157,7 +161,7 @@ __artifacts_v2__ = {
                        "AWS S3) with API key, type, SDK version and consent category.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
-        "last_update_date": "2026-06-04",
+        "last_update_date": "2026-07-18",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "From the 'integrations' block of 'segment.settings'.",
@@ -187,7 +191,7 @@ __artifacts_v2__ = {
                        "(track/identify/group), showing collected telemetry.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
-        "last_update_date": "2026-06-04",
+        "last_update_date": "2026-07-18",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "From the 'plan' block of 'segment.settings'; bulk, so TSV + LAVA only.",
@@ -295,30 +299,23 @@ def ts_auto(value):
 
 
 def _load_oura_plists(files_found):
-    """Load every plist in the Oura Preferences dir, keyed by filename.
+    """Load the plists in the Oura app's own Preferences dir, keyed by filename.
 
-    The bulk lives in a plist named after the account UID (so it varies per
-    device); we find the dir off the fixed com.ouraring.oura.plist. If that one
-    isn't in the extraction, fall back to whichever plist has a deviceUid.
+    The companion search patterns (com.segment.storage.*, com.zendesk.*, the
+    account-UID plist) also match same-named SDK plists inside other apps'
+    containers, so only files sitting next to the Oura-specific
+    com.ouraring.oura.plist are parsed. Without that anchor the Oura app is
+    not in the extraction and nothing is returned.
     """
     bundle_path = get_file_path(files_found, "com.ouraring.oura.plist")
-    pref_dir = os.path.dirname(str(bundle_path)) if bundle_path else None
-    candidates = [str(fp) for fp in files_found if str(fp).endswith(".plist")]
-
-    if pref_dir is None:
-        for fp in candidates:
-            try:
-                with open(fp, "rb") as fh:
-                    data = plistlib.load(fh)
-            except Exception:  # pylint: disable=broad-exception-caught
-                continue
-            if isinstance(data, dict) and "deviceUid" in data:
-                pref_dir = os.path.dirname(fp)
-                break
+    if not bundle_path:
+        return {}, {}
+    pref_dir = os.path.dirname(str(bundle_path))
 
     data_by_name, path_by_name = {}, {}
-    for fp in candidates:
-        if pref_dir and os.path.dirname(fp) != pref_dir:
+    for file_found in files_found:
+        fp = str(file_found)
+        if not fp.endswith(".plist") or os.path.dirname(fp) != pref_dir:
             continue
         try:
             with open(fp, "rb") as fh:
@@ -329,7 +326,7 @@ def _load_oura_plists(files_found):
         name = os.path.basename(fp)
         data_by_name[name] = data
         path_by_name[name] = fp
-    return data_by_name, path_by_name, bundle_path
+    return data_by_name, path_by_name
 
 
 def _suite_plist(data_by_name, path_by_name):
@@ -341,11 +338,12 @@ def _suite_plist(data_by_name, path_by_name):
     return bundle, path_by_name.get("com.ouraring.oura.plist", "")
 
 
-def _find_by_prefix(data_by_name, prefix):
+def _segment_plist(data_by_name, path_by_name):
+    """Oura's Segment SDK storage plist -> (data, full path)."""
     for name, data in data_by_name.items():
-        if name.startswith(prefix):
-            return data
-    return {}
+        if name.startswith("com.segment.storage.") and isinstance(data, dict):
+            return data, path_by_name.get(name, "")
+    return {}, ""
 
 
 def _decode_nsdecimal(value):
@@ -451,102 +449,134 @@ def _ring_id(suite):
 @artifact_processor
 def oura_account_identity_profile(context):
     files_found = context.get_files_found()
-    data_by_name, path_by_name, _ = _load_oura_plists(files_found)
-    suite, source = _suite_plist(data_by_name, path_by_name)
+    data_by_name, path_by_name = _load_oura_plists(files_found)
+    suite, suite_path = _suite_plist(data_by_name, path_by_name)
     bundle = data_by_name.get("com.ouraring.oura.plist", {})
+    bundle_path = path_by_name.get("com.ouraring.oura.plist", "")
     braze = _jload(suite.get("brazeUserAttributesV2")) or {}
     widget = _jload(suite.get("widgetInfo")) or {}
     app_details = _jload(suite.get("latestAppDetails")) or {}
-    segment = _find_by_prefix(data_by_name, "com.segment.storage.")
-    traits = (_jload(segment.get("segment.traits")) if isinstance(segment, dict) else None) or {}
-
-    ring_models = braze.get("ringModel")
-    ring_model = ", ".join(ring_models) if isinstance(ring_models, list) else \
-        (braze.get("currentRing") or traits.get("currentRing"))
+    segment, segment_path = _segment_plist(data_by_name, path_by_name)
+    traits = _jload(segment.get("segment.traits")) or {}
 
     rows = []
+    sources = []  # full paths of the plists that actually produced rows
     consumed = set()  # braze/traits keys already covered by a row above
 
-    def add(category, attribute, value, *profile_keys):
+    def add(category, attribute, value, src, *profile_keys):
         consumed.update(profile_keys)
-        if value not in (None, "", [], {}):
-            rows.append((category, attribute, _flatten(value)))
+        if value in (None, "", [], {}):
+            return
+        text = _flatten(value)
+        if text in ("", "[]", "{}"):
+            return
+        if src and src not in sources:
+            sources.append(src)
+        rows.append((category, attribute, text, context.get_relative_path(src)))
+
+    def pick(*candidates):
+        """(dict, key, path) triples -> (value, path) of the first non-empty hit."""
+        for obj, key, path in candidates:
+            value = obj.get(key)
+            if value not in (None, "", [], {}):
+                return value, path
+        return None, ""
 
     add("Account", "Email",
-        suite.get("accountEmail") or bundle.get("accountEmail") or braze.get("userEmail"),
+        *pick((suite, "accountEmail", suite_path),
+              (bundle, "accountEmail", bundle_path),
+              (braze, "userEmail", suite_path)),
         "userEmail", "email")
-    add("Account", "Account UID", suite.get("accountUid") or bundle.get("accountUid"))
-    add("Account", "Device UID", suite.get("deviceUid"))
+    add("Account", "Account UID",
+        *pick((suite, "accountUid", suite_path), (bundle, "accountUid", bundle_path)))
+    add("Account", "Device UID", suite.get("deviceUid"), suite_path)
 
-    add("Ring", "BLE Identifier", _ring_id(suite))
-    add("Ring", "Model", ring_model, "ringModel", "currentRing")
-    add("Ring", "Color", braze.get("ringColor") or traits.get("ringColor"), "ringColor")
-    add("Ring", "Design", braze.get("ringDesign") or traits.get("ringDesign"), "ringDesign")
-    add("Ring", "Size", traits.get("ringSize"), "ringSize")
-    add("Ring", "Firmware Version", traits.get("ringFirmwareVersion"), "ringFirmwareVersion")
+    add("Ring", "BLE Identifier", _ring_id(suite), suite_path)
+    ring_models = braze.get("ringModel")
+    if isinstance(ring_models, list):
+        add("Ring", "Model", ", ".join(ring_models), suite_path, "ringModel", "currentRing")
+    else:
+        add("Ring", "Model",
+            *pick((braze, "currentRing", suite_path), (traits, "currentRing", segment_path)),
+            "ringModel", "currentRing")
+    add("Ring", "Color",
+        *pick((braze, "ringColor", suite_path), (traits, "ringColor", segment_path)),
+        "ringColor")
+    add("Ring", "Design",
+        *pick((braze, "ringDesign", suite_path), (traits, "ringDesign", segment_path)),
+        "ringDesign")
+    add("Ring", "Size", traits.get("ringSize"), segment_path, "ringSize")
+    add("Ring", "Firmware Version", traits.get("ringFirmwareVersion"), segment_path,
+        "ringFirmwareVersion")
 
-    add("Demographics", "Age", braze.get("age") or traits.get("age"), "age")
-    add("Demographics", "Gender", braze.get("gender") or traits.get("gender"), "gender")
+    add("Demographics", "Age",
+        *pick((braze, "age", suite_path), (traits, "age", segment_path)), "age")
+    add("Demographics", "Gender",
+        *pick((braze, "gender", suite_path), (traits, "gender", segment_path)), "gender")
     add("Demographics", "Country of Residence",
-        braze.get("chosenCountryOfResidence") or traits.get("chosenCountryOfResidence"),
+        *pick((braze, "chosenCountryOfResidence", suite_path),
+              (traits, "chosenCountryOfResidence", segment_path)),
         "chosenCountryOfResidence")
-    add("Demographics", "Membership Status", traits.get("membershipStatus"), "membershipStatus")
-    add("Body", "Height (m)", traits.get("height"), "height")
-    add("Body", "Weight (kg)", traits.get("weight"), "weight")
+    add("Demographics", "Membership Status", traits.get("membershipStatus"), segment_path,
+        "membershipStatus")
+    add("Body", "Height (m)", traits.get("height"), segment_path, "height")
+    add("Body", "Weight (kg)", traits.get("weight"), segment_path, "weight")
 
-    add("App", "App Version", app_details.get("version"))
+    add("App", "App Version", app_details.get("version"), suite_path)
     # SEGVersionKey is the app version Segment records to spot updates (alongside
     # SEGBuildKeyV2), not the Segment SDK version.
-    add("App", "App Version (Segment-tracked)", suite.get("SEGVersionKey"))
-    add("App", "Locale", suite.get("AppleLocale"))
+    add("App", "App Version (Segment-tracked)", suite.get("SEGVersionKey"), suite_path)
+    add("App", "Locale", suite.get("AppleLocale"), suite_path)
     langs = suite.get("AppleLanguages")
-    add("App", "Languages", ", ".join(langs) if isinstance(langs, list) else langs)
-    add("App", "Time Zone", (widget.get("timeZone") or {}).get("identifier"))
-    add("App", "Last Firmware Update", ts_iso(suite.get("lastUpdatedFirmwareDate")))
+    add("App", "Languages", ", ".join(langs) if isinstance(langs, list) else langs, suite_path)
+    add("App", "Time Zone", (widget.get("timeZone") or {}).get("identifier"), suite_path)
+    add("App", "Last Firmware Update", ts_iso(suite.get("lastUpdatedFirmwareDate")), suite_path)
 
-    add("Identifiers", "Apple App-Attest UUID", suite.get("com.apple.DC.AppAttestAppUUID"))
-    if isinstance(segment, dict):
-        add("Identifiers", "Segment User ID", segment.get("segment.userId"))
-        add("Identifiers", "Segment Anonymous ID", segment.get("segment.anonymousId"))
-        add("Identifiers", "Segment Event Count", segment.get("segment.events"))
+    add("Identifiers", "Apple App-Attest UUID", suite.get("com.apple.DC.AppAttestAppUUID"),
+        suite_path)
+    add("Identifiers", "Segment User ID", segment.get("segment.userId"), segment_path)
+    add("Identifiers", "Segment Anonymous ID", segment.get("segment.anonymousId"), segment_path)
+    add("Identifiers", "Segment Event Count", segment.get("segment.events"), segment_path)
 
     z_account = data_by_name.get("com.zendesk.core.account.plist", {})
+    z_account_path = path_by_name.get("com.zendesk.core.account.plist", "")
     if isinstance(z_account, dict) and z_account.get("account-id"):
         try:
             decoded = base64.b64decode(z_account["account-id"]).decode("utf-8", "replace")
         except Exception:  # pylint: disable=broad-exception-caught
             decoded = z_account["account-id"]
-        add("Support", "Zendesk Help Center URL", decoded)
+        add("Support", "Zendesk Help Center URL", decoded, z_account_path)
     z_identity = data_by_name.get("com.zendesk.core.identity.plist", {})
+    z_identity_path = path_by_name.get("com.zendesk.core.identity.plist", "")
     if isinstance(z_identity, dict):
         for ident_val in z_identity.values():
             if isinstance(ident_val, dict):
-                add("Tokens", "Zendesk Auth Token", ident_val.get("auth_token"))
+                add("Tokens", "Zendesk Auth Token", ident_val.get("auth_token"),
+                    z_identity_path)
     z_session = data_by_name.get("com.zendesk.core.session.plist", {})
+    z_session_path = path_by_name.get("com.zendesk.core.session.plist", "")
     if isinstance(z_session, dict):
         for sess_val in z_session.values():
             if isinstance(sess_val, dict):
-                add("Tokens", "Zendesk Push Token", sess_val.get("pushToken"))
+                add("Tokens", "Zendesk Push Token", sess_val.get("pushToken"), z_session_path)
 
     # whatever else braze/segment know about the user: health status, feature
     # flags, HealthKit links, and so on.
-    for src in (braze, traits):
-        for key in sorted(src.keys()):
+    for profile_dict, profile_path in ((braze, suite_path), (traits, segment_path)):
+        for key in sorted(profile_dict.keys()):
             if key in consumed:
                 continue
             consumed.add(key)
-            value = _flatten(src[key])
-            if value not in ("", "[]", "{}"):
-                rows.append(("Profile", key, value))
+            add("Profile", key, profile_dict[key], profile_path)
 
-    data_headers = ("Category", "Attribute", "Value")
-    return data_headers, rows, source
+    data_headers = ("Category", "Attribute", "Value", "Source File")
+    return data_headers, rows, "\n".join(sources)
 
 
 @artifact_processor
 def oura_find_my_ring_location(context):
     files_found = context.get_files_found()
-    data_by_name, path_by_name, _ = _load_oura_plists(files_found)
+    data_by_name, path_by_name = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
 
     data_list = []
@@ -587,7 +617,7 @@ def oura_find_my_ring_location(context):
 @artifact_processor
 def oura_ring_status(context):
     files_found = context.get_files_found()
-    data_by_name, path_by_name, _ = _load_oura_plists(files_found)
+    data_by_name, path_by_name = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
     ring = _ring_id(suite)
 
@@ -676,7 +706,7 @@ _NESTED_ACTIVITY = (
 @artifact_processor
 def oura_app_activity(context):
     files_found = context.get_files_found()
-    data_by_name, path_by_name, _ = _load_oura_plists(files_found)
+    data_by_name, path_by_name = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
 
     data_list = []
@@ -707,7 +737,7 @@ def oura_app_activity(context):
 @artifact_processor
 def oura_daytime_heart_rate(context):
     files_found = context.get_files_found()
-    data_by_name, path_by_name, _ = _load_oura_plists(files_found)
+    data_by_name, path_by_name = _load_oura_plists(files_found)
     suite, source = _suite_plist(data_by_name, path_by_name)
     widget = _jload(suite.get("widgetInfo")) or {}
     hr = widget.get("daytimeHeartRate") if isinstance(widget, dict) else None
@@ -735,20 +765,17 @@ def oura_daytime_heart_rate(context):
     return data_headers, data_list, source
 
 
-def _segment_settings(data_by_name):
-    """Decode the segment.settings bplist to a dict."""
-    segment = _find_by_prefix(data_by_name, "com.segment.storage.")
-    if not isinstance(segment, dict):
-        return {}
-    return _jload(segment.get("segment.settings")) or {}
+def _segment_settings(data_by_name, path_by_name):
+    """Decode the segment.settings bplist -> (settings dict, plist path)."""
+    segment, path = _segment_plist(data_by_name, path_by_name)
+    return _jload(segment.get("segment.settings")) or {}, path
 
 
 @artifact_processor
 def oura_analytics_integrations(context):
     files_found = context.get_files_found()
-    data_by_name, path_by_name, _ = _load_oura_plists(files_found)
-    _, source = _suite_plist(data_by_name, path_by_name)
-    settings = _segment_settings(data_by_name)
+    data_by_name, path_by_name = _load_oura_plists(files_found)
+    settings, source = _segment_settings(data_by_name, path_by_name)
     integrations = settings.get("integrations", {}) if isinstance(settings, dict) else {}
 
     data_list = []
@@ -773,9 +800,8 @@ def oura_analytics_integrations(context):
 @artifact_processor
 def oura_analytics_event_plan(context):
     files_found = context.get_files_found()
-    data_by_name, path_by_name, _ = _load_oura_plists(files_found)
-    _, source = _suite_plist(data_by_name, path_by_name)
-    settings = _segment_settings(data_by_name)
+    data_by_name, path_by_name = _load_oura_plists(files_found)
+    settings, source = _segment_settings(data_by_name, path_by_name)
     plan = settings.get("plan", {}) if isinstance(settings, dict) else {}
 
     data_list = []
