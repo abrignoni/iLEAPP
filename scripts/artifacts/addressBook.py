@@ -43,15 +43,8 @@ def clean_label(data):
 
 def remove_unused_rows(data, count_rows):
     data_count_rows = count_rows[0]
-    rows_to_remove = []
-    # for i in range(len(data_count_rows)):
-    #     if data_count_rows[i] == 0:
-    #         rows_to_remove.append(i)
-    for i, data in enumerate(data_count_rows):
-        if data == 0:
-            rows_to_remove.append(i)
-    data = ( i for r, i in enumerate(data) if r not in rows_to_remove )
-    return tuple(data)
+    rows_to_remove = [i for i, count in enumerate(data_count_rows) if count == 0]
+    return tuple(value for i, value in enumerate(data) if i not in rows_to_remove)
 
 
 @artifact_processor
@@ -259,6 +252,7 @@ def addressBook(context):
     remove_empty_cols_query = '''
     SELECT 
         'Create', 
+        'Modif', 
         count(ABI.ABThumbnailImage.data), 
         count(ABI.ABFullSizeImage.data), 
         count(ABPerson.Prefix), 
@@ -305,8 +299,7 @@ def addressBook(context):
         count(ABPerson.Note), 
         count(ABPerson.Birthday), 
         count(ABGroupMembers.member_id), 
-        'Store', 
-        'Modif'
+        'Store'
     FROM ABPerson
     LEFT JOIN ABGroupMembers ON ABPerson.ROWID = ABGroupMembers.member_id
     LEFT JOIN ABI.ABThumbnailImage ON ABPerson.ROWID = ABI.ABThumbnailImage.record_id
