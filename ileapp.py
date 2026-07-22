@@ -380,9 +380,6 @@ def main():
         logfunc("EXPERIMENTAL MODE ENABLED: --mp_per_plugin (per-plugin subprocess execution)")
 
     initialize_lava(input_path, out_params.output_folder_base, extracttype)
-    if args.mp_per_plugin:
-        # Parent does not need an open connection while children write to the DB.
-        lava_close_db()
 
     # Record history if enabled
     history.record_input_path(input_path)
@@ -474,6 +471,11 @@ def crunch_artifacts(
     log.write(f'Timezone selected: {time_offset}<br><br>')
 
     ctx_mp = multiprocessing.get_context("spawn") if mp_per_plugin else None
+    if mp_per_plugin:
+        # Parent does not need an open connection while children write to the DB.
+        # Closed here (not right after initialize_lava) so any parent-side LAVA
+        # writes during setup above still have a valid connection.
+        lava_close_db()
     installed_os_version = ''
     current_proc = None
     last_interrupt_ts = 0.0
