@@ -10,7 +10,7 @@ __artifacts_v2__ = {
                        "edited and by what tool.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-12",
-        "last_update_date": "2026-07-12",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "AI Provenance",
         "notes": "SIGNATURE CAVEAT: the signer, issuer, algorithm, and signing time are read "
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
             '*.[jJ][xX][lL]', '*.[tT][iI][fF]', '*.[tT][iI][fF][fF]',
             '*.[dD][nN][gG]', '*.[mM][pP]4', '*.[mM][oO][vV]', '*.[mM]4[vV]',
         ),
-        "output_types": "all",
+        "output_types": "standard",
         "artifact_icon": "certificate",
     }
 }
@@ -677,6 +677,7 @@ def _fmt(items):
 @artifact_processor
 def c2paProvenance(context):
     data_headers = (
+        ('Signing Time (TSA)', 'datetime'),
         ('Media', 'media'),
         'Media State',
         'AI Generated?',
@@ -689,7 +690,6 @@ def c2paProvenance(context):
         'Credit / Copyright',
         'Title',
         'Ingredients (Prior Assets)',
-        ('Signing Time (TSA)', 'datetime'),
         'Signed By (stated)',
         'Certificate Issuer',
         'Certificate Validity',
@@ -760,6 +760,7 @@ def c2paProvenance(context):
             if n_states > 1 and i == n_states:
                 state += ' (current)'
             data_list.append((
+                sig.get('signing_time', ''),
                 thumb,
                 state,
                 _ai_str(r['ai']),
@@ -772,7 +773,6 @@ def c2paProvenance(context):
                 '',
                 r['title'],
                 _fmt(r['ingredients']),
-                sig.get('signing_time', ''),
                 sig.get('signed_by', ''),
                 sig.get('issuer', ''),
                 sig.get('validity', ''),
@@ -784,6 +784,7 @@ def c2paProvenance(context):
 
         if xmp_has_signal:
             data_list.append((
+                '',
                 thumb,
                 'IPTC tag',
                 _ai_str(xmp['ai']),
@@ -794,7 +795,6 @@ def c2paProvenance(context):
                 '',
                 _fmt(xmp['creators']),
                 _fmt([xmp['credit'], xmp['copyright']]),
-                '',
                 '',
                 '',
                 '',

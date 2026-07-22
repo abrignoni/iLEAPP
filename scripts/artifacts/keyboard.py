@@ -2,14 +2,14 @@ __artifacts_v2__ = {
     "keyboardLexicon": {
         "name": "Keyboard Dynamic Lexicon",
         "description": "Extracts dynamic lexicon data from the keyboard",
-        "author": "@your_username",
+        "author": "@any333",
         "creation_date": "2023-05-24",
-        "last_update_date": "2023-05-24",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "User Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat',),
-        "output_types": ["html", "tsv", "lava", "timeline"],
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "vocabulary",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 2 rows",
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
     "keyboardAppUsage": {
         "name": "Keyboard Application Usage",
         "description": "Extracts keyboard application usage data",
-        "author": "@your_username",
+        "author": "@yany333",
         "creation_date": "2023-05-24",
         "last_update_date": "2023-05-24",
         "requirements": "none",
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
     "keyboardUsageStats": {
         "name": "Keyboard Usage Stats",
         "description": "Extracts keyboard usage statistics",
-        "author": "@your_username",
+        "author": "@any333",
         "creation_date": "2023-05-24",
         "last_update_date": "2023-05-24",
         "requirements": "none",

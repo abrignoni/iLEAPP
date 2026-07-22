@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Processes CloudKit sharing data from NoteStore.sqlite",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-05-28",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Cloudkit",
         "notes": "",
@@ -185,17 +185,18 @@ def cloudkit_sharing(context):
         db.close()
 
         for z_pk, s in shares.items():
-            data_list.append((
+            data_list.append((s['ctime'], s['mtime'], 
                 context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'],
                 s['root_id'], s['record_type'],
-                s['ctime'], s['creator'], s['mtime'], s['modifier'], s['device'],
+                s['creator'], s['modifier'], s['device'],
                 s['container'], s['hostname'], s['permission'], s['visibility'],
                 s['anon'], s['known']
             ))
 
     data_headers = (
+        ('Creation Date', 'datetime'), ('Modified Date', 'datetime'),
         'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Record ID', 'Root Record ID', 'Record Type',
-        ('Creation Date', 'datetime'), 'Creator User Record ID', ('Modified Date', 'datetime'),
+        'Creator User Record ID', 
         'Last Modified User Record ID', 'Modified By Device', 'Container Identifier',
         'Displayed Hostname', 'Public Permission', 'Participant Visibility',
         'Allows Anonymous Access', 'Known To Server'
