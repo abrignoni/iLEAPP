@@ -116,13 +116,11 @@ def generate_report(reportfolderbase, time_in_secs, time_hms, extraction_type, i
             filename = old_filename.replace(".temphtml", ".html").replace(" ", "_")
             # search for it in nav_list_data, then mark that one as 'active' tab
             active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
-            artifact_data = get_file_content(path)
-
-            # Now write out entire html page for artifact
-            f = open(os.path.join(reportfolderbase, '_HTML', filename), 'w', encoding='utf8')
-            artifact_data = insert_sidebar_code(artifact_data, active_nav_list_data, path)
-            f.write(artifact_data)
-            f.close()
+            # Stream the (potentially very large) artifact page to its final
+            # location, injecting the sidebar navigation without loading the
+            # whole file into memory (issue #1746).
+            dest_path = os.path.join(reportfolderbase, '_HTML', filename)
+            stream_insert_sidebar_code(path, dest_path, active_nav_list_data)
 
             # Now delete .temphtml
             os.remove(path)
@@ -326,15 +324,49 @@ def generate_key_val_table_without_headings(title, data_list, agency_logo_mimety
     return code
 
 
-def insert_sidebar_code(data, sidebar_code, filename):
-    """Replaces the sidebar placeholder in the page HTML with the fully built navigation sidebar code."""
-    pos = data.find(body_sidebar_dynamic_data_placeholder)
-    if pos < 0:
-        logfunc(f'Error, could not find {body_sidebar_dynamic_data_placeholder} in file {filename}')
-        return data
-    else:
-        ret = data[0: pos] + sidebar_code + data[pos + len(body_sidebar_dynamic_data_placeholder):]
-        return ret
+def stream_insert_sidebar_code(src_path, dest_path, sidebar_code):
+    """Copy the artifact page from src_path to dest_path, replacing the first
+    sidebar placeholder with sidebar_code, without loading the whole file into
+    memory.
+
+    Artifact pages can grow to several GB for large extractions, so reading an
+    entire page and concatenating strings (the previous approach) could exhaust
+    memory and raise MemoryError during report generation (issue #1746). The
+    placeholder is written near the top of every page, so only a small head
+    buffer is retained while searching for it; the large table body that
+    follows is streamed to the destination in fixed-size chunks."""
+    placeholder = body_sidebar_dynamic_data_placeholder
+    marker_len = len(placeholder)
+    chunk_size = 1024 * 1024  # 1 MiB
+    keep = marker_len - 1  # bytes a placeholder split across a chunk could span
+    with open(src_path, 'r', encoding='utf8') as src, \
+            open(dest_path, 'w', encoding='utf8') as dst:
+        buffer = ''
+        inserted = False
+        while True:
+            chunk = src.read(chunk_size)
+            if not chunk:
+                break
+            buffer += chunk
+            pos = buffer.find(placeholder)
+            if pos >= 0:
+                dst.write(buffer[:pos])
+                dst.write(sidebar_code)
+                dst.write(buffer[pos + marker_len:])
+                buffer = ''
+                inserted = True
+                # Copy the remainder of the (large) file in bounded chunks.
+                shutil.copyfileobj(src, dst, chunk_size)
+                break
+            # Placeholder not found yet: flush everything except a small tail
+            # that could still hold a placeholder split across the boundary.
+            if len(buffer) > keep:
+                dst.write(buffer[:-keep])
+                buffer = buffer[-keep:]
+        if not inserted:
+            if buffer:
+                dst.write(buffer)
+            logfunc(f'Error, could not find {placeholder} in file {src_path}')
 
 
 def mark_item_active(data, itemname):
