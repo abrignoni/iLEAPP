@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract stored Wi-Fi credentials",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2027-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract stored web passwords",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract the device's paired Bluetooth devices",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract stored mail/calDAV/cardDAV account credentials",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -686,7 +686,7 @@ def _parse_teamblue_keychain(source_path) -> tuple[list[dict], list[dict], list[
 
 @artifact_processor
 def keychain_web_passwords(context):
-    data_headers = ('Server', 'Account', 'Password', 'Label', 'Desc', ('Created', 'datetime'), ('Modified', 'datetime'), 'Tombstoned')
+    data_headers = (('Created', 'datetime'), ('Modified', 'datetime'), 'Server', 'Account', 'Password', 'Label', 'Desc', 'Tombstoned')
     data_list = []
 
     inet_records, _, _, source_path = parse_keychain(context)
@@ -707,13 +707,13 @@ def keychain_web_passwords(context):
             deleted = inet.get("tomb", 0) in ("1", b"1", 1, True)
 
             data_list.append((
+                cdat,
+                mdat,
                 srvr,
                 acct,
                 password,
                 labl,
                 desc,
-                cdat,
-                mdat,
                 deleted,
             ))
 
@@ -721,7 +721,7 @@ def keychain_web_passwords(context):
 
 @artifact_processor
 def keychain_wifi(context):
-    data_headers = ('SSID', 'Password', ('Created', 'datetime'), ('Modified', 'datetime'), 'Tombstoned')
+    data_headers = (('Created', 'datetime'), ('Modified', 'datetime'), 'SSID', 'Password', 'Tombstoned')
     data_list = []
 
     _, genp_records, _, source_path = parse_keychain(context)
@@ -738,10 +738,10 @@ def keychain_wifi(context):
             deleted = genp.get("tomb", 0) in ("1", b"1", 1, True)
 
             data_list.append((
-                ssid,
-                password,
                 cdat,
                 mdat,
+                ssid,
+                password,
                 deleted,
             ))
 
@@ -783,7 +783,7 @@ def keychain_bluetooth_info(context):
 
 @artifact_processor
 def keychain_bluetooth_paired(context):
-    data_headers = ('Name', 'MAC', 'IRK', 'UUID', ('Created', 'datetime'), ('Modified', 'datetime'), 'Tombstoned')
+    data_headers = (('Created', 'datetime'), ('Modified', 'datetime'), 'Name', 'MAC', 'IRK', 'UUID', 'Tombstoned')
     data_list = []
 
     _, genp_records, _, source_path = parse_keychain(context)
@@ -826,12 +826,12 @@ def keychain_bluetooth_paired(context):
                 name = ""
 
             data_list.append((
+                cdat,
+                mdat,
                 name,
                 mac,
                 base64.b64encode(irk).decode() if irk and isinstance(irk, bytes) else "",
                 uuid,
-                cdat,
-                mdat,
                 deleted,
             ))
 
@@ -859,12 +859,12 @@ def keychain_bluetooth_paired(context):
                         name = device.get("Name", "")
 
             data_list.append((
+                cdat,
+                mdat,
                 name,
                 mac,
                 base64.b64encode(irk).decode() if irk and isinstance(irk, bytes) else "",
                 uuid,
-                cdat,
-                mdat,
                 deleted,
             ))
 
@@ -875,7 +875,7 @@ def keychain_bluetooth_paired(context):
 
 @artifact_processor
 def keychain_mail_accounts(context):
-    data_headers = ('Server', 'Account', 'Password', 'Type', ('Created', 'datetime'), ('Modified', 'datetime'), 'Tombstoned')
+    data_headers = (('Created', 'datetime'), ('Modified', 'datetime'), 'Server', 'Account', 'Password', 'Type', 'Tombstoned')
     data_list = []
 
     _, genp_records, _, source_path = parse_keychain(context)
@@ -918,12 +918,12 @@ def keychain_mail_accounts(context):
                 password = base64.b64encode(password).decode("utf-8")
 
         data_list.append((
+            cdat,
+            mdat,
             server,
             account,
             password,
             svce_type,
-            cdat,
-            mdat,
             deleted,
         ))
 

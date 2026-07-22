@@ -35,13 +35,13 @@ __artifacts_v2__ = {
         "description": "List of calendar birthdays",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2024-10-30",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name'],
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "gift",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
@@ -338,7 +338,7 @@ def calendarBirthdays(context):
 
     data_list_html = []
     data_list = []
-    data_headers = (('Date of Birth', 'datetime'), 'Person Name', 'Calendar Name', 'Account Name', 'Source File')
+    data_headers = ('Date of Birth', 'Person Name', 'Calendar Name', 'Account Name', 'Source File')
 
     for file_found in context.get_files_found():
         file_found = str(file_found)

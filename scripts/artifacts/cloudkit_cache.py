@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses snapshot information from CloudKit cache",
         "author": "@JamesHabben",
         "creation_date": "2023-04-11",
-        "last_update_date": "2026-05-30",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "CloudKit",
         "notes": "",
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "description": "Parses file listings from CloudKit cache snapshots",
         "author": "@JamesHabben",
         "creation_date": "2023-04-11",
-        "last_update_date": "2026-05-30",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "CloudKit",
         "notes": "",
@@ -149,11 +149,11 @@ def cloudkit_snapshots(context):
             formatted_size = format_size(total_size)
 
             data_list.append((
-                snapshot_id,
-                committed,
                 created_ts,
                 mod_date,
                 snapshot_created,
+                snapshot_id,
+                committed,
                 device_uuid,
                 device_name,
                 product_version,
@@ -167,11 +167,11 @@ def cloudkit_snapshots(context):
         db.close()
 
     data_headers = (
-        'Snapshot ID',
-        'Committed',
         ('Created Timestamp', 'datetime'),
         ('Snapshot Modification Timestamp', 'datetime'),
         ('Snapshot Created Timestamp', 'datetime'),
+        'Snapshot ID',
+        'Committed',
         'Device UUID',
         'Device Name',
         'Product Version',
@@ -228,8 +228,8 @@ def cloudkit_files(context):
             modified_ts = convert_unix_ts_to_utc(record[1]) if record[1] else ""
 
             data_list.append((
-                record[0],    # Snapshot ID
                 modified_ts,  # Modified
+                record[0],    # Snapshot ID
                 record[2],    # Relative Path
                 record[3],    # File ID
                 record[4],    # File Domain
@@ -241,8 +241,8 @@ def cloudkit_files(context):
             ))
 
     data_headers = (
-        'Snapshot ID',
         ('Modified', 'datetime'),
+        'Snapshot ID',
         'Relative Path',
         'File ID',
         'File Domain',

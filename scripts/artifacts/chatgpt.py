@@ -72,7 +72,7 @@ __artifacts_v2__ = {
         "description": "Images uploaded to ChatGPT.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "",
@@ -80,7 +80,7 @@ __artifacts_v2__ = {
                   '**/Containers/Data/Application/*/tmp/*/*.png',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "photo",
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
