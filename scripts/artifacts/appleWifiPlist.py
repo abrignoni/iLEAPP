@@ -4,14 +4,14 @@ __artifacts_v2__ = {
         "description": "Parses WiFi connection data for known networks",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-21",
-        "last_update_date": "2024-10-21",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "WiFi Connections",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
         "paths": ('*/com.apple.wifi.plist', 
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist'),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "wifi",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 8 rows",
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "description": "Parses time-related data for known WiFi networks",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-21",
-        "last_update_date": "2024-10-21",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "WiFi Connections",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
@@ -224,7 +224,7 @@ def appleWifiKnownNetworksTimes(context):
                 wnpmd = _safe_plist_date(known_network.get('WiFiNetworkPasswordModificationDate', ''))
                 prev_joined = _safe_plist_date(known_network.get('prevJoined', ''))
 
-                data_list.append([ssid, bssid, last_updated, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, context.get_relative_path(file_found)])
+                data_list.append([last_updated, ssid, bssid, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, context.get_relative_path(file_found)])
 
         if 'com.apple.wifi.known-networks.plist' in file_found:
             for _, known_network in deserialized.items():
@@ -244,11 +244,11 @@ def appleWifiKnownNetworksTimes(context):
                 wnpmd = _safe_plist_date(os_specific.get('WiFiNetworkPasswordModificationDate', ''))
                 prev_joined = _safe_plist_date(os_specific.get('prevJoined', ''))
 
-                data_list.append([ssid, bssid, last_updated, '', '', system_joined, user_joined, wnpmd, 
+                data_list.append([last_updated, ssid, bssid, '', '', system_joined, user_joined, wnpmd, 
                                     last_discovered, added_at, whitelisted_probe_date, captive_web_sheet_login_date, 
                                     prev_joined, context.get_relative_path(file_found)])
 
-    data_headers = ('SSID', 'BSSID', ('Last Updated', 'datetime'), ('Last Auto Joined', 'datetime'), 
+    data_headers = (('Last Updated', 'datetime'), 'SSID', 'BSSID', ('Last Auto Joined', 'datetime'), 
                     ('Last Joined', 'datetime'), ('System Joined', 'datetime'), ('User Joined', 'datetime'),
                     ('WiFi Network Password Modification Date', 'datetime'), ('Last Discovered', 'datetime'),
                     ('Added At', 'datetime'), ('Whitelisted Captive Network Probe Date', 'datetime'),

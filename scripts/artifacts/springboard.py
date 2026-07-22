@@ -5,13 +5,13 @@ __artifacts_v2__ = {
         "description": "Home screen layout: apps, folders, widgets and the dock, per screen page",
         "author": "",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in their on-screen "
                  "flow order. See 'iOS Home Screen Layout - Visual' for a rendered image of each screen.",
         "paths": ('**/SpringBoard/IconState.plist',),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "layout-grid",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 96 rows",
@@ -36,13 +36,13 @@ __artifacts_v2__ = {
         "description": "Rendered image of each home screen page (apps, folders, widgets, dock)",
         "author": "",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "A PNG is rendered per screen page from SpringBoard/IconState.plist as a visual "
                  "reference. The 'iOS Home Screen Layout' artifact holds the same data in queryable form.",
         "paths": ('**/SpringBoard/IconState.plist',),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "layout-grid",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 5 rows",
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "description": "Legacy wallpaper files and thumbnails stored by SpringBoard",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "Legacy cpbitmap wallpaper files are converted to PNG when possible. Image-backed "
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "description": "PosterBoard output.layerStack image layer files",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "PosterBoard output.layerStack image files are reported. HEIC/HEIF image layers "
@@ -378,12 +378,12 @@ def icons_screen_visual(context):
 def springboard_wallpaper(context):
     """ See artifact description """
     data_headers = (
+        ('File Created', 'datetime'),
+        ('File Modified', 'datetime'),
         ('Wallpaper', 'media'),
         'Variant',
         'Filename',
         'Status',
-        ('File Created', 'datetime'),
-        ('File Modified', 'datetime'),
         'Source Path',
     )
     data_list = []
@@ -426,12 +426,12 @@ def springboard_wallpaper(context):
             status = 'Media checked in' if media_ref else 'Found, but media check-in failed'
 
         data_list.append((
+            created_at,
+            modified_at,
             media_ref,
             variant,
             filename,
             status,
-            created_at,
-            modified_at,
             source_path,
         ))
 
@@ -442,12 +442,12 @@ def springboard_wallpaper(context):
 def posterboard_wallpaper(context):
     """ See artifact description """
     data_headers = (
+        ('File Created', 'datetime'),
+        ('File Modified', 'datetime'),
         ('Wallpaper', 'media'),
         'Layer Name',
         'Filename',
         'Status',
-        ('File Created', 'datetime'),
-        ('File Modified', 'datetime'),
         'Source Path',
     )
     data_list = []
@@ -479,12 +479,12 @@ def posterboard_wallpaper(context):
             status = 'Media checked in' if media_ref else 'Found, but media check-in failed'
 
         data_list.append((
+            created_at,
+            modified_at,    
             media_ref,
             layer_name,
             filename,
             status,
-            created_at,
-            modified_at,
             source_path,
         ))
 
