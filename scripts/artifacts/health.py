@@ -496,6 +496,10 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
     does_column_exist_in_db
 
 
+def _record_value(record, index, default=None):
+    return record[index] if index < len(record) else default
+
+
 @artifact_processor
 def health_workouts(context):
     """ See artifact description """
@@ -769,22 +773,27 @@ def health_workouts(context):
     db_records = get_sqlite_db_records(data_source, query, attach_query)
 
     for record in db_records:
-        celcius_temp = None
-        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])
-        device_model = context.lookup_metadata('apple_device_id_to_model', record[22])
+        def value(index, default=None):
+            return _record_value(record, index, default)
 
-        if record[16]:
-            celcius_temp = round(((record[16] - 32) * (5 / 9)), 2)
+        celcius_temp = None
+        start_timestamp = convert_cocoa_core_data_ts_to_utc(value(0))
+        end_timestamp = convert_cocoa_core_data_ts_to_utc(value(1))
+        added_timestamp = convert_cocoa_core_data_ts_to_utc(value(26))
+        device_id = value(22)
+        device_model = context.lookup_metadata('apple_device_id_to_model', device_id)
+
+        fahrenheit_temp = value(16)
+        if fahrenheit_temp:
+            celcius_temp = round(((fahrenheit_temp - 32) * (5 / 9)), 2)
 
         data_list.append(
-            (start_timestamp, end_timestamp, str(record[2]).title(), record[3],
-             record[4], record[5], record[6], record[7], record[8], record[9],
-             record[10], record[11], record[12], record[13], record[14],
-             record[15], celcius_temp, record[16], record[17], record[18],
-             record[19], record[20], record[21], record[22], device_model,
-             record[23], record[24], record[25], added_timestamp)
+            (start_timestamp, end_timestamp, str(value(2)).title(), value(3),
+             value(4), value(5), value(6), value(7), value(8), value(9),
+             value(10), value(11), value(12), value(13), value(14), value(15),
+             celcius_temp, fahrenheit_temp, value(17), value(18), value(19),
+             value(20), value(21), device_id, device_model, value(23),
+             value(24), value(25), added_timestamp)
             )
 
     return data_headers, data_list, data_source
