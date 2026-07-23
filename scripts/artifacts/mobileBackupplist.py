@@ -6,14 +6,31 @@ __artifacts_v2__ = {
                        " and or Quick Start Data Transfer.",
         "author": "Other Unknown contributors and Scott Koenig",
         "creation_date": "2024-06-11",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-22",
         "requirements": "Acquisition that contains com.apple.MobileBackup.plist",
         "category": "Mobile Backup Plist",
         "notes": "",
         "paths": ('*/Library/Preferences/com.apple.MobileBackup.plist',
                   '*/Preferences/com.apple.MobileBackup.plist'),
-        "output_types": "standard",
-        "artifact_icon": "device-floppy"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "device-floppy",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 5 rows",
+            "felix_ios17": "iOS 17.6.1 | 9 rows",
+            "fsfull002_ios17": "iOS 17.1 | 9 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | 5 rows",
+            "iphone12_ios18": "iOS 18.7 | 5 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 20 rows",
+            "abe_ios16": "iOS 16.5 | 10 rows",
+            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 3 rows",
+            "magnet_ios16": "iOS 16.1.1 | 6 rows",
+        }
     }
 }
 

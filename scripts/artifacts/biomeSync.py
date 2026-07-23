@@ -9,13 +9,27 @@ __artifacts_v2__ = {
         "description": "Parses Biome Device Sync records",
         "author": "@JohnHyla",
         'creation_date': '2023-03-22',
-        'last_update_date': '2029-09-29',
+        'last_update_date': '2025-09-29',
         "requirements": "none",
         "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/sync/sync.db*'),
         "output_types": "standard",
-        'artifact_icon': 'eye'
+        'artifact_icon': 'eye',
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | 6 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 5 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 2 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
     }
 }
 

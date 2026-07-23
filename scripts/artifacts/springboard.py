@@ -5,35 +5,69 @@ __artifacts_v2__ = {
         "description": "Home screen layout: apps, folders, widgets and the dock, per screen page",
         "author": "",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in their on-screen "
                  "flow order. See 'iOS Home Screen Layout - Visual' for a rendered image of each screen.",
         "paths": ('**/SpringBoard/IconState.plist',),
-        "output_types": "standard",
-        "artifact_icon": "layout-grid"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "layout-grid",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 96 rows",
+            "dexter_ios18": "iOS 18.3.2 | 109 rows",
+            "felix_ios17": "iOS 17.6.1 | 71 rows",
+            "fsfull002_ios17": "iOS 17.1 | 63 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 74 rows",
+            "iphone11_ios17": "iOS 17.3 | 99 rows",
+            "iphone12_ios18": "iOS 18.7 | 75 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 61 rows",
+            "otto_ios17": "iOS 17.5.1 | 89 rows",
+            "abe_ios16": "iOS 16.5 | 95 rows",
+            "felix23_ios16": "iOS 16.5 | 64 rows",
+            "hickman_ios13": "iOS 13.3.1 | 77 rows",
+            "hickman_ios14": "iOS 14.3 | 84 rows",
+            "jess_ios15": "iOS 15.0.2 | 51 rows",
+            "magnet_ios16": "iOS 16.1.1 | 73 rows",
+        }
     },
     "icons_screen_visual": {
         "name": "iOS Home Screen Layout - Visual",
         "description": "Rendered image of each home screen page (apps, folders, widgets, dock)",
         "author": "",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "A PNG is rendered per screen page from SpringBoard/IconState.plist as a visual "
                  "reference. The 'iOS Home Screen Layout' artifact holds the same data in queryable form.",
         "paths": ('**/SpringBoard/IconState.plist',),
-        "output_types": "standard",
-        "artifact_icon": "layout-grid"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "layout-grid",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 5 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | 4 rows",
+            "abe_ios16": "iOS 16.5 | 5 rows",
+            "felix23_ios16": "iOS 16.5 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 4 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | 4 rows",
+        }
     },
     "springboard_wallpaper": {
         "name": "SpringBoard Wallpaper",
         "description": "Legacy wallpaper files and thumbnails stored by SpringBoard",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "Legacy cpbitmap wallpaper files are converted to PNG when possible. Image-backed "
@@ -47,14 +81,21 @@ __artifacts_v2__ = {
             '**/SpringBoard/*Background*.heic',
         ),
         "output_types": "standard",
-        "artifact_icon": "photo"
+        "artifact_icon": "photo",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 6 rows",
+            "jess_ios15": "iOS 15.0.2 | 6 rows",
+        }
     },
     "posterboard_wallpaper": {
         "name": "PosterBoard Wallpaper",
         "description": "PosterBoard output.layerStack image layer files",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "PosterBoard output.layerStack image files are reported. HEIC/HEIF image layers "
@@ -337,12 +378,12 @@ def icons_screen_visual(context):
 def springboard_wallpaper(context):
     """ See artifact description """
     data_headers = (
+        ('File Created', 'datetime'),
+        ('File Modified', 'datetime'),
         ('Wallpaper', 'media'),
         'Variant',
         'Filename',
         'Status',
-        ('File Created', 'datetime'),
-        ('File Modified', 'datetime'),
         'Source Path',
     )
     data_list = []
@@ -385,12 +426,12 @@ def springboard_wallpaper(context):
             status = 'Media checked in' if media_ref else 'Found, but media check-in failed'
 
         data_list.append((
+            created_at,
+            modified_at,
             media_ref,
             variant,
             filename,
             status,
-            created_at,
-            modified_at,
             source_path,
         ))
 
@@ -401,12 +442,12 @@ def springboard_wallpaper(context):
 def posterboard_wallpaper(context):
     """ See artifact description """
     data_headers = (
+        ('File Created', 'datetime'),
+        ('File Modified', 'datetime'),
         ('Wallpaper', 'media'),
         'Layer Name',
         'Filename',
         'Status',
-        ('File Created', 'datetime'),
-        ('File Modified', 'datetime'),
         'Source Path',
     )
     data_list = []
@@ -438,12 +479,12 @@ def posterboard_wallpaper(context):
             status = 'Media checked in' if media_ref else 'Found, but media check-in failed'
 
         data_list.append((
+            created_at,
+            modified_at,    
             media_ref,
             layer_name,
             filename,
             status,
-            created_at,
-            modified_at,
             source_path,
         ))
 

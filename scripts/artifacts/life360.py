@@ -10,7 +10,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/com.life360.safetymap *.log',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0 | 628 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 324 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 811 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Life360: Family Safety & GPS 26.22.0 | 734 rows",
+            "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 1722 rows",
+            "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 2325 rows",
+            "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 728 rows",
+        }
     },
     "life360DeviceBattery": {
         "name": "Life360 - Device Battery",
@@ -23,7 +32,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/com.life360.safetymap *.log',),
         "output_types": "standard",
-        "artifact_icon": "battery"
+        "artifact_icon": "battery",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0 | 628 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 324 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 811 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Life360: Family Safety & GPS 26.22.0 | 734 rows",
+            "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 1722 rows",
+            "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 2325 rows",
+            "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 728 rows",
+        }
     },
     "life360ChatMessages": {
         "name": "Life360 - Chat Messages",
@@ -37,6 +55,13 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),
         "output_types": "all",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 8 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 5 rows",
+            "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 0 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Thread ID",
@@ -59,7 +84,14 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0 | 10 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Life360: Find Friends & Family 24.28.0 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 10 rows",
+            "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 1 row",
+        }
     }
 }
 

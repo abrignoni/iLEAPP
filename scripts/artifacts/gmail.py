@@ -10,7 +10,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Gmail - Email by Google 6.0.250915 | 176 rows",
+            "iphone11_ios17": "iOS 17.3 | Gmail - Email by Google 6.0.231127 | 321 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Gmail - Email by Google 6.0.251201 | 18 rows",
+            "otto_ios17": "iOS 17.5.1 | Gmail - Email by Google 6.0.240729 | 305 rows",
+            "abe_ios16": "iOS 16.5 | Gmail - Email by Google 6.0.230528 | 430 rows",
+            "jess_ios15": "iOS 15.0.2 | Gmail - Email by Google 6.0.211226 | 81 rows",
+            "magnet_ios16": "iOS 16.1.1 | Gmail - Email by Google 6.0.221127 | 21 rows",
+        }
     },
     "gmailLabelDetails": {
         "name": "Gmail - Label Details",
@@ -23,20 +32,30 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "tag"
+        "artifact_icon": "tag",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.google.Gmail | 30 rows",
+            "dexter_ios18": "iOS 18.3.2 | Gmail - Email by Google 6.0.250915 | 35 rows",
+            "iphone11_ios17": "iOS 17.3 | Gmail - Email by Google 6.0.231127 | 31 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Gmail - Email by Google 6.0.251201 | 33 rows",
+            "otto_ios17": "iOS 17.5.1 | Gmail - Email by Google 6.0.240729 | 33 rows",
+            "abe_ios16": "iOS 16.5 | Gmail - Email by Google 6.0.230528 | 31 rows",
+            "jess_ios15": "iOS 15.0.2 | Gmail - Email by Google 6.0.211226 | 30 rows",
+            "magnet_ios16": "iOS 16.1.1 | Gmail - Email by Google 6.0.221127 | 28 rows",
+        }
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, convert_ts_human_to_utc
 
 @artifact_processor
-def gmailOfflineSearch(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def gmailOfflineSearch(context):
     data_list = []
     data_headers = ()
     source_path = ''
     
     file_found = ''
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         source_path = str(file_found)
         if file_found.endswith('searchsqlitedb'):
             break
@@ -61,7 +80,7 @@ def gmailOfflineSearch(files_found, _report_folder, _seeker, _wrap_text, timezon
     all_rows = cursor.fetchall()
         
     for row in all_rows:
-        timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+        timestamp = convert_ts_human_to_utc(row[0])
 
         sender = row[1]
         sender_split = [sender_split.strip() for sender_split in sender.split(',')]
@@ -93,13 +112,13 @@ def gmailOfflineSearch(files_found, _report_folder, _seeker, _wrap_text, timezon
     return data_headers, data_list, source_path
 
 @artifact_processor
-def gmailLabelDetails(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def gmailLabelDetails(context):
     data_list = []
     data_headers = ()
     source_path = ''
     
     file_found = ''
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         source_path = str(file_found)
         if file_found.endswith('sqlitedb'):
             break

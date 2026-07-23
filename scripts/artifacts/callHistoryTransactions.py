@@ -10,7 +10,20 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/var/mobile/Library/CallHistoryTransactions/transactions.log*'),
         "output_types": "standard",
-        "artifact_icon": "phone-call"
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 6 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 

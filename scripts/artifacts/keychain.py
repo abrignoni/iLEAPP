@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract stored Wi-Fi credentials",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2027-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -15,6 +15,23 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "wifi",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 6 rows",
+            "felix_ios17": "iOS 17.6.1 | 10 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 10 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 11 rows",
+            "abe_ios16": "iOS 16.5 | 23 rows",
+            "felix23_ios16": "iOS 16.5 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        },
         "function": "keychain_wifi"
     },
     "keychain_web_passwords": {
@@ -22,7 +39,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract stored web passwords",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -33,6 +50,23 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "key",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 15 rows",
+            "felix_ios17": "iOS 17.6.1 | 9 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 7 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
+            "abe_ios16": "iOS 16.5 | 9 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        },
         "function": "keychain_web_passwords"
     },
     "keychain_bluetooth_info": {
@@ -51,14 +85,31 @@ __artifacts_v2__ = {
         ),
         "output_types": "none",
         "function": "keychain_bluetooth_info",
-        "artifact_icon": "bluetooth"
+        "artifact_icon": "bluetooth",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | files found",
+            "dexter_ios18": "iOS 18.3.2 | files found",
+            "felix_ios17": "iOS 17.6.1 | files found",
+            "fsfull002_ios17": "iOS 17.1 | files found",
+            "hc_ios18_7": "iOS 18.7.8 | files found",
+            "iphone11_ios17": "iOS 17.3 | files found",
+            "iphone12_ios18": "iOS 18.7 | files found",
+            "iphone14plus_ios18": "iOS 18.0 | files found",
+            "otto_ios17": "iOS 17.5.1 | files found",
+            "abe_ios16": "iOS 16.5 | files found",
+            "felix23_ios16": "iOS 16.5 | files found",
+            "hickman_ios13": "iOS 13.3.1 | files found",
+            "hickman_ios14": "iOS 14.3 | files found",
+            "jess_ios15": "iOS 15.0.2 | files found",
+            "magnet_ios16": "iOS 16.1.1 | files found",
+        }
     },
     "keychain_bluetooth_paired": {
         "name": "Paired Bluetooth Devices",
         "description": "Parses keychain to extract the device's paired Bluetooth devices",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -71,6 +122,23 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "bluetooth",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 5 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 7 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 6 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "abe_ios16": "iOS 16.5 | 9 rows",
+            "felix23_ios16": "iOS 16.5 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        },
         "function": "keychain_bluetooth_paired"
     },
     "keychain_mail_accounts": {
@@ -78,7 +146,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract stored mail/calDAV/cardDAV account credentials",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",
@@ -89,6 +157,23 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "at",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        },
         "function": "keychain_mail_accounts"
     },
 }
@@ -228,10 +313,14 @@ def _normalize_date(date_str: str | datetime) -> datetime | None:
         base, frac = date_str.split('.', 1)
         frac = frac.rstrip('Z')[:6]
         date_str = f"{base}.{frac}Z"
-    try:
-        return datetime.strptime(date_str, "%Y%m%d%H%M%S.%fZ").replace(tzinfo=timezone.utc)
-    except ValueError:
-        return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+    # ASN1 GeneralizedTime with and without fractional seconds, plus ISO 8601
+    for date_format in ("%Y%m%d%H%M%S.%fZ", "%Y%m%d%H%M%SZ", "%Y-%m-%dT%H:%M:%SZ"):
+        try:
+            return datetime.strptime(date_str, date_format).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    logfunc(f"Unrecognized keychain date format: {date_str}")
+    return None
 
 def _extract_udid(text: str) -> str | None:
     """Extract UDID from text, supporting both 40-char hex and 8-16 format. Returns UDID in uppercase."""
@@ -597,7 +686,7 @@ def _parse_teamblue_keychain(source_path) -> tuple[list[dict], list[dict], list[
 
 @artifact_processor
 def keychain_web_passwords(context):
-    data_headers = ('Server', 'Account', 'Password', 'Label', 'Desc', ('Created', 'datetime'), ('Modified', 'datetime'), 'Tombstoned')
+    data_headers = (('Created', 'datetime'), ('Modified', 'datetime'), 'Server', 'Account', 'Password', 'Label', 'Desc', 'Tombstoned')
     data_list = []
 
     inet_records, _, _, source_path = parse_keychain(context)
@@ -618,13 +707,13 @@ def keychain_web_passwords(context):
             deleted = inet.get("tomb", 0) in ("1", b"1", 1, True)
 
             data_list.append((
+                cdat,
+                mdat,
                 srvr,
                 acct,
                 password,
                 labl,
                 desc,
-                cdat,
-                mdat,
                 deleted,
             ))
 
@@ -632,7 +721,7 @@ def keychain_web_passwords(context):
 
 @artifact_processor
 def keychain_wifi(context):
-    data_headers = ('SSID', 'Password', ('Created', 'datetime'), ('Modified', 'datetime'), 'Tombstoned')
+    data_headers = (('Created', 'datetime'), ('Modified', 'datetime'), 'SSID', 'Password', 'Tombstoned')
     data_list = []
 
     _, genp_records, _, source_path = parse_keychain(context)
@@ -649,10 +738,10 @@ def keychain_wifi(context):
             deleted = genp.get("tomb", 0) in ("1", b"1", 1, True)
 
             data_list.append((
-                ssid,
-                password,
                 cdat,
                 mdat,
+                ssid,
+                password,
                 deleted,
             ))
 
@@ -694,7 +783,7 @@ def keychain_bluetooth_info(context):
 
 @artifact_processor
 def keychain_bluetooth_paired(context):
-    data_headers = ('Name', 'MAC', 'IRK', 'UUID', ('Created', 'datetime'), ('Modified', 'datetime'), 'Tombstoned')
+    data_headers = (('Created', 'datetime'), ('Modified', 'datetime'), 'Name', 'MAC', 'IRK', 'UUID', 'Tombstoned')
     data_list = []
 
     _, genp_records, _, source_path = parse_keychain(context)
@@ -737,12 +826,12 @@ def keychain_bluetooth_paired(context):
                 name = ""
 
             data_list.append((
+                cdat,
+                mdat,
                 name,
                 mac,
                 base64.b64encode(irk).decode() if irk and isinstance(irk, bytes) else "",
                 uuid,
-                cdat,
-                mdat,
                 deleted,
             ))
 
@@ -770,12 +859,12 @@ def keychain_bluetooth_paired(context):
                         name = device.get("Name", "")
 
             data_list.append((
+                cdat,
+                mdat,
                 name,
                 mac,
                 base64.b64encode(irk).decode() if irk and isinstance(irk, bytes) else "",
                 uuid,
-                cdat,
-                mdat,
                 deleted,
             ))
 
@@ -786,7 +875,7 @@ def keychain_bluetooth_paired(context):
 
 @artifact_processor
 def keychain_mail_accounts(context):
-    data_headers = ('Server', 'Account', 'Password', 'Type', ('Created', 'datetime'), ('Modified', 'datetime'), 'Tombstoned')
+    data_headers = (('Created', 'datetime'), ('Modified', 'datetime'), 'Server', 'Account', 'Password', 'Type', 'Tombstoned')
     data_list = []
 
     _, genp_records, _, source_path = parse_keychain(context)
@@ -829,12 +918,12 @@ def keychain_mail_accounts(context):
                 password = base64.b64encode(password).decode("utf-8")
 
         data_list.append((
+            cdat,
+            mdat,
             server,
             account,
             password,
             svce_type,
-            cdat,
-            mdat,
             deleted,
         ))
 

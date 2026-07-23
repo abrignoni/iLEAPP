@@ -1,3 +1,4 @@
+# pylint: disable=E0601,W0611,W0613
 __artifacts_v2__ = {
     "messageRetention": {
         "name": "iOS Message Retention",
@@ -10,7 +11,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.MobileSMS.plist', '*/mobile/Library/Preferences/com.apple.mobileSMS.plist'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 3 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
     }
 }
 
@@ -19,7 +37,8 @@ import os
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content, device_info
 
 @artifact_processor
-def messageRetention(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def messageRetention(context):
+    seeker = context.get_seeker()
     source_path_one = seeker.search('*/mobile/Library/Preferences/com.apple.MobileSMS.plist', return_on_first_hit=True, force=True)
     data_list = []
 

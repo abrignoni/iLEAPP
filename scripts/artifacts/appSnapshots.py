@@ -15,7 +15,24 @@ __artifacts_v2__ = {
             '*/SplashBoard/Snapshots/*.ktx', 
             '*/SplashBoard/Snapshots/*.jpeg'),
         "output_types": "standard",
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 68 rows",
+            "dexter_ios18": "iOS 18.3.2 | 305 rows",
+            "felix_ios17": "iOS 17.6.1 | 178 rows",
+            "fsfull002_ios17": "iOS 17.1 | 106 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 207 rows",
+            "iphone11_ios17": "iOS 17.3 | 482 rows",
+            "iphone12_ios18": "iOS 18.7 | 194 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 529 rows",
+            "otto_ios17": "iOS 17.5.1 | 360 rows",
+            "abe_ios16": "iOS 16.5 | 364 rows",
+            "felix23_ios16": "iOS 16.5 | 234 rows",
+            "hickman_ios13": "iOS 13.3.1 | 287 rows",
+            "hickman_ios14": "iOS 14.3 | 342 rows",
+            "jess_ios15": "iOS 15.0.2 | 84 rows",
+            "magnet_ios16": "iOS 16.1.1 | 219 rows",
+        }
     },
 }
 

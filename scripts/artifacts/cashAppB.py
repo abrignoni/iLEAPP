@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_cashAppB": {
         "name": "Cash App (B)",
-        "description": "",
+        "description": "Parses Cash App activity from the production account cashappapi SQLite database (alternate location).",
         "author": "Alexis Brignoni",
         "creation_date": "2025-08-24",
         "last_update_date": "2026-05-14",
@@ -11,10 +11,13 @@ __artifacts_v2__ = {
         "paths": ('*/Environments/Production/Accounts/*/*-internal.cashappapi.com.sqlite*'),
         "output_types": "all",
         "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Cash App 5.46.0 | 1 row",
+        },
     }
 }
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 import json
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_unix_ts_to_utc
 
@@ -85,6 +88,9 @@ def get_cashAppB(context):
                 dunits = None
                 token = None
                 receipt = None
+                # NOTE: we could change this whole list to an
+                #   itertools.repeat( None, 6 ) unpacking over the names of the
+                #   variables
 
                 payment = protopayment['1'].get('extrainfo')
                 if payment is not None:

@@ -12,7 +12,24 @@ __artifacts_v2__ = {
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
         "output_types": ["html", "tsv", "lava"],
         "html_columns": ["Google Maps Link"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 206 rows",
+            "felix_ios17": "iOS 17.6.1 | 45 rows",
+            "fsfull002_ios17": "iOS 17.1 | 50 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 22 rows",
+            "iphone11_ios17": "iOS 17.3 | 155 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 242 rows",
+            "abe_ios16": "iOS 16.5 | 370 rows",
+            "felix23_ios16": "iOS 16.5 | 28 rows",
+            "hickman_ios13": "iOS 13.3.1 | 13 rows",
+            "hickman_ios14": "iOS 14.3 | 81 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 23 rows",
+        }
     },
     "appleMapsSignificantLocations": {
         "name": "Apple Maps Significant Locations",
@@ -27,7 +44,24 @@ __artifacts_v2__ = {
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "html_columns": ["Google Maps Link"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 206 rows",
+            "felix_ios17": "iOS 17.6.1 | 45 rows",
+            "fsfull002_ios17": "iOS 17.1 | 50 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 22 rows",
+            "iphone11_ios17": "iOS 17.3 | 155 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 242 rows",
+            "abe_ios16": "iOS 16.5 | 370 rows",
+            "felix23_ios16": "iOS 16.5 | 28 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 81 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 23 rows",
+        }
     },
     "appleMapsSignificantLocationsVisits": {
         "name": "Apple Maps Significant Locations Visits",
@@ -42,25 +76,45 @@ __artifacts_v2__ = {
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "html_columns": ["Google Maps Link"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 136 rows",
+            "felix_ios17": "iOS 17.6.1 | 38 rows",
+            "fsfull002_ios17": "iOS 17.1 | 9 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 13 rows",
+            "iphone11_ios17": "iOS 17.3 | 103 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 241 rows",
+            "abe_ios16": "iOS 16.5 | 191 rows",
+            "felix23_ios16": "iOS 16.5 | 11 rows",
+            "hickman_ios13": "iOS 13.3.1 | 5 rows",
+            "hickman_ios14": "iOS 14.3 | 11 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 13 rows",
+        }
     }
 }
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.html_safe import esc
 
 def get_google_map_link(latitude_value, longitude_value):
     if latitude_value is None or longitude_value is None:
         return ""
-    
-    return f"<a href='https://www.google.com/maps?q={latitude_value},{longitude_value}' target='_blank'>https://www.google.com/maps?q={latitude_value},{longitude_value}</a>"
+
+    lat = esc(latitude_value)
+    lon = esc(longitude_value)
+    return f"<a href='https://www.google.com/maps?q={lat},{lon}' target='_blank'>https://www.google.com/maps?q={lat},{lon}</a>"
 
 def get_google_dir_link(o_latitude_value, o_longitude_value, d_latitude_value, d_longitude_value, mode):
     if o_latitude_value is None or o_longitude_value is None or d_latitude_value is None or d_longitude_value is None:
         return ""
-    
+
     base_url = "https://www.google.com/maps/dir/?api=1"
-    origin = f"&origin={o_latitude_value},{o_longitude_value}"
-    destination = f"&destination={d_latitude_value},{d_longitude_value}"
+    origin = f"&origin={esc(o_latitude_value)},{esc(o_longitude_value)}"
+    destination = f"&destination={esc(d_latitude_value)},{esc(d_longitude_value)}"
 
     # Travel mode
     if mode == 1:

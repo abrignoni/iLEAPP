@@ -10,7 +10,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Safari/History.db*',),
         "output_types": "standard",
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.mobilesafari | 95 rows",
+            "dexter_ios18": "iOS 18.3.2 | 7 rows",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 11 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 7 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 26 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 12 rows",
+            "otto_ios17": "iOS 17.5.1 | 33 rows",
+            "abe_ios16": "iOS 16.5 | 41 rows",
+            "felix23_ios16": "iOS 16.5 | 5 rows",
+            "hickman_ios13": "iOS 13.3.1 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 29 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
@@ -33,9 +50,17 @@ def safariWebsearch(context):
     if not source_path:
         return data_headers, data_list, ''
 
+    # visit_time is Apple absolute (Cocoa) time on iOS <= 18, but iOS 26+ may
+    # store a Unix timestamp instead. Cocoa values for realistic dates stay well
+    # below the 978307200 offset (year 2032 in Cocoa time), while Unix values are
+    # always above it, so the magnitude disambiguates the two encodings.
     query = '''
     SELECT
-        datetime(history_visits.visit_time + 978307200, 'unixepoch'),
+        CASE
+            WHEN history_visits.visit_time > 978307200
+                THEN datetime(history_visits.visit_time, 'unixepoch')
+            ELSE datetime(history_visits.visit_time + 978307200, 'unixepoch')
+        END,
         history_items.url,
         history_items.visit_count,
         history_visits.title,

@@ -14,7 +14,24 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "research_mode": False,
-        "artifact_icon": "archive" # Set to True to include all fields
+        "artifact_icon": "archive",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 12634 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4608 rows",
+            "felix_ios17": "iOS 17.6.1 | 968 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.mobilesafari, Instagram 282.0, Text Me - Phone Call + Texting 3.35.9 | 310 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3286 rows",
+            "iphone11_ios17": "iOS 17.3 | 4382 rows",
+            "iphone12_ios18": "iOS 18.7 | 1563 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 615 rows",
+            "otto_ios17": "iOS 17.5.1 | 4631 rows",
+            "abe_ios16": "iOS 16.5 | 10059 rows",
+            "felix23_ios16": "iOS 16.5 | 822 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1647 rows",
+            "hickman_ios14": "iOS 14.3 | 1026 rows",
+            "jess_ios15": "iOS 15.0.2 | 2114 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1189 rows",
+        } # Set to True to include all fields
     }
 }
 

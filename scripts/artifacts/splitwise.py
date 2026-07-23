@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseExpenses": {
         "name": "Splitwise - Expenses",
@@ -23,7 +26,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseExpenseBalances": {
         "name": "Splitwise - Expense Balances",
@@ -36,7 +42,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseTotalBalances": {
         "name": "Splitwise - Total Balances",
@@ -49,7 +58,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseGroups": {
         "name": "Splitwise - Groups",
@@ -63,6 +75,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        },
         "html_columns": ['Members']
     },
     "splitwiseNotifications": {
@@ -77,15 +92,19 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "bell",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        },
         "html_columns": ['Notification']
     }
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_unix_ts_to_utc
+from scripts.html_safe import esc
 
 @artifact_processor
-def splitwiseUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseUsers(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
 
     query = '''
@@ -131,8 +150,8 @@ def splitwiseUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_o
 
 
 @artifact_processor
-def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseExpenses(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
 
     query = '''
@@ -178,8 +197,8 @@ def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezon
 
 
 @artifact_processor
-def splitwiseExpenseBalances(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseExpenseBalances(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
 
     query = '''
@@ -213,8 +232,8 @@ def splitwiseExpenseBalances(files_found, _report_folder, _seeker, _wrap_text, _
 
 
 @artifact_processor
-def splitwiseTotalBalances(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseTotalBalances(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
 
     query = '''
@@ -250,8 +269,8 @@ def splitwiseTotalBalances(files_found, _report_folder, _seeker, _wrap_text, _ti
 
 
 @artifact_processor
-def splitwiseGroups(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseGroups(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
     data_list_html = []
 
@@ -305,15 +324,15 @@ def splitwiseGroups(files_found, _report_folder, _seeker, _wrap_text, _timezone_
             (created_ts, updated_ts, record[2], members, record[4], group_title, record[6], 
              record[7], record[8], record[9]))
         data_list_html.append(
-            (created_ts, updated_ts, record[2], members.replace(chr(13), '<br>')[:-2], record[4], 
+            (created_ts, updated_ts, record[2], esc(members).replace(chr(13), '<br>')[:-2], record[4],
              group_title, record[6], record[7], record[8], record[9]))
 
     return data_headers, (data_list, data_list_html), source_path
 
 
 @artifact_processor
-def splitwiseNotifications(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseNotifications(context):
+    source_path = get_file_path(context.get_files_found(), "database.sqlite")
     data_list = []
     data_list_html = []
 
@@ -336,7 +355,7 @@ def splitwiseNotifications(files_found, _report_folder, _seeker, _wrap_text, _ti
 
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
-        data_list_html.append((created_ts, record[1], record[2], record[3]))
+        data_list_html.append((created_ts, esc(record[1]), record[2], record[3]))
         remove_html = record[1].replace('<strong>', '').replace('</strong>', '')
         data_list.append((created_ts, remove_html, record[2], record[3]))
 

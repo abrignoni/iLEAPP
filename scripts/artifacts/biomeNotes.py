@@ -12,17 +12,24 @@ __artifacts_v2__ = {
         "html_columns" : ['Note'],
         "output_types": "standard",
         "function": "get_biomeNotes",
-        "artifact_icon": "notes"
+        "artifact_icon": "notes",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 34 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import webkit_timestampsconv, artifact_processor
+from scripts.html_safe import safe_source
 
 @artifact_processor
 def get_biomeNotes(context):
@@ -63,7 +70,7 @@ def get_biomeNotes(context):
                 identifier1 = protostuff['1']
                 identifier2 = protostuff['2']
                 message = protostuff['5']
-                messagehtml = (message.replace('\n', '<br>'))
+                messagehtml = safe_source(message)
                 data_list.append((ts, time, record.state.name, record_counter, identifier1, identifier2, message, filename, record.data_start_offset))
                 data_list_html.append((ts, time, record.state.name, record_counter, identifier1, identifier2, messagehtml, filename, record.data_start_offset))
 

@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses google chats",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
-        "last_update_date": "2025-06-04",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Google Chats",
         "notes": "",
@@ -22,12 +22,16 @@ __artifacts_v2__ = {
                 "mediaColumn": "Media"
             }
         },
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Google Chat 0.390 | 96 rows",
+            "magnet_ios16": "iOS 16.1.1 | Gmail - Email by Google 6.0.221127 | 5 rows",
+        }
     }
 }
 
 import os
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 import re
 from io import BytesIO
 
@@ -36,7 +40,7 @@ from scripts.ilapfuncs import (
     open_sqlite_db_readonly,
     utf8_in_extended_ascii,
     check_in_media,
-    convert_ts_human_to_timezone_offset,
+    convert_ts_human_to_utc,
 )
 
 _FLATTEN_ERRORS = (TypeError, AttributeError, KeyError, ValueError)
@@ -237,7 +241,6 @@ def google_chat(context):
                     'Is Sent', 'Filename', ('Media', 'media'), 'Reaction', 'Reaction User', 'Account ID')
     data_list = []
     source_path = ''
-    timezone_offset = context.get_output_params().timezone_offset
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -328,7 +331,7 @@ def google_chat(context):
                     else:
                         mediafilename = ''
 
-            timestamp = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
+            timestamp = convert_ts_human_to_utc(row[0]) if row[0] else row[0]
 
             data_list.append((
                 timestamp, row[1], row[2], row[3], row[4], row[7],

@@ -10,7 +10,23 @@ __artifacts_v2__ = {
         "notes": "lastaccesstime/expiretime are Mac absolute time (Cocoa, seconds since 2001-01-01 UTC).",
         "paths": ('**/PDPlaceCache.db*',),
         "output_types": "standard",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 5 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | 19 rows",
+            "iphone12_ios18": "iOS 18.7 | 36 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 11 rows",
+            "abe_ios16": "iOS 16.5 | 5 rows",
+            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | 11 rows",
+            "hickman_ios14": "iOS 14.3 | 21 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | 3 rows",
+        }
     }
 }
 

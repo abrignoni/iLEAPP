@@ -13,7 +13,14 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/com.viber/settings/Settings.data',),
         'output_types': ['html', 'tsv', 'lava'],
-        'artifact_icon': 'settings'
+        'artifact_icon': 'settings',
+        'sample_data': {
+            'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 14 rows',
+            'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 16 rows',
+            'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 17 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 14 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 15 rows',
+        }
     },
     'viber_contacts': {
         'name': 'Viber - Contacts',
@@ -29,7 +36,14 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('**/com.viber/database/Contacts.data*',),
         'output_types': ['html', 'tsv', 'lava'],
-        'artifact_icon': 'users'
+        'artifact_icon': 'users',
+        'sample_data': {
+            'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 2 rows',
+            'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 12 rows',
+            'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 1016 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 3 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 5 rows',
+        }
     },
     'viber_call_remnants': {
         'name': 'Viber - Call Remnants',
@@ -44,7 +58,14 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('**/com.viber/database/Contacts.data*',),
         'output_types': "standard",
-        'artifact_icon': 'phone-call'
+        'artifact_icon': 'phone-call',
+        'sample_data': {
+            'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 0 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 0 rows',
+        }
     },
     'viber_chats': {
         'name': 'Viber - Chats',
@@ -63,6 +84,13 @@ __artifacts_v2__ = {
             '**/com.viber/ViberIcons/*.*'),
         'output_types': "all",
         'artifact_icon': 'message',
+        'sample_data': {
+            'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Rakuten Viber Messenger 23.1.3, group.viber.share.container | 66 rows',
+            'otto_ios17': 'iOS 17.5.1 | Rakuten Viber Messenger 23.3.1, group.viber.share.container | 3393 rows',
+            'hickman_ios13': 'iOS 13.3.1 | Viber Messenger: Chats & Calls 12.6.0, group.viber.share.container | 10 rows',
+            'hickman_ios14': 'iOS 14.3 | Viber Messenger: Chats & Calls 14.6.1, group.viber.share.container | 16 rows',
+        },
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat Participant(s)',
@@ -267,7 +295,9 @@ def viber_call_remnants(context):
     data_headers = (
         ('Timestamp - UTC', 'datetime'), 'Caller', 'Call Type', 'Duration')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    db_records = list( get_sqlite_db_records(data_source, query) )
+    # NOTE: list-ing here becaose of line 277 after, but we should think if
+    #   we can improve it to just consume the generator once
 
     my_user_name = ''
     my_phone_number = ''
@@ -444,7 +474,9 @@ def viber_chats(context):
         'Message Time Bomb Timestamp - UTC', 'Conversation Marked Favorite', 'Likes Count',
         'Message Metadata Fragments')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    db_records = list( get_sqlite_db_records(data_source, query) )
+    # NOTE: same as before, should think of a way to avoid bool() testing
+    #   db_records and we can keep it a generator
 
     my_user_name = ''
     my_phone_number = ''

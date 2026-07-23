@@ -10,7 +10,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/interactionC.db*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 67 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1601 rows",
+            "felix_ios17": "iOS 17.6.1 | 48 rows",
+            "fsfull002_ios17": "iOS 17.1 | 59 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1251 rows",
+            "iphone11_ios17": "iOS 17.3 | 917 rows",
+            "iphone12_ios18": "iOS 18.7 | 259 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 102 rows",
+            "otto_ios17": "iOS 17.5.1 | 2287 rows",
+            "abe_ios16": "iOS 16.5 | 1131 rows",
+            "felix23_ios16": "iOS 16.5 | 81 rows",
+            "hickman_ios13": "iOS 13.3.1 | 184 rows",
+            "hickman_ios14": "iOS 14.3 | 270 rows",
+            "jess_ios15": "iOS 15.0.2 | 14 rows",
+            "magnet_ios16": "iOS 16.1.1 | 68 rows",
+        }
     },
     "interactionCAttachments": {
         "name": "InteractionC - Attachments",
@@ -23,7 +40,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/interactionC.db*',),
         "output_types": "standard",
-        "artifact_icon": "paperclip"
+        "artifact_icon": "paperclip",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 15 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "felix_ios17": "iOS 17.6.1 | 12 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | 6 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 4 rows",
+            "abe_ios16": "iOS 16.5 | 55 rows",
+            "felix23_ios16": "iOS 16.5 | 9 rows",
+            "hickman_ios13": "iOS 13.3.1 | 5 rows",
+            "hickman_ios14": "iOS 14.3 | 4 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 

@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "description": "Apple ATX texture archives decoded to images when possible",
         "author": "@JamesHabben",
         "creation_date": "2026-06-25",
-        "last_update_date": "2026-06-25",
+        "last_update_date": "2026-07-21",
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "Images",
         "notes": "ATX files are AAPL texture containers wrapping ASTC image data. These files "
@@ -28,7 +28,23 @@ __artifacts_v2__ = {
             '**/*.atx',
         ),
         "output_types": "standard",
-        "artifact_icon": "photo"
+        "artifact_icon": "photo",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.AppPredictionWidget.extension | 52 rows",
+            "dexter_ios18": "iOS 18.3.2 | 175 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.PosterBoard, com.apple.mobilephone | 68 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.PosterBoard | 64 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.PosterBoard, com.apple.mobilephone | 82 rows",
+            "iphone11_ios17": "iOS 17.3 | 108 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.PosterBoard | 60 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.PosterBoard | 66 rows",
+            "otto_ios17": "iOS 17.5.1 | 107 rows",
+            "abe_ios16": "iOS 16.5 | com.apple.PosterBoard | 71 rows",
+            "felix23_ios16": "iOS 16.5 | com.apple.PosterBoard | 61 rows",
+            "hickman_ios13": "iOS 13.3.1 | com.apple.AppPredictionWidget.extension, com.apple.MobileSMS, com.apple.news | 356 rows",
+            "hickman_ios14": "iOS 14.3 | 54 rows",
+            "magnet_ios16": "iOS 16.1.1 | com.apple.PosterBoard | 93 rows",
+        }
     }
 }
 
@@ -52,6 +68,8 @@ def _file_timestamps(context, file_found):
 def apple_atx_images(context):
     """ See artifact description """
     data_headers = (
+        ('File Created', 'datetime'),
+        ('File Modified', 'datetime'),
         ('Image', 'media'),
         'Filename',
         'Width',
@@ -66,8 +84,6 @@ def apple_atx_images(context):
         'Declared Payload Bytes',
         'Chunks',
         'Status',
-        ('File Created', 'datetime'),
-        ('File Modified', 'datetime'),
         'Source Path',
     )
     data_list = []
@@ -83,9 +99,9 @@ def apple_atx_images(context):
             result = decode_atx_file(file_found)
         except OSError as ex:
             logfunc(f'Failed to read ATX image {file_found}: {ex}')
-            data_list.append((
+            data_list.append((created_at, modified_at, 
                 None, filename, '', '', '', '', '', '', '', '', '', '',
-                '', f'Failed to read ATX file: {ex}', created_at, modified_at, source_path
+                '', f'Failed to read ATX file: {ex}', source_path
             ))
             continue
 
@@ -110,6 +126,8 @@ def apple_atx_images(context):
             status = 'Parsed ATX metadata with warnings'
 
         data_list.append((
+            created_at,
+            modified_at,
             media_ref,
             filename,
             header.width if header else '',
@@ -124,8 +142,6 @@ def apple_atx_images(context):
             payload.declared_size if payload else '',
             chunks,
             f'{status}: {warnings}' if warnings else status,
-            created_at,
-            modified_at,
             source_path,
         ))
 

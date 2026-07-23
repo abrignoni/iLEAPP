@@ -10,13 +10,26 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Carplay.IsConnected/local/*'),
         "output_types": "standard",
-        "artifact_icon": "car"
+        "artifact_icon": "car",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 116 rows",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 36 rows",
+            "iphone11_ios17": "iOS 17.3 | 34 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 8 rows",
+            "abe_ios16": "iOS 16.5 | 116 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv

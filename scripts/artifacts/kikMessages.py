@@ -12,6 +12,15 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Kik Messaging & Chat App 17.0.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 32 rows",
+            "felix23_ios16": "iOS 16.5 | Kik Messaging & Chat App 16.9.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | Kik 15.21.2 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | Kik 15.25.1 | 8 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "User Name",
@@ -36,7 +45,16 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/kik.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Kik Messaging & Chat App 17.0.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 7 rows",
+            "felix23_ios16": "iOS 16.5 | Kik Messaging & Chat App 16.9.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | Kik 15.21.2 | 4 rows",
+            "hickman_ios14": "iOS 14.3 | Kik 15.25.1 | 4 rows",
+        }
     }
 }
 
@@ -64,11 +82,11 @@ def _find_db(files_found):
 
 
 @artifact_processor
-def kikMessages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def kikMessages(context):
     data_headers = (('Received Time', 'datetime'), ('Timestamp', 'datetime'), 'Message', 'Type',
                     'User', 'Display Name', 'User Name', 'Attachment Name', ('Attachment', 'media'))
     data_list = []
-    source_path = _find_db(files_found)
+    source_path = _find_db(context.get_files_found())
     if not source_path:
         return data_headers, data_list, ''
 
@@ -103,11 +121,11 @@ def kikMessages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offs
 
 
 @artifact_processor
-def kikUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def kikUsers(context):
     data_headers = ('PK', 'Display Name', 'User Name', 'Email', 'JID', 'First Name', 'Last Name',
                     ('Profile Pic Timestamp', 'datetime'), 'Profile Pic URL')
     data_list = []
-    source_path = _find_db(files_found)
+    source_path = _find_db(context.get_files_found())
     if not source_path:
         return data_headers, data_list, ''
 

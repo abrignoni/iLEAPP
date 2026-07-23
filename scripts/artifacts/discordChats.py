@@ -29,10 +29,22 @@ __artifacts_v2__ = {
             }
         },
         "sample_data": {
-            "josh_ios_15": (
-                "204 rows from fsCachedData and KV storage; 30 attachment rows; "
-                "11 cached media matches"
-            ),
+            "josh_ios_15": "204 rows from fsCachedData and KV storage; 30 attachment rows; 11 cached media matches",
+            "ctf2020_ios12": "iOS 12.4 | com.disney.MyDisneyExperience, com.nordstrom.shopping, com.plainvanillacorp.quizup | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 127 rows",
+            "felix_ios17": "iOS 17.6.1 | AppLock - photo lock 1.2.6 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 22 rows",
+            "iphone11_ios17": "iOS 17.3 | 334 rows",
+            "iphone12_ios18": "iOS 18.7 | Discord - Talk, Play, Hang Out 306.1 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Depop - Buy & Sell Clothes 2.375 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Life360: Find Friends & Family 24.31.0 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0, Coinbase Wallet: NFTs & Crypto 28.48.0 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | Yubo : Make new friends 4.11.82, Discord - Chat, Talk & Hangout 183.0 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 50 rows",
+            "jess_ios15": "iOS 15.0.2 | Chess - Play & Learn 3.9.29, Discord - Talk, Chat & Hangout 109.0 | 25 rows",
+            "magnet_ios16": "iOS 16.1.1 | Discord - Chat, Talk & Hangout 156.0, Mastodon for iPhone and iPad 1.4.8 | 8 rows",
         },
     }
 }
@@ -227,6 +239,9 @@ def _embed_values(message):
 
 
 def _message_rows(message, files_found, resolution, source_type, source_file, context, account_id):
+    # Some cached message entries are plain strings rather than objects
+    if not isinstance(message, dict):
+        return []
     timestamp = _discord_timestamp(message.get("timestamp"))
     if not timestamp:
         return []

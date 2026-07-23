@@ -10,7 +10,15 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Reminders/Container_v1/Stores/*.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "bell"
+        "artifact_icon": "bell",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
@@ -46,7 +54,11 @@ def reminders(context):
             continue
 
         rel_path = context.get_relative_path(file_found)
-        rows = get_sqlite_db_records(file_found, query)
+        rows = list( get_sqlite_db_records(file_found, query) )
+        # NOTE: we could actually change this one to just consume the generator
+        #   if we think for more than the 15 seconds I thought of this
+        #   as per previous comments: big change, trying to change as little as
+        #   possible  -- bconstanzo
         if not rows:
             continue
         for row in rows:

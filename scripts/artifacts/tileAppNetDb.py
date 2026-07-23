@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     'tileAppNetDb': {
         'name': 'Tile App Account Information',
-        'description': '',
+        'description': 'Parses the registered Tile account (registration timestamp, email, full name and phone number) from TileNetworkDB.',
         'author': '@AlexisBrignoni',
         'creation_date': '2020-09-03',
         'last_update_date': '2025-04-05',
@@ -11,7 +11,11 @@ __artifacts_v2__ = {
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*', ),
         'output_types': 'standard',
-        'artifact_icon': 'user'
+        'artifact_icon': 'user',
+        'sample_data': {
+            'otto_ios17': 'iOS 17.5.1 | group.thetileapp.Tile.Documents | 0 rows',
+            'abe_ios16': 'iOS 16.5 | group.thetileapp.Tile.Documents | 1 row',
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 __artifacts_v2__ = {
     "fmfd_notbackedup_devices": {
         "name": "Find My - Devices",
+        "description": "Parses Find My registered devices (name, identifier and capabilities) from the fmfd notbackedup preferences plist.",
         "author": "@ghmihkel",
         "version": "1.0",
         "date": "2026-03-31",
@@ -9,7 +10,22 @@ __artifacts_v2__ = {
         "notes": "Located in the NotBackedUp preferences area. Contains devices visible in the Find My Friends network.",
         "paths": ('*/Library/Preferences/com.apple.icloud.fmfd.notbackedup.plist',),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
+        }
     }
 }
 
@@ -102,7 +118,7 @@ def fmfd_notbackedup_devices(context):
             devices = _parse_fmfd_plist(raw)
             data_list.extend(devices)
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             logfunc(f'fmfd: Error parsing {source_file}: {e}')
 
     return data_headers, data_list, source_file

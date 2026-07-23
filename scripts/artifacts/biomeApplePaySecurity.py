@@ -1,0 +1,317 @@
+__artifacts_v2__ = {
+    "biomeDbAppOpenings": {
+        "name": "Biome DB - App Openings",
+        "description": "Per-launch application records (bundle ID, event time, launch type) pre-aggregated by Apple "
+                       "in the ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
+                 "Table availability varies by iOS version; missing tables are skipped with a log message.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 1499 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 407 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 1412 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 171 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
+    },
+    "biomeDbAppOpeningsHourly": {
+        "name": "Biome DB - App Openings (Hourly)",
+        "description": "Hourly per-application launch counts pre-aggregated by Apple in the "
+                       "ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
+                 "Timestamps are normalized by Apple to the start of the hour.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "clock",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 323 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 86 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 242 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 57 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
+    },
+    "biomeDbCablePlugEvents": {
+        "name": "Biome DB - Cable Plug Events",
+        "description": "Cable connection/disconnection events pre-aggregated by Apple in the "
+                       "ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "activity",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 488 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 409 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 737 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 29 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
+    },
+    "biomeDbBacklightEvents": {
+        "name": "Biome DB - Backlight Events",
+        "description": "Screen backlight level change events pre-aggregated by Apple in the "
+                       "ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 1906 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 574 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 1288 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 266 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
+    },
+    "biomeDbButtonClicks": {
+        "name": "Biome DB - Button Clicks (Daily)",
+        "description": "Per-day hardware button click counts pre-aggregated by Apple in the "
+                       "ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
+                 "Timestamps are normalized by Apple to the start of the day.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "settings",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 28 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 17 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 34 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
+    },
+    "biomeDbMinBattery": {
+        "name": "Biome DB - Minimum Battery (Daily)",
+        "description": "Per-day minimum battery percentage pre-aggregated by Apple in the "
+                       "ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
+                 "Timestamps are normalized by Apple to the start of the day.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "activity",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 28 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 15 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 24 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 20 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
+    },
+    "biomeDbCarPlay": {
+        "name": "Biome DB - CarPlay Activity (Daily)",
+        "description": "Per-day CarPlay activity counts pre-aggregated by Apple in the "
+                       "ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
+                 "Timestamps are normalized by Apple to the start of the day.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 6 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
+    },
+    "biomeDbAudioRoute": {
+        "name": "Biome DB - Audio Route (Daily)",
+        "description": "Per-day audio route change counts (headphones, Bluetooth, speaker) pre-aggregated "
+                       "by Apple in the ApplePay.Security.Features Biome database.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-07-11",
+        "last_update_date": "2026-07-11",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Timestamps are normalized by Apple to the start of the day.",
+        "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
+        "output_types": "standard",
+        "artifact_icon": "headphones",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 43 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 7 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 20 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+        },
+    },
+}
+
+from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, does_table_exist_in_db,
+                               convert_unix_ts_to_utc, logfunc)
+
+DB_BASENAME = 'ApplePay.Security.Features.sqlite3'
+
+
+def _find_db(context):
+    """Returns the main ApplePay.Security.Features.sqlite3 path, skipping the
+    -fullRebuild variant and journal files."""
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith(DB_BASENAME) and not file_found.endswith('-fullRebuild.sqlite3'):
+            return file_found
+    return ''
+
+
+def _table_rows(context, table, query):
+    """Runs the query when the source db and table exist; returns (rows, path)."""
+    source_path = _find_db(context)
+    if not source_path:
+        return [], ''
+    if not does_table_exist_in_db(source_path, table):
+        # Table availability varies by iOS version
+        logfunc(f'No {table} table in {source_path} (not populated on this iOS version)')
+        return [], source_path
+    return get_sqlite_db_records(source_path, query), source_path
+
+
+@artifact_processor
+def biomeDbAppOpenings(context):
+    data_headers = (('Event Timestamp', 'datetime'), 'Bundle ID', 'Starting', 'Launch Type')
+    data_list = []
+    rows, source_path = _table_rows(context, 'AppOpeningsRawMatView', '''
+        SELECT eventTimestamp, bundleID, starting, launchType
+        FROM AppOpeningsRawMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1], row[2], row[3]))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def biomeDbAppOpeningsHourly(context):
+    data_headers = (('Hour (UTC)', 'datetime'), 'Bundle ID', 'Launch Type', 'App Open Count')
+    data_list = []
+    rows, source_path = _table_rows(context, 'AppOpeningsMatView', '''
+        SELECT date_hour, bundleID, launchType, appOpenAcount
+        FROM AppOpeningsMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1], row[2], row[3]))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def biomeDbCablePlugEvents(context):
+    data_headers = (('Event Timestamp', 'datetime'), 'Starting')
+    data_list = []
+    rows, source_path = _table_rows(context, 'PluginRawMatView', '''
+        SELECT eventTimestamp, starting FROM PluginRawMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1]))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def biomeDbBacklightEvents(context):
+    data_headers = (('Event Timestamp', 'datetime'), 'Backlight Level')
+    data_list = []
+    rows, source_path = _table_rows(context, 'BacklightRawMatView', '''
+        SELECT eventTimestamp, backlightLevel FROM BacklightRawMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1]))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def biomeDbButtonClicks(context):
+    data_headers = (('Date (UTC)', 'datetime'), 'Button Click Count', 'Reason')
+    data_list = []
+    rows, source_path = _table_rows(context, 'ButtonClickMatView', '''
+        SELECT date, buttonClickCount, reason FROM ButtonClickMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1], row[2]))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def biomeDbMinBattery(context):
+    data_headers = (('Date (UTC)', 'datetime'), 'Minimum Battery Percentage')
+    data_list = []
+    rows, source_path = _table_rows(context, 'MinBatteryMatView', '''
+        SELECT date, minBatteryPerc FROM MinBatteryMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1]))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def biomeDbCarPlay(context):
+    data_headers = (('Date (UTC)', 'datetime'), 'CarPlay Activity Count')
+    data_list = []
+    rows, source_path = _table_rows(context, 'CarPlayMatView', '''
+        SELECT date, carPlayActivityCount FROM CarPlayMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1]))
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def biomeDbAudioRoute(context):
+    data_headers = (('Date (UTC)', 'datetime'), 'Route Type', 'External', 'Route Change Reason',
+                    'Audio Route Count')
+    data_list = []
+    rows, source_path = _table_rows(context, 'AudioRouteMatView', '''
+        SELECT date, type, external, routeChangeReason, audioRouteCount FROM AudioRouteMatView''')
+    for row in rows:
+        data_list.append((convert_unix_ts_to_utc(row[0]), row[1], row[2], row[3], row[4]))
+    return data_headers, data_list, source_path

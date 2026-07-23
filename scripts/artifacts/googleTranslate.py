@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/translate.db*'),
         "output_types": "standard",
-        "artifact_icon": "typography"
+        "artifact_icon": "typography",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Google Translate 8.14.691 | 1 row",
+        }
     },
     "googleTranslateStarred": {
         "name": "Google Translate Favorite Translations",
@@ -23,7 +26,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/translate.db*'),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "star"
+        "artifact_icon": "star",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Google Translate 8.14.691 | 0 rows",
+        }
     },
     "googleTranslateTts": {
         "name": "Google Translate Text-To-Speech",
@@ -37,6 +43,9 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/translate.db*'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "volume-2",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Google Translate 8.14.691 | 0 rows",
+        },
         "html_columns": ['Audio']
     }
 }
@@ -47,8 +56,8 @@ from scripts.filetype import audio_match
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_table_exist_in_db, convert_unix_ts_to_utc
 
 @artifact_processor
-def googleTranslateHistory(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "translate.db")
+def googleTranslateHistory(context):
+    source_path = get_file_path(context.get_files_found(), "translate.db")
     data_list = []
 
     query = '''
@@ -85,8 +94,8 @@ def googleTranslateHistory(files_found, _report_folder, _seeker, _wrap_text, _ti
 
 
 @artifact_processor
-def googleTranslateStarred(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "translate.db")
+def googleTranslateStarred(context):
+    source_path = get_file_path(context.get_files_found(), "translate.db")
     data_list = []
 
     query = '''
@@ -112,8 +121,9 @@ def googleTranslateStarred(files_found, _report_folder, _seeker, _wrap_text, _ti
 
 
 @artifact_processor
-def googleTranslateTts(files_found, report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "translate.db")
+def googleTranslateTts(context):
+    report_folder = context.get_report_folder()
+    source_path = get_file_path(context.get_files_found(), "translate.db")
     data_list = []
     data_list_html = []
 

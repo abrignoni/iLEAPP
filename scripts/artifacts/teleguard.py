@@ -7,6 +7,9 @@ __artifacts_v2__ = {
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',
                   '*/Library/Caches/images/*'),
         "output_types": "standard", "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1, Truth Social 1.11.0 | 70 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Chat ID",
@@ -25,7 +28,10 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
-        "output_types": "standard", "artifact_icon": "file-text"
+        "output_types": "standard", "artifact_icon": "file-text",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 0 rows",
+        }
     },
     "teleguardContacts": {
         "name": "Teleguard Contacts",
@@ -33,7 +39,10 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 5 rows",
+        }
     },
     "teleguardChannels": {
         "name": "Teleguard Channels",
@@ -41,7 +50,10 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
-        "output_types": "standard", "artifact_icon": "radio"
+        "output_types": "standard", "artifact_icon": "radio",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 0 rows",
+        }
     }
 }
 

@@ -1,3 +1,4 @@
+# pylint: disable=W0311
 __artifacts_v2__ = {
     "calculatorVault": {
         "name": "Calculator Vault Application",
@@ -18,8 +19,8 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc, media_to_html
 
 @artifact_processor
-def calculatorVault(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, "FolderLockAdvanced.sqlite")
+def calculatorVault(context):
+    source_path = get_file_path(context.get_files_found(), "FolderLockAdvanced.sqlite")
     data_list = []
     data_list_html = []
 
@@ -55,7 +56,7 @@ def calculatorVault(files_found, report_folder, seeker, wrap_text, timezone_offs
     for record in db_records:
             modified_date = convert_cocoa_core_data_ts_to_utc(record[0])
             attachmentName = str(record[6])
-            thumb = media_to_html(attachmentName, files_found, report_folder)
+            thumb = media_to_html(attachmentName, context.get_files_found(), context.get_report_folder())
             data_list.append(
                   (modified_date, record[1], record[2], record[3], record[4], 
                    record[5], record[6], '', record[7], record[8]))

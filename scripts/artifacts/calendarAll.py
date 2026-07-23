@@ -11,41 +11,93 @@ __artifacts_v2__ = {
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Location Coordinates', 'Invitees'],
         "output_types": "standard",
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 118 rows",
+            "dexter_ios18": "iOS 18.3.2 | 456 rows",
+            "felix_ios17": "iOS 17.6.1 | 62 rows",
+            "fsfull002_ios17": "iOS 17.1 | 136 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 120 rows",
+            "iphone11_ios17": "iOS 17.3 | 142 rows",
+            "iphone12_ios18": "iOS 18.7 | 134 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 135 rows",
+            "otto_ios17": "iOS 17.5.1 | 137 rows",
+            "abe_ios16": "iOS 16.5 | 135 rows",
+            "felix23_ios16": "iOS 16.5 | 60 rows",
+            "hickman_ios13": "iOS 13.3.1 | 119 rows",
+            "hickman_ios14": "iOS 14.3 | 105 rows",
+            "jess_ios15": "iOS 15.0.2 | 149 rows",
+            "magnet_ios16": "iOS 16.1.1 | 129 rows",
+        }
     },
     "calendarBirthdays": {
         "name": "Calendar Birthdays",
         "description": "List of calendar birthdays",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2024-10-30",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name'],
-        "output_types": "standard",
-        "artifact_icon": "gift"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "gift",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "calendarList": {
         "name": "Calendar List",
         "description": "List of calendars",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2023-11-11",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Sharing Participants'],
-        "output_types": "standard",
-        "artifact_icon": "list"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "list",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 15 rows",
+            "dexter_ios18": "iOS 18.3.2 | 14 rows",
+            "felix_ios17": "iOS 17.6.1 | 10 rows",
+            "fsfull002_ios17": "iOS 17.1 | 10 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 11 rows",
+            "iphone11_ios17": "iOS 17.3 | 12 rows",
+            "iphone12_ios18": "iOS 18.7 | 11 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 11 rows",
+            "otto_ios17": "iOS 17.5.1 | 12 rows",
+            "abe_ios16": "iOS 16.5 | 11 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows",
+            "hickman_ios13": "iOS 13.3.1 | 14 rows",
+            "hickman_ios14": "iOS 14.3 | 14 rows",
+            "jess_ios15": "iOS 15.0.2 | 10 rows",
+            "magnet_ios16": "iOS 16.1.1 | 10 rows",
+        }
     }
 }
 
 from urllib.parse import unquote
 from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db,\
     convert_ts_human_to_utc, artifact_processor, get_birthdate
+from scripts.html_safe import esc
 
 
 def get_sharees(cursor):
@@ -64,6 +116,7 @@ def get_sharees(cursor):
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
     data_dict = {}
+    data_dict_csv = {}
     if usageentries > 0:
         for row in all_rows:
             key = row[0]
@@ -71,14 +124,24 @@ def get_sharees(cursor):
             name = f' ({row[2]})' if row[2] else ''
             participant = f'{address}{name}'
             sharing_participant = f'''{participant} -> {row[3]}'''
+            participant_html = f'{esc(address)}{esc(name)}'
+            sharing_participant_html = f'''{participant_html} -> {esc(row[3])}'''
+
             sharing_participants = data_dict.get(key, '')
             if sharing_participants:
-                sharing_participants += f',<br>{sharing_participant}'
+                sharing_participants += f',<br>{sharing_participant_html}'
             else:
-                sharing_participants = sharing_participant
+                sharing_participants = sharing_participant_html
             data_dict[key] = sharing_participants
 
-    return data_dict
+            sharing_participants_csv = data_dict_csv.get(key, '')
+            if sharing_participants_csv:
+                sharing_participants_csv += f', {sharing_participant}'
+            else:
+                sharing_participants_csv = sharing_participant
+            data_dict_csv[key] = sharing_participants_csv
+
+    return data_dict, data_dict_csv
 
 
 def get_invitees(cursor):
@@ -107,6 +170,7 @@ def get_invitees(cursor):
         for row in all_rows:
             key = row[0]
             participant = f'{row[1]} - {row[2]}' if row[1] else row[2]
+            participant_html = f'{esc(row[1])} - {esc(row[2])}' if row[1] else esc(row[2])
             status = row[3]
             if status == 'No response':
                 html_status = '<span style="color: gray;" title="No response">&#11044;</span>'
@@ -118,7 +182,7 @@ def get_invitees(cursor):
                 html_status = '<span style="color: orange;" title="Maybe">&#11044;</span>'
             else:
                 html_status = ''
-            sharing_participant = f'{html_status} {participant}'
+            sharing_participant = f'{html_status} {participant_html}'
 
             sharing_participants = data_dict.get(key, '')
             if sharing_participants:
@@ -139,9 +203,9 @@ def get_invitees(cursor):
 
 def get_calendar_name(name, color):
     if color:
-        calendar_name = f'<span style="color: {color};">&#9673; </span>{name}'
+        calendar_name = f'<span style="color: {esc(color)};">&#9673; </span>{esc(name)}'
     else:
-        calendar_name = f'&#9711; {name}'
+        calendar_name = f'&#9711; {esc(name)}'
     return calendar_name
 
 @artifact_processor
@@ -245,8 +309,8 @@ def calendarEvents(context):
 
                     if latitude and longitude:
                         location_coordinates_tag = f'''
-                        {location_coordinates} &nbsp; 
-                        <a href="https://www.openstreetmap.org/?lat={latitude}&lon=%20{longitude}&zoom=17&layers=M" target="_blank">
+                        {esc(location_coordinates)} &nbsp;
+                        <a href="https://www.openstreetmap.org/?lat={esc(latitude)}&lon=%20{esc(longitude)}&zoom=17&layers=M" target="_blank">
                         &#x1F5FA;</a>
                         '''
                     else:
@@ -274,7 +338,7 @@ def calendarBirthdays(context):
 
     data_list_html = []
     data_list = []
-    data_headers = (('Date of Birth', 'datetime'), 'Person Name', 'Calendar Name', 'Account Name', 'Source File')
+    data_headers = ('Date of Birth', 'Person Name', 'Calendar Name', 'Account Name', 'Source File')
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -355,15 +419,15 @@ def calendarList(context):
             usageentries = len(all_rows)
             if usageentries > 0:
 
-                sharees = get_sharees(cursor)
+                sharees_html, sharees_csv = get_sharees(cursor)
                 for row in all_rows:
                     calendar_name = row[1]
                     calendar_name_tag = get_calendar_name(row[1], row[2])
                     owner_email = row[6].replace('mailto:', '') if row[6] else ''
                     owner_email = unquote(owner_email)
-                    if sharees:
-                        sharing_participants_html = sharees.get(row[0], '')
-                        sharing_participants = sharees.get(row[0], '').replace('<br>', ' ')
+                    if sharees_html:
+                        sharing_participants_html = sharees_html.get(row[0], '')
+                        sharing_participants = sharees_csv.get(row[0], '')
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7],
                                           sharing_participants_html, row[8], context.get_relative_path(file_found)))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7],

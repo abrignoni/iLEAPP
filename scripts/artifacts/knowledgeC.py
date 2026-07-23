@@ -10,7 +10,23 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "battery"
+        "artifact_icon": "battery",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1408 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2796 rows",
+            "hickman_ios14": "iOS 14.3 | 3487 rows",
+            "jess_ios15": "iOS 15.0.2 | 622 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "knowledgeC_DevicePluginStatus": {
         "name": "knowledgeC - Device Plugin Status",
@@ -23,7 +39,23 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "battery-charging"
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 53 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 81 rows",
+            "hickman_ios14": "iOS 14.3 | 147 rows",
+            "jess_ios15": "iOS 15.0.2 | 50 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "knowledgeC_MediaPlaying": {
         "name": "knowledgeC - Media Playing",
@@ -38,7 +70,23 @@ __artifacts_v2__ = {
             - Ian Wiffin blog post https://www.doubleblak.com/blogPosts.php?id=29",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "music"
+        "artifact_icon": "music",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 14 rows",
+            "dexter_ios18": "iOS 18.3.2 | 449 rows",
+            "felix_ios17": "iOS 17.6.1 | 13 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 65 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 78 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 177 rows",
+            "hickman_ios14": "iOS 14.3 | 333 rows",
+            "jess_ios15": "iOS 15.0.2 | 56 rows",
+            "magnet_ios16": "iOS 16.1.1 | 10 rows",
+        }
     },
     "knowledgeC_DoNotDisturb": {
         "name": "knowledgeC - Do Not Disturb",
@@ -51,7 +99,23 @@ __artifacts_v2__ = {
         "notes": "Based on research by Geraldine Blay and Dan Ogden",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "moon"
+        "artifact_icon": "moon",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 44 rows",
+            "hickman_ios14": "iOS 14.3 | 57 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "knowledgeC_AppUsage": {
         "name": "knowledgeC - App Usage",
@@ -64,7 +128,23 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 691 rows",
+            "dexter_ios18": "iOS 18.3.2 | 363 rows",
+            "felix_ios17": "iOS 17.6.1 | 152 rows",
+            "fsfull002_ios17": "iOS 17.1 | 65 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 184 rows",
+            "iphone11_ios17": "iOS 17.3 | 435 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 143 rows",
+            "otto_ios17": "iOS 17.5.1 | 676 rows",
+            "abe_ios16": "iOS 16.5 | 1467 rows",
+            "felix23_ios16": "iOS 16.5 | 116 rows",
+            "hickman_ios13": "iOS 13.3.1 | 623 rows",
+            "hickman_ios14": "iOS 14.3 | 611 rows",
+            "jess_ios15": "iOS 15.0.2 | 162 rows",
+            "magnet_ios16": "iOS 16.1.1 | 202 rows",
+        }
     },
     "knowledgeC_AppUsage_EndTime": {
         "name": "knowledgeC - App Usage End",
@@ -77,7 +157,23 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "timeline",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | files found",
+            "dexter_ios18": "iOS 18.3.2 | files found",
+            "felix_ios17": "iOS 17.6.1 | files found",
+            "fsfull002_ios17": "iOS 17.1 | files found",
+            "hc_ios18_7": "iOS 18.7.8 | files found",
+            "iphone11_ios17": "iOS 17.3 | files found",
+            "iphone14plus_ios18": "iOS 18.0 | files found",
+            "otto_ios17": "iOS 17.5.1 | files found",
+            "abe_ios16": "iOS 16.5 | files found",
+            "felix23_ios16": "iOS 16.5 | files found",
+            "hickman_ios13": "iOS 13.3.1 | files found",
+            "hickman_ios14": "iOS 14.3 | files found",
+            "jess_ios15": "iOS 15.0.2 | files found",
+            "magnet_ios16": "iOS 16.1.1 | files found",
+        }
     },
     "knowledgeC_isLocked": {
         "name": "knowledgeC - Device Lock Status",
@@ -90,7 +186,23 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 287 rows",
+            "felix_ios17": "iOS 17.6.1 | 136 rows",
+            "fsfull002_ios17": "iOS 17.1 | 49 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 164 rows",
+            "iphone11_ios17": "iOS 17.3 | 91 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 33 rows",
+            "otto_ios17": "iOS 17.5.1 | 60 rows",
+            "abe_ios16": "iOS 16.5 | 710 rows",
+            "felix23_ios16": "iOS 16.5 | 97 rows",
+            "hickman_ios13": "iOS 13.3.1 | 277 rows",
+            "hickman_ios14": "iOS 14.3 | 137 rows",
+            "jess_ios15": "iOS 15.0.2 | 64 rows",
+            "magnet_ios16": "iOS 16.1.1 | 95 rows",
+        }
     },
     "knowledgeC_isBacklit": {
         "name": "knowledgeC - Device Screen Status",
@@ -103,20 +215,36 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1331 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1767 rows",
+            "felix_ios17": "iOS 17.6.1 | 383 rows",
+            "fsfull002_ios17": "iOS 17.1 | 182 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 515 rows",
+            "iphone11_ios17": "iOS 17.3 | 784 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 227 rows",
+            "otto_ios17": "iOS 17.5.1 | 2237 rows",
+            "abe_ios16": "iOS 16.5 | 5140 rows",
+            "felix23_ios16": "iOS 16.5 | 274 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1494 rows",
+            "hickman_ios14": "iOS 14.3 | 1189 rows",
+            "jess_ios15": "iOS 15.0.2 | 398 rows",
+            "magnet_ios16": "iOS 16.1.1 | 623 rows",
+        }
     }
 }
 
 import plistlib
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, does_column_exist_in_db, \
-    convert_ts_human_to_timezone_offset
+    convert_ts_human_to_utc
 
 @artifact_processor
-def knowledgeC_BatteryPercentage(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_BatteryPercentage(context):
     data_list = []
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
@@ -142,9 +270,9 @@ def knowledgeC_BatteryPercentage(files_found, _report_folder, _seeker, _wrap_tex
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[-1])
             data_list.append((start_time, end_time, row[2], row[3], added_time))
 
     data_headers = (
@@ -153,12 +281,12 @@ def knowledgeC_BatteryPercentage(files_found, _report_folder, _seeker, _wrap_tex
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_DevicePluginStatus(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_DevicePluginStatus(context):
     data_list = []
     data_headers = ()
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
@@ -204,9 +332,9 @@ def knowledgeC_DevicePluginStatus(files_found, _report_folder, _seeker, _wrap_te
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[-1])
             if does_adapteriswireless_exist:
                 data_list.append((start_time, end_time, row[2], row[3], added_time))
             else:
@@ -215,12 +343,12 @@ def knowledgeC_DevicePluginStatus(files_found, _report_folder, _seeker, _wrap_te
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_MediaPlaying(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_MediaPlaying(context):
     data_list = []
     data_headers = ()
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
@@ -279,9 +407,9 @@ def knowledgeC_MediaPlaying(files_found, _report_folder, _seeker, _wrap_text, ti
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[-1],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[-1])
 
             if does_airplayvideo_exist:
                 output_device = ''
@@ -301,11 +429,11 @@ def knowledgeC_MediaPlaying(files_found, _report_folder, _seeker, _wrap_text, ti
     return data_headers, data_list, db_file
 
 @artifact_processor
-def knowledgeC_DoNotDisturb(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_DoNotDisturb(context):
     data_list = []
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
             break
@@ -332,9 +460,9 @@ def knowledgeC_DoNotDisturb(files_found, _report_folder, _seeker, _wrap_text, ti
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[3],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[3])
             data_list.append((start_time, end_time, row[2], added_time))
 
     data_headers = (
@@ -343,12 +471,12 @@ def knowledgeC_DoNotDisturb(files_found, _report_folder, _seeker, _wrap_text, ti
 
 
 @artifact_processor
-def knowledgeC_AppUsage(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_AppUsage(context):
     ''' parse /app/usage entries from knowledgeC.db '''
 
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
@@ -371,9 +499,9 @@ def knowledgeC_AppUsage(files_found, _report_folder, _seeker, _wrap_text, timezo
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
             data_list.append((start_time, end_time, added_time, row[3]))
 
     data_headers = (
@@ -383,7 +511,7 @@ def knowledgeC_AppUsage(files_found, _report_folder, _seeker, _wrap_text, timezo
 
 
 @artifact_processor
-def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_AppUsage_EndTime(context):
     ''' Parse /app/usage entries from knowledgeC.db with End Time as first column'''
 
     # NOTE: there is no need to add this to html and lava output, the only
@@ -392,7 +520,7 @@ def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text
 
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
@@ -415,9 +543,9 @@ def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            end_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            start_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            end_time = convert_ts_human_to_utc(row[0])
+            start_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
             data_list.append((end_time, start_time, added_time, row[3]))
 
     data_headers = (
@@ -426,12 +554,12 @@ def knowledgeC_AppUsage_EndTime(files_found, _report_folder, _seeker, _wrap_text
 
 
 @artifact_processor
-def knowledgeC_isLocked(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_isLocked(context):
     ''' parse /device/isLocked entries from knowledgeC.db '''
 
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
@@ -457,9 +585,9 @@ def knowledgeC_isLocked(files_found, _report_folder, _seeker, _wrap_text, timezo
 
         all_rows = cursor.fetchall()
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
             data_list.append((start_time, end_time, added_time, row[3]))
 
     data_headers = (
@@ -468,12 +596,12 @@ def knowledgeC_isLocked(files_found, _report_folder, _seeker, _wrap_text, timezo
 
 
 @artifact_processor
-def knowledgeC_isBacklit(files_found, _report_folder, _seeker, _wrap_text, timezone_offset):
+def knowledgeC_isBacklit(context):
     ''' parse /display/isBacklit entries from knowledgeC.db '''
 
     db_file = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('knowledgeC.db'):
             db_file = file_found
@@ -500,9 +628,9 @@ def knowledgeC_isBacklit(files_found, _report_folder, _seeker, _wrap_text, timez
         all_rows = cursor.fetchall()
 
         for row in all_rows:
-            start_time = convert_ts_human_to_timezone_offset(row[0], timezone_offset)
-            end_time = convert_ts_human_to_timezone_offset(row[1], timezone_offset)
-            added_time = convert_ts_human_to_timezone_offset(row[2],timezone_offset)
+            start_time = convert_ts_human_to_utc(row[0])
+            end_time = convert_ts_human_to_utc(row[1])
+            added_time = convert_ts_human_to_utc(row[2])
             data_list.append((start_time, end_time, added_time, row[3]))
 
     data_headers = (

@@ -11,7 +11,21 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Battery/BDC/BDC_SBC_*.csv'),
         "output_types": "standard",
-        "artifact_icon": "battery-charging"
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 2942 rows",
+            "felix_ios17": "iOS 17.6.1 | 1479 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1744 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3069 rows",
+            "iphone11_ios17": "iOS 17.3 | 7599 rows",
+            "iphone12_ios18": "iOS 18.7 | 688 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 393 rows",
+            "otto_ios17": "iOS 17.5.1 | 3121 rows",
+            "abe_ios16": "iOS 16.5 | 5221 rows",
+            "felix23_ios16": "iOS 16.5 | 2154 rows",
+            "jess_ios15": "iOS 15.0.2 | 550 rows",
+            "magnet_ios16": "iOS 16.1.1 | 807 rows",
+        }
     }
 }
 

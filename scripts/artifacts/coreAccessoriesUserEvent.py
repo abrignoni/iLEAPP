@@ -20,6 +20,13 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Library/CoreAccessories/Analytics/acc_analytics_UserEventAgent_v3.db*',),
         "output_types": "standard",
         "artifact_icon": "activity",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | 156 rows",
+            "abe_ios16": "iOS 16.5 | 999 rows",
+            "hickman_ios13": "iOS 13.3.1 | 25 rows",
+            "hickman_ios14": "iOS 14.3 | 45 rows",
+            "jess_ios15": "iOS 15.0.2 | 13 rows",
+        },
     }
 }
 

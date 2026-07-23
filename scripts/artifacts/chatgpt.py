@@ -11,7 +11,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',),
         "output_types": "standard",
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 16 rows",
+            "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 22 rows",
+        }
     },
     "chatgptConversations": {
         "name": "ChatGPT - Conversations",
@@ -25,7 +29,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 150 rows",
+            "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 172 rows",
+        }
     },
     "chatgptDraftConversations": {
         "name": "ChatGPT - Draft Conversations",
@@ -52,14 +60,19 @@ __artifacts_v2__ = {
         "paths": ('**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist',
                   '**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist'),
         "output_types": "standard",
-        "artifact_icon": "settings"
+        "artifact_icon": "settings",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 2 rows",
+        }
     },
     "chatgptMediaUploads": {
         "name": "ChatGPT - Media Uploads",
         "description": "Images uploaded to ChatGPT.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "",
@@ -67,8 +80,19 @@ __artifacts_v2__ = {
                   '**/Containers/Data/Application/*/tmp/*/*.png',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
-        "output_types": "standard",
-        "artifact_icon": "photo"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "photo",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Text Me - Phone Call + Texting 3.35.9 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1, Imgur: Funny Memes & GIF Maker 2023.23.1, WhatsApp Messenger 24.15.1 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Clime: NOAA Weather Radar Live 4.39.2, Grindr - Gay Dating & Chat 9.11.1 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | Private Photo Vault - Pic Safe 15.3, SV - Private Photo Vault PRO 15.3 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | TextNow: Call + Text Unlimited 20.10.0 | 8 rows",
+        }
     },
     "chatgptVoicePrompts": {
         "name": "ChatGPT - Voice Prompts",
@@ -84,7 +108,13 @@ __artifacts_v2__ = {
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
         "output_types": "standard",
-        "artifact_icon": "microphone"
+        "artifact_icon": "microphone",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 0 rows",
+        }
     }
 }
 

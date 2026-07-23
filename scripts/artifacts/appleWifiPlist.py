@@ -4,22 +4,39 @@ __artifacts_v2__ = {
         "description": "Parses WiFi connection data for known networks",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-21",
-        "last_update_date": "2024-10-21",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "WiFi Connections",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
         "paths": ('*/com.apple.wifi.plist', 
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist'),
-        "output_types": "standard",
-        "artifact_icon": "wifi"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 7 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 33 rows",
+            "abe_ios16": "iOS 16.5 | 55 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+        }
     },
     "appleWifiKnownNetworksTimes": {
         "name": "WiFi Known Networks Times",
         "description": "Parses time-related data for known WiFi networks",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-21",
-        "last_update_date": "2024-10-21",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "WiFi Connections",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
@@ -27,7 +44,24 @@ __artifacts_v2__ = {
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist'),
         "output_types": "standard",
-        "artifact_icon": "clock"
+        "artifact_icon": "clock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 7 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 33 rows",
+            "abe_ios16": "iOS 16.5 | 55 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+        }
     },
     "appleWifiScannedPrivate": {
         "name": "WiFi Scanned Networks (Private)",
@@ -40,7 +74,21 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/com.apple.wifi-private-mac-networks.plist',),
         "output_types": "standard",
-        "artifact_icon": "eye-off"
+        "artifact_icon": "eye-off",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 9 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 35 rows",
+            "abe_ios16": "iOS 16.5 | 47 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+        }
     },
     "appleWifiBSSList": {
         "name": "WiFi BSS List",
@@ -53,7 +101,22 @@ __artifacts_v2__ = {
         "notes": "Extracts detailed BSS information from the com.apple.wifi.plist file",
         "paths": ('*/com.apple.wifi.known-networks.plist',),
         "output_types": "all",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 43 rows",
+            "felix_ios17": "iOS 17.6.1 | 34 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | 100 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | 194 rows",
+            "abe_ios16": "iOS 16.5 | 271 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 44 rows",
+            "magnet_ios16": "iOS 16.1.1 | 37 rows",
+        }
     }
 }
 
@@ -161,7 +224,7 @@ def appleWifiKnownNetworksTimes(context):
                 wnpmd = _safe_plist_date(known_network.get('WiFiNetworkPasswordModificationDate', ''))
                 prev_joined = _safe_plist_date(known_network.get('prevJoined', ''))
 
-                data_list.append([ssid, bssid, last_updated, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, context.get_relative_path(file_found)])
+                data_list.append([last_updated, ssid, bssid, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, context.get_relative_path(file_found)])
 
         if 'com.apple.wifi.known-networks.plist' in file_found:
             for _, known_network in deserialized.items():
@@ -181,11 +244,11 @@ def appleWifiKnownNetworksTimes(context):
                 wnpmd = _safe_plist_date(os_specific.get('WiFiNetworkPasswordModificationDate', ''))
                 prev_joined = _safe_plist_date(os_specific.get('prevJoined', ''))
 
-                data_list.append([ssid, bssid, last_updated, '', '', system_joined, user_joined, wnpmd, 
+                data_list.append([last_updated, ssid, bssid, '', '', system_joined, user_joined, wnpmd, 
                                     last_discovered, added_at, whitelisted_probe_date, captive_web_sheet_login_date, 
                                     prev_joined, context.get_relative_path(file_found)])
 
-    data_headers = ('SSID', 'BSSID', ('Last Updated', 'datetime'), ('Last Auto Joined', 'datetime'), 
+    data_headers = (('Last Updated', 'datetime'), 'SSID', 'BSSID', ('Last Auto Joined', 'datetime'), 
                     ('Last Joined', 'datetime'), ('System Joined', 'datetime'), ('User Joined', 'datetime'),
                     ('WiFi Network Password Modification Date', 'datetime'), ('Last Discovered', 'datetime'),
                     ('Added At', 'datetime'), ('Whitelisted Captive Network Probe Date', 'datetime'),

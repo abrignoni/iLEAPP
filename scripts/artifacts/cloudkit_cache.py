@@ -5,26 +5,60 @@ __artifacts_v2__ = {
         "description": "Parses snapshot information from CloudKit cache",
         "author": "@JamesHabben",
         "creation_date": "2023-04-11",
-        "last_update_date": "2026-05-30",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "CloudKit",
         "notes": "",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
-        "artifact_icon": "cloud"
+        "artifact_icon": "cloud",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 3 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 2 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
     },
     "cloudkit_files": {
         "name": "iCloud Backup Files",
         "description": "Parses file listings from CloudKit cache snapshots",
         "author": "@JamesHabben",
         "creation_date": "2023-04-11",
-        "last_update_date": "2026-05-30",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "CloudKit",
         "notes": "",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
-        "artifact_icon": "file-text"
+        "artifact_icon": "file-text",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 11216 rows",
+            "felix_ios17": "iOS 17.6.1 | 4537 rows",
+            "fsfull002_ios17": "iOS 17.1 | 5658 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 11377 rows",
+            "iphone12_ios18": "iOS 18.7 | 2970 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3166 rows",
+            "otto_ios17": "iOS 17.5.1 | 10037 rows",
+            "abe_ios16": "iOS 16.5 | 9037 rows",
+            "felix23_ios16": "iOS 16.5 | 4672 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 9004 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1744 rows",
+        }
     }
 }
 
@@ -115,11 +149,11 @@ def cloudkit_snapshots(context):
             formatted_size = format_size(total_size)
 
             data_list.append((
-                snapshot_id,
-                committed,
                 created_ts,
                 mod_date,
                 snapshot_created,
+                snapshot_id,
+                committed,
                 device_uuid,
                 device_name,
                 product_version,
@@ -133,11 +167,11 @@ def cloudkit_snapshots(context):
         db.close()
 
     data_headers = (
-        'Snapshot ID',
-        'Committed',
         ('Created Timestamp', 'datetime'),
         ('Snapshot Modification Timestamp', 'datetime'),
         ('Snapshot Created Timestamp', 'datetime'),
+        'Snapshot ID',
+        'Committed',
         'Device UUID',
         'Device Name',
         'Product Version',
@@ -194,8 +228,8 @@ def cloudkit_files(context):
             modified_ts = convert_unix_ts_to_utc(record[1]) if record[1] else ""
 
             data_list.append((
-                record[0],    # Snapshot ID
                 modified_ts,  # Modified
+                record[0],    # Snapshot ID
                 record[2],    # Relative Path
                 record[3],    # File ID
                 record[4],    # File Domain
@@ -207,8 +241,8 @@ def cloudkit_files(context):
             ))
 
     data_headers = (
-        'Snapshot ID',
         ('Modified', 'datetime'),
+        'Snapshot ID',
         'Relative Path',
         'File ID',
         'File Domain',

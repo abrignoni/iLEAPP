@@ -1,3 +1,4 @@
+# pylint: disable=W0613
 __artifacts_v2__ = {
     "subscriberInfo": {
         "name": "Subscriber Info",
@@ -10,7 +11,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/wireless/Library/Databases/CellularUsage.db*',),
         "output_types": "standard",
-        "artifact_icon": "settings"
+        "artifact_icon": "settings",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 3 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
+        }
     }
 }
 
@@ -18,7 +36,7 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc, device_info
 
 @artifact_processor
-def subscriberInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def subscriberInfo(context):
     data_list = []
     db_file = ''
     db_records = []
@@ -32,7 +50,7 @@ def subscriberInfo(files_found, report_folder, seeker, wrap_text, timezone_offse
     FROM subscriber_info
     '''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if file_found.endswith('CellularUsage.db'):
             db_file = file_found
             db_records = get_sqlite_db_records(db_file, query)

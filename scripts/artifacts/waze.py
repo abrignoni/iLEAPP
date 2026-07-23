@@ -12,14 +12,20 @@ __artifacts_v2__ = {
         "description": "Parses and extracts account information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-07-19",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture URL" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 2 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 1 row",
+        }
     },
     "waze_session_info": {
         "name": "Waze - Session Info",
@@ -32,7 +38,13 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "navigation"
+        "artifact_icon": "navigation",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 20 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 25 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 22 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 25 rows",
+        }
     },
     "waze_track_gps_quality": {
         "name": "Waze - Track GPS Quality",
@@ -45,7 +57,13 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/spdlog.*logdata"),
         "output_types": [ "all" ],
-        "artifact_icon": "navigation"
+        "artifact_icon": "navigation",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 7 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 37 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 0 rows",
+        }
     },
     "waze_search_history": {
         "name": "Waze - Search History",
@@ -58,20 +76,32 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 7 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 12 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 25 rows",
+        }
     },
     "waze_recent_locations": {
         "name": "Waze - Recent Locations",
         "description": "Parses and extracts recent locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-07-19",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 11 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 21 rows",
+        }
     },
     "waze_favorite_locations": {
         "name": "Waze - Favorite Locations",
@@ -84,7 +114,13 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "star"
+        "artifact_icon": "star",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 2 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 4 rows",
+        }
     },
     "waze_shared_locations": {
         "name": "Waze - Shared Locations",
@@ -97,7 +133,13 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 0 rows",
+        }
     },
     "waze_planned_events": {
         "name": "Waze - Planned Events",
@@ -111,20 +153,32 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "all" ],
         "html_columns": [ "Image URL" ],
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 0 rows",
+        }
     },
     "waze_tts": {
         "name": "Waze - Text-To-Speech Navigation",
         "description": "Parses and extracts text-to-speech navigation information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-07-19",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Preferences/com.waze.iphone.plist"),
         "output_types": [ "standard" ],
-        "artifact_icon": "volume-2"
+        "artifact_icon": "volume-2",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Waze Navigation & Live Traffic 5.11.5 | 76 rows",
+            "iphone11_ios17": "iOS 17.3 | Waze Navigation & Live Traffic 4.100.0 | 536 rows",
+            "otto_ios17": "iOS 17.5.1 | Waze Navigation & Live Traffic 4.106.2 | 63 rows",
+            "abe_ios16": "iOS 16.5 | Waze Navigation & Live Traffic 4.91.0 | 1053 rows",
+        }
     }
 }
 
@@ -134,7 +188,7 @@ import sqlite3
 from pathlib import Path
 from urllib.parse import urlparse
 from math import log10
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ilapfuncs import open_sqlite_db_readonly, get_sqlite_db_records, \
     does_column_exist_in_db, get_txt_file_content, convert_unix_ts_to_utc, \
     artifact_processor, logfunc
@@ -265,7 +319,6 @@ F_LAST_DEST_NAME = 'last_dest_name'
 F_LAST_DEST_VENUE_NAME = 'last_dest_venue_name'
 F_LAST_SYNCED = 'last_synced'
 F_LAST_WAYPOINT_ACCESS = 'last_waypoint_access'
-F_CONTEXT = 'context'
 F_IMAGE_ID = 'image_id'
 F_EVENT_ID = 'event_id'
 F_EVENT_TYPE = 'event_type'
@@ -919,9 +972,17 @@ def _parse_account_user(source_path: str, context, data_list: list, data_list_ht
                     'N/A' if value == '' else ('On' if value == '1' else 'Off')
                 )
             elif key == 'General.First use':
-                fields[F_FIRST_USE] = convert_unix_ts_to_utc(value)
+                fields[F_FIRST_USE] = (
+                    convert_unix_ts_to_utc(value)
+                    if value and value != '0'
+                    else None
+                )
             elif key == 'App Launch.Dynamic Splash Screen Last Shown Utc Seconds':
-                fields[F_LAST_LAUNCH] = convert_unix_ts_to_utc(value)
+                fields[F_LAST_LAUNCH] = (
+                    convert_unix_ts_to_utc(value)
+                    if value and value != '0'
+                    else None
+                )
 
         except (KeyError, TypeError, IndexError, ValueError) as ex:
             logfunc(f"[{context.get_artifact_name()}] "
@@ -1605,7 +1666,6 @@ def waze_recent_locations(context):
         'Longitude',
         ('Created', 'datetime'),
         ('Last Waypoint Access', 'datetime'),
-        'Context',
         'Image ID',
         'Venue ID',
         'Location'
@@ -1646,7 +1706,6 @@ def waze_recent_locations(context):
         CAST((CAST(P.longitude AS REAL) / 1000000) AS TEXT) AS "longitude",
 	    R.created_time,
         R.waypoint_access_time,
-        R.string_context,
 	    R.image_id,
         P.venue_id
     FROM RECENTS AS "R"
@@ -1655,8 +1714,9 @@ def waze_recent_locations(context):
     '''
 
     db = get_sqlite_db_records(source_path, query)
-    if not db:
-        return data_headers, data_list, source_path
+    # if not db:
+    #     return data_headers, data_list, source_path
+    # NOTE: no need to test for bool(), for loop skips empty iterables
 
     for record in db:
         try:
@@ -1674,7 +1734,6 @@ def waze_recent_locations(context):
                 F_LON: None,
                 F_CREATED: None,
                 F_LAST_WAYPOINT_ACCESS: None,
-                F_CONTEXT: None,
                 F_IMAGE_ID: None,
                 F_VENUE_ID: None,
                 F_LOCATION: None
@@ -1707,11 +1766,10 @@ def waze_recent_locations(context):
             fields[F_LON] = record[11]
 
             # String Context
-            fields[F_CONTEXT] = record[14]
-            fields[F_IMAGE_ID] = record[15]
+            fields[F_IMAGE_ID] = record[14]
 
             # Venue ID
-            fields[F_VENUE_ID] = record[16]
+            fields[F_VENUE_ID] = record[15]
 
             # Precise location within the source database table for validation
             location = [ f"RECENTS (id: {recent_id})" ]
@@ -1733,7 +1791,6 @@ def waze_recent_locations(context):
                 fields[F_LON],
                 fields[F_CREATED],
                 fields[F_LAST_WAYPOINT_ACCESS],
-                fields[F_CONTEXT],
                 fields[F_IMAGE_ID],
                 fields[F_VENUE_ID],
                 fields[F_LOCATION]
@@ -1942,7 +1999,7 @@ def _parse_favorite_user_db(source_path: str, context, data_list: list) -> None:
     LEFT JOIN PLACES AS "P" ON (F.place_id = P.id)
     '''
 
-    db = get_sqlite_db_records(source_path, query)
+    db = list( get_sqlite_db_records(source_path, query) )
     if not db:
         return
     device_path = get_device_file_path(source_path, context)
@@ -2160,8 +2217,9 @@ def waze_shared_locations(context):
     '''
 
     db = get_sqlite_db_records(source_path, query)
-    if not db:
-        return data_headers, data_list, source_path
+    # if not db:
+    #     return data_headers, data_list, source_path
+    # NOTE: no need to test for bool(), for loop skips empty iterables
 
     for record in db:
         try:
@@ -2504,7 +2562,7 @@ def _parse_tts_table(cursor, table_name: str, source_path: str, context, data_li
         for record in cursor:
             try:
                 # Unpack record for clarity
-                (row_id, raw_ts, text, text_type) = record
+                (row_id, raw_ts, text_type, text) = record
 
                 # Convert timestamps to UTC
                 timestamp = convert_unix_ts_to_utc(raw_ts)
@@ -2564,7 +2622,7 @@ def waze_tts(context):
 
     # Get all table names from the database
     query = "SELECT name FROM sqlite_master WHERE type='table'"
-    all_tables = get_sqlite_db_records(source_path, query)
+    all_tables = list( get_sqlite_db_records(source_path, query) )
     if not all_tables:
         return data_headers, data_list, source_path
 

@@ -2,20 +2,32 @@ __artifacts_v2__ = {
     "keyboardLexicon": {
         "name": "Keyboard Dynamic Lexicon",
         "description": "Extracts dynamic lexicon data from the keyboard",
-        "author": "@your_username",
+        "author": "@any333",
         "creation_date": "2023-05-24",
-        "last_update_date": "2023-05-24",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "User Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat',),
-        "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "vocabulary"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "vocabulary",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
     },
     "keyboardAppUsage": {
         "name": "Keyboard Application Usage",
         "description": "Extracts keyboard application usage data",
-        "author": "@your_username",
+        "author": "@yany333",
         "creation_date": "2023-05-24",
         "last_update_date": "2023-05-24",
         "requirements": "none",
@@ -23,12 +35,19 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/app_usage_database.plist',),
         "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "keyboard"
+        "artifact_icon": "keyboard",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 112 rows",
+            "felix23_ios16": "iOS 16.5 | 81 rows",
+            "hickman_ios13": "iOS 13.3.1 | 475 rows",
+            "hickman_ios14": "iOS 14.3 | 251 rows",
+            "jess_ios15": "iOS 15.0.2 | 22 rows",
+        }
     },
     "keyboardUsageStats": {
         "name": "Keyboard Usage Stats",
         "description": "Extracts keyboard usage statistics",
-        "author": "@your_username",
+        "author": "@any333",
         "creation_date": "2023-05-24",
         "last_update_date": "2023-05-24",
         "requirements": "none",
@@ -36,7 +55,23 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/user_model_database.sqlite*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
-        "artifact_icon": "chart-bar"
+        "artifact_icon": "chart-bar",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "felix_ios17": "iOS 17.6.1 | 5 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 4 rows",
+            "abe_ios16": "iOS 16.5 | 4 rows",
+            "felix23_ios16": "iOS 16.5 | 5 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 4 rows",
+            "jess_ios15": "iOS 15.0.2 | 3 rows",
+            "magnet_ios16": "iOS 16.1.1 | 4 rows",
+        }
     }
 }
 

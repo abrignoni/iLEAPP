@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple App Store application foreground events",
         "author": "@stark4n6",
         "creation_date": "2025-07-21",
-        "last_update_date": "2026-03-19",
+        "last_update_date": "2026-07-13",
         "requirements": "none",
         "category": "App Usage",
         "notes": "",
@@ -13,7 +13,23 @@ __artifacts_v2__ = {
             '*/mobile/Library/Caches/com.apple.appstored/storeUser.db*'
             ),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 1343 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 475 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 294 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 484 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 1891 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 413 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 21 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 3064 rows",
+            "abe_ios16": "iOS 16.5 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 6065 rows",
+            "felix23_ios16": "iOS 16.5 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 1119 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 167 rows",
+        }
     },
     "AMDSQLiteDB_StorageCapacity": {
         "name": "Device Storage Capacity",
@@ -28,7 +44,20 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*'
             ),
         "output_types": "standard",
-        "artifact_icon": "database"
+        "artifact_icon": "database",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 13 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 17 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 36 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 49 rows",
+            "abe_ios16": "iOS 16.5 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 15 rows",
+            "felix23_ios16": "iOS 16.5 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 20 rows",
+            "magnet_ios16": "iOS 16.1.1 | com.apple.AppleMediaDiscovery.AMDEngagementExtension | 2 rows",
+        }
     }
 }
 
@@ -86,31 +115,55 @@ def AMDSQLiteDB_UsageEvents(context):
     source_path = get_file_path(files_found, "AMDSQLite.db.0")
     
     storeUserDB = get_file_path(files_found, "storeUser.db")
-    attach_query = attach_sqlite_db_readonly(storeUserDB, 'storeUser')
     
-    query = '''
-    select
-    AMDAppStoreUsageEvents.time,
-    case AMDAppStoreUsageEvents.type
-        when "0" then "Install/Update"
-        when "1" then "Uninstall"
-        when "2" then "Open"
-        else AMDAppStoreUsageEvents.type
-    end as "App Action",
-    storeUser.current_apps.bundle_id,
-    AMDAppStoreUsageEvents.adamId,
-    AMDAppStoreUsageEvents.appVersion,
-    AMDAppStoreUsageEvents.foregroundDuration,
-    storeUser.account_events.apple_id,
-    AMDAppStoreUsageEvents.userId,
-    storeUser.current_apps.item_name,
-    storeUser.current_apps.vendor_name
-    from AMDAppStoreUsageEvents
-    left join storeUser.current_apps on AMDAppStoreUsageEvents.adamId = storeUser.current_apps.item_id
-    left join storeUser.account_events on AMDAppStoreUsageEvents.userId = storeUser.account_events.account_id
-    '''
+    if storeUserDB:
+        logfunc("storeUser.db found. Running combined database query.")
+        attach_query = attach_sqlite_db_readonly(storeUserDB, 'storeUser')
+        query = '''
+        select
+        AMDAppStoreUsageEvents.time,
+        case AMDAppStoreUsageEvents.type
+            when "0" then "Install/Update"
+            when "1" then "Uninstall"
+            when "2" then "Open"
+            else AMDAppStoreUsageEvents.type
+        end as "App Action",
+        storeUser.current_apps.bundle_id,
+        AMDAppStoreUsageEvents.adamId,
+        AMDAppStoreUsageEvents.appVersion,
+        AMDAppStoreUsageEvents.foregroundDuration,
+        storeUser.account_events.apple_id,
+        AMDAppStoreUsageEvents.userId,
+        storeUser.current_apps.item_name,
+        storeUser.current_apps.vendor_name
+        from AMDAppStoreUsageEvents
+        left join storeUser.current_apps on AMDAppStoreUsageEvents.adamId = storeUser.current_apps.item_id
+        left join storeUser.account_events on AMDAppStoreUsageEvents.userId = storeUser.account_events.account_id
+        '''
+        db_records = get_sqlite_db_records(source_path, query, attach_query)
+    else:
+        logfunc("storeUser.db NOT found. Adjusting query to skip storeUser database references.")
+        query = '''
+        select
+        AMDAppStoreUsageEvents.time,
+        case AMDAppStoreUsageEvents.type
+            when "0" then "Install/Update"
+            when "1" then "Uninstall"
+            when "2" then "Open"
+            else AMDAppStoreUsageEvents.type
+        end as "App Action",
+        NULL as bundle_id,
+        AMDAppStoreUsageEvents.adamId,
+        AMDAppStoreUsageEvents.appVersion,
+        AMDAppStoreUsageEvents.foregroundDuration,
+        NULL as apple_id,
+        AMDAppStoreUsageEvents.userId,
+        NULL as item_name,
+        NULL as vendor_name
+        from AMDAppStoreUsageEvents
+        '''
+        db_records = get_sqlite_db_records(source_path, query)
 
-    db_records = get_sqlite_db_records(source_path, query, attach_query)
     for record in db_records:
         time = convert_unix_ts_to_utc(record[0])
 

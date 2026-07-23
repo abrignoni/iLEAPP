@@ -10,7 +10,18 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('**/containermanagerd.log.*',),
         "output_types": "standard",
-        "artifact_icon": "trash"
+        "artifact_icon": "trash",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+        }
     }
 }
 
@@ -23,12 +34,12 @@ _MARKER = ('[MCMGroupManager _removeGroupContainersIfNeededforUser:groupContaine
 
 
 @artifact_processor
-def mobileContainerManager(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def mobileContainerManager(context):
     data_headers = (('Datetime', 'datetime'), 'Removed', 'Line')
     data_list = []
     source_path = ''
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         source_path = source_path or file_found
         try:

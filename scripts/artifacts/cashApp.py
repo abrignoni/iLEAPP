@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_cashApp": {
         "name": "Cash App",
-        "description": "",
+        "description": "Parses Cash App transactions and account data from the CCEntitySync SQLite stores.",
         "author": "@gforce4n6",
         "creation_date": "2021-10-06",
         "last_update_date": "2025-11-12",
@@ -12,6 +12,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Cash App 5.46.0 | 1 row",
+            "abe_ios16": "iOS 16.5 | Cash App 4.0 | 1 row",
+        },
     }
 }
 

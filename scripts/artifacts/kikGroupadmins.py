@@ -10,11 +10,20 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/kik.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Kik Messaging & Chat App 17.0.0 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Kik Messaging & Chat App 16.9.3 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | Kik Messaging & Chat App 16.9.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | Kik 15.21.2 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Kik 15.25.1 | 0 rows",
+        }
     }
 }
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 
@@ -64,7 +73,7 @@ def _decode_entity_blob(blob):
 
 
 @artifact_processor
-def kikGroupadmins(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def kikGroupadmins(context):
     data_headers = ('User ID', 'Display Name', 'Username', 'Profile Pic URL', 'Member Group ID',
                     'Group Tag', 'Group Name', 'Group ID', 'Group Pic URL', 'Blob User',
                     'Blob Description', 'Blob Interests', 'Additional Info User A',
@@ -72,7 +81,7 @@ def kikGroupadmins(files_found, _report_folder, _seeker, _wrap_text, _timezone_o
     data_list = []
 
     source_path = ''
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('kik.sqlite'):
             source_path = file_found

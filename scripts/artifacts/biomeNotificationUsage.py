@@ -9,14 +9,24 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/Notification.Usage/*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 3634 rows",
+            "felix_ios17": "iOS 17.6.1 | 157 rows",
+            "fsfull002_ios17": "iOS 17.1 | 20 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 273 rows",
+            "iphone11_ios17": "iOS 17.3 | 5198 rows",
+            "iphone12_ios18": "iOS 18.7 | 991 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 136 rows",
+            "otto_ios17": "iOS 17.5.1 | 8920 rows",
+        }
     }
 }
 
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc

@@ -4,13 +4,30 @@ __artifacts_v2__ = {
         "description": "Safari bookmarks",
         "author": "",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": "",
         "paths": ('**/Safari/Bookmarks.db*',),
-        "output_types": "standard",
-        "artifact_icon": "bookmark"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "bookmark",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 11 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 9 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 9 rows",
+            "iphone11_ios17": "iOS 17.3 | 14 rows",
+            "iphone12_ios18": "iOS 18.7 | 11 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | 9 rows",
+            "abe_ios16": "iOS 16.5 | 22 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows",
+            "hickman_ios13": "iOS 13.3.1 | 12 rows",
+            "hickman_ios14": "iOS 14.3 | 12 rows",
+            "jess_ios15": "iOS 15.0.2 | 10 rows",
+            "magnet_ios16": "iOS 16.1.1 | 8 rows",
+        }
     }
 }
 

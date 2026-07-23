@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_cacheRoutesGmap": {
         "name": "Google Maps Cache Routes",
-        "description": "",
+        "description": "Parses cached Google Maps route data and timestamps from the app CachedRoutes plists.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
         "last_update_date": "2025-11-12",
@@ -11,6 +11,12 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/CachedRoutes/*.plist',),
         "output_types": "all",
         "artifact_icon": "route",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Google Maps 26.24.1 | 77 rows",
+            "iphone11_ios17": "iOS 17.3 | Google Maps 6.125.1 | 35 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Maps 6.127.2 | 433 rows",
+            "abe_ios16": "iOS 16.5 | Google Maps 6.51.0 | 249 rows",
+        },
     }
 }
 

@@ -492,7 +492,7 @@ def artifact_processor(func):
         else:
             data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
 
-        if not source_path:
+        if data_list and not source_path:
             logfunc("No source_path provided")
         else:
             # Report extraction-relative paths, never the examiner's local filesystem
@@ -715,8 +715,10 @@ def get_sqlite_db_records(path, query, attach_query=None):
             if attach_query:
                 cursor.execute(attach_query)
             cursor.execute(query)
-            records = cursor.fetchall()
-            return records
+            # records = cursor.fetchall()
+            # NOTE: we return the cursor directly, to be iterated by the caller
+            #   to keep it as a generator
+            return cursor
         except sqlite3.DatabaseError as e:
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")

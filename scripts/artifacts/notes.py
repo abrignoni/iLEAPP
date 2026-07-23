@@ -14,21 +14,42 @@ __artifacts_v2__ = {
                  "Password-protected note contents are not decoded.",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "file-text"
+        "artifact_icon": "file-text",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 5 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 0 rows",
+            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 0 rows",
+            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.apple.notes | 3 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.apple.notes | 7 rows",
+            "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | group.com.apple.notes | 0 rows",
+        }
     }
 }
 
 import binascii
 import os
+import re
 import zlib
 from os.path import dirname, join
 
 from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media,
-                               does_column_exist_in_db, get_sqlite_db_records, logfunc)
+                               get_sqlite_db_records, logfunc)
 
 
 def _build_query(creation_col, account_col):
-    """Notes schema varies by iOS version; only the creation-date and account columns differ."""
+    """Notes schema varies by iOS version; only the creation-date and account
+    columns differ (chosen per-db by _query_for_db). Folder and account are
+    LEFT-joined and ZICNOTEDATA is the INNER "is a note" anchor, so a note is
+    never dropped when its folder or account reference can't be resolved."""
     return f'''
     SELECT
         DATETIME(TabA.{creation_col}+978307200,'UNIXEPOCH'),
@@ -49,20 +70,49 @@ def _build_query(creation_col, account_col):
         DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH'),
         TabF.ZDATA
     FROM ZICCLOUDSYNCINGOBJECT TabA
-    INNER JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
-    INNER JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.{account_col} = TabC.Z_PK
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.{account_col} = TabC.Z_PK
     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
-    LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
+    INNER JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
     '''
 
 
+def _pick_note_column(file_found, prefix, default):
+    """Pick the ZICCLOUDSYNCINGOBJECT ``<prefix>N`` column populated on note rows.
+
+    The note->account foreign key and the note creation date have drifted across
+    iOS versions (account: ZACCOUNT2 on iOS 12-13, ZACCOUNT4 on iOS 14-15,
+    ZACCOUNT7 on iOS 16+). Several same-prefixed columns coexist in one schema
+    and all but one are NULL for notes -- iOS 18 also carries an unrelated
+    ZACCOUNT8 -- so selecting the first column that merely *exists* returned zero
+    notes on iOS 16+. Probe which candidate is non-null on rows that have note
+    data instead, preferring the newest (highest-suffixed) on a tie; this
+    self-adjusts to future schema changes.
+    """
+    candidates = [row[0] for row in get_sqlite_db_records(
+        file_found,
+        "SELECT name FROM pragma_table_info('ZICCLOUDSYNCINGOBJECT') "
+        f"WHERE name LIKE '{prefix}%'")
+        if re.fullmatch(re.escape(prefix) + r'\d*', row[0])]
+    best, best_count, best_suffix = default, 0, -1
+    for col in candidates:
+        records = list(get_sqlite_db_records(
+            file_found,
+            'SELECT COUNT(*) FROM ZICCLOUDSYNCINGOBJECT TabA '
+            'INNER JOIN ZICNOTEDATA TabF ON TabF.ZNOTE = TabA.Z_PK '
+            f'WHERE TabA.{col} IS NOT NULL'))
+        count = records[0][0] if records else 0
+        suffix = int(re.sub(r'\D', '', col) or -1)
+        if count > best_count or (count == best_count > 0 and suffix > best_suffix):
+            best, best_count, best_suffix = col, count, suffix
+    return best
+
+
 def _query_for_db(file_found):
-    if does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT', 'ZACCOUNT4'):
-        if does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT', 'ZCREATIONDATE3'):
-            return _build_query('ZCREATIONDATE3', 'ZACCOUNT4')
-        return _build_query('ZCREATIONDATE1', 'ZACCOUNT3')
-    return _build_query('ZCREATIONDATE1', 'ZACCOUNT2')
+    creation_col = _pick_note_column(file_found, 'ZCREATIONDATE', 'ZCREATIONDATE1')
+    account_col = _pick_note_column(file_found, 'ZACCOUNT', 'ZACCOUNT2')
+    return _build_query(creation_col, account_col)
 
 
 def get_uncompressed_data(compressed):
@@ -144,8 +194,10 @@ def notes(context):
             continue
 
         rows = get_sqlite_db_records(file_found, _query_for_db(file_found))
-        if not rows:
-            continue
+        # if not rows:
+        #     continue
+        # NOTE: if the generator is empty, it won't loop, so we don't have to
+        #   skip it here
 
         for row in rows:
             if row[6] == 'No' and row[16] is not None:

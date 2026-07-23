@@ -10,14 +10,20 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/public/Notification/local/*'),
         "output_types": "standard",
-        "artifact_icon": "bell"
+        "artifact_icon": "bell",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 8397 rows",
+            "felix23_ios16": "iOS 16.5 | 852 rows",
+            "jess_ios15": "iOS 15.0.2 | 325 rows",
+            "magnet_ios16": "iOS 16.1.1 | 269 rows",
+        }
     }
 }
 
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv

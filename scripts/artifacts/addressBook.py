@@ -10,7 +10,24 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/AddressBook/AddressBook*.sqlitedb*',),
         'output_types': 'standard',
-        'artifact_icon': 'user'
+        'artifact_icon': 'user',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 21 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 18 rows',
+            'felix_ios17': 'iOS 17.6.1 | 7 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 3 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 2 rows',
+            'iphone11_ios17': 'iOS 17.3 | 11 rows',
+            'iphone12_ios18': 'iOS 18.7 | 4 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 1 row',
+            'otto_ios17': 'iOS 17.5.1 | 1009 rows',
+            'abe_ios16': 'iOS 16.5 | 577 rows',
+            'felix23_ios16': 'iOS 16.5 | 5 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 2 rows',
+            'hickman_ios14': 'iOS 14.3 | 4 rows',
+            'jess_ios15': 'iOS 15.0.2 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+        }
     }
 }
 
@@ -26,12 +43,8 @@ def clean_label(data):
 
 def remove_unused_rows(data, count_rows):
     data_count_rows = count_rows[0]
-    rows_to_remove = []
-    for i in range(len(data_count_rows)):
-        if data_count_rows[i] == 0:
-            rows_to_remove.append(i)
-    data = [i for r, i in enumerate(data) if r not in rows_to_remove]
-    return tuple(data)
+    rows_to_remove = [i for i, count in enumerate(data_count_rows) if count == 0]
+    return tuple(value for i, value in enumerate(data) if i not in rows_to_remove)
 
 
 @artifact_processor
@@ -239,6 +252,7 @@ def addressBook(context):
     remove_empty_cols_query = '''
     SELECT 
         'Create', 
+        'Modif', 
         count(ABI.ABThumbnailImage.data), 
         count(ABI.ABFullSizeImage.data), 
         count(ABPerson.Prefix), 
@@ -285,15 +299,14 @@ def addressBook(context):
         count(ABPerson.Note), 
         count(ABPerson.Birthday), 
         count(ABGroupMembers.member_id), 
-        'Store', 
-        'Modif'
+        'Store'
     FROM ABPerson
     LEFT JOIN ABGroupMembers ON ABPerson.ROWID = ABGroupMembers.member_id
     LEFT JOIN ABI.ABThumbnailImage ON ABPerson.ROWID = ABI.ABThumbnailImage.record_id
     LEFT JOIN ABI.ABFullSizeImage ON ABPerson.ROWID = ABI.ABFullSizeImage.record_id
     '''
 
-    empty_cols_records = get_sqlite_db_records(source_path, remove_empty_cols_query, attach_query)
+    empty_cols_records = list( get_sqlite_db_records(source_path, remove_empty_cols_query, attach_query) )
     data_headers = remove_unused_rows(data_headers, empty_cols_records)
     data_list = [remove_unused_rows(data, empty_cols_records) for data in data_list]
 

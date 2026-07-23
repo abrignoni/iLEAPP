@@ -205,8 +205,8 @@ def truncate_after_last_bracket(file_path):
         print("No closing bracket `]` found.")
 
 @artifact_processor
-def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, 'logarchive*.json')
+def logarchive(context):
+    source_path = get_file_path(context.get_files_found(), 'logarchive*.json')
     data_list = []
 
     incval = 0
@@ -233,8 +233,8 @@ def logarchive(files_found, report_folder, seeker, wrap_text, timezone_offset):
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_artifacts(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
 
     query = '''
@@ -376,15 +376,15 @@ def logarchive_artifacts(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%Starting route to%'
     '''
 
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
 
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_time_change(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_time_change(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -393,15 +393,15 @@ def logarchive_time_change(files_found, report_folder, seeker, wrap_text, timezo
     WHERE event_message LIKE '%Time change: Clock shifted by%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_flashlight(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_flashlight(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -411,15 +411,15 @@ def logarchive_flashlight(files_found, report_folder, seeker, wrap_text, timezon
     OR event_message LIKE '%<<<<AVFlashlight>>>>-%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_executed_apps(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_executed_apps(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -430,15 +430,15 @@ def logarchive_executed_apps(files_found, report_folder, seeker, wrap_text, time
         OR event_message LIKE '%transition source:%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_motionstate(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_motionstate(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -447,15 +447,15 @@ def logarchive_motionstate(files_found, report_folder, seeker, wrap_text, timezo
     WHERE event_message LIKE '%Motion State Transition:%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_tethering(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_tethering(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -466,15 +466,15 @@ def logarchive_tethering(files_found, report_folder, seeker, wrap_text, timezone
         OR event_message LIKE '%Previous tethering state was%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_airplane_mode(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_airplane_mode(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -495,15 +495,15 @@ def logarchive_airplane_mode(files_found, report_folder, seeker, wrap_text, time
         OR event_message LIKE '%Airplane mode Disabled%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_lock_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_lock_status(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -520,15 +520,15 @@ def logarchive_lock_status(files_found, report_folder, seeker, wrap_text, timezo
 
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_wifi_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_wifi_status(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -560,15 +560,15 @@ def logarchive_wifi_status(files_found, report_folder, seeker, wrap_text, timezo
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_bluetooth_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_bluetooth_status(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -605,15 +605,15 @@ def logarchive_bluetooth_status(files_found, report_folder, seeker, wrap_text, t
 
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_audio_status(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_audio_status(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -628,7 +628,7 @@ def logarchive_audio_status(files_found, report_folder, seeker, wrap_text, timez
         OR event_message LIKE '%volumeValueDidChange%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -637,8 +637,8 @@ def logarchive_audio_status(files_found, report_folder, seeker, wrap_text, timez
     return data_headers, data_list, source_path
 
 @artifact_processor
-def logarchive_navigation(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, '_lava_artifacts.db')
+def logarchive_navigation(context):
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     data_list = []
     
     query = '''
@@ -661,7 +661,7 @@ def logarchive_navigation(files_found, report_folder, seeker, wrap_text, timezon
         OR event_message LIKE '%Arrived\\%'
     '''
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     

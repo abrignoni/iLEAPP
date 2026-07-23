@@ -11,7 +11,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL", "Timezone", "Device UID", "Device Model and OS", "App version", "RealMojis" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 1 row",
+        }
     },
     "bereal_contacts": {
         "name": "BeReal Contacts",
@@ -25,7 +28,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*'),
         "output_types": [ "lava", "html", "tsv" ],
         "html_columns": [ "Profile picture"],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 5 rows",
+        }
     },
     "bereal_persons": {
         "name": "BeReal Persons",
@@ -39,7 +45,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL", "Urls" ],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 0 rows",
+        }
     },
     "bereal_friends": {
         "name": "BeReal Friends",
@@ -57,7 +66,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.followers/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL" ],
-        "artifact_icon": "user-plus"
+        "artifact_icon": "user-plus",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 2 rows",
+        }
     },
     "bereal_blocked_users": {
         "name": "BeReal Blocked Users",
@@ -71,7 +83,10 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-BlockedUserManager/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Profile picture URL" ],
-        "artifact_icon": "slash"
+        "artifact_icon": "slash",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 0 rows",
+        }
     },
     "bereal_posts": {
         "name": "BeReal Posts",
@@ -88,7 +103,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Primary URL", "Secondary URL", "Thumbnail URL", "Tagged friends", "Source file name", "Location" ],
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, group.BeReal | 0 rows",
+        }
     },
     "bereal_pinned_memories": {
         "name": "BeReal Pinned Memories",
@@ -103,7 +121,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-PersonRepository-pinnedMemories-key/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Primary URL", "Secondary URL", "Thumbnail URL", "Source file name", "Location" ],
-        "artifact_icon": "bookmark"
+        "artifact_icon": "bookmark",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0 | 0 rows",
+        }
     },
     "bereal_realmojis": {
         "name": "BeReal RealMojis",
@@ -129,7 +150,10 @@ __artifacts_v2__ = {
             "senderColumn": "Author",
             "textColumn": "Emoji"
         },
-        "artifact_icon": "thumb-up"
+        "artifact_icon": "thumb-up",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, group.BeReal | 0 rows",
+        }
     },
     "bereal_comments": {
         "name": "BeReal Comments",
@@ -155,7 +179,10 @@ __artifacts_v2__ = {
             "senderColumn": "Author",
             "textColumn": "Text"
         },
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, group.BeReal | 0 rows",
+        }
     },
     "bereal_messages": {
         "name": "BeReal Messages",
@@ -179,7 +206,10 @@ __artifacts_v2__ = {
             "senderColumn": "Sender",
             "textColumn": "Message"
         },
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.BeReal | 0 rows",
+        }
     },
     "bereal_chat_list": {
         "name": "BeReal Chat List",
@@ -194,7 +224,10 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Administrators", "Participants" ],
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.BeReal | 0 rows",
+        }
     }
 }
 
@@ -206,6 +239,7 @@ from base64 import standard_b64decode
 from urllib.parse import urlparse, urlunparse
 from scripts.ilapfuncs import get_file_path, get_sqlite_db_records, get_plist_content, get_plist_file_content, convert_unix_ts_to_utc, \
     convert_cocoa_core_data_ts_to_utc, check_in_embedded_media, artifact_processor, logfunc, is_platform_windows
+from scripts.html_safe import esc, safe_url, safe_join
 
 
 
@@ -336,7 +370,7 @@ def generic_url(value, html_format=False):
         if not bool(u[0]) and u[2].startswith('www'):
             u = u._replace(scheme='http')
         url = urlunparse(u)
-        return value if not html_format else f'<a href="{url}" target="_blank">{value}</>'
+        return value if not html_format else safe_url(url, value)
     else:
         return None
 
@@ -370,7 +404,8 @@ def get_realmojis(obj, html_format=False):
             real_moji = real_mojis[i]
             # emoji->url
             url_moji = generic_url(real_moji.get('media', {}).get('url'), html_format)
-            all_mojis.append(f"{real_moji.get('emoji')} {url_moji}")
+            emoji = esc(real_moji.get('emoji')) if html_format else real_moji.get('emoji')
+            all_mojis.append(f"{emoji} {url_moji}")
         if html_format:
             return '<br />'.join(all_mojis)
         else:
@@ -391,7 +426,8 @@ def get_realmojis(obj, html_format=False):
             #reaction_date = convert_cocoa_core_data_ts_to_utc(real_moji.get('date'))
             # emoji->uri
             uri_moji = generic_url(real_moji.get('uri'), html_format)
-            all_mojis.append(f"{real_moji.get('emoji')} {uri_moji}")
+            emoji = esc(real_moji.get('emoji')) if html_format else real_moji.get('emoji')
+            all_mojis.append(f"{emoji} {uri_moji}")
 
         return '<br />'.join(all_mojis) if html_format else '\n'.join(all_mojis)
     # none
@@ -449,7 +485,7 @@ def get_tags(obj, html_format=False, user_map=None):
                     user = f"{tag_id} ({username})"
 
             if bool(user):
-                tag_list.append(user)
+                tag_list.append(esc(user) if html_format else user)
                 
 
     return '<br />'.join(tag_list) if html_format else '\n'.join(tag_list)
@@ -568,10 +604,10 @@ def bereal_accounts(context):
             dev_info = '\n'.join(dev_info)
             app_ver = '\n'.join(app_ver)
             timezone = '\n'.join(timezone)
-            dev_uid_html = '<br />'.join(dev_uid_html)
-            dev_info_html = '<br />'.join(dev_info_html)
-            app_ver_html = '<br />'.join(app_ver_html)
-            timezone_html = '<br />'.join(timezone_html)
+            dev_uid_html = safe_join(dev_uid_html, '<br />')
+            dev_info_html = safe_join(dev_info_html, '<br />')
+            app_ver_html = safe_join(app_ver_html, '<br />')
+            timezone_html = safe_join(timezone_html, '<br />')
             # is private?
             is_private = account.get('isPrivate')
             # realmojis
@@ -1049,7 +1085,7 @@ def bereal_posts(context):
                     # html row
                     data_list_html.append((taken_at, moment_at, post_type, author, p_mt, p_url_html, s_mt, s_url_html,
                                            None, None, caption, latitude, longitude, retake_counter, late_secs, tags_html,
-                                           moment_id, bereal_id, file_rel_path, location))
+                                           moment_id, bereal_id, esc(file_rel_path), location))
                     # lava row
                     data_list.append((taken_at, moment_at, post_type, author, p_mt, p_url, s_mt, s_url,
                                       None, None, caption, latitude, longitude, retake_counter, late_secs, tags,
@@ -1134,7 +1170,7 @@ def bereal_posts(context):
                         # html row
                         data_list_html.append((taken_at, moment_at, post_type, author, p_mt, p_url_html, s_mt, s_url_html,
                                                t_mt, t_url_html, caption, latitude, longitude, retake_counter, late_secs, tags_html,
-                                               moment_id, bereal_id, file_rel_path, location))
+                                               moment_id, bereal_id, esc(file_rel_path), location))
                         # lava row
                         data_list.append((taken_at, moment_at, post_type, author, p_mt, p_url, s_mt, s_url,
                                           t_mt, t_url, caption, latitude, longitude, retake_counter, late_secs, tags,
@@ -1212,7 +1248,7 @@ def bereal_posts(context):
                             # html row
                             data_list_html.append((taken_at, moment_at, post_type, author, p_mt, p_url_html, s_mt, s_url_html,
                                                    t_mt, t_url_html, caption, latitude, longitude, retake_counter, late_secs, tags_html,
-                                                   moment_id, bereal_id, file_rel_path, location))
+                                                   moment_id, bereal_id, esc(file_rel_path), location))
                             # lava row
                             data_list.append((taken_at, moment_at, post_type, author, p_mt, p_url, s_mt, s_url,
                                               t_mt, t_url, caption, latitude, longitude, retake_counter, late_secs, tags,
@@ -1266,7 +1302,7 @@ def bereal_pinned_memories(context):
 
         # html row
         data_list_html.append((taken_at, moment_day, post_type, author_id, p_mt, p_url_html, s_mt, s_url_html,
-                               moment_id, pin_id, file_rel_path, location))
+                               moment_id, pin_id, esc(file_rel_path), esc(location)))
         # lava row
         data_list.append((taken_at, moment_day, post_type, author_id, p_mt, p_url, s_mt, s_url,
                           moment_id, pin_id, file_rel_path, location))
@@ -1944,7 +1980,7 @@ def bereal_chat_list(context):
             admins_list.append(format_userid(a, user_map=user_map))
         if bool(admins_list):
             admins = '\n'.join(admins_list)
-        admins_html = admins.replace('\n', '<br />')
+        admins_html = esc(admins).replace('\n', '<br />')
 
         # participants (plist)
         participants = get_plist_content(record[7])
@@ -1953,7 +1989,7 @@ def bereal_chat_list(context):
             participants_list.append(format_userid(p, user_map=user_map))
         if bool(participants_list):
             participants = '\n'.join(participants_list)
-        participants_html = participants.replace('\n', '<br />')
+        participants_html = esc(participants).replace('\n', '<br />')
 
         # body
         body = record[8].decode('utf-8') if bool(record[8]) else record[8]

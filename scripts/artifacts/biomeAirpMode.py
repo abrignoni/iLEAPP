@@ -10,12 +10,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*'),
         "output_types": "standard",
-        "artifact_icon": "plane"
+        "artifact_icon": "plane",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 35 rows",
+            "felix_ios17": "iOS 17.6.1 | 14 rows",
+            "fsfull002_ios17": "iOS 17.1 | 13 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 48 rows",
+            "iphone11_ios17": "iOS 17.3 | 12 rows",
+            "iphone12_ios18": "iOS 18.7 | 27 rows",
+            "otto_ios17": "iOS 17.5.1 | 23 rows",
+            "abe_ios16": "iOS 16.5 | 114 rows",
+            "felix23_ios16": "iOS 16.5 | 27 rows",
+            "magnet_ios16": "iOS 16.1.1 | 8 rows",
+        }
     }
 }
 
 import os
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from datetime import timezone
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState

@@ -14,6 +14,10 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "database",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.facebook.Facebook, com.punchh.moes | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | Skype for iPhone 8.58.93 | 9 rows",
+        },
     }
 }
 

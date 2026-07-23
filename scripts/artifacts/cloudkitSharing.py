@@ -5,13 +5,30 @@ __artifacts_v2__ = {
         "description": "Processes CloudKit sharing data from NoteStore.sqlite",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-05-28",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Cloudkit",
         "notes": "",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "share-2"
+        "artifact_icon": "share-2",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 9 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 12 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 10 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 35 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 40 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 11 rows",
+            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 24 rows",
+            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 7 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.apple.notes | 8 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.apple.notes | 12 rows",
+            "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | group.com.apple.notes | 0 rows",
+        }
     },
     "cloudkit_participants": {
         "name": "CloudKit Share Participants",
@@ -24,7 +41,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 0 rows",
+            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 0 rows",
+            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.apple.notes | 0 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.apple.notes | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | group.com.apple.notes | 0 rows",
+        }
     }
 }
 
@@ -151,17 +185,18 @@ def cloudkit_sharing(context):
         db.close()
 
         for z_pk, s in shares.items():
-            data_list.append((
+            data_list.append((s['ctime'], s['mtime'], 
                 context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'],
                 s['root_id'], s['record_type'],
-                s['ctime'], s['creator'], s['mtime'], s['modifier'], s['device'],
+                s['creator'], s['modifier'], s['device'],
                 s['container'], s['hostname'], s['permission'], s['visibility'],
                 s['anon'], s['known']
             ))
 
     data_headers = (
+        ('Creation Date', 'datetime'), ('Modified Date', 'datetime'),
         'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Record ID', 'Root Record ID', 'Record Type',
-        ('Creation Date', 'datetime'), 'Creator User Record ID', ('Modified Date', 'datetime'),
+        'Creator User Record ID', 
         'Last Modified User Record ID', 'Modified By Device', 'Container Identifier',
         'Displayed Hostname', 'Public Permission', 'Participant Visibility',
         'Allows Anonymous Access', 'Known To Server'

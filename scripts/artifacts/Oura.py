@@ -18,6 +18,17 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0, ChatGPT 1.2025.261 | 15 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0, ChatGPT 1.2024.233 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | Claude by Anthropic 1.260604.0, Life360: Family Safety & GPS 26.22.0, Citizen: Safety & Live Video 0.1296.0 | 8 rows",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 12 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 1 row",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 1 row",
+        },
     },
     "oura_find_my_ring_location": {
         "name": "Oura - Find My Ring Last Known Location",
@@ -38,6 +49,17 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "kml", "lava", "timeline"],
         "html_columns": ["Map"],
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0, ChatGPT 1.2025.261 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0, ChatGPT 1.2024.233 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Claude by Anthropic 1.260604.0, Life360: Family Safety & GPS 26.22.0, Citizen: Safety & Live Video 0.1296.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
+        },
     },
     "oura_ring_status": {
         "name": "Oura - Ring Status & Battery",
@@ -57,6 +79,17 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery-charging",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0, ChatGPT 1.2025.261 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0, ChatGPT 1.2024.233 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Claude by Anthropic 1.260604.0, Life360: Family Safety & GPS 26.22.0, Citizen: Safety & Live Video 0.1296.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
+        },
     },
     "oura_app_activity": {
         "name": "Oura - App Activity Timeline",
@@ -76,6 +109,17 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "activity",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0, ChatGPT 1.2025.261 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0, ChatGPT 1.2024.233 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Claude by Anthropic 1.260604.0, Life360: Family Safety & GPS 26.22.0, Citizen: Safety & Live Video 0.1296.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
+        },
     },
     "oura_daytime_heart_rate": {
         "name": "Oura - Daytime Heart Rate",
@@ -95,6 +139,17 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "heart",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0, ChatGPT 1.2025.261 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0, ChatGPT 1.2024.233 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Claude by Anthropic 1.260604.0, Life360: Family Safety & GPS 26.22.0, Citizen: Safety & Live Video 0.1296.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
+        },
     },
     "oura_analytics_integrations": {
         "name": "Oura - Analytics Integrations",
@@ -114,6 +169,17 @@ __artifacts_v2__ = {
         ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "share-2",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0, ChatGPT 1.2025.261 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0, ChatGPT 1.2024.233 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Claude by Anthropic 1.260604.0, Life360: Family Safety & GPS 26.22.0, Citizen: Safety & Live Video 0.1296.0 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
+        },
     },
     "oura_analytics_event_plan": {
         "name": "Oura - Analytics Event Plan",
@@ -133,6 +199,17 @@ __artifacts_v2__ = {
         ),
         "output_types": ["lava", "tsv"],
         "artifact_icon": "list",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0, ChatGPT 1.2025.261 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | Life360: Find Family & Friends 24.34.0, ChatGPT 1.2024.233 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Life360: Find Friends & Family 23.15.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Claude by Anthropic 1.260604.0, Life360: Family Safety & GPS 26.22.0, Citizen: Safety & Live Video 0.1296.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Life360: Find Friends & Family 24.28.0 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Booksy for Customers 25.11.2500 | 18 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Grindr - Gay Dating & Chat 9.11.1, Life360: Find Friends & Family 23.19.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 0 rows",
+        },
     },
 }
 
@@ -144,6 +221,7 @@ import plistlib
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, logfunc
+from scripts.html_safe import esc
 
 # Cocoa/NSDate epoch (2001-01-01 UTC) as Unix seconds.
 COCOA_EPOCH = 978307200
@@ -476,7 +554,7 @@ def oura_find_my_ring_location(context):
     if isinstance(loc, dict) and "latitude" in loc and "longitude" in loc:
         lat = loc.get("latitude", "")
         lon = loc.get("longitude", "")
-        map_link = (f'<a href="https://www.google.com/maps?q={lat},{lon}" '
+        map_link = (f'<a href="https://www.google.com/maps?q={esc(lat)},{esc(lon)}" '
                     f'target="_blank">View on map</a>') if lat != "" and lon != "" else ""
         data_list.append((
             ts_cocoa(loc.get("timestamp")),

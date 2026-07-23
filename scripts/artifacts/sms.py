@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses SMS and iMessage chats",
         "author": "@AlexisBrignoni, @XperyLab, @ydkhatri, @tobraha, @snoop168",
         "creation_date": "2020-04-30",
-        "last_update_date": "2025-03-24",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "SMS & iMessage",
         "notes": "",
@@ -12,6 +12,23 @@ __artifacts_v2__ = {
                   '*/Library/SMS/Attachments/*'),
         "output_types": "standard",
         "artifact_icon": "message",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 107 rows",
+            "dexter_ios18": "iOS 18.3.2 | 300 rows",
+            "fsfull002_ios17": "iOS 17.1 | 253 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 126 rows",
+            "iphone11_ios17": "iOS 17.3 | 99 rows",
+            "iphone12_ios18": "iOS 18.7 | 27 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 13 rows",
+            "otto_ios17": "iOS 17.5.1 | 223 rows",
+            "felix_ios17": "iOS 17.6.1 | 69 rows",
+            "abe_ios16": "iOS 16.5 | 211 rows",
+            "felix23_ios16": "iOS 16.5 | 57 rows",
+            "hickman_ios13": "iOS 13.3.1 | 42 rows",
+            "hickman_ios14": "iOS 14.3 | 106 rows",
+            "jess_ios15": "iOS 15.0.2 | 13 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Chat ID",
@@ -28,12 +45,14 @@ __artifacts_v2__ = {
     }
 }
 
+import os
+
 import pandas as pd
 
 from scripts.artifact_report import ArtifactHtmlReport
 from scripts.chat_rendering import render_chat, chat_HTML
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, \
-    convert_cocoa_core_data_ts_to_utc, check_in_media, lava_get_full_media_info
+    convert_cocoa_core_data_ts_to_utc, check_in_media, lava_get_full_media_info, logfunc
 
 import typedstream
 
@@ -122,14 +141,18 @@ def sms(context):
                     'Attachment Name', ('Attachment File', 'media'), ('Attachment Timestamp', 'datetime'),
                     'Attachment Mimetype', 'Attachment Size (Bytes)', 'Message Row ID', 'Chat ID', 'From Me')
 
-    db_records = get_sqlite_db_records(source_path, query)
 
+    # NOTE: moved the definition outside to avoid creating a new function object
+    #   on every turn of the loop
+    def fix_cocoa_date(ts):
+        if not ts or ts == '': return ''
+        if ts > 1000000000000000: # Nanoseconds
+            ts = ts / 1000000000
+        return convert_cocoa_core_data_ts_to_utc(ts)
+    
+    db_records = get_sqlite_db_records(source_path, query)
+    
     for record in db_records:
-        def fix_cocoa_date(ts):
-            if not ts or ts == '': return ''
-            if ts > 1000000000000000: # Nanoseconds
-                ts = ts / 1000000000
-            return convert_cocoa_core_data_ts_to_utc(ts)
 
         message_timestamp = fix_cocoa_date(record[0])
         read_timestamp = fix_cocoa_date(record[1])
@@ -144,7 +167,13 @@ def sms(context):
         media_ref_id = None
         if attachment_path:
             clean_path = '*' + attachment_path.replace('~', '', 1)
-            media_ref_id = check_in_media(clean_path, record[11])
+            # Some attachments are directories (e.g. bundle-style payloads);
+            # check_in_media can only ingest regular files.
+            extraction_path = context.get_source_file_path(clean_path)
+            if extraction_path and os.path.isdir(extraction_path):
+                logfunc(f'Skipped media check-in for "{record[11]}": attachment is a directory')
+            else:
+                media_ref_id = check_in_media(clean_path, record[11])
 
         data_list.append((message_timestamp, read_timestamp, message_text, record[3], record[4], record[5],
                           record[6], record[7], record[8], record[9], record[10], record[11], media_ref_id,
@@ -158,20 +187,23 @@ def sms(context):
                 return media_item['extraction_path']
         return None
 
-    sms_df = pd.DataFrame(data_list,
-                          columns=['data-time', 'Read Timestamp', 'message', 'Service', 'Message Direction',
-                                   'Message Sent', 'Message Delivered', 'Message Read', 'Account', 'Account Login',
-                                   'data-name', 'Attachment Name', 'Attachment File', 'Attachment Timestamp',
-                                   'content-type', 'Attachment Size (Bytes)', 'message-id', 'Chat ID', 'from_me'])
+    # The threaded chat view is only rendered when there are messages;
+    # an empty DataFrame breaks the pandas apply in render_chat.
+    if data_list:
+        sms_df = pd.DataFrame(data_list,
+                              columns=['data-time', 'Read Timestamp', 'message', 'Service', 'Message Direction',
+                                       'Message Sent', 'Message Delivered', 'Message Read', 'Account', 'Account Login',
+                                       'data-name', 'Attachment Name', 'Attachment File', 'Attachment Timestamp',
+                                       'content-type', 'Attachment Size (Bytes)', 'message-id', 'Chat ID', 'from_me'])
 
-    sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
+        sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
 
-    report = ArtifactHtmlReport('SMS & iMessage - Messages (Threaded)')
-    report.start_artifact_report(context.get_report_folder(), 'SMS & iMessage - Messages (Threaded)')
-    report.add_script()
-    report.write_lead_text(f'SMS & iMessage Messages (Threaded) located at: {source_path}')
-    report.write_raw_html(chat_HTML)
-    report.add_script(render_chat(sms_df))
-    report.end_artifact_report()
+        report = ArtifactHtmlReport('SMS & iMessage - Messages (Threaded)')
+        report.start_artifact_report(context.get_report_folder(), 'SMS & iMessage - Messages (Threaded)')
+        report.add_script()
+        report.write_lead_text(f'SMS & iMessage Messages (Threaded) located at: {source_path}')
+        report.write_raw_html(chat_HTML)
+        report.add_script(render_chat(sms_df))
+        report.end_artifact_report()
 
     return data_headers, data_list, source_path

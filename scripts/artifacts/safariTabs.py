@@ -5,7 +5,24 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/BrowserState.db*',),
-        "output_types": "standard", "artifact_icon": "layout"
+        "output_types": "standard", "artifact_icon": "layout",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.mobilesafari | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 2 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "safariTabsiCloud": {
         "name": "Safari Browser - iCloud Tabs",
@@ -13,7 +30,24 @@ __artifacts_v2__ = {
         "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/CloudTabs.db*',),
-        "output_types": "standard", "artifact_icon": "cloud"
+        "output_types": "standard", "artifact_icon": "cloud",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 23 rows",
+            "abe_ios16": "iOS 16.5 | 28 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 4 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
     }
 }
 
@@ -71,9 +105,17 @@ def safariTabsBrowserState(context):
     if not source_path:
         return data_headers, data_list, ''
 
+    # last_viewed_time is Apple absolute (Cocoa) time on iOS <= 18, but a Unix
+    # timestamp on iOS 26+. Cocoa values for realistic dates stay well below the
+    # 978307200 offset (which equals year 2032 in Cocoa time), while Unix values
+    # are always above it, so the magnitude disambiguates the two encodings.
     query = '''
     SELECT
-        datetime(last_viewed_time + 978307200, 'unixepoch'),
+        CASE
+            WHEN last_viewed_time > 978307200
+                THEN datetime(last_viewed_time, 'unixepoch')
+            ELSE datetime(last_viewed_time + 978307200, 'unixepoch')
+        END,
         title, url, user_visible_url, opened_from_link, private_browsing
     FROM tabs
     '''

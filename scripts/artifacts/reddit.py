@@ -14,6 +14,10 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Reddit 2023.50.1 | 44 rows",
+            "otto_ios17": "iOS 17.5.1 | Reddit 2024.33.0 | 0 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Room ID",

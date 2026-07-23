@@ -1,3 +1,4 @@
+# pylint: disable=W0613
 __artifacts_v2__ = {
     'tcc': {
         'name': 'Application Permissions',
@@ -10,7 +11,24 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('*/mobile/Library/TCC/TCC.db*','*/logs/Accessibility/TCC.db*'),
         'output_types': 'standard',
-        'artifact_icon': 'key'
+        'artifact_icon': 'key',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 46 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 141 rows',
+            'felix_ios17': 'iOS 17.6.1 | 118 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 121 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 109 rows',
+            'iphone11_ios17': 'iOS 17.3 | 289 rows',
+            'iphone12_ios18': 'iOS 18.7 | 143 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 69 rows',
+            'otto_ios17': 'iOS 17.5.1 | 185 rows',
+            'abe_ios16': 'iOS 16.5 | 184 rows',
+            'felix23_ios16': 'iOS 16.5 | 127 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 130 rows',
+            'hickman_ios14': 'iOS 14.3 | 154 rows',
+            'jess_ios15': 'iOS 15.0.2 | 76 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 66 rows',
+        }
     }
 }
 
@@ -21,8 +39,8 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 @artifact_processor
-def tcc(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    source_path = get_file_path(files_found, 'TCC.db')
+def tcc(context):
+    source_path = get_file_path(context.get_files_found(), 'TCC.db')
     data_list = []
 
     last_modified_timestamp_exists = does_column_exist_in_db(

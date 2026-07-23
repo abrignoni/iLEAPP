@@ -10,7 +10,24 @@ __artifacts_v2__ = {
         'notes': 'Parses latitude, longitude, accuracy, and speeds from Cache.sqlite',
         'paths': ('*/Library/Caches/com.apple.routined/Cache.sqlite*',),
         'output_types': 'all',
-        'artifact_icon': 'map-pin'
+        'artifact_icon': 'map-pin',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 10383 rows',
+            'felix_ios17': 'iOS 17.6.1 | 11536 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 6537 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 47295 rows',
+            'iphone11_ios17': 'iOS 17.3 | 84972 rows',
+            'iphone12_ios18': 'iOS 18.7 | 5952 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 2614 rows',
+            'otto_ios17': 'iOS 17.5.1 | 72911 rows',
+            'abe_ios16': 'iOS 16.5 | 103391 rows',
+            'felix23_ios16': 'iOS 16.5 | 7813 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 89662 rows',
+            'hickman_ios14': 'iOS 14.3 | 33411 rows',
+            'jess_ios15': 'iOS 15.0.2 | 4084 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 14563 rows',
+        }
     }
 }
 from datetime import datetime, timezone

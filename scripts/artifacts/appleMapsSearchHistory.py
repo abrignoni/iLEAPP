@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_appleMapsSearchHistory": {
-        "name": "Get Apple Maps seach history",
-        "description": "",
+        "name": "Get Apple Maps search history",
+        "description": "Parses Apple Maps search history entries and timestamps from GeoHistory.mapsdata.",
         "author": "@any333",
         "creation_date": "2021-01-29",
         "last_update_date": "2023-10-22",
@@ -14,10 +14,14 @@ __artifacts_v2__ = {
         ),
         "output_types": "all",
         "artifact_icon": "search",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.Maps | 28 rows",
+            "hickman_ios13": "iOS 13.3.1 | com.apple.Maps | 14 rows",
+        },
     }
 }
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 import base64
 import binascii
 import pprint

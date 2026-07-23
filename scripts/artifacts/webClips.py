@@ -1,16 +1,19 @@
 __artifacts_v2__ = {
     "web_clips": {
         "name": "iOS Screens",
-        "description": "",
+        "description": "Parses home screen web clips (bookmarked web apps), including titles, URLs and icons, from the WebClips directory.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-04-20",
-        "last_update_date": "2025-11-20",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Home Screen",
         "notes": "",
         "paths": ('*WebClips/*.webclip/*',),
-        "output_types": "standard",
-        "artifact_icon": "bookmark"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "bookmark",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+        }
     }
 }
 from scripts.ilapfuncs import (

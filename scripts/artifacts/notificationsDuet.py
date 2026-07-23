@@ -10,14 +10,27 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/userNotificationEvents/local/*',),
         "output_types": "standard",
-        "artifact_icon": "bell"
+        "artifact_icon": "bell",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 16542 rows",
+            "felix_ios17": "iOS 17.6.1 | 376 rows",
+            "fsfull002_ios17": "iOS 17.1 | 183 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 353 rows",
+            "iphone11_ios17": "iOS 17.3 | 27202 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 142 rows",
+            "otto_ios17": "iOS 17.5.1 | 26256 rows",
+            "abe_ios16": "iOS 16.5 | 18231 rows",
+            "felix23_ios16": "iOS 16.5 | 5425 rows",
+            "jess_ios15": "iOS 15.0.2 | 325 rows",
+            "magnet_ios16": "iOS 16.1.1 | 269 rows",
+        }
     }
 }
 
 import os
 from datetime import timezone
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState

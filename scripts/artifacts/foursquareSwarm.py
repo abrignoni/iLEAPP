@@ -21,7 +21,11 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Facebook Profile", "Twitter Profile", "Profile Picture URL", "UID" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 1 row",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 1 row",
+        }
     },
     "foursquare_swarm_contacts": {
         "name": "Foursquare Swarm - Contacts",
@@ -36,7 +40,11 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture URL", "UID" ],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 186 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 749 rows",
+        }
     },
     "foursquare_swarm_address_book": {
         "name": "Foursquare Swarm - Address Book",
@@ -50,7 +58,11 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture", "Phone Numbers", "Facebook Profile" ],
-        "artifact_icon": "book"
+        "artifact_icon": "book",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
+        }
     },
     "foursquare_swarm_checkins": {
         "name": "Foursquare Swarm - Check-ins",
@@ -67,7 +79,11 @@ __artifacts_v2__ = {
         "output_types": [ "all" ],
         "html_columns": [ "Facebook Profile", "Twitter Profile", "Instagram Profile",
                           "Venue URL", "Check-in URL", "Website", "Entities" ],
-        "artifact_icon": "user-check"
+        "artifact_icon": "user-check",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 157 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 524 rows",
+        }
     },
     "foursquare_swarm_tips": {
         "name": "Foursquare Swarm - Tips",
@@ -83,7 +99,11 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
         "output_types": [ "all" ],
         "html_columns": [ "Tip URL", "Short URL", "Photo URL" ],
-        "artifact_icon": "info-circle"
+        "artifact_icon": "info-circle",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 3 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 67 rows",
+        }
     },
     "foursquare_swarm_stickers": {
         "name": "Foursquare Swarm - Stickers",
@@ -99,7 +119,11 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fbadge%2F*"),
         "output_types": [ "lava", "html", "tsv" ],
         "html_columns": [ "Sticker URL" ],
-        "artifact_icon": "award"
+        "artifact_icon": "award",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 238 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 240 rows",
+        }
     },
     "foursquare_swarm_venues_history": {
         "name": "Foursquare Swarm - Venues History",
@@ -116,7 +140,11 @@ __artifacts_v2__ = {
         "output_types": [ "all" ],
         "html_columns": [ "Facebook Profile", "Twitter Profile", "Instagram Profile",
                           "Foursquare Profile", "Website" ],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 596 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 1691 rows",
+        }
     },
     "foursquare_swarm_photos": {
         "name": "Foursquare Swarm - Photos",
@@ -133,7 +161,11 @@ __artifacts_v2__ = {
         "output_types": [ "all" ],
         "html_columns": [ "Facebook Profile", "Twitter Profile", "Instagram Profile",
                           "Foursquare Profile", "Website", "Photo URL" ],
-        "artifact_icon": "camera"
+        "artifact_icon": "camera",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 27 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 183 rows",
+        }
     },
     "foursquare_swarm_comments": {
         "name": "Foursquare Swarm - Comments",
@@ -148,7 +180,11 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "all" ],
         "html_columns": [ "Entities" ],
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
+        }
     },
     "foursquare_swarm_friend_requests": {
         "name": "Foursquare Swarm - Friend Requests",
@@ -163,7 +199,11 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),                  
         "output_types": [ "standard" ],
         "html_columns": [ "Requester ID", "Requestee ID" ],
-        "artifact_icon": "user-plus"
+        "artifact_icon": "user-plus",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
+        }
     },
     "foursquare_swarm_plans": {
         "name": "Foursquare Swarm - Plans",
@@ -179,7 +219,11 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),                  
         "output_types": [ "standard" ],
         "html_columns": [ "Entities" ],
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
+        }
     },
     "foursquare_swarm_events": {
         "name": "Foursquare Swarm - Events",
@@ -195,7 +239,11 @@ __artifacts_v2__ = {
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Event URL" ],
-        "artifact_icon": "calendar"
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
+        }
     },
     "foursquare_swarm_saved_lists": {
         "name": "Foursquare Swarm - Saved Lists",
@@ -209,7 +257,11 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "all" ],
         "html_columns": [ "List URL", "Source URL" ],
-        "artifact_icon": "list"
+        "artifact_icon": "list",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 8 rows",
+        }
     },
     "foursquare_swarm_location_history": {
         "name": "Foursquare Swarm - Location History",
@@ -222,7 +274,11 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": ["all"],
-        "artifact_icon": "navigation"
+        "artifact_icon": "navigation",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
+        }
     },
     "foursquare_swarm_plog": {
         "name": "Foursquare Swarm - Logs",
@@ -236,7 +292,11 @@ __artifacts_v2__ = {
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",),
         "output_types": [ "standard", "kml" ],
         "html_columns": [ "Details" ],
-        "artifact_icon": "terminal"
+        "artifact_icon": "terminal",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 0 rows",
+        }
     },
     "foursquare_swarm_feed": {
         "name": "Foursquare Swarm - Activity Feed & Bulletins",
@@ -253,7 +313,11 @@ __artifacts_v2__ = {
         "output_types": [ "standard", "kml" ],
         "html_columns": [ "Participants", "Replies", "Social Actors", 
                           "Image URL", "Entities", "Target" ],
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Foursquare Swarm: Check-in App 6.12.32, Foursquare City Guide 11.23.33 | 6 rows",
+            "abe_ios16": "iOS 16.5 | Foursquare Swarm: Check-in App 6.12.20 | 9 rows",
+        }
     },
 }
 
@@ -267,6 +331,7 @@ from scripts.filetype import get_type
 from scripts.ilapfuncs import get_sqlite_db_records, open_sqlite_db_readonly, \
     does_column_exist_in_db, get_plist_content, check_in_embedded_media, \
     convert_unix_ts_to_utc, get_birthdate, check_in_media, artifact_processor, logfunc
+from scripts.html_safe import safe_join
 
 # Constants
 COMMA_SEP = ', '
@@ -892,7 +957,12 @@ def foursquare_swarm_account(context):
     WHERE U.ZRELATIONSHIP = 'self'
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    # NOTE: I'm just list()-ing for ease of migration, but we don't have
+    #   to check for truthiness, iterating over an empty generator is a NOOP
+    #   so an empty db_records woul just skip the for loop and go straight
+    #   to the same result anyway
+    #   this applies to all calls of get_sqlite_db_records() in this file
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -1102,7 +1172,7 @@ def foursquare_swarm_contacts(context):
     WHERE (U.ZRELATIONSHIP != 'self') OR (U.ZRELATIONSHIP IS NULL)
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -1279,7 +1349,7 @@ def foursquare_swarm_address_book(context):
     ORDER BY AB.ZLASTNAME ASC, AB.ZFIRSTNAME ASC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -1851,7 +1921,7 @@ def foursquare_swarm_tips(context):
     ORDER BY T.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -1973,7 +2043,7 @@ def foursquare_swarm_stickers(context):
     LEFT JOIN ZFSSTICKERBONUS AS "SB" ON (S.Z_PK = SB.ZBONUSESINVERSE)
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -2132,7 +2202,7 @@ def foursquare_swarm_venues_history(context):
     ORDER BY V.ZLASTVISITEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -2315,7 +2385,7 @@ def foursquare_swarm_photos(context):
     ORDER BY P.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -2512,7 +2582,7 @@ def foursquare_swarm_comments(context):
     ORDER BY C.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -2661,7 +2731,7 @@ def foursquare_swarm_friend_requests(context):
     ORDER BY FR.ZDATEREQUESTED DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -3238,7 +3308,7 @@ def foursquare_swarm_saved_lists(context):
     ORDER BY L.ZLISTUPDATEDAT DESC, LI.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -3374,7 +3444,7 @@ def foursquare_swarm_location_history(context):
     ORDER BY PL.ZTIMESTAMP DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, data_list, source_path
 
@@ -3478,7 +3548,7 @@ def foursquare_swarm_plog(context):
     ORDER BY PL.ZTIMESTAMP DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -3845,7 +3915,7 @@ def foursquare_swarm_feed(context):
     ORDER BY FI.ZCREATEDAT DESC
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = list( get_sqlite_db_records(source_path, query) )
     if not db_records:
         return data_headers, (data_list, data_list_html), source_path
 
@@ -3871,15 +3941,15 @@ def foursquare_swarm_feed(context):
             # Extract social intelligence
             participants = _extract_zblob_participants(entities_blob, target_blob)
             p_participants = LIST_SEP.join(participants)
-            h_participants = HTML_LINE_BREAK.join(participants)
+            h_participants = safe_join(participants, HTML_LINE_BREAK)
 
             replies = _extract_zblob_replies(entities_blob, target_blob)
             p_replies = LIST_SEP.join(replies)
-            h_replies = HTML_LINE_BREAK.join(replies)
+            h_replies = safe_join(replies, HTML_LINE_BREAK)
 
             social_actors = _extract_zblob_social_actors(entities_blob, target_blob)
             p_social_actors = LIST_SEP.join(social_actors)
-            h_social_actors = HTML_LINE_BREAK.join(social_actors)
+            h_social_actors = safe_join(social_actors, HTML_LINE_BREAK)
 
             # Fallback mechanism: extract strings directly from the decoded Core Data object
             if not text:

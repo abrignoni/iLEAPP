@@ -12,14 +12,28 @@ __artifacts_v2__ = {
             ('*/Biome/streams/public/TextInputSession/local/*',
              '*/Biome/streams/restricted/Text.InputSession/local/*'),
         "output_types": "standard",
-        "artifact_icon": "keyboard"
+        "artifact_icon": "keyboard",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 683 rows",
+            "felix_ios17": "iOS 17.6.1 | 140 rows",
+            "fsfull002_ios17": "iOS 17.1 | 149 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 677 rows",
+            "iphone11_ios17": "iOS 17.3 | 1742 rows",
+            "iphone12_ios18": "iOS 18.7 | 489 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 103 rows",
+            "otto_ios17": "iOS 17.5.1 | 764 rows",
+            "abe_ios16": "iOS 16.5 | 1561 rows",
+            "felix23_ios16": "iOS 16.5 | 299 rows",
+            "jess_ios15": "iOS 15.0.2 | 99 rows",
+            "magnet_ios16": "iOS 16.1.1 | 136 rows",
+        }
     }
 }
 
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_ts_int_to_utc
