@@ -16,10 +16,10 @@ __artifacts_v2__ = {
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_plist_content
+from scripts.ilapfuncs import artifact_processor, logfunc
 
 
 @artifact_processor
@@ -34,8 +34,6 @@ def get_biomeDevTimeZone(context):
         if os.path.isfile(file_found):
             if 'tombstone' in file_found:
                 continue
-            else:
-                print("File found: ", file_found)
         else:
             continue
 
@@ -46,7 +44,10 @@ def get_biomeDevTimeZone(context):
             if record.state == EntryState.Written:
                 protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
-                tz = protostuff['2']
+                tz = protostuff.get('2')
+                if tz is None:
+                    logfunc(f"Biome - Device TimeZone: record without timezone field in {filename}, skipped")
+                    continue
 
                 data_list.append((ts, tz, filename))
 
