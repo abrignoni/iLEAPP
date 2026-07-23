@@ -35,6 +35,10 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python -m pip install -r requirements.txt
 
+      - name: Guard against PyPI blackboxprotobuf imports
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/test/scripts/test_no_pypi_blackboxprotobuf.py
+
       - name: Run on changed files
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: |
