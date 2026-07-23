@@ -21,7 +21,7 @@ __artifacts_v2__ = {
     }
 }
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 import base64
 import binascii
 import pprint

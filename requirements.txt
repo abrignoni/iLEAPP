@@ -2,7 +2,6 @@ astc_decomp_faster
 pytypedstream
 bencoding
 biplist
-blackboxprotobuf
 bs4
 ijson
 mmh3
@@ -18,6 +17,10 @@ PGPy
 standard-imghdr; python_version >= "3.13"  # PGPy imports stdlib imghdr, removed in Python 3.13 (PEP 594)
 pillow
 pillow_heif
+# protobuf is required by the vendored scripts/blackboxprotobuf. Do NOT add the
+# PyPI 'blackboxprotobuf' back: it pins protobuf==3.10.0, reintroducing patched
+# CVEs. 5.29.6 is the minimum that clears CVE-2022-1941/2025-4565/2026-0994.
+protobuf==5.29.6
 pycryptodome
 pyinstaller
 

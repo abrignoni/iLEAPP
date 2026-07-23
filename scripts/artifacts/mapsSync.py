@@ -37,7 +37,7 @@ __artifacts_v2__ = {
 import sqlite3
 import struct
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 
 from scripts.ilapfuncs import (artifact_processor, logfunc, open_sqlite_db_readonly,
                                does_column_exist_in_db)

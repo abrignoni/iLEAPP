@@ -23,7 +23,7 @@ __artifacts_v2__ = {
     }
 }
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 
 from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 

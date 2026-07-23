@@ -31,7 +31,7 @@ __artifacts_v2__ = {
 }
 
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
 @artifact_processor

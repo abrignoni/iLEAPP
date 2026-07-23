@@ -188,7 +188,7 @@ import sqlite3
 from pathlib import Path
 from urllib.parse import urlparse
 from math import log10
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ilapfuncs import open_sqlite_db_readonly, get_sqlite_db_records, \
     does_column_exist_in_db, get_txt_file_content, convert_unix_ts_to_utc, \
     artifact_processor, logfunc

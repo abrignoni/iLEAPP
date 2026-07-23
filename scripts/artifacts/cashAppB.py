@@ -17,7 +17,7 @@ __artifacts_v2__ = {
     }
 }
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 import json
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_unix_ts_to_utc
 

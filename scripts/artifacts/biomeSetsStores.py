@@ -120,7 +120,7 @@ __artifacts_v2__ = {
 import re
 import struct
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from google.protobuf.message import DecodeError
 
 from scripts.ilapfuncs import (artifact_processor, open_sqlite_db_readonly, does_table_exist_in_db,

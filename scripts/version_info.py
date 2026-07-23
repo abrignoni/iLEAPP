@@ -7,6 +7,45 @@ Leave blank if not available
 leapp_name = 'iLEAPP'
 leapp_version = '2026.3.0-dev.0'
 
+# Minimum protobuf runtime required by the vendored scripts/blackboxprotobuf and
+# the security pin in requirements.txt. The PyPI 'blackboxprotobuf' package
+# force-downgrades protobuf to 3.10.0 when installed into the same environment;
+# iLEAPP uses the vendored scripts/blackboxprotobuf instead.
+minimum_protobuf_version = '5.29.6'
+
+
+def check_runtime_dependencies():
+    """Warn loudly if the environment drifted from the pinned dependencies.
+
+    Called at startup by both ileapp.py and ileappGUI.py. Returns a list of
+    human-readable problem strings, empty when the environment is healthy.
+    """
+    problems = []
+
+    def version_tuple(version):
+        return tuple(int(part) for part in version.split('.')[:3] if part.isdigit())
+
+    try:
+        from google.protobuf import __version__ as protobuf_version
+    except ImportError:
+        problems.append("protobuf is not installed. Run: pip install -r requirements.txt")
+    else:
+        if version_tuple(protobuf_version) < version_tuple(minimum_protobuf_version):
+            problems.append(
+                f"protobuf {protobuf_version} is older than the required {minimum_protobuf_version}. "
+                "Another package (commonly the PyPI 'blackboxprotobuf') likely downgraded it. "
+                "Protobuf-based artifacts will fail and patched CVEs are reintroduced. "
+                f"Fix with: pip install protobuf=={minimum_protobuf_version}")
+
+    try:
+        from PIL import Image  # noqa: F401  pylint: disable=unused-import
+    except ImportError:
+        problems.append("Pillow is not installed or broken. Run: pip install -r requirements.txt")
+
+    for problem in problems:
+        print(f"DEPENDENCY WARNING: {problem}")
+    return problems
+
 ileapp_contributors = [
     ['Alexis Brignoni', 'https://abrignoni.com', '@AlexisBrignoni', 'https://github.com/abrignoni'],
     ['Yogesh Khatri', 'https://swiftforensics.com', '@SwiftForensics', 'https://github.com/ydkhatri'],

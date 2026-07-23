@@ -31,7 +31,7 @@ __artifacts_v2__ = {
 }
 
 import os
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 import re
 from io import BytesIO
 

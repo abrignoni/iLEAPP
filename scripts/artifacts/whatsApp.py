@@ -101,7 +101,7 @@ __artifacts_v2__ = {
 }
 
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 
 from pathlib import Path
 from scripts.ilapfuncs import (

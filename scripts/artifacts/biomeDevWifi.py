@@ -29,7 +29,7 @@ __artifacts_v2__ = {
 
 import os
 import struct
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from datetime import timezone
 from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file

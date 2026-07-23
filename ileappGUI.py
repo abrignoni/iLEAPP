@@ -12,7 +12,7 @@ import leapp_functions.app.history as history
 
 from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
-from scripts.version_info import leapp_name, leapp_version
+from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
@@ -789,6 +789,8 @@ def case_data():
     else:
         case_window.grab_set()
 
+
+check_runtime_dependencies()
 
 ## Main window creation
 main_window = tk.Tk()

@@ -23,7 +23,7 @@ __artifacts_v2__ = {
 }
 
 import os
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import convert_time_obj_to_utc, get_plist_content, logfunc, artifact_processor
