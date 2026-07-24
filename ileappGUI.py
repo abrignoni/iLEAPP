@@ -505,7 +505,7 @@ def process(casedata):
         logtext_frame.pack(padx=8, pady=4, expand=True, fill='both')
         progress_bar_frame.pack(padx=2, pady=2, ipady=2, fill='x')
 
-        initialize_lava(input_path, out_params.output_folder_base, extracttype)
+        initialize_lava(input_path, out_params.output_folder_base, extracttype, profile_filename)
 
         # Record history if enabled
         history.record_input_path(input_path)
