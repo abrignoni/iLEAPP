@@ -78,7 +78,7 @@ def get_sql_type(python_type):
 
     type_map = {
         'datetime': 'INTEGER',
-        'date': 'INTEGER',
+        'date': 'TEXT',
     }
     return type_map.get(python_type, 'TEXT')
 
@@ -370,7 +370,8 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
         data (list): A list of rows to insert, where each row is a sequence of values
                      corresponding to the headers.
         object_columns (dict): A dictionary mapping column names to their data types.
-                              Supports 'datetime' type for automatic timestamp conversion.
+                              'datetime' values are stored as Unix timestamps (UTC).
+                              'date' values are stored as YYYY-MM-DD strings (no time / TZ).
         headers (list): A list of column headers. Each header can be a string or a tuple
                        where the first element is the column name.
         column_map (dict): Column mapping configuration (currently unused in the function).
@@ -378,7 +379,7 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
         None
     """
 
-    global lava_db
+    # global lava_db
 
     if not data:
         return
@@ -420,6 +421,26 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
                     # Need to do it this way due to dates that could be before Epoch
                     epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
                     value = (value - epoch).total_seconds()
+            elif sanitized_column in object_columns and object_columns[sanitized_column] == 'date':
+                # Store calendar dates as YYYY-MM-DD only — never midnight timestamps.
+                # Timestamps invite timezone day-shifts for date-only fields.
+                d = None
+                if isinstance(value, datetime.datetime):
+                    d = value.date()
+                elif isinstance(value, datetime.date):
+                    d = value
+                elif isinstance(value, str):
+                    text = value.strip()
+                    if text:
+                        try:
+                            d = datetime.date.fromisoformat(text[:10])
+                        except ValueError:
+                            try:
+                                d = datetime.datetime.fromisoformat(text).date()
+                            except ValueError:
+                                d = None
+                if d is not None:
+                    value = d.isoformat()
             processed_row.append(value)
         rows_to_insert.append(tuple(processed_row))
 
@@ -565,7 +586,7 @@ def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, a
         regex (str): The regular expression for the artifact search pattern.
     """
 
-    global lava_db
+    #global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _artifact_search_patterns
                 ("id", "module_name", "artifact_name", "regex")
@@ -588,7 +609,7 @@ def lava_insert_sqlite_file_path(file_id, file_path):
         file_path (str): Relative file path to store.
     """
 
-    global lava_db
+    #global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _file_path_list
                 ("id", "file_path")
@@ -611,7 +632,7 @@ def lava_insert_sqlite_artifact_link_pattern_to_file(artifact_regex_id, file_id)
         file_id (int): ID of the related file path entry.
     """
 
-    global lava_db
+    #global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _artifact_pattern_to_file
                 ("artifact_search_pattern_id", "file_path_id")
@@ -645,7 +666,7 @@ def lava_finalize_output(output_path):
         lava_json_name (str): The filename for the LAVA JSON output file
     """
 
-    global lava_data, lava_db
+    #global lava_data, lava_db
 
     lava_data["processing_status"] = "Complete"
 
