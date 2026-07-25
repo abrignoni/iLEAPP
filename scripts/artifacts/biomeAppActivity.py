@@ -15,6 +15,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/App.Activity/local/*',),
         "output_types": "standard",
         "artifact_icon": "activity",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 1528 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+        },
     }
 }
 

@@ -19,6 +19,10 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "message-square",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 14 rows",
+            "iphone11_ios17": "iOS 17.3 | 560 rows",
+        },
     }
 }
 

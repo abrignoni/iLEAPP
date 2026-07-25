@@ -21,6 +21,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Audio.Route/local/*',),
         "output_types": "standard",
         "artifact_icon": "headphones",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 3833 rows",
+            "iphone11_ios17": "iOS 17.3 | 2261 rows",
+        },
     },
     "get_biomeMediaRoute": {
         "name": "Biome - Media Route",
@@ -35,6 +39,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Media.Route/local/*',),
         "output_types": "standard",
         "artifact_icon": "speaker",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 2061 rows",
+            "iphone11_ios17": "iOS 17.3 | 225 rows",
+        },
     },
 }
 

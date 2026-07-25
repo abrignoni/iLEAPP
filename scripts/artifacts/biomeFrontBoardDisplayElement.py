@@ -15,6 +15,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/FrontBoard.DisplayElement/local/*',),
         "output_types": "standard",
         "artifact_icon": "layers",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 7762 rows",
+            "iphone11_ios17": "iOS 17.3 | 5234 rows",
+        },
     }
 }
 

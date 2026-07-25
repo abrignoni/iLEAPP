@@ -15,6 +15,11 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Wallet.Transaction/local/*',),
         "output_types": "standard",
         "artifact_icon": "credit-card",
+        "sample_data": {
+            "epifani_ios26": "iOS 26 era, version unconfirmed | 768 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+        },
     }
 }
 

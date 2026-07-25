@@ -21,6 +21,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Audio.InputRoute/local/*',),
         "output_types": "standard",
         "artifact_icon": "mic",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 260 rows",
+            "iphone11_ios17": "iOS 17.3 | 360 rows",
+        },
     },
     "get_biomeDKAudioOutputRoute": {
         "name": "Biome - Audio Output Route DKEvent",
@@ -36,6 +40,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Audio.OutputRoute/local/*',),
         "output_types": "standard",
         "artifact_icon": "volume-2",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 1475 rows",
+            "iphone11_ios17": "iOS 17.3 | 546 rows",
+        },
     },
     "get_biomeDKClockAlarm": {
         "name": "Biome - Clock Alarm DKEvent",
@@ -53,6 +61,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Clock.Alarm/local/*',),
         "output_types": "standard",
         "artifact_icon": "clock",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 12 rows",
+            "iphone11_ios17": "iOS 17.3 | 5 rows",
+        },
     },
     "get_biomeDKDeviceIsLockedImputed": {
         "name": "Biome - Screen Lock Imputed DKEvent",
@@ -68,6 +80,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Device.IsLockedImputed/local/*',),
         "output_types": "standard",
         "artifact_icon": "lock",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 920 rows",
+            "iphone11_ios17": "iOS 17.3 | 700 rows",
+        },
     },
     "get_biomeDKDeviceLowPowerMode": {
         "name": "Biome - Low Power Mode DKEvent",
@@ -82,6 +98,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Device.LowPowerMode/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 21 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+        },
     },
     "get_biomeDKDisplayOrientation": {
         "name": "Biome - Display Orientation DKEvent",
@@ -97,6 +117,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Display.Orientation/local/*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 94 rows",
+            "iphone11_ios17": "iOS 17.3 | 85 rows",
+        },
     },
     "get_biomeDKSettingsDoNotDisturb": {
         "name": "Biome - Do Not Disturb DKEvent",
@@ -111,6 +135,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Settings.DoNotDisturb/local/*',),
         "output_types": "standard",
         "artifact_icon": "moon",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 586 rows",
+        },
     },
 }
 

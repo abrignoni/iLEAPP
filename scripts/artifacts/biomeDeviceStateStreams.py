@@ -19,6 +19,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Device.Display.InterfaceOrientation/local/*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 308 rows",
+            "iphone11_ios17": "iOS 17.3 | 110 rows",
+        },
     },
     "get_biomeLowPowerMode": {
         "name": "Biome - Low Power Mode",
@@ -33,6 +37,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Device.Power.LowPowerMode/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 76 rows",
+            "iphone11_ios17": "iOS 17.3 | 16 rows",
+        },
     },
     "get_biomeAirplaneModeWireless": {
         "name": "Biome - Airplane Mode",
@@ -48,6 +56,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Device.Wireless.AirplaneMode/local/*',),
         "output_types": "standard",
         "artifact_icon": "airplay",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 98 rows",
+            "iphone11_ios17": "iOS 17.3 | 23 rows",
+        },
     },
     "get_biomeCellularDataEnabled": {
         "name": "Biome - Cellular Data Enabled",
@@ -62,6 +74,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Device.Wireless.CellularDataEnabled/local/*',),
         "output_types": "standard",
         "artifact_icon": "wifi",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 200 rows",
+            "iphone11_ios17": "iOS 17.3 | 19 rows",
+        },
     },
     "get_biomeCarPlayConnected": {
         "name": "Biome - CarPlay Connected",
@@ -77,6 +93,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/CarPlay.Connected/local/*',),
         "output_types": "standard",
         "artifact_icon": "truck",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 24 rows",
+            "iphone11_ios17": "iOS 17.3 | 36 rows",
+        },
     },
     "get_biomeBatteryTemperature": {
         "name": "Biome - Battery Temperature",
@@ -93,6 +113,10 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Device.Thermals.BatteryTemperature/local/*',),
         "output_types": "standard",
         "artifact_icon": "thermometer",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 817 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+        },
     },
 }
 
