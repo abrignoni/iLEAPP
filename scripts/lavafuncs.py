@@ -11,6 +11,7 @@ Global Variables:
 
 Functions:
     sanitize_sql_name: Sanitizes strings for use as SQL identifiers.
+    quote_sql_name: Quotes an identifier so reserved words are safe in SQL.
     get_sql_type: Maps Python types to SQL types.
     initialize_lava: Initializes the LAVA data structure and database.
     lava_process_artifact: Processes and stores artifact data.
@@ -64,6 +65,24 @@ def sanitize_sql_name(name):
     if sanitized and not sanitized[0].isalpha() and sanitized[0] != '_':
         sanitized = '_' + sanitized
     return sanitized.lower()
+
+
+def quote_sql_name(name):
+    """
+    Wraps an identifier in double quotes so it is safe to interpolate into SQL.
+
+    sanitize_sql_name() removes the characters SQLite cannot parse, but it cannot stop a
+    header from sanitizing down to a reserved word. A 'From', 'To' or 'Order' column used
+    to emit `CREATE TABLE ... (from TEXT, ...)`, a syntax error that killed the artifact at
+    report time even though the parser itself ran fine. Quoting makes reserved words legal.
+    Any embedded double quote is doubled, per the SQL standard, so the quoting holds.
+    Args:
+        name (str): The identifier to quote.
+    Returns:
+        str: The identifier wrapped in double quotes.
+    """
+
+    return '"' + str(name).replace('"', '""') + '"'
 
 
 def get_sql_type(python_type):
@@ -344,17 +363,17 @@ def lava_create_sqlite_table(table_name, data):
             original_name, data_type = item[:2]  # Only take the first two elements as media item can have more
             sanitized_name = sanitize_sql_name(original_name)
             sql_type = get_sql_type(data_type)
-            columns.append(f"{sanitized_name} {sql_type}")
+            columns.append(f"{quote_sql_name(sanitized_name)} {sql_type}")
             object_columns[sanitized_name] = data_type
         else:
             original_name = item
             sanitized_name = sanitize_sql_name(original_name)
-            columns.append(f"{sanitized_name} TEXT")
+            columns.append(f"{quote_sql_name(sanitized_name)} TEXT")
 
         column_map[sanitized_name] = original_name
 
     columns_sql = ', '.join(columns)
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS {sanitized_table_name} ({columns_sql})")
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS {quote_sql_name(sanitized_table_name)} ({columns_sql})")
     lava_db.commit()
 
     return sanitized_table_name, column_map, object_columns
@@ -390,7 +409,8 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
 
     # Prepare the SQL query
     placeholders = ', '.join(['?' for _ in sanitized_columns])
-    query = f"INSERT INTO {table_name} ({', '.join(sanitized_columns)}) VALUES ({placeholders})"
+    quoted_columns = ', '.join(quote_sql_name(column) for column in sanitized_columns)
+    query = f"INSERT INTO {quote_sql_name(table_name)} ({quoted_columns}) VALUES ({placeholders})"
 
     # Prepare the data for insertion
     rows_to_insert = []

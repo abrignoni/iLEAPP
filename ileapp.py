@@ -514,7 +514,8 @@ def crunch_artifacts(
         if files_found:
             if not lava_only and 'lava_only' in output_types:
                 lava_only = True
-            category_folder = os.path.join(out_params.output_folder_base, '_HTML', plugin.category)
+            category_folder = os.path.join(out_params.output_folder_base, '_HTML',
+                                           sanitize_report_name(plugin.category, 'category'))
             if not os.path.exists(category_folder):
                 try:
                     os.makedirs(category_folder)

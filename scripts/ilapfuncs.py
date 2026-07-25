@@ -458,6 +458,34 @@ def get_data_list_with_media(media_header_info, data_list):
 
     return html_data_list, txt_data_list
 
+_reported_unsafe_report_names = set()
+
+def sanitize_report_name(name, kind='name'):
+    """
+    Replaces path separators in an artifact name or category so it is usable as a file
+    or folder name.
+
+    Artifact names become HTML/TSV/KML filenames and categories become _HTML subfolder
+    names. A name such as 'Twitter/X' makes os.path.join() read the '/' as a path
+    separator, so the artifact either fails to write its report or lands in an
+    unintended folder, even though the parser ran fine. The original name is kept for
+    display and for LAVA; only the on-disk name is rewritten.
+
+    Args:
+        name (str): The artifact name or category to make path safe.
+        kind (str): What is being sanitized, used in the warning ('name' or 'category').
+    Returns:
+        str: The name with '/' and '\\' replaced by '_'.
+    """
+
+    safe_name = name.replace('/', '_').replace('\\', '_')
+    if safe_name != name and name not in _reported_unsafe_report_names:
+        _reported_unsafe_report_names.add(name)
+        logfunc(f"Warning: artifact {kind} '{name}' contains a path separator. "
+                f"Report files use '{safe_name}' instead; rename it to avoid the mismatch.")
+    return safe_name
+
+
 def artifact_processor(func):
     @wraps(func)
     def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
@@ -505,7 +533,12 @@ def artifact_processor(func):
             else:
                 html_data_list = data_list
             logfunc(f"Found {len(data_list):,} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
-            icons.setdefault(category, {artifact_name: icon}).update({artifact_name: icon})
+            # Path separators would break (or misplace) the report files, so the HTML, TSV
+            # and KML outputs are written under a path safe name. The sidebar keys off the
+            # on-disk names, so the icon lookup has to use the same safe names.
+            safe_artifact_name = sanitize_report_name(artifact_name)
+            safe_category = sanitize_report_name(category, 'category')
+            icons.setdefault(safe_category, {safe_artifact_name: icon}).update({safe_artifact_name: icon})
 
             # Strip tuples from headers for HTML, TSV, and timeline
             stripped_headers = strip_tuple_from_headers(data_headers)
@@ -518,13 +551,13 @@ def artifact_processor(func):
 
             if check_output_types('html', output_types):
                 report = artifact_report.ArtifactHtmlReport(artifact_name)
-                report.start_artifact_report(report_folder, artifact_name, description)
+                report.start_artifact_report(report_folder, safe_artifact_name, description)
                 report.add_script()
                 report.write_artifact_data_table(stripped_headers, html_data_list, source_path, html_no_escape=html_columns)
                 report.end_artifact_report()
 
             if check_output_types('tsv', output_types):
-                tsv(report_folder, stripped_headers, txt_data_list if media_header_info else data_list, artifact_name)
+                tsv(report_folder, stripped_headers, txt_data_list if media_header_info else data_list, safe_artifact_name)
 
             if check_output_types('timeline', output_types):
                 timeline(report_folder, artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
@@ -544,7 +577,7 @@ def artifact_processor(func):
                 lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
 
             if check_output_types('kml', output_types):
-                kmlgen(report_folder, artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
+                kmlgen(report_folder, safe_artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
 
         else:
             if output_types != 'none':
