@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "get_biomeUseractmeta": {
         "name": "Biome - User Activity Metadata",
         "description": "Parses user activity metadata entries from biomes",
-        "author": "@JohnHyla",
+        "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
         "last_update_date": "2026-07-25",
         "requirements": "none",

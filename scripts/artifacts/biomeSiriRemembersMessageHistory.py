@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "identifiers) from the Siri.Remembers.MessageHistory biome stream. The stream "
                        "records message activity for Messages and third party messaging apps but does "
                        "not store message body content.",
-        "author": "@abrignoni",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-07-25",
         "requirements": "none",
