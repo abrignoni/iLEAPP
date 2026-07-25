@@ -118,6 +118,110 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 0 rows",
         },
     },
+    "get_biomeScreenLocked": {
+        "name": "Biome - Screen Locked",
+        "description": "Parses screen lock and unlock events from the Device.ScreenLocked "
+                       "biome stream.",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-25",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Lock polarity validated against the _DKEvent.Device.IsLockedImputed stream "
+                 "on the same device: 146 of 148 overlapping records agree, the exceptions "
+                 "falling on interval boundaries. A small number of records carry a two byte "
+                 "empty payload and are reported with no value.",
+        "paths": ('*/streams/*/Device.ScreenLocked/local/*',),
+        "output_types": "standard",
+        "artifact_icon": "lock",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 932 rows",
+            "iphone11_ios17": "iOS 17.3 | 703 rows",
+        },
+    },
+    "get_biomeKeybagLocked": {
+        "name": "Biome - Keybag Locked",
+        "description": "Parses keybag lock state changes from the Device.KeybagLocked biome "
+                       "stream. The keybag holds the class keys that protect file data, so its "
+                       "state tracks whether the device was unlocked after first unlock.",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-25",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Lock polarity validated against the _DKEvent.Keybag.IsLocked stream on the "
+                 "same device: 124 of 128 overlapping records agree, the exceptions falling on "
+                 "interval boundaries. Modern counterpart of that stream, parsed by "
+                 "Biome - Keybag.",
+        "paths": ('*/streams/*/Device.KeybagLocked/local/*',),
+        "output_types": "standard",
+        "artifact_icon": "lock",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 308 rows",
+            "iphone11_ios17": "iOS 17.3 | 292 rows",
+        },
+    },
+    "get_biomeBatteryLevel": {
+        "name": "Biome - Battery Level",
+        "description": "Parses battery level samples from the Device.Power.BatteryLevel biome "
+                       "stream.",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-25",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "The level is a percentage stored as a double (observed range 1.0 to 100.0). "
+                 "Modern counterpart of the _DKEvent.Device.BatteryPercentage stream parsed by "
+                 "Biome - Battery Percentage.",
+        "paths": ('*/streams/*/Device.Power.BatteryLevel/local/*',),
+        "output_types": "standard",
+        "artifact_icon": "battery",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 583 rows",
+            "iphone11_ios17": "iOS 17.3 | 2945 rows",
+        },
+    },
+    "get_biomeDevicePluggedIn": {
+        "name": "Biome - Power Plugged In",
+        "description": "Parses charger connect and disconnect events from the "
+                       "Device.Power.PluggedIn biome stream.",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-25",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Field 3 is populated only while plugged in and is reported raw as its "
+                 "meaning is not confirmed. Modern counterpart of the "
+                 "_DKEvent.Device.IsPluggedIn stream parsed by Biome - Device Plugged In.",
+        "paths": ('*/streams/*/Device.Power.PluggedIn/local/*',),
+        "output_types": "standard",
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 771 rows",
+            "iphone11_ios17": "iOS 17.3 | 514 rows",
+        },
+    },
+    "get_biomeSilentMode": {
+        "name": "Biome - Silent Mode",
+        "description": "Parses ringer switch and silent mode changes from the "
+                       "Device.SilentMode biome stream, including the reason the state was "
+                       "recorded (a physical ringer switch event, or the session manager "
+                       "reading the switch position at startup).",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-25",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Reasons observed: RingerSwitchEvent and 'MXSessionManager startup HID ringer "
+                 "switch state'. Field 2 is reported raw as its meaning is not confirmed.",
+        "paths": ('*/streams/*/Device.SilentMode/local/*',),
+        "output_types": "standard",
+        "artifact_icon": "bell-off",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 73 rows",
+            "iphone11_ios17": "iOS 17.3 | 35 rows",
+        },
+    },
 }
 
 
@@ -130,15 +234,34 @@ from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 TYPESS = {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}
+BATTERY_TYPESS = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'int', 'name': ''}}
+SILENT_TYPESS = {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''},
+                 '4': {'type': 'str', 'name': ''}}
+PLUGGED_TYPESS = {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''},
+                  '3': {'type': 'int', 'name': ''}}
 
 ON_OFF = {0: 'Off', 1: 'On'}
 ENABLED = {0: 'Disabled', 1: 'Enabled'}
 CONNECTED = {0: 'Not Connected', 1: 'Connected'}
+LOCKED = {0: 'Unlocked', 1: 'Locked'}
+PLUGGED = {0: 'Not Plugged In', 1: 'Plugged In'}
+SILENT = {0: 'Ringer On', 1: 'Silent'}
 INTERFACE_ORIENTATION = {0: 'Unknown', 1: 'Portrait', 2: 'Portrait Upside Down',
                          3: 'Landscape Left', 4: 'Landscape Right'}
 
 
-def _records(context, label):
+def _to_str(value):
+    if isinstance(value, bytes):
+        try:
+            return value.decode('utf-8')
+        except UnicodeDecodeError:
+            return value.decode('latin-1', 'replace')
+    if value is None:
+        return ''
+    return str(value)
+
+
+def _records(context, label, typess=TYPESS):
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -154,7 +277,7 @@ def _records(context, label):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data, TYPESS)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
                 except Exception as ex:
                     logfunc(f'{label}: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
@@ -229,4 +352,67 @@ def get_biomeBatteryTemperature(context):
         celsius = round(raw / 100, 2) if isinstance(raw, int) else ''
         data_list.append((ts, record.state.name, celsius, raw, protostuff.get('2', ''),
                           filename, record.data_start_offset))
+    return data_headers, data_list, 'see Filename for more info'
+
+
+@artifact_processor
+def get_biomeScreenLocked(context):
+    return _parse_state(context, 'Screen Locked', LOCKED)
+
+
+@artifact_processor
+def get_biomeKeybagLocked(context):
+    return _parse_state(context, 'Keybag Locked', LOCKED)
+
+
+@artifact_processor
+def get_biomeBatteryLevel(context):
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Battery Level (%)',
+                    'Field 2 (raw)', 'Filename', 'Offset')
+    data_list = []
+    for ts, record, protostuff, filename in _records(context, 'Battery Level', BATTERY_TYPESS):
+        if protostuff is None:
+            data_list.append((ts, record.state.name, None, None, filename,
+                              record.data_start_offset))
+            continue
+        level = protostuff.get('1', '')
+        if isinstance(level, float):
+            level = round(level, 2)
+        data_list.append((ts, record.state.name, level, protostuff.get('2', ''), filename,
+                          record.data_start_offset))
+    return data_headers, data_list, 'see Filename for more info'
+
+
+@artifact_processor
+def get_biomeDevicePluggedIn(context):
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Power State', 'State (raw)',
+                    'Field 2 (raw)', 'Field 3 (raw)', 'Filename', 'Offset')
+    data_list = []
+    for ts, record, protostuff, filename in _records(context, 'Device Plugged In',
+                                                     PLUGGED_TYPESS):
+        if protostuff is None:
+            data_list.append((ts, record.state.name, None, None, None, None, filename,
+                              record.data_start_offset))
+            continue
+        raw = protostuff.get('1', '')
+        data_list.append((ts, record.state.name, PLUGGED.get(raw, ''), raw,
+                          protostuff.get('2', ''), protostuff.get('3', ''), filename,
+                          record.data_start_offset))
+    return data_headers, data_list, 'see Filename for more info'
+
+
+@artifact_processor
+def get_biomeSilentMode(context):
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Ringer State', 'State (raw)',
+                    'Reason', 'Field 2 (raw)', 'Filename', 'Offset')
+    data_list = []
+    for ts, record, protostuff, filename in _records(context, 'Silent Mode', SILENT_TYPESS):
+        if protostuff is None:
+            data_list.append((ts, record.state.name, None, None, None, None, filename,
+                              record.data_start_offset))
+            continue
+        raw = protostuff.get('1', '')
+        data_list.append((ts, record.state.name, SILENT.get(raw, ''), raw,
+                          _to_str(protostuff.get('4', b'')), protostuff.get('2', ''), filename,
+                          record.data_start_offset))
     return data_headers, data_list, 'see Filename for more info'
