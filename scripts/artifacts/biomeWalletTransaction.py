@@ -9,14 +9,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-25",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field mapped from sample data provided by Mattia Epifani (iOS 26 era; the "
-                 "stream is absent from iOS 17/18 test images). The stream folder name on disk "
-                 "is singular: Wallet.Transaction.",
+        "notes": "Field mapped from a private sample of this stream; the stream is absent from "
+                 "the iOS 17 and iOS 18 test images. The stream folder name on disk is "
+                 "singular: Wallet.Transaction.",
         "paths": ('*/streams/*/Wallet.Transaction/local/*',),
         "output_types": "standard",
         "artifact_icon": "credit-card",
         "sample_data": {
-            "epifani_ios26": "iOS 26 era, version unconfirmed | 768 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 0 rows",
         },
