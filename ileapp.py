@@ -342,7 +342,7 @@ def main():
     out_params = OutputParameters(output_path, custom_output_folder)
     Context.set_output_params(out_params)
 
-    initialize_lava(input_path, out_params.output_folder_base, extracttype)
+    initialize_lava(input_path, out_params.output_folder_base, extracttype, profile_filename)
 
     # Record history if enabled
     history.record_input_path(input_path)
@@ -521,6 +521,7 @@ def crunch_artifacts(
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating {} report directory at path {}'.format(plugin.name, category_folder))
                     logfunc('Error was {}'.format(str(ex)))
+                    lava_add_module(plugin.module_name, "Error", len(files_found), plugin.name)
                     continue  # cannot do work
             try:
                 plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
@@ -540,9 +541,12 @@ def crunch_artifacts(
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
                 logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
+                lava_add_module(plugin.module_name, "Error", len(files_found), plugin.name)
                 continue  # nope
+            lava_add_module(plugin.module_name, "Complete", len(files_found), plugin.name)
         else:
             logfunc(f"No file found")
+            lava_add_module(plugin.module_name, "No files found", 0, plugin.name)
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
         parsed_modules += 1
         GuiWindow.SetProgressBar(parsed_modules, len(plugins))
