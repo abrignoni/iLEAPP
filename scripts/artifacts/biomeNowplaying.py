@@ -4,11 +4,14 @@ __artifacts_v2__ = {
         "description": "Parses Now Playing entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-25",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/public/NowPlaying/local/*'),
+        "paths": (
+            '*/Biome/streams/public/NowPlaying/local/*',
+            '*/streams/*/Media.NowPlaying/local/*',
+        ),
         "output_types": "standard",
         "artifact_icon": "music",
         "sample_data": {
