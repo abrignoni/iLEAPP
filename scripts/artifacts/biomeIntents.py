@@ -1,14 +1,17 @@
 __artifacts_v2__ = {
     "get_biomeIntents": {
         "name": "Biome - Intents",
-        "description": "Parses battery percentage entries from biomes",
+        "description": "Parses app intent entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-25",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/AppIntent/local/*'),
+        "paths": (
+            '*/AppIntent/local/*',
+            '*/streams/*/App.Intent/local/*',
+        ),
         "html_columns": ["Data"],
         "output_types": "standard",
         "artifact_icon": "bolt",
