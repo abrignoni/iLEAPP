@@ -201,6 +201,22 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 514 rows",
         },
     },
+    "get_biomeEnergyMode": {
+        "name": "Biome - Energy Mode",
+        "description": "Parses energy mode changes from the Device.Power.EnergyMode biome "
+                       "stream.",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-25",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "Both fields are reported raw: the sample data does not confirm which energy "
+                 "mode each value denotes. Field 1 was observed as 1 or 2 and field 2 as 1, 3 "
+                 "or 7.",
+        "paths": ('*/streams/*/Device.Power.EnergyMode/local/*',),
+        "output_types": "standard",
+        "artifact_icon": "zap",
+    },
     "get_biomeSilentMode": {
         "name": "Biome - Silent Mode",
         "description": "Parses ringer switch and silent mode changes from the "
@@ -421,4 +437,19 @@ def get_biomeSilentMode(context):
         data_list.append((ts, record.state.name, SILENT.get(raw, ''), raw,
                           _to_str(protostuff.get('4', b'')), protostuff.get('2', ''), filename,
                           record.data_start_offset))
+    return data_headers, data_list, 'see Filename for more info'
+
+
+@artifact_processor
+def get_biomeEnergyMode(context):
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Field 1 (raw)',
+                    'Field 2 (raw)', 'Filename', 'Offset')
+    data_list = []
+    for ts, record, protostuff, filename in _records(context, 'Energy Mode'):
+        if protostuff is None:
+            data_list.append((ts, record.state.name, None, None, filename,
+                              record.data_start_offset))
+            continue
+        data_list.append((ts, record.state.name, protostuff.get('1', ''),
+                          protostuff.get('2', ''), filename, record.data_start_offset))
     return data_headers, data_list, 'see Filename for more info'
