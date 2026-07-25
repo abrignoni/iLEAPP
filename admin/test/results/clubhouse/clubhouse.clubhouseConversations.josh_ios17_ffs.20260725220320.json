@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "module_name": "clubhouse",
+    "artifact_name": "Clubhouse - Conversations",
+    "function_name": "clubhouseConversations",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 3,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 144,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/clubhouse/testdata.clubhouse.clubhouseConversations.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:20.237622+00:00",
+    "end_time": "2026-07-25T22:03:20.310470+00:00",
+    "run_time_seconds": 0.0003159046173095703,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:20.307599",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Participant Name",
+    "Conversation ID",
+    "Image URL"
+  ],
+  "data": [
+    [
+      "ThisIs",
+      "c389031d-a565-4807-9c83-57089e54b0ce",
+      "https://d14u0p1qkech25.cloudfront.net/660948054_9d2091a8-9fae-46a4-8e93-de510812d513_thumbnail_250x250"
+    ]
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "module_name": "mastodon",
+    "artifact_name": "Mastodon - Account Information",
+    "function_name": "mastodonAccount",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 13,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 263,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/mastodon/testdata.mastodon.mastodonAccount.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:19.896007+00:00",
+    "end_time": "2026-07-25T22:03:19.978149+00:00",
+    "run_time_seconds": 0.0027208328247070312,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:19.970478",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Display Name",
+    "Handle",
+    "Username",
+    "User ID",
+    "Instance Domain",
+    "Instance Version",
+    "Bio",
+    "Followers Count",
+    "Following Count",
+    "Statuses Count",
+    "Profile URL",
+    "Avatar URL",
+    "Identified From"
+  ],
+  "data": [
+    [
+      "thisisdfir",
+      "thisisdfir",
+      "thisisdfir",
+      "109449926490356798",
+      "infosec.exchange",
+      "4.3.0-alpha.3+glitch",
+      "",
+      4,
+      3,
+      0,
+      "https://infosec.exchange/@thisisdfir",
+      "https://media.infosec.exchange/infosec.exchange/accounts/avatars/109/449/926/490/356/798/original/c53edc8a8ce9caaa.png",
+      "ZNOTIFICATION owner ID"
+    ]
+  ]
+}
