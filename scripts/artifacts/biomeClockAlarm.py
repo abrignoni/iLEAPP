@@ -1,22 +1,23 @@
 __artifacts_v2__ = {
-    "get_biomeDeviceMetadata": {
-        "name": "Biome - Device Metadata",
-        "description": "Parses OS build records from the Device.Metadata biome stream. Each record "
-                       "captures the OS build at the time it was written, producing an iOS "
-                       "version/update history that can span years.",
+    "get_biomeClockAlarm": {
+        "name": "Biome - Clock Alarm",
+        "description": "Parses alarm state changes from the Clock.Alarm biome stream, including "
+                       "the alarm identifier, which can be correlated with the Clock app alarm "
+                       "list and with the _DKEvent.Clock.Alarm stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-07-25",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Observed builds spanning iOS 16 through 18 in test extractions (e.g. 20B110, "
-                 "21D50, 22H31).",
-        "paths": ('*/streams/*/Device.Metadata/local/*',),
+        "notes": "Raw state values observed: 0, 1, 2 and 4. Apple describes this stream as "
+                 "capturing alarm states such as firing and snoozed; exact value semantics are "
+                 "not confirmed, so the raw value is reported.",
+        "paths": ('*/streams/*/Clock.Alarm/local/*',),
         "output_types": "standard",
-        "artifact_icon": "smartphone",
+        "artifact_icon": "clock",
         "sample_data": {
-            "hc_ios18_7": "iOS 18.7.8 | 3 rows",
-            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 27 rows",
+            "iphone11_ios17": "iOS 17.3 | 12 rows",
         },
     }
 }
@@ -30,11 +31,11 @@ from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, logfunc
 
-# Pin flat fields so build strings are never eagerly decoded as nested protobuf.
 TYPESS = {
-    '2': {'type': 'str', 'name': ''},
-    '3': {'type': 'int', 'name': ''},
-    '4': {'type': 'str', 'name': ''},
+    '1': {'type': 'int', 'name': ''},
+    '2': {'type': 'int', 'name': ''},
+    '3': {'type': 'str', 'name': ''},
+    '4': {'type': 'int', 'name': ''},
 }
 
 
@@ -50,7 +51,7 @@ def _to_str(value):
 
 
 @artifact_processor
-def get_biomeDeviceMetadata(context):
+def get_biomeClockAlarm(context):
 
     data_list = []
     for file_found in sorted(context.get_files_found()):
@@ -65,29 +66,25 @@ def get_biomeDeviceMetadata(context):
             continue
 
         for record in read_segb_file(file_found):
-            ts = record.timestamp1
-            ts = ts.replace(tzinfo=timezone.utc)
+            ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
                 try:
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, TYPESS)
                 except Exception as ex:
-                    logfunc(f'Device Metadata: could not decode record at offset '
+                    logfunc(f'Clock Alarm: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
 
-                os_build = _to_str(protostuff.get('2', b''))
-                os_build_alt = _to_str(protostuff.get('4', b''))
-                record_type = protostuff.get('3', '')
-
-                data_list.append((ts, record.state.name, os_build, os_build_alt, record_type,
-                                  filename, record.data_start_offset))
+                data_list.append((ts, record.state.name, _to_str(protostuff.get('3', b'')),
+                                  protostuff.get('2', ''), protostuff.get('1', ''),
+                                  protostuff.get('4', ''), filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, None, filename,
+                data_list.append((ts, record.state.name, None, None, None, None, filename,
                                   record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'OS Build',
-                    'OS Build (Field 4)', 'Type (raw)', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Alarm ID', 'State (raw)',
+                    'Field 1 (raw)', 'Field 4 (raw)', 'Filename', 'Offset')
 
     return data_headers, data_list, 'see Filename for more info'

@@ -11,7 +11,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/streams/*/Device.TimeZone/local/*',),
         "output_types": "standard",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | 30 rows",
+            "iphone11_ios17": "iOS 17.3 | 27 rows",
+        },
     }
 }
 
