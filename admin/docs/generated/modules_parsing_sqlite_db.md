@@ -58,6 +58,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | accountData |
 | addressBook |
 | allTrails |
+| appStoreSearches |
 | appleMapsTrips |
 | appleWalletCards |
 | appleWalletTransactions |
@@ -81,6 +82,8 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | geodPDPlaceCache |
 | googleDuo |
 | googleTranslate |
+| googleVoice |
+| groupMe |
 | health |
 | hikvision |
 | iOSCacheLocations |
@@ -92,6 +95,8 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | line |
 | logarchive |
 | mailprotect |
+| mastodon |
+| meWe |
 | mediaLibrary |
 | netusage |
 | notes |
@@ -130,7 +135,9 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | tileAppDisc |
 | tileAppNetDb |
 | trustedPeers |
+| truthSocial |
 | twint |
+| twitterX |
 | uberClient |
 | uberPlaces |
 | viber |
