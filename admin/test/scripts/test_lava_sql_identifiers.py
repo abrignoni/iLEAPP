@@ -135,7 +135,9 @@ class TestLavaReservedWordIdentifiers(unittest.TestCase):
     def test_process_artifact_end_to_end(self):
         """The path artifact_processor actually takes, headers and all."""
         Context.set_artifact_info({'name': 'Reserved Words', 'description': 'test artifact'})
-        Context.set_module_file_path(str(REPO_ROOT / 'scripts' / 'artifacts' / 'mailprotect.py'))
+        # Only the basename is read, so this path never has to exist. Keeping it synthetic
+        # lets the same test file be shared across the LEAPP tools unchanged.
+        Context.set_module_file_path(str(REPO_ROOT / 'scripts' / 'artifacts' / 'reserved_words.py'))
 
         table_name, object_columns, column_map = lavafuncs.lava_process_artifact(
             'Testing', 'reserved_words_module', 'Reserved Words', RESERVED_HEADERS,
