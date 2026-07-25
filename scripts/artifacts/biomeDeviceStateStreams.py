@@ -226,12 +226,17 @@ __artifacts_v2__ = {
 
 
 import os
+import struct
 from datetime import timezone
 
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, logfunc
+
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
+                  IndexError)
 
 TYPESS = {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}
 BATTERY_TYPESS = {'1': {'type': 'double', 'name': ''}, '2': {'type': 'int', 'name': ''}}
@@ -261,7 +266,8 @@ def _to_str(value):
     return str(value)
 
 
-def _records(context, label, typess=TYPESS):
+def _records(context, label, typess=None):
+    typess = TYPESS if typess is None else typess
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -278,7 +284,7 @@ def _records(context, label, typess=TYPESS):
             if record.state == EntryState.Written:
                 try:
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
-                except Exception as ex:
+                except _DECODE_ERRORS as ex:
                     logfunc(f'{label}: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
                     continue
