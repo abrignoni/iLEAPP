@@ -155,6 +155,6 @@ See [CLI Arguments](#cli-arguments) above, or run `python ileapp.py --help`.
 
 ## Acknowledgements
 
-This tool is the result of a collaborative effort of many people in the DFIR community.
+This traiging tool is the result of a collaborative effort of many people in the DFIR community.
 
 iLEAPP logo courtesy of Derek Eiri.
