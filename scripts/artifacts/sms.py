@@ -127,7 +127,9 @@ def sms(context):
     message.rowid as "Message Row ID",
     chat_message_join.chat_id as "Chat ID",
     message.is_from_me as "From Me",
-    message.attributedBody
+    message.attributedBody,
+    message.date_delivered,
+    message.guid as "Message GUID"
     from message
     left join message_attachment_join on message.ROWID = message_attachment_join.message_id
     left join attachment on message_attachment_join.attachment_id = attachment.ROWID
@@ -136,10 +138,12 @@ def sms(context):
     '''
 
     data_headers = (('Message Timestamp', 'datetime'), ('Read Timestamp', 'datetime'), 'Message',
-                    'Service', 'Message Direction', 'Message Sent', 'Message Delivered', 'Message Read',
+                    'Service', 'Message Direction', 'Message Sent', 'Message Delivered',
+                    ('Delivered Timestamp', 'datetime'), 'Message Read',
                     'Account', 'Account Login', 'Chat Contact ID',
                     'Attachment Name', ('Attachment File', 'media'), ('Attachment Timestamp', 'datetime'),
-                    'Attachment Mimetype', 'Attachment Size (Bytes)', 'Message Row ID', 'Chat ID', 'From Me')
+                    'Attachment Mimetype', 'Attachment Size (Bytes)', 'Message Row ID', 'Message GUID',
+                    'Chat ID', 'From Me')
 
 
     # NOTE: moved the definition outside to avoid creating a new function object
@@ -157,6 +161,7 @@ def sms(context):
         message_timestamp = fix_cocoa_date(record[0])
         read_timestamp = fix_cocoa_date(record[1])
         attachment_timestamp = fix_cocoa_date(record[13])
+        delivered_timestamp = fix_cocoa_date(record[20])
         
         # Use message.text if available, otherwise try to parse from attributedBody
         message_text = record[2]
@@ -176,8 +181,9 @@ def sms(context):
                 media_ref_id = check_in_media(clean_path, record[11])
 
         data_list.append((message_timestamp, read_timestamp, message_text, record[3], record[4], record[5],
-                          record[6], record[7], record[8], record[9], record[10], record[11], media_ref_id,
-                          attachment_timestamp, record[14], record[15], record[16], record[17], record[18]))
+                          record[6], delivered_timestamp, record[7], record[8], record[9], record[10],
+                          record[11], media_ref_id, attachment_timestamp, record[14], record[15], record[16],
+                          record[21], record[17], record[18]))
 
     def copy_attachments(rec):
         media_ref_id = rec["Attachment File"]
@@ -192,9 +198,10 @@ def sms(context):
     if data_list:
         sms_df = pd.DataFrame(data_list,
                               columns=['data-time', 'Read Timestamp', 'message', 'Service', 'Message Direction',
-                                       'Message Sent', 'Message Delivered', 'Message Read', 'Account', 'Account Login',
-                                       'data-name', 'Attachment Name', 'Attachment File', 'Attachment Timestamp',
-                                       'content-type', 'Attachment Size (Bytes)', 'message-id', 'Chat ID', 'from_me'])
+                                       'Message Sent', 'Message Delivered', 'Delivered Timestamp', 'Message Read',
+                                       'Account', 'Account Login', 'data-name', 'Attachment Name', 'Attachment File',
+                                       'Attachment Timestamp', 'content-type', 'Attachment Size (Bytes)', 'message-id',
+                                       'Message GUID', 'Chat ID', 'from_me'])
 
         sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
 
