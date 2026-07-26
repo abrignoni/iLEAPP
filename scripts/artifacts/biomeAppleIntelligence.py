@@ -71,6 +71,29 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "cpu",
     },
+    "get_biomeAISafetyOverrides": {
+        "name": "Biome - Apple Intelligence Safety Overrides",
+        "description": "Parses Apple Intelligence safety override reporting from the "
+                       "AppleIntelligence.Reporting.SafetyOverrides biome stream. Records mark "
+                       "the times safety override reporting occurred, which is worth noting "
+                       "even where the payload itself no longer survives.",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2026-07-26",
+        "last_update_date": "2026-07-26",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "The sample for this stream held only deleted records, so the written record "
+                 "layout is not confirmed. It is read with the shared AssetDeliveryLog parser "
+                 "because the partially recoverable deleted payloads carry the same field 1 "
+                 "event and field 3 context structure as the rest of that family; if a future "
+                 "sample shows a different layout the detail columns will be empty while the "
+                 "timestamps stay correct. Deleted payloads in the sample were largely "
+                 "overwritten and did not decode, but their SEGB timestamps are intact and "
+                 "still evidence that reporting occurred at those times.",
+        "paths": ('*/streams/*/AppleIntelligence.Reporting.SafetyOverrides/local/*',),
+        "output_types": "standard",
+        "artifact_icon": "shield",
+    },
     "get_biomeAIUnifiedAsset": {
         "name": "Biome - Apple Intelligence Unified Asset",
         "description": "Parses Apple Intelligence unified asset framework reporting from the "
@@ -223,3 +246,8 @@ def get_biomeAISoftwareUpdate(context):
 @artifact_processor
 def get_biomeAIUnifiedAsset(context):
     return _delivery_log(context, 'Apple Intelligence Unified Asset')
+
+
+@artifact_processor
+def get_biomeAISafetyOverrides(context):
+    return _delivery_log(context, 'Apple Intelligence Safety Overrides')
