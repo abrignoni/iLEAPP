@@ -73,6 +73,9 @@ def validate_args(args):
     if args.load_profile and not os.path.exists(args.load_profile):
         raise argparse.ArgumentError(None, 'iLEAPP Profile file not found! Run the program again.')
 
+    if args.keychain and not os.path.isfile(args.keychain):
+        raise argparse.ArgumentError(None, 'Keychain file not found! Run the program again.')
+
     try:
         pytz.timezone(args.timezone)
     except pytz.UnknownTimeZoneError as ex:
@@ -195,6 +198,10 @@ def main():
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
     parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
     parser.add_argument('--itunes_password', required=False, action="store", help="Password used for encrypted iTunes backup")
+    parser.add_argument('--keychain', required=False, action="store",
+                        help=("Path to a keychain file captured from the device. Some apps keep "
+                              "their database key in the keychain, which is collected separately "
+                              "from the file system extraction."))
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
@@ -333,6 +340,7 @@ def main():
     time_offset = args.timezone
     custom_output_folder = args.custom_output_folder
     itunes_backup_password = args.itunes_password
+    Context.set_keychain_path(args.keychain)
 
     # ios file system extractions contain paths > 260 char, which causes problems
     # This fixes the problem by prefixing \\?\ on each windows path.
