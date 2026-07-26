@@ -100,6 +100,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | mediaLibrary |
 | netusage |
 | notes |
+| notesPasswordProtected |
 | nsVault |
 | ooklaSpeedtestData |
 | parsecdCache |
