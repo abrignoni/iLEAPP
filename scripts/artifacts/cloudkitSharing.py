@@ -65,7 +65,8 @@ __artifacts_v2__ = {
 import os
 import io
 import nska_deserialize as nd
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
+from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db,
+                               open_sqlite_db_readonly)
 
 
 def deep_get(data, path, default=''):
@@ -108,6 +109,8 @@ def cloudkit_sharing(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
+            continue
+        if not does_table_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT'):
             continue
 
         # Dictionary to merge share and record data by Z_PK
@@ -211,6 +214,8 @@ def cloudkit_participants(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
+            continue
+        if not does_table_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT'):
             continue
 
         db = open_sqlite_db_readonly(file_found)
