@@ -112,7 +112,9 @@ def initialize_lava(input_path, output_path, input_type):
         selected_artifacts: List of selected artifacts.
     '''
 
-    global lava_data, lava_db
+    # lava_data and lava_db are module level singletons for the run; this is the one
+    # function that creates them, so the global statement is deliberate.
+    global lava_data, lava_db  # pylint: disable=global-statement
 
     lava_data = {
         "parser_info": {
@@ -211,7 +213,6 @@ def lava_process_artifact(
         artifact_icon: The icon of the artifact.
         source_path: The source path of the artifact.
     '''
-    global lava_data
 
     if category not in lava_data["artifacts"]:
         lava_data["artifacts"][category] = []
@@ -319,7 +320,6 @@ def lava_add_module(module_name, module_status, file_count=None):
         lava_data (dict): A global dictionary that contains a list of modules under the key 'modules'.
     """
 
-    global lava_data
 
     module = {
         "module_name": module_name,
@@ -346,7 +346,6 @@ def lava_create_sqlite_table(table_name, data):
     Raises:
         Exception: If there is an error during the table creation process.
     """
-    global lava_db
 
     if not data:
         return None, None, None
@@ -379,7 +378,10 @@ def lava_create_sqlite_table(table_name, data):
     return sanitized_table_name, column_map, object_columns
 
 
-def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_map):
+# column_map is unused here but is part of the established call signature: every caller
+# receives it from lava_create_sqlite_table and passes it straight through, so dropping
+# the parameter would mean touching every artifact that writes to LAVA.
+def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_map):  # pylint: disable=unused-argument
     """
     Insert data into a SQLite database table with automatic column sanitization and type conversion.
     This function handles the insertion of multiple rows of data into a specified SQLite table,
@@ -397,7 +399,6 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
         None
     """
 
-    global lava_db
 
     if not data:
         return
@@ -457,7 +458,6 @@ def lava_get_media_item(media_id):
         sqlite3.Row or None: A row object containing all columns from the _lava_media_items table
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     query = "SELECT * FROM _lava_media_items WHERE id = ?"
     return cursor.execute(query, (media_id,)).fetchone()
@@ -480,7 +480,6 @@ def lava_insert_sqlite_media_item(media_item):
         None
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _lava_media_items
                 ("id", "source_path", "extraction_path", "type", "metadata", "created_at", "updated_at", "is_embedded")
@@ -513,7 +512,6 @@ def lava_get_media_references(media_ref):
         tuple or None: A tuple containing the row data if found, None otherwise.
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     query = "SELECT * FROM _lava_media_references WHERE id = ?"
     return cursor.execute(query, (media_ref,)).fetchone()
@@ -534,7 +532,6 @@ def lava_insert_sqlite_media_references(media_references):
         None
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _lava_media_references
                 ("id", "media_item_id", "module_name", "artifact_name", "name")
@@ -564,7 +561,6 @@ def lava_get_full_media_info(media_ref_id):
                             None if no matching media_ref_id exists in the database.
     """
 
-    global lava_db
     lava_db.row_factory = sqlite3.Row
     cursor = lava_db.cursor()
     query = '''
@@ -585,7 +581,6 @@ def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, a
         regex (str): The regular expression for the artifact search pattern.
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _artifact_search_patterns
                 ("id", "module_name", "artifact_name", "regex")
@@ -608,7 +603,6 @@ def lava_insert_sqlite_file_path(file_id, file_path):
         file_path (str): Relative file path to store.
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _file_path_list
                 ("id", "file_path")
@@ -631,7 +625,6 @@ def lava_insert_sqlite_artifact_link_pattern_to_file(artifact_regex_id, file_id)
         file_id (int): ID of the related file path entry.
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _artifact_pattern_to_file
                 ("artifact_search_pattern_id", "file_path_id")
@@ -665,7 +658,6 @@ def lava_finalize_output(output_path):
         lava_json_name (str): The filename for the LAVA JSON output file
     """
 
-    global lava_data, lava_db
 
     lava_data["processing_status"] = "Complete"
 

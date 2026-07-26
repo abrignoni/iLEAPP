@@ -16,12 +16,12 @@ import leapp_functions.app.history as history
 
 from shutil import copy2
 from getpass import getpass
-from scripts.search_files import *
-from scripts.ilapfuncs import *
+from scripts.search_files import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from scripts.ilapfuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from leapp_functions.app.output import validate_output_folder_available
 from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
 from time import process_time, gmtime, strftime, perf_counter
-from scripts.lavafuncs import *
+from scripts.lavafuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from scripts.context import Context
 from scripts.lavafuncs import lava_json_name
 
@@ -74,9 +74,10 @@ def validate_args(args):
         raise argparse.ArgumentError(None, 'iLEAPP Profile file not found! Run the program again.')
 
     try:
-        timezone = pytz.timezone(args.timezone)
-    except pytz.UnknownTimeZoneError:
-      raise argparse.ArgumentError(None, 'Unknown timezone! Run the program again.')
+        pytz.timezone(args.timezone)
+    except pytz.UnknownTimeZoneError as ex:
+        raise argparse.ArgumentError(
+            None, 'Unknown timezone! Run the program again.') from ex
 
 
 def create_profile(plugins, path):
@@ -239,7 +240,7 @@ def main():
                 path_list.add(plugin.search)
             else:
                 continue
-        with open('path_list.txt', 'w') as paths:
+        with open('path_list.txt', 'w', encoding='utf-8') as paths:
             for path in sorted(path_list):
                 paths.write(f'{path}\n')
                 print(path)
@@ -281,7 +282,7 @@ def main():
         with open(case_data_filename, "rt", encoding="utf-8") as case_data_file:
             try:
                 case_data = json.load(case_data_file)
-            except:
+            except (ValueError, TypeError):
                 case_data_load_error = "File was not a valid case data file: invalid format"
                 print(case_data_load_error)
                 return
@@ -306,7 +307,7 @@ def main():
         with open(profile_filename, "rt", encoding="utf-8") as profile_file:
             try:
                 profile = json.load(profile_file)
-            except:
+            except (ValueError, TypeError):
                 profile_load_error = "File was not a valid case data file: invalid format"
                 print(profile_load_error)
                 return
@@ -407,7 +408,7 @@ def crunch_artifacts(
         else:
             logfunc('Error on argument -o (input type)')
             return False
-    except Exception as ex:
+    except Exception:  # pylint: disable=broad-exception-caught
         logfunc('Had an exception in Seeker - see details below. Terminating Program!')
         temp_file = io.StringIO()
         traceback.print_exc(file=temp_file)
@@ -454,7 +455,7 @@ def crunch_artifacts(
                     logfunc('Error was {}'.format(str(ex)))
             loader["itunes_backup_installed_applications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
             #del search_list['last_build'] # removing last_build as this takes its place
-            print([info_plist_path])  # TODO Remove special consideration for itunes? Merge into main search
+            print([info_plist_path])  # Future: remove special consideration for itunes? Merge into main search
         else:
             logfunc('Info.plist not found for iTunes Backup!')
             log.write('Info.plist not found for iTunes Backup!')
@@ -509,7 +510,7 @@ def crunch_artifacts(
                                 lava_insert_sqlite_file_path(file_path_id, seeker.file_infos.get(pathh).source_path)
                                 file_path_ids.add(file_path_id)
                             lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, file_path_id)
-                    log.write(f'</li></ul>')
+                    log.write('</li></ul>')
                     files_found.extend(found)
         if files_found:
             if not lava_only and 'lava_only' in output_types:
@@ -537,13 +538,13 @@ def crunch_artifacts(
                                                  and plugin.name != 'logarchive_artifacts']
                         for unifed_log_artifact in unifed_logs_artifacts:
                             loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
-            except Exception as ex:
+            except Exception as ex:  # pylint: disable=broad-exception-caught
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
                 logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
                 continue  # nope
         else:
-            logfunc(f"No file found")
+            logfunc("No file found")
         logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
         parsed_modules += 1
         GuiWindow.SetProgressBar(parsed_modules, len(plugins))

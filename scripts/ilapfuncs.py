@@ -1,5 +1,5 @@
 # common standard imports
-import codecs
+import codecs  # pylint: disable=unused-import  # re-exported
 import csv
 import hashlib
 import inspect
@@ -8,7 +8,7 @@ import math
 import nska_deserialize
 import os
 import plistlib
-import re
+import re  # pylint: disable=unused-import  # re-exported for modules importing it from here
 import shutil
 import sqlite3
 import sys
@@ -20,10 +20,15 @@ from pathlib import Path
 from urllib.parse import quote
 import scripts.artifact_report as artifact_report
 from scripts.context import Context
-from scripts.version_info import leapp_name
+from scripts.version_info import leapp_name  # pylint: disable=unused-import  # re-exported
 
 # new location for modules imported for backward compatibility
 # existing functions that are moved should leave a commented out def line
+# These names are re-exported on purpose: modules that still do
+# `from scripts.ilapfuncs import ...` (or pick them up through the wildcard import in
+# ileapp.py / ileappGUI.py) must keep resolving them here, so pylint's unused-import
+# check does not apply to this block.
+# pylint: disable=unused-import
 from leapp_functions.app.platform import (
     ILLEGAL_FILENAME_CHARS,
     format_illegal_filename_chars,
@@ -37,6 +42,7 @@ from leapp_functions.app.output import (
     resolve_output_folder_name,
     validate_output_folder_available,
 )
+# pylint: enable=unused-import
 
 _console_write = sys.stdout.write
 
@@ -833,7 +839,7 @@ def tsv(report_folder, data_headers, data_list, tsvname, source_file=None):  # p
     else:
         os.makedirs(tsv_report_folder)
     
-    with codecs.open(os.path.join(tsv_report_folder, tsvname + '.tsv'), 'a', 'utf-8-sig') as tsvfile:
+    with open(os.path.join(tsv_report_folder, tsvname + '.tsv'), 'a', encoding='utf-8-sig') as tsvfile:
         tsv_writer = csv.writer(tsvfile, delimiter='\t')
         tsv_writer.writerow(data_headers)
         
