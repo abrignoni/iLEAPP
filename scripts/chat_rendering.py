@@ -171,6 +171,9 @@ def render_js_chat(chat_json):
 
 def integrateAtt(rec):
     """Render a message body together with its attachment markup."""
+    if not isinstance(rec["file-path"], str) or not rec["file-path"]:
+        return rec["message"] if isinstance(rec["message"], str) else ''
+
     if rec["file-path"]:
         # When every row's mime type is NULL, pandas types the column as float64
         # and hands back NaN here. NaN is truthy, so it has to be filtered by
