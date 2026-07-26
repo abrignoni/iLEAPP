@@ -907,7 +907,7 @@ input_folder_button.pack(side='left', padx=5, pady=4)
 # that keep their database key in the keychain need it supplied here
 keychain_frame = ttk.LabelFrame(
     main_window,
-    text=' Optional: select a keychain file captured from the device (used to decrypt apps such as Signal): ')
+    text=' Optional: keychain file captured from the device, used to decrypt apps such as Signal. Leave blank to use one the extraction carries: ')
 keychain_frame.pack(padx=14, pady=2, fill='x')
 keychain_entry = ttk.Entry(keychain_frame)
 keychain_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
