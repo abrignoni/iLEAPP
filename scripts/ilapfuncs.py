@@ -1,8 +1,10 @@
 # common standard imports
 import codecs  # pylint: disable=unused-import  # re-exported
+import contextlib
 import csv
 import hashlib
 import inspect
+import io
 import json
 import math
 import nska_deserialize
@@ -659,11 +661,25 @@ def get_txt_file_content(file_path):
         logfunc(f"Unexpected error reading file {file_path}: {str(e)}")
     return []
 
+def _deserialize_nska(data):
+    """Deserialize an NSKeyedArchiver payload without the dependency's console noise.
+
+    ccl_bplist.convert_NSMutableDictionary prints the exception whenever an
+    archived dictionary uses an unhashable key, despite its own comment saying it
+    ignores the condition. One artifact reading a few thousand such records emits
+    tens of thousands of lines, which buries the real log and, on a Windows
+    console, is slow enough to look like a hang. The condition is not actionable
+    from here, so the chatter is dropped while real errors still raise.
+    """
+    with contextlib.redirect_stdout(io.StringIO()):
+        return nska_deserialize.deserialize_plist_from_string(data)
+
+
 def get_plist_content(data):
     try:
         plist_content = plistlib.loads(data)
         if isinstance(plist_content, dict) and plist_content.get('$archiver', '') == 'NSKeyedArchiver':
-            return nska_deserialize.deserialize_plist_from_string(data)
+            return _deserialize_nska(data)
         return plist_content
     except plistlib.InvalidFileException:
         logfunc("Error: Invalid plist data")
