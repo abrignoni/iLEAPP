@@ -76,10 +76,18 @@ def _der_fields(plaintext):
 
 def _decrypt_wrapped_entries(parsed, keychain_path):
     """Convert UFED's encrypted keychain entries into decrypted genp-style dicts."""
-    class_keys = parsed.get(METADATA_CLASS_KEYS_KEY) or {}
+    class_keys = parsed.get(METADATA_CLASS_KEYS_KEY)
+    if not isinstance(class_keys, dict):
+        class_keys = {}
+    wrapped = parsed.get(ENCRYPTED_ENTRIES_KEY)
+    if not isinstance(wrapped, list):
+        logfunc(f'Keychain: {keychain_path} is not a supported keychain dump '
+                '(its encrypted entries are not a list)')
+        return []
+
     entries = []
     failures = 0
-    for entry in parsed.get(ENCRYPTED_ENTRIES_KEY) or []:
+    for entry in wrapped:
         # Entries stored in the clear carry rawData instead of an encrypted pair
         if not isinstance(entry, dict) or 'rawData' in entry:
             continue
@@ -123,7 +131,12 @@ def load_keychain_entries(keychain_path):
     try:
         with open(keychain_path, 'rb') as keychain_file:
             parsed = plistlib.load(keychain_file)
-    except (OSError, ValueError) as error:
+    except Exception as error:  # pylint: disable=broad-except
+        # The file is whatever the examiner pointed at, and plistlib does not funnel
+        # every way it can fail into one exception type: a truncated binary plist
+        # raises InvalidFileException, a malformed XML one raises ExpatError from
+        # expat, and a deeply nested one raises RecursionError. Anything unreadable
+        # means the same thing here, so report it rather than letting it escape.
         logfunc(f'Keychain: could not read {keychain_path}: {error}')
         return _cache[keychain_path]
 
@@ -132,8 +145,13 @@ def load_keychain_entries(keychain_path):
         return _cache[keychain_path]
 
     if GENERIC_PASSWORD_KEY in parsed:
-        entries = parsed.get(GENERIC_PASSWORD_KEY) or []
+        entries = parsed.get(GENERIC_PASSWORD_KEY)
+        if not isinstance(entries, list):
+            logfunc(f'Keychain: {keychain_path} is not a supported keychain dump '
+                    '(its generic password entries are not a list)')
+            return _cache[keychain_path]
         _cache[keychain_path] = [entry for entry in entries if isinstance(entry, dict)]
+        logfunc(f'Keychain: read {len(_cache[keychain_path])} entries from {keychain_path}')
     elif ENCRYPTED_ENTRIES_KEY in parsed:
         _cache[keychain_path] = _decrypt_wrapped_entries(parsed, keychain_path)
     else:
@@ -200,6 +218,22 @@ def _discover_keychain():
 def active_keychain_path():
     """The keychain to read: the supplied one, else one found in the extraction."""
     return Context.get_keychain_path() or _discover_keychain()
+
+
+def report_supplied_keychain():
+    """Record the examiner-supplied keychain in the log at the start of a run.
+
+    Reading it here rather than waiting for an artifact to ask for a secret gives
+    the report a note of which keychain was used, and tells the examiner straight
+    away when the file they picked is not a keychain at all. Without this, a run
+    where no keychain-reading artifact happens to fire says nothing either way.
+    """
+    keychain_path = Context.get_keychain_path()
+    if not keychain_path:
+        return  # nothing supplied; a keychain carried by the extraction is found later
+    if not load_keychain_entries(keychain_path):
+        logfunc('Keychain: the supplied file yielded no usable entries, so artifacts '
+                'that need the keychain will report their data as still encrypted.')
 
 
 def get_app_secret(access_group, account=None, service=None, expected_length=None):

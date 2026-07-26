@@ -23,6 +23,7 @@ from scripts.version_info import leapp_name, leapp_version, check_runtime_depend
 from time import process_time, gmtime, strftime, perf_counter
 from scripts.lavafuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from scripts.context import Context
+from scripts.ios_keychain import report_supplied_keychain
 from scripts.lavafuncs import lava_json_name
 
 
@@ -376,6 +377,7 @@ def crunch_artifacts(
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
     logdevinfo()
+    report_supplied_keychain()
     seeker = None
     password = itunes_backup_password
     try:

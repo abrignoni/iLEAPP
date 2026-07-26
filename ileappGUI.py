@@ -606,7 +606,7 @@ def select_keychain():
     keychain_filename = tk_filedialog.askopenfilename(
         parent=main_window,
         title='Select a keychain file',
-        filetypes=(('Keychain files', '*.plist *.xml *.json'), ('All files', '*.*')))
+        filetypes=(('Keychain files', '*.plist *.xml'), ('All files', '*.*')))
     if keychain_filename:
         keychain_entry.delete(0, 'end')
         keychain_entry.insert(0, keychain_filename)
