@@ -122,6 +122,23 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 85 rows",
         },
     },
+    "get_biomeDKSiriUi": {
+        "name": "Biome - Siri UI DKEvent",
+        "description": "Parses Siri interface events from the _DKEvent.Siri.Ui biome stream. "
+                       "Runs alongside the Siri.UI stream and carries the same activity in the "
+                       "DuetKnowledge wrapper, with start and end timestamps that bound each "
+                       "appearance of the Siri interface.",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2026-07-26",
+        "last_update_date": "2026-07-26",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "The event detail is carried in the metadata entries rather than the value "
+                 "field, which was absent throughout the sample.",
+        "paths": ('*/streams/*/_DKEvent.Siri.Ui/local/*',),
+        "output_types": "standard",
+        "artifact_icon": "mic",
+    },
     "get_biomeDKSettingsDoNotDisturb": {
         "name": "Biome - Do Not Disturb DKEvent",
         "description": "Parses Do Not Disturb state changes from the "
@@ -318,3 +335,8 @@ def get_biomeDKDisplayOrientation(context):
 @artifact_processor
 def get_biomeDKSettingsDoNotDisturb(context):
     return _parse(context, 'Do Not Disturb DKEvent', ON_OFF)
+
+
+@artifact_processor
+def get_biomeDKSiriUi(context):
+    return _parse(context, 'Siri UI DKEvent', None)
