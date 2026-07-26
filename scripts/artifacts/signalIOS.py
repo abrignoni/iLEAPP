@@ -9,10 +9,24 @@ __artifacts_v2__ = {
         "category": "Signal",
         "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain is captured separately from the file system extraction, so supply it with --keychain or the keychain field in the GUI.",
         "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
+                  # attachments are stored in the clear, so they only need locating
+                  '*/AppGroup/*/Attachments/*',
                   # so a keychain the extraction carries is available to decrypt with
                   '*/extra/KeychainDump/backup_keychain_v2.plist',
                   '*/keychain-backup.plist'),
         "output_types": "standard",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
+                "conversationLabelColumn": "Conversation With",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Author",
+                "mediaColumn": "Attachments",
+            }
+        },
         "artifact_icon": "message-circle",
     },
     "get_signalIOSContacts": {
@@ -56,7 +70,8 @@ import tempfile
 
 from scripts.ios_keychain import get_app_secret, active_keychain_path
 from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
-from scripts.ilapfuncs import artifact_processor, logfunc, convert_unix_ts_to_utc
+from scripts.ilapfuncs import (artifact_processor, logfunc, convert_unix_ts_to_utc,
+                               check_in_media)
 
 SIGNAL_ACCESS_GROUP = 'org.whispersystems.signal'
 KEY_SPEC_ACCOUNT = 'GRDBDatabaseCipherKeySpec'
@@ -132,6 +147,71 @@ def _open_signal_database(context):
         yield sqlite3.connect(decrypted), file_found
 
 
+def _attachment_files(context):
+    """Paths of the Signal attachment files present in the extraction."""
+    try:
+        seeker = context.get_seeker()
+    except Exception:  # pylint: disable=broad-except
+        return []
+    return [str(path) for path in seeker.search('*/AppGroup/*/Attachments/*')
+            if os.path.isfile(str(path))]
+
+
+def _match_attachment(files, relative_path):
+    """Find the extracted file for a localRelativeFilePath recorded in the database.
+
+    The database stores the path relative to the Attachments folder, sometimes
+    inside a per-attachment subfolder, so match on that whole suffix rather than
+    on the file name alone, which is not guaranteed to be unique.
+    """
+    if not relative_path:
+        return None
+    suffix = '/Attachments/' + str(relative_path).replace('\\', '/').lstrip('/')
+    for candidate in files:
+        if candidate.replace('\\', '/').endswith(suffix):
+            return candidate
+    return None
+
+
+def _attachments_by_message(context, connection):
+    """Check in each attachment and group the media references by message.
+
+    Unlike Android, Signal for iOS stores attachments in the clear, so they only
+    need locating rather than decrypting.
+    """
+    references = {}
+    columns = _table_columns(connection, 'model_TSAttachment')
+    if not {'localRelativeFilePath', 'albumMessageId'} <= columns:
+        return references
+
+    files = _attachment_files(context)
+    if not files:
+        return references
+
+    query = (f"SELECT {_select_list(columns, 'model_TSAttachment', ['albumMessageId', 'localRelativeFilePath', 'sourceFilename', 'contentType'])} "
+             "FROM model_TSAttachment WHERE model_TSAttachment.albumMessageId IS NOT NULL")
+
+    checked_in = 0
+    for message_id, relative_path, source_name, content_type in connection.execute(query):
+        path = _match_attachment(files, relative_path)
+        if not path:
+            continue
+        try:
+            reference = check_in_media(path, name=source_name or os.path.basename(path),
+                                       force_type=content_type)
+        except Exception as error:  # pylint: disable=broad-except
+            logfunc(f'Signal: could not check in {os.path.basename(path)}: {error}')
+            continue
+        if reference:
+            references.setdefault(message_id, []).append(reference)
+            checked_in += 1
+
+    if checked_in:
+        logfunc(f'Signal: linked {checked_in} attachment'
+                f'{"s" if checked_in > 1 else ""} to messages')
+    return references
+
+
 def _table_columns(connection, table):
     return {row[1] for row in connection.execute(f'PRAGMA table_info({table})')}
 
@@ -151,6 +231,7 @@ def get_signalIOSMessages(context):
         if not columns:
             connection.close()
             continue
+        attachments_by_message = _attachments_by_message(context, connection)
         cursor = connection.cursor()
         cursor.execute(f'''
         SELECT
@@ -158,7 +239,8 @@ def get_signalIOSMessages(context):
                           ['timestamp', 'receivedAtTimestamp', 'recordType', 'body',
                            'authorPhoneNumber', 'authorUUID', 'uniqueThreadId', 'read',
                            'isVoiceMessage', 'isViewOnceMessage', 'wasRemotelyDeleted',
-                           'expiresInSeconds', 'serverTimestamp', 'attachmentIds', 'id'])},
+                           'expiresInSeconds', 'serverTimestamp', 'attachmentIds', 'id',
+                           'uniqueId'])},
             model_TSThread.contactPhoneNumber, model_TSThread.contactUUID
         FROM model_TSInteraction
         LEFT JOIN model_TSThread ON model_TSInteraction.uniqueThreadId = model_TSThread.uniqueId
@@ -168,20 +250,23 @@ def get_signalIOSMessages(context):
             direction = MESSAGE_DIRECTIONS.get(row[2], f'Other (record type {row[2]})')
             # Outgoing rows have no author: the device owner sent them
             author = row[4] or row[5] or ('Device owner' if row[2] == RECORD_TYPE_OUTGOING else '')
+            # A message can carry several attachments, so the media cell takes a list
+            attachments = attachments_by_message.get(row[15], [])
             data_list.append((
                 convert_unix_ts_to_utc(row[0]),
                 convert_unix_ts_to_utc(row[1]),
                 direction,
                 author,
-                row[15] or row[16] or '',
+                row[16] or row[17] or '',
                 row[3] or '',
+                attachments,
+                len(attachments),
                 'Yes' if row[7] else 'No',
                 'Yes' if row[8] else 'No',
                 'Yes' if row[9] else 'No',
                 'Yes' if row[10] else 'No',
                 row[11] or '',
                 convert_unix_ts_to_utc(row[12]) if row[12] else '',
-                'Yes' if row[13] else 'No',
                 row[6] or '',
                 row[14],
             ))
@@ -194,13 +279,14 @@ def get_signalIOSMessages(context):
         'Author',
         'Conversation With',
         'Message',
+        ('Attachments', 'media'),
+        'Attachment Count',
         'Read',
         'Voice Message',
         'View Once',
         'Remotely Deleted',
         'Disappearing Timer (Seconds)',
         ('Server Timestamp', 'datetime'),
-        'Has Attachment',
         'Thread ID',
         'Row ID',
     )
