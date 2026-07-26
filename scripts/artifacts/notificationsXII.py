@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "iOS 12+ delivered notifications (DeliveredNotifications.plist)",
         "author": "",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Notifications",
-        "notes": "",
+        "notes": "Notification attachments (images stored under the Attachments folder) are checked in as media and linked to the notification that referenced them.",
         "paths": ('*/mobile/Library/UserNotifications*',),
         "output_types": "standard",
         "artifact_icon": "bell",
@@ -37,7 +37,55 @@ from datetime import datetime, timezone
 
 import nska_deserialize as nd
 
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc
+
+
+def _attachment_index(plist_files):
+    """Map each notification attachment file name to its path on disk.
+
+    Attachments are stored beside the notification plists under an Attachments
+    folder, named by a hash rather than by anything meaningful, so an index by
+    file name is enough to resolve them later.
+    """
+    index = {}
+    for filepath in plist_files:
+        if os.path.isfile(filepath) and f'{os.sep}Attachments{os.sep}' in filepath:
+            index.setdefault(os.path.basename(filepath), filepath)
+    return index
+
+
+def _notification_media(item, attachment_index, seen):
+    """Check in the attachments of one notification, returning media references.
+
+    The plist records both an AttachmentIdentifier, which is the logical name
+    the app chose, and an AttachmentURL pointing at the stored copy. Only the
+    URL matches what is on disk, so resolve by that and keep the identifier as
+    the display name. The identifier is not trustworthy as a file name though:
+    apps hand out things like "image.gif" for what is really a JPEG, so the
+    extension comes from the stored file instead of from the identifier.
+    """
+    references = []
+    for attachment in item.get('AppNotificationAttachments') or []:
+        if not isinstance(attachment, dict):
+            continue
+        url = attachment.get('AttachmentURL')
+        relative = url.get('NS.relative', '') if isinstance(url, dict) else str(url or '')
+        stored_name = relative.rsplit('/', 1)[-1]
+        path = attachment_index.get(stored_name)
+        if not path:
+            continue
+        extension = os.path.splitext(stored_name)[1]
+        try:
+            reference = check_in_media(path,
+                                       name=attachment.get('AttachmentIdentifier') or stored_name,
+                                       force_extension=extension or None)
+        except Exception as error:  # pylint: disable=broad-except
+            logfunc(f'Notifications: could not check in {stored_name}: {error}')
+            continue
+        if reference:
+            references.append(reference)
+            seen.add(path)
+    return references
 
 
 def _bundle_info(plist_files):
@@ -56,7 +104,7 @@ def _bundle_info(plist_files):
 @artifact_processor
 def notificationsXII(context):
     data_headers = (('Creation Time', 'datetime'), 'Bundle', 'Title[Subtitle]', 'Message',
-                    'Other Details')
+                    ('Attachments', 'media'), 'Attachment Count', 'Other Details')
     data_list = []
     sources = []
 
@@ -69,6 +117,9 @@ def notificationsXII(context):
             plist_files.append(fp)
 
     bundle_info = _bundle_info(plist_files)
+    attachment_index = _attachment_index(plist_files)
+    checked_in = 0
+    seen_attachments = set()
 
     for filepath in plist_files:
         if not (os.path.isfile(filepath) and filepath.endswith('DeliveredNotifications.plist')):
@@ -98,10 +149,19 @@ def notificationsXII(context):
                     title = v
                 elif k == 'AppNotificationSubtitle':
                     subtitle = v
-                else:
+                elif k != 'AppNotificationAttachments':
                     other_dict[k] = str(v)
             if subtitle:
                 title = f'{title}[{subtitle}]'
-            data_list.append((creation_date, bundle_name, title, message, str(other_dict)))
+            # A notification can carry several attachments, so the media cell takes a list
+            media = _notification_media(item, attachment_index, seen_attachments)
+            checked_in += len(media)
+            data_list.append((creation_date, bundle_name, title, message, media or '',
+                              len(media), str(other_dict)))
+
+    if checked_in:
+        # Apps reuse one stored file across many notifications, so the two counts differ
+        logfunc(f'Notifications: linked {checked_in} attachment reference(s) to '
+                f'{len(seen_attachments)} stored file(s)')
 
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))
