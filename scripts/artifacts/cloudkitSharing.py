@@ -65,7 +65,7 @@ __artifacts_v2__ = {
 import os
 import io
 import nska_deserialize as nd
-from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db,
+from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db, logfunc,
                                open_sqlite_db_readonly)
 
 
@@ -94,6 +94,22 @@ def as_list(data):
     return []
 
 
+def has_cloudkit_table(file_found):
+    """Report whether a NoteStore.sqlite carries the CloudKit schema.
+
+    iOS leaves zero-byte NoteStore.sqlite placeholders under Backups/<date>/ and
+    sqlite3 opens those as empty databases, so the table has to be checked before
+    querying one. Skipping is right for a placeholder but would also hide a truncated
+    or unreadable database, so every skip names the file and its size.
+    """
+    if does_table_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT'):
+        return True
+    size = os.path.getsize(file_found) if os.path.isfile(file_found) else 0
+    logfunc(f'cloudkitSharing: skipped {file_found} ({size} bytes), '
+            'no ZICCLOUDSYNCINGOBJECT table')
+    return False
+
+
 def write_debug_bplist(report_folder, prefix, z_pk, data):
     """Writes extracted blobs to the report folder for validation."""
     filename = os.path.join(report_folder, f'{prefix}_{z_pk}.bplist')
@@ -110,7 +126,7 @@ def cloudkit_sharing(context):
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
             continue
-        if not does_table_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT'):
+        if not has_cloudkit_table(file_found):
             continue
 
         # Dictionary to merge share and record data by Z_PK
@@ -215,7 +231,7 @@ def cloudkit_participants(context):
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
             continue
-        if not does_table_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT'):
+        if not has_cloudkit_table(file_found):
             continue
 
         db = open_sqlite_db_readonly(file_found)
