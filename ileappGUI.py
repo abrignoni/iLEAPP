@@ -840,7 +840,9 @@ theme_inputcolor = '#705e52'
 theme_fgcolor = '#fdcb52'
 
 ## Main window properties
-main_window.minsize(890, 690)
+# Height allows for the optional keychain row (about 58px) added alongside
+# the input and output rows
+main_window.minsize(890, 750)
 main_window.title(f'iLEAPP version {leapp_version}')
 main_window.configure(bg=theme_bgcolor)
 logo_icon = tk.PhotoImage(file=icon)
