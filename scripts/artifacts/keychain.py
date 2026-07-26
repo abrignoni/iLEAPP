@@ -249,11 +249,18 @@ def _decode_der(data: bytes) -> dict:
         except UnicodeDecodeError:
             return base64.b64encode(data).decode('utf-8')
 
+    if not data:
+        return result
+
     # Skip outer container (SET or SEQUENCE), and bound iteration to its declared content
     end_pos = len(data)
     if data[pos] in (0x30, 0x31):  # SEQUENCE or SET
         pos += 1
-        outer_length, pos = read_length(data, pos)
+        try:
+            outer_length, pos = read_length(data, pos)
+        except DerParseError as e:
+            logfunc(f"Error parsing DER container: {e}")
+            return result
         end_pos = min(pos + outer_length, len(data))
 
     # Parse all items in the container
@@ -358,6 +365,10 @@ def _find_keychain_for_zip(zip_path: Path) -> Path | None:
 
 def _decrypt_itb_key(data, decryption_keys) -> bytes | None:
     """Decrypt a key from the iTunes backup using the provided decryption keys and custom gcm."""
+
+    if len(data) < 12:
+        logfunc("Keychain item is too short to hold a wrapped key header, skipping it")
+        return None
 
     _, key_class, key_klen = struct.unpack("<III", data[:12])
     key_dkey = decryption_keys[0].get(key_class)
@@ -531,7 +542,11 @@ def _parse_itunes_keychain(source_path, decryption_keys) -> tuple[list[dict], li
     keys_records = []
 
     for blob_key, record_list in (("inet", inet_records), ("genp", genp_records), ("keys", keys_records)):
-        for item in keychain_plist.get(blob_key, []):
+        items = keychain_plist.get(blob_key, [])
+        if not isinstance(items, list):
+            logfunc(f"Unexpected {blob_key} format in {source_path}, expected a list.")
+            continue
+        for item in items:
             if not isinstance(item, dict):
                 continue
             item_data = item.get("v_Data")
@@ -558,13 +573,17 @@ def _parse_teamred_keychain(source_path, keychain_db_path=None) -> tuple[list[di
     genp_records = []
     keys_records = []
 
-    class_keys = keychain_plist["classKeyIdxToUnwrappedMetadataClassKey"]
+    class_keys = keychain_plist.get("classKeyIdxToUnwrappedMetadataClassKey")
 
     if not isinstance(class_keys, dict):
         logfunc(f"Unexpected class key format in {source_path}, expected a dictionary for classKeyIdxToUnwrappedMetadataClassKey.")
         return [], [], []
 
-    keychain_entries = keychain_plist["keychainEntries"]
+    keychain_entries = keychain_plist.get("keychainEntries")
+
+    if not isinstance(keychain_entries, list):
+        logfunc(f"Unexpected keychain format in {source_path}, expected a list for keychainEntries.")
+        return [], [], []
 
     # Define this here, but it will be lazy loaded only if needed
     uuid_type_map = None
@@ -583,7 +602,13 @@ def _parse_teamred_keychain(source_path, keychain_db_path=None) -> tuple[list[di
             logfunc(f"Class key for index {class_key_idx} not found, unable to decrypt metadata")
             continue
 
-        metadata_wrapped_key_raw = entry["metadata"]["wrappedKey"]
+        entry_metadata = entry.get("metadata")
+        entry_data = entry.get("data")
+        if not isinstance(entry_metadata, dict) or not isinstance(entry_data, dict):
+            logfunc(f"Entry {entry.get('rowID')} has no metadata/data pair, skipping entry")
+            continue
+
+        metadata_wrapped_key_raw = entry_metadata.get("wrappedKey")
         metadata_wrapped_key_plist = get_plist_content(metadata_wrapped_key_raw)
 
         if not isinstance(metadata_wrapped_key_plist, dict):
@@ -599,10 +624,10 @@ def _parse_teamred_keychain(source_path, keychain_db_path=None) -> tuple[list[di
         metadata_key = _decrypt_data(key_ct, class_key, key_iv, key_tag)
 
         if metadata_key is None:
-            logfunc(f"Failed to decrypt metadata key for entry {entry['rowID']}, skipping entry")
+            logfunc(f"Failed to decrypt metadata key for entry {entry.get('rowID')}, skipping entry")
             continue
 
-        metadata_ciphertext_raw = entry["metadata"]["ciphertext"]
+        metadata_ciphertext_raw = entry_metadata.get("ciphertext")
         metadata_ciphertext_plist = get_plist_content(metadata_ciphertext_raw)
 
         if not isinstance(metadata_ciphertext_plist, dict):
@@ -617,12 +642,12 @@ def _parse_teamred_keychain(source_path, keychain_db_path=None) -> tuple[list[di
 
         decrypted_metadata = _decrypt_data(meta_ct, metadata_key, meta_iv, meta_tag)
         if decrypted_metadata is None:
-            logfunc(f"Failed to decrypt metadata for entry {entry['rowID']}, skipping entry")
+            logfunc(f"Failed to decrypt metadata for entry {entry.get('rowID')}, skipping entry")
             continue
         metadata = _decode_der(decrypted_metadata)
 
-        data_key = entry["data"]["unwrappedKey"]
-        data_ciphertext = entry["data"]["ciphertext"]
+        data_key = entry_data.get("unwrappedKey")
+        data_ciphertext = entry_data.get("ciphertext")
         data_ciphertext_plist = get_plist_content(data_ciphertext)
 
         if not isinstance(data_ciphertext_plist, dict):
@@ -635,9 +660,12 @@ def _parse_teamred_keychain(source_path, keychain_db_path=None) -> tuple[list[di
         if not isinstance(data_iv, bytes) or not isinstance(data_ct, bytes) or not isinstance(data_tag, bytes):
             continue
 
+        if not isinstance(data_key, bytes):
+            continue
+
         decrypted_data = _decrypt_data(data_ct, data_key, data_iv, data_tag)
         if decrypted_data is None:
-            logfunc(f"Failed to decrypt data for entry {entry['rowID']}, skipping entry")
+            logfunc(f"Failed to decrypt data for entry {entry.get('rowID')}, skipping entry")
             continue
         data_obj = _decode_der(decrypted_data)
 
