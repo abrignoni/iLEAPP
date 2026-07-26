@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Notifications",
-        "notes": "Notification attachments are checked in as media and linked to the notification that referenced them, both the images stored under the Attachments folder and the ones carried inline in the payload.",
+        "notes": "Attachments are checked in as media, both the images stored under the Attachments folder and the ones carried inline in the payload. Sender, thread, category, trigger type and deep link are lifted out of the payload into their own columns; keys still holding their corpus-wide default value are dropped from Other Details.",
         "paths": ('*/mobile/Library/UserNotifications*',),
         "output_types": "standard",
         "artifact_icon": "bell",
@@ -45,6 +45,45 @@ IMAGE_SIGNATURES = ((b'\xff\xd8\xff', 'jpg'), (b'\x89PNG\r\n\x1a\n', 'png'), (b'
 HEIF_BRANDS = (b'heic', b'heix', b'hevc', b'mif1', b'msf1')
 # Anything shorter than this is a stray blob that happens to start like an image
 MIN_EMBEDDED_IMAGE = 512
+
+# Payload fields worth a column of their own, so notifications can be sorted and
+# filtered by who they came from rather than only by the app that raised them
+PROMOTED_FIELDS = (
+    ('Sender', 'CommunicationContextDisplayName'),
+    ('Thread', 'SBSPushStoreNotificationThreadKey'),
+    ('Category', 'SBSPushStoreNotificationCategoryKey'),
+    ('Trigger', 'UNNotificationTriggerType'),
+    ('Deep Link', 'DefaultActionURL'),
+)
+PROMOTED_COLUMN_BY_KEY = {key: column for column, key in PROMOTED_FIELDS}
+
+# Values these keys held on every row of all 15 test corpus devices, each key
+# seen on at least 8 of them. They are dropped from Other Details only while
+# they still hold that value, so a device that sets one differently still shows
+# it. Keys constant on only one or two devices are deliberately not listed:
+# a single observation is not enough to call a value a default.
+DEFAULT_VALUES = {
+    'BadgeApplicationIcon': 'True',
+    'CommunicationContextBusinessCorrespondence': 'False',
+    'CommunicationContextCapabilities': '0',
+    'CommunicationContextMentionsCurrentUser': 'False',
+    'CommunicationContextNotifyRecipientAnyway': 'False',
+    'CommunicationContextReplyToCurrentUser': 'False',
+    'CommunicationContextSystemImage': 'False',
+    'Footer': '',
+    'IconShouldSuppressMask': 'False',
+    'ScreenCaptureProhibited': 'False',
+    'ShouldHideTime': 'False',
+    'ShouldIgnoreAccessibilityDisabledVibrationSetting': 'False',
+    'ShouldPresentAlert': 'True',
+    'ShouldSuppressSyncDismissalWhenRemoved': 'False',
+    'SoundShouldIgnoreRingerSwitch': 'False',
+    'SoundShouldRepeat': 'False',
+    'ToneMediaLibraryItemIdentifier': '0',
+    'TriggerRepeatInterval': '0',
+    'TriggerRepeats': 'False',
+    'UNNotificationRelevanceScore': '0.0',
+}
 
 
 def _image_extension(data):
@@ -152,8 +191,9 @@ def _bundle_info(plist_files):
 
 @artifact_processor
 def notificationsXII(context):
-    data_headers = (('Creation Time', 'datetime'), 'Bundle', 'Title[Subtitle]', 'Message',
-                    ('Attachments', 'media'), 'Attachment Count', 'Other Details')
+    data_headers = (('Creation Time', 'datetime'), 'Bundle', 'Sender', 'Title[Subtitle]',
+                    'Message', ('Attachments', 'media'), 'Attachment Count', 'Thread',
+                    'Category', 'Trigger', 'Deep Link', 'Other Details')
     data_list = []
     sources = []
 
@@ -190,6 +230,7 @@ def notificationsXII(context):
             creation_date = ''
             title = subtitle = message = ''
             other_dict = {}
+            promoted = dict.fromkeys(PROMOTED_COLUMN_BY_KEY.values(), '')
             # A notification can carry several attachments, so the media cell takes a list
             media = _notification_media(item, attachment_index, seen_attachments)
             checked_in += len(media)
@@ -203,14 +244,19 @@ def notificationsXII(context):
                     title = v
                 elif k == 'AppNotificationSubtitle':
                     subtitle = v
-                elif k != 'AppNotificationAttachments':
+                elif k in PROMOTED_COLUMN_BY_KEY:
+                    promoted[PROMOTED_COLUMN_BY_KEY[k]] = str(v)
+                elif k == 'AppNotificationAttachments' or DEFAULT_VALUES.get(k, object()) == str(v):
+                    continue  # handled by its own column, or holding its default value
+                else:
                     other_dict[k] = str(_extract_embedded_images(v, filepath, inline, k))
             if subtitle:
                 title = f'{title}[{subtitle}]'
             media.extend(inline)
             embedded += len(inline)
-            data_list.append((creation_date, bundle_name, title, message, media or '',
-                              len(media), str(other_dict)))
+            data_list.append((creation_date, bundle_name, promoted['Sender'], title, message,
+                              media or '', len(media), promoted['Thread'], promoted['Category'],
+                              promoted['Trigger'], promoted['Deep Link'], str(other_dict)))
 
     if checked_in:
         # Apps reuse one stored file across many notifications, so the two counts differ
