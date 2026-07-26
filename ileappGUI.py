@@ -493,6 +493,13 @@ def process(casedata):
         casedata = {key: value.get() for key, value in casedata.items()}
         out_params = OutputParameters(output_folder, output_folder_name_entry.get().strip())
         Context.set_output_params(out_params)
+        keychain_path = keychain_entry.get().strip()
+        if keychain_path and not os.path.isfile(keychain_path):
+            tk_msgbox.showerror(title='Error',
+                                message=f'Keychain file not found:\n{keychain_path}',
+                                parent=main_window)
+            return
+        Context.set_keychain_path(keychain_path or None)
         wrap_text = True
         time_offset = timezone_set.get()
         if time_offset == '':
@@ -592,6 +599,22 @@ def select_input(button_type):
     input_entry.insert(0, input_filename)
     if input_filename:
         history.record_input_path(input_filename)
+
+
+def select_keychain():
+    '''Select a keychain file and insert its path into the keychain field'''
+    keychain_filename = tk_filedialog.askopenfilename(
+        parent=main_window,
+        title='Select a keychain file',
+        filetypes=(('Keychain files', '*.plist *.xml *.json'), ('All files', '*.*')))
+    if keychain_filename:
+        keychain_entry.delete(0, 'end')
+        keychain_entry.insert(0, keychain_filename)
+
+
+def clear_keychain():
+    '''Forget the selected keychain so it is not reused on the next case'''
+    keychain_entry.delete(0, 'end')
 
 
 def select_output():
@@ -878,6 +901,20 @@ input_file_button = ttk.Button(input_frame, text='Browse File', command=lambda: 
 input_file_button.pack(side='left', padx=5, pady=4)
 input_folder_button = ttk.Button(input_frame, text='Browse Folder', command=lambda: select_input('folder'))
 input_folder_button.pack(side='left', padx=5, pady=4)
+
+### Keychain (optional)
+# iOS keychains are captured separately from the file system extraction, so apps
+# that keep their database key in the keychain need it supplied here
+keychain_frame = ttk.LabelFrame(
+    main_window,
+    text=' Optional: select a keychain file captured from the device (used to decrypt apps such as Signal): ')
+keychain_frame.pack(padx=14, pady=2, fill='x')
+keychain_entry = ttk.Entry(keychain_frame)
+keychain_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
+keychain_clear_button = ttk.Button(keychain_frame, text='Clear', width=6, command=clear_keychain)
+keychain_clear_button.pack(side='left', padx=2, pady=4)
+keychain_file_button = ttk.Button(keychain_frame, text='Browse File', command=select_keychain)
+keychain_file_button.pack(side='left', padx=5, pady=4)
 
 output_frame = ttk.LabelFrame(main_window, text=' Select Output Path ')
 output_frame.pack(padx=14, pady=5, fill='x')
