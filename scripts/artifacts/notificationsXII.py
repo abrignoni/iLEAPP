@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Notifications",
-        "notes": "Notification attachments (images stored under the Attachments folder) are checked in as media and linked to the notification that referenced them.",
+        "notes": "Notification attachments are checked in as media and linked to the notification that referenced them, both the images stored under the Attachments folder and the ones carried inline in the payload.",
         "paths": ('*/mobile/Library/UserNotifications*',),
         "output_types": "standard",
         "artifact_icon": "bell",
@@ -37,7 +37,24 @@ from datetime import datetime, timezone
 
 import nska_deserialize as nd
 
-from scripts.ilapfuncs import artifact_processor, check_in_media, logfunc
+from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, check_in_media,
+                               logfunc)
+
+# Signatures of the image formats a notification payload is likely to carry
+IMAGE_SIGNATURES = ((b'\xff\xd8\xff', 'jpg'), (b'\x89PNG\r\n\x1a\n', 'png'), (b'GIF8', 'gif'))
+HEIF_BRANDS = (b'heic', b'heix', b'hevc', b'mif1', b'msf1')
+# Anything shorter than this is a stray blob that happens to start like an image
+MIN_EMBEDDED_IMAGE = 512
+
+
+def _image_extension(data):
+    """Return the file extension when the bytes carry a known image signature."""
+    for signature, extension in IMAGE_SIGNATURES:
+        if data.startswith(signature):
+            return extension
+    if len(data) > 12 and data[4:8] == b'ftyp' and data[8:12] in HEIF_BRANDS:
+        return 'heic'
+    return None
 
 
 def _attachment_index(plist_files):
@@ -88,6 +105,38 @@ def _notification_media(item, attachment_index, seen):
     return references
 
 
+def _extract_embedded_images(value, source_file, references, label='image'):
+    """Pull inline images out of a notification payload, leaving a note behind.
+
+    Not every notification image reaches the Attachments folder. Photos memories,
+    for one, carry the thumbnail inside UNNotificationUserInfo as raw bytes.
+    Stringified into the details column that is a six figure run of escaped
+    bytes that swamps the row and cannot be viewed, so check the image in as
+    media and put a short placeholder in its place. The payload is walked rather
+    than read at a fixed key because apps nest it wherever they please.
+    """
+    if isinstance(value, dict):
+        return {key: _extract_embedded_images(item, source_file, references, key)
+                for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_extract_embedded_images(item, source_file, references, label) for item in value]
+    if isinstance(value, (bytes, bytearray)) and len(value) >= MIN_EMBEDDED_IMAGE:
+        data = bytes(value)
+        extension = _image_extension(data)
+        if not extension:
+            return value
+        try:
+            reference = check_in_embedded_media(source_file, data, name=f'{label}.{extension}')
+        except Exception as error:  # pylint: disable=broad-except
+            logfunc(f'Notifications: could not check in embedded {label}: {error}')
+            return value
+        if not reference:
+            return value
+        references.append(reference)
+        return f'<{len(data)} byte {extension} checked in as media>'
+    return value
+
+
 def _bundle_info(plist_files):
     """Map bundle_id -> bundle_name from UserNotificationsServer/Library.plist (if present)."""
     for fp in plist_files:
@@ -119,6 +168,7 @@ def notificationsXII(context):
     bundle_info = _bundle_info(plist_files)
     attachment_index = _attachment_index(plist_files)
     checked_in = 0
+    embedded = 0
     seen_attachments = set()
 
     for filepath in plist_files:
@@ -140,6 +190,10 @@ def notificationsXII(context):
             creation_date = ''
             title = subtitle = message = ''
             other_dict = {}
+            # A notification can carry several attachments, so the media cell takes a list
+            media = _notification_media(item, attachment_index, seen_attachments)
+            checked_in += len(media)
+            inline = []
             for k, v in item.items():
                 if k == 'AppNotificationCreationDate':
                     creation_date = v.replace(tzinfo=timezone.utc) if isinstance(v, datetime) else v
@@ -150,12 +204,11 @@ def notificationsXII(context):
                 elif k == 'AppNotificationSubtitle':
                     subtitle = v
                 elif k != 'AppNotificationAttachments':
-                    other_dict[k] = str(v)
+                    other_dict[k] = str(_extract_embedded_images(v, filepath, inline, k))
             if subtitle:
                 title = f'{title}[{subtitle}]'
-            # A notification can carry several attachments, so the media cell takes a list
-            media = _notification_media(item, attachment_index, seen_attachments)
-            checked_in += len(media)
+            media.extend(inline)
+            embedded += len(inline)
             data_list.append((creation_date, bundle_name, title, message, media or '',
                               len(media), str(other_dict)))
 
@@ -163,5 +216,7 @@ def notificationsXII(context):
         # Apps reuse one stored file across many notifications, so the two counts differ
         logfunc(f'Notifications: linked {checked_in} attachment reference(s) to '
                 f'{len(seen_attachments)} stored file(s)')
+    if embedded:
+        logfunc(f'Notifications: recovered {embedded} image(s) embedded in notification payloads')
 
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))
