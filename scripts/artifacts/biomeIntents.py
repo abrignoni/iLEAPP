@@ -46,9 +46,23 @@ _RECORD_ERRORS = (DecodeError, struct.error, AttributeError, KeyError, ValueErro
                   TypeError, IndexError, UnicodeDecodeError)
 
 
+_CONTROL_MAP = str.maketrans({'\t': '\\t', '\r': '\\r', '\n': '\\n', '\x00': ''})
+
+
 def _safe_time_obj(value):
     """Set UTC tzinfo on datetime objects; pass strings/None through unchanged."""
     return convert_time_obj_to_utc(value) if isinstance(value, _dt) else value
+
+
+def _delimited_safe(value):
+    """Keep intent payloads on one line and free of NULs.
+
+    Intent data is an app-authored blob, so it can carry tabs, line breaks and
+    NUL bytes. Those are legal in the HTML report but break or disfigure the TSV
+    export, and a writer configured without quoting rejects them outright.
+    Tabs and line breaks become their printable escapes so no content is lost.
+    """
+    return value.translate(_CONTROL_MAP) if isinstance(value, str) else value
 
 
 def _intent_payload(deserialized_plist):
@@ -230,7 +244,7 @@ def _parse_record(protostuff, filename, offset):
         datoshtml = 'Intent data could not be parsed.'
 
     row = (startdate, enddate, durationinterval, donatedbysiri, appid, classname, action,
-           direction, groupid, datos, filename, offset)
+           direction, groupid, _delimited_safe(datos), filename, offset)
     row_html = (startdate, enddate, durationinterval, donatedbysiri, appid, classname, action,
                 direction, groupid, datoshtml, filename, offset)
     return row, row_html
