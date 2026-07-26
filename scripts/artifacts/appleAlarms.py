@@ -40,6 +40,20 @@ def _safe_plist_date(value):
     return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
 
 
+def decode_alarm_sound(alarm_dict):
+    """Describe the alarm sound.
+
+    A tone carries MTSoundToneID, a song from the media library carries
+    MTSoundMediaItemID instead, so neither key is guaranteed to be present.
+    """
+    sound = alarm_dict.get('MTAlarmSound', {}).get('$MTSound', {})
+    if 'MTSoundToneID' in sound:
+        return sound['MTSoundToneID']
+    if 'MTSoundMediaItemID' in sound:
+        return f"media item: {sound['MTSoundMediaItemID']}"
+    return ''
+
+
 def decode_repeat_schedule(repeat_schedule_value):
     days_list = {
         64: 'Sunday', 
@@ -104,7 +118,7 @@ def alarms(context):
                     dismiss_date,
                     last_modified_date, 
                     ', '.join(repeat_schedule),
-                    alarms_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'],
+                    decode_alarm_sound(alarms_dict),
                     alarms_dict['MTAlarmIsSleep'], 
                     alarms_dict['MTAlarmBedtimeDoNotDisturb'],
                     '')
@@ -132,7 +146,7 @@ def alarms(context):
                     dismiss_date, 
                     last_modified_date, 
                     ', '.join(repeat_schedule), 
-                    sleep_alarm_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'], 
+                    decode_alarm_sound(sleep_alarm_dict),
                     sleep_alarm_dict['MTAlarmIsSleep'], 
                     sleep_alarm_dict['MTAlarmBedtimeDoNotDisturb'], 
                     sleep_alarm_dict['MTAlarmBedtimeFireDate'])
