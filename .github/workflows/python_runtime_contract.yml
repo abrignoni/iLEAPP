@@ -12,6 +12,10 @@ on:
       # change parses on the oldest supported Python. Lint runs on one, newer
       # version and cannot see this class of break.
       - 'scripts/**'
+      # The entry points are covered by the same suite and are equally able to
+      # break on an older Python
+      - 'ileapp.py'
+      - 'ileappGUI.py'
 
 jobs:
   runtime-contract:
