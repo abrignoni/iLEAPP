@@ -1147,13 +1147,13 @@ def chromeBookmarks(context):
                             if keyb == 'children':
                                 if len(valueb) > 0:
                                     for index in range(len(valueb)):
-                                        url = valueb[index]['url']
-                                        dateadd = valueb[index]['date_added']
+                                        url = valueb[index].get('url', '')
+                                        dateadd = valueb[index].get('date_added', 0)
                                         dateaddconv = datetime.datetime(1601, 1, 1) + datetime.timedelta(
                                             microseconds=int(dateadd))
                                         added_dt = dateaddconv
-                                        name = valueb[0]['name']
-                                        typed = valueb[0]['type']
+                                        name = valueb[index].get('name', '')
+                                        typed = valueb[index].get('type', '')
                                         children_items.append((url, dateadd, dateaddconv, added_dt, name, typed))
                             if keyb == 'name' and len(children_items) > 0:
                                 parent = valueb
