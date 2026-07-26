@@ -30,6 +30,7 @@ Smith, whose UFED keychain decrypter described it. This is an independent
 implementation using iLEAPP's existing dependencies.
 """
 import io
+import os
 import plistlib
 
 import nska_deserialize
@@ -43,7 +44,16 @@ GENERIC_PASSWORD_KEY = 'genp'
 ENCRYPTED_ENTRIES_KEY = 'keychainEntries'
 METADATA_CLASS_KEYS_KEY = 'classKeyIdxToUnwrappedMetadataClassKey'
 
+# Some extractions carry a keychain dump of their own. These are the locations
+# worth looking in when the examiner did not supply one, matching the paths the
+# keychain artifact already uses.
+IN_EXTRACTION_KEYCHAIN_GLOBS = (
+    '*/extra/KeychainDump/backup_keychain_v2.plist',
+    '*/keychain-backup.plist',
+)
+
 _cache = {}
+_discovered = {}
 
 
 def _decrypt_gcm(archived_blob, key):
@@ -152,6 +162,46 @@ def find_keychain_secrets(keychain_path, access_group=None, account=None, servic
     return matches
 
 
+def _discover_keychain():
+    """Look for a keychain the extraction carries, when none was supplied.
+
+    Returns a path, or None. The result is cached, including the negative case,
+    so the search runs once per run rather than once per artifact.
+    """
+    if 'path' in _discovered:
+        return _discovered['path']
+    _discovered['path'] = None
+
+    try:
+        seeker = Context.get_seeker()
+    except Exception:  # pylint: disable=broad-except
+        return None  # called outside an artifact, nothing to search
+    if seeker is None:
+        return None
+
+    for glob in IN_EXTRACTION_KEYCHAIN_GLOBS:
+        try:
+            found = [str(path) for path in seeker.search(glob)]
+        except Exception:  # pylint: disable=broad-except
+            continue
+        for candidate in found:
+            if not os.path.isfile(candidate):
+                continue
+            logfunc('Keychain: no keychain was supplied, trying the one carried by the '
+                    f'extraction at {candidate}')
+            # Only accept it if it actually yields entries we can read
+            if load_keychain_entries(candidate):
+                _discovered['path'] = candidate
+                return candidate
+            logfunc('Keychain: that keychain yielded no readable entries, ignoring it')
+    return None
+
+
+def active_keychain_path():
+    """The keychain to read: the supplied one, else one found in the extraction."""
+    return Context.get_keychain_path() or _discover_keychain()
+
+
 def get_app_secret(access_group, account=None, service=None, expected_length=None):
     """Return one secret for an app from the examiner-supplied keychain, or None.
 
@@ -167,11 +217,11 @@ def get_app_secret(access_group, account=None, service=None, expected_length=Non
     Returns:
         The secret as bytes, or None when no keychain was supplied or nothing matched.
     """
-    keychain_path = Context.get_keychain_path()
-    if not keychain_path:
+    path = active_keychain_path()
+    if not path:
         return None
 
-    matches = find_keychain_secrets(keychain_path, access_group, account, service)
+    matches = find_keychain_secrets(path, access_group, account, service)
     if expected_length is not None:
         matches = [secret for secret in matches if len(secret) == expected_length]
     if not matches:

@@ -8,7 +8,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Signal",
         "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain is captured separately from the file system extraction, so supply it with --keychain or the keychain field in the GUI.",
-        "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',),
+        "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
+                  # so a keychain the extraction carries is available to decrypt with
+                  '*/extra/KeychainDump/backup_keychain_v2.plist',
+                  '*/keychain-backup.plist'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
     },
@@ -21,7 +24,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Signal",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the GUI.",
-        "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',),
+        "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
+                  # so a keychain the extraction carries is available to decrypt with
+                  '*/extra/KeychainDump/backup_keychain_v2.plist',
+                  '*/keychain-backup.plist'),
         "output_types": "standard",
         "artifact_icon": "users",
     },
@@ -34,7 +40,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Signal",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the GUI.",
-        "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',),
+        "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
+                  # so a keychain the extraction carries is available to decrypt with
+                  '*/extra/KeychainDump/backup_keychain_v2.plist',
+                  '*/keychain-backup.plist'),
         "output_types": "standard",
         "artifact_icon": "message-square",
     },
@@ -45,8 +54,7 @@ import os
 import sqlite3
 import tempfile
 
-from scripts.context import Context
-from scripts.ios_keychain import get_app_secret
+from scripts.ios_keychain import get_app_secret, active_keychain_path
 from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
 from scripts.ilapfuncs import artifact_processor, logfunc, convert_unix_ts_to_utc
 
@@ -79,12 +87,13 @@ def _decrypted_database(database_path):
     key_spec = get_app_secret(SIGNAL_ACCESS_GROUP, KEY_SPEC_ACCOUNT,
                               expected_length=KEY_SPEC_LENGTH)
     if not key_spec:
-        if Context.get_keychain_path():
-            logfunc('Signal: the supplied keychain has no Signal database key, '
+        if active_keychain_path():
+            logfunc('Signal: the keychain in use has no Signal database key, '
                     'the database stays encrypted')
         else:
-            logfunc('Signal: found an encrypted database but no keychain was supplied. '
-                    'Pass one with --keychain, or the keychain field in the GUI, to decrypt it.')
+            logfunc('Signal: found an encrypted database but no keychain is available. '
+                    'The extraction does not carry one, so supply it with --keychain or the '
+                    'keychain field in the GUI.')
         return None
 
     digest = hashlib.sha1(database_path.encode('utf-8', 'replace')).hexdigest()[:12]
