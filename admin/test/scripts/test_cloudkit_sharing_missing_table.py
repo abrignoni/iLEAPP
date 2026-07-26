@@ -17,6 +17,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -65,6 +66,45 @@ class TestCloudkitSharingMissingTable(unittest.TestCase):
     def test_participants_skips_notestore_without_the_table(self):
         _headers, data_list, _source = cloudkit_participants.__wrapped__(Context)
         self.assertEqual(data_list, [])
+
+    def _skip_messages(self, processor):
+        """Run a processor and return only its 'skipped' log lines."""
+        with mock.patch('scripts.artifacts.cloudkitSharing.logfunc') as logged:
+            processor.__wrapped__(Context)
+        return [call.args[0] for call in logged.call_args_list
+                if 'no ZICCLOUDSYNCINGOBJECT table' in call.args[0]]
+
+    def test_sharing_logs_the_file_it_skipped(self):
+        """Skipping silently would hide a damaged db, so the skip has to be visible."""
+        messages = self._skip_messages(cloudkit_sharing)
+        self.assertEqual(len(messages), 1)
+        self.assertIn(str(self.empty_db), messages[0])
+        self.assertIn('(0 bytes)', messages[0])
+
+    def test_participants_logs_the_file_it_skipped(self):
+        messages = self._skip_messages(cloudkit_participants)
+        self.assertEqual(len(messages), 1)
+        self.assertIn(str(self.empty_db), messages[0])
+
+    def test_the_real_database_is_never_reported_as_skipped(self):
+        messages = self._skip_messages(cloudkit_sharing)
+        self.assertNotIn(str(self.populated_db), ' '.join(messages))
+
+    def test_a_truncated_database_is_logged_with_its_real_size(self):
+        """The case the log line exists for: not a placeholder, a damaged database.
+
+        A zero-byte skip is routine, but a NoteStore.sqlite with real bytes in it and
+        no schema means the examiner lost data they should know about. The size is in
+        the message so the two are distinguishable at a glance in the run log.
+        """
+        truncated = pathlib.Path(self.tmpdir) / 'Backups' / '2026-07-19' / 'NoteStore.sqlite'
+        truncated.parent.mkdir(parents=True)
+        truncated.write_bytes(b'SQLite format 3\x00' + b'\x00' * 100)
+        Context.set_files_found([str(truncated)])
+
+        messages = self._skip_messages(cloudkit_sharing)
+        self.assertEqual(len(messages), 1)
+        self.assertIn('(116 bytes)', messages[0])
 
 
 if __name__ == '__main__':
