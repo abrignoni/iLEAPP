@@ -10,19 +10,90 @@ GRDBDatabaseCipherKeySpec that is a 32 byte key followed by a 16 byte salt),
 Snapchat, Trust Wallet and what3words, so the lookup is deliberately generic
 rather than written around one app.
 
-Supported inputs are the plist keychain dumps produced by extraction tools,
-which hold generic passwords under a 'genp' list. Entries carry an access group
-('agrp') naming the owning app, an account ('acct'), a service ('svce') and the
-secret itself in 'v_Data'.
+Two plist layouts are supported.
+
+Decrypted dumps hold generic passwords under a 'genp' list, where each entry
+carries an access group ('agrp') naming the owning app, an account ('acct'), a
+service ('svce') and the secret itself in 'v_Data'.
+
+Encrypted dumps, written by UFED as backup_keychain_v2.plist, instead hold a
+'keychainEntries' list where the account name and the secret are both
+ciphertext. They can still be read, because the extraction stores the material
+needed alongside the data: each entry carries its own unwrapped data key, and
+the metadata key is unwrapped with a per-class key from
+'classKeyIdxToUnwrappedMetadataClassKey'. Both payloads are NSKeyedArchiver
+blobs holding an AES-GCM ciphertext, initialisation vector and authentication
+code, and the plaintext is ASN.1 DER.
+
+Credit for documenting that encrypted layout goes to Matthieu Regnery and Matt
+Smith, whose UFED keychain decrypter described it. This is an independent
+implementation using iLEAPP's existing dependencies.
 """
+import io
 import plistlib
+
+import nska_deserialize
+from Crypto.Cipher import AES
+from pyasn1.codec.der.decoder import decode as der_decode
 
 from scripts.context import Context
 from scripts.ilapfuncs import logfunc
 
 GENERIC_PASSWORD_KEY = 'genp'
+ENCRYPTED_ENTRIES_KEY = 'keychainEntries'
+METADATA_CLASS_KEYS_KEY = 'classKeyIdxToUnwrappedMetadataClassKey'
 
 _cache = {}
+
+
+def _decrypt_gcm(archived_blob, key):
+    """Open an NSKeyedArchiver-wrapped AES-GCM payload."""
+    root = nska_deserialize.deserialize_plist(io.BytesIO(archived_blob),
+                                              full_recurse_convert_nska=True, format=dict)
+    cipher = AES.new(key[:32], AES.MODE_GCM, root['SFInitializationVector'])
+    return cipher.decrypt_and_verify(root['SFCiphertext'], root['SFAuthenticationCode'])
+
+
+def _der_fields(plaintext):
+    """Turn the decrypted ASN.1 DER structure into a plain dict."""
+    decoded = der_decode(plaintext)[0]
+    fields = {}
+    for pair in decoded:
+        value = pair[1]
+        fields[str(pair[0])] = bytes(value) if 'Octet' in str(type(value)) else str(value)
+    return fields
+
+
+def _decrypt_wrapped_entries(parsed, keychain_path):
+    """Convert UFED's encrypted keychain entries into decrypted genp-style dicts."""
+    class_keys = parsed.get(METADATA_CLASS_KEYS_KEY) or {}
+    entries = []
+    failures = 0
+    for entry in parsed.get(ENCRYPTED_ENTRIES_KEY) or []:
+        # Entries stored in the clear carry rawData instead of an encrypted pair
+        if not isinstance(entry, dict) or 'rawData' in entry:
+            continue
+        try:
+            metadata_part = entry['metadata']
+            class_key = class_keys[str(entry['classKeyIdx'])]
+            metadata_key = _decrypt_gcm(metadata_part['wrappedKey'], class_key)
+            fields = _der_fields(_decrypt_gcm(metadata_part['ciphertext'], metadata_key))
+            data_part = entry['data']
+            fields.update(_der_fields(_decrypt_gcm(data_part['ciphertext'],
+                                                   data_part['unwrappedKey'])))
+            entries.append(fields)
+        except Exception:  # pylint: disable=broad-except
+            failures += 1
+
+    if entries:
+        message = f'Keychain: decrypted {len(entries)} entries from {keychain_path}'
+        if failures:
+            message += f' ({failures} could not be decrypted)'
+        logfunc(message)
+    elif failures:
+        logfunc(f'Keychain: none of the {failures} encrypted entries in {keychain_path} '
+                'could be decrypted')
+    return entries
 
 
 def _text(entry, field):
@@ -46,13 +117,18 @@ def load_keychain_entries(keychain_path):
         logfunc(f'Keychain: could not read {keychain_path}: {error}')
         return _cache[keychain_path]
 
-    if not isinstance(parsed, dict) or GENERIC_PASSWORD_KEY not in parsed:
-        logfunc(f'Keychain: {keychain_path} is not a supported keychain dump '
-                '(no generic password entries found)')
+    if not isinstance(parsed, dict):
+        logfunc(f'Keychain: {keychain_path} is not a supported keychain dump')
         return _cache[keychain_path]
 
-    entries = parsed.get(GENERIC_PASSWORD_KEY) or []
-    _cache[keychain_path] = [entry for entry in entries if isinstance(entry, dict)]
+    if GENERIC_PASSWORD_KEY in parsed:
+        entries = parsed.get(GENERIC_PASSWORD_KEY) or []
+        _cache[keychain_path] = [entry for entry in entries if isinstance(entry, dict)]
+    elif ENCRYPTED_ENTRIES_KEY in parsed:
+        _cache[keychain_path] = _decrypt_wrapped_entries(parsed, keychain_path)
+    else:
+        logfunc(f'Keychain: {keychain_path} is not a supported keychain dump '
+                '(no generic password or encrypted entries found)')
     return _cache[keychain_path]
 
 
