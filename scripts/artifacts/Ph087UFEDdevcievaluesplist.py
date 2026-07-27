@@ -11,7 +11,7 @@ __artifacts_v2__ = {
 'version': '1.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains device_values.plist',
-'category': 'Photos.sqlite-Y-Settings-UFED-Device-Info',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/device_values.plist',),
 "output_types": ["standard", "tsv", "none"],

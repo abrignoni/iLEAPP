@@ -11,7 +11,7 @@ __artifacts_v2__ = {
 'version': '5.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-Assets-iCloudSPL-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],

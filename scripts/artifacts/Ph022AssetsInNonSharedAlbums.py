@@ -8,7 +8,7 @@ __artifacts_v2__ = {
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-Albums-NonSharedAssets-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
