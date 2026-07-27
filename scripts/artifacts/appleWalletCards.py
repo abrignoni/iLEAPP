@@ -1,54 +1,40 @@
+__artifacts_v2__ = {
+    "applewalletcards": {
+        "name": "Apple Wallet Cards",
+        "description": "Apple Wallet Cards",
+        "author": "@any333",
+        "creation_date": "2021-02-05",
+        "last_update_date": "2025-10-09",
+        "requirements": "none",
+        "category": "Apple Wallet",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
+        "output_types": "standard",
+        "artifact_icon": "credit-card",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.Passbook | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | com.apple.Passbook | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | com.apple.Passbook | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.Passbook | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | com.apple.Passbook | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | com.apple.Passbook | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | com.apple.Passbook | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | com.apple.Passbook | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | com.apple.Passbook | 0 rows",
+            "abe_ios16": "iOS 16.5 | com.apple.Passbook | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | com.apple.Passbook | 1 row",
+            "hickman_ios14": "iOS 14.3 | com.apple.Passbook | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | com.apple.Passbook | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | com.apple.Passbook | 0 rows",
+        },
+    }
+}
+
+
 import re
-
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
-
-
-def get_appleWalletCards(files_found, report_folder, seeker):
-    data_list = []
-    for file_found in files_found:
-        file_found = str(file_found)
-
-        if file_found.endswith('.db'):
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''SELECT 
-                            TIME_STAMP, 
-                            PROTO_PROPS
-                            FROM CFURL_CACHE_RESPONSE
-                            INNER JOIN CFURL_CACHE_BLOB_DATA ON CFURL_CACHE_BLOB_DATA.ENTRY_ID = CFURL_CACHE_RESPONSE.ENTRY_ID
-                            WHERE REQUEST_KEY LIKE '%CARDS'
-                            ''')
-
-            all_rows = cursor.fetchall()
-            db_file = file_found
-
-    if len(all_rows) > 0:
-        for row in all_rows:
-            card_info = str(row[1], 'utf-8', 'ignore')
-            card_number = get_bank_card_number(card_info)
-            expiration_date = re.findall(r'\d{2}/\d{2}', card_info)
-            card_type = get_card_type(card_number, len(card_number))
-
-            data_list.append((row[0], card_number, expiration_date[0], card_type))
-
-        report = ArtifactHtmlReport('Cards')
-        report.start_artifact_report(report_folder, 'Cards')
-        report.add_script()
-        data_headers = ('Timestap (Card Added)', 'Card Number', 'Expiration Date', 'Type')
-        report.write_artifact_data_table(data_headers, data_list, db_file)
-        report.end_artifact_report()
-
-        tsvname = 'Apple Wallet Cards'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Apple Wallet Cards'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Apple Wallet Cards available')
-
-    db.close()
-    return
+from scripts.ilapfuncs import artifact_processor, \
+    get_file_path, get_sqlite_db_records, \
+    convert_human_ts_to_utc
 
 
 def get_bank_card_number(card_information):
@@ -76,3 +62,42 @@ def get_card_type(card_num, num_length):
         return 'Diners Club Carte Blanche'
     else:
         return 'Unknown'
+
+
+
+@artifact_processor
+def applewalletcards(context):
+    files_found = context.get_files_found()
+    source_path = get_file_path(files_found, "Cache.db")
+    data_list = []
+
+    query = '''
+    SELECT 
+        time_stamp, 
+        proto_props
+    FROM cfurl_cache_response
+    INNER JOIN cfurl_cache_blob_data ON cfurl_cache_blob_data.entry_ID = cfurl_cache_response.entry_ID
+    WHERE request_key LIKE '%CARDS'
+    '''
+
+    data_headers = (
+        ('Timestamp (Card Added)', 'datetime'), 
+        'Card Number', 
+        'Expiration Date', 
+        'Type')
+    
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        card_added_timestamp = convert_human_ts_to_utc(record[0])
+        card_info = str(record[1], 'utf-8', 'ignore')
+        card_number = get_bank_card_number(card_info)
+        if card_number is None:
+            pass
+        else:
+            expiration_date = re.findall(r'\d{2}/\d{2}', card_info)
+            card_type = get_card_type(card_number, len(card_number))
+
+            data_list.append((card_added_timestamp, card_number, expiration_date[0], card_type))
+                
+    return data_headers, data_list, source_path

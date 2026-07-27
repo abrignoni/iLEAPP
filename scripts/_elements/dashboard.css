@@ -1,0 +1,130 @@
+* {
+  scrollbar-color: #d02e26 #2e3645 !important;
+  scrollbar-width: thin !important;
+}
+
+body {
+  font-size: 0.875rem;
+}
+
+/*
+ * Sidebar
+ */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  /* Behind the navbar */
+  padding: 48px 0 0;
+  /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-sticky {
+  position: relative;
+  top: 0;
+  height: calc(100vh - 48px);
+  padding-top: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Scrollable contents if viewport is shorter than content. */
+}
+
+@supports ((position: -webkit-sticky) or (position: sticky)) {
+  .sidebar-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+}
+
+.ti {
+  font-size: 1rem;
+  vertical-align: text-bottom;
+}
+
+.sidebar .nav-link {
+  font-weight: 400;
+  color: #999;
+}
+
+.sidebar .nav-link:hover {
+  color: #ccc;
+}
+
+.sidebar .nav-link.active {
+  color: #fff;
+}
+
+.sidebar .nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  width: 3px;
+  height: 1.5em; /* légèrement plus grand que le texte (1em) */
+  background-color: #d02e26;
+}
+
+.sidebar-heading {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  text-decoration: underline;
+  color: #fff;
+  font-weight: 500;
+}
+
+/*
+ * Content
+ */
+
+[role="main"] {
+  padding-top: 48px;
+  /* Space for fixed navbar */
+}
+
+/*
+ * Navbar
+ */
+
+.navbar-brand {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 1rem;
+  background-color: rgba(227, 6, 19, 0.2);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+.navbar .form-control {
+  padding: 0.75rem 1rem;
+  border-width: 0;
+  border-radius: 0;
+}
+
+.form-control-dark {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.form-control-dark:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+}
+
+.nav-link {
+  padding-bottom: 0.3rem;
+}
+
+/* Added table-xsm for extra small table padding */
+
+table.table-xsm th {
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+}
+
+table.table-xsm td {
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+}

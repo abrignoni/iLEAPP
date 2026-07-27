@@ -1,0 +1,82 @@
+__artifacts_v2__ = {
+    "conDev": {
+        "name": "Connected Devices",
+        "description": "Extracts information about connected devices from iTunes preferences",
+        "author": "",
+        "creation_date": "2024-10-23",
+        "last_update_date": "2026-07-21",
+        "requirements": "none",
+        "category": "Connected Devices",
+        "notes": "",
+        "paths": ('*/iTunes_Control/iTunes/iTunesPrefs',),
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "devices",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+        }
+    }
+}
+
+from scripts.ilapfuncs import artifact_processor
+import os
+
+MAGIC_BYTES = b"\x01\x01\x80\x00\x00"
+MAGIC_OFFSET = 92
+NAME_OFFSET = 157
+
+@artifact_processor
+def conDev(context):
+    data_list = []
+    data_headers = ('User Name', 'Computer Name', 'File Offset', 'Source File')
+
+    for file_found in context.get_files_found():
+        with open(file_found, "rb") as f:
+            data = f.read()
+
+        #logfunc(f"Data being interpreted for FRPD is of type: {type(data)}")
+        
+        magic_index = data.find(MAGIC_BYTES)
+        if magic_index == -1:
+            #logfunc("Magic bytes not found in iTunes Prefs FRPD")
+            continue
+
+        #logfunc("Found magic bytes in iTunes Prefs FRPD... Finding Usernames and Desktop names now")
+        
+        names = []
+        current_name = bytearray()
+        name_start_offset = magic_index + MAGIC_OFFSET
+        for i, byte in enumerate(data[name_start_offset:]):
+            if byte == 0:
+                if current_name:
+                    names.append((current_name.decode(), name_start_offset + i - len(current_name)))
+                    current_name = bytearray()
+                    name_start_offset = name_start_offset + i + 1
+            else:
+                current_name.append(byte)
+
+        # Process names in pairs
+        for i in range(0, len(names), 2):
+            if i + 1 < len(names):
+                user_name, user_offset = names[i]
+                computer_name, _ = names[i+1]
+                data_list.append((
+                    user_name,
+                    computer_name,
+                    str(user_offset),
+                    os.path.basename(file_found)
+                ))
+            else:
+                user_name, user_offset = names[i]
+                data_list.append((
+                    user_name,
+                    '',
+                    str(user_offset),
+                    os.path.basename(file_found)
+                ))
+
+    return data_headers, data_list, 'see Source File for more info'

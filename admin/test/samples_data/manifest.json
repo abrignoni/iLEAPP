@@ -1,0 +1,56 @@
+[
+  {
+    "type": "JPEG",
+    "mime": "image/jpeg",
+    "file": "sample_jpg.jpg",
+    "notes": "Baseline common photo format."
+  },
+  {
+    "type": "PNG",
+    "mime": "image/png",
+    "file": "sample_png.png",
+    "notes": "Baseline image with lossless support."
+  },
+  {
+    "type": "WebP",
+    "mime": "image/webp",
+    "file": "sample_webp.webp",
+    "notes": "Modern browser image format."
+  },
+  {
+    "type": "AVIF",
+    "mime": "image/avif",
+    "file": "sample_avif.avif",
+    "notes": "Modern browser image format."
+  },
+  {
+    "type": "JPEG 2000",
+    "mime": "image/jp2",
+    "file": "sample_jp2.jp2",
+    "notes": "JPEG 2000 sample."
+  },
+  {
+    "type": "QOI",
+    "mime": "image/qoi",
+    "file": "sample_qoi.qoi",
+    "notes": "Quite OK Image sample."
+  },
+  {
+    "type": "GIF",
+    "mime": "image/gif",
+    "file": "sample_gif.gif",
+    "notes": "Animated GIF sample."
+  },
+  {
+    "type": "SVG",
+    "mime": "image/svg+xml",
+    "file": "sample_svg.svg",
+    "notes": "Text/vector image asset sample."
+  },
+  {
+    "type": "JPEG XL",
+    "mime": "image/jxl",
+    "file": "sample_jxl.jxl",
+    "notes": "JPEG XL sample encoded with ffmpeg/libjxl."
+  }
+]

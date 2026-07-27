@@ -1,246 +1,575 @@
+__artifacts_v2__ = {
+    "teamsMessages": {
+        "name": "Teams Messages",
+        "description": "Microsoft Teams messages and shared media",
+        "author": "",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
+        "category": "Microsoft Teams",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',
+                 '*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*'),
+        "output_types": "standard",
+        "data_views": {
+            "table": {},
+            "conversation": {
+                "conversationDiscriminatorColumn": "Thread ID",
+                "conversationLabelColumn": "Thread Name",
+                "textColumn": "Message",
+                "senderColumn": "Display Name",
+                "directionColumn": "Sent By Me",
+                "directionSentValue": 1,
+                "timeColumn": "Timestamp",
+                "mediaColumn": "Media",
+                #"sentMessageStaticLabel": "This Device" 
+            }
+        },
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 125 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 20 rows",
+        }
+    },
+    "teamsContacts": {
+        "name": "Teams Contacts",
+        "description": "Microsoft Teams contact list",
+        "author": "",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
+        "category": "Microsoft Teams",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "address-book",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 13 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 5 rows",
+        }
+    },
+    "teamsUser": {
+        "name": "Teams User Information",
+        "description": "Microsoft Teams user profile and sync data",
+        "author": "",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
+        "category": "Microsoft Teams",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 2 rows",
+        }
+    },
+    "teamsCalls": {
+        "name": "Teams Call Logs",
+        "description": "Microsoft Teams call history",
+        "author": "",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
+        "category": "Microsoft Teams",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 9 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 4 rows",
+        }
+    },
+    "teamsLocations": {
+        "name": "Teams Shared Locations",
+        "description": "Microsoft Teams shared location data",
+        "author": "",
+        "last_update_date": "2026-06-12",
+        "requirements": "nska_deserialize",
+        "category": "Microsoft Teams",
+        "notes": "",
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
+        "output_types": "all",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 13 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 4 rows",
+        }
+    }
+}
+
 import sqlite3
-import io
 import json
-import os
 import re
-import shutil
 import datetime
-import nska_deserialize as nd
-import scripts.artifacts.artGlobals
+from scripts.ilapfuncs import (
+    artifact_processor,
+    check_in_media,
+    convert_ts_human_to_utc,
+    get_plist_content,
+    get_plist_file_content,
+    logfunc,
+    open_sqlite_db_readonly
+)
 
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen, tsv, is_platform_windows, open_sqlite_db_readonly
+
+def _convert_teams_timestamp(timestamp):
+    if not timestamp:
+        return ''
+    return convert_ts_human_to_utc(str(timestamp).replace('T', ' ').rstrip('Z'))
 
 
-def get_teams(files_found, report_folder, seeker):
-    CacheFile = 0
+def _get_first_image_source(content):
+    if not content:
+        return ''
+
+    match = re.search(
+        r'<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\']',
+        content,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+    return match.group(1) if match else ''
+
+
+def _get_display_message(content):
+    if not content:
+        return ''
+
+    emoji_match = re.search(
+        r'<img\b(?=[^>]*\bitemtype\s*=\s*["\']http://schema\.skype\.com/Emoji["\'])'
+        r'(?=[^>]*\balt\s*=\s*["\']([^"\']+)["\'])[^>]*>',
+        content,
+        flags=re.IGNORECASE | re.DOTALL
+    )
+    if not emoji_match:
+        return content
+
+    content_without_emoji = content[:emoji_match.start()] + content[emoji_match.end():]
+    remaining_text = re.sub(r'<[^>]+>', '', content_without_emoji).strip()
+    return emoji_match.group(1) if not remaining_text else content
+
+
+def _find_cached_media_path(files_found, cached_path):
+    if not cached_path:
+        return None
+
+    normalized_cached_path = str(cached_path).replace('\\', '/')
+    marker = '/SkypeSpacesDogfood/'
+    cached_suffix = (
+        f'SkypeSpacesDogfood/{normalized_cached_path.split(marker, 1)[1]}'
+        if marker in normalized_cached_path
+        else ''
+    )
+
+    normalized_files = [
+        (file_found, str(file_found).replace('\\', '/'))
+        for file_found in files_found
+    ]
+
+    if cached_suffix:
+        for file_found, normalized_file in normalized_files:
+            if normalized_file.endswith(cached_suffix):
+                return file_found
+
+    cached_name = normalized_cached_path.rsplit('/', 1)[-1]
+    for file_found, normalized_file in normalized_files:
+        if normalized_file.rsplit('/', 1)[-1] == cached_name:
+            return file_found
+
+    return None
+
+
+@artifact_processor
+def teamsMessages(context):
+    files_found = context.get_files_found()
+    if not files_found:
+        return (), [], ''
+    
+    data_list = []
+    cache_file = None
+    db_file = None
+    
+    # Find required files
     for file_found in files_found:
         file_found = str(file_found)
-        
         if file_found.endswith('.sqlite'):
-            databasedata = file_found
-        if file_found.endswith('CacheFile'):
-            CacheFile = file_found
+            db_file = file_found
+        elif file_found.endswith('CacheFile'):
+            cache_file = file_found
     
-    if CacheFile != 0:
-        with open(CacheFile ,'rb') as nsfile:
-            nsplist = nd.deserialize_plist(nsfile)
+    if not db_file:
+        return (), [], files_found[0]
     
-    db = open_sqlite_db_readonly(databasedata)
+    # Initialize cache dictionary
+    nsplist = {}
+    if cache_file:
+        nsplist = get_plist_file_content(cache_file)
+        if not isinstance(nsplist, dict):
+            nsplist = {}
+    
+    db = open_sqlite_db_readonly(db_file)
     cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row  # Enable dictionary cursor
+    
     cursor.execute('''
-    SELECT
-    datetime('2001-01-01', "ZARRIVALTIME" || ' seconds'),
-    ZIMDISPLAYNAME,
-    ZCONTENT
-    from ZSMESSAGE
+        SELECT
+            datetime('2001-01-01', "ZARRIVALTIME" || ' seconds') as timestamp,
+            ZIMDISPLAYNAME,
+            ZCONTENT,
+            ZFROM,
+            ZTHREADID,
+            ZTHREADTYPE,
+            t.ZTHREADTOPIC,
+            t.ZTSID,
+            COALESCE(t.ZTHREADTOPIC, ZTHREADTYPE || ' ' || ZTHREADID) as thread_name,
+            ZTS_MESSAGEBASETYPE,
+            ZTS_MESSAGECONTENTTYPE,
+			ZTS_ISSENTBYME
+        FROM ZSMESSAGE m
+        LEFT JOIN ZTHREAD t ON m.ZTHREADID = t.ZTSID
+        ORDER BY timestamp
     ''')
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []  
-    
-    if usageentries > 0:
-        for row in all_rows:
-            thumb =''
-            if '<div><img src=' in row[2]:
-                matches = re.search('"([^"]+)"',row[2])
-                imageURL = (matches[0].strip('\"'))
-                if imageURL in nsplist.keys():
-                    data_file_real_path = nsplist[imageURL]
-                    for match in files_found:
-                        if data_file_real_path in match:
-                            shutil.copy2(match, report_folder)
-                            data_file_name = os.path.basename(match)
-                            thumb = f'<img src="{report_folder}/{data_file_name}"></img>'
-            data_list.append((row[0], row[1], row[2], thumb))
-
-        description = 'Teams Messages'
-        report = ArtifactHtmlReport('Teams Messages')
-        report.start_artifact_report(report_folder, 'Teams Messages', description)
-        report.add_script()
-        data_headers = ('Timestamp', 'Name', 'Message', 'Shared Media')
-        report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Shared Media']
-)
-        report.end_artifact_report()
+    for row in cursor:
+        timestamp = _convert_teams_timestamp(row['timestamp'])
+        media_ref = None
+        raw_message = row['ZCONTENT'] or ''
+        display_message = _get_display_message(raw_message)
         
-        tsvname = 'Microsoft Teams Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
+        # Process the first cached image associated with the message.
+        image_url = _get_first_image_source(raw_message)
+        if image_url:
+            try:
+                cached_path = nsplist.get(image_url, '')
+                media_path = _find_cached_media_path(files_found, cached_path)
+                if media_path:
+                    media_ref = check_in_media(str(media_path))
+            except (AttributeError, OSError, TypeError, ValueError) as ex:
+                logfunc(f'Error processing image for message at {timestamp}: {ex}')
         
-        tlactivity = 'Microsoft Teams Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Microsoft Teams Messages data available')
-    
-    cursor.execute('''
-    SELECT
-    ZDISPLAYNAME,
-    zemail,
-    ZPHONENUMBER
-    from
-    ZDEVICECONTACTHASH
-    ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []
-    
-    if usageentries > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2]))
-            
-        description = 'Teams Contact'
-        report = ArtifactHtmlReport('Teams Contact')
-        report.start_artifact_report(report_folder, 'Teams Contact', description)
-        report.add_script()
-        data_headers = ('Display Name', 'Email', 'Phone Number')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Teams Contact'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-    else:
-        logfunc('No Teams Contact data available')
-    
-    cursor.execute('''
-    SELECT
-    datetime('2001-01-01', "ZTS_LASTSYNCEDAT" || ' seconds'),
-    ZDISPLAYNAME,
-    ZTELEPHONENUMBER
-    from zuser
-    ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []
-    
-    if usageentries > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2]))
-            
-        description = 'Teams User'
-        report = ArtifactHtmlReport('Teams User')
-        report.start_artifact_report(report_folder, 'Teams User', description)
-        report.add_script()
-        data_headers = ('Timestamp Last Sync', 'Display Name', 'Phone Number')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Microsoft Teams User'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Microsoft Teams User'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-    else:
-        logfunc('No Teams User data available')
-        
-    cursor.execute('''
-    SELECT
-    ZCOMPOSETIME,
-    zfrom,
-    ZIMDISPLAYNAME,
-    zcontent,
-    ZPROPERTIES
-    from ZSMESSAGE, ZMESSAGEPROPERTIES
-    where ZSMESSAGE.ZTSID = ZMESSAGEPROPERTIES.ZTSID
-    order by ZCOMPOSETIME
-    ''')
-    
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list_calls = []
-    data_list_cards = []
-    data_list_unparsed = []
-    
-    if usageentries > 0:
-        for row in all_rows:
-            plist = ''
-            composetime = row[0].replace('T',' ')
-            plist_file_object = io.BytesIO(row[4])
-            if row[4].find(b'NSKeyedArchiver') == -1:
-                if sys.version_info >= (3, 9):
-                    plist = plistlib.load(plist_file_object)
-                else:
-                    plist = biplist.readPlist(plist_file_object)
-            else:
-                try:
-                    plist = nd.deserialize_plist(plist_file_object)                    
-                except (nd.DeserializeError, nd.biplist.NotBinaryPlistException, nd.biplist.InvalidPlistException,
-                        nd.plistlib.InvalidFileException, nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError) as ex:
-                    logfunc(f'Failed to read plist for {row[4]}, error was:' + str(ex))
-            if 'call-log' in plist:
-                datacalls = json.loads(plist['call-log'])
-                callstart = (datacalls.get('startTime'))
-                callstart = callstart.replace('T',' ')
-                callconnect = (datacalls.get('connectTime'))
-                callconnect = callconnect.replace('T',' ')
-                callend = (datacalls['endTime'])
-                callend = callend.replace('T',' ')
-                calldirection = (datacalls['callDirection'])
-                calltype = (datacalls['callType'])
-                callstate = (datacalls['callState'])
-                calloriginator = (datacalls['originator'])
-                calltarget = (datacalls['target'])
-                calloriginatordname = (datacalls['originatorParticipant']['displayName'])
-                callparticipantdname = (datacalls['targetParticipant']['displayName'])
-                data_list_calls.append((composetime, row[1], row[2], row[3], callstart, callconnect, callend, calldirection, calltype, callstate, calloriginator, calltarget, calloriginatordname, callparticipantdname))
-            elif 'cards' in plist:
-                cards = json.loads(plist['cards'])
-                cardurl = (cards[0]['content']['body'][0]['selectAction']['url'])
-                cardtitle = (cards[0]['content']['body'][0]['selectAction']['title'])
-                cardtext = (cards[0]['content']['body'][1]['text'])
-                cardurl2 = (cards[0]['content']['body'][0]['url'])
-                if (cards[0]['content']['body'][0].get('id')) is not None:
-                    idcontent = json.loads(cards[0]['content']['body'][0]['id'])
-                    cardlat = (idcontent.get('latitude'))
-                    cardlong = (idcontent.get('longitude'))
-                    cardexpires = (idcontent.get('expiresAt'))
-                    cardexpires  = datetime.datetime.fromtimestamp(cardexpires  / 1000)
-                    carddevid = (idcontent.get('deviceId'))
-                data_list_cards.append((composetime, row[1], row[2], row[3], cardurl, cardtitle, cardtext, cardurl2, cardlat, cardlong, cardexpires, carddevid))
-            else:
-                data_list_unparsed.append(composetime, row[1], row[2], row[3], plist)
-                
-        description = 'Microsoft Teams Call Logs'
-        report = ArtifactHtmlReport('Microsoft Teams Call Logs')
-        report.start_artifact_report(report_folder, 'Teams Call Logs', description)
-        report.add_script()
-        data_headers = ('Compose Timestamp', 'From', 'Display Name', 'Content',' Call Start', 'Call Connect', 'Call End', 'Call Direction', 'Call Type', 'Call State', 'Call Originator', 'Call Target', 'Call Originator Name', 'Call Participant Name')
-        report.write_artifact_data_table(data_headers, data_list_calls, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Microsoft Teams Call Logs'
-        tsv(report_folder, data_headers, data_list_calls, tsvname)
-        
-        tlactivity = 'Microsoft Teams Call Logs'
-        timeline(report_folder, tlactivity, data_list_calls, data_headers)
-        
-        description = 'Microsoft Teams Shared Locations'
-        report = ArtifactHtmlReport('Microsoft Teams Shared Locations')
-        report.start_artifact_report(report_folder, 'Teams Shared Locations', description)
-        report.add_script()
-        data_headers = ('Timestamp', 'From', 'Display Name', 'Content','Card URL', 'Card Title', 'Card Text', 'Card URL2', 'Latitude', 'Longitude', 'Card Expires', 'Device ID')
-        report.write_artifact_data_table(data_headers, data_list_cards, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'Microsoft Teams Shared Locations'
-        tsv(report_folder, data_headers, data_list_cards, tsvname)
-        
-        tlactivity = 'Microsoft Teams Shared Locations'
-        timeline(report_folder, tlactivity, data_list_cards, data_headers)
-        
-        kmlactivity = 'Microsoft Teams Shared Locations'
-        kmlgen(report_folder, kmlactivity, data_list_cards, data_headers)
-        
-    else:
-        logfunc('No Microsoft Teams Call Logs & Cards data available')
-        
+        data_list.append((
+            timestamp,
+            row['ZIMDISPLAYNAME'] or '',
+            display_message,
+            raw_message,
+            row['ZFROM'] or '',
+            row['ZTHREADID'] or '',
+            row['ZTHREADTYPE'] or '',
+            row['ZTHREADTOPIC'] or '',
+            row['ZTSID'] or '',
+            row['thread_name'] or '',
+            row['ZTS_MESSAGEBASETYPE'] or '',
+            row['ZTS_MESSAGECONTENTTYPE'] or '',
+			row['ZTS_ISSENTBYME'],
+            media_ref
+        ))
     
     db.close()
     
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Display Name',
+        'Message',
+        'Raw Message',
+        'Sender',
+        'Thread ID',
+        'Thread Type',
+        'Thread Topic',
+        'Thread TSID',
+        'Thread Name',
+        'Message Base Type',
+        'Message Content Type',
+        'Sent By Me',
+        ('Media', 'media')
+    )
+    
+    return data_headers, data_list, db_file
 
+@artifact_processor
+def teamsContacts(context):
+    files_found = context.get_files_found()
+    if not files_found:
+        return (), [], ''
+    
+    data_list = []
+    db_file = None
+    
+    for file_found in files_found:
+        if file_found.endswith('.sqlite'):
+            db_file = file_found
+            break
+    
+    if not db_file:
+        return (), [], files_found[0]
+    
+    db = open_sqlite_db_readonly(db_file)
+    cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row
+
+    cursor.execute('''
+        SELECT
+            ZDISPLAYNAME,
+            ZEMAIL,
+            ZPHONENUMBER
+        FROM ZDEVICECONTACTHASH
+    ''')
+    
+    for row in cursor:
+        display_name = row['ZDISPLAYNAME'] if row['ZDISPLAYNAME'] else ''
+        email = row['ZEMAIL'] if row['ZEMAIL'] else ''
         
-        
+        # Clean phone number
+        phone = row['ZPHONENUMBER'] if row['ZPHONENUMBER'] else ''
+        if phone:
+            # Remove common formatting characters
+            phone = phone.replace('(', '').replace(')', '').replace('-', '')
+            phone = phone.replace(' ', '').replace('.', '')
+    
+        data_list.append((display_name, email, phone))
+    
+    db.close()
+    
+    data_headers = (
+        'Display Name',
+        'Email',
+        ('Phone Number', 'phonenumber')
+    )
+    
+    return data_headers, data_list, db_file
+
+@artifact_processor
+def teamsUser(context):
+    files_found = context.get_files_found()
+    if not files_found:
+        return (), [], ''
+    
+    data_list = []
+    db_file = None
+    
+    for file_found in files_found:
+        if file_found.endswith('.sqlite'):
+            db_file = file_found
+            break
+    
+    if not db_file:
+        return (), [], files_found[0]
+    
+    db = open_sqlite_db_readonly(db_file)
+    cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row
+    
+    cursor.execute('''
+        SELECT
+            datetime('2001-01-01', "ZTS_LASTSYNCEDAT" || ' seconds') as lastsyncedat,
+            ZDISPLAYNAME,
+            ZTELEPHONENUMBER
+        FROM ZUSER
+    ''')
+    
+    for row in cursor:
+        data_list.append((
+            _convert_teams_timestamp(row['lastsyncedat']),
+            row['ZDISPLAYNAME'] if row['ZDISPLAYNAME'] else '',
+            row['ZTELEPHONENUMBER'] if row['ZTELEPHONENUMBER'] else ''
+        ))
+    
+    db.close()
+    
+    data_headers = (
+        ('Timestamp Last Sync', 'datetime'),
+        'Display Name',
+        ('Phone Number', 'phonenumber')
+    )
+    
+    return data_headers, data_list, db_file
+
+@artifact_processor
+def teamsCalls(context):
+    files_found = context.get_files_found()
+    if not files_found:
+        return (), [], ''
+    
+    data_list = []
+    db_file = None
+    
+    for file_found in files_found:
+        if file_found.endswith('.sqlite'):
+            db_file = file_found
+            break
+    
+    if not db_file:
+        return (), [], files_found[0]
+    
+    db = open_sqlite_db_readonly(db_file)
+    cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row
+    
+    cursor.execute('''
+        SELECT
+            ZCOMPOSETIME,
+            ZFROM,
+            ZIMDISPLAYNAME,
+            ZCONTENT,
+            ZPROPERTIES
+        FROM ZSMESSAGE
+        JOIN ZMESSAGEPROPERTIES ON ZSMESSAGE.ZTSID = ZMESSAGEPROPERTIES.ZTSID
+        WHERE ZPROPERTIES IS NOT NULL
+        ORDER BY ZCOMPOSETIME
+    ''')
+    
+    for row in cursor:
+        plist = get_plist_content(row['ZPROPERTIES'])
+        if not isinstance(plist, dict):
+            continue
+
+        if 'call-log' not in plist:
+            continue
+
+        try:
+            if isinstance(plist['call-log'], dict):
+                datacalls = plist['call-log']
+            else:
+                datacalls = json.loads(plist['call-log'])
+
+            call_start = _convert_teams_timestamp(datacalls.get('startTime'))
+            call_connect = _convert_teams_timestamp(datacalls.get('connectTime'))
+            call_end = _convert_teams_timestamp(datacalls.get('endTime'))
+
+            data_list.append((
+                call_start,
+                call_connect,
+                call_end,
+                datacalls.get('callDirection', ''),
+                datacalls.get('callType', ''),
+                datacalls.get('callState', ''),
+                datacalls.get('originator', ''),
+                datacalls.get('target', ''),
+                datacalls.get('originatorParticipant', {}).get('displayName', ''),
+                datacalls.get('targetParticipant', {}).get('displayName', '')
+            ))
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError) as ex:
+            logfunc(f'Error processing call log data: {ex} - Data: {plist["call-log"]}')
+    
+    db.close()
+    
+    data_headers = (
+        ('Call Start', 'datetime'),
+        ('Call Connect', 'datetime'),
+        ('Call End', 'datetime'),
+        'Call Direction',
+        'Call Type',
+        'Call State',
+        'Call Originator',
+        'Call Target',
+        'Call Originator Name',
+        'Call Participant Name'
+    )
+    
+    return data_headers, data_list, db_file
+
+@artifact_processor
+def teamsLocations(context):
+    files_found = context.get_files_found()
+    if not files_found:
+        return (), [], ''
+    
+    data_list = []
+    db_file = None
+    
+    for file_found in files_found:
+        if file_found.endswith('.sqlite'):
+            db_file = file_found
+            break
+    
+    if not db_file:
+        return (), [], files_found[0]
+    
+    db = open_sqlite_db_readonly(db_file)
+    cursor = db.cursor()
+    cursor.row_factory = sqlite3.Row
+    
+    cursor.execute('''
+        SELECT
+            ZCOMPOSETIME,
+            ZFROM,
+            ZIMDISPLAYNAME,
+            ZCONTENT,
+            ZPROPERTIES
+        FROM ZSMESSAGE
+        JOIN ZMESSAGEPROPERTIES ON ZSMESSAGE.ZTSID = ZMESSAGEPROPERTIES.ZTSID
+        WHERE ZPROPERTIES IS NOT NULL
+        ORDER BY ZCOMPOSETIME
+    ''')
+    
+    for row in cursor:
+        compose_time = _convert_teams_timestamp(row['ZCOMPOSETIME'])
+        plist = get_plist_content(row['ZPROPERTIES'])
+        if not isinstance(plist, dict):
+            continue
+
+        if 'cards' not in plist:
+            continue
+
+        try:
+            cards = json.loads(plist['cards'])
+            card = cards[0]['content']['body'][0]
+
+            card_url = card.get('selectAction', {}).get('url', '')
+            card_title = card.get('selectAction', {}).get('title', '')
+            card_text = cards[0]['content']['body'][1].get('text', '')
+            card_url2 = card.get('url', '')
+
+            card_lat = None
+            card_long = None
+            card_expires = None
+            card_devid = None
+
+            if card.get('id'):
+                try:
+                    id_content = json.loads(card['id'])
+                    card_lat = id_content.get('latitude')
+                    card_long = id_content.get('longitude')
+                    expires_ms = id_content.get('expiresAt')
+                    if expires_ms:
+                        card_expires = datetime.datetime.fromtimestamp(
+                            expires_ms / 1000,
+                            tz=datetime.timezone.utc
+                        )
+                    card_devid = id_content.get('deviceId')
+                except (AttributeError, TypeError, ValueError, OverflowError, OSError) as ex:
+                    logfunc(f'Error processing card ID data: {ex}')
+
+            data_list.append((
+                compose_time,
+                row['ZFROM'] if row['ZFROM'] else '',
+                row['ZIMDISPLAYNAME'] if row['ZIMDISPLAYNAME'] else '',
+                row['ZCONTENT'] if row['ZCONTENT'] else '',
+                card_url,
+                card_title,
+                card_text,
+                card_url2,
+                card_lat,
+                card_long,
+                card_expires,
+                card_devid
+            ))
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError) as ex:
+            logfunc(f'Error processing card data: {ex}')
+    
+    db.close()
+    
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Sender',
+        'Display Name',
+        'Content',
+        'Card URL',
+        'Card Title',
+        'Card Text',
+        'Card URL2',
+        'Latitude',
+        'Longitude',
+        ('Card Expires', 'datetime'),
+        'Device ID'
+    )
+    
+    return data_headers, data_list, db_file
+    

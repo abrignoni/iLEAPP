@@ -1,9 +1,52 @@
-aleapp_version = '1.16.8'
+"""
+Contributors List
+Format = [ Name, Blog-url, Twitter-handle, Github-url]
+Leave blank if not available
+"""
 
-# Contributors List
-# Format = [ Name, Blog-url, Twitter-handle, Github-url]
-# Leave blank if not available
-aleapp_contributors = [
+leapp_name = 'iLEAPP'
+leapp_version = '2026.3.0-dev.0'
+
+# Minimum protobuf runtime required by the vendored scripts/blackboxprotobuf and
+# the security pin in requirements.txt. The PyPI 'blackboxprotobuf' package
+# force-downgrades protobuf to 3.10.0 when installed into the same environment;
+# iLEAPP uses the vendored scripts/blackboxprotobuf instead.
+minimum_protobuf_version = '5.29.6'
+
+
+def check_runtime_dependencies():
+    """Warn loudly if the environment drifted from the pinned dependencies.
+
+    Called at startup by both ileapp.py and ileappGUI.py. Returns a list of
+    human-readable problem strings, empty when the environment is healthy.
+    """
+    problems = []
+
+    def version_tuple(version):
+        return tuple(int(part) for part in version.split('.')[:3] if part.isdigit())
+
+    try:
+        from google.protobuf import __version__ as protobuf_version
+    except ImportError:
+        problems.append("protobuf is not installed. Run: pip install -r requirements.txt")
+    else:
+        if version_tuple(protobuf_version) < version_tuple(minimum_protobuf_version):
+            problems.append(
+                f"protobuf {protobuf_version} is older than the required {minimum_protobuf_version}. "
+                "Another package (commonly the PyPI 'blackboxprotobuf') likely downgraded it. "
+                "Protobuf-based artifacts will fail and patched CVEs are reintroduced. "
+                f"Fix with: pip install protobuf=={minimum_protobuf_version}")
+
+    try:
+        from PIL import Image  # noqa: F401  pylint: disable=unused-import
+    except ImportError:
+        problems.append("Pillow is not installed or broken. Run: pip install -r requirements.txt")
+
+    for problem in problems:
+        print(f"DEPENDENCY WARNING: {problem}")
+    return problems
+
+ileapp_contributors = [
     ['Alexis Brignoni', 'https://abrignoni.com', '@AlexisBrignoni', 'https://github.com/abrignoni'],
     ['Yogesh Khatri', 'https://swiftforensics.com', '@SwiftForensics', 'https://github.com/ydkhatri'],
     ['Agam Dua', 'https://loopback.dev', '@loopbackdev', 'https://github.com/agamdua'],
@@ -13,23 +56,46 @@ aleapp_contributors = [
     ['Mattia Epifani', 'https://blog.digital-forensics.it', '@mattiaep', ''],
     ['Mike Williamson', 'https://forensicmike1.com', '@forensicmike1', 'https://github.com/forensicmike'],
     ['Geraldine Blay', 'https://gforce4n6.blogspot.com', '@i_am_the_gia', ''],
-    ['Christopher Vance', 'https://blog.d204n6.com', '@cScottVance', ''],
+    ['Johann Polewczyk', 'https://www.linkedin.com/in/johann-polewczyk-6a905425/',
+     '@johannplw', 'https://github.com/Johann-PLW'],
+    ['Christopher Vance', 'https://blog.d204n6.com/', '@cScottVance', 'https://github.com/cScottVance'],
     ['Brooke Gottlieb', '', '@xbrookego', ''],
     ['Jack Farley', 'http://farleyforensics.com', '@JackFarley248', ''],
     ['Shafik Punja', '', '@qubytelogic', ''],
-    ['Cheeky4N6Monkey', 'https://cheeky4n6monkey.blogspot.com', '@Cheeky4n6Monkey', 'https://github.com/cheeky4n6monkey'],
+    ['Cheeky4N6Monkey', 'https://cheeky4n6monkey.blogspot.com',
+     '@Cheeky4n6Monkey', 'https://github.com/cheeky4n6monkey'],
     ['Edward Greybeard', '', '', 'https://github.com/edward-greybeard'],
     ['Douglas Kein', '', '@DouglasKein', ''],
     ['Claudia Meda', '', '@KlodiaMaida', 'https://github.com/KlodiaMaida'],
     ['Silvia Spallarossa', '', '@SilviaSpallaro1', 'https://github.com/spatimbs'],
     ['Francesca Maestri', '', '@franc3sca_m', 'https://github.com/francyM'],
-    ['Christopher Vance', 'https://blog.d204n6.com/', '@cScottVance', 'https://github.com/cScottVance'],
     ['Jesse Spangenberger', 'https://cyberfenixtech.blogspot.com/', '@AzuleOnyx', 'https://github.com/flamusdiu'],
     ['Jon Baumann', 'https://ciofecaforensics.com/', '@CiofecaForensic', 'https://github.com/threeplanetssoftware'],
-    ['Scott Koenig', '', '@Scott_Kjr', ''],
-    ['Kevin Pagano', 'https://stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6'],
+    ['Scott Koenig', 'https://theforensicscooter.com/', '@Scott_Kjr', 'https://github.com/ScottKjr3347'],
+    ['Kevin Pagano', 'https://startme.stark4n6.com/', '@KevinPagano3', 'https://github.com/stark4n6'],
     ['Ed Michael', '', '@EdXlg123', 'https://github.com/edmichael'],
     ['Anna-Mariya Mateyna', '', '@any333_snickers', 'https://github.com/any333'],
     ['Tommy Harris', '', '@tobraha', 'https://github.com/tobraha'],
-    ['Troy Schnack', '', '@TroySchnack', '']
+    ['Troy Schnack', '', '@TroySchnack', ''],
+    ['Bo Amos', '', '@Bo_Knows_65', ''],
+    ['Joshua James', 'https://dfir.science', '@dfirscience', 'https://github.com/dfirscience'],
+    ['Evangelos Dragonas', 'https://atropos4n6.com/', '@theAtropos4n6', 'https://github.com/theAtropos4n6'],
+    ['Viktor Oreshkin', 'https://stek29.rocks/', '@stek29', 'https://gist.github.com/stek29'],
+    ['James Habben', 'https://4n6ir.com/', '@JamesHabben', 'https://github.com/JamesHabben'],
+    ['John Hyla', 'https://bluecrewforensics.com', '@jfhyla', 'https://github.com/snoop168'],
+    ['Panos Nakoutis', '', '@4n6equals10', ''],
+    ['Ruud Schramp', 'https://nfi.nl', '@idafanatic', 'https://github.com/Schramp'],
+    ['Matt Beers', 'https://www.linkedin.com/in/mattbeersii', '', 'https://github.com/dabeersboys'],
+    ['Django Faiola', 'https://djangofaiola.blogspot.com', '@DjangoFaiola', 'https://github.com/djangofaiola'],
+    ['Marco Neumann', 'https://bebinary4n6.blogspot.com/', '@kalinko4n6', 'https://github.com/kalink0'],
+    ['Bruno Fischer', 'https://german4n6.blogspot.com/', '', 'https://github.com/BrunoFischerGermany'],
+    ['Christian Peter', 'https://www.linkedin.com/in/christian-peter-49b4ab182/',
+     '@DasZamomin', 'https://github.com/prosch88'],
+    ['James McGee', 'https://sqlmcgee.wordpress.com/', '@SQL_McGee', 'https://github.com/sqlmcgee'],
+    ['Metadata Forensics', 'https://metadataperspective.com/', '', 'https://github.com/metadataforensics/'],
+    ['Bruno Constanzo', 'https://www.linkedin.com/in/bruno-constanzo/',
+     '@bruno_constanzo', 'https://github.com/bconstanzo/'],
+    ['Marnix Kaart', '', '', 'https://github.com/mxkrt'],
+    ['Arun Kalackattu Hari', 'https://dfdive.com/', '', 'https://github.com/ardfr'],
+    ['Dielle De Noon', 'https://www.linkedin.com/in/dielle-d-350a0b186', '@Gear-I', 'https://github.com/Gear-I'],
 ]

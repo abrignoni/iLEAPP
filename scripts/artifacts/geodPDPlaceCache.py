@@ -1,48 +1,61 @@
-import base64
-import json
-import sqlite3
-import os
-import scripts.artifacts.artGlobals
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, strings, open_sqlite_db_readonly
+__artifacts_v2__ = {
+    "geodpdplacecache": {
+        "name": "Geolocation - PD Place Cache",
+        "description": "Cached place lookups from the geod PDPlaceCache.db",
+        "author": "",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Location",
+        "notes": "lastaccesstime/expiretime are Mac absolute time (Cocoa, seconds since 2001-01-01 UTC).",
+        "paths": ('**/PDPlaceCache.db*',),
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 5 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | 19 rows",
+            "iphone12_ios18": "iOS 18.7 | 36 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 11 rows",
+            "abe_ios16": "iOS 16.5 | 5 rows",
+            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | 11 rows",
+            "hickman_ios14": "iOS 14.3 | 21 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | 3 rows",
+        }
+    }
+}
+
+from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, does_table_exist_in_db,
+                               convert_cocoa_core_data_ts_to_utc, strings)
 
 
-def get_geodPDPlaceCache(files_found, report_folder, seeker):
-	file_found = str(files_found[0])
-	db = open_sqlite_db_readonly(file_found)
-	cursor = db.cursor()
-	cursor.execute(
-	"""
-	SELECT requestkey, pdplacelookup.pdplacehash, datetime('2001-01-01', "lastaccesstime" || ' seconds') as lastaccesstime, datetime('2001-01-01', "expiretime" || ' seconds') as expiretime, pdplace
-	FROM pdplacelookup
-	INNER JOIN pdplaces on pdplacelookup.pdplacehash = pdplaces.pdplacehash
-	""")
+@artifact_processor
+def geodpdplacecache(context):
+    data_headers = (('Last Access Time', 'datetime'), 'Request Key', 'PD Place Hash',
+                    ('Expire Time', 'datetime'), 'PD Place')
+    data_list = []
 
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	data_list = []
-	if usageentries > 0:
-		for row in all_rows:
-			pd_place = ''.join(f'{row}<br>' for row in set(strings(row[4])))
-			data_list.append((row[2], row[0], row[1], row[3], pd_place))
-		description = ''
-		report = ArtifactHtmlReport('Geolocation')
-		report.start_artifact_report(report_folder, 'PD Place Cache', description)
-		report.add_script()
-		data_headers = ( "last access time", "requestkey", "pdplacehash", "expire time", "pd place")
-		report.write_artifact_data_table(data_headers, data_list, file_found, html_escape = False)
-		report.end_artifact_report()
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('.db'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
 
-		tsvname = 'Geolocation PD Place Caches'
-		tsv(report_folder, data_headers, data_list, tsvname)
-		
-		tlactivity = 'Geolocation PD Place Caches'
-		timeline(report_folder, tlactivity, data_list, data_headers)
+    if does_table_exist_in_db(source_path, 'pdplacelookup'):
+        query = '''SELECT requestkey, pdplacelookup.pdplacehash, lastaccesstime, expiretime, pdplace
+            FROM pdplacelookup
+            INNER JOIN pdplaces ON pdplacelookup.pdplacehash = pdplaces.pdplacehash'''
+        for row in get_sqlite_db_records(source_path, query):
+            pd_place = '\n'.join(sorted(set(strings(row[4]))))
+            data_list.append((convert_cocoa_core_data_ts_to_utc(row[2]), row[0], row[1],
+                              convert_cocoa_core_data_ts_to_utc(row[3]), pd_place))
 
-	else:
-		logfunc('No data available for Geolocation PD Place Caches')
-
-	db.close()
-	return
-	
+    return data_headers, data_list, context.get_relative_path(source_path)

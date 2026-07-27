@@ -1,58 +1,64 @@
+__artifacts_v2__ = {
+    "tileApp": {
+        "name": "Tile App Geolocation Logs",
+        "description": "Latitude/longitude coordinates recorded in Tile app logs",
+        "author": "",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Locations",
+        "notes": "Log timestamps stored as UTC.",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*',),
+        "output_types": "all",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | Tile - Find lost keys & phone 2.115.0 | 0 rows",
+        }
+    }
+}
+
 import gzip
-import re
 import os
-import scripts.artifacts.artGlobals
+import re
 
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, kmlgen,tsv, is_platform_windows 
+from scripts.ilapfuncs import artifact_processor, convert_ts_human_to_utc
+
+_REGEX_DATE = r"\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3}"
+_REGEX_LATLONG = (r"<[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*"
+                  r"[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)>")
 
 
-def get_tileApp(files_found, report_folder, seeker):
+@artifact_processor
+def tileApp(context):
+    data_headers = (('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Row Number', 'Source File')
     data_list = []
-    
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('gz'):
-            x=gzip.open
-        elif file_found.endswith('log'):
-            x=open
-        
-        counter = 0
-        with x(file_found,'rt',) as f:
-            for line in f:
-                regexdate = r"\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3}"
-                datestamp = re.search(regexdate, line)  
-                counter +=1
-                if datestamp != None:
-                    datestamp = datestamp.group(0)
-                    regexlatlong = r"<[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)>"
-                    latlong = re.search(regexlatlong, line)
-                    if latlong != None:
-                        latlong = latlong.group(0)
-                        latlong = latlong.strip('<')
-                        latlong = latlong.strip('>')
-                        lat, longi = latlong.split(',')
-                        head_tail = os.path.split(file_found) 
-                        data_list.append((datestamp, lat.lstrip(), longi.lstrip(), counter, head_tail[1]))
+    sources = []
 
-    if len(data_list) > 0:
-        description = 'Tile app log recorded langitude and longitude coordinates.'
-        report = ArtifactHtmlReport('Locations')
-        report.start_artifact_report(report_folder, 'Tile App Geolocation Logs', description)
-        report.add_script()
-        data_headers = ('Timestamp', 'Latitude', 'Longitude', 'Row Number', 'Source File' )     
-        report.write_artifact_data_table(data_headers, data_list, head_tail[0])
-        report.end_artifact_report()
-        
-        tsvname = 'Tile App Lat Long'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Tile App Lat Long'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-        
-        kmlactivity = 'Tile App Lat Long'
-        kmlgen(report_folder, kmlactivity, data_list, data_headers)
-    
-        
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('gz'):
+            opener = gzip.open
+        elif file_found.endswith('log'):
+            opener = open
+        else:
+            continue
+
+        counter = 0
+        had_data = False
+        with opener(file_found, 'rt') as f:
+            for line in f:
+                counter += 1
+                datestamp = re.search(_REGEX_DATE, line)
+                if datestamp is None:
+                    continue
+                latlong = re.search(_REGEX_LATLONG, line)
+                if latlong is None:
+                    continue
+                lat, longi = latlong.group(0).strip('<').strip('>').split(',')
+                data_list.append((convert_ts_human_to_utc(datestamp.group(0)),
+                                  lat.lstrip(), longi.lstrip(), counter, os.path.basename(file_found)))
+                had_data = True
+        if had_data:
+            sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))

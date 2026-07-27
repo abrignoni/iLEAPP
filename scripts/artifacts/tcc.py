@@ -1,60 +1,103 @@
-import glob
-import os
-import pathlib
-import plistlib
-import sqlite3
-import scripts.artifacts.artGlobals #use to get iOS version -> iOSversion = scripts.artifacts.artGlobals.versionf
-from packaging import version #use to search per version number
+# pylint: disable=W0613
+__artifacts_v2__ = {
+    'tcc': {
+        'name': 'Application Permissions',
+        'description': 'Extract application permissions from TCC.db database',
+        'author': '@AlexisBrignoni - @KevinPagano3 - @johannplw',
+        'creation_date': '2020-12-15',
+        'last_update_date': '2025-04-07',
+        'requirements': 'none',
+        'category': 'App Permissions',
+        'notes': '',
+        'paths': ('*/mobile/Library/TCC/TCC.db*','*/logs/Accessibility/TCC.db*'),
+        'output_types': 'standard',
+        'artifact_icon': 'key',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 46 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 141 rows',
+            'felix_ios17': 'iOS 17.6.1 | 118 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 121 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 109 rows',
+            'iphone11_ios17': 'iOS 17.3 | 289 rows',
+            'iphone12_ios18': 'iOS 18.7 | 143 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 69 rows',
+            'otto_ios17': 'iOS 17.5.1 | 185 rows',
+            'abe_ios16': 'iOS 16.5 | 184 rows',
+            'felix23_ios16': 'iOS 16.5 | 127 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 130 rows',
+            'hickman_ios14': 'iOS 14.3 | 154 rows',
+            'jess_ios15': 'iOS 15.0.2 | 76 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 66 rows',
+        }
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
 
-def get_tcc(files_found, report_folder, seeker):
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('TCC.db'):
-            break
-        
-    db = open_sqlite_db_readonly(file_found)
-    iOSversion = scripts.artifacts.artGlobals.versionf
-    if version.parse(iOSversion) >= version.parse("9"):
-        cursor = db.cursor()
-        cursor.execute('''
-        select client,
+from scripts.ilapfuncs import artifact_processor, \
+    get_file_path, get_sqlite_db_records, does_column_exist_in_db, \
+    convert_unix_ts_to_utc
+
+
+@artifact_processor
+def tcc(context):
+    source_path = get_file_path(context.get_files_found(), 'TCC.db')
+    data_list = []
+
+    last_modified_timestamp_exists = does_column_exist_in_db(
+        source_path, 'access', 'last_modified')
+
+    if does_column_exist_in_db(source_path, 'access', 'auth_value'):
+        access = '''
+        case auth_value
+            when 0 then 'Not allowed'
+            when 2 then 'Allowed'
+            when 3 then 'Limited'
+            else auth_value
+        end as 'Access'
+        '''
+    else:
+        access = '''
+        case allowed
+            when 0 then 'Not allowed'
+            when 1 then 'Allowed'
+            else allowed
+        end as 'Access'
+        '''
+
+    prompt_count_exists = does_column_exist_in_db(
+        source_path, 'access', 'prompt_count')
+
+    query = f'''
+    SELECT
+        {'last_modified,' if last_modified_timestamp_exists else ''}
+        client,
         service,
-        datetime(last_modified,'unixepoch')
-        from access
-        order by client
-        ''')
-        
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        if usageentries > 0:
-            data_list =[]
-            for row in all_rows: 
-                data_list.append((row[0], row[1], row[2]))
+        {access}
+        {',prompt_count' if prompt_count_exists else ''}
+    FROM access
+    ORDER BY client
+    '''
 
-        if usageentries > 0:
-            report = ArtifactHtmlReport('TCC - Permissions')
-            report.start_artifact_report(report_folder, 'TCC - Permissions')
-            report.add_script()
-            data_headers = ('Bundle ID','Permissions','Last Modified Timestamp')
-            report.write_artifact_data_table(data_headers, data_list, file_found, html_escape=False)
-            report.end_artifact_report()
-            
-            '''
-            tsvname = 'InteractionC Contacts'
-            tsv(report_folder, data_headers, data_list, tsvname)
-            
-            tlactivity = 'InteractonC Contacts'
-            timeline(report_folder, tlactivity, data_list, data_headers)
-            '''
+    if last_modified_timestamp_exists:
+        data_headers = (
+            ('Last Modified Timestamp', 'datetime'),
+            'Bundle ID',
+            'Service',
+            'Access')
+    else:
+        data_headers = ('Bundle ID', 'Service', 'Access', 'Prompt Count')
+
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        if last_modified_timestamp_exists:
+            last_modified_timestamp = convert_unix_ts_to_utc(
+                record['last_modified'])
+            data_list.append(
+                (last_modified_timestamp, record[1],
+                 record[2].replace('kTCCService', ''), record[3]))
         else:
-            logfunc('No data available in TCC database.')
+            data_list.append((record[1], record[2].replace('kTCCService', ''),
+                              record[3], record[4]))
 
-        db.close()
-        return      
-    
-    
-    
+    return data_headers, data_list, source_path

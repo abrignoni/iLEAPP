@@ -1,104 +1,353 @@
+# Parts of this script have been modified from code
+# found in Yogesh Khatri's mac_apt project Notes plugin (https://github.com/ydkhatri/mac_apt)
+# and used under terms of the MIT License.
+__artifacts_v2__ = {
+    "notes": {
+        "name": "Notes",
+        "description": "Apple Notes including decoded note body text and embedded attachments",
+        "author": "",
+        "creation_date": "2026-06-24",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Notes",
+        "notes": "Note body text is decompressed and parsed from the protobuf blob. "
+                 "Password-protected note contents are not decoded.",
+        "paths": ('*/NoteStore.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "file-text",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 5 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 0 rows",
+            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 0 rows",
+            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.apple.notes | 3 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.apple.notes | 7 rows",
+            "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | group.com.apple.notes | 0 rows",
+        }
+    },
+    "notesParticipants": {
+        "name": "Notes - Shared Note Participants",
+        "description": "People a note is shared with, decoded from the CloudKit share record held against each invitation",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-25",
+        "requirements": "none",
+        "category": "Notes",
+        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA.",
+        "paths": ('*/NoteStore.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users",
+        "sample_data": {
+            "josh_ios17_ffs": "iOS 17.3 | 4 rows across 2 shared notes",
+        }
+    }
+}
+
+import binascii
+import os
+import re
+import zlib
 from os.path import dirname, join
-from PIL import Image
-import imghdr
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+import nska_deserialize as nd
+
+from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media,
+                               convert_cocoa_core_data_ts_to_utc,
+                               does_table_exist_in_db, get_sqlite_db_records,
+                               logfunc)
 
 
-def get_notes(files_found, report_folder, seeker):
+def _build_query(creation_col, account_col):
+    """Notes schema varies by iOS version; only the creation-date and account
+    columns differ (chosen per-db by _query_for_db). Folder and account are
+    LEFT-joined and ZICNOTEDATA is the INNER "is a note" anchor, so a note is
+    never dropped when its folder or account reference can't be resolved."""
+    return f'''
+    SELECT
+        DATETIME(TabA.{creation_col}+978307200,'UNIXEPOCH'),
+        TabA.ZTITLE1,
+        TabA.ZSNIPPET,
+        TabB.ZTITLE2,
+        TabC.ZNAME,
+        DATETIME(TabA.ZMODIFICATIONDATE1+978307200,'UNIXEPOCH'),
+        CASE TabA.ZISPASSWORDPROTECTED WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' END,
+        TabA.ZPASSWORDHINT,
+        CASE TabA.ZMARKEDFORDELETION WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' END,
+        CASE TabA.ZISPINNED WHEN 0 THEN 'No' WHEN 1 THEN 'Yes' END,
+        TabE.ZFILENAME,
+        TabE.ZIDENTIFIER,
+        TabD.ZFILESIZE,
+        TabD.ZTYPEUTI,
+        DATETIME(TabD.ZCREATIONDATE+978307200,'UNIXEPOCH'),
+        DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH'),
+        TabF.ZDATA
+    FROM ZICCLOUDSYNCINGOBJECT TabA
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.{account_col} = TabC.Z_PK
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
+    INNER JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
+    '''
+
+
+def _pick_note_column(file_found, prefix, default):
+    """Pick the ZICCLOUDSYNCINGOBJECT ``<prefix>N`` column populated on note rows.
+
+    The note->account foreign key and the note creation date have drifted across
+    iOS versions (account: ZACCOUNT2 on iOS 12-13, ZACCOUNT4 on iOS 14-15,
+    ZACCOUNT7 on iOS 16+). Several same-prefixed columns coexist in one schema
+    and all but one are NULL for notes -- iOS 18 also carries an unrelated
+    ZACCOUNT8 -- so selecting the first column that merely *exists* returned zero
+    notes on iOS 16+. Probe which candidate is non-null on rows that have note
+    data instead, preferring the newest (highest-suffixed) on a tie; this
+    self-adjusts to future schema changes.
+    """
+    candidates = [row[0] for row in get_sqlite_db_records(
+        file_found,
+        "SELECT name FROM pragma_table_info('ZICCLOUDSYNCINGOBJECT') "
+        f"WHERE name LIKE '{prefix}%'")
+        if re.fullmatch(re.escape(prefix) + r'\d*', row[0])]
+    best, best_count, best_suffix = default, 0, -1
+    for col in candidates:
+        records = list(get_sqlite_db_records(
+            file_found,
+            'SELECT COUNT(*) FROM ZICCLOUDSYNCINGOBJECT TabA '
+            'INNER JOIN ZICNOTEDATA TabF ON TabF.ZNOTE = TabA.Z_PK '
+            f'WHERE TabA.{col} IS NOT NULL'))
+        count = records[0][0] if records else 0
+        suffix = int(re.sub(r'\D', '', col) or -1)
+        if count > best_count or (count == best_count > 0 and suffix > best_suffix):
+            best, best_count, best_suffix = col, count, suffix
+    return best
+
+
+def _query_for_db(file_found):
+    creation_col = _pick_note_column(file_found, 'ZCREATIONDATE', 'ZCREATIONDATE1')
+    account_col = _pick_note_column(file_found, 'ZACCOUNT', 'ZACCOUNT2')
+    return _build_query(creation_col, account_col)
+
+
+def get_uncompressed_data(compressed):
+    if compressed is None:
+        return None
+    try:
+        return zlib.decompress(compressed, 15 + 32)
+    except zlib.error:
+        logfunc('Notes: zlib decompression failed')
+        return None
+
+
+def read_length_field(blob):
+    '''Return a tuple (length, skip) where skip is the number of bytes read.'''
+    length = 0
+    skip = 0
+    try:
+        data_length = int(blob[0])
+        length = data_length & 0x7F
+        while data_length > 0x7F:
+            skip += 1
+            data_length = int(blob[skip])
+            length = ((data_length & 0x7F) << (skip * 7)) + length
+    except (IndexError, ValueError):
+        logfunc('Error trying to read length field in note data blob')
+    skip += 1
+    return length, skip
+
+
+def process_note_body_blob(blob):
+    if blob is None:
+        return ''
+    try:
+        pos = 0
+        if blob[0:3] != b'\x08\x00\x12':  # header
+            logfunc(f'Unexpected bytes in note header: {binascii.hexlify(blob[0:3])}')
+            return ''
+        pos += 3
+        _, skip = read_length_field(blob[pos:])
+        pos += skip
+        if blob[pos:pos + 3] != b'\x08\x00\x10':  # header 2
+            logfunc(f'Unexpected bytes in note header 2 at pos {pos}')
+            return ''
+        pos += 3
+        _, skip = read_length_field(blob[pos:])
+        pos += skip
+        if blob[pos] != 0x1A:  # text header
+            logfunc(f'Unexpected byte in note text header at pos {pos}')
+            return ''
+        pos += 1
+        _, skip = read_length_field(blob[pos:])
+        pos += skip
+        if blob[pos] != 0x12:  # text tag
+            logfunc(f'Unexpected byte at pos {pos}')
+            return ''
+        pos += 1
+        length, skip = read_length_field(blob[pos:])
+        pos += skip
+        return blob[pos:pos + length].decode('utf-8', 'backslashreplace')
+    except (IndexError, ValueError):
+        logfunc('Error processing note data blob')
+        return ''
+
+
+@artifact_processor
+def notes(context):
+    data_headers = (
+        ('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents', 'Folder',
+        'Storage Place', ('Last Modified', 'datetime'), 'Password Protected', 'Password Hint',
+        'Marked for Deletion', 'Pinned', ('Attachment', 'media'), 'Attachment Original Filename',
+        'Attachment Storage Folder', 'Attachment Size in KB', 'Attachment Type',
+        ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'))
     data_list = []
-    for file_found in files_found:
+    sources = []
+
+    for file_found in context.get_files_found():
         file_found = str(file_found)
+        if not file_found.endswith('.sqlite'):
+            continue
 
-        if file_found.endswith('.sqlite'):
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''
-                SELECT 
-                DATETIME(TabA.ZCREATIONDATE1+978307200,'UNIXEPOCH'), 
-                TabA.ZTITLE1,
-                TabA.ZSNIPPET,
-                TabB.ZTITLE2,
-                TabC.ZNAME,
-                DATETIME(TabA.ZMODIFICATIONDATE1+978307200,'UNIXEPOCH'),
-                case TabA.ZISPASSWORDPROTECTED
-                when 0 then "No"
-                when 1 then "Yes"
-                end,
-                TabA.ZPASSWORDHINT,
-                case TabA.ZMARKEDFORDELETION
-                when 0 then "No"
-                when 1 then "Yes"
-                end,
-                case TabA.ZISPINNED
-                when 0 then "No"
-                when 1 then "Yes"
-                end,
-                TabE.ZFILENAME,
-                TabE.ZIDENTIFIER,
-                TabD.ZFILESIZE,
-                TabD.ZTYPEUTI,
-                DATETIME(TabD.ZCREATIONDATE+978307200,'UNIXEPOCH'),
-                DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH')
-                FROM ZICCLOUDSYNCINGOBJECT TabA
-                INNER JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
-                INNER JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.ZACCOUNT3 = TabC.Z_PK
-                LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
-                LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
-                WHERE TabA.ZTITLE1 <> ''
-                ''')
+        rows = get_sqlite_db_records(file_found, _query_for_db(file_found))
+        # if not rows:
+        #     continue
+        # NOTE: if the generator is empty, it won't loop, so we don't have to
+        #   skip it here
 
-            all_rows = cursor.fetchall()
-            analyzed_file = file_found
-
-    if len(all_rows) > 0:
-        for row in all_rows:
-
-            if row[10] is not None and row[11] is not None:
-                attachment_file = join(dirname(analyzed_file), 'Accounts/LocalAccount/Media', row[11], row[10])
-                attachment_storage_path = dirname(attachment_file)
-                if imghdr.what(attachment_file) == 'jpeg' or imghdr.what(attachment_file) == 'jpg' or imghdr.what(attachment_file) == 'png':
-                    thumbnail_path = join(report_folder, 'thumbnail_'+row[10])
-                    save_original_attachment_as_thumbnail(attachment_file, thumbnail_path)
-                    thumbnail = '<img src="{}">'.format(thumbnail_path)
-                else:
-                    thumbnail = 'File is not an image or the filetype is not supported yet.'
+        for row in rows:
+            if row[6] == 'No' and row[16] is not None:
+                text_content = process_note_body_blob(get_uncompressed_data(row[16]))
             else:
-                thumbnail = ''
-                attachment_storage_path = ''
+                text_content = ''
+
+            media_ref = None
+            attachment_storage = ''
+            filename, identifier = row[10], row[11]
+            if filename and identifier:
+                attachment_file = join(dirname(file_found), 'Accounts/LocalAccount/Media',
+                                       identifier, filename)
+                attachment_storage = context.get_relative_path(dirname(attachment_file))
+                if os.path.exists(attachment_file):
+                    try:
+                        with open(attachment_file, 'rb') as af:
+                            media_ref = check_in_embedded_media(file_found, af.read(), filename)
+                    except OSError as ex:
+                        logfunc(f'Failed to read Notes attachment {attachment_file}: {ex}')
 
             if row[12] is not None:
-                filesize = '.'.join(str(row[12])[i:i+3] for i in range(0, len(str(row[12])), 3))
+                filesize = '.'.join(str(row[12])[i:i + 3] for i in range(0, len(str(row[12])), 3))
             else:
                 filesize = ''
 
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], thumbnail, row[10], attachment_storage_path, filesize, row[13], row[14], row[15]))
+            data_list.append((row[0], row[1], row[2], text_content, row[3], row[4], row[5],
+                              row[6], row[7], row[8], row[9], media_ref, row[10],
+                              attachment_storage, filesize, row[13], row[14], row[15]))
 
-        report = ArtifactHtmlReport('Notes')
-        report.start_artifact_report(report_folder, 'Notes')
-        report.add_script()
-        data_headers = ('Creation Date', 'Note', 'Snippet', 'Folder', 'Storage Place', 'Last Modified',
-                        'Password Protected', 'Password Hint', 'Marked for Deletion', 'Pinned', 'Attachment Thumbnail',
-                        'Attachment Original Filename', 'Attachment Storage Folder', 'Attachment Size in KB',
-                        'Attachment Type', 'Attachment Creation Date', 'Attachment Last Modified')
-        report.write_artifact_data_table(data_headers, data_list, analyzed_file, html_no_escape=['Attachment Thumbnail'])
-        report.end_artifact_report()
+        sources.append(context.get_relative_path(file_found))
 
-        tsvname = 'Notes'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Notes'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Notes available')
-
-    db.close()
-    return
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))
 
 
-def save_original_attachment_as_thumbnail(file, store_path):
-    image = Image.open(file)
-    thumbnail_max_size = (350, 350)
-    image.thumbnail(thumbnail_max_size)
-    image.save(store_path)
+# CloudKit share enumerations, as they appear in ZICINVITATION.ZSERVERSHAREDATA.
+_PARTICIPANT_TYPE = {1: 'Owner', 2: 'Private User', 3: 'Public User'}
+_PARTICIPANT_PERMISSION = {1: 'None', 2: 'Read Only', 3: 'Read/Write'}
+_PARTICIPANT_ACCEPTANCE = {1: 'Pending', 2: 'Accepted', 3: 'Removed'}
+
+
+def _flatten_share_blob(decoded):
+    """The share record deserializes as a list of single-key dicts; merge them."""
+    if isinstance(decoded, dict):
+        return decoded
+    merged = {}
+    if isinstance(decoded, list):
+        for entry in decoded:
+            if isinstance(entry, dict):
+                merged.update(entry)
+    return merged
+
+
+def _participant_name(user_identity):
+    """Join the given/family name components of a share participant."""
+    components = user_identity.get('NameComponents')
+    if not isinstance(components, dict):
+        return ''
+    private = components.get('NS.nameComponentsPrivate')
+    if not isinstance(private, dict):
+        return ''
+    parts = [private.get('NS.givenName'), private.get('NS.familyName')]
+    return ' '.join(part for part in parts if part)
+
+
+@artifact_processor
+def notesParticipants(context):
+    data_headers = (
+        ('Invitation Created', 'datetime'), ('Invitation Received', 'datetime'),
+        ('Last Modified', 'datetime'), 'Note Title', 'Note Snippet', 'Participant Name',
+        'Email Address', ('Phone Number', 'phonenumber'), 'Role', 'Permission',
+        'Acceptance Status', 'Participant ID', 'Share URL', 'Source File')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('.sqlite'):
+            continue
+        if not does_table_exist_in_db(file_found, 'ZICINVITATION'):
+            continue
+
+        query = '''
+        SELECT ZCREATIONDATE, ZRECEIVEDDATE, ZMODIFICATIONDATE, ZTITLE, ZSNIPPET,
+               ZSHAREURL, ZSERVERSHAREDATA
+        FROM ZICINVITATION
+        WHERE ZSERVERSHAREDATA IS NOT NULL
+        '''
+
+        found_any = False
+        for record in get_sqlite_db_records(file_found, query):
+            try:
+                share = _flatten_share_blob(
+                    nd.deserialize_plist_from_string(record['ZSERVERSHAREDATA']))
+            except (nd.DeserializeError, ValueError, TypeError) as ex:
+                logfunc(f'Could not decode Notes share record: {ex}')
+                continue
+
+            for participant in share.get('LastFetchedParticipants') or []:
+                if not isinstance(participant, dict):
+                    continue
+                identity = participant.get('UserIdentity')
+                identity = identity if isinstance(identity, dict) else {}
+                lookup = identity.get('LookupInfo')
+                lookup = lookup if isinstance(lookup, dict) else {}
+
+                found_any = True
+                data_list.append((
+                    convert_cocoa_core_data_ts_to_utc(record['ZCREATIONDATE'])
+                    if record['ZCREATIONDATE'] else '',
+                    convert_cocoa_core_data_ts_to_utc(record['ZRECEIVEDDATE'])
+                    if record['ZRECEIVEDDATE'] else '',
+                    convert_cocoa_core_data_ts_to_utc(record['ZMODIFICATIONDATE'])
+                    if record['ZMODIFICATIONDATE'] else '',
+                    record['ZTITLE'],
+                    record['ZSNIPPET'],
+                    _participant_name(identity),
+                    lookup.get('EmailAddress', ''),
+                    lookup.get('PhoneNumber', ''),
+                    _PARTICIPANT_TYPE.get(participant.get('Type'), participant.get('Type')),
+                    _PARTICIPANT_PERMISSION.get(participant.get('Permission'),
+                                                participant.get('Permission')),
+                    _PARTICIPANT_ACCEPTANCE.get(participant.get('AcceptanceStatus'),
+                                                participant.get('AcceptanceStatus')),
+                    participant.get('ParticipantID'),
+                    record['ZSHAREURL'],
+                    context.get_relative_path(file_found),
+                ))
+
+        if found_any:
+            sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, ', '.join(sources)

@@ -1,0 +1,127 @@
+__artifacts_v2__ = {
+    "get_biomeUseractmeta": {
+        "name": "Biome - User Activity Metadata",
+        "description": "Parses user activity metadata entries from biomes",
+        "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2026-07-25",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "",
+        "paths": (
+            '*/Biome/streams/restricted/UserActivityMetadata/local*',
+            '*/streams/*/UniversalRecents.UserActivity.Metadata/local/*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "activity",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 364 rows",
+            "felix23_ios16": "iOS 16.5 | 166 rows",
+            "jess_ios15": "iOS 15.0.2 | 72 rows",
+            "magnet_ios16": "iOS 16.1.1 | 131 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 101 rows",
+            "iphone11_ios17": "iOS 17.3 | 450 rows",
+        }
+    }
+}
+
+
+import os
+from datetime import timezone
+from scripts import blackboxprotobuf
+from scripts.ccl_segb.ccl_segb import read_segb_file
+from scripts.ccl_segb.ccl_segb_common import EntryState
+from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, get_plist_content
+
+from datetime import datetime as _dt
+
+def _safe_time_obj(value):
+    """Set UTC tzinfo on datetime objects; pass strings/None through unchanged."""
+    return convert_time_obj_to_utc(value) if isinstance(value, _dt) else value
+
+
+
+@artifact_processor
+def get_biomeUseractmeta(context):
+
+    #typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '5': {'type': 'double', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
+    data_list = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        filename = os.path.basename(file_found)
+        if filename.startswith('.'):
+            continue
+        if os.path.isfile(file_found):
+            if 'tombstone' in file_found:
+                continue
+        else:
+            continue
+
+        for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
+            if record.state == EntryState.Written:
+                protostuff, _ = blackboxprotobuf.decode_message(record.data)
+
+                bplistdata = (protostuff['2'])
+                desc1 = (protostuff['4'].decode())
+                desc2 = (protostuff['5'].decode())
+                
+                
+                #deserialized_plist = nd.deserialize_plist_from_string(bplistdata)
+                deserialized_plist = get_plist_content(bplistdata)
+                if not deserialized_plist or not isinstance(deserialized_plist, dict):
+                    continue                
+                
+                title = (deserialized_plist.get('title',''))
+                when = (deserialized_plist['when'])
+                when = _safe_time_obj(when)
+                actype = (deserialized_plist['activityType'])
+                #exdate = (deserialized_plist.get('expirationDate',''))
+                
+                if (deserialized_plist.get('payload', '')) != '':
+                    payload = (deserialized_plist.get('payload'))
+                else:
+                    payload = ''
+                    
+                internalbplist = (deserialized_plist.get('contentAttributeSetData',''))
+                
+                if internalbplist != '':
+                    if type(internalbplist) != str:
+                        try:
+                            internalbplist = (deserialized_plist['contentAttributeSetData']['NS.data'])
+                        except (KeyError, TypeError) as ex:
+                            print(ex)
+                            print('Processing as bplist["container"] directly.')
+                        #deserialized_plist2 = nd.deserialize_plist_from_string(internalbplist)
+                        deserialized_plist2 = get_plist_content(internalbplist)
+                        if not deserialized_plist2 or not isinstance(deserialized_plist2, dict):
+                            continue
+                        container = (deserialized_plist2['container'])
+                    else:
+                        container = internalbplist
+                else:
+                    container =''
+                
+                agg = ''
+                for a, b in deserialized_plist.items():
+                    if a == 'payload':
+                        pass
+                    else:
+                        if b == ' ':
+                            b = 'NULL'
+                        agg = agg + f'{a} = {b}<br>'
+                
+                data_list.append((ts, when, record.state.name, actype, desc1, desc2, title, agg.strip(), payload,
+                                  container, filename, record.data_start_offset))
+
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None, filename,
+                                  record.data_start_offset))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Activity type',
+                    'Description', 'Bundle ID', 'Title', 'Bplist Data', 'Payload Data','Container Data', 'Filename',
+                    'Offset')
+
+    return data_headers, data_list, 'see Filename for more info'

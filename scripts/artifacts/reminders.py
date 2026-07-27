@@ -1,51 +1,68 @@
-from os.path import dirname
+__artifacts_v2__ = {
+    "reminders": {
+        "name": "Reminders",
+        "description": "iOS Reminders with creation and last-modified timestamps",
+        "author": "",
+        "creation_date": "2026-06-24",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Reminders",
+        "notes": "",
+        "paths": ('**/Reminders/Container_v1/Stores/*.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "bell",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, does_column_exist_in_db
 
 
-def get_reminders(files_found, report_folder, seeker):
+@artifact_processor
+def reminders(context):
+    data_headers = (
+        ('Creation Date', 'datetime'),
+        'Title',
+        'Note to Reminder',
+        ('Last Modified', 'datetime'),
+        'File Location')
     data_list = []
-    for file_found in files_found:
+    sources = []
+
+    query = '''
+    SELECT
+        DATETIME(ZCREATIONDATE + 978307200, 'UNIXEPOCH'),
+        DATETIME(ZLASTMODIFIEDDATE + 978307200, 'UNIXEPOCH'),
+        ZNOTES,
+        ZTITLE1
+    FROM ZREMCDOBJECT
+    WHERE ZTITLE1 <> ''
+    '''
+
+    for file_found in context.get_files_found():
         file_found = str(file_found)
+        if not file_found.endswith('.sqlite'):
+            continue
+        if not does_column_exist_in_db(file_found, 'ZREMCDOBJECT', 'ZLASTMODIFIEDDATE'):
+            continue
 
-        if file_found.endswith('.sqlite'):
-            db = open_sqlite_db_readonly(file_found)
-            cursor = db.cursor()
-            cursor.execute('''
-                SELECT
-                DATETIME(ZCREATIONDATE+978307200,'UNIXEPOCH'),
-                DATETIME(ZLASTMODIFIEDDATE+978307200,'UNIXEPOCH'),
-                ZNOTES,
-                ZTITLE1
-                FROM ZREMCDOBJECT
-                WHERE ZTITLE1 <> ''
-                ''')
+        rel_path = context.get_relative_path(file_found)
+        rows = list( get_sqlite_db_records(file_found, query) )
+        # NOTE: we could actually change this one to just consume the generator
+        #   if we think for more than the 15 seconds I thought of this
+        #   as per previous comments: big change, trying to change as little as
+        #   possible  -- bconstanzo
+        if not rows:
+            continue
+        for row in rows:
+            data_list.append((row[0], row[3], row[2], row[1], rel_path))
+        sources.append(rel_path)
 
-            all_rows = cursor.fetchall()
-            sqlite_file = file_found
-
-    if len(all_rows) > 0:
-        location_file_found = sqlite_file.split('Stores/', 1)[1]
-        for row in all_rows:
-            data_list.append((row[0], row[3], row[2], row[1], location_file_found))
-
-        dir_file_found = dirname(sqlite_file).split('Stores', 1)[0] + 'Stores'
-
-        report = ArtifactHtmlReport('Reminders')
-        report.start_artifact_report(report_folder, 'Reminders')
-        report.add_script()
-        data_headers = ('Creation Date', 'Title', 'Note to Reminder', 'Last Modified', 'File Location')
-        report.write_artifact_data_table(data_headers, data_list, dir_file_found)
-        report.end_artifact_report()
-
-        tsvname = 'Reminders'
-        tsv(report_folder, data_headers, data_list, tsvname)
-
-        tlactivity = 'Reminders'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Reminders available')
-
-    db.close()
-    return
+    return data_headers, data_list, ', '.join(dict.fromkeys(sources))

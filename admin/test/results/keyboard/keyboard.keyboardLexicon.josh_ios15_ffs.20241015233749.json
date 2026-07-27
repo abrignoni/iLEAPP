@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "module_name": "keyboard",
+    "artifact_name": "Keyboard Dynamic Lexicon",
+    "function_name": "keyboardLexicon",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 2,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 2961,
+    "input_zip_path": "admin/test/cases/data/testdata.keyboard.keyboardLexicon.josh_ios15_ffs.zip",
+    "start_time": "2024-10-15T23:37:49.128653+00:00",
+    "end_time": "2024-10-15T23:37:49.166695+00:00",
+    "run_time_seconds": 0.0007491111755371094,
+    "last_commit": {
+      "hash": "b0b3e080d8c8b934f641745223fc512c40c9a639",
+      "author_name": "James Habben",
+      "author_email": "james@wmif.net",
+      "date": "2024-10-14T16:16:36-07:00",
+      "message": "updates for testing and module"
+    }
+  },
+  "headers": [
+    "Found Strings",
+    "File Location"
+  ],
+  "data": [
+    [
+      "3rd,N(%O4fa3,about,N(%Oacb4,accident,actually,ads,N(%Oaf1a,afternoon,after,against,again,agreed,alarm,N(%Alarm,all,also,amazed,Android,and,another,any,apparently,appear,apps,app,6ap,are,around,attached,N(d,Attachment,attachment,audio,Austin,avatar,awesome,backwards,back,bad,N'Bandit,basic,battery,Beach,N(%Obeee,been,before,believe,+Below,best,better,bigger,big,binge,bite,bit,both,breakfast,burned,burner,but,calling,calls,call,canceled,cannot,can't,can,catching,charged,chat,Chinese,chose,close,clue,comes,confusing,cooked,correct,could,covered,cracked,crazy,create,creating,crowded,daily,N(%Daily,data,day,deal,decided,+Deck,definitely,deleted,delete,devices,didn't,did,dinner,DM's,DMs,doesn't,does,doing,N(,gDominant,N(,iDominion,done,don't,download,down,N(,cDo,drained,dropped,N'DS9,dying,eat,edit,emojis,episode,N(%Event,everyone,everything,excuse,experienced,experiencing,extra,N(%Of5c4,FaceTime,fair,fam,favorite,features,few,figure,find,finish,first,forgot,for,from,general,generated,generate,generating,getting,get,give,glad,going,gone,good,Google,got,grabbed,great,group,_Group,guess,Hal,handled,hangs,hang,happened,happens,happen,hard,has,have,head,heard,hearing,heck,hello,here,hey,hide,Hiw,horrendous,horrible,hours,hour,how's,how,huddle,hustle,N'Ibaudio,I'll,ill,N'Images,image,N(%qImage,I'm,incoming,initially,_Ios15,iOS,iPhone,$Is,it's,I've,June,just,keep,keyboard,kids,N'Kik,Kim,knows,know,lame,last,later,leaning,learn,let's,let,like,lines,list,location,lol,Lol,long,looks,look,lot,lunch,machine,main,make,many,man,may,kma,meetings,meeting,N(d7Memes,messages,message,messaging,4miening,mine,minutes,minute,momentarily,moment,more,morning,mostly,move,much,N'Murica,myself,native,needs,need,never,new,next,nice,nope,note,N(,Note,nothing,noticed,notifications,not,now,number,odd,off,old,ones,one,only,honl,open,ouch,our,out,overdue,over,own,pain,party,part,pay,people,percent,phone,picture,N(%]Pic,pic,plans,please,plot,point,poor,portability,present,private,probably,quick,quite,raining,recall,received,regular,relax,removed,remove,reply,retiring,room,Room,run,sailboat,same,saved,saving,says,season,secure,seems,seem,see,sending,send,sent,server,service,setting,set,shall,should,shows,show,sidetracked,since,sir,sitting,slightly,slowly,slow,something,some,sooo,sorry,sounds,N'1Space,speaking,standby,started,start,still,storage,stuck,stuff,sucks,sure,switch,takeout,N'takeou,takes,tell,testing,N'Test,test,texts,thank,that's,that,them,then,there's,there,these,they,the,N(,iThe,things,thing,think,this,thought,though,through,time,today,too,total,towards,trashed,ytrashws,trashy,truck,true,truth,try,turn,two,typo,underrated,unfortunately,unsend,use,video,Voice,waffles,waffle,want,wasn't,was,watched,watching,week,welcome,well,we'll,we've,what's,\nb\t,what,when,which,N'Whic,who,why,will,winding,window,with,won't,would,Wrightsville,N(%wss,N(%]w,yay,yeah,yea,yep,Yes,yet,you'd,N(%IYou'reI,1You're,you're,your,you",
+      "en-dynamic.lm/dynamic-lexicon.dat"
+    ]
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "module_name": "advertisingID",
+    "artifact_name": "Advertising Identifier",
+    "function_name": "get_adId",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 2,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 64,
+    "input_zip_path": "admin/test/cases/data/advertisingID/testdata.advertisingID.get_adId.mvs_ios_2023.zip",
+    "start_time": "2024-10-29T18:09:00.255342+00:00",
+    "end_time": "2024-10-29T18:09:00.336795+00:00",
+    "run_time_seconds": 0.02880382537841797,
+    "last_commit": {
+      "hash": "809b08c7dac89b2f2bcc7d6692b9981e3cf39913",
+      "author_name": "Johann Polewczyk",
+      "author_email": "johannplw@me.com",
+      "date": "2024-10-17T19:06:04+02:00",
+      "message": "resolve kml error issue with 'all' in output_types"
+    }
+  },
+  "headers": [
+    "Identifier",
+    "Data Value"
+  ],
+  "data": [
+    [
+      "Apple Advertising Identifier",
+      "A07BF489-9C5A-4915-9999-438B0A93D291"
+    ]
+  ]
+}

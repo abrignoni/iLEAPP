@@ -1,55 +1,161 @@
-import glob
-import os
-import pathlib
+__artifacts_v2__ = {
+    "safariTabsBrowserState": {
+        "name": "Safari Browser - Tabs (BrowserState)",
+        "description": "Open Safari tabs from BrowserState.db",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "category": "Safari Browser", "notes": "",
+        "paths": ('**/Safari/BrowserState.db*',),
+        "output_types": "standard", "artifact_icon": "layout",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.apple.mobilesafari | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 2 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
+    },
+    "safariTabsiCloud": {
+        "name": "Safari Browser - iCloud Tabs",
+        "description": "Safari iCloud (cloud) tabs synced across devices",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "category": "Safari Browser", "notes": "",
+        "paths": ('**/Safari/CloudTabs.db*',),
+        "output_types": "standard", "artifact_icon": "cloud",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 23 rows",
+            "abe_ios16": "iOS 16.5 | 28 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 4 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
+    }
+}
+
+import io
 import plistlib
-import sqlite3
-import json
+from datetime import datetime, timezone
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+import nska_deserialize as nd
+
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
+
+_PLIST_ERRORS = (nd.DeserializeError, nd.biplist.NotBinaryPlistException,
+                 nd.biplist.InvalidPlistException, nd.plistlib.InvalidFileException,
+                 nd.ccl_bplist.BplistError, ValueError, TypeError, OSError, OverflowError)
 
 
-def get_safariTabs(files_found, report_folder, seeker):
-	file_found = str(files_found[0])
-	db = open_sqlite_db_readonly(file_found)
-	cursor = db.cursor()
+def _aware_utc(value):
+    """Tag a naive datetime as UTC (RecordCtime/RecordMtime deserialize naive); pass others through."""
+    if isinstance(value, datetime) and value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value
 
-	cursor.execute("""
-	select
-	datetime(last_viewed_time+978307200,'unixepoch'), 
-	title, 
-	url, 
-	user_visible_url, 
-	opened_from_link, 
-	private_browsing
-	from
-	tabs
-	""")
 
-	all_rows = cursor.fetchall()
-	usageentries = len(all_rows)
-	data_list = []    
-	if usageentries > 0:
-		for row in all_rows:
-			data_list.append((row[0], row[1], row[2], row[3], row[4], row[5]))
-	
-		description = ''
-		report = ArtifactHtmlReport('Safari Browser Tabs')
-		report.start_artifact_report(report_folder, 'Tabs', description)
-		report.add_script()
-		data_headers = ('Last Viewed Time','Title','URL','User Visible URL','Opened from Link', 'Private Browsing')     
-		report.write_artifact_data_table(data_headers, data_list, file_found)
-		report.end_artifact_report()
-		
-		tsvname = 'Safari Browser Tabs'
-		tsv(report_folder, data_headers, data_list, tsvname)
-		
-		tlactivity = 'Safari Browser Tabs'
-		timeline(report_folder, tlactivity, data_list, data_headers)
-		
-	else:
-		logfunc('No data available in table')
-	
-	db.close()
-	return 
-	
+def _load_blob_plist(blob):
+    """Decode a CloudKit system_fields blob: NSKeyedArchiver via nska_deserialize, else plain plist."""
+    if blob is None:
+        return None
+    obj = io.BytesIO(blob)
+    if blob.find(b'NSKeyedArchiver') == -1:
+        try:
+            return plistlib.load(obj)
+        except (plistlib.InvalidFileException, ValueError, OSError):
+            return None
+    try:
+        return nd.deserialize_plist(obj)
+    except _PLIST_ERRORS as ex:
+        logfunc(f'Safari iCloud Tabs: failed to read plist, error was: {ex}')
+        return None
+
+
+def _find(context, filename):
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith(filename):
+            return file_found
+    return ''
+
+
+@artifact_processor
+def safariTabsBrowserState(context):
+    data_headers = (('Associated Timestamp', 'datetime'), 'Title', 'URL', 'User Visible URL',
+                    'Opened from Link', 'Private Browsing')
+    data_list = []
+    source_path = _find(context, 'BrowserState.db')
+    if not source_path:
+        return data_headers, data_list, ''
+
+    # last_viewed_time is Apple absolute (Cocoa) time on iOS <= 18, but a Unix
+    # timestamp on iOS 26+. Cocoa values for realistic dates stay well below the
+    # 978307200 offset (which equals year 2032 in Cocoa time), while Unix values
+    # are always above it, so the magnitude disambiguates the two encodings.
+    query = '''
+    SELECT
+        CASE
+            WHEN last_viewed_time > 978307200
+                THEN datetime(last_viewed_time, 'unixepoch')
+            ELSE datetime(last_viewed_time + 978307200, 'unixepoch')
+        END,
+        title, url, user_visible_url, opened_from_link, private_browsing
+    FROM tabs
+    '''
+    for row in get_sqlite_db_records(source_path, query):
+        data_list.append(tuple(row))
+
+    return data_headers, data_list, context.get_relative_path(source_path)
+
+
+@artifact_processor
+def safariTabsiCloud(context):
+    data_headers = (('Created Timestamp', 'datetime'), ('Modified Timestamp', 'datetime'), 'Title',
+                    'URL', 'Device Name', 'Device UUID', 'Tab UUID', 'Modified By')
+    data_list = []
+    source_path = _find(context, 'CloudTabs.db')
+    if not source_path:
+        return data_headers, data_list, ''
+
+    query = '''
+    SELECT
+        cloud_tabs.system_fields, cloud_tabs.title, cloud_tabs.url,
+        cloud_tab_devices.device_name, cloud_tabs.device_uuid, cloud_tabs.tab_uuid
+    FROM cloud_tabs
+    LEFT JOIN cloud_tab_devices ON cloud_tab_devices.device_uuid = cloud_tabs.device_uuid
+    '''
+    for row in get_sqlite_db_records(source_path, query):
+        created = modified = mod_dev = ''
+        plist = _load_blob_plist(row[0])
+        if isinstance(plist, list):
+            for entry in plist:
+                if not isinstance(entry, dict):
+                    continue
+                for key, value in entry.items():
+                    if key == 'RecordCtime':
+                        created = value
+                    elif key == 'RecordMtime':
+                        modified = value
+                    elif key == 'ModifiedByDevice':
+                        mod_dev = value
+        data_list.append((_aware_utc(created), _aware_utc(modified), row[1], row[2], row[3],
+                          row[4], row[5], mod_dev))
+
+    return data_headers, data_list, context.get_relative_path(source_path)

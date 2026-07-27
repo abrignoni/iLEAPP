@@ -1,0 +1,139 @@
+__artifacts_v2__ = {
+    "get_biomeDevplugin": {
+        "name": "Biome - Device Plugged In",
+        "description": "Parses device plugged in entries from biomes",
+        "author": "@JohnHyla",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2025-10-31",
+        "requirements": "none",
+        "category": "Biome",
+        "notes": "",
+        "paths": ('*/Biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
+        "output_types": "standard",
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 1415 rows",
+            "felix_ios17": "iOS 17.6.1 | 304 rows",
+            "fsfull002_ios17": "iOS 17.1 | 153 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 639 rows",
+            "iphone11_ios17": "iOS 17.3 | 476 rows",
+            "iphone12_ios18": "iOS 18.7 | 455 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 18 rows",
+            "otto_ios17": "iOS 17.5.1 | 746 rows",
+            "abe_ios16": "iOS 16.5 | 3619 rows",
+            "felix23_ios16": "iOS 16.5 | 170 rows",
+            "magnet_ios16": "iOS 16.1.1 | 36 rows",
+        }
+    }
+}
+
+
+import os
+from datetime import timezone
+from scripts import blackboxprotobuf
+from scripts.ccl_segb.ccl_segb import read_segb_file
+from scripts.ccl_segb.ccl_segb_common import EntryState
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
+
+@artifact_processor
+def get_biomeDevplugin(context):
+
+    typess = {
+        '1': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {'type': 'str', 'name': ''},
+                '2': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {'type': 'int', 'name': ''},
+                        '2': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                }
+            },
+            'name': ''
+        },
+        '2': {'type': 'double', 'name': ''},
+        '3': {'type': 'double', 'name': ''},
+        '4': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {'type': 'int', 'name': ''},
+                        '2': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                },
+                '4': {'type': 'int', 'name': ''}
+            },
+            'name': ''
+        },
+        '5': {'type': 'str', 'name': ''},
+        '7': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {'type': 'message', 'message_typedef': {}, 'name': ''},
+                '2': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {
+                            'type': 'message',
+                            'message_typedef': {
+                                '1': {'type': 'int', 'name': ''},
+                                '2': {'type': 'int', 'name': ''}
+                            },
+                            'name': ''
+                        },
+                        '4': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                },
+                '3': {'type': 'int', 'name': ''}
+            },
+            'name': ''
+        },
+        '8': {'type': 'double', 'name': ''},
+        '10': {'type': 'int', 'name': ''}
+    }
+
+    data_list = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        filename = os.path.basename(file_found)
+        if filename.startswith('.'):
+            continue
+        if os.path.isfile(file_found):
+            if 'tombstone' in file_found:
+                continue
+        else:
+            continue
+
+        for record in read_segb_file(file_found):
+            ts = record.timestamp1
+            ts = ts.replace(tzinfo=timezone.utc)
+
+            if record.state == EntryState.Written:
+                protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
+
+                activity = (protostuff['1']['1'])
+                timestart = (webkit_timestampsconv(protostuff['2']))
+                timeend = (webkit_timestampsconv(protostuff['3']))
+                timewrite = (webkit_timestampsconv(protostuff['8']))
+                
+                con = (protostuff['4']['4'])
+                actionguid = (protostuff['5'])
+                
+                data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, con, actionguid,
+                                  filename, record.data_start_offset))
+
+            elif record.state == EntryState.Deleted:
+                data_list.append((ts, None, None, None, record.state.name, None, None, None, filename,
+                                  record.data_start_offset))
+
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
+                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
+
+    return data_headers, data_list, 'see Filename for more info'

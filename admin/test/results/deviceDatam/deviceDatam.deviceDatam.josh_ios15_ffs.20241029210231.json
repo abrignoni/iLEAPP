@@ -1,0 +1,160 @@
+{
+  "metadata": {
+    "module_name": "deviceDatam",
+    "artifact_name": "Device Data",
+    "function_name": "deviceDatam",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 2,
+    "number_of_rows": 33,
+    "total_data_size_bytes": 3024,
+    "input_zip_path": "admin/test/cases/data/deviceDatam/testdata.deviceDatam.deviceDatam.josh_ios15_ffs.zip",
+    "start_time": "2024-10-29T21:02:31.150051+00:00",
+    "end_time": "2024-10-29T21:02:31.215784+00:00",
+    "run_time_seconds": 0.002038717269897461,
+    "last_commit": {
+      "hash": "739956ca6d7a1d5b930a0ed0aef4e2f4bba5b649",
+      "author_name": "stark4n6",
+      "author_email": "48143894+stark4n6@users.noreply.github.com",
+      "date": "2024-05-09T09:37:27-04:00",
+      "message": "Bolding Device Detail Keys"
+    }
+  },
+  "headers": [
+    "Property",
+    "Property Value"
+  ],
+  "data": [
+    [
+      "ReportedSubscriberIdentity",
+      "8901260971148676693"
+    ],
+    [
+      "ne_config_state",
+      "False"
+    ],
+    [
+      "meid",
+      ""
+    ],
+    [
+      "kOperatorRoamingInfo_Subscriber_Mnc",
+      "260"
+    ],
+    [
+      "imeis",
+      "[{'second': '356763089830742', 'first': '1:kOne'}]"
+    ],
+    [
+      "kCarrierSpaceLastRefreshStatusKey",
+      "6000"
+    ],
+    [
+      "kLastUploadTimestamp",
+      "2023-05-17 12:27:53.245617"
+    ],
+    [
+      "user_default_voice_slot",
+      "1:kOne"
+    ],
+    [
+      "kOperatorRoamingInfo_Subscriber_CarrierBundleID",
+      "com.apple.TMobile_MVNO_US"
+    ],
+    [
+      "kPostponementActivationPushTokenRegRetryCount",
+      "0"
+    ],
+    [
+      "kAllowsMultiplePDNConnectionsToSameAPNConfiguration",
+      "{'AllowsMultiplePDNConnectionsToSameAPN': False}"
+    ],
+    [
+      "imei_svns",
+      "[{'second': '42', 'first': '1:kOne'}]"
+    ],
+    [
+      "kPostponementActivationPushToken",
+      "63e1ed7b80e827aefdfaa4e2025ce32976d5868a649b6bc8dcddee2b50aa98c1"
+    ],
+    [
+      "kCKUploadCount",
+      "1"
+    ],
+    [
+      "kOperatorRoamingInfo_3GPP_NetworkMnc",
+      "260"
+    ],
+    [
+      "kPRIFileConfiguration",
+      "{'kPRIFileVersion': '0.0.2', 'kPRIFileBundleID': 'com.apple.TMobile_MVNO_US', 'kPRIFileBundleVersion': '49.0', 'kPRIFileName': 'overrides_D201_D211_D221.der.pri', 'kPRIBundleDir': '/System/Library/Carrier Bundles/iPhone/TMobile_MVNO_US.bundle'}"
+    ],
+    [
+      "activation_gemini_support",
+      "1:kFalse"
+    ],
+    [
+      "kOperatorRoamingInfo_3GPP_RAT",
+      "7"
+    ],
+    [
+      "kOperatorRoamingInfo_3GPP_NetworkMcc",
+      "310"
+    ],
+    [
+      "kEnableIMSISwitchConfiguration",
+      "{'EnableIMSISwitch': False}"
+    ],
+    [
+      "kNextCarrierBundleUpdateCheck",
+      "2023-05-21 08:47:43.694897"
+    ],
+    [
+      "PersonalWallet",
+      "{'8901260971148676693': {'CarrierEntitlements': {'phone-number-prefetched': True}}}"
+    ],
+    [
+      "kOperatorRoamingInfo_3GPP_CurrentOperatorBundleId",
+      "com.apple.TMobile_US"
+    ],
+    [
+      "kPostponementTicketLock",
+      "False"
+    ],
+    [
+      "kGRIFileConfiguration",
+      "{'kGRIBundleDir': '/System/Library/Carrier Bundles/iPhone/Default.bundle', 'kGRIFileName': 'global_setting_B.gri', 'kGRIFileBundleVersion': '49.0', 'kGRIFileVersion': '8.1.1', 'kGRIFileBundleID': 'com.apple.Default'}"
+    ],
+    [
+      "kPostponementTicket",
+      "{'ActivityURL': 'https://albert.apple.com/deviceservices/activity', 'ActivationTicket': 'MIICqgIBATALBgkqhkiG9w0BAQsxcJ8/DNMRJCkxAiY0eU3KhJ9ABGUAAACfSxSgwYL6Ugdo4aLmtJLKvghDLEXDnJ+HbQc1Z2MImDB0n5c9DAAAAADu7u7u7u7u75+XPgQAAAAAn5c/BAEAAACfl0AEAQAAAJ+XQQQBAAAAn5dMBAAAAAAEggEABcasl71njis0tDALW6BSuQx9JGd5xqlMpRGcqsXcHzwXesnaYgFp7vqLFDkqZwbpFpxIbxG9tOAm6MEAXN3N5UjktmmtR+A36I/EtOyLuK9Vx9bezFz4ohTQ3+ol4TtvYeb42DIf6IAcIVynSCerN3LNjPi7nQ1phVRYT0FFERt6g0Jnu9rbAgRpgJNSrqRXKIePTLra2c/ljFJeTENtUZ7dbeTFobOXYPpEQFlAEQyWaor7rZadiap23Ikq4G+RBGdX9jR/IFS34ChQ6uymaqr42ghbmtpHuudeFCIhVJK/Ky44sHEbfA5Mn111dUaDpDFcomF5GrIvhrKMFig4qaOCASAwCwYJKoZIhvcNAQEBA4IBDwAwggEKAoIBAQCskU9F2dz8TtWBq2D8AdsqcYS51H66DxZmCHEw6U9p3d8vjaEcBdF5VFwETmWJBcTJo/SiPLezdAmG40RfAsxg4sIok0CPhKsTp1mon0JBqai68SdmN0L+AsEbmNK4AjjMX6GM5t7w5mdXpgZyigRtGQDnV2P7HnOZj69PS9r/D4Q50CJNaLrGJZ1UVBNcKkJNTMD2pxrHnxdSLTj51xVITBU71Tdl7KghSskP8WagOONk6J0IcOCwIaWct9A/+Aso4yk5/PDh1YUhbUiIO+z1TL5TdiHLITgc8NXHagB/yiOEEzOx2pcZVXXjwfSZlKRHj66VlWVHgT+bEHZl0/sdAgMBAAE=', 'PhoneNumberNotificationURL': 'https://albert.apple.com/deviceservices/phoneHome', 'ActivationState': 'Activated'}"
+    ],
+    [
+      "kOperatorRoamingInfo_Subscriber_Mcc",
+      "310"
+    ],
+    [
+      "is_activation_policy_locked",
+      "1:kFalse"
+    ],
+    [
+      "ReportedPhoneNumber",
+      "19195794674"
+    ],
+    [
+      "kOperatorRoamingInfo_3GPP_Roaming",
+      "True"
+    ],
+    [
+      "kCKUploadDate",
+      "2023-04-15 (original: 19462)"
+    ],
+    [
+      "activation_5g_support",
+      "1:kFalse"
+    ],
+    [
+      "subscriber_account_ids",
+      "[{'second': '8901260971148676693', 'first': '1:kOne'}]"
+    ]
+  ]
+}

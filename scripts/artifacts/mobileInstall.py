@@ -1,634 +1,272 @@
-import os
-import textwrap
-import datetime
-import sys
+__artifacts_v2__ = {
+    "mobileInstall_installed": {
+        "name": "Apps - Installed",
+        "description": "Apps whose most recent mobile_installation.log event is an install/update",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
+        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "download",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 143 rows",
+            "dexter_ios18": "iOS 18.3.2 | 217 rows",
+            "felix_ios17": "iOS 17.6.1 | 300 rows",
+            "fsfull002_ios17": "iOS 17.1 | 259 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 205 rows",
+            "iphone11_ios17": "iOS 17.3 | 175 rows",
+            "iphone12_ios18": "iOS 18.7 | 245 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 264 rows",
+            "otto_ios17": "iOS 17.5.1 | 232 rows",
+            "abe_ios16": "iOS 16.5 | 218 rows",
+            "felix23_ios16": "iOS 16.5 | 255 rows",
+            "hickman_ios13": "iOS 13.3.1 | 196 rows",
+            "hickman_ios14": "iOS 14.3 | 220 rows",
+            "jess_ios15": "iOS 15.0.2 | 572 rows",
+            "magnet_ios16": "iOS 16.1.1 | 279 rows",
+        }
+    },
+    "mobileInstall_uninstalled": {
+        "name": "Apps - Uninstalled",
+        "description": "Apps whose most recent mobile_installation.log event is an uninstall/destroy",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
+        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "trash",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 21 rows",
+            "hickman_ios14": "iOS 14.3 | 27 rows",
+            "jess_ios15": "iOS 15.0.2 | 5 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
+    },
+    "mobileInstall_historical": {
+        "name": "Apps - Historical Combined",
+        "description": "All app install/update/uninstall/container/reboot events from mobile_installation.log",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
+        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "list",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 783 rows",
+            "dexter_ios18": "iOS 18.3.2 | 564 rows",
+            "felix_ios17": "iOS 17.6.1 | 559 rows",
+            "fsfull002_ios17": "iOS 17.1 | 544 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 305 rows",
+            "iphone11_ios17": "iOS 17.3 | 317 rows",
+            "iphone12_ios18": "iOS 18.7 | 489 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 745 rows",
+            "otto_ios17": "iOS 17.5.1 | 584 rows",
+            "abe_ios16": "iOS 16.5 | 686 rows",
+            "felix23_ios16": "iOS 16.5 | 2113 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1389 rows",
+            "hickman_ios14": "iOS 14.3 | 1309 rows",
+            "jess_ios15": "iOS 15.0.2 | 861 rows",
+            "magnet_ios16": "iOS 16.1.1 | 757 rows",
+        }
+    },
+    "mobileInstall_reboots": {
+        "name": "State - Reboots",
+        "description": "Reboot events detected in mobile_installation.log",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-06-24",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "All timestamps are in LOCAL device time (the log records local time), not UTC.",
+        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "refresh",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4 rows",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "fsfull002_ios17": "iOS 17.1 | 15 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 26 rows",
+            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "iphone12_ios18": "iOS 18.7 | 6 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
+            "abe_ios16": "iOS 16.5 | 4 rows",
+            "felix23_ios16": "iOS 16.5 | 23 rows",
+            "hickman_ios13": "iOS 13.3.1 | 12 rows",
+            "hickman_ios14": "iOS 14.3 | 9 rows",
+            "jess_ios15": "iOS 15.0.2 | 7 rows",
+            "magnet_ios16": "iOS 16.1.1 | 7 rows",
+        }
+    }
+}
+
+import io
 import re
-import string
-import sqlite3
-from html import escape
+import tarfile
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows
+from scripts.ilapfuncs import artifact_processor
 
-
-def month_converter(month):
-    months = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ]
-    month = months.index(month) + 1
-    if month < 10:
-        month = f"{month:02d}"
-    return month
+_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+_UNINSTALL_ACTIONS = ('Destroying container', 'Uninstalling identifier')
+_TAR_MEMBER_RE = re.compile(r"logs/MobileInstallation/mobile_installation\.log(\.\d+)?$")
 
 
-def day_converter(day):
-    day = int(day)
-    if day < 10:
-        day = f"{day:02d}"
-    return day
+def _first_group(line, *patterns):
+    for pat in patterns:
+        match = re.search(pat, line)
+        if match:
+            return match.group(1)
+    return ''
 
 
-def get_mobileInstall(files_found, report_folder, seeker):
-    counter = 0
-    filescounter = 0
-    tsv_tml_data_list = []
+def _parse_timestamp(line):
+    """Convert the leading 'Wed Jan 15 10:30:00 2024' prefix into a local 'YYYY-MM-DD HH:MM:SS' string."""
+    match = re.search(r"^(.*?)(?= \[)", line)
+    if not match:
+        return None
+    parts = match.group(1).split()
+    if len(parts) != 5:
+        return None
+    _weekday, month, day, time, year = parts
+    try:
+        month_num = _MONTHS.index(month) + 1
+        return f'{year}-{month_num:02d}-{int(day):02d} {time}'
+    except (ValueError, IndexError):
+        return None
 
-    mibdatabase = os.path.join(report_folder, 'mib.db')
-    db = sqlite3.connect(mibdatabase)
-    cursor = db.cursor()
-    cursor.execute(
-        """
-    CREATE TABLE dimm(time_stamp TEXT, action TEXT, bundle_id TEXT, path TEXT)
-    """
-    )
 
-    db.commit()
-
-    for filename in files_found:
-        file = open(filename, "r", encoding="utf8")
-        filescounter = filescounter + 1
-        for line in file:
-            counter = counter + 1
-            matchObj = re.search(
-                r"(Install Successful for)", line
-            )  # Regex for installed applications
-            if matchObj:
-                actiondesc = "Install successful"
-                matchObj1 = re.search(
-                    r"(?<= for \(Placeholder:)(.*)(?=\))", line
-                )  # Regex for bundle id
-                matchObj2 = re.search(
-                    r"(?<= for \(Customer:)(.*)(?=\))", line
-                )  # Regex for bundle id
-                matchObj3 = re.search(
-                    r"(?<= for \(System:)(.*)(?=\))", line
-                )  # Regex for bundle id
-                matchObj4 = re.search(
-                    r"(?<= for \()(.*)(?=\))", line
-                )  # Regex for bundle id
-                if matchObj1:
-                    bundleid = matchObj1.group(1)
-                elif matchObj2:
-                    bundleid = matchObj2.group(1)
-                elif matchObj3:
-                    bundleid = matchObj3.group(1)
-                elif matchObj4:
-                    bundleid = matchObj4.group(1)
-
-                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
-                if matchObj:
-                    timestamp = matchObj.group(1)
-                    weekday, month, day, time, year = str.split(timestamp)
-                    day = day_converter(day)
-                    month = month_converter(month)
-                    inserttime = (
-                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
-                    )
-                    # logfunc(inserttime)
-                    # logfunc(month)
-                    # logfunc(day)
-                    # logfunc(year)
-                    # logfunc(time)
-                    # logfunc ("Timestamp: ", timestamp)
-
-                # logfunc(inserttime, actiondesc, bundleid)
-
-                # insert to database
-                cursor = db.cursor()
-                datainsert = (
-                    inserttime,
-                    actiondesc,
-                    bundleid,
-                    "",
-                )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
-                path = ''
-                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-
-                # logfunc()
-
-            matchObj = re.search(
-                r"(Destroying container with identifier)", line
-            )  # Regex for destroyed containers
-            if matchObj:
-                actiondesc = "Destroying container"
-                # logfunc(actiondesc)
-                # logfunc("Destroyed containers:")
-                matchObj = re.search(
-                    r"(?<=identifier )(.*)(?= at )", line
-                )  # Regex for bundle id
-                if matchObj:
-                    bundleid = matchObj.group(1)
-                    # logfunc ("Bundle ID: ", bundleid )
-
-                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
-                if matchObj:
-                    timestamp = matchObj.group(1)
-                    weekday, month, day, time, year = str.split(timestamp)
-                    day = day_converter(day)
-                    month = month_converter(month)
-                    inserttime = (
-                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
-                    )
-                    # logfunc(inserttime)
-                    # logfunc(month)
-                    # logfunc(day)
-                    # logfunc(year)
-                    # logfunc(time)
-                    # logfunc ("Timestamp: ", timestamp)
-
-                matchObj = re.search(r"(?<= at )(.*)(?=$)", line)  # Regex for path
-                if matchObj:
-                    path = matchObj.group(1)
-                    # logfunc ("Path: ", matchObj.group(1))
-
-                # logfunc(inserttime, actiondesc, bundleid, path)
-
-                # insert to database
-                cursor = db.cursor()
-                datainsert = (
-                    inserttime,
-                    actiondesc,
-                    bundleid,
-                    path,
-                )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
-
-                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-                # logfunc()
-
-            matchObj = re.search(
-                r"(Data container for)", line
-            )  # Regex Moved data containers
-            if matchObj:
-                actiondesc = "Data container moved"
-                # logfunc(actiondesc)
-                # logfunc("Data container moved:")
-                matchObj = re.search(
-                    r"(?<=for )(.*)(?= is now )", line
-                )  # Regex for bundle id
-                if matchObj:
-                    bundleid = matchObj.group(1)
-                    # logfunc ("Bundle ID: ", bundleid )
-
-                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
-                if matchObj:
-                    timestamp = matchObj.group(1)
-                    weekday, month, day, time, year = str.split(timestamp)
-                    day = day_converter(day)
-                    month = month_converter(month)
-                    inserttime = (
-                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
-                    )
-                    # logfunc(inserttime)
-                    # logfunc(month)
-                    # logfunc(day)
-                    # logfunc(year)
-                    # logfunc(time)
-                    # logfunc ("Timestamp: ", timestamp)
-
-                matchObj = re.search(r"(?<= at )(.*)(?=$)", line)  # Regex for path
-                if matchObj:
-                    path = matchObj.group(1)
-                    # logfunc ("Path: ", matchObj.group(1))
-
-                # logfunc(inserttime, actiondesc, bundleid, path)
-
-                # insert to database
-                cursor = db.cursor()
-                datainsert = (
-                    inserttime,
-                    actiondesc,
-                    bundleid,
-                    path,
-                )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
-
-                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-                # logfunc()
-
-            matchObj = re.search(
-                r"(Made container live for)", line
-            )  # Regex for made container
-            if matchObj:
-                actiondesc = "Made container live"
-                # logfunc(actiondesc)
-                # logfunc("Made container:")
-                matchObj = re.search(
-                    r"(?<=for )(.*)(?= at)", line
-                )  # Regex for bundle id
-                if matchObj:
-                    bundleid = matchObj.group(1)
-                    # logfunc ("Bundle ID: ", bundleid )
-
-                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
-                if matchObj:
-                    timestamp = matchObj.group(1)
-                    weekday, month, day, time, year = str.split(timestamp)
-                    day = day_converter(day)
-                    month = month_converter(month)
-                    inserttime = (
-                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
-                    )
-                    # logfunc(inserttime)
-                    # logfunc(month)
-                    # logfunc(day)
-                    # logfunc(year)
-                    # logfunc(time)
-                    # logfunc ("Timestamp: ", timestamp)
-
-                matchObj = re.search(r"(?<= at )(.*)(?=$)", line)  # Regex for path
-                if matchObj:
-                    path = matchObj.group(1)
-                    # logfunc ("Path: ", matchObj.group(1))
-                # logfunc(inserttime, actiondesc, bundleid, path)
-
-                # insert to database
-                cursor = db.cursor()
-                datainsert = (
-                    inserttime,
-                    actiondesc,
-                    bundleid,
-                    path,
-                )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
-
-                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-
-            matchObj = re.search(
-                r"(Uninstalling identifier )", line
-            )  # Regex for made container
-            if matchObj:
-                actiondesc = "Uninstalling identifier"
-                # logfunc(actiondesc)
-                # logfunc("Uninstalling identifier")
-                matchObj = re.search(
-                    r"(?<=Uninstalling identifier )(.*)", line
-                )  # Regex for bundle id
-                if matchObj:
-                    bundleid = matchObj.group(1)
-                    # logfunc ("Bundle ID: ", bundleid )
-
-                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
-                if matchObj:
-                    timestamp = matchObj.group(1)
-                    weekday, month, day, time, year = str.split(timestamp)
-                    day = day_converter(day)
-                    month = month_converter(month)
-                    inserttime = (
-                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
-                    )
-                    # logfunc(inserttime)
-                    # logfunc(month)
-                    # logfunc(day)
-                    # logfunc(year)
-                    # logfunc(time)
-                    # logfunc ("Timestamp: ", timestamp)
-
-                # insert to database
-                cursor = db.cursor()
-                datainsert = (
-                    inserttime,
-                    actiondesc,
-                    bundleid,
-                    "",
-                )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
-
-                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-
-            matchObj = re.search(r"(main: Reboot detected)", line)  # Regex for reboots
-            if matchObj:
-                actiondesc = "Reboot detected"
-                # logfunc(actiondesc)
-                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
-                if matchObj:
-                    timestamp = matchObj.group(1)
-                    weekday, month, day, time, year = str.split(timestamp)
-                    day = day_converter(day)
-                    month = month_converter(month)
-                    inserttime = (
-                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
-                    )
-                    # logfunc(inserttime)
-                    # logfunc(month)
-                    # logfunc(day)
-                    # logfunc(year)
-                    # logfunc(time)
-                    # logfunc ("Timestamp: ", timestamp)
-
-                # insert to database
-                cursor = db.cursor()
-                datainsert = (
-                    inserttime,
-                    actiondesc,
-                    "",
-                    "",
-                )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
-
-                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-
-            matchObj = re.search(
-                r"(Attempting Delta patch update of )", line
-            )  # Regex for Delta patch
-            if matchObj:
-                actiondesc = "Attempting Delta patch"
-                # logfunc(actiondesc)
-                # logfunc("Made container:")
-                matchObj = re.search(
-                    r"(?<=Attempting Delta patch update of )(.*)(?= from)", line
-                )  # Regex for bundle id
-                if matchObj:
-                    bundleid = matchObj.group(1)
-                    # logfunc ("Bundle ID: ", bundleid )
-
-                matchObj = re.search(r"(?<=^)(.*)(?= \[)", line)  # Regex for timestamp
-                if matchObj:
-                    timestamp = matchObj.group(1)
-                    weekday, month, day, time, year = str.split(timestamp)
-                    day = day_converter(day)
-                    month = month_converter(month)
-                    inserttime = (
-                            str(year) + "-" + str(month) + "-" + str(day) + " " + str(time)
-                    )
-                    # logfunc(inserttime)
-                    # logfunc(month)
-                    # logfunc(day)
-                    # logfunc(year)
-                    # logfunc(time)
-                    # logfunc ("Timestamp: ", timestamp)
-
-                matchObj = re.search(r"(?<= from )(.*)", line)  # Regex for path
-                if matchObj:
-                    path = matchObj.group(1)
-                    # logfunc ("Path: ", matchObj.group(1))
-                # logfunc(inserttime, actiondesc, bundleid, path)
-
-                # insert to database
-                cursor = db.cursor()
-                datainsert = (
-                    inserttime,
-                    actiondesc,
-                    bundleid,
-                    path,
-                )
-                cursor.execute(
-                    "INSERT INTO dimm (time_stamp, action, bundle_id, path)  VALUES(?,?,?,?)",
-                    datainsert,
-                )
-                db.commit()
-
-                tsv_tml_data_list.append((inserttime, actiondesc, bundleid, path))
-                # logfunc()
-
-    logfunc(f"Logs processed: {filescounter}")
-    logfunc(f"Lines processed: {counter}")
-    logfunc("")
-    file.close
-
-    # Initialize counters
-    totalapps = 0
-    installedcount = 0
-    uninstallcount = 0
-    historicalcount = 0
-    sysstatecount = 0
-
-    # created folders for reports for App history
-    os.makedirs(os.path.join(report_folder, "Apps_Historical"))
-
-    data_list_installed = []
-    data_list_uninstalled = []
-
-    # Initialize database connection
-    db = sqlite3.connect(mibdatabase)
-    cursor = db.cursor()
-    # Query to create installed and uninstalled app reports
-    cursor.execute("""SELECT distinct bundle_id from dimm""")
-    all_rows = cursor.fetchall()
-    for row in all_rows:
-        # logfunc(row[0])
-        distinctbundle = row[0]
-        cursor.execute(
-            """SELECT * from dimm where bundle_id=? order by time_stamp desc limit 1""",
-            (distinctbundle,),
-        )
-        all_rows_iu = cursor.fetchall()
-        for row in all_rows_iu:
-            # logfunc(row[0], row[1], row[2], row[3])
-            if row[2] == "":
-                continue
-            elif row[1] == "Destroying container":
-                # logfunc(row[0], row[1], row[2], row[3])
-                uninstallcount = uninstallcount + 1
-                totalapps = totalapps + 1
-                # tofile1 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
-                data_list_uninstalled.append((row[0], row[2],))
-                # logfunc()
-            elif row[1] == "Uninstalling identifier":
-                # logfunc(row[0], row[1], row[2], row[3])
-                uninstallcount = uninstallcount + 1
-                totalapps = totalapps + 1
-                # tofile1 = row[0] + ' ' + row[1] + ' ' + row[2] + ' ' + row[3] + '\n'
-                data_list_uninstalled.append((row[0], row[2],))
-                # logfunc()
-            else:
-                # logfunc(row[0], row[1], row[2], row[3])
-                data_list_installed.append((row[0], row[2],))
-                installedcount = installedcount + 1
-                totalapps = totalapps + 1
-
-    location = f'{filename}'
-    description = 'List of Uninstalled apps.'
-    report = ArtifactHtmlReport('Apps - Uninstalled')
-    report.start_artifact_report(report_folder, 'Apps - Uninstalled', description)
-    report.add_script()
-    data_headers = ('Last Uninstalled', 'Bundle ID',)
-    report.write_artifact_data_table(data_headers, data_list_uninstalled, location)
-    report.end_artifact_report()
-
-    location = f'{filename}'
-    description = 'List of Installed apps.'
-    report = ArtifactHtmlReport('Apps - Installed')
-    report.start_artifact_report(report_folder, 'Apps - Installed', description)
-    report.add_script()
-    data_headers = ('Last Installed', 'Bundle ID',)
-    report.write_artifact_data_table(data_headers, data_list_installed, location)
-    report.end_artifact_report()
-
-    # Query to create historical report per app
-
-    cursor.execute("""SELECT distinct bundle_id from dimm""")
-    all_rows = cursor.fetchall()
-    for row in all_rows:
-        # logfunc(row[0])
-        distinctbundle = row[0]
-        if row[0] == "":
+def _parse_events(lines):
+    """Return a list of (timestamp_local, action, bundle_id, path) events from mobile_installation.log lines."""
+    events = []
+    for line in lines:
+        ts = _parse_timestamp(line)
+        if ts is None:
             continue
-        else:
-            f3 = open(os.path.join(report_folder, "Apps_Historical", distinctbundle + ".txt"),
-                      "w+",
-                      encoding="utf8"
-                      )  # Create historical app report per app
-            cursor.execute(
-                """SELECT * from dimm where bundle_id=? order by time_stamp DESC""",
-                (distinctbundle,),
-            )  # Query to create app history per bundle_id
-            all_rows_hist = cursor.fetchall()
-            for row in all_rows_hist:
-                # logfunc(row[0], row[1], row[2], row[3])
-                tofile3 = row[0] + " " + row[1] + " " + row[2] + " " + row[3] + "\n"
-                f3.write(tofile3)
-        f3.close()
-        historicalcount = historicalcount + 1
+        if 'Install Successful for' in line:
+            bundle = _first_group(line, r"(?<= for \(Placeholder:)(.*)(?=\))",
+                                  r"(?<= for \(Customer:)(.*)(?=\))",
+                                  r"(?<= for \(System:)(.*)(?=\))", r"(?<= for \()(.*)(?=\))")
+            events.append((ts, 'Install successful', bundle, ''))
+        if 'Destroying container ' in line:
+            events.append((ts, 'Destroying container', _first_group(line, r"(?<=identifier )(.*)(?= at )"),
+                           _first_group(line, r"(?<= at )(.*)$")))
+        if 'Data container for' in line:
+            events.append((ts, 'Data container moved', _first_group(line, r"(?<=for )(.*)(?= is now )"),
+                           _first_group(line, r"(?<= at )(.*)$")))
+        if 'Made container live for' in line:
+            events.append((ts, 'Made container live', _first_group(line, r"(?<=for )(.*)(?= at)"),
+                           _first_group(line, r"(?<= at )(.*)$")))
+        if 'Uninstalling identifier ' in line:
+            events.append((ts, 'Uninstalling identifier',
+                           _first_group(line, r"(?<=Uninstalling identifier )(.*)"), ''))
+        if 'main: Reboot detected' in line:
+            events.append((ts, 'Reboot detected', '', ''))
+        if 'Attempting Delta patch update of ' in line:
+            events.append((ts, 'Attempting Delta patch',
+                           _first_group(line, r"(?<=Attempting Delta patch update of )(.*)(?= from)"),
+                           _first_group(line, r"(?<= from )(.*)$")))
+    return events
 
-    list = []
-    data_list = []
-    path = os.path.join(report_folder, "Apps_Historical")
-    files = os.listdir(path)
-    for name in files:
-        bun = (f'{name}')
-        appendval = (
-            f'<a href = "./Mobile Installation Logs/Apps_Historical/{name}" style = "color:blue" target="content">Report</a>')
-        data_list.append((bun, appendval))
 
-    location = f'{filename}'
-    description = 'Historical App report from the Mobile Installation Logs. All timestamps are in Local Time'
-    report = ArtifactHtmlReport('Apps - Historical')
-    report.start_artifact_report(report_folder, 'Apps - Historical', description)
-    report.add_script()
-    data_headers = ('Bundle ID', 'Report Link')
-    tsv_data_headers = ('Bundle ID', 'Report Link')
-    report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
-    report.end_artifact_report()
+def _iter_log_lines(files_found):
+    """Yield (lines, source_full_path) for mobile_installation.log files and those inside sysdiagnose tars."""
+    for filename in files_found:
+        filename = str(filename)
+        if 'mobile_installation' in filename:
+            try:
+                with open(filename, 'r', encoding='utf8', errors='ignore') as fp:
+                    yield fp.readlines(), filename
+            except OSError:
+                continue
+        elif 'sysdiagnose_' in filename and 'IN_PROGRESS_' not in filename:
+            try:
+                tar = tarfile.open(filename)
+            except (tarfile.TarError, OSError):
+                continue
+            try:
+                for member in tar.getmembers():
+                    if not _TAR_MEMBER_RE.search(member.name):
+                        continue
+                    extracted = tar.extractfile(member)
+                    if extracted is not None:
+                        with io.TextIOWrapper(extracted, encoding='utf-8', errors='ignore') as tfp:
+                            yield tfp.readlines(), filename
+            finally:
+                tar.close()
 
-    tsvname = 'Mobile Installation Logs - History'
-    tsv(report_folder, tsv_data_headers, tsv_tml_data_list, tsvname)
-    tlactivity = 'Mobile Installation Logs - History'
-    tml_data_headers = ('Timestamp', 'Event', 'Bundle ID', 'Event Path')
-    timeline(report_folder, tlactivity, tsv_tml_data_list, tml_data_headers)
 
-    # All event historical in html report
-    description = 'Historical App report from the Mobile Installation Logs. All timestamps are in Local Time'
-    report = ArtifactHtmlReport('Apps - Historical')
-    report.start_artifact_report(report_folder, 'Apps - Historical Combined', description)
-    report.add_script()
+def _events_and_source(context):
+    events = []
+    sources = []
+    for lines, source in _iter_log_lines(context.get_files_found()):
+        rel = context.get_relative_path(source)
+        if rel not in sources:
+            sources.append(rel)
+        events.extend(_parse_events(lines))
+    return events, ', '.join(sources)
+
+
+def _latest_per_bundle(events):
+    """Most recent event per (non-empty) bundle id; local timestamp strings sort chronologically."""
+    latest = {}
+    for event in events:
+        bundle = event[2]
+        if not bundle:
+            continue
+        if bundle not in latest or event[0] > latest[bundle][0]:
+            latest[bundle] = event
+    return latest
+
+
+@artifact_processor
+def mobileInstall_installed(context):
+    data_headers = ('Last Installed', 'Bundle ID')
+    events, source = _events_and_source(context)
+    data_list = [(ev[0], ev[2]) for ev in _latest_per_bundle(events).values()
+                 if ev[1] not in _UNINSTALL_ACTIONS]
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def mobileInstall_uninstalled(context):
+    data_headers = ('Last Uninstalled', 'Bundle ID')
+    events, source = _events_and_source(context)
+    data_list = [(ev[0], ev[2]) for ev in _latest_per_bundle(events).values()
+                 if ev[1] in _UNINSTALL_ACTIONS]
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def mobileInstall_historical(context):
     data_headers = ('Timestamp', 'Event', 'Bundle ID', 'Event Path')
-    report.write_artifact_data_table(data_headers, tsv_tml_data_list, location)
-    report.end_artifact_report()
-
-    # Query to create system events
-    data_list_reboots = []
-    cursor.execute(
-        """SELECT * from dimm where action ='Reboot detected' order by time_stamp DESC"""
-    )
-    all_rows = cursor.fetchall()
-    for row in all_rows:
-        # logfunc(row[0])
-        # logfunc(row[0], row[1], row[2], row[3])
-        data_list_reboots.append((row[0], row[1]))
-        sysstatecount = sysstatecount + 1
-
-    if len(all_rows) > 0:
-        location = f'{filename}'
-        description = 'Reboots detected in Local Time.'
-        report = ArtifactHtmlReport('State - Reboots')
-        report.start_artifact_report(report_folder, 'State - Reboots', description)
-        report.add_script()
-        data_headers_reboots = ('Timestamp (Local Time)', 'Description')
-        report.write_artifact_data_table(data_headers_reboots, data_list_reboots, location)
-        report.end_artifact_report()
-
-        tsvname = 'Mobile Installation Logs - Reboots'
-        tsv(report_folder, data_headers_reboots, data_list_reboots, tsvname)
-
-    logfunc(f"Total apps: {totalapps}")
-    logfunc(f"Total installed apps: {installedcount}")
-    logfunc(f"Total uninstalled apps: {uninstallcount}")
-    logfunc(f"Total historical app reports: {historicalcount}")
-    logfunc(f"Total system state events: {sysstatecount}")
-
-    '''
-    data_headers_reboots = ('Timestamp (Local Time)', 'Description')
-    tsv_data_headers = ('Timestamp (Local Time)', 'Action', 'Bundle ID', 'Path')
-    
-    tsvname = 'Mobile Installation Logs - Reboots'
-    tsv(report_folder, data_headers_reboots, data_list_reboots, tsvname)
-    
-    tlactivity = 'Mobile Installation Logs - Reboots'
-    timeline(report_folder, tlactivity, data_list_reboots, data_headers_reboots)
-    
-    tsvname = 'Mobile Installation Logs - History'
-    tsv(report_folder, tsv_data_headers, tsv_tml_data_list, tsvname)
-    
-    tlactivity = 'Mobile Installation Logs - History'
-    timeline(report_folder, tlactivity, tsv_tml_data_list, tsv_data_headers)
-    '''
+    events, source = _events_and_source(context)
+    return data_headers, events, source
 
 
-'''    
-    
-    x = 0
-    data_list =[]
-    for file_found in files_found:
-        x = x + 1
-        sx = str(x)
-        journalName = os.path.basename(file_found)
-        outputpath = os.path.join(report_folder, sx+'_'+journalName+'.txt') # name of file in txt
-        #linkpath = os.path.basename(
-        level2, level1 = (os.path.split(outputpath))
-        level2 = (os.path.split(level2)[1])
-        final = level2+'/'+level1
-        with open(outputpath, 'w') as g:
-            for s in strings(file_found):
-                g.write(s)
-                g.write('\n')
-        
-        out = (f'<a href="{final}" style = "color:blue" target="_blank">{journalName}</a>') 
-        
-        data_list.append((out, file_found))
-
-    location =''
-    description = 'ASCII and Unicode strings extracted from SQLite journaing files.'
-    report = ArtifactHtmlReport('Strings - SQLite Journal')
-    report.start_artifact_report(report_folder, 'Strings - SQLite Journal', description)
-    report.add_script()
-    data_headers = ('Report', 'Location')
-    report.write_artifact_data_table(data_headers, data_list, location, html_escape=False)
-    report.end_artifact_report()
-'''
+@artifact_processor
+def mobileInstall_reboots(context):
+    data_headers = ('Timestamp (Local Time)', 'Description')
+    events, source = _events_and_source(context)
+    data_list = [(ev[0], ev[1]) for ev in events if ev[1] == 'Reboot detected']
+    return data_headers, data_list, source

@@ -1,0 +1,40 @@
+{
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.zip",
+      "os": "macOS-15.7.4-x86_64-i386-64bit",
+      "timestamp": "2026-06-04T12:47:39.824612",
+      "last_commit": {
+        "hash": "48694766954c94bb34a339e2fea63847f20dbc5a",
+        "author_name": "Johann POLEWCZYK",
+        "author_email": "johannplw@me.com",
+        "date": "2025-03-24T19:04:51+01:00",
+        "message": "Update sms.db - Fix issues #1098 & #1089"
+      }
+    },
+    "artifacts": {
+      "sms": {
+        "search_patterns": [
+          "*/Library/SMS/sms.db*",
+          "*/Library/SMS/Attachments/*"
+        ],
+        "file_count": 14,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs",
+    "image_info": {
+      "creation_date": "2023-05-20",
+      "os_name": "iPhone OS",
+      "os_version": "15.3.1",
+      "device_model": "iPhone 8",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+name: Python Lint Check
+
+on:
+  pull_request:
+    paths:
+      - '**.py' # only trigger on python files
+jobs:
+  lint-changed-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Required to fetch the base branch for comparison
+          fetch-depth: 0
+
+      - name: Get changed Python files
+        id: changed-files-py
+        uses: tj-actions/changed-files@v46 # This action finds changed files
+        with:
+          files: |
+            **.py
+
+      - name: Set up Python
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Pylint
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python -m pip install pylint
+
+      - name: Install dependencies
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python -m pip install -r requirements.txt
+
+      - name: Guard against PyPI blackboxprotobuf imports
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/test/scripts/test_no_pypi_blackboxprotobuf.py
+
+      # Fails only on warnings this pull request introduces. Long-lived modules carry
+      # deliberate pre-existing warnings (ileapp.py's wildcard imports, ilapfuncs.py's
+      # backward-compat re-exports), and failing on those pushed contributors toward
+      # unrelated refactors or blanket file-level disables. See the script's docstring.
+      - name: Run on changed files
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: |
+          BASE=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+          echo "Comparing against merge base $BASE"
+          python admin/scripts/lint_changed.py --base-ref "$BASE" \
+            ${{ steps.changed-files-py.outputs.all_changed_files }}

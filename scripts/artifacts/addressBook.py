@@ -1,57 +1,313 @@
-import sqlite3
+__artifacts_v2__ = {
+    'addressBook': {
+        'name': 'Address Book',
+        'description': 'Extract information from the native contacts application',
+        'author': '@AlexisBrignoni - @JohannPLW',
+        'creation_date': '2020-04-30',
+        "last_update_date": "2025-10-03",
+        'requirements': 'none',
+        'category': 'Contacts',
+        'notes': '',
+        'paths': ('*/mobile/Library/AddressBook/AddressBook*.sqlitedb*',),
+        'output_types': 'standard',
+        'artifact_icon': 'user',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 21 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 18 rows',
+            'felix_ios17': 'iOS 17.6.1 | 7 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 3 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 2 rows',
+            'iphone11_ios17': 'iOS 17.3 | 11 rows',
+            'iphone12_ios18': 'iOS 18.7 | 4 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 1 row',
+            'otto_ios17': 'iOS 17.5.1 | 1009 rows',
+            'abe_ios16': 'iOS 16.5 | 577 rows',
+            'felix23_ios16': 'iOS 16.5 | 5 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 2 rows',
+            'hickman_ios14': 'iOS 14.3 | 4 rows',
+            'jess_ios15': 'iOS 15.0.2 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+        }
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+
+from scripts.ilapfuncs import artifact_processor, \
+    get_sqlite_db_records, attach_sqlite_db_readonly, check_in_embedded_media, \
+    convert_cocoa_core_data_ts_to_utc, get_birthdate
 
 
-def get_addressBook(files_found, report_folder, seeker):
-    file_found = str(files_found[0])
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
-    SELECT 
-    ABPerson.ROWID,
-    c16Phone,
-    FIRST,
-    MIDDLE,
-    LAST,
-    c17Email,
-    DATETIME(CREATIONDATE+978307200,'UNIXEPOCH'),
-    DATETIME(MODIFICATIONDATE+978307200,'UNIXEPOCH'),
-    NAME
+def clean_label(data):
+    return data.replace('_$!<', '').replace('>!$_', '')
+
+
+def remove_unused_rows(data, count_rows):
+    data_count_rows = count_rows[0]
+    rows_to_remove = [i for i, count in enumerate(data_count_rows) if count == 0]
+    return tuple(value for i, value in enumerate(data) if i not in rows_to_remove)
+
+
+@artifact_processor
+def addressBook(context):
+    source_path = context.get_source_file_path('AddressBook.sqlitedb')
+    address_book_images_db = context.get_source_file_path('AddressBookImages.sqlitedb')
+
+    data_list = []
+
+    attach_query = attach_sqlite_db_readonly(address_book_images_db, 'ABI')
+    query = '''
+    SELECT    
+        ABPerson.ROWID,
+        ABPerson.CreationDate,
+        (SELECT ABI.ABThumbnailImage.data
+        FROM ABI.ABThumbnailImage
+        WHERE ABI.ABThumbnailImage.record_id = ABPerson.ROWID AND ABI.ABThumbnailImage.format = 0) AS 'Thumbnail',
+        (SELECT ABI.ABFullSizeImage.data
+        FROM ABI.ABFullSizeImage
+        WHERE ABI.ABFullSizeImage.record_id = ABPerson.ROWID) AS 'Full Image',
+        ABPerson.Prefix,
+        ABPerson.First,
+        ABPerson.Middle,
+        ABPerson.Last,
+        ABPerson.Suffix,
+        ABPerson.DisplayName,
+        ABPerson.FirstPhonetic,
+        ABPerson.MiddlePhonetic,
+        ABPerson.LastPhonetic,
+        ABPerson.Organization,
+        ABPerson.Department,
+        ABPerson.JobTitle,
+        (SELECT group_concat(ifnull(ABMultiValueLabel.value, ' ') || ': ' || ABMultiValue.value, CHAR(13))
+        FROM ABMultiValue
+        LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
+        WHERE ABMultiValue.property = 3 AND ABMultiValue.record_id = ABPerson.ROWID
+        GROUP BY ABMultiValue.record_id) AS 'Phone Numbers',
+        (SELECT group_concat(ifnull(ABMultiValueLabel.value, ' ') || ': ' || ABMultiValue.value, CHAR(13))
+        FROM ABMultiValue
+        LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
+        WHERE ABMultiValue.property = 4 AND ABMultiValue.record_id = ABPerson.ROWID
+        GROUP BY ABMultiValue.record_id) AS 'Email addresses',
+        (WITH 
+            addresses(id, address) AS
+            (WITH MVE(p, k, v) AS
+                (SELECT ABMultiValueEntry.parent_id, ABMultiValueEntry.key, ABMultiValueEntry.value 
+                FROM ABMultiValueEntry 
+                ORDER BY ABMultiValueEntry.parent_id, ABMultiValueEntry.key)
+            SELECT p, group_concat(v, ' - ') FROM MVE GROUP BY p),
+            MV(label, rid, uid) AS 
+                (SELECT ABMultiValueLabel.value, ABMultiValue.record_id, ABMultiValue.UID
+                FROM ABMultiValue
+                LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
+                WHERE ABMultiValue.property = 5 AND ABMultiValue.record_id = ABPerson.ROWID)
+            SELECT group_concat(ifnull(label, ' ') || ': ' || address, CHAR(13))
+            FROM MV
+            LEFT JOIN addresses ON uid = id
+            GROUP BY rid) as 'Addresses',
+        (WITH
+            MVE_U(up, uv) AS
+            (SELECT ABMultiValueEntry.parent_id, ABMultiValueEntry.value
+            FROM ABMultiValueEntry
+            LEFT JOIN ABMultiValueEntryKey ON ABMultiValueEntry.key = ABMultiValueEntryKey.ROWID
+            WHERE ABMultiValueEntryKey.value = 'username'),
+            MVE_S(sp, sv) AS
+            (SELECT ABMultiValueEntry.parent_id, ABMultiValueEntry.value
+            FROM ABMultiValueEntry
+            LEFT JOIN ABMultiValueEntryKey ON ABMultiValueEntry.key = ABMultiValueEntryKey.ROWID
+            WHERE ABMultiValueEntryKey.value = 'service'),
+            MV(label, rid, uid) AS 
+            (SELECT ABMultiValueLabel.value, ABMultiValue.record_id, ABMultiValue.UID
+            FROM ABMultiValue
+            LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
+            WHERE ABMultiValue.property = 13 AND ABMultiValue.record_id = ABPerson.ROWID)
+        SELECT group_concat(ifnull(label, ' ') || ': ' || uv || ' (' || sv || ')', CHAR(13))
+        FROM MV
+        LEFT JOIN MVE_U ON uid = up
+        LEFT JOIN MVE_S ON up = sp
+        GROUP BY rid) AS 'Instant Message',
+        (SELECT group_concat(ifnull(ABMultiValueLabel.value, ' ') || ': ' || ABMultiValue.value, CHAR(13))
+        FROM ABMultiValue
+        LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
+        WHERE ABMultiValue.property = 22 AND ABMultiValue.record_id = ABPerson.ROWID
+        GROUP BY ABMultiValue.record_id) AS 'URL',
+        (SELECT group_concat(ifnull(ABMultiValueLabel.value, ' ') || ': ' || ABMultiValue.value, CHAR(13))
+        FROM ABMultiValue
+        LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
+        WHERE ABMultiValue.property = 23 AND ABMultiValue.record_id = ABPerson.ROWID
+        GROUP BY ABMultiValue.record_id) AS 'Related Name',
+        (WITH
+            MVE(p, k, v) AS
+            (SELECT ABMultiValueEntry.parent_id, ABMultiValueEntryKey.value, ABMultiValueEntry.value
+            FROM ABMultiValueEntry
+            LEFT JOIN ABMultiValueEntryKey ON ABMultiValueEntry.key = ABMultiValueEntryKey.ROWID),
+            MV(label, rid, uid) AS 
+            (SELECT ABMultiValueLabel.value, ABMultiValue.record_id, ABMultiValue.UID
+            FROM ABMultiValue
+            LEFT JOIN ABMultiValueLabel ON ABMultiValue.label = ABMultiValueLabel.ROWID
+            WHERE ABMultiValue.property = 46 AND ABMultiValue.record_id = ABPerson.ROWID)
+        SELECT group_concat(k || ': ' || v, CHAR(13))
+        FROM MV
+        LEFT JOIN MVE ON uid = p
+        GROUP BY rid) AS 'Profile',
+        ABPerson.Nickname,
+        ABPerson.Note,
+        CAST(ABPerson.Birthday AS INT) AS 'Birthday',
+        (SELECT group_concat(ABGroup.Name, ', ')
+        FROM ABGroupMembers
+        LEFT JOIN ABGroup ON ABGroupMembers.group_id = ABGroup.ROWID
+        WHERE ABGroupMembers.member_id = ABPerson.ROWID
+        GROUP BY ABGroupMembers.member_id) AS 'Group',
+        ABStore.Name,
+        ABPerson.ModificationDate
     FROM ABPerson
-    LEFT OUTER JOIN ABStore ON ABPerson.STOREID = ABStore.ROWID
-    LEFT OUTER JOIN ABPersonFullTextSearch_content on ABPerson.ROWID = ABPersonFullTextSearch_content.ROWID
-    ''')
+    LEFT JOIN ABStore ON ABPerson.StoreID = ABStore.ROWID
+    '''
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    if usageentries > 0:
-        data_list = []
-        for row in all_rows:
-            if row[1] is not None:
-                numbers = row[1].split(" +")
-                number = numbers[1].split(" ")
-                phone_number = "+{}".format(number[0])
-            else:
-                phone_number = ''
+    data_headers = [
+        ('Creation Date', 'datetime'),
+        ('Modification Date', 'datetime'),
+        ('Thumbnail', 'media', 'height: 80px; border-radius: 50%;'),
+        ('Full Size Image', 'media', 'height: 80px;'),
+        'Prefix', 
+        'First Name', 
+        'Middle Name', 
+        'Last Name', 
+        'Suffix', 
+        'Display Name', 
+        'First Name Phonetic', 
+        'Middle Name Phonetic', 
+        'Last Name Phonetic', 
+        'Company', 
+        'Department', 
+        'Job Title', 
+        ('Phone Numbers', 'phonenumber'),
+        'Email addresses', 
+        'Addresses', 
+        'Instant Messages', 
+        'URL', 
+        'Related Names', 
+        'Profiles', 
+        'Nickname', 
+        'Notes', 
+        'Birthday', 
+        'Group Name', 
+        'Storage Place', 
+    ]
 
-            data_list.append((row[0], phone_number, row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
+    db_records = get_sqlite_db_records(source_path, query, attach_query)
 
-        report = ArtifactHtmlReport('Address Book Contacts')
-        report.start_artifact_report(report_folder, 'Address Book Contacts')
-        report.add_script()
-        data_headers = ('Contact ID', 'Contact Number', 'First Name', 'Middle Name', 'Last Name', 'Email Address', 'Creation Date', 'Modification Date', 'Storage Place')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
+    for record in db_records:
+        creation_date = convert_cocoa_core_data_ts_to_utc(record[1])
+        media_name = f'{record[5]} {record[7]}'
 
-        tsvname = 'Address Book'
-        tsv(report_folder, data_headers, data_list, tsvname)
+        thumbnail = record[2]
+        if thumbnail:
+            thumbnail = check_in_embedded_media(address_book_images_db, thumbnail, media_name)
 
-        tlactivity = 'Address Book'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Address Book data available')
+        full_size_image = record[3]
+        if full_size_image:
+            full_size_image = check_in_embedded_media(address_book_images_db,
+                                                          full_size_image, media_name)
 
-    db.close()
-    return
+        phone_numbers = record[16]
+        if phone_numbers:
+            phone_numbers = clean_label(phone_numbers)
+
+        email_addresses = record[17]
+        if email_addresses:
+            email_addresses = clean_label(email_addresses)
+
+        addresses = record[18]
+        if addresses:
+            addresses = clean_label(addresses)
+
+        instant_message = record[19]
+        if instant_message:
+            instant_message = clean_label(instant_message)
+
+        url = record[20]
+        if url:
+            url = clean_label(url)
+
+        related_name = record[21]
+        if related_name:
+            related_name = clean_label(related_name)
+
+        profile = record[22]
+        if profile:
+            profile = clean_label(profile)
+
+        birthday = record[-4]
+        birthday = get_birthdate(birthday) if birthday else ''
+
+        modified_date = convert_cocoa_core_data_ts_to_utc(record[-1])
+
+        data_list.append(
+            [creation_date, modified_date, thumbnail, full_size_image, record[4], record[5], record[6],
+             record[7], record[8], record[9], record[10], record[11], record[12], record[13],
+             record[14], record[15], phone_numbers, email_addresses, addresses, instant_message,
+             url, related_name, profile, record[23], record[24], birthday, record[26],
+             record[27]])
+
+    # Removing unused columns
+    remove_empty_cols_query = '''
+    SELECT 
+        'Create', 
+        'Modif', 
+        count(ABI.ABThumbnailImage.data), 
+        count(ABI.ABFullSizeImage.data), 
+        count(ABPerson.Prefix), 
+        'First', 
+        count(ABPerson.Middle), 
+        'Last', 
+        count(ABPerson.Suffix), 
+        count(ABPerson.DisplayName), 
+        count(ABPerson.FirstPhonetic), 
+        count(ABPerson.MiddlePhonetic), 
+        count(ABPerson.LastPhonetic), 
+        count(ABPerson.Organization), 
+        count(ABPerson.Department), 
+        count(ABPerson.JobTitle),
+        count((
+            SELECT ABMultiValue.property 
+            FROM ABMultiValue 
+            WHERE ABMultiValue.property = 3 AND ABMultiValue.record_id = ABPerson.ROWID)), 
+        count((
+            SELECT ABMultiValue.property 
+            FROM ABMultiValue 
+            WHERE ABMultiValue.property = 4 AND ABMultiValue.record_id = ABPerson.ROWID)), 
+        count((
+            SELECT ABMultiValue.property 
+            FROM ABMultiValue 
+            WHERE ABMultiValue.property = 5 AND ABMultiValue.record_id = ABPerson.ROWID)), 
+        count((
+            SELECT ABMultiValue.property 
+            FROM ABMultiValue 
+            WHERE ABMultiValue.property = 13 AND ABMultiValue.record_id = ABPerson.ROWID)), 
+        count((
+            SELECT ABMultiValue.property 
+            FROM ABMultiValue 
+            WHERE ABMultiValue.property = 22 AND ABMultiValue.record_id = ABPerson.ROWID)), 
+        count((
+            SELECT ABMultiValue.property 
+            FROM ABMultiValue 
+            WHERE ABMultiValue.property = 23 AND ABMultiValue.record_id = ABPerson.ROWID)), 
+        count((
+            SELECT ABMultiValue.property 
+            FROM ABMultiValue 
+            WHERE ABMultiValue.property = 46 AND ABMultiValue.record_id = ABPerson.ROWID)), 
+        count(ABPerson.Nickname), 
+        count(ABPerson.Note), 
+        count(ABPerson.Birthday), 
+        count(ABGroupMembers.member_id), 
+        'Store'
+    FROM ABPerson
+    LEFT JOIN ABGroupMembers ON ABPerson.ROWID = ABGroupMembers.member_id
+    LEFT JOIN ABI.ABThumbnailImage ON ABPerson.ROWID = ABI.ABThumbnailImage.record_id
+    LEFT JOIN ABI.ABFullSizeImage ON ABPerson.ROWID = ABI.ABFullSizeImage.record_id
+    '''
+
+    empty_cols_records = list( get_sqlite_db_records(source_path, remove_empty_cols_query, attach_query) )
+    data_headers = remove_unused_rows(data_headers, empty_cols_records)
+    data_list = [remove_unused_rows(data, empty_cols_records) for data in data_list]
+
+    return data_headers, data_list, source_path

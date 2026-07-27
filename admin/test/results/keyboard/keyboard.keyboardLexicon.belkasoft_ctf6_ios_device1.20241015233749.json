@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "module_name": "keyboard",
+    "artifact_name": "Keyboard Dynamic Lexicon",
+    "function_name": "keyboardLexicon",
+    "case_number": "belkasoft_ctf6_ios_device1",
+    "number_of_columns": 2,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 300,
+    "input_zip_path": "admin/test/cases/data/testdata.keyboard.keyboardLexicon.belkasoft_ctf6_ios_device1.zip",
+    "start_time": "2024-10-15T23:37:49.296330+00:00",
+    "end_time": "2024-10-15T23:37:49.333930+00:00",
+    "run_time_seconds": 0.00012993812561035156,
+    "last_commit": {
+      "hash": "b0b3e080d8c8b934f641745223fc512c40c9a639",
+      "author_name": "James Habben",
+      "author_email": "james@wmif.net",
+      "date": "2024-10-14T16:16:36-07:00",
+      "message": "updates for testing and module"
+    }
+  },
+  "headers": [
+    "Found Strings",
+    "File Location"
+  ],
+  "data": [
+    [
+      "N.2mo,and,another,bike,bills,bucket,buy,N+?Cannondale,checkup,Chicago,chi,Detroit,evenings,evening,Grace,grace,Greece,N*Gr,hockey,ideas,Italy,N*?iu,just,list,magnesium,midday,morning,multi,new,nice,omega,one,Paris,pickles,pick,pic,rent,sell,Singapore,some,todo,travel",
+      "en-dynamic.lm/dynamic-lexicon.dat"
+    ]
+  ]
+}

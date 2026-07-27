@@ -1,0 +1,47 @@
+__artifacts_v2__ = {
+    "get_draftmessage": {
+        "name": "Draft Native Messages",
+        "description": "Parses unsent draft iMessage and SMS messages and their modified times from SMS/Drafts composition.plist files.",
+        "author": "@abrignoni",
+        "creation_date": "2022-10-18",
+        "last_update_date": "2026-07-22",
+        "requirements": "none",
+        "category": "Messages",
+        "notes": "",
+        "paths": ('*/SMS/Drafts/*/composition.plist'),
+        "output_types": "standard",
+        "artifact_icon": "message-circle"
+    }
+}
+
+import os
+import nska_deserialize as nd
+from pathlib import Path
+from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_plist_file_content
+
+@artifact_processor
+def get_draftmessage(context):
+    data_list = []
+    data_headers = (('Modified Time', 'datetime'),'Intended Recipient','Draft Message', 'Source file')
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        filename = os.path.basename(file_found) #reusing old code and adding new underneath. I know. "Cringe."
+        path = Path(file_found)
+        directoryname = (path.parent.name)
+        if filename.startswith('.'):
+            continue
+        if os.path.isfile(file_found):
+            if 'tombstone' in file_found:
+                continue
+            else:
+                pass
+        else:
+            continue
+    
+        modifiedtime = convert_unix_ts_to_utc(os.path.getmtime(file_found))
+        
+        pl = get_plist_file_content(file_found)
+        deserialized_plist = nd.deserialize_plist_from_string(pl['text'])
+        data_list.append((modifiedtime, directoryname, deserialized_plist.get('NSString', ''), context.get_relative_path(file_found)))
+    
+    return data_headers, data_list, 'see Source File for more info'

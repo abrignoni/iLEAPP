@@ -1,47 +1,60 @@
+__artifacts_v2__ = {
+    "celWireless": {
+        "name": "Cellular Wireless",
+        "description": "Extracts cellular wireless information from device preferences",
+        "author": "@abrignoni",
+        "creation_date": "2024-10-22",
+        "last_update_date": "2026-07-21",
+        "requirements": "none",
+        "category": "Cellular",
+        "notes": "",
+        "paths": ('*wireless/Library/Preferences/com.apple.commcenter.plist', 
+                  '*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist'),
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "antenna",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 53 rows",
+            "dexter_ios18": "iOS 18.3.2 | 65 rows",
+            "felix_ios17": "iOS 17.6.1 | 60 rows",
+            "fsfull002_ios17": "iOS 17.1 | 120 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 48 rows",
+            "iphone11_ios17": "iOS 17.3 | 62 rows",
+            "iphone12_ios18": "iOS 18.7 | 56 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 63 rows",
+            "otto_ios17": "iOS 17.5.1 | 62 rows",
+            "abe_ios16": "iOS 16.5 | 53 rows",
+            "felix23_ios16": "iOS 16.5 | 52 rows",
+            "hickman_ios13": "iOS 13.3.1 | 52 rows",
+            "hickman_ios14": "iOS 14.3 | 58 rows",
+            "jess_ios15": "iOS 15.0.2 | 58 rows",
+            "magnet_ios16": "iOS 16.1.1 | 55 rows",
+        }
+    }
+}
+
 import os
-import plistlib
-import sqlite3
+from scripts.ilapfuncs import device_info, artifact_processor, get_plist_file_content
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, tsv, is_platform_windows 
-
-def get_celWireless(files_found, report_folder, seeker):
+@artifact_processor
+def celWireless(context):
     data_list = []
-    for filepath in files_found:
+    for filepath in context.get_files_found():
         basename = os.path.basename(filepath)
-        if (
-            basename == "com.apple.commcenter.device_specific_nobackup.plist"
-            or basename == "com.apple.commcenter.plist"
-        ):
-            p = open(filepath, "rb")
-            plist = plistlib.load(p)
+        if basename in ["com.apple.commcenter.device_specific_nobackup.plist", "com.apple.commcenter.plist"]:
+            plist = get_plist_file_content(filepath)
             for key, val in plist.items():
-                data_list.append((key, val, filepath))
+                data_list.append((key, str(val), context.get_relative_path(filepath)))
                 if key == "ReportedPhoneNumber":
-                    logdevinfo(f"Reported Phone Number: {val}")
-                
-                if key == "CDMANetworkPhoneNumberICCID":
-                    logdevinfo(f"CDMA Network Phone Number ICCID: {val}")
-                
-                if key == "imei":
-                    logdevinfo(f"IMEI: {val}")
-                    
-                if key == "LastKnownICCID":
-                    logdevinfo(f"Last Known ICCID: {val}")
-                
-                if key == "meid":
-                    logdevinfo(f"MEID: {val}")
+                    device_info("Cellular", "Reported Phone Number", val, filepath)
+                elif key == "CDMANetworkPhoneNumberICCID":
+                    device_info("Cellular", "CDMA Network Phone Number ICCID", val, filepath)
+                elif key == "imei":
+                    device_info("Cellular", "IMEI", val, filepath)
+                elif key == "LastKnownICCID":
+                    device_info("Cellular", "Last Known ICCID", val, filepath)
+                elif key == "meid":
+                    device_info("Cellular", "MEID", val, filepath)
     
+    data_headers = ('Data Key', 'Data Value', 'Source File')
     
-    
-    location = 'see source field'
-    report = ArtifactHtmlReport('Cellular Wireless')
-    report.start_artifact_report(report_folder, 'Cellular Wireless')
-    report.add_script()
-    data_headers = ('Key','Values', 'Source' )     
-    report.write_artifact_data_table(data_headers, data_list, location)
-    report.end_artifact_report()
-    
-    tsvname = 'Cellular Wireless'
-    tsv(report_folder, data_headers, data_list, tsvname)
-
+    return data_headers, data_list, 'see Source File for more info'

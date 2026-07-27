@@ -1,0 +1,114 @@
+{
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-15T16:07:56.063452",
+      "last_commit": {
+        "hash": "5edc9a916fd57fae3f9be628768aee79236863e4",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-15T16:07:28-07:00",
+        "message": "Update gmail.py"
+      }
+    },
+    "artifacts": {
+      "gmailOfflineSearch": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "gmailLabelDetails": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs"
+  },
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-15T16:10:47.231161",
+      "last_commit": {
+        "hash": "5edc9a916fd57fae3f9be628768aee79236863e4",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-15T16:07:28-07:00",
+        "message": "Update gmail.py"
+      }
+    },
+    "artifacts": {
+      "gmailOfflineSearch": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "gmailLabelDetails": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*"
+        ],
+        "file_count": 6,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023"
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-15T16:10:59.816421",
+      "last_commit": {
+        "hash": "5edc9a916fd57fae3f9be628768aee79236863e4",
+        "author_name": "James Habben",
+        "author_email": "james@wmif.net",
+        "date": "2024-10-15T16:07:28-07:00",
+        "message": "Update gmail.py"
+      }
+    },
+    "artifacts": {
+      "gmailOfflineSearch": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      },
+      "gmailLabelDetails": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1",
+    "note": "No responsive files found for any artifacts"
+  }
+}

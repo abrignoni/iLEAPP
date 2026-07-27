@@ -1,53 +1,57 @@
-import glob
-import os
-import pathlib
-import sqlite3
+__artifacts_v2__ = {
+    'tileAppNetDb': {
+        'name': 'Tile App Account Information',
+        'description': 'Parses the registered Tile account (registration timestamp, email, full name and phone number) from TileNetworkDB.',
+        'author': '@AlexisBrignoni',
+        'creation_date': '2020-09-03',
+        'last_update_date': '2025-04-05',
+        'requirements': 'none',
+        'category': 'Tile App',
+        'notes': '',
+        'paths': (
+            '*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*', ),
+        'output_types': 'standard',
+        'artifact_icon': 'user',
+        'sample_data': {
+            'otto_ios17': 'iOS 17.5.1 | group.thetileapp.Tile.Documents | 0 rows',
+            'abe_ios16': 'iOS 16.5 | group.thetileapp.Tile.Documents | 1 row',
+        }
+    }
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly
+from scripts.ilapfuncs import artifact_processor, \
+    get_file_path, get_sqlite_db_records, \
+    convert_cocoa_core_data_ts_to_utc
 
 
-def get_tileAppNetDb(files_found, report_folder, seeker):
-    for file_found in files_found:
-        file_found = str(file_found)
-        
-        if file_found.endswith('tile-TileNetworkDB.sqlite'):
-            break
-            
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    cursor.execute('''
+@artifact_processor
+def tileAppNetDb(context):
+    files_found = context.get_files_found()
+    source_path = get_file_path(
+        files_found, 'com.thetileapp.tile-TileNetworkDB.sqlite')
+    data_list = []
+
+    query = '''
     SELECT
-    datetime(ZREGISTRATION_TIMESTAMP,'unixepoch','31 years'),
-    ZEMAIL,
-    ZFULL_NAME,
-    ZMOBILE_PHONE
-    FROM
-    ZTILENTITY_USER
-    ''')
+        ZREGISTRATION_TIMESTAMP, 
+        ZEMAIL,
+        ZFULL_NAME,
+        ZMOBILE_PHONE
+    FROM ZTILENTITY_USER
+    '''
 
-    all_rows = cursor.fetchall()
-    usageentries = len(all_rows)
-    data_list = []    
-    if usageentries > 0:
-        for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3]))
-            
-            description = ''
-            report = ArtifactHtmlReport('Tile App - Account Information')
-            report.start_artifact_report(report_folder, 'Tile App Account Information', description)
-            report.add_script()
-            data_headers = ('Registration Timestamp','Email','Full Name','Mobile Phone Number')     
-            report.write_artifact_data_table(data_headers, data_list, file_found)
-            report.end_artifact_report()
-            
-        tsvname = 'Tile App Account Information'
-        tsv(report_folder, data_headers, data_list, tsvname)
-        
-        tlactivity = 'Tile App Account Information'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No Tile App DB account data available')
-    
-    db.close()
-    return 
+    data_headers = (
+        ('Registration Timestamp', 'datetime'),
+        'Email',
+        'Full Name',
+        ('Mobile Phone Number', 'phonenumber'))
+
+    db_records = get_sqlite_db_records(source_path, query)
+
+    for record in db_records:
+        registration_timestamp = convert_cocoa_core_data_ts_to_utc(
+            record['ZREGISTRATION_TIMESTAMP'])
+        data_list.append(
+            (registration_timestamp, record[1], record[2], record[3]))
+
+    return data_headers, data_list, source_path

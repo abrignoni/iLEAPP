@@ -1,0 +1,1108 @@
+Module Name,Artifact Name,Search Pattern,List File Name,Count,Search Time (s)
+serialNumber,serialNumber,*/Library/Caches/locationd/consolidated.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9096
+serialNumber,serialNumber,*/Library/Caches/locationd/consolidated.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1602
+serialNumber,serialNumber,*/Library/Caches/locationd/consolidated.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6702
+tileApp,tileApp,*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8722
+tileApp,tileApp,*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1444
+tileApp,tileApp,*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6948
+DataUsage,datausage,*/wireless/Library/Databases/DataUsage.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9620
+DataUsage,datausage,*/wireless/Library/Databases/DataUsage.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1518
+DataUsage,datausage,*/wireless/Library/Databases/DataUsage.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6671
+biomeAppinstall,biomeAppinstall,*/Biome/streams/restricted/_DKEvent.App.Install/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8849
+biomeAppinstall,biomeAppinstall,*/Biome/streams/restricted/App.Install/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8788
+biomeAppinstall,biomeAppinstall,*/Biome/streams/restricted/_DKEvent.App.Install/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1483
+biomeAppinstall,biomeAppinstall,*/Biome/streams/restricted/App.Install/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1496
+biomeAppinstall,biomeAppinstall,*/Biome/streams/restricted/_DKEvent.App.Install/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6961
+biomeAppinstall,biomeAppinstall,*/Biome/streams/restricted/App.Install/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6632
+safariFavicons,safariFavicons,*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,4,0.8795
+safariFavicons,safariFavicons,*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,4,0.1499
+safariFavicons,safariFavicons,*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,4,0.6612
+Ph10AssetParsedEmbeddedFiles,Ph10-1-Assets have embedded files-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9032
+Ph10AssetParsedEmbeddedFiles,Ph10-1-Assets have embedded files-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1509
+Ph10AssetParsedEmbeddedFiles,Ph10-1-Assets have embedded files-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6783
+Ph10AssetParsedEmbeddedFiles,Ph10-2-Assets have embedded files-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8779
+Ph10AssetParsedEmbeddedFiles,Ph10-2-Assets have embedded files-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1465
+Ph10AssetParsedEmbeddedFiles,Ph10-2-Assets have embedded files-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6495
+biomeBluetooth,biomeBluetooth,*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8996
+biomeBluetooth,biomeBluetooth,*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1529
+biomeBluetooth,biomeBluetooth,*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6781
+addressBook,addressbook,*/mobile/Library/AddressBook/AddressBook*.sqlitedb*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,6,0.8879
+addressBook,addressbook,*/mobile/Library/AddressBook/AddressBook*.sqlitedb*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,6,0.1484
+addressBook,addressbook,*/mobile/Library/AddressBook/AddressBook*.sqlitedb*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,6,0.7303
+simInfo,siminfo,*/com.apple.commcenter.data.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3162
+simInfo,siminfo,*/com.apple.commcenter.data.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0534
+simInfo,siminfo,*/com.apple.commcenter.data.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2343
+biomeDevWifi,biomeDevWifi,*/Biome/streams/restricted/Device.Wireless.WiFi/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9004
+biomeDevWifi,biomeDevWifi,*/Biome/streams/restricted/Device.Wireless.WiFi/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1461
+biomeDevWifi,biomeDevWifi,*/Biome/streams/restricted/Device.Wireless.WiFi/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6783
+mediaLibrary,mediaLibrary,**/Medialibrary.sqlitedb*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8935
+mediaLibrary,mediaLibrary,**/Medialibrary.sqlitedb*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1503
+mediaLibrary,mediaLibrary,**/Medialibrary.sqlitedb*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6837
+biomeBattperc,biomeBattperc,*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8924
+biomeBattperc,biomeBattperc,*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1471
+biomeBattperc,biomeBattperc,*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6680
+bumble,bumble,**/Library/Caches/Chat.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8928
+bumble,bumble,**/Documents/yap-database.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8894
+bumble,bumble,**/Library/Caches/Chat.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1522
+bumble,bumble,**/Documents/yap-database.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1380
+bumble,bumble,**/Library/Caches/Chat.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.7269
+bumble,bumble,**/Documents/yap-database.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6666
+biomeAirpMode,biomeAirpMode,*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8962
+biomeAirpMode,biomeAirpMode,*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1481
+biomeAirpMode,biomeAirpMode,*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6654
+photosMetadata,photosMetadata,*/mobile/Media/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8919
+photosMetadata,photosMetadata,*/mobile/Media/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1517
+photosMetadata,photosMetadata,*/mobile/Media/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6684
+Ph35iCloudSharedLinkAssets,Ph35-iCloud Shared Link Assets-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9217
+Ph35iCloudSharedLinkAssets,Ph35-iCloud Shared Link Assets-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1501
+Ph35iCloudSharedLinkAssets,Ph35-iCloud Shared Link Assets-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6944
+Ph32AssetsIniCldSPLwContrib,Ph32-iCloud SPL Assets with Contributor-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9110
+Ph32AssetsIniCldSPLwContrib,Ph32-iCloud SPL Assets with Contributor-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1541
+Ph32AssetsIniCldSPLwContrib,Ph32-iCloud SPL Assets with Contributor-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6878
+biomeDevplugin,biomeDevplugin,*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8902
+biomeDevplugin,biomeDevplugin,*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1486
+biomeDevplugin,biomeDevplugin,*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6705
+weatherAppLocations,weatherAppLocations,*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8663
+weatherAppLocations,weatherAppLocations,*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1477
+weatherAppLocations,weatherAppLocations,*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6432
+mobileInstall,mobileInstall,**/mobile_installation.log.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.9018
+mobileInstall,mobileInstall,**/mobile_installation.log.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1510
+mobileInstall,mobileInstall,**/mobile_installation.log.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6818
+ATXDatastore,get_atxDatastore,**DuetExpertCenter/_ATXDataStore.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8636
+ATXDatastore,get_atxDatastore,**routined/Local.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8743
+ATXDatastore,get_atxDatastore,**DuetExpertCenter/_ATXDataStore.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1475
+ATXDatastore,get_atxDatastore,**routined/Local.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1374
+ATXDatastore,get_atxDatastore,**DuetExpertCenter/_ATXDataStore.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6469
+ATXDatastore,get_atxDatastore,**routined/Local.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6628
+Ph31iCloudSharePhotoLibraryNAD,Ph31-iCloud SPL with Participants with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9457
+Ph31iCloudSharePhotoLibraryNAD,Ph31-iCloud SPL with Participants with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1628
+Ph31iCloudSharePhotoLibraryNAD,Ph31-iCloud SPL with Participants with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6932
+carCD,carCD,*/Library/Caches/locationd/cache.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3142
+carCD,carCD,*/Library/Caches/locationd/cache.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0526
+carCD,carCD,*/Library/Caches/locationd/cache.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2339
+deviceDatam,devicedata,*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.2796
+deviceDatam,devicedata,*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0467
+deviceDatam,devicedata,*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2062
+torrentinfo,torrentinfo,*/*.torrent,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3596
+torrentinfo,torrentinfo,*/*.torrent,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0564
+torrentinfo,torrentinfo,*/*.torrent,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2207
+vippsContacts,vippsContacts,*/Vipps.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8975
+vippsContacts,vippsContacts,*/Vipps.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1526
+vippsContacts,vippsContacts,*/Vipps.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6745
+obliterated,obliterated,*/root/.obliterated,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3096
+obliterated,obliterated,*/root/.obliterated,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0530
+obliterated,obliterated,*/root/.obliterated,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2341
+biomeTextinputses,biomeTextinputses,*/Biome/streams/public/TextInputSession/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8927
+biomeTextinputses,biomeTextinputses,*/Biome/streams/restricted/Text.InputSession/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8828
+biomeTextinputses,biomeTextinputses,*/Biome/streams/public/TextInputSession/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1494
+biomeTextinputses,biomeTextinputses,*/Biome/streams/restricted/Text.InputSession/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1459
+biomeTextinputses,biomeTextinputses,*/Biome/streams/public/TextInputSession/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6696
+biomeTextinputses,biomeTextinputses,*/Biome/streams/restricted/Text.InputSession/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6595
+AshHistory,Alphine Linux Bash History,*/.ash_history,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3068
+AshHistory,Alphine Linux Bash History,*/.ash_history,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0529
+AshHistory,Alphine Linux Bash History,*/.ash_history,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2313
+applePodcasts,applepodcasts,**/MTLibrary.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9684
+applePodcasts,applepodcasts,**/MTLibrary.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1613
+applePodcasts,applepodcasts,**/MTLibrary.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6753
+AllTrails,alltrails,**/Documents/AllTrails.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8986
+AllTrails,alltrails,**/Documents/AllTrails.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1508
+AllTrails,alltrails,**/Documents/AllTrails.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6719
+Ph94Ios14REFforAssetAnalysis,Ph94-1-iOS14_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9107
+Ph94Ios14REFforAssetAnalysis,Ph94-1-iOS14_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1568
+Ph94Ios14REFforAssetAnalysis,Ph94-1-iOS14_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6890
+Ph94Ios14REFforAssetAnalysis,Ph94-2-iOS14_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8913
+Ph94Ios14REFforAssetAnalysis,Ph94-2-iOS14_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1497
+Ph94Ios14REFforAssetAnalysis,Ph94-2-iOS14_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6696
+whatsappMessages,whatsappMessages,*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9190
+whatsappMessages,whatsappMessages,*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8800
+whatsappMessages,whatsappMessages,*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1505
+whatsappMessages,whatsappMessages,*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1367
+whatsappMessages,whatsappMessages,*/var/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6784
+whatsappMessages,whatsappMessages,*/var/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6573
+biomeUseractmeta,biomeUseractmeta,*/Biome/streams/restricted/UserActivityMetadata/local*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8939
+biomeUseractmeta,biomeUseractmeta,*/Biome/streams/restricted/UserActivityMetadata/local*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1511
+biomeUseractmeta,biomeUseractmeta,*/Biome/streams/restricted/UserActivityMetadata/local*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6663
+geodApplications,geodapplications,**/AP.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9087
+geodApplications,geodapplications,**/AP.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1488
+geodApplications,geodapplications,**/AP.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6714
+deviceName,deviceName,*/root/Library/Lockdown/data_ark.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3056
+deviceName,deviceName,*/root/Library/Lockdown/data_ark.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0547
+deviceName,deviceName,*/root/Library/Lockdown/data_ark.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2342
+filesApps,filesapp,*/mobile/Library/Application Support/CloudDocs/session/db/client.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8906
+filesApps,filesapp,*/mobile/Library/Application Support/CloudDocs/session/db/server.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8850
+filesApps,filesapp,*/mobile/Library/Application Support/CloudDocs/session/db/client.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1671
+filesApps,filesapp,*/mobile/Library/Application Support/CloudDocs/session/db/server.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1379
+filesApps,filesapp,*/mobile/Library/Application Support/CloudDocs/session/db/client.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6699
+filesApps,filesapp,*/mobile/Library/Application Support/CloudDocs/session/db/server.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6650
+accountData,get_accs,*/mobile/Library/Accounts/Accounts3.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8865
+accountData,get_accs,*/mobile/Library/Accounts/Accounts3.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1528
+accountData,get_accs,*/mobile/Library/Accounts/Accounts3.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6733
+Ph99SystemVersionPlist,Ph99-System-Version-Plist,*/SystemVersion.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3151
+Ph99SystemVersionPlist,Ph99-System-Version-Plist,*/SystemVersion.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0531
+Ph99SystemVersionPlist,Ph99-System-Version-Plist,*/SystemVersion.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2321
+biomeIntents,Intents,*/mobile/Library/Biome/streams/public/AppIntent/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8938
+biomeIntents,Intents,*/AppIntent/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9056
+biomeIntents,Intents,*/mobile/Library/Biome/streams/public/AppIntent/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1468
+biomeIntents,Intents,*/AppIntent/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1399
+biomeIntents,Intents,*/mobile/Library/Biome/streams/public/AppIntent/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6721
+biomeIntents,Intents,*/AppIntent/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6586
+walStrings,walStrings,**/*-wal,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1129,0.3487
+walStrings,walStrings,**/*-journal,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,35,0.3378
+walStrings,walStrings,**/*-wal,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,555,0.0572
+walStrings,walStrings,**/*-journal,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.0487
+walStrings,walStrings,**/*-wal,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,720,0.2150
+walStrings,walStrings,**/*-journal,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,9,0.2019
+Ph97iOS17REFforAssetAnalysis,Ph97-1-iOS17_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9108
+Ph97iOS17REFforAssetAnalysis,Ph97-1-iOS17_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1542
+Ph97iOS17REFforAssetAnalysis,Ph97-1-iOS17_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6998
+Ph97iOS17REFforAssetAnalysis,Ph97-2-iOS17_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8834
+Ph97iOS17REFforAssetAnalysis,Ph97-2-iOS17_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1468
+Ph97iOS17REFforAssetAnalysis,Ph97-2-iOS17_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6710
+mobileInstallb,mobileInstallb,*/mobile_installation.log.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.9079
+mobileInstallb,mobileInstallb,*/mobile_installation.log.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1523
+mobileInstallb,mobileInstallb,*/mobile_installation.log.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6759
+geodMapTiles,geodmaptiles,**/MapTiles.sqlitedb*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8918
+geodMapTiles,geodmaptiles,**/MapTiles.sqlitedb*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1511
+geodMapTiles,geodmaptiles,**/MapTiles.sqlitedb*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6720
+callHistory,callhistory,**/CallHistory.storedata*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8855
+callHistory,callhistory,**/call_history.db,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2953
+callHistory,callhistory,**/CallHistory.storedata*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1480
+callHistory,callhistory,**/call_history.db,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0431
+callHistory,callhistory,**/CallHistory.storedata*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6777
+callHistory,callhistory,**/call_history.db,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2183
+torrentData,TorrentData,*/*.torrent,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3698
+torrentData,TorrentData,*/*.torrent,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0574
+torrentData,TorrentData,*/*.torrent,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2297
+photosDbexif,photosDbexif,*Media/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8611
+photosDbexif,photosDbexif,*Media/DCIM/*/**,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,77,0.8467
+photosDbexif,photosDbexif,*Media/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1472
+photosDbexif,photosDbexif,*Media/DCIM/*/**,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,31,0.1360
+photosDbexif,photosDbexif,*Media/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6494
+photosDbexif,photosDbexif,*Media/DCIM/*/**,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,147,0.6297
+Ph84CameraSmartSharingMetadataPlist,Ph84-Camera-Smart-Sharing-Metadata-Plist,*/PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3191
+Ph84CameraSmartSharingMetadataPlist,Ph84-Camera-Smart-Sharing-Metadata-Plist,*/PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0530
+Ph84CameraSmartSharingMetadataPlist,Ph84-Camera-Smart-Sharing-Metadata-Plist,*/PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2317
+netusage,netusage,*/netusage.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8937
+netusage,netusage,*/netusage.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1509
+netusage,netusage,*/netusage.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6812
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/Chrome/Default/Network Action Predictor*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8949
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/app_sbrowser/Default/Network Action Predictor*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8784
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/app_opera/Network Action Predicator*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8836
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/Chrome/Default/Network Action Predictor*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1504
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/app_sbrowser/Default/Network Action Predictor*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1458
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/app_opera/Network Action Predicator*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1393
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/Chrome/Default/Network Action Predictor*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6724
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/app_sbrowser/Default/Network Action Predictor*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6556
+chromeNetworkActionPredictor,ChromeNetworkActionPredictor,*/app_opera/Network Action Predicator*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6600
+appleWalletPasses,applewalletpasses,**/nanopasses.sqlite3*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9067
+appleWalletPasses,applewalletpasses,**/Cards/*.pkpass/pass.json,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8859
+appleWalletPasses,applewalletpasses,**/nanopasses.sqlite3*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1469
+appleWalletPasses,applewalletpasses,**/Cards/*.pkpass/pass.json,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1404
+appleWalletPasses,applewalletpasses,**/nanopasses.sqlite3*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6713
+appleWalletPasses,applewalletpasses,**/Cards/*.pkpass/pass.json,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6645
+SiriRemembers,Siri Remembers,*/mobile/Library/com.apple.siri.inference/siriremembers*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.9003
+SiriRemembers,Siri Remembers,*/mobile/Library/com.apple.siri.inference/siriremembers*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1476
+SiriRemembers,Siri Remembers,*/mobile/Library/com.apple.siri.inference/siriremembers*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6658
+biomeCarplayisconnected,biomeCarplayisconnected,*/Biome/streams/restricted/_DKEvent.Carplay.IsConnected/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8902
+biomeCarplayisconnected,biomeCarplayisconnected,*/Biome/streams/restricted/_DKEvent.Carplay.IsConnected/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1510
+biomeCarplayisconnected,biomeCarplayisconnected,*/Biome/streams/restricted/_DKEvent.Carplay.IsConnected/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6828
+Ph26SyndicationPLAssets,Ph26-1-Syndication ID Assets-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9120
+Ph26SyndicationPLAssets,Ph26-1-Syndication ID Assets-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1529
+Ph26SyndicationPLAssets,Ph26-1-Syndication ID Assets-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.8902
+Ph26SyndicationPLAssets,Ph26-2-Syndication PL Assets-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8860
+Ph26SyndicationPLAssets,Ph26-2-Syndication PL Assets-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1490
+Ph26SyndicationPLAssets,Ph26-2-Syndication PL Assets-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6663
+Ph83comapplePurpleBuddyPlist,Ph83-Com-Apple-PurpleBuddy-Plist,*/Library/Preferences/com.apple.purplebuddy.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3188
+Ph83comapplePurpleBuddyPlist,Ph83-Com-Apple-PurpleBuddy-Plist,*/Library/Preferences/com.apple.purplebuddy.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0503
+Ph83comapplePurpleBuddyPlist,Ph83-Com-Apple-PurpleBuddy-Plist,*/Library/Preferences/com.apple.purplebuddy.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2422
+airtags,airtags,*/Caches/com.apple.findmy.fmipcore/Items.data,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3127
+airtags,airtags,*/Caches/com.apple.findmy.fmipcore/Items.data,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0539
+airtags,airtags,*/Caches/com.apple.findmy.fmipcore/Items.data,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2302
+Health,health,*Health/healthdb_secure.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8662
+Health,health,*Health/healthdb.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8532
+Health,health,*Health/healthdb_secure.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1453
+Health,health,*Health/healthdb.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1333
+Health,health,*Health/healthdb_secure.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6513
+Health,health,*Health/healthdb.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6295
+dhcphp,dhcphp,*/db/dhcpd_leases*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8968
+dhcphp,dhcphp,*/db/dhcpd_leases*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1548
+dhcphp,dhcphp,*/db/dhcpd_leases*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6697
+kikBplistmeta,kikBplistmeta,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8932
+kikBplistmeta,kikBplistmeta,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1475
+kikBplistmeta,kikBplistmeta,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6696
+Ph82comappleMediaAnalysisDPlist,Ph82-Com-Apple-MediaAnalysisD-Plist,*/mobile/Library/Preferences/com.apple.mediaanalysisd.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3822
+Ph82comappleMediaAnalysisDPlist,Ph82-Com-Apple-MediaAnalysisD-Plist,*/mobile/Library/Preferences/com.apple.mediaanalysisd.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0536
+Ph82comappleMediaAnalysisDPlist,Ph82-Com-Apple-MediaAnalysisD-Plist,*/mobile/Library/Preferences/com.apple.mediaanalysisd.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2351
+mobileActivationLogs,mobileActivationLogs,**/mobileactivationd.log*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8915
+mobileActivationLogs,mobileActivationLogs,**/mobileactivationd.log*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1496
+mobileActivationLogs,mobileActivationLogs,**/mobileactivationd.log*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6665
+tileAppDisc,tileAppDisc,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8794
+tileAppDisc,tileAppDisc,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1460
+tileAppDisc,tileAppDisc,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6537
+geodPDPlaceCache,geodpdplacecache,**/PDPlaceCache.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8883
+geodPDPlaceCache,geodpdplacecache,**/PDPlaceCache.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1518
+geodPDPlaceCache,geodpdplacecache,**/PDPlaceCache.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6667
+Ph81comappleCameraPlist,Ph81-Com-Apple-Camera-Plist,*/mobile/Library/Preferences/com.apple.camera.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3139
+Ph81comappleCameraPlist,Ph81-Com-Apple-Camera-Plist,*/mobile/Library/Preferences/com.apple.camera.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0543
+Ph81comappleCameraPlist,Ph81-Com-Apple-Camera-Plist,*/mobile/Library/Preferences/com.apple.camera.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2314
+Ph22AssetsInNonSharedAlbums,Ph22-Assets in Non-Shared Albums-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9176
+Ph22AssetsInNonSharedAlbums,Ph22-Assets in Non-Shared Albums-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1551
+Ph22AssetsInNonSharedAlbums,Ph22-Assets in Non-Shared Albums-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6870
+quickLook,quickLook,*/Quick Look/cloudthumbnails.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8928
+quickLook,quickLook,*/Quick Look/cloudthumbnails.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1601
+quickLook,quickLook,*/Quick Look/cloudthumbnails.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6716
+kikLocaladmin,kikLocaladmin,*/kik.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8860
+kikLocaladmin,kikLocaladmin,*/kik.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1514
+kikLocaladmin,kikLocaladmin,*/kik.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6823
+hikvision,hikvision,*/Documents/DCLOG/YSDCLogItem.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8949
+hikvision,hikvision,*/Documents/database.hik*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8822
+hikvision,hikvision,*/Documents/*/*/*/*.jpg,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,5,0.8865
+hikvision,hikvision,*/Documents/*/*/*/*.mov,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8772
+hikvision,hikvision,*/Documents/*/*/*/*.mp4,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9735
+hikvision,hikvision,*/Documents/DCLOG/YSDCLogItem.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1513
+hikvision,hikvision,*/Documents/database.hik*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1421
+hikvision,hikvision,*/Documents/*/*/*/*.jpg,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1386
+hikvision,hikvision,*/Documents/*/*/*/*.mov,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1403
+hikvision,hikvision,*/Documents/*/*/*/*.mp4,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1400
+hikvision,hikvision,*/Documents/DCLOG/YSDCLogItem.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6749
+hikvision,hikvision,*/Documents/database.hik*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6544
+hikvision,hikvision,*/Documents/*/*/*/*.jpg,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6576
+hikvision,hikvision,*/Documents/*/*/*/*.mov,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6670
+hikvision,hikvision,*/Documents/*/*/*/*.mp4,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6568
+chromeBookmarks,ChromeBookmarks,*/Chrome/Default/Bookmarks*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.9096
+chromeBookmarks,ChromeBookmarks,*/app_sbrowser/Default/Bookmarks*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8884
+chromeBookmarks,ChromeBookmarks,*/app_opera/Bookmarks*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9085
+chromeBookmarks,ChromeBookmarks,*/Chrome/Default/Bookmarks*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1571
+chromeBookmarks,ChromeBookmarks,*/app_sbrowser/Default/Bookmarks*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1438
+chromeBookmarks,ChromeBookmarks,*/app_opera/Bookmarks*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1530
+chromeBookmarks,ChromeBookmarks,*/Chrome/Default/Bookmarks*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.7116
+chromeBookmarks,ChromeBookmarks,*/app_sbrowser/Default/Bookmarks*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.7216
+chromeBookmarks,ChromeBookmarks,*/app_opera/Bookmarks*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6652
+applelocationd,applelocationd,*/mobile/Library/Preferences/com.apple.locationd.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3110
+applelocationd,applelocationd,*/mobile/Library/Preferences/com.apple.locationd.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0522
+applelocationd,applelocationd,*/mobile/Library/Preferences/com.apple.locationd.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2367
+appleMapsGroup,applemapsgroup,**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8844
+appleMapsGroup,applemapsgroup,**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1462
+appleMapsGroup,applemapsgroup,**/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6601
+appGrouplisting,appgrouplisting,*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,124,0.8609
+appGrouplisting,appgrouplisting,**/PluginKitPlugin/*.metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,617,0.8861
+appGrouplisting,appgrouplisting,*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,55,0.1469
+appGrouplisting,appgrouplisting,**/PluginKitPlugin/*.metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,536,0.1371
+appGrouplisting,appgrouplisting,*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,83,0.6645
+appGrouplisting,appgrouplisting,**/PluginKitPlugin/*.metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,602,0.6619
+protonMail,protonMail,*/group.ch.protonmail.protonmail.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3135
+protonMail,protonMail,*/ProtonMail.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8811
+protonMail,protonMail,*/Containers/Data/Application/*/tmp/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,351,0.8662
+protonMail,protonMail,*/group.ch.protonmail.protonmail.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0541
+protonMail,protonMail,*/ProtonMail.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1425
+protonMail,protonMail,*/Containers/Data/Application/*/tmp/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,109,0.1364
+protonMail,protonMail,*/group.ch.protonmail.protonmail.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2363
+protonMail,protonMail,*/ProtonMail.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6589
+protonMail,protonMail,*/Containers/Data/Application/*/tmp/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,45,0.6541
+imoHD_Chat,imoHD_Chat,*/IMODb2.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8868
+imoHD_Chat,imoHD_Chat,*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8610
+imoHD_Chat,imoHD_Chat,*/IMODb2.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1538
+imoHD_Chat,imoHD_Chat,*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1341
+imoHD_Chat,imoHD_Chat,*/IMODb2.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6761
+imoHD_Chat,imoHD_Chat,*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6465
+biomeSafari,biomeSafari,*/biome/streams/restricted/_DKEvent.Safari.History/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8879
+biomeSafari,biomeSafari,*/biome/streams/restricted/_DKEvent.Safari.History/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1489
+biomeSafari,biomeSafari,*/biome/streams/restricted/_DKEvent.Safari.History/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.7000
+FacebookMessenger,facebookmessenger,**/lightspeed-*.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,5,0.9691
+FacebookMessenger,facebookmessenger,**/lightspeed-*.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1507
+FacebookMessenger,facebookmessenger,**/lightspeed-*.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6681
+line,line,**/Line.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8928
+line,line,**/Line.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1547
+line,line,**/Line.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6953
+Ph33AssetsIniCldSPLfromOtherContrib,Ph33-iCld SPL Assets from other contrib-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9175
+Ph33AssetsIniCldSPLfromOtherContrib,Ph33-iCld SPL Assets from other contrib-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1619
+Ph33AssetsIniCldSPLfromOtherContrib,Ph33-iCld SPL Assets from other contrib-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.7049
+Ph11KwrdsCapsTitlesDescripsBasicAssetData,Ph11-KwrdsCapsTitlesDescripsLikesBasicAsstData-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9162
+Ph11KwrdsCapsTitlesDescripsBasicAssetData,Ph11-KwrdsCapsTitlesDescripsLikesBasicAsstData-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1515
+Ph11KwrdsCapsTitlesDescripsBasicAssetData,Ph11-KwrdsCapsTitlesDescripsLikesBasicAsstData-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.7019
+mobileBackup,mobileBackup,*/Preferences/com.apple.MobileBackup.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3164
+mobileBackup,mobileBackup,*/Preferences/com.apple.MobileBackup.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0540
+mobileBackup,mobileBackup,*/Preferences/com.apple.MobileBackup.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2328
+booking,booking,*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8122
+booking,booking,*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1241
+booking,booking,*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6353
+icloudSharedalbums,icloudSharedalbums,*/mobile/Media/PhotoData/PhotoCloudSharingData/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,39,0.8864
+icloudSharedalbums,icloudSharedalbums,*/mobile/Media/PhotoData/PhotoCloudSharingData/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1506
+icloudSharedalbums,icloudSharedalbums,*/mobile/Media/PhotoData/PhotoCloudSharingData/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6748
+ZangiChats,Zangi_Chats,*/private/var/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8885
+ZangiChats,Zangi_Chats,*/private/var/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1481
+ZangiChats,Zangi_Chats,*/private/var/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6731
+teams,teams,*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8854
+teams,teams,*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,33,0.8931
+teams,teams,*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1504
+teams,teams,*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1368
+teams,teams,*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6823
+teams,teams,*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6448
+uberLeveldb,uberLocations,*/Data/Application/*/Library/Application Support/com.ubercab.UberClient/storagev2/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8666
+uberLeveldb,uberLocations,*/Data/Application/*/Library/Application Support/com.ubercab.UberClient/storagev2/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,188,0.1656
+uberLeveldb,uberLocations,*/Data/Application/*/Library/Application Support/com.ubercab.UberClient/storagev2/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6518
+googleChat,googleChat,*/Documents/user_accounts/*/dynamite.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8952
+googleChat,googleChat,*/Documents/user_accounts/*/dynamite.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1514
+googleChat,googleChat,*/Documents/user_accounts/*/dynamite.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6664
+Ph98iOS18REFforAssetAnalysis,Ph98-1-iOS18_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9203
+Ph98iOS18REFforAssetAnalysis,Ph98-1-iOS18_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1578
+Ph98iOS18REFforAssetAnalysis,Ph98-1-iOS18_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6887
+Ph98iOS18REFforAssetAnalysis,Ph98-2-iOS18_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8907
+Ph98iOS18REFforAssetAnalysis,Ph98-2-iOS18_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1505
+Ph98iOS18REFforAssetAnalysis,Ph98-2-iOS18_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6600
+torrentResumeinfo,torrentResumeinfo,*/*.resume,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3520
+torrentResumeinfo,torrentResumeinfo,*/*.resume,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0536
+torrentResumeinfo,torrentResumeinfo,*/*.resume,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2211
+cachev0,cachev0,*/cacheV0.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8904
+cachev0,cachev0,*/cacheV0.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1514
+cachev0,cachev0,*/cacheV0.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,7,0.6738
+Ph34iCloudSharedLinksNAD,Ph34-iCloud Shared Link Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9238
+Ph34iCloudSharedLinksNAD,Ph34-iCloud Shared Link Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1549
+Ph34iCloudSharedLinksNAD,Ph34-iCloud Shared Link Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6782
+Splitwise,splitwise,*/Library/Application Support/database.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9075
+Splitwise,splitwise,*/Library/Application Support/database.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1520
+Splitwise,splitwise,*/Library/Application Support/database.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6969
+mobileContainerManager,mobileContainerManager,**/containermanagerd.log.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8983
+mobileContainerManager,mobileContainerManager,**/containermanagerd.log.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1511
+mobileContainerManager,mobileContainerManager,**/containermanagerd.log.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.7020
+kikUsersgroups,kikUsersgroups,*/kik.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9335
+kikUsersgroups,kikUsersgroups,*/kik.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1576
+kikUsersgroups,kikUsersgroups,*/kik.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6818
+coreAccessoriesUserEvent,coreAccessoriesUserEvent,*/mobile/Library/CoreAccessories/Analytics/acc_analytics_UserEventAgent_v3.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8889
+coreAccessoriesUserEvent,coreAccessoriesUserEvent,*/mobile/Library/CoreAccessories/Analytics/acc_analytics_UserEventAgent_v3.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1548
+coreAccessoriesUserEvent,coreAccessoriesUserEvent,*/mobile/Library/CoreAccessories/Analytics/acc_analytics_UserEventAgent_v3.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6615
+Ph86astsdcloudServiceEnableLogplist,Ph86-assetsd-cloud-Service-Enable-Log-Plist,*/com.apple.assetsd/cloudServiceEnableLog.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3021
+Ph86astsdcloudServiceEnableLogplist,Ph86-assetsd-cloud-Service-Enable-Log-Plist,*/com.apple.assetsd/cloudServiceEnableLog.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0538
+Ph86astsdcloudServiceEnableLogplist,Ph86-assetsd-cloud-Service-Enable-Log-Plist,*/com.apple.assetsd/cloudServiceEnableLog.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2322
+biomeSync,biomeSync,**/Biome/sync/sync.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9019
+biomeSync,biomeSync,**/Biome/sync/sync.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1549
+biomeSync,biomeSync,**/Biome/sync/sync.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.7122
+Ph23AlbumsSharedNAD,Ph23-Shared Album Records & Invites with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9325
+Ph23AlbumsSharedNAD,Ph23-Shared Album Records & Invites with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1573
+Ph23AlbumsSharedNAD,Ph23-Shared Album Records & Invites with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6927
+blockedContacts,blockedContacts,*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3108
+blockedContacts,blockedContacts,*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0534
+blockedContacts,blockedContacts,*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2283
+Ph80comappleMobileSlideShowPlist,Ph80-Com-Apple-MobileSlideshow-Plist,*/Library/Preferences/com.apple.mobileslideshow.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3132
+Ph80comappleMobileSlideShowPlist,Ph80-Com-Apple-MobileSlideshow-Plist,*/Library/Preferences/com.apple.mobileslideshow.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0532
+Ph80comappleMobileSlideShowPlist,Ph80-Com-Apple-MobileSlideshow-Plist,*/Library/Preferences/com.apple.mobileslideshow.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2353
+chromeLoginData,ChromeLoginData,*/Chrome/Default/Login Data*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8909
+chromeLoginData,ChromeLoginData,*/app_sbrowser/Default/Login Data*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8853
+chromeLoginData,ChromeLoginData,*/app_opera/Login Data*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8795
+chromeLoginData,ChromeLoginData,*/Chrome/Default/Login Data*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1578
+chromeLoginData,ChromeLoginData,*/app_sbrowser/Default/Login Data*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1413
+chromeLoginData,ChromeLoginData,*/app_opera/Login Data*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1437
+chromeLoginData,ChromeLoginData,*/Chrome/Default/Login Data*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6794
+chromeLoginData,ChromeLoginData,*/app_sbrowser/Default/Login Data*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6611
+chromeLoginData,ChromeLoginData,*/app_opera/Login Data*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6615
+duetLocations,duetlocations,*/DuetExpertCenter/streams/location/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8917
+duetLocations,duetlocations,*/DuetExpertCenter/streams/location/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1519
+duetLocations,duetlocations,*/DuetExpertCenter/streams/location/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6701
+biomeBacklight,biomeBacklight,*/Biome/streams/public/Backlight/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8933
+biomeBacklight,biomeBacklight,*/Biome/streams/public/Backlight/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1488
+biomeBacklight,biomeBacklight,*/Biome/streams/public/Backlight/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6731
+reminders,reminders,**/Reminders/Container_v1/Stores/*.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,15,0.8930
+reminders,reminders,**/Reminders/Container_v1/Stores/*.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,9,0.1528
+reminders,reminders,**/Reminders/Container_v1/Stores/*.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,15,0.6778
+appleWalletTransactions,applewallettransactions,*/passes23.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.9072
+appleWalletTransactions,applewallettransactions,*/passes23.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1500
+appleWalletTransactions,applewallettransactions,*/passes23.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6773
+dhcpl,dhcpl,*/db/dhcpclient/leases/en*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8850
+dhcpl,dhcpl,*/db/dhcpclient/leases/en*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1514
+dhcpl,dhcpl,*/db/dhcpclient/leases/en*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6601
+applicationstate,applicationstate,*/mobile/Library/FrontBoard/applicationState.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8926
+applicationstate,applicationstate,*/mobile/Library/FrontBoard/applicationState.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1507
+applicationstate,applicationstate,*/mobile/Library/FrontBoard/applicationState.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6721
+Ph25SWYConvAlbumsNAD,Ph25-1-SWY Conversation Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9127
+Ph25SWYConvAlbumsNAD,Ph25-1-SWY Conversation Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1546
+Ph25SWYConvAlbumsNAD,Ph25-1-SWY Conversation Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6828
+Ph25SWYConvAlbumsNAD,Ph25-2-SWY Conversation Records with NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9031
+Ph25SWYConvAlbumsNAD,Ph25-2-SWY Conversation Records with NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1553
+Ph25SWYConvAlbumsNAD,Ph25-2-SWY Conversation Records with NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6652
+SMSmissingROWIDs,SMS Missing ROWIDs,*/mobile/Library/SMS/sms*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8936
+SMSmissingROWIDs,SMS Missing ROWIDs,*/mobile/Library/SMS/sms*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1494
+SMSmissingROWIDs,SMS Missing ROWIDs,*/mobile/Library/SMS/sms*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6687
+cacheRoutesGmap,cacheroutesgmap,**/Library/Application Support/CachedRoutes/*.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9097
+cacheRoutesGmap,cacheroutesgmap,**/Library/Application Support/CachedRoutes/*.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1505
+cacheRoutesGmap,cacheroutesgmap,**/Library/Application Support/CachedRoutes/*.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6739
+biomeWifi,biomeWifi,*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8952
+biomeWifi,biomeWifi,*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1500
+biomeWifi,biomeWifi,*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6663
+safariTabs,safariTabs,**/Safari/BrowserState.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9062
+safariTabs,safariTabs,**/Safari/CloudTabs.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8806
+safariTabs,safariTabs,**/Safari/BrowserState.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1483
+safariTabs,safariTabs,**/Safari/CloudTabs.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1436
+safariTabs,safariTabs,**/Safari/BrowserState.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6744
+safariTabs,safariTabs,**/Safari/CloudTabs.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6587
+restoreLog,restoreLog,*/mobile/MobileSoftwareUpdate/restore.log,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3088
+restoreLog,restoreLog,*/mobile/MobileSoftwareUpdate/restore.log,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0538
+restoreLog,restoreLog,*/mobile/MobileSoftwareUpdate/restore.log,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2309
+textinputTyping,textinputTyping,*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8982
+textinputTyping,textinputTyping,*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1524
+textinputTyping,textinputTyping,*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6739
+WatchSleepData,HealthSleepData,*Health/healthdb_secure.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8969
+WatchSleepData,HealthSleepData,*Health/healthdb_secure.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1492
+WatchSleepData,HealthSleepData,*Health/healthdb_secure.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6613
+notes,notes,*/NoteStore.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8878
+notes,notes,*/NoteStore.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1516
+notes,notes,*/NoteStore.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6810
+Ph30iCloudShareMethodsNAD,Ph30-iCloud Shared Methods with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9154
+Ph30iCloudShareMethodsNAD,Ph30-iCloud Shared Methods with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1534
+Ph30iCloudShareMethodsNAD,Ph30-iCloud Shared Methods with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6894
+icloudMeta,icloudmeta,*/iclouddrive/Metadata.txt,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3030
+icloudMeta,icloudmeta,*/iclouddrive/Metadata.txt,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0527
+icloudMeta,icloudmeta,*/iclouddrive/Metadata.txt,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2301
+Ph50AssetIntResouData,Ph50-1-Asset_IntResou-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9136
+Ph50AssetIntResouData,Ph50-1-Asset_IntResou-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1529
+Ph50AssetIntResouData,Ph50-1-Asset_IntResou-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6937
+Ph50AssetIntResouData,Ph50-2-Asset_IntResou-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9037
+Ph50AssetIntResouData,Ph50-2-Asset_IntResou-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1540
+Ph50AssetIntResouData,Ph50-2-Asset_IntResou-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6640
+discordAcct,discordacct,*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8277
+discordAcct,discordacct,*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1273
+discordAcct,discordacct,*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6401
+Ph8HasAdjustment,Ph8-Has Adjustment-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9239
+Ph8HasAdjustment,Ph8-Has Adjustment-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1554
+Ph8HasAdjustment,Ph8-Has Adjustment-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6864
+deviceActivator,deviceactivator,*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3151
+deviceActivator,deviceactivator,*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0539
+deviceActivator,deviceactivator,*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2337
+Ph51PossOptimizedAssetsIntResouData,Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9322
+Ph51PossOptimizedAssetsIntResouData,Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1561
+Ph51PossOptimizedAssetsIntResouData,Ph51-Possible_Optimized_Assets_IntResou-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.7182
+safariBookmarks,safariBookmarks,**/Safari/Bookmarks.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9495
+safariBookmarks,safariBookmarks,**/Safari/Bookmarks.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1585
+safariBookmarks,safariBookmarks,**/Safari/Bookmarks.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6888
+biomeNotificationsPub,biomeNotificationsPub,*/Biome/streams/public/Notification/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.9123
+biomeNotificationsPub,biomeNotificationsPub,*/Biome/streams/public/Notification/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1484
+biomeNotificationsPub,biomeNotificationsPub,*/Biome/streams/public/Notification/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6986
+appSnapshots,applicationsnapshots,**/Library/Caches/Snapshots/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9024
+appSnapshots,applicationsnapshots,**/SplashBoard/Snapshots/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,636,0.8800
+appSnapshots,applicationsnapshots,**/Library/Caches/Snapshots/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1466
+appSnapshots,applicationsnapshots,**/SplashBoard/Snapshots/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,347,0.1395
+appSnapshots,applicationsnapshots,**/Library/Caches/Snapshots/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6752
+appSnapshots,applicationsnapshots,**/SplashBoard/Snapshots/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,472,0.6542
+wifiNetworkStoreModel,wifiNetworkStoreModel,*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9035
+wifiNetworkStoreModel,wifiNetworkStoreModel,*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1470
+wifiNetworkStoreModel,wifiNetworkStoreModel,*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6670
+chromeMediaHistory,ChromeMediaHistory,*/Chrome/Default/Media History*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9237
+chromeMediaHistory,ChromeMediaHistory,*/app_sbrowser/Default/Media History*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9494
+chromeMediaHistory,ChromeMediaHistory,*/app_opera/Media History*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9190
+chromeMediaHistory,ChromeMediaHistory,*/Chrome/Default/Media History*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1519
+chromeMediaHistory,ChromeMediaHistory,*/app_sbrowser/Default/Media History*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1536
+chromeMediaHistory,ChromeMediaHistory,*/app_opera/Media History*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1478
+chromeMediaHistory,ChromeMediaHistory,*/Chrome/Default/Media History*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6721
+chromeMediaHistory,ChromeMediaHistory,*/app_sbrowser/Default/Media History*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6700
+chromeMediaHistory,ChromeMediaHistory,*/app_opera/Media History*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6622
+accountConfig,get_confaccts,**/com.apple.accounts.exists.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3241
+accountConfig,get_confaccts,**/com.apple.accounts.exists.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0543
+accountConfig,get_confaccts,**/com.apple.accounts.exists.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2395
+FitnessWorkoutsLocationData,Fitness,*Health/healthdb_secure.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8865
+FitnessWorkoutsLocationData,Fitness,*Health/healthdb_secure.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1497
+FitnessWorkoutsLocationData,Fitness,*Health/healthdb_secure.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6840
+dmss,Dahua Technology (DMSS),*/Library/Support/Devices.sqlite3*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8912
+dmss,Dahua Technology (DMSS),*/Library/Support/configFile1,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2958
+dmss,Dahua Technology (DMSS),*/Library/Support/*/DMSSCloud.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8763
+dmss,Dahua Technology (DMSS),*/Documents/Captures/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8835
+dmss,Dahua Technology (DMSS),*/Documents/Videos/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8872
+dmss,Dahua Technology (DMSS),*/Library/Support/Devices.sqlite3*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1509
+dmss,Dahua Technology (DMSS),*/Library/Support/configFile1,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0431
+dmss,Dahua Technology (DMSS),*/Library/Support/*/DMSSCloud.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1381
+dmss,Dahua Technology (DMSS),*/Documents/Captures/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1435
+dmss,Dahua Technology (DMSS),*/Documents/Videos/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1411
+dmss,Dahua Technology (DMSS),*/Library/Support/Devices.sqlite3*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6681
+dmss,Dahua Technology (DMSS),*/Library/Support/configFile1,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2184
+dmss,Dahua Technology (DMSS),*/Library/Support/*/DMSSCloud.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6539
+dmss,Dahua Technology (DMSS),*/Documents/Captures/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6622
+dmss,Dahua Technology (DMSS),*/Documents/Videos/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6603
+wire,wire,**/store.wiredatabase*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8848
+wire,wire,**/store.wiredatabase*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1516
+wire,wire,**/store.wiredatabase*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6705
+imeiImsi,imeiImsi,*/wireless/Library/Preferences/com.apple.commcenter.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3105
+imeiImsi,imeiImsi,*/wireless/Library/Preferences/com.apple.commcenter.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0535
+imeiImsi,imeiImsi,*/wireless/Library/Preferences/com.apple.commcenter.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2383
+teamsSegment,teamsSegment,*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8711
+teamsSegment,teamsSegment,*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1444
+teamsSegment,teamsSegment,*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6664
+secretCalculator,secretCalculatorPhotoAlbum,**mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,179,0.7827
+secretCalculator,secretCalculatorPhotoAlbum,**mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,164,0.1243
+secretCalculator,secretCalculatorPhotoAlbum,**mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,185,0.6051
+discordJson,discordjson,*/activation_record.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3062
+discordJson,discordjson,*/com.hammerandchisel.discord/fsCachedData/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,13,0.8923
+discordJson,discordjson,*/Library/Caches/com.hackemist.SDImageCache/default/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1235,0.8834
+discordJson,discordjson,*/activation_record.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0541
+discordJson,discordjson,*/com.hammerandchisel.discord/fsCachedData/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1407
+discordJson,discordjson,*/Library/Caches/com.hackemist.SDImageCache/default/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1427
+discordJson,discordjson,*/activation_record.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2366
+discordJson,discordjson,*/com.hammerandchisel.discord/fsCachedData/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,6,0.6596
+discordJson,discordjson,*/Library/Caches/com.hackemist.SDImageCache/default/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,7,0.6615
+biomeHardware,biomeHardware,*/Biome/streams/restricted/OSAnalytics.Hardware.Reliability/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8860
+biomeHardware,biomeHardware,*/Biome/streams/restricted/OSAnalytics.Hardware.Reliability/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1500
+biomeHardware,biomeHardware,*/Biome/streams/restricted/OSAnalytics.Hardware.Reliability/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6640
+cloudkitCache,cloudkitcache,*/private/var/mobile/Library/Caches/Backup/cloudkit_cache.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8998
+cloudkitCache,cloudkitcache,*/private/var/mobile/Library/Caches/Backup/cloudkit_cache.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1557
+cloudkitCache,cloudkitcache,*/private/var/mobile/Library/Caches/Backup/cloudkit_cache.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6643
+mapsSync,mapsSync,*/MapsSync_0.0.1*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,6,0.8953
+mapsSync,mapsSync,*/MapsSync_0.0.1*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,6,0.1503
+mapsSync,mapsSync,*/MapsSync_0.0.1*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,6,0.6834
+Gmail,get_Gmail_offline_search,*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8551
+Gmail,get_Gmail_offline_search,*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1474
+Gmail,get_Gmail_offline_search,*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6488
+Gmail,get_Gmail_label_details,*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8821
+Gmail,get_Gmail_label_details,*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1455
+Gmail,get_Gmail_label_details,*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,6,0.6511
+cloudkitParticipants,cloudkitparticipants,*NoteStore.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8570
+cloudkitParticipants,cloudkitparticipants,*NoteStore.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1515
+cloudkitParticipants,cloudkitparticipants,*NoteStore.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6467
+biomeLocationactivity,biomeLocationactivity,*/biome/streams/restricted/_DKEvent.App.LocationActivity/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8981
+biomeLocationactivity,biomeLocationactivity,*/biome/streams/restricted/_DKEvent.App.LocationActivity/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1504
+biomeLocationactivity,biomeLocationactivity,*/biome/streams/restricted/_DKEvent.App.LocationActivity/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6808
+chromeAutofill,ChromeAutofill,*/Chrome/Default/Web Data*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.9261
+chromeAutofill,ChromeAutofill,*/app_sbrowser/Default/Web Data*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8803
+chromeAutofill,ChromeAutofill,*/app_opera/Web Data*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8771
+chromeAutofill,ChromeAutofill,*/Chrome/Default/Web Data*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1533
+chromeAutofill,ChromeAutofill,*/app_sbrowser/Default/Web Data*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1393
+chromeAutofill,ChromeAutofill,*/app_opera/Web Data*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1411
+chromeAutofill,ChromeAutofill,*/Chrome/Default/Web Data*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6797
+chromeAutofill,ChromeAutofill,*/app_sbrowser/Default/Web Data*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6696
+chromeAutofill,ChromeAutofill,*/app_opera/Web Data*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6563
+burner,burnerPhoenix,*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8924
+burner,burnerPhoenix,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,179,0.7954
+burner,burnerPhoenix,*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1504
+burner,burnerPhoenix,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,164,0.1162
+burner,burnerPhoenix,*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6758
+burner,burnerPhoenix,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,185,0.6088
+venmo,venmo,*PrivateFeed,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2850
+venmo,venmo,*PublicFeed,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2729
+venmo,venmo,*FriendsFeed,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2676
+venmo,venmo,*PrivateFeed,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0451
+venmo,venmo,*PublicFeed,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0395
+venmo,venmo,*FriendsFeed,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0391
+venmo,venmo,*PrivateFeed,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2075
+venmo,venmo,*PublicFeed,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.1923
+venmo,venmo,*FriendsFeed,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.1955
+tileAppNetDb,tileAppNetDb,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8734
+tileAppNetDb,tileAppNetDb,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1484
+tileAppNetDb,tileAppNetDb,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6753
+telegramMesssages,TelegramMessages,*/telegram-data/account-*/postbox/db/db_sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,4,0.8870
+telegramMesssages,TelegramMessages,*/telegram-data/account-*/postbox/media/**,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2002,0.8840
+telegramMesssages,TelegramMessages,*/telegram-data/account-*/postbox/db/db_sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1573
+telegramMesssages,TelegramMessages,*/telegram-data/account-*/postbox/media/**,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1241,0.1430
+telegramMesssages,TelegramMessages,*/telegram-data/account-*/postbox/db/db_sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.7112
+telegramMesssages,TelegramMessages,*/telegram-data/account-*/postbox/media/**,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6839
+teleguard,Teleguard,*/Shared/AppGroup/*/Library/teleguard_database.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8866
+teleguard,Teleguard,*/.com.apple.mobile_container_manager.metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1056,0.2996
+teleguard,Teleguard,*/Shared/AppGroup/*/Library/teleguard_database.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1533
+teleguard,Teleguard,*/.com.apple.mobile_container_manager.metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,836,0.0426
+teleguard,Teleguard,*/Shared/AppGroup/*/Library/teleguard_database.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6730
+teleguard,Teleguard,*/.com.apple.mobile_container_manager.metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,974,0.2196
+chromeOfflinePages,ChromeOfflinePages,*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9115
+chromeOfflinePages,ChromeOfflinePages,*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8758
+chromeOfflinePages,ChromeOfflinePages,*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1579
+chromeOfflinePages,ChromeOfflinePages,*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1420
+chromeOfflinePages,ChromeOfflinePages,*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6801
+chromeOfflinePages,ChromeOfflinePages,*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6539
+googleDuo,googleduo,*/Application Support/DataStore*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8854
+googleDuo,googleduo,*/Application Support/ClipsCache/*.png,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8778
+googleDuo,googleduo,*/Application Support/DataStore*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1478
+googleDuo,googleduo,*/Application Support/ClipsCache/*.png,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1378
+googleDuo,googleduo,*/Application Support/DataStore*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6793
+googleDuo,googleduo,*/Application Support/ClipsCache/*.png,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6803
+biomeInfocus,biomeInFocus,*/biome/streams/restricted/_DKEvent.App.InFocus/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8910
+biomeInfocus,biomeInFocus,*/biome/streams/restricted/App.InFocus/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8718
+biomeInfocus,biomeInFocus,*/biome/streams/restricted/_DKEvent.App.InFocus/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1476
+biomeInfocus,biomeInFocus,*/biome/streams/restricted/App.InFocus/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1388
+biomeInfocus,biomeInFocus,*/biome/streams/restricted/_DKEvent.App.InFocus/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6722
+biomeInfocus,biomeInFocus,*/biome/streams/restricted/App.InFocus/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6585
+whatsappCallHistory,whatsappCallHistory,*/var/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8856
+whatsappCallHistory,whatsappCallHistory,*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8876
+whatsappCallHistory,whatsappCallHistory,*/var/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1528
+whatsappCallHistory,whatsappCallHistory,*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1400
+whatsappCallHistory,whatsappCallHistory,*/var/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6651
+whatsappCallHistory,whatsappCallHistory,*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6655
+viber,viber,**/com.viber/settings/Settings.data*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,6,0.8901
+viber,viber,**/com.viber/database/Contacts.data*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9024
+viber,viber,**/Containers/Data/Application/*/Documents/Attachments/*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8691
+viber,viber,**/com.viber/ViberIcons/*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,5,0.8787
+viber,viber,**/com.viber/settings/Settings.data*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1511
+viber,viber,**/com.viber/database/Contacts.data*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1402
+viber,viber,**/Containers/Data/Application/*/Documents/Attachments/*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1387
+viber,viber,**/com.viber/ViberIcons/*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1401
+viber,viber,**/com.viber/settings/Settings.data*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6775
+viber,viber,**/com.viber/database/Contacts.data*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6630
+viber,viber,**/Containers/Data/Application/*/Documents/Attachments/*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6553
+viber,viber,**/com.viber/ViberIcons/*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6552
+fsCachedData,fsChachedData,*/fsCachedData/**,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2138,0.8978
+fsCachedData,fsChachedData,*/fsCachedData/**,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,232,0.1518
+fsCachedData,fsChachedData,*/fsCachedData/**,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1037,0.6680
+interactionCcontacts,interactionCcontacts,**/interactionC.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8922
+interactionCcontacts,interactionCcontacts,**/interactionC.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1539
+interactionCcontacts,interactionCcontacts,**/interactionC.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6721
+iCloudWifi,iCloudWifi,**/com.apple.wifid.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3151
+iCloudWifi,iCloudWifi,**/com.apple.wifid.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0540
+iCloudWifi,iCloudWifi,**/com.apple.wifid.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2332
+Ph6ViewedPlayData,Ph6-View and Play Data-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9095
+Ph6ViewedPlayData,Ph6-View and Play Data-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1527
+Ph6ViewedPlayData,Ph6-View and Play Data-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6913
+sysShutdown,sysShutdown,*/shutdown.log,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3079
+sysShutdown,sysShutdown,*/shutdown.log,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0531
+sysShutdown,sysShutdown,*/shutdown.log,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2334
+celWireless,celwireless,*wireless/Library/Preferences/com.apple.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,13,0.8624
+celWireless,celwireless,*wireless/Library/Preferences/com.apple.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,11,0.1457
+celWireless,celwireless,*wireless/Library/Preferences/com.apple.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,14,0.6540
+notificationsXII,notificationsXII,*/mobile/Library/UserNotifications*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,273,0.8913
+notificationsXII,notificationsXII,*/mobile/Library/UserNotifications*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,115,0.1521
+notificationsXII,notificationsXII,*/mobile/Library/UserNotifications*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,512,0.6698
+lastBuild,lastbuild,*LastBuildInfo.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.2811
+lastBuild,lastbuild,*LastBuildInfo.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0486
+lastBuild,lastbuild,*LastBuildInfo.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2059
+twint,Twint,*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8781
+twint,Twint,*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1451
+twint,Twint,*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6596
+icloudPhotoMeta,aicloudphotometa,*/cloudphotolibrary/Metadata.txt,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3051
+icloudPhotoMeta,aicloudphotometa,*/cloudphotolibrary/Metadata.txt,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0541
+icloudPhotoMeta,aicloudphotometa,*/cloudphotolibrary/Metadata.txt,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2362
+instagramThreads,instagramThreads,*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8584
+instagramThreads,instagramThreads,*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1470
+instagramThreads,instagramThreads,*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6405
+Ph2BasicAssetandAlbumData,Ph2-1-Asset Basic & GenAlbum Data-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9857
+Ph2BasicAssetandAlbumData,Ph2-1-Asset Basic & GenAlbum Data-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1548
+Ph2BasicAssetandAlbumData,Ph2-1-Asset Basic & GenAlbum Data-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.7316
+Ph2BasicAssetandAlbumData,Ph2-2-Asset Basic & Conversation Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8862
+Ph2BasicAssetandAlbumData,Ph2-2-Asset Basic & Conversation Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1488
+Ph2BasicAssetandAlbumData,Ph2-2-Asset Basic & Conversation Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6689
+airdropId,airdropId,*/mobile/Library/Preferences/com.apple.sharingd.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3145
+airdropId,airdropId,*/mobile/Library/Preferences/com.apple.sharingd.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0540
+airdropId,airdropId,*/mobile/Library/Preferences/com.apple.sharingd.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2351
+Ph9BurstAvalanche,Ph9-Burst Avalanche-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9265
+Ph9BurstAvalanche,Ph9-Burst Avalanche-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1554
+Ph9BurstAvalanche,Ph9-Burst Avalanche-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6983
+tileAppDb,tileAppDb,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8949
+tileAppDb,tileAppDb,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1468
+tileAppDb,tileAppDb,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6757
+notificationsDuet,notificationsDuet,*/DuetExpertCenter/streams/userNotificationEvents/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8918
+notificationsDuet,notificationsDuet,*/userNotificationEvents/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.9035
+notificationsDuet,notificationsDuet,*/DuetExpertCenter/streams/userNotificationEvents/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1667
+notificationsDuet,notificationsDuet,*/userNotificationEvents/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1443
+notificationsDuet,notificationsDuet,*/DuetExpertCenter/streams/userNotificationEvents/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6642
+notificationsDuet,notificationsDuet,*/userNotificationEvents/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6761
+medicalID,medicalID,*/mobile/Library/MedicalID/MedicalIDData.archive,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3103
+medicalID,medicalID,*/mobile/Library/MedicalID/MedicalIDData.archive,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0541
+medicalID,medicalID,*/mobile/Library/MedicalID/MedicalIDData.archive,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2358
+wiLoc,wiloc,,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2325
+wiLoc,wiloc,,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0405
+wiLoc,wiloc,,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.1685
+cloudkitSharing,cloudkitsharing,*NoteStore.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8735
+cloudkitSharing,cloudkitsharing,*NoteStore.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1476
+cloudkitSharing,cloudkitsharing,*NoteStore.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6531
+preferencesPlist,preferencesPlist,*preferences/SystemConfiguration/preferences.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.2937
+preferencesPlist,preferencesPlist,*preferences/SystemConfiguration/preferences.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0521
+preferencesPlist,preferencesPlist,*preferences/SystemConfiguration/preferences.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2185
+appleMapsSearchHistory,applemapssearchhistory,*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8164
+appleMapsSearchHistory,applemapssearchhistory,*/GeoHistory.mapsdata,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2973
+appleMapsSearchHistory,applemapssearchhistory,*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1294
+appleMapsSearchHistory,applemapssearchhistory,*/GeoHistory.mapsdata,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0429
+appleMapsSearchHistory,applemapssearchhistory,*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6401
+appleMapsSearchHistory,applemapssearchhistory,*/GeoHistory.mapsdata,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2191
+chromeCookies,ChromeCookies,*/Chrome/Default/Cookies*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8986
+chromeCookies,ChromeCookies,*/app_sbrowser/Default/Cookies*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8798
+chromeCookies,ChromeCookies,*/app_opera/Cookies*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8789
+chromeCookies,ChromeCookies,*/Chrome/Default/Cookies*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1525
+chromeCookies,ChromeCookies,*/app_sbrowser/Default/Cookies*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1388
+chromeCookies,ChromeCookies,*/app_opera/Cookies*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1459
+chromeCookies,ChromeCookies,*/Chrome/Default/Cookies*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6707
+chromeCookies,ChromeCookies,*/app_sbrowser/Default/Cookies*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6587
+chromeCookies,ChromeCookies,*/app_opera/Cookies*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6629
+appleWalletCards,applewalletcards,*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8642
+appleWalletCards,applewalletcards,*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1407
+appleWalletCards,applewalletcards,*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6577
+Ph3TrashedRemovedfromCamRoll,Ph3-1-Recently Deleted Trashed-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9259
+Ph3TrashedRemovedfromCamRoll,Ph3-1-Recently Deleted Trashed-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1606
+Ph3TrashedRemovedfromCamRoll,Ph3-1-Recently Deleted Trashed-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.7089
+Ph3TrashedRemovedfromCamRoll,Ph3-2-Removed from Camera Roll-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8811
+Ph3TrashedRemovedfromCamRoll,Ph3-2-Removed from Camera Roll-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1501
+Ph3TrashedRemovedfromCamRoll,Ph3-2-Removed from Camera Roll-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6553
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9558
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8728
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.7888
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8043
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8114
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/recordings/*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8635
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/photo-*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8707
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/*/*.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,48,0.8737
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1526
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1336
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1153
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1164
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1159
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/recordings/*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1359
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/photo-*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1383
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/*/*.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,6,0.1383
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6633
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6454
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6158
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6260
+chatgpt,chatgpt,**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6239
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/recordings/*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6545
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/photo-*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6552
+chatgpt,chatgpt,**/Containers/Data/Application/*/tmp/*/*.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,13,0.6517
+appleWifiPlist,applewifiplist,**/com.apple.wifi.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3252
+appleWifiPlist,applewifiplist,**/com.apple.wifi-networks.plist.backup,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2967
+appleWifiPlist,applewifiplist,**/com.apple.wifi.known-networks.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.2955
+appleWifiPlist,applewifiplist,**/com.apple.wifi-private-mac-networks.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.2988
+appleWifiPlist,applewifiplist,**/com.apple.wifi.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0534
+appleWifiPlist,applewifiplist,**/com.apple.wifi-networks.plist.backup,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0451
+appleWifiPlist,applewifiplist,**/com.apple.wifi.known-networks.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0445
+appleWifiPlist,applewifiplist,**/com.apple.wifi-private-mac-networks.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0448
+appleWifiPlist,applewifiplist,**/com.apple.wifi.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2345
+appleWifiPlist,applewifiplist,**/com.apple.wifi-networks.plist.backup,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2175
+appleWifiPlist,applewifiplist,**/com.apple.wifi.known-networks.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2190
+appleWifiPlist,applewifiplist,**/com.apple.wifi-private-mac-networks.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2190
+discordManifest,discordmanifest,*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8368
+discordManifest,discordmanifest,*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1293
+discordManifest,discordmanifest,*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6451
+locServicesconfig,locServicesconfig,*/Library/Preferences/com.apple.locationd.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.3134
+locServicesconfig,locServicesconfig,*/Library/Caches/locationd/clients.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3064
+locServicesconfig,locServicesconfig,*/Library/Preferences/com.apple.routined.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.2945
+locServicesconfig,locServicesconfig,*/Library/Preferences/com.apple.locationd.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.0631
+locServicesconfig,locServicesconfig,*/Library/Caches/locationd/clients.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0525
+locServicesconfig,locServicesconfig,*/Library/Preferences/com.apple.routined.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0430
+locServicesconfig,locServicesconfig,*/Library/Preferences/com.apple.locationd.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.2342
+locServicesconfig,locServicesconfig,*/Library/Caches/locationd/clients.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2209
+locServicesconfig,locServicesconfig,*/Library/Preferences/com.apple.routined.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2194
+Ph16AssetPeopleandDetFaces,Ph16-1-People & Faces Asset Data-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9124
+Ph16AssetPeopleandDetFaces,Ph16-1-People & Faces Asset Data-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1532
+Ph16AssetPeopleandDetFaces,Ph16-1-People & Faces Asset Data-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6813
+Ph16AssetPeopleandDetFaces,Ph16-2-People & Faces Asset Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9339
+Ph16AssetPeopleandDetFaces,Ph16-2-People & Faces Asset Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1558
+Ph16AssetPeopleandDetFaces,Ph16-2-People & Faces Asset Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6689
+AWESearch,AWESearch,*/Documents/search_history/history_words/AWESearchHistory*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9155
+AWESearch,AWESearch,*/Documents/search_history/history_words/AWESearchHistory*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1598
+AWESearch,AWESearch,*/Documents/search_history/history_words/AWESearchHistory*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6744
+findMy,findMy,*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3088
+findMy,findMy,*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0543
+findMy,findMy,*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2428
+ControlCenter,controlcenter,*/mobile/Library/ControlCenter/ModuleConfiguration.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3143
+ControlCenter,controlcenter,*/mobile/Library/ControlCenter/ModuleConfiguration.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0543
+ControlCenter,controlcenter,*/mobile/Library/ControlCenter/ModuleConfiguration.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2338
+Ph4Hidden,Ph4-Hidden-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9038
+Ph4Hidden,Ph4-Hidden-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1593
+Ph4Hidden,Ph4-Hidden-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6961
+appConduit,appconduit,**/AppConduit.log.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8925
+appConduit,appconduit,**/AppConduit.log.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1539
+appConduit,appconduit,**/AppConduit.log.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6791
+bluetooth,bluetooth,**/com.apple.MobileBluetooth.*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,7,0.8886
+bluetooth,bluetooth,**/com.apple.MobileBluetooth.*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,6,0.1498
+bluetooth,bluetooth,**/com.apple.MobileBluetooth.*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,6,0.6897
+tikTokReplied,tiktok_replied,*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,4,0.8788
+tikTokReplied,tiktok_replied,*AwemeIM.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8614
+tikTokReplied,tiktok_replied,*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,4,0.1457
+tikTokReplied,tiktok_replied,*AwemeIM.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1375
+tikTokReplied,tiktok_replied,*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6560
+tikTokReplied,tiktok_replied,*AwemeIM.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6365
+appItunesmeta,appitunesmeta,**/iTunesMetadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,54,0.3162
+appItunesmeta,appitunesmeta,**/BundleMetadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,80,0.3002
+appItunesmeta,appitunesmeta,**/iTunesMetadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,8,0.0535
+appItunesmeta,appitunesmeta,**/BundleMetadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,40,0.0458
+appItunesmeta,appitunesmeta,**/iTunesMetadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,33,0.2341
+appItunesmeta,appitunesmeta,**/BundleMetadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,64,0.2224
+biomeNowplaying,biomeNowplaying,*/Biome/streams/public/NowPlaying/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8845
+biomeNowplaying,biomeNowplaying,*/Biome/streams/public/NowPlaying/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1495
+biomeNowplaying,biomeNowplaying,*/Biome/streams/public/NowPlaying/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6804
+tikTok,tikTok,*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,4,0.8852
+tikTok,tikTok,*AwemeIM.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8598
+tikTok,tikTok,*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,4,0.1459
+tikTok,tikTok,*AwemeIM.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1434
+tikTok,tikTok,*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6700
+tikTok,tikTok,*AwemeIM.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6475
+iTunesBackupInfo,iTunesBackupInfo,*Info.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,8971,0.2792
+iTunesBackupInfo,iTunesBackupInfo,*info.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,7,0.2993
+iTunesBackupInfo,iTunesBackupInfo,*Info.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,989,0.0468
+iTunesBackupInfo,iTunesBackupInfo,*info.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.0461
+iTunesBackupInfo,iTunesBackupInfo,*Info.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,8140,0.2050
+iTunesBackupInfo,iTunesBackupInfo,*info.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,11,0.2159
+whatsappContacts,whatsappContacts,*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9025
+whatsappContacts,whatsappContacts,*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1519
+whatsappContacts,whatsappContacts,*/var/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6822
+ooklaSpeedtestData,ooklaSpeedtestData,**/speedtest.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9002
+ooklaSpeedtestData,ooklaSpeedtestData,**/speedtest.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1506
+ooklaSpeedtestData,ooklaSpeedtestData,**/speedtest.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6770
+mobileBackupplist,Mobile_Backup_plist,*/Library/Preferences/com.apple.MobileBackup.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3322
+mobileBackupplist,Mobile_Backup_plist,*/Library/Preferences/com.apple.MobileBackup.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0544
+mobileBackupplist,Mobile_Backup_plist,*/Library/Preferences/com.apple.MobileBackup.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2925
+conDev,condev,**/iTunes_Control/iTunes/iTunesPrefs,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3313
+conDev,condev,**/iTunes_Control/iTunes/iTunesPrefs,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0540
+conDev,condev,**/iTunes_Control/iTunes/iTunesPrefs,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2451
+kikPendingUploads,kikPendingUploads,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8660
+kikPendingUploads,kikPendingUploads,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8783
+kikPendingUploads,kikPendingUploads,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1495
+kikPendingUploads,kikPendingUploads,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1371
+kikPendingUploads,kikPendingUploads,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6839
+kikPendingUploads,kikPendingUploads,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6892
+Ph20AlbumsNAD,Ph20-1-Album Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9840
+Ph20AlbumsNAD,Ph20-1-Album Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1530
+Ph20AlbumsNAD,Ph20-1-Album Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.7312
+Ph20AlbumsNAD,Ph20-2-Album Records with NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8761
+Ph20AlbumsNAD,Ph20-2-Album Records with NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1448
+Ph20AlbumsNAD,Ph20-2-Album Records with NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6595
+uberPlaces,uberPlaces,*/private/var/mobile/Containers/Data/Application/*/Documents/database.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8839
+uberPlaces,uberPlaces,*/private/var/mobile/Containers/Data/Application/*/Documents/database.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1472
+uberPlaces,uberPlaces,*/private/var/mobile/Containers/Data/Application/*/Documents/database.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6609
+messageRetention,messageRetention,*/mobile/Library/Preferences/com.apple.MobileSMS.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3113
+messageRetention,messageRetention,*/mobile/Library/Preferences/com.apple.mobileSMS.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.2961
+messageRetention,messageRetention,*/mobile/Library/Preferences/com.apple.MobileSMS.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0544
+messageRetention,messageRetention,*/mobile/Library/Preferences/com.apple.mobileSMS.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0472
+messageRetention,messageRetention,*/mobile/Library/Preferences/com.apple.MobileSMS.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2417
+messageRetention,messageRetention,*/mobile/Library/Preferences/com.apple.mobileSMS.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2262
+chrome,Chrome,*/Chrome/Default/History*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8917
+chrome,Chrome,*/app_sbrowser/Default/History*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9025
+chrome,Chrome,*/app_opera/History*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9009
+chrome,Chrome,*/Chrome/Default/History*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1556
+chrome,Chrome,*/app_sbrowser/Default/History*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1421
+chrome,Chrome,*/app_opera/History*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1507
+chrome,Chrome,*/Chrome/Default/History*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.7237
+chrome,Chrome,*/app_sbrowser/Default/History*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6736
+chrome,Chrome,*/app_opera/History*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6553
+Ph21AlbumsNonSharedNAD,Ph21-Non-Shared Album Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9070
+Ph21AlbumsNonSharedNAD,Ph21-Non-Shared Album Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1534
+Ph21AlbumsNonSharedNAD,Ph21-Non-Shared Album Records with NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6878
+timezoneInfo,timezoneInfo,*/mobile/Library/Preferences/com.apple.AppStore.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3144
+timezoneInfo,timezoneInfo,*/mobile/Library/Preferences/com.apple.AppStore.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0536
+timezoneInfo,timezoneInfo,*/mobile/Library/Preferences/com.apple.AppStore.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2322
+Ph96iOS16REFforAssetAnalysis,Ph96-1-iOS16_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9038
+Ph96iOS16REFforAssetAnalysis,Ph96-1-iOS16_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1543
+Ph96iOS16REFforAssetAnalysis,Ph96-1-iOS16_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6857
+Ph96iOS16REFforAssetAnalysis,Ph96-2-iOS16_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8884
+Ph96iOS16REFforAssetAnalysis,Ph96-2-iOS16_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1505
+Ph96iOS16REFforAssetAnalysis,Ph96-2-iOS16_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6589
+burnerCache,burnerCache,*/Library/Caches/com.adhoclabs.burner/Cache.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,1.0916
+burnerCache,burnerCache,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,179,0.8701
+burnerCache,burnerCache,*/Library/Caches/com.adhoclabs.burner/Cache.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1482
+burnerCache,burnerCache,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,164,0.1173
+burnerCache,burnerCache,*/Library/Caches/com.adhoclabs.burner/Cache.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6772
+burnerCache,burnerCache,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,185,0.6188
+voicemail,voicemail,**/Voicemail/voicemail.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8961
+voicemail,voicemail,**/Voicemail/*.amr,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8845
+voicemail,voicemail,**/Voicemail/voicemail.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1505
+voicemail,voicemail,**/Voicemail/*.amr,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1413
+voicemail,voicemail,**/Voicemail/voicemail.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6880
+voicemail,voicemail,**/Voicemail/*.amr,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6655
+coreAccessoriesAcc,coreAccessories,*/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9006
+coreAccessoriesAcc,coreAccessories,*/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1494
+coreAccessoriesAcc,coreAccessories,*/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6646
+timezoneset,timezoneset,*/db/timed/Library/Preferences/com.apple.preferences.datetime.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3071
+timezoneset,timezoneset,*/db/timed/Library/Preferences/com.apple.preferences.datetime.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0506
+timezoneset,timezoneset,*/db/timed/Library/Preferences/com.apple.preferences.datetime.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2348
+waze,waze,*/mobile/Containers/Data/Application/*/Documents/user.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8872
+waze,waze,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,179,0.8392
+waze,waze,*/mobile/Containers/Data/Application/*/Documents/user.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1537
+waze,waze,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,164,0.1242
+waze,waze,*/mobile/Containers/Data/Application/*/Documents/user.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6711
+waze,waze,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,185,0.6250
+Ph100UFEDdevcievaluesplist,Ph100-UFED-device-values-Plist,*/device_values.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3162
+Ph100UFEDdevcievaluesplist,Ph100-UFED-device-values-Plist,*/device_values.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0546
+Ph100UFEDdevcievaluesplist,Ph100-UFED-device-values-Plist,*/device_values.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2363
+adId,adId,*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8833
+adId,adId,*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1496
+adId,adId,*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6593
+audiTripdata,auditrip,*/Library/Caches/de.audi.myaudimobileassistant/fsCachedData/**,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9035
+audiTripdata,auditrip,*/Library/Caches/de.audi.myaudimobileassistant/fsCachedData/**,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1449
+audiTripdata,auditrip,*/Library/Caches/de.audi.myaudimobileassistant/fsCachedData/**,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6721
+uberClient,uberClient,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,179,0.8044
+uberClient,uberClient,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,164,0.1307
+uberClient,uberClient,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,185,0.6361
+alarms,alarms,*/mobile/Library/Preferences/com.apple.mobiletimerd.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3095
+alarms,alarms,*/mobile/Library/Preferences/com.apple.mobiletimerd.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0549
+alarms,alarms,*/mobile/Library/Preferences/com.apple.mobiletimerd.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2358
+iconsScreen,iconsScreen,**/SpringBoard/IconState.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3161
+iconsScreen,iconsScreen,**/SpringBoard/IconState.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0550
+iconsScreen,iconsScreen,**/SpringBoard/IconState.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2338
+metamask,metamask,*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8287
+metamask,metamask,*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1289
+metamask,metamask,*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6433
+chromeTopSites,ChromeTopSites,*/Chrome/Default/Top Sites*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8919
+chromeTopSites,ChromeTopSites,*/app_sbrowser/Default/Top Sites*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8842
+chromeTopSites,ChromeTopSites,*/app_opera/Top Sites*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8771
+chromeTopSites,ChromeTopSites,*/Chrome/Default/Top Sites*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1538
+chromeTopSites,ChromeTopSites,*/app_sbrowser/Default/Top Sites*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1384
+chromeTopSites,ChromeTopSites,*/app_opera/Top Sites*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1420
+chromeTopSites,ChromeTopSites,*/Chrome/Default/Top Sites*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,2,0.6740
+chromeTopSites,ChromeTopSites,*/app_sbrowser/Default/Top Sites*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6594
+chromeTopSites,ChromeTopSites,*/app_opera/Top Sites*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6566
+kijijiConversations,kijijiConversations,*/Library/Caches/conversation_cache,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3160
+kijijiConversations,kijijiConversations,*/Library/Caches/conversation_cache,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0542
+kijijiConversations,kijijiConversations,*/Library/Caches/conversation_cache,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2357
+WatchWornData,WatchWornData,*Health/healthdb_secure.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8936
+WatchWornData,WatchWornData,*Health/healthdb_secure.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1497
+WatchWornData,WatchWornData,*Health/healthdb_secure.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6595
+vipps,vipps,*/Vipps.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.9057
+vipps,vipps,*/Vipps.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1565
+vipps,vipps,*/Vipps.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6778
+Ph95iOS15REFforAssetAnalysis,Ph95-1-iOS15_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9070
+Ph95iOS15REFforAssetAnalysis,Ph95-1-iOS15_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1534
+Ph95iOS15REFforAssetAnalysis,Ph95-1-iOS15_Ref_for_Asset_Analysis-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6989
+Ph95iOS15REFforAssetAnalysis,Ph95-2-iOS15_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8937
+Ph95iOS15REFforAssetAnalysis,Ph95-2-iOS15_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1499
+Ph95iOS15REFforAssetAnalysis,Ph95-2-iOS15_Ref_for_Asset_Analysis-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6660
+mailprotect,mailprotect,*/mobile/Library/Mail/* Index*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,6,0.8981
+mailprotect,mailprotect,*/mobile/Library/Mail/* Index*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,6,0.1536
+mailprotect,mailprotect,*/mobile/Library/Mail/* Index*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,9,0.6781
+googleTranslate,googleTranslate,*/mobile/Containers/Data/Application/*/Documents/translate.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8710
+googleTranslate,googleTranslate,*/mobile/Containers/Data/Application/*/Documents/translate.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1492
+googleTranslate,googleTranslate,*/mobile/Containers/Data/Application/*/Documents/translate.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6610
+kikMessages,kikMessages,**/kik.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9052
+kikMessages,kikMessages,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.8682
+kikMessages,kikMessages,**/kik.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1551
+kikMessages,kikMessages,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1383
+kikMessages,kikMessages,**/kik.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6702
+kikMessages,kikMessages,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6423
+Ph1BasicAssetData,Ph1-1-Asset Basic Data-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9078
+Ph1BasicAssetData,Ph1-1-Asset Basic Data-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1541
+Ph1BasicAssetData,Ph1-1-Asset Basic Data-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6886
+Ph1BasicAssetData,Ph1-2-Asset Basic Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8855
+Ph1BasicAssetData,Ph1-2-Asset Basic Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1463
+Ph1BasicAssetData,Ph1-2-Asset Basic Data-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6634
+safariWebsearch,safariWebsearch,**/Safari/History.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8921
+safariWebsearch,safariWebsearch,**/Safari/History.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1491
+safariWebsearch,safariWebsearch,**/Safari/History.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.7195
+cashApp,cashapp,*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8885
+cashApp,cashapp,*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8801
+cashApp,cashapp,*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1489
+cashApp,cashapp,*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1373
+cashApp,cashapp,*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6704
+cashApp,cashapp,*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6503
+offlinePages,pages,*/*.mhtml,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3675
+offlinePages,pages,*/*.mht,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3520
+offlinePages,pages,*/*.mhtml,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0618
+offlinePages,pages,*/*.mht,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0476
+offlinePages,pages,*/*.mhtml,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2259
+offlinePages,pages,*/*.mht,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2086
+Ph24AssetsInSharedAlbums,Ph24-Asset in Shared Albums & Invites-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9098
+Ph24AssetsInSharedAlbums,Ph24-Asset in Shared Albums & Invites-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1582
+Ph24AssetsInSharedAlbums,Ph24-Asset in Shared Albums & Invites-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6966
+queryPredictions,queryPredictions,**/query_predictions.db,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.3142
+queryPredictions,queryPredictions,**/query_predictions.db,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0524
+queryPredictions,queryPredictions,**/query_predictions.db,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2297
+webClips,webClips,*WebClips/*.webclip/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8676
+webClips,webClips,*WebClips/*.webclip/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1476
+webClips,webClips,*WebClips/*.webclip/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6453
+Ph85acntsdcloudServiceEnableLogplist,Ph85-accountsd-cloud-Service-Enable-Log-Plist,*/com.apple.accountsd/cloudServiceEnableLog.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3169
+Ph85acntsdcloudServiceEnableLogplist,Ph85-accountsd-cloud-Service-Enable-Log-Plist,*/com.apple.accountsd/cloudServiceEnableLog.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0552
+Ph85acntsdcloudServiceEnableLogplist,Ph85-accountsd-cloud-Service-Enable-Log-Plist,*/com.apple.accountsd/cloudServiceEnableLog.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2419
+notificationsXI,notificationsXI,*PushStore*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8592
+notificationsXI,notificationsXI,*PushStore*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1484
+notificationsXI,notificationsXI,*PushStore*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6458
+backupSettings,backupSettings,*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3283
+backupSettings,backupSettings,*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0526
+backupSettings,backupSettings,*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2402
+Ph5HasLocations,Ph5-1-Assets have valid locations-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9176
+Ph5HasLocations,Ph5-1-Assets have valid locations-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1555
+Ph5HasLocations,Ph5-1-Assets have valid locations-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6925
+Ph5HasLocations,Ph5-2-Assets have valid locations-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8745
+Ph5HasLocations,Ph5-2-Assets have valid locations-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1421
+Ph5HasLocations,Ph5-2-Assets have valid locations-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6664
+safariHistory,safariHistory,**/Safari/History.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9307
+safariHistory,safariHistory,**/Safari/History.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1602
+safariHistory,safariHistory,**/Safari/History.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6818
+sms,sms,**/sms.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8911
+sms,sms,**/sms.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1504
+sms,sms,**/sms.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6717
+Ph15PeopleandDetFacesNAD,Ph15-1-People & Faces NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9148
+Ph15PeopleandDetFacesNAD,Ph15-1-People & Faces NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1535
+Ph15PeopleandDetFacesNAD,Ph15-1-People & Faces NAD-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6988
+Ph15PeopleandDetFacesNAD,Ph15-2-People & Faces NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8811
+Ph15PeopleandDetFacesNAD,Ph15-2-People & Faces NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1495
+Ph15PeopleandDetFacesNAD,Ph15-2-People & Faces NAD-SyndPL,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6581
+knowledgeC,knowledgeC,*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8935
+knowledgeC,knowledgeC,*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1474
+knowledgeC,knowledgeC,*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6744
+Ph7Favorite,Ph7-Favorite-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9125
+Ph7Favorite,Ph7-Favorite-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1564
+Ph7Favorite,Ph7-Favorite-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6851
+wifiIdent,wifiIdent,*/preferences/SystemConfiguration/NetworkInterfaces.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3155
+wifiIdent,wifiIdent,*/preferences/SystemConfiguration/NetworkInterfaces.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0545
+wifiIdent,wifiIdent,*/preferences/SystemConfiguration/NetworkInterfaces.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2363
+calendarAll,calendar,**/Calendar.sqlitedb,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3126
+calendarAll,calendar,**/Calendar.sqlitedb,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0541
+calendarAll,calendar,**/Calendar.sqlitedb,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2352
+slack,slack,*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8552
+slack,slack,*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8833
+slack,slack,*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1616
+slack,slack,*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1397
+slack,slack,*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6530
+slack,slack,*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6625
+photosMigration,photosMigration,**/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,6,0.9013
+photosMigration,photosMigration,**/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,6,0.1510
+photosMigration,photosMigration,**/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,6,0.6689
+recentApphistory,recentApphistory,*/com.apple.CarPlayApp.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,2,0.3261
+recentApphistory,recentApphistory,*/com.apple.CarPlayApp.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0539
+recentApphistory,recentApphistory,*/com.apple.CarPlayApp.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2366
+kikGroupadmins,kikGroupadmins,*/kik.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9263
+kikGroupadmins,kikGroupadmins,*/kik.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1537
+kikGroupadmins,kikGroupadmins,*/kik.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6869
+draftmessage,draftmessage,*/SMS/Drafts/*/composition.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8984
+draftmessage,draftmessage,*/SMS/Drafts/*/composition.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1529
+draftmessage,draftmessage,*/SMS/Drafts/*/composition.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6687
+syncDev,syncDev,*/Biome/sync/sync.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8968
+syncDev,syncDev,*/Biome/sync/sync.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1519
+syncDev,syncDev,*/Biome/sync/sync.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6751
+biomeNotes,biomeNotes,*/Biome/streams/restricted/NotesContent/local/*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8950
+biomeNotes,biomeNotes,*/Biome/streams/restricted/NotesContent/local/*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,2,0.1499
+biomeNotes,biomeNotes,*/Biome/streams/restricted/NotesContent/local/*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6778
+appleMapsApplication,applemapsapplication,**/Data/Application/*/Library/Preferences/com.apple.Maps.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8538
+appleMapsApplication,applemapsapplication,**/Data/Application/*/Library/Preferences/com.apple.Maps.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1341
+appleMapsApplication,applemapsapplication,**/Data/Application/*/Library/Preferences/com.apple.Maps.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6478
+Ph70UserAdjustDateTimezoneLocation,Ph70-1-Possible_Adjust_Date-Timezone-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9235
+Ph70UserAdjustDateTimezoneLocation,Ph70-1-Possible_Adjust_Date-Timezone-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1522
+Ph70UserAdjustDateTimezoneLocation,Ph70-1-Possible_Adjust_Date-Timezone-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6962
+Ph70UserAdjustDateTimezoneLocation,Ph71-1-Possible_Adjust_Date-Timezone-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9097
+Ph70UserAdjustDateTimezoneLocation,Ph71-1-Possible_Adjust_Date-Timezone-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1570
+Ph70UserAdjustDateTimezoneLocation,Ph71-1-Possible_Adjust_Date-Timezone-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6890
+Ph70UserAdjustDateTimezoneLocation,Ph72-1-Possible_Adjust_Date-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9131
+Ph70UserAdjustDateTimezoneLocation,Ph72-1-Possible_Adjust_Date-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1554
+Ph70UserAdjustDateTimezoneLocation,Ph72-1-Possible_Adjust_Date-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6934
+Ph70UserAdjustDateTimezoneLocation,Ph73-1-Possible_Adjust_Date-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9121
+Ph70UserAdjustDateTimezoneLocation,Ph73-1-Possible_Adjust_Date-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1522
+Ph70UserAdjustDateTimezoneLocation,Ph73-1-Possible_Adjust_Date-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6837
+Ph70UserAdjustDateTimezoneLocation,Ph74-1-Possible_Adjust_Timezone-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9130
+Ph70UserAdjustDateTimezoneLocation,Ph74-1-Possible_Adjust_Timezone-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1554
+Ph70UserAdjustDateTimezoneLocation,Ph74-1-Possible_Adjust_Timezone-Location-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6893
+Ph70UserAdjustDateTimezoneLocation,Ph75-1-Possible_Adjust_Timezone-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9090
+Ph70UserAdjustDateTimezoneLocation,Ph75-1-Possible_Adjust_Timezone-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1539
+Ph70UserAdjustDateTimezoneLocation,Ph75-1-Possible_Adjust_Timezone-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6909
+Ph70UserAdjustDateTimezoneLocation,Ph76-1-Possible_Adjust_Location-PhDaPsql,*/PhotoData/Photos.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.9184
+Ph70UserAdjustDateTimezoneLocation,Ph76-1-Possible_Adjust_Location-PhDaPsql,*/PhotoData/Photos.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1561
+Ph70UserAdjustDateTimezoneLocation,Ph76-1-Possible_Adjust_Location-PhDaPsql,*/PhotoData/Photos.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6872
+safariRecentWebSearches,safariRecentWebSearches,**/Library/Preferences/com.apple.mobilesafari.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.3147
+safariRecentWebSearches,safariRecentWebSearches,**/Library/Preferences/com.apple.mobilesafari.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.0544
+safariRecentWebSearches,safariRecentWebSearches,**/Library/Preferences/com.apple.mobilesafari.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.2365
+voiceTriggers,voiceTriggers,**/td/audio/*.json,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,5,0.8994
+voiceTriggers,voiceTriggers,**/td/audio/*.wav,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,5,0.9027
+voiceTriggers,voiceTriggers,**/td/audio/*.json,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1493
+voiceTriggers,voiceTriggers,**/td/audio/*.wav,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1489
+voiceTriggers,voiceTriggers,**/td/audio/*.json,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6693
+voiceTriggers,voiceTriggers,**/td/audio/*.wav,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6644
+voiceRecordings,voiceRecordings,**/Recordings/*.composition/manifest.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8922
+voiceRecordings,voiceRecordings,**/Recordings/*.m4a,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8906
+voiceRecordings,voiceRecordings,**/Recordings/*.composition/manifest.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1538
+voiceRecordings,voiceRecordings,**/Recordings/*.m4a,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1487
+voiceRecordings,voiceRecordings,**/Recordings/*.composition/manifest.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6873
+voiceRecordings,voiceRecordings,**/Recordings/*.m4a,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6992
+tcc,tcc,*/mobile/Library/TCC/TCC.db*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8830
+tcc,tcc,*/mobile/Library/TCC/TCC.db*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1564
+tcc,tcc,*/mobile/Library/TCC/TCC.db*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6700
+keyboard,keyboard,*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.8937
+keyboard,keyboard,*/mobile/Library/Keyboard/app_usage_database.plist,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,1,0.2976
+keyboard,keyboard,*/mobile/Library/Keyboard/user_model_database.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,3,0.8729
+keyboard,keyboard,*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,1,0.1545
+keyboard,keyboard,*/mobile/Library/Keyboard/app_usage_database.plist,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.0463
+keyboard,keyboard,*/mobile/Library/Keyboard/user_model_database.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,3,0.1389
+keyboard,keyboard,*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,1,0.6697
+keyboard,keyboard,*/mobile/Library/Keyboard/app_usage_database.plist,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.2196
+keyboard,keyboard,*/mobile/Library/Keyboard/user_model_database.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,3,0.6610
+life360,Life360,*/com.life360.safetymap *.log,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8887
+life360,Life360,*/Library/Application Support/Messaging.sqlite*,josh-hickman-ios15.csv.zip/josh-hickman-ios15.csv,0,0.8903
+life360,Life360,*/com.life360.safetymap *.log,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1556
+life360,Life360,*/Library/Application Support/Messaging.sqlite*,belkasoft-ctf6-ios-dev1.csv.zip2.zip/belkasoft-ctf6-ios-dev1.csv,0,0.1417
+life360,Life360,*/com.life360.safetymap *.log,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6755
+life360,Life360,*/Library/Application Support/Messaging.sqlite*,magnet-mvs-2023-ios.csv.zip2.zip/magnet-mvs-2023-ios.csv,0,0.6573

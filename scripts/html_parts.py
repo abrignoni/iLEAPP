@@ -11,9 +11,9 @@ page_header = \
         <!-- Dark mode -->
         <link rel="stylesheet" href="_elements/dark-mode.css">
         <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
+        <link rel="stylesheet" href="_elements/all.css">
         <!-- Google Fonts Roboto -->
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+        <link rel="stylesheet" href="_elements/Roboto.css">
         <!-- Bootstrap core CSS -->
         <link rel="stylesheet" href="_elements/MDB-Free_4.13.0/css/bootstrap.min.css">
         <!-- Material Design Bootstrap - TOGGLE THIS FOR ALTERNATE DESIGN!-->
@@ -21,12 +21,11 @@ page_header = \
         <!-- Your custom styles (optional) -->
         <link rel="stylesheet" href="_elements/dashboard.css">
         <link rel="stylesheet" href="_elements/chats.css">
+        <link rel="stylesheet" href="_elements/tabler-icons.css">
+
         <!-- MDBootstrap Datatables  -->
         <link rel="stylesheet" href="_elements/MDB-Free_4.13.0/css/addons/datatables.min.css" rel="stylesheet">
 
-        <!-- Icons -->
-        <!--script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script-->
-        <script src="_elements/feather.min.js"></script>
     </head>
     <body>
 """
@@ -36,7 +35,7 @@ body_start = \
 """
     <!-- Start your project here-->
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">{0}</a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.html">{0}</a>
         <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" id="darkSwitch" />
             <label class="custom-control-label mr-2" for="darkSwitch" style="color:white">Dark Switch</label>
@@ -49,66 +48,12 @@ body_start = \
 """
 body_sidebar_setup = \
 """
-            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <nav class="col-md-2 d-none d-md-block bg-dark sidebar">
                 <div class="sidebar-sticky" id="sidebar_id">
                     <ul class="nav flex-column">
 """
 # The 'active' class must be set only for the current page, it will highlight that entry in blue
 #   class="nav-link active"
-# Below is sample data, use own generated data!
-body_sidebar_dynamic_data = \
-"""
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Saved reports
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="home"></span> Report Home
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Recent Activity
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="activity"></span> RecentActivity_0
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Script Logs
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="archive"></span> Processed Files Log
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="archive"></span> Screen Output
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Usage Stats
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="bar-chart-2"></span> UsageStats_0
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            Wellbeing
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="layers"></span> Events
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="user"></span> Wellbeing Account
-                            </a>
-                        </li>
-"""
 body_sidebar_dynamic_data_placeholder = '<!--__INSERT-NAV-BAR-DATA-HERE__-->'
 body_sidebar_trailer = \
 """
@@ -126,7 +71,8 @@ body_main_header = \
 body_main_data_title = \
 """
                 <div class="justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="display-5">{0}</h1>
+                    <img src="_elements/iLEAPP_banner.png" alt="iLEAPP banner">
+                    <h3 class="display-5">{0}</h1>
                     <h6 class="animated fadeIn mb-3">{1}</h6>
                 </div>
 """
@@ -144,7 +90,7 @@ body_infinite_loading_bar = \
 """
 # body_main_data is a placeholder, replace content with real data
 body_main_data = \
-"""
+r"""
                 <h5>All dates and times are in UTC unless stated otherwise.</h5>
                 <div class="alert alert-warning" role="alert">
                     All dates and times are in UTC unless noted otherwise!
@@ -170,7 +116,7 @@ body_main_data = \
 """
 # tabs code for Case information in index.html
 # Variables are {case_table_code}, {script_run_log}, {processed_file_list}
-tabs_code = \
+tabs_nav = \
 """
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item">
@@ -185,14 +131,32 @@ tabs_code = \
         <li class="nav-item">
             <a class="nav-link" id="files-list-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="false">Processed files list</a>
         </li>
+"""
+tabs_nav_with_lava = tabs_nav + \
+"""
+        <li class="nav-item">
+            <a class="nav-link" id="lava-tab" data-toggle="tab" href="#lava-only" role="tab" aria-controls="lava" aria-selected="false">LAVA only artifacts</a>
+        </li>
+"""
+tabs_contents = \
+"""
     </ul>
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="case" role="tabpanel" aria-labelledby="case-tab"><br />{}</div>
         <div class="tab-pane fade" id="device" role="tabpanel" aria-labelledby="device-tab"><br />{}</div>
         <div class="tab-pane fade text-monospace" id="run" role="tabpanel" aria-labelledby="script-run-tab"><br />{}</div>
         <div class="tab-pane fade" id="files" role="tabpanel" aria-labelledby="profile-tab"><br />{}</div>
+"""
+tabs_code_with_lava = tabs_nav_with_lava + tabs_contents + \
+"""
+        <div class="tab-pane fade" id="lava-only" role="tabpanel" aria-labelledby="lava-tab"><br />{}</div>
     </div>
 """
+tabs_code = tabs_nav + tabs_contents + \
+"""
+    </div>
+"""
+
 # thank you note , at bottom of index.html
 thank_you_note = \
 """
@@ -201,8 +165,8 @@ thank_you_note = \
                     <br />
                     <div class="card bg-white mb-3" style="max-width: 500px; margin:auto">
                         <div class="row no-gutters">
-                            <div class="col-md-4">
-                                <img src="_elements/logo.jpg" class="card-img" alt="DFIR">
+                            <center><div class="col-md-4">
+                                <img src="_elements/logo.png" class="card-img" alt="iLEAPP Logo">
                             </div>
                             <div class="col-md-8">
                             <div class="card-body">
@@ -214,7 +178,7 @@ thank_you_note = \
                                 <a class="btn-floating btn-git" type="button" role="button" href="https://github.com/abrignoni/ileapp" target="_blank"><i class="fab fa-github"></i> Project Home </a>
                                 <p class="card-text fadeIn"><small class="text-muted">iLEAPP Team</small></p>
                             </div>
-                            </div>
+                            </div></center>
                         </div>
                     </div>
                     <br />
@@ -271,15 +235,10 @@ body_end = \
     <!-- Your custom scripts -->
     <!-- MDBootstrap Datatables  -->
     <script type="text/javascript" src="_elements/MDB-Free_4.13.0/js/addons/datatables.min.js"></script>
-    <script>
-        feather.replace()
-    </script>
 """
-
 nav_bar_script = \
 """
     <script>
-        feather.replace();
         var element = document.getElementById("sidebar_id");
         var searchParams = new URLSearchParams(window.location.search);
         if (searchParams.has('navpos')) {
@@ -306,7 +265,6 @@ nav_bar_script_footer = \
         });
     </script>
 """
-
 default_responsive_table_script = \
 """
     <script>

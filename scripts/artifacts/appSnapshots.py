@@ -1,13 +1,47 @@
-import datetime
-import os
-import shutil
+__artifacts_v2__ = {
+    "applicationSnapshots": {
+        "name": "App Snapshots",
+        "description": "Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here. \
+            Dates and times shown are from file modified timestamps",
+        "author": "@ydkhatri",
+        "creation_date": "2020-07-23",
+        "last_update_date": "2026-06-18",
+        "requirements": "none",
+        "category": "Installed Apps",
+        "notes": "",
+        "paths": (
+            '*/Library/Caches/Snapshots/*.ktx', 
+            '*/Library/Caches/Snapshots/*.jpeg', 
+            '*/SplashBoard/Snapshots/*.ktx', 
+            '*/SplashBoard/Snapshots/*.jpeg'),
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 68 rows",
+            "dexter_ios18": "iOS 18.3.2 | 305 rows",
+            "felix_ios17": "iOS 17.6.1 | 178 rows",
+            "fsfull002_ios17": "iOS 17.1 | 106 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 207 rows",
+            "iphone11_ios17": "iOS 17.3 | 482 rows",
+            "iphone12_ios18": "iOS 18.7 | 194 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 529 rows",
+            "otto_ios17": "iOS 17.5.1 | 360 rows",
+            "abe_ios16": "iOS 16.5 | 364 rows",
+            "felix23_ios16": "iOS 16.5 | 234 rows",
+            "hickman_ios13": "iOS 13.3.1 | 287 rows",
+            "hickman_ios14": "iOS 14.3 | 342 rows",
+            "jess_ios15": "iOS 15.0.2 | 84 rows",
+            "magnet_ios16": "iOS 16.1.1 | 219 rows",
+        }
+    },
+}
 
-from html import escape
+from pathlib import Path
+
 from PIL import Image
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows
-from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
-from urllib.parse import quote
+from scripts.ktx.ios_ktx2png import KTX_reader
+from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
+
 
 def save_ktx_to_png_if_valid(ktx_path, save_to_path):
     '''Excludes all white or all black blank images'''
@@ -23,71 +57,48 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
                 #     logfunc('Skipping image as it is blank')
                 #     return False
                     
-                dec_img.save(save_to_path, "PNG")
+                dec_img.save(save_to_path, "PNG", compress_type=3)
+                #                                    ^
+                # as per https://github.com/python-pillow/Pillow/issues/5986
+
                 return True
-        except (OSError, ValueError, liblzfse.error) as ex:
+        except (OSError, ValueError) as ex:
             logfunc(f'Had an exception - {str(ex)}')
     return False
 
-def get_applicationSnapshots(files_found, report_folder, seeker):
-    
-    slash = '\\' if is_platform_windows() else '/'
-    data_headers = ('App Name', 'Source Path', 'Date Modified', 'Snapshot')
-    data_list = [] # Format=  [ [ 'App Name', 'ktx_path', mod_date, 'png_path' ], .. ]
 
-    for file_found in files_found:
-        file_found = str(file_found)
-        if os.path.isdir(file_found):
-            continue
+@artifact_processor
+def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_text, timezone_offset):
+    # artifact_info = inspect.stack()[0]
+    data_list = []
+    
+    for file_found in context.get_files_found():
+        media_path = Path(file_found)
+        parts = media_path.parts
+        if parts[-2] != 'downscaled':
+            app_name = parts[-2].split(' ')[0].replace("sceneID:", "")
+        else:
+            app_name = parts[-3].split(' ')[0].replace("sceneID:", "")
+        dash_pos = app_name.find('-') 
+        if dash_pos > 0:
+            app_name = app_name[0:dash_pos]
         if file_found.lower().endswith('.ktx'):
-            if os.path.getsize(file_found) < 2500: # too small, they are blank
+            if media_path.stat().st_size < 2500: # too small, they are blank
                 continue
-            parts = file_found.split(slash)
-            if parts[-2] != 'downscaled':
-                app_name = parts[-2].split(' ')[0]
+            png_path = media_path.with_suffix((".png"))
+            if save_ktx_to_png_if_valid(media_path, png_path):
+                media_item = check_in_media(file_found, app_name, png_path)
             else:
-                app_name = parts[-3].split(' ')[0]
-
-            png_path = os.path.join(report_folder, app_name + '_' + parts[-1][:-4] + '.png')
-            if save_ktx_to_png_if_valid(file_found, png_path):
-                last_modified_date = datetime.datetime.fromtimestamp(os.path.getmtime(file_found))
-                data_list.append([app_name, file_found, last_modified_date, png_path])
-
-        elif file_found.lower().endswith('.jpeg'):
-            parts = file_found.split(slash)
-            if parts[-2] != 'downscaled':
-                app_name = parts[-2].split(' ')[0]
-            else:
-                app_name = parts[-3].split(' ')[0]
-            if app_name.startswith('sceneID'):
-                app_name = app_name[8:]
-            #if app_name.endswith('-default'):
-            #    app_name = app_name[:-8]
-            dash_pos = app_name.find('-') 
-            if dash_pos > 0:
-                app_name = app_name[0:dash_pos]
-
-            jpg_path = os.path.join(report_folder, app_name + '_' + parts[-1])
-            if shutil.copy2(file_found, jpg_path):
-                last_modified_date = datetime.datetime.fromtimestamp(os.path.getmtime(file_found))
-                data_list.append([app_name, file_found, last_modified_date, jpg_path])
+                continue
+        else:
+            media_item = check_in_media(file_found, app_name)
+        
+        if not media_item:
+            continue
+            
+        last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)['updated_at'])
+        data_list.append([last_modified_date, app_name, context.get_relative_path(file_found), media_item])
     
-    if len(data_list):
-        description = "Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here. Dates and times shown are from file modified timestamps"
-        report = ArtifactHtmlReport('App Snapshots (screenshots)')
-        report.start_artifact_report(report_folder, 'App Snapshots', description)
-        report.add_script()
-        report_folder_name = os.path.basename(report_folder.rstrip(slash))
-        data_list_for_report = []
-        for app_name, ktx_path, mod_date, png_path in data_list:
-            dir_path, base_name = os.path.split(png_path)
-            img_html = '<a href="{1}/{0}"><img src="{1}/{0}" class="img-fluid" style="max-height:300px; max-width:400px"></a>'.format(quote(base_name), quote(report_folder_name))
-            data_list_for_report.append( (escape(app_name), escape(ktx_path), mod_date, img_html) )
-        report.write_artifact_data_table(data_headers, data_list_for_report, '', html_escape=False, write_location=False)
-        report.end_artifact_report()
+    data_headers = (('Date Modified', 'datetime'), 'App Name', 'Source Path', ('Snapshot', 'media'))
 
-        tsvname = 'App Snapshots'
-        tsv_headers = ('App Name', 'Source Path', 'Date Modified')
-        tsv(report_folder, tsv_headers, data_list, tsvname)
-    else:
-        logfunc('No snapshots available')
+    return data_headers, data_list, 'see Source Path for more info'

@@ -1,59 +1,105 @@
-import datetime
-import glob
-import os
-import sys
-import stat
+"""
+This module parses AppConduit log files to extract information about device
+interactions between iPhone and other iOS devices (e.g., Apple Watch).
+"""
+
+__artifacts_v2__ = {
+    'app_conduit': {
+        'name': 'App Conduit',
+        'description': 'The AppConduit log file stores information about \
+            interactions between iPhone and other iOS devices, \
+            i.e. Apple Watch',
+        'author': '@ydkhatri',
+        'creation_date': '2020-08-05',
+        "last_update_date": "2025-10-08",
+        'requirements': 'none',
+        'category': 'App Conduit',
+        'notes': '',
+        'paths': ('*/mobile/Library/Logs/AppConduit/AppConduit.log.*',),
+        'output_types': 'standard',
+        'artifact_icon': 'activity',
+        'sample_data': {
+            'iphone11_ios17': 'iOS 17.3 | 64 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 40 rows',
+            'hickman_ios14': 'iOS 14.3 | 74 rows',
+        }
+    }
+}
+
 import pathlib
-import string
-import json
 import re
-import textwrap
 
-from html import escape
+from scripts.ilapfuncs import artifact_processor, get_txt_file_content, \
+    convert_log_ts_to_utc
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
 
-def get_appConduit(files_found, report_folder, seeker):
+@artifact_processor
+def app_conduit(context):
+    """
+    Parses each log file found and from lines that match a specific regular
+    expression pattern extracts device connection and disconnection events,
+    along with associated device information.
+    """
+
+    files_found = context.get_files_found()
+    source_paths = set()
     data_list = []
-    device_type_and_info = []
+    device_type_and_info = {}
 
     info = ''
-    reg_filter = (r'(([A-Za-z]+[\s]+([a-zA-Z]+[\s]+[0-9]+)[\s]+([0-9]+\:[0-9]+\:[0-9]+)[\s]+([0-9]{4}))([\s]+[\[\d\]]+[\s]+[\<a-z\>]+[\s]+[\(\w\)]+)[\s\-]+(((.*)(device+\:([\w]+\-[\w]+\-[\w]+\-[\w]+\-[\w]+))(.*)$)))')        
+    reg_filter = r'(([A-Za-z]+[\s]+([a-zA-Z]+[\s]+[0-9]+)[\s]+' + \
+        r'([0-9]+\:[0-9]+\:[0-9]+)[\s]+([0-9]{4}))([\s]+[\[\d\]]+[\s]+' + \
+        r'[\<a-z\>]+[\s]+[\(\w\)]+)[\s\-]+(((.*)(device+\:([\w]+\-[\w]+\-' + \
+        r'[\w]+\-[\w]+\-[\w]+))(.*)$)))'
     date_filter = re.compile(reg_filter)
-    
-    source_files = []
+
     for file_found in files_found:
-        file_found = str(file_found)
         if file_found.startswith('\\\\?\\'):
             file_name = pathlib.Path(file_found[4:]).name
-            source_files.append(file_found[4:])
+            file_location = pathlib.Path(file_found[4:]).parent
         else:
             file_name = pathlib.Path(file_found).name
-            source_files.append(file_found)
+            file_location = pathlib.Path(file_found).parent
+        source_paths.add(str(file_location))
 
-        file = open(file_found, "r", encoding="utf8")
-        linecount = 0
-
+        file = get_txt_file_content(file_found)
         for line in file:
-            linecount = linecount + 1
             line_match = re.match(date_filter, line)
-            
 
             if line_match:
                 date_time = line_match.group(3, 5, 4)
                 conv_time = ' '.join(date_time)
-                dtime_obj = datetime.datetime.strptime(conv_time, '%b %d %Y %H:%M:%S')
-                values  = line_match.group(9)
+                dtime_obj = convert_log_ts_to_utc(conv_time)
+
+                values = line_match.group(9)
                 device_id = line_match.group(11)
 
                 if 'devicesAreNowConnected' in values:
-                    device_type_and_info.append((device_id,line_match.group(12).split(" ")[4],line_match.group(12).split(" ")[5]))
+                    pairing_id = line_match.group(12).split(' ')[3][:-1]
+                    device_type = line_match.group(12).split(' ')[4]
+                    device_model = context.lookup_metadata('apple_device_id_to_model', device_type)
+                    os_build = line_match.group(12).split(' ')[7].strip('()')
+                    os_version = context.get_apple_os_version(os_build, device_type)
+                    device_type_and_info.setdefault(
+                        pairing_id, {'device_type': device_type,
+                                     'device_model': device_model,
+                                     'os_build': os_build,
+                                     'os_version': os_version})
                     info = 'Connected'
-                    data_list.append((dtime_obj,info,device_id,file_name))
+                    data_list.append((dtime_obj, info, device_id, pairing_id,
+                                      device_type, device_model, os_build,
+                                      os_version, file_name))
                 if 'devicesAreNoLongerConnected' in values:
+                    pairing_id = line_match.group(12).split(' ')[3][:-1]
+                    device_info = device_type_and_info.get(pairing_id, {})
+                    device_type = device_info.get('device_type', '')
+                    device_model = device_info.get('device_model', '')
+                    os_build = device_info.get('os_build', '')
+                    os_version = device_info.get('os_version', '')
                     info = 'Disconnected'
-                    data_list.append((dtime_obj,info,device_id,file_name))
+                    data_list.append((dtime_obj, info, device_id, pairing_id,
+                                      device_type, device_model, os_build,
+                                      os_version, file_name))
                 # if 'Resuming because' in values:
                 #     info = 'Resumed'
                 #     data_list.append((dtime_obj,info,device_id,device_type_tmp,file_name))
@@ -64,21 +110,9 @@ def get_appConduit(files_found, report_folder, seeker):
                 #     info = 'Reachable again after reunion sync'
                 #     data_list.append((dtime_obj,info,device_id,device_type_tmp,file_name))
 
-    device_type_and_info = list(set(device_type_and_info))
+    data_headers = (('Timestamp', 'datetime'), 'Device interaction',
+                    'Device ID', 'Pairing ID', 'Device Type', 'Device Model',
+                    'OS Build', 'OS Version', 'Log File Name')
+    source_path = 'See source info below'
 
-    data_headers_device_info = ('Device ID', 'Device type and version', 'Device extra information')
-    data_headers = ('Time', 'Device interaction', 'Device ID', 'Log File Name')   
-
-    report = ArtifactHtmlReport('App Conduit')
-    report.start_artifact_report(report_folder, 'App Conduit', 'The AppConduit log file stores information about interactions between iPhone and other iOS devices, i.e. Apple Watch')
-    
-    report.add_script()
-    source_files_found = ', '.join(source_files)
-    
-    report.write_artifact_data_table(data_headers_device_info, device_type_and_info, source_files_found, cols_repeated_at_bottom=False)
-    report.write_artifact_data_table(data_headers, data_list, file_found, True, False)
-    report.end_artifact_report()
-
-    tsvname = 'App Conduit'
-    tsv(report_folder, data_headers, data_list, tsvname)        
-    
+    return data_headers, data_list, source_path

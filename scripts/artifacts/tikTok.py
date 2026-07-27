@@ -1,110 +1,393 @@
-from os.path import dirname, join
-import sqlite3
+""" tikTok """
+__artifacts_v2__ = {
+    "tiktok_messages": {
+        "name": "TikTok - Messages",
+        "description": "Extracts TikTok message data from the ChatFiles databases",
+        "author": "James Habben, John Hyla",
+        "creation_date": "2024-11-08",
+        "last_update_date": "2026-07-03",
+        "requirements": "none",
+        "category": "TikTok",
+        "notes": (
+            "Messages are extracted from TIMMessageORM. Contact details are joined from "
+            "AwemeContacts tables when available."
+        ),
+        "paths": (
+            "*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*",
+            "*AwemeIM.db*",
+        ),
+        "output_types": "standard",
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Conversation ID",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Nickname"
+            }
+        },
+        "sample_data": {
+            "josh_ios_15": "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, and TIMMessageNewPropertyORM present",
+            "josh_ios_17": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
+            "mvs_2026": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
+            "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 63 rows",
+            "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 15 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 50 rows",
+            "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 44 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 9 rows",
+            "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 12 rows",
+            "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
+        },
+    },
+    "tiktok_contacts": {
+        "name": "TikTok - Contacts",
+        "description": "Extracts TikTok contact data from AwemeIM.db",
+        "author": "James Habben, John Hyla",
+        "creation_date": "2024-11-08",
+        "last_update_date": "2026-06-18",
+        "requirements": "none",
+        "category": "TikTok",
+        "notes": "Timestamp corresponds to latest chat if available.",
+        "paths": ("*AwemeIM.db*",),
+        "output_types": "standard",
+        "artifact_icon": "users",
+        "sample_data": {
+            "josh_ios_15": "4 contact rows from AwemeContactsV5",
+            "josh_ios_17": "No TikTok AwemeIM.db found",
+            "mvs_2026": "No TikTok AwemeIM.db found",
+            "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 44 rows",
+            "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 15 rows",
+            "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 88 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 54 rows",
+            "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
+        },
+    },
+}
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, open_sqlite_db_readonly
+from os.path import basename, dirname, normcase, normpath
+
+from scripts.ilapfuncs import (
+    artifact_processor,
+    attach_sqlite_db_readonly,
+    convert_unix_ts_to_utc,
+    get_sqlite_db_records,
+    logfunc,
+)
 
 
-def get_tikTok(files_found, report_folder, seeker):
-    data_list = []
-    data_list1 = []
-    
+def _quote_identifier(identifier):
+    escaped_identifier = identifier.replace('"', '""')
+    return f'"{escaped_identifier}"'
+
+
+def _quote_literal(value):
+    escaped_value = value.replace("'", "''")
+    return f"'{escaped_value}'"
+
+
+def _convert_tiktok_timestamp(timestamp):
+    try:
+        if timestamp and float(timestamp) > 1:
+            return convert_unix_ts_to_utc(timestamp)
+    except (TypeError, ValueError):
+        pass
+    return timestamp
+
+
+def _application_container(path):
+    parts = normpath(path).replace("/", "\\").split("\\")
+    if "Application" not in parts:
+        return ""
+    app_index = len(parts) - 1 - parts[::-1].index("Application")
+    if app_index + 1 >= len(parts):
+        return ""
+    return normcase("\\".join(parts[:app_index + 2]))
+
+
+def _aweme_im_dbs(files_found):
+    aweme_dbs = []
     for file_found in files_found:
-        file_found = str(file_found)
+        if str(file_found).endswith("AwemeIM.db"):
+            aweme_dbs.append(str(file_found))
+    return aweme_dbs
 
-        if file_found.endswith('db.sqlite'):
-            maindb = file_found
-        if file_found.endswith('AwemeIM.db'):
-            attachdb = file_found
 
-    db = open_sqlite_db_readonly(maindb)
-    cursor = db.cursor()
-    cursor.execute(f"ATTACH DATABASE '{attachdb}' as AwemeIM;")
-    cursor.execute("SELECT name FROM AwemeIM.sqlite_master WHERE type='table' LIMIT 1;") 
-    tablename = cursor.fetchall()
-    for rown in tablename:
-        tname = rown[0]
-    
-    cursor.execute(f'''
-        select
-            datetime(localcreatedat, 'unixepoch') as Local_Create_Time,
-            sender,
-            customid,
-            nickname,
-            json_extract(content, '$.text') as message,
-            json_extract(content, '$.tips') as localresponse,
-            json_extract(content,'$.display_name') as links_display_name,
-            json_extract(content, '$.url.url_list[0]') as links_gifs_urls,
-            case 
-                when servercreatedat > 1 then datetime(servercreatedat, 'unixepoch')
-                else servercreatedat
-                end
-            servercreatedat,
-            url1 as profilepicURL
-        from TIMMessageORM, {tname}
-        where uid = sender
-        order by Local_Create_Time
-        ''')
+def _aweme_for_chat_db(chat_db, aweme_dbs):
+    chat_container = _application_container(chat_db)
+    for aweme_db in aweme_dbs:
+        if _application_container(aweme_db) == chat_container:
+            return aweme_db
+    return aweme_dbs[0] if aweme_dbs else ""
 
-    all_rows = cursor.fetchall()
-    
-    if len(all_rows) > 0:
-        for row in all_rows:
 
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6],row[7], row[8], row[9]))
+def _chat_databases(files_found):
+    return [str(file_found) for file_found in files_found if str(file_found).endswith("db.sqlite")]
 
-        report = ArtifactHtmlReport('TikTok Messages')
-        report.start_artifact_report(report_folder, 'TikTok Messages')
-        report.add_script()
-        data_headers = ('Timestamp','Sender','Custom ID','Nickname','Message', 'Local Response','Link GIF Name','Link GIF URL','Server Create Timestamps','Profile Pic URL')
-        report.write_artifact_data_table(data_headers, data_list, file_found)
-        report.end_artifact_report()
 
-        tsvname = 'Tiktok Messages'
-        tsv(report_folder, data_headers, data_list, tsvname)
+def _table_columns(db_path, table_name, attach_query=None):
+    db_name = "AwemeIM." if attach_query else ""
+    query = f"PRAGMA {db_name}table_info({_quote_literal(table_name)})"
+    return {row[1].lower() for row in get_sqlite_db_records(db_path, query, attach_query)}
 
-        tlactivity = 'TikTok Messages'
-        timeline(report_folder, tlactivity, data_list, data_headers)
-    else:
-        logfunc('No TikTok messages available')
 
-    cursor.execute(f'''
-        select 
-            case 
-                when latestchattimestamp > 1 then datetime(latestchattimestamp, 'unixepoch')
-                else latestchattimestamp
-            end
-        latestchattimestamp,
-        nickname,
-        uid,
-        customID,
-        url1
-        from {tname}
-        ''')
-    
-    all_rows1 = cursor.fetchall()
-    
-    if len(all_rows) > 0:
-        description = 'Timestamp corresponds to latest chat if available'
-        for row in all_rows1:
-            
-            data_list1.append((row[0], row[1], row[2], row[3], row[4]))
-            
-        report = ArtifactHtmlReport('TikTok Contacts')
-        report.start_artifact_report(report_folder, 'TikTok Contacts', description)
-        report.add_script()
-        data_headers1 = ('Timestamp','Nickname','Unique ID','Custom ID','URL')
-        report.write_artifact_data_table(data_headers1, data_list1, file_found)
-        report.end_artifact_report()
-        
-        tsvname = 'TikTok Contacts'
-        tsv(report_folder, data_headers1, data_list1, tsvname)
-        
-        tlactivity = 'TikTok Last Contact'
-        timeline(report_folder, tlactivity, data_list1, data_headers1)
-        
-    else:
-        logfunc('No TikTok Contacts available')
-    
-    db.close()
-    
+def _contact_tables(db_path, attach_query=None, required_columns=None):
+    query = """
+        SELECT name
+        FROM AwemeIM.sqlite_master
+        WHERE type = 'table'
+            AND name LIKE 'AwemeContacts%'
+        ORDER BY name
+    """
+    if not attach_query:
+        query = """
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+                AND name LIKE 'AwemeContacts%'
+            ORDER BY name
+        """
+
+    contact_tables = [row[0] for row in get_sqlite_db_records(db_path, query, attach_query)]
+    if not required_columns:
+        return contact_tables
+
+    required_columns = {column.lower() for column in required_columns}
+    matching_tables = []
+    for table in contact_tables:
+        table_columns = _table_columns(db_path, table, attach_query)
+        if required_columns.issubset(table_columns):
+            matching_tables.append(table)
+        else:
+            logfunc(f"Skipping TikTok contact table {table}; expected columns were not found")
+
+    return matching_tables
+
+
+def _contact_subquery(contact_tables, attached=True, include_source_table=False):
+    source_prefix = "AwemeIM." if attached else ""
+    source_table_column = ""
+    if include_source_table:
+        source_table_column = ", {table_name} AS source_table"
+
+    subqueries = []
+    for table in contact_tables:
+        table_name = _quote_literal(table)
+        table_identifier = f"{source_prefix}{_quote_identifier(table)}"
+        subqueries.append(
+            "SELECT uid, customid, nickname, url1"
+            f"{source_table_column.format(table_name=table_name)} "
+            f"FROM {table_identifier}"
+        )
+
+    if subqueries:
+        return " UNION ALL ".join(subqueries)
+
+    if include_source_table:
+        return (
+            "SELECT NULL AS uid, NULL AS customid, NULL AS nickname, "
+            "NULL AS url1, NULL AS source_table WHERE 0"
+        )
+
+    return "SELECT NULL AS uid, NULL AS customid, NULL AS nickname, NULL AS url1 WHERE 0"
+
+
+def _deduplicated_contacts_cte(contact_tables):
+    contacts_subquery = _contact_subquery(contact_tables, include_source_table=True)
+    return f"""
+        WITH UniqueContacts AS (
+            SELECT
+                uid,
+                customid,
+                nickname,
+                url1,
+                source_table,
+                ROW_NUMBER() OVER (PARTITION BY uid ORDER BY source_table) AS rn
+            FROM ({contacts_subquery}) AS CombinedContacts
+        ),
+        DeduplicatedContacts AS (
+            SELECT uid, customid, nickname, url1, source_table
+            FROM UniqueContacts
+            WHERE rn = 1
+        )
+    """
+
+
+def _source_file_text(context, *paths):
+    return "; ".join(context.get_relative_path(path) for path in paths if path)
+
+
+@artifact_processor
+def tiktok_messages(context):
+    """ see artifact description """
+    files_found = context.get_files_found()
+    aweme_dbs = _aweme_im_dbs(files_found)
+    data_list = []
+
+    if not aweme_dbs:
+        logfunc("AwemeIM.db not found. TikTok messages cannot be parsed.")
+        return (), [], ""
+
+    for chat_db in _chat_databases(files_found):
+        aweme_im_db = _aweme_for_chat_db(chat_db, aweme_dbs)
+        account_id = basename(dirname(chat_db))
+        attach_query = attach_sqlite_db_readonly(aweme_im_db, "AwemeIM")
+        message_table = list( get_sqlite_db_records(
+            chat_db,
+            """
+                SELECT name
+                FROM sqlite_master
+                WHERE type = 'table'
+                    AND name = 'TIMMessageORM'
+            """,
+        ) )
+
+        if not message_table:
+            logfunc(f"Table TIMMessageORM not found in {chat_db}")
+            continue
+
+        contact_tables = _contact_tables(
+            chat_db,
+            attach_query,
+            required_columns=("uid", "customid", "nickname", "url1"),
+        )
+        contacts_cte = _deduplicated_contacts_cte(contact_tables)
+        query = f"""
+            {contacts_cte}
+            SELECT
+                localcreatedat,
+                sender,
+                customid,
+                nickname,
+                CASE
+                    WHEN json_valid(content) THEN json_extract(content, '$.text')
+                END AS message,
+                CASE
+                    WHEN json_valid(content) THEN json_extract(content, '$.tips')
+                END AS localresponse,
+                CASE
+                    WHEN json_valid(content) THEN json_extract(content, '$.display_name')
+                END AS links_display_name,
+                CASE
+                    WHEN json_valid(content) THEN json_extract(content, '$.url.url_list[0]')
+                END AS links_gifs_urls,
+                servercreatedat,
+                url1,
+                source_table,
+                belongingConversationIdentifier
+            FROM TIMMessageORM
+            LEFT JOIN DeduplicatedContacts ON DeduplicatedContacts.uid = sender
+            ORDER BY localcreatedat
+        """
+        db_records = get_sqlite_db_records(chat_db, query, attach_query)
+        source_file = _source_file_text(context, chat_db, aweme_im_db)
+
+        for record in db_records:
+            data_list.append((
+                _convert_tiktok_timestamp(record[0]),
+                record[1],
+                record[2],
+                record[3],
+                record[4],
+                record[5],
+                record[6],
+                record[7],
+                _convert_tiktok_timestamp(record[8]),
+                record[9],
+                record[10],
+                account_id,
+                source_file,
+                record[11],
+                'Outgoing' if str(record[1]) == str(account_id) else 'Incoming',
+            ))
+
+    data_headers = (
+        ("Timestamp", "datetime"),
+        "Sender",
+        "Custom ID",
+        "Nickname",
+        "Message",
+        "Local Response",
+        "Link GIF Name",
+        "Link GIF URL",
+        ("Server Created Timestamp", "datetime"),
+        "Profile Pic URL",
+        "Contact Table",
+        "Account ID",
+        "Source File",
+        "Conversation ID",
+        "Direction",
+    )
+
+    return data_headers, data_list, "see Source File column"
+
+
+@artifact_processor
+def tiktok_contacts(context):
+    """ see artifact description """
+    files_found = context.get_files_found()
+    aweme_dbs = _aweme_im_dbs(files_found)
+    data_list = []
+
+    if not aweme_dbs:
+        logfunc("AwemeIM.db not found. TikTok contacts cannot be parsed.")
+        return (), [], ""
+
+    for aweme_im_db in aweme_dbs:
+        contact_tables = _contact_tables(
+            aweme_im_db,
+            required_columns=("latestchattimestamp", "nickname", "uid", "customid", "url1"),
+        )
+        if not contact_tables:
+            logfunc(f"No AwemeContacts tables found in {aweme_im_db}.")
+            continue
+
+        contacts_query = []
+        for table in contact_tables:
+            table_name = _quote_literal(table)
+            table_identifier = _quote_identifier(table)
+            contacts_query.append(f"""
+                SELECT
+                    latestchattimestamp,
+                    nickname,
+                    uid,
+                    customID,
+                    url1,
+                    {table_name}
+                FROM {table_identifier}
+            """)
+
+        db_records = get_sqlite_db_records(aweme_im_db, " UNION ALL ".join(contacts_query))
+
+        source_file = context.get_relative_path(aweme_im_db)
+        for record in db_records:
+            data_list.append((
+                _convert_tiktok_timestamp(record[0]),
+                record[1],
+                record[2],
+                record[3],
+                record[4],
+                record[5],
+                source_file,
+            ))
+
+    data_headers = (
+        ("Timestamp", "datetime"),
+        "Nickname",
+        "Unique ID",
+        "Custom ID",
+        "URL",
+        "Source Table",
+        "Source File",
+    )
+
+    return data_headers, data_list, "see Source File column"

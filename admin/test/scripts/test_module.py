@@ -1,0 +1,621 @@
+"""
+This script provides a testing framework for iLEAPP artifact modules.
+It allows for running individual artifacts or entire modules against pre-defined
+test cases (stored as .zip files containing forensic evidence) and comparing
+the output against expected results.
+
+Design Goals:
+- Standalone Execution: Can be run from the command line for manual testing.
+- IDE Integration: Designed to work as a task within the VS Code IDE for a
+  streamlined developer experience.
+- CI/CD Ready: Structured to be eventually integrated into continuous integration
+  pipelines for automated regression testing.
+"""
+
+import sys
+import os
+import zipfile
+import importlib
+import json
+from unittest.mock import MagicMock, patch
+from contextlib import ExitStack
+from pathlib import Path
+from datetime import datetime, timezone, date
+import time
+import shutil
+import subprocess
+import argparse
+import inspect
+
+# Adjust import paths as necessary
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
+# import scripts.ilapfuncs as ilapfuncs
+from scripts.context import Context
+
+
+def mock_logdevinfo(message):
+    """
+    Mocks the logdevinfo function to print to the console.
+
+    Args:
+        message (str): The message to log.
+    """
+    print(f"[LOGDEVINFO] {message}")
+
+
+def mock_logfunc(message):
+    """
+    Mocks the logfunc function to print to the console.
+
+    Args:
+        message (str): The message to log.
+    """
+    print(f"[LOGFUNC] {message}")
+
+
+def process_artifact(zip_path, module_name, artifact_name, artifact_data, target_os_version=None):
+    """
+    Processes a specific artifact from a given zip file.
+
+    Args:
+        zip_path (Path): Path to the zip file containing test data.
+        module_name (str): Name of the artifact module.
+        artifact_name (str): Name of the artifact function to test.
+        artifact_data (dict): Metadata about the artifact from the test case.
+        target_os_version (str, optional): OS version to mock for the test.
+
+    Returns:
+        tuple: (data_headers, data_list, run_time, last_commit_info,
+                check_in_media_call_count, check_in_media_embedded_call_count)
+    """
+    module = importlib.import_module(f'scripts.artifacts.{module_name}')
+
+    # Get the function to test
+    func_to_test = getattr(module, artifact_name)
+
+    # Extract the original function from the decorated one
+    original_func = func_to_test
+    while hasattr(original_func, '__wrapped__'):
+        original_func = original_func.__wrapped__
+
+    # Prepare mock objects
+    # mock_report_folder = 'mock_report_folder'
+    mock_seeker = MagicMock()
+    mock_wrap_text = MagicMock()
+    timezone_offset = 'UTC'
+
+    # <<< NEW COUNTERS >>>
+    check_in_media_call_count = 0
+    check_in_media_embedded_call_count = 0
+
+    # Capture original functions before patching if we need to call them
+    # original_check_in_media = ilapfuncs.check_in_media
+    # original_check_in_media_embedded = ilapfuncs.check_in_embedded_media
+
+    # Configure mock_seeker.file_infos.get() to return a mock
+    # with a dynamic source_path based on the input extraction_path.
+    def mock_file_infos_get_side_effect(key_extraction_path):
+        mock_file_info = MagicMock()
+        # Use the unique extraction_path (path in temp dir for the test)
+        # as the source_path for hashing purposes. In a real run,
+        # source_path is the original path in the evidence.
+        mock_file_info.source_path = key_extraction_path
+        # Provide default datetime objects for creation and modification dates
+        mock_file_info.creation_date = datetime.now(timezone.utc)
+        mock_file_info.modification_date = datetime.now(timezone.utc)
+        return mock_file_info
+
+    mock_seeker.file_infos.get.side_effect = mock_file_infos_get_side_effect
+
+    all_files = []
+
+    # Create the base temp directory if it doesn't exist
+    base_temp_dir = Path('admin/test/temp')
+    base_temp_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create a unique temporary directory within the base temp directory
+    temp_dir = base_temp_dir / f'extract_{module_name}_{artifact_name}_{int(time.time())}'
+
+    # Define mock_report_folder path within the temp_dir and create it
+    mock_report_folder_path = temp_dir / 'mock_reports'
+    mock_report_folder_path.mkdir(parents=True, exist_ok=True)
+
+    # Get the module file path
+    module_file_path = module.__file__
+
+    last_commit_info = get_last_commit_info(module_file_path)
+
+    try:
+        # Extract all files from the zip
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+
+            # Recursively get all files
+            for root, _, files in os.walk(temp_dir):
+                for file in files:
+                    all_files.append(os.path.join(root, file))
+
+        # Mock for lava_db connection and cursor
+        mock_lava_cursor_instance = MagicMock()
+        mock_lava_cursor_instance.execute.return_value = mock_lava_cursor_instance
+        mock_lava_cursor_instance.fetchone.return_value = None
+        mock_lava_cursor_instance.fetchall.return_value = []
+
+        mock_lava_db_instance = MagicMock()
+        mock_lava_db_instance.cursor.return_value = mock_lava_cursor_instance
+        mock_lava_db_instance.commit.return_value = None
+
+        # <<< NEW MOCKS FOR CHECK_IN_MEDIA >>>
+        def mocked_check_in_media(file_path, *args, **kwargs):
+            nonlocal check_in_media_call_count
+            check_in_media_call_count += 1
+            # Simplified return for counter, avoiding deep side effects of original if problematic
+            return f"mock_hash_for_{os.path.basename(str(file_path))}"
+
+
+        def mocked_check_in_embedded_media(*args, **kwargs):
+            nonlocal check_in_media_embedded_call_count
+            check_in_media_embedded_call_count += 1
+            # Similar to above, call original or return dummy
+            return "mock_embedded_html_path"
+
+        def mocked_lava_get_full_media_info(_media_ref_id):
+            # Return a dictionary to support string indexing used in artifacts and ilapfuncs
+            # The last element should be a Unix timestamp for the modification date.
+            # Using Jan 24, 1984 - the day the first Mac went on sale.
+            mac_bday_ts = 443750400
+            return {
+                'media_ref_id': 'mock_media_ref_id',
+                'media_item_id': 'mock_media_item_id',
+                'module_name': 'mock_module_name',
+                'artifact_name': 'mock_artifact_name',
+                'name': 'mock_name',
+                'source_path': 'mock_source_path',
+                'extraction_path': 'mock_extraction_path',
+                'type': 'image/png',
+                'metadata': 'mock_metadata',
+                'created_at': mac_bday_ts,
+                'updated_at': mac_bday_ts,
+                'is_embedded': 0
+            }
+
+        patches = [
+            patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo),
+            patch(f'scripts.artifacts.{module_name}.logdevinfo', mock_logdevinfo, create=True),
+            patch(f'scripts.artifacts.{module_name}.logfunc', mock_logfunc, create=True),
+            patch('scripts.lavafuncs.lava_db', mock_lava_db_instance),
+            # <<< ADD PATCHES FOR CHECK_IN_MEDIA FUNCTIONS >>>
+            # Patch it in ilapfuncs (where it's defined)
+            patch('scripts.ilapfuncs.check_in_media', mocked_check_in_media),
+            patch('scripts.ilapfuncs.check_in_embedded_media', mocked_check_in_embedded_media),
+            # Also patch it directly in the artifact module's namespace if it's imported there like:
+            # from scripts.ilapfuncs import check_in_media
+            patch(f'scripts.artifacts.{module_name}.check_in_media', mocked_check_in_media, create=True),
+            patch(f'scripts.artifacts.{module_name}.check_in_embedded_media', mocked_check_in_embedded_media, create=True),
+            patch(f'scripts.artifacts.{module_name}.lava_get_full_media_info', mocked_lava_get_full_media_info, create=True)
+
+        ]
+
+        # If a target OS version is provided, mock iOS.get_version()
+        if target_os_version:
+            mock_ios_get_version = MagicMock(return_value=target_os_version)
+            patches.append(patch('scripts.ilapfuncs.iOS.get_version', mock_ios_get_version))
+
+        with ExitStack() as stack:
+            for p in patches:
+                stack.enter_context(p)
+
+            all_artifacts_info = getattr(module, '__artifacts_v2__', {})
+            artifact_info = all_artifacts_info.get(artifact_name, {})
+
+            Context.set_report_folder(str(mock_report_folder_path))
+            Context.set_seeker(mock_seeker)
+            Context.set_files_found(all_files)
+            Context.set_artifact_info(artifact_info)
+            Context.set_module_name(module_name)
+            Context.set_module_file_path(module_file_path)
+            Context.set_artifact_name(artifact_name)
+
+            start_time = time.time()
+            try:
+                sig = inspect.signature(original_func)
+                if len(sig.parameters) == 1:
+                    data_headers, data_list, _ = original_func(Context)
+                else:
+                    data_headers, data_list, _ = original_func(all_files,
+                                                               str(mock_report_folder_path),
+                                                               mock_seeker,
+                                                               mock_wrap_text,
+                                                               timezone_offset)
+            finally:
+                Context.clear()
+
+            end_time = time.time()
+
+        return data_headers, data_list, end_time - start_time, last_commit_info, \
+            check_in_media_call_count, check_in_media_embedded_call_count
+
+    finally:
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+def calculate_data_size(data_list):
+    """
+    Calculates the total size of data in a list of rows.
+
+    Args:
+        data_list (list): A list of rows, where each row is a list or tuple of items.
+
+    Returns:
+        int: Total size in bytes when encoded as UTF-8.
+    """
+    return sum(len(str(item).encode('utf-8')) for row in data_list for item in row)
+
+
+def load_test_cases(module_name):
+    """
+    Loads test cases for a module from its JSON metadata file.
+
+    Args:
+        module_name (str): Name of the module.
+
+    Returns:
+        dict: Test cases data.
+    """
+    cases_file = Path(f'admin/test/cases/testdata.{module_name}.json')
+    with open(cases_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def get_artifact_names(module_name, test_cases):
+    """
+    Retrieves all artifact names defined in the test cases for a module.
+
+    Args:
+        module_name (str): Name of the module.
+        test_cases (dict): Test cases data.
+
+    Returns:
+        list: List of artifact names.
+    """
+    artifact_names = set()
+    for case in test_cases.values():
+        artifact_names.update(case['artifacts'].keys())
+    return list(artifact_names)
+
+
+def select_case(test_cases):
+    """
+    Prompts the user to select a test case from the available ones.
+
+    Args:
+        test_cases (dict): Test cases data.
+
+    Returns:
+        str: The selected case name, or 'all' for all cases.
+    """
+    sorted_cases = sorted(test_cases.keys())
+    valid_cases = []
+    invalid_cases = []
+
+    for case_num in sorted_cases:
+        case_data = test_cases[case_num]
+        has_files = any(artifact.get('file_count', 0) > 0
+                        for artifact in case_data['artifacts'].values())
+        if has_files:
+            valid_cases.append(case_num)
+        else:
+            invalid_cases.append(case_num)
+
+    if not valid_cases:
+        print("No valid test cases with responsive files found for this module.")
+        return None
+
+    if invalid_cases:
+        print("Test cases with no responsive files:")
+        for case_num in invalid_cases:
+            print(f"- {case_num}")
+        print()
+
+    print("Available test cases:")
+    for i, case_num in enumerate(valid_cases, 1):
+        case_data = test_cases[case_num]
+        input_path = case_data.get('make_data', {}).get('input_data_path', 'N/A')
+        input_filename = os.path.basename(input_path)
+        description = case_data.get('description', 'No description')
+        print(f"{i}. {case_num}")
+        print(f"   Input: {input_filename}")
+        print(f"   Description: {description}")
+        print()
+
+    print("\nEnter case number, name, or press Enter for all cases (Ctrl+C to exit):")
+    try:
+        case_choice = input().strip().lower()
+        if case_choice == '' or case_choice == 'all':
+            return 'all'
+        try:
+            index = int(case_choice) - 1
+            if 0 <= index < len(valid_cases):
+                return valid_cases[index]
+        except ValueError:
+            if case_choice in valid_cases:
+                return case_choice
+        print("Invalid choice. Please try again.")
+        return select_case(test_cases)
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        sys.exit(0)
+
+
+def select_artifact(artifact_names, test_cases):
+    """
+    Prompts the user to select an artifact to test.
+
+    Args:
+        artifact_names (list): List of all artifact names in the module.
+        test_cases (dict): Test cases data.
+
+    Returns:
+        str: The selected artifact name, or 'all' for all artifacts.
+    """
+    artifacts_with_data = []
+    artifacts_without_data = []
+    sorted_artifacts = sorted(artifact_names)
+
+    for name in sorted_artifacts:
+        has_data = False
+        for case_data in test_cases.values():
+            if name in case_data['artifacts'] and \
+                    case_data['artifacts'][name].get('file_count', 0) > 0:
+                has_data = True
+                break
+        if has_data:
+            artifacts_with_data.append(name)
+        else:
+            artifacts_without_data.append(name)
+
+    if artifacts_without_data:
+        print("Artifacts with no test data available:")
+        for name in artifacts_without_data:
+            print(f"- {name}")
+        print()
+
+    if not artifacts_with_data:
+        print("No test data found for any artifacts in this module. Exiting.")
+        sys.exit(0)
+
+    print("Available artifacts with test data:")
+    for i, name in enumerate(artifacts_with_data, 1):
+        print(f"{i}. {name}")
+
+    print("\nEnter artifact number, name, or press Enter for all artifacts "
+          "(Ctrl+C to exit):")
+    try:
+        artifact_choice = input().strip().lower()
+        if artifact_choice == '' or artifact_choice == 'all':
+            return 'all'
+        try:
+            index = int(artifact_choice) - 1
+            if 0 <= index < len(artifacts_with_data):
+                return artifacts_with_data[index]
+        except ValueError:
+            if artifact_choice in artifacts_with_data:
+                return artifact_choice
+        print("Invalid choice. Please try again.")
+        return select_artifact(artifact_names, test_cases)
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        sys.exit(0)
+
+
+def convert_to_unix_time(value):
+    """
+    Converts a datetime or date object to a Unix timestamp.
+
+    Args:
+        value: The object to convert.
+
+    Returns:
+        int or object: Unix timestamp if input was datetime/date, otherwise original value.
+    """
+    if isinstance(value, (datetime, date)):
+        return int(value.timestamp())
+    return value
+
+
+def process_data(headers, data):
+    """
+    Processes artifact output data for comparison, handling datetime conversions.
+
+    Args:
+        headers (list): Artifact output headers.
+        data (list): Artifact output data rows.
+
+    Returns:
+        tuple: (processed_headers, processed_data)
+    """
+    datetime_indices = [i for i, header in enumerate(headers) if isinstance(header, tuple)
+                        and header[1].lower() in ['datetime', 'date']]
+
+    processed_headers = [header[0] if isinstance(header, tuple) else header for header in headers]
+    processed_data = []
+
+    for row in data:
+        processed_row = []
+        for i, value in enumerate(row):
+            if i in datetime_indices:
+                processed_row.append(convert_to_unix_time(value))
+            elif isinstance(value, (datetime, date)):
+                processed_row.append(convert_to_unix_time(value))
+            else:
+                processed_row.append(value)
+        processed_data.append(processed_row)
+
+    return processed_headers, processed_data
+
+
+def main(module_name, artifact_name=None, case_number=None):
+    """
+    Main entry point for testing module artifacts.
+
+    Args:
+        module_name (str): Name of the module to test.
+        artifact_name (str, optional): Name of the artifact to test.
+        case_number (str, optional): Case number to test.
+    """
+    try:
+        test_cases = load_test_cases(module_name)
+        artifact_names = get_artifact_names(module_name, test_cases)
+
+        if artifact_name is None:
+            artifact_name = select_artifact(artifact_names, test_cases)
+        elif artifact_name.lower() == 'all':
+            artifact_name = 'all'
+
+        if case_number is None:
+            case_number = select_case(test_cases)
+        elif case_number.lower() == 'all':
+            case_number = 'all'
+
+        if case_number is None:
+            print("No valid test cases available. Exiting.")
+            return
+
+        cases_to_process = [case_number] if case_number != 'all' \
+            else [case for case in test_cases.keys()
+                  if any(artifact.get('file_count', 0) > 0
+                         for artifact in test_cases[case]['artifacts'].values())]
+        artifacts_to_process = [artifact_name] if artifact_name != 'all' else artifact_names
+
+        module = importlib.import_module(f'scripts.artifacts.{module_name}')
+        artifacts_info = getattr(module, '__artifacts_v2__', {})
+
+        for case in cases_to_process:
+            case_data = test_cases[case]
+            for artifact in artifacts_to_process:
+                if artifact in case_data['artifacts']:
+                    artifact_data_for_function = case_data['artifacts'][artifact] # Renamed to avoid conflict
+
+                    if artifact_data_for_function.get('file_count', 0) == 0:
+                        print(f"\nSkipping artifact: {artifact} for case: {case} (no files found)")
+                        continue
+
+                    print(f"\nTesting artifact: {artifact} for case: {case}")
+                    zip_path = Path('admin/test/cases/data') / module_name / f"testdata.{module_name}.{artifact}.{case}.zip"
+                    artifact_info_v2 = artifacts_info.get(artifact, {}) # Renamed to avoid conflict
+                    start_datetime = datetime.now(timezone.utc)
+
+                    # Extract os_version from case_data
+                    image_info = case_data.get("image_info", {})
+                    current_os_version = image_info.get("os_version")
+                    if current_os_version:
+                        print(f"Using OS version from test case data for {case}: {current_os_version}")
+                    else:
+                        print(f"Warning: 'os_version' not found in image_info for {case}. "
+                              "iOS.get_version() will not be specifically mocked.")
+
+                    headers, data, run_time, last_commit_info, media_checkins_count, media_embedded_checkins_count = \
+                        process_artifact(zip_path, module_name, artifact, artifact_data_for_function,
+                                         target_os_version=current_os_version)
+
+                    processed_headers, processed_data = process_data(headers, data)
+
+                    end_datetime = datetime.now(timezone.utc)
+
+                    result = {
+                        "metadata": {
+                            "module_name": module_name,
+                            "artifact_name": artifact_info_v2.get('name', artifact),
+                            "function_name": artifact,
+                            "case_number": case,
+                            "number_of_columns": len(processed_headers),
+                            "number_of_rows": len(processed_data),
+                            "total_data_size_bytes": calculate_data_size(processed_data),
+                            "media_checkins": media_checkins_count,
+                            "media_embedded_checkins": media_embedded_checkins_count,
+                            "input_zip_path": str(zip_path),
+                            "start_time": start_datetime.isoformat(),
+                            "end_time": end_datetime.isoformat(),
+                            "run_time_seconds": run_time,
+                            "last_commit": last_commit_info
+                        },
+                        "headers": processed_headers,
+                        "data": processed_data
+                    }
+
+                    output_dir = Path('admin/test/results') / module_name
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    output_file = output_dir / f"{module_name}.{artifact}.{case}.{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
+
+                    with open(output_file, 'w', encoding='utf-8') as f:
+                        json.dump(result, f, indent=2, default=str)
+
+                    print(f"Test results for {module_name} - {artifact} - Case {case} saved to {output_file}")
+                    print(f"Processed {len(processed_data)} rows in {run_time:.2f} seconds. "
+                          f"Media Checkins: {media_checkins_count}. "
+                          f"Media Embedded Checkins: {media_embedded_checkins_count}.")
+                else:
+                    print(f"\nSkipping artifact: {artifact} for case: {case} (not found in test data)")
+
+        print("\nTesting completed.")
+
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        sys.exit(0)
+
+
+def get_last_commit_info(file_path):
+    """
+    Retrieves the last git commit information for a given file.
+
+    Args:
+        file_path (str): Path to the file.
+
+    Returns:
+        dict: Dictionary containing commit hash, author, date, and message.
+    """
+    try:
+        # Get the last commit hash
+        git_log = subprocess.check_output(
+            ['git', 'log', '-n', '1', '--pretty=format:%H|%an|%ae|%ad|%s', '--', file_path],
+            universal_newlines=True).strip()
+        if not git_log:
+            # File is not yet in git history
+            return {
+                'hash': 'Uncommitted',
+                'author_name': 'N/A',
+                'author_email': 'N/A',
+                'date': datetime.now().isoformat(),
+                'message': 'File not yet committed to git'
+            }
+        commit_hash, author_name, author_email, commit_date, commit_message = git_log.split('|')
+
+        # Convert the commit date to ISO format
+        commit_date = datetime.strptime(
+            commit_date, '%a %b %d %H:%M:%S %Y %z').isoformat()
+
+        return {
+            'hash': commit_hash,
+            'author_name': author_name,
+            'author_email': author_email,
+            'date': commit_date,
+            'message': commit_message
+        }
+    except subprocess.CalledProcessError:
+        return None
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Test module artifacts")
+    parser.add_argument("module_name", help="Name of the module to test")
+    parser.add_argument("-a", "--artifact",
+                        help="Name of the artifact to test (or 'all' for all artifacts)",
+                        default=None)
+    parser.add_argument("-c", "--case",
+                        help="Case number to test (or 'all' for all cases)",
+                        default=None)
+
+    args = parser.parse_args()
+
+    main(args.module_name, args.artifact, args.case)

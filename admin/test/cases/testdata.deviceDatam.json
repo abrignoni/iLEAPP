@@ -1,0 +1,87 @@
+{
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-29T13:17:07.159048",
+      "last_commit": {
+        "hash": "739956ca6d7a1d5b930a0ed0aef4e2f4bba5b649",
+        "author_name": "stark4n6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2024-05-09T09:37:27-04:00",
+        "message": "Bolding Device Detail Keys"
+      }
+    },
+    "artifacts": {
+      "deviceDatam": {
+        "search_patterns": [
+          "*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023"
+  },
+  "belkasoft_ctf6_ios_device1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-29T13:17:25.430415",
+      "last_commit": {
+        "hash": "739956ca6d7a1d5b930a0ed0aef4e2f4bba5b649",
+        "author_name": "stark4n6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2024-05-09T09:37:27-04:00",
+        "message": "Bolding Device Detail Keys"
+      }
+    },
+    "artifacts": {
+      "deviceDatam": {
+        "search_patterns": [
+          "*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist"
+        ],
+        "file_count": 0,
+        "note": "No responsive files found for this artifact"
+      }
+    },
+    "image_name": "belkasoft_ctf6_ios_device1",
+    "note": "No responsive files found for any artifacts"
+  },
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.tar.gz",
+      "os": "macOS-15.0-x86_64-i386-64bit",
+      "timestamp": "2024-10-29T13:19:44.897355",
+      "last_commit": {
+        "hash": "739956ca6d7a1d5b930a0ed0aef4e2f4bba5b649",
+        "author_name": "stark4n6",
+        "author_email": "48143894+stark4n6@users.noreply.github.com",
+        "date": "2024-05-09T09:37:27-04:00",
+        "message": "Bolding Device Detail Keys"
+      }
+    },
+    "artifacts": {
+      "deviceDatam": {
+        "search_patterns": [
+          "*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs"
+  }
+}

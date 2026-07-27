@@ -1,165 +1,351 @@
-import glob
-import plistlib
-import scripts.artifacts.artGlobals
+__artifacts_v2__ = {
+    "appleWifiKnownNetworks": {
+        "name": "WiFi Known Networks Info",
+        "description": "Parses WiFi connection data for known networks",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2024-10-21",
+        "last_update_date": "2026-07-21",
+        "requirements": "none",
+        "category": "WiFi Connections",
+        "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
+        "paths": ('*/com.apple.wifi.plist', 
+                  '*/com.apple.wifi-networks.plist.backup', 
+                  '*/com.apple.wifi.known-networks.plist'),
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 7 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 33 rows",
+            "abe_ios16": "iOS 16.5 | 55 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+        }
+    },
+    "appleWifiKnownNetworksTimes": {
+        "name": "WiFi Known Networks Times",
+        "description": "Parses time-related data for known WiFi networks",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2024-10-21",
+        "last_update_date": "2026-07-21",
+        "requirements": "none",
+        "category": "WiFi Connections",
+        "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
+        "paths": ('*/com.apple.wifi.plist', 
+                  '*/com.apple.wifi-networks.plist.backup', 
+                  '*/com.apple.wifi.known-networks.plist'),
+        "output_types": "standard",
+        "artifact_icon": "clock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 8 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 7 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 33 rows",
+            "abe_ios16": "iOS 16.5 | 55 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+        }
+    },
+    "appleWifiScannedPrivate": {
+        "name": "WiFi Scanned Networks (Private)",
+        "description": "Parses WiFi connection data for networks scanned while using private MAC address",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2023-05-24",
+        "last_update_date": "2023-05-24",
+        "requirements": "none",
+        "category": "WiFi Connections",
+        "notes": "",
+        "paths": ('*/com.apple.wifi-private-mac-networks.plist',),
+        "output_types": "standard",
+        "artifact_icon": "eye-off",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 9 rows",
+            "felix_ios17": "iOS 17.6.1 | 11 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "iphone12_ios18": "iOS 18.7 | 2 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 35 rows",
+            "abe_ios16": "iOS 16.5 | 47 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+        }
+    },
+    "appleWifiBSSList": {
+        "name": "WiFi BSS List",
+        "description": "Parses BSS (Basic Service Set) information for known WiFi networks",
+        "author": "@JamesHabben",
+        "creation_date": "2023-05-25",
+        "last_update_date": "2023-05-25",
+        "requirements": "none",
+        "category": "WiFi Connections",
+        "notes": "Extracts detailed BSS information from the com.apple.wifi.plist file",
+        "paths": ('*/com.apple.wifi.known-networks.plist',),
+        "output_types": "all",
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 43 rows",
+            "felix_ios17": "iOS 17.6.1 | 34 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | 100 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | 194 rows",
+            "abe_ios16": "iOS 16.5 | 271 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 44 rows",
+            "magnet_ios16": "iOS 16.1.1 | 37 rows",
+        }
+    }
+}
 
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, logdevinfo, timeline, tsv, is_platform_windows 
+from scripts.ilapfuncs import device_info, artifact_processor, get_plist_file_content, convert_plist_date_to_utc
 
-def hexify_byte(byte_to_convert):
-    to_return = hex(byte_to_convert).replace('0x','')
-    if len(to_return) < 2:
-        to_return = "0" + to_return
+from datetime import datetime as _dt
 
-    return to_return
+def _safe_plist_date(value):
+    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
 
 def _bytes_to_mac_address(encoded_bytes):
-    to_return = ''
-    to_return = hexify_byte(encoded_bytes[0]) + ":" + hexify_byte(encoded_bytes[1]) + ":"
-    to_return = to_return + hexify_byte(encoded_bytes[2]) + ":" + hexify_byte(encoded_bytes[3]) + ":"
-    to_return = to_return + hexify_byte(encoded_bytes[4]) + ":" + hexify_byte(encoded_bytes[5])
+    return ':'.join(f"{byte:02x}" for byte in encoded_bytes[:6])
 
-    return to_return
+def _decode_ssid(ssid_bytes):
+    if isinstance(ssid_bytes, bytes):
+        try:
+            return ssid_bytes.decode('utf-8')
+        except UnicodeDecodeError:
+            return ssid_bytes.hex()
+    return str(ssid_bytes)
 
-def get_appleWifiPlist(files_found, report_folder, seeker):
-    known_data_list = []
-    scanned_data_list = []
-    known_files = []
-    scanned_files = []
-    for file_found in files_found:
+@artifact_processor
+def appleWifiKnownNetworks(context):
+    data_list = []
+    for file_found in context.get_files_found():
         file_found = str(file_found)
-
-        with open(file_found, 'rb') as f:
-            deserialized = plistlib.load(f)
-            if 'KeepWiFiPoweredAirplaneMode' in deserialized:
-                val = (deserialized['KeepWiFiPoweredAirplaneMode'])
-                logdevinfo(f"Keep Wifi Powered Airplane Mode: {val}")
-
-            if 'List of known networks' in deserialized:
-                known_files.append(file_found)
-                for known_network in deserialized['List of known networks']:
-                    ssid = ''
-                    bssid = ''
-                    last_updated = ''
-                    last_auto_joined = ''
-                    wnpmd = ''
-                    net_usage = ''
-                    country_code = ''
-                    device_name = ''
-                    manufacturer = ''
-                    serial_number = ''
-                    model_name = ''
-                    enabled = ''
-                    last_joined = ''
-
-                    if 'SSID_STR' in known_network:
-                        ssid = str(known_network['SSID_STR'])
-
-                    if 'BSSID' in known_network:
-                        bssid = str(known_network['BSSID'])
-
-                    if 'networkUsage' in known_network:
-                        net_usage = str(known_network['networkUsage'])
-
-                    if '80211D_IE' in known_network:
-                        if 'IE_KEY_80211D_COUNTRY_CODE' in known_network['80211D_IE']:
-                            country_code = str(known_network['80211D_IE']['IE_KEY_80211D_COUNTRY_CODE'])
-
-                    if 'lastUpdated' in known_network:
-                        last_updated = str(known_network['lastUpdated'])
-
-                    if 'lastAutoJoined' in known_network:
-                        last_auto_joined = str(known_network['lastAutoJoined'])
-
-                    if 'lastJoined' in known_network:
-                        last_joined = str(known_network['lastJoined'])
-
-                    if 'WiFiNetworkPasswordModificationDate' in known_network:
-                        wnpmd = str(known_network['WiFiNetworkPasswordModificationDate'])
-
-                    if 'enabled' in known_network:
-                        enabled = str(known_network['enabled'])
-
-                    if 'WPS_PROB_RESP_IE' in known_network:
-                    
-                        if 'IE_KEY_WPS_DEV_NAME' in known_network['WPS_PROB_RESP_IE']: 
-                            device_name = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_DEV_NAME']
-                        if 'IE_KEY_WPS_MANUFACTURER' in known_network['WPS_PROB_RESP_IE']: 
-                            manufacturer = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_MANUFACTURER']
-                        if 'IE_KEY_WPS_SERIAL_NUM' in known_network['WPS_PROB_RESP_IE']: 
-                            serial_number = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_SERIAL_NUM']
-                        if 'IE_KEY_WPS_MODEL_NAME' in known_network['WPS_PROB_RESP_IE']: 
-                            model_name = known_network['WPS_PROB_RESP_IE']['IE_KEY_WPS_MODEL_NAME']
-                    
-                    known_data_list.append([ssid, bssid, net_usage, country_code, device_name, manufacturer, serial_number, model_name, last_joined, last_auto_joined, last_updated, enabled, wnpmd, file_found]) 
-
-            if 'List of scanned networks with private mac' in deserialized:
-                scanned_files.append(file_found)
-                for scanned_network in deserialized['List of scanned networks with private mac']:
-                    ssid = ''
-                    bssid = ''
-                    last_updated = ''
-                    last_joined = ''
-                    private_mac_in_use = ''
-                    private_mac_value = ''
-                    private_mac_valid = ''
-                    added_at = ''
-                    in_known_networks = ''
-
-                    if 'SSID_STR' in scanned_network:
-                        ssid = str(scanned_network['SSID_STR'])
-
-                    if 'BSSID' in scanned_network:
-                        bssid = str(scanned_network['BSSID'])
-
-                    if 'lastUpdated' in scanned_network:
-                        last_updated = str(scanned_network['lastUpdated'])
-
-                    if 'lastJoined' in scanned_network:
-                        last_joined = str(scanned_network['lastJoined'])
-
-                    if 'addedAt' in scanned_network:
-                        added_at = str(scanned_network['addedAt'])
-
-                    if 'PresentInKnownNetworks' in scanned_network:
-                        in_known_networks = str(scanned_network['PresentInKnownNetworks'])
-
-                    if 'PRIVATE_MAC_ADDRESS' in scanned_network:
-                        if 'PRIVATE_MAC_ADDRESS_IN_USE' in scanned_network['PRIVATE_MAC_ADDRESS']:
-                            private_mac_in_use = str(_bytes_to_mac_address(scanned_network['PRIVATE_MAC_ADDRESS']['PRIVATE_MAC_ADDRESS_IN_USE']))
-                        if 'PRIVATE_MAC_ADDRESS_VALUE' in scanned_network['PRIVATE_MAC_ADDRESS']:
-                            private_mac_value = str(_bytes_to_mac_address(scanned_network['PRIVATE_MAC_ADDRESS']['PRIVATE_MAC_ADDRESS_VALUE']))
-                        if 'PRIVATE_MAC_ADDRESS_VALID' in scanned_network['PRIVATE_MAC_ADDRESS']:
-                            private_mac_valid = str(scanned_network['PRIVATE_MAC_ADDRESS']['PRIVATE_MAC_ADDRESS_VALID'])
-                    
-                    scanned_data_list.append([ssid, bssid, added_at, last_joined, last_updated, private_mac_in_use, private_mac_value, private_mac_valid, in_known_networks, file_found]) 
-            
-    if len(known_data_list) > 0:
-        description = 'WiFi known networks data. Dates are taken straight from the source plist.'
-        report = ArtifactHtmlReport('Locations')
-        report.start_artifact_report(report_folder, 'WiFi Known Networks', description)
-        report.add_script()
-        data_headers = ['SSID','BSSID','Network Usage','Country Code','Device Name','Manufacturer','Serial Number','Model Name','Last Joined','Last Auto Joined','Last Updated','Enabled','WiFi Network Password Modification Date','File']
-        report.write_artifact_data_table(data_headers, known_data_list, ', '.join(known_files))
-        report.end_artifact_report()
+        deserialized = get_plist_file_content(file_found)
         
-        tsvname = 'WiFi Known Networks'
-        tsv(report_folder, data_headers, known_data_list, tsvname)
+        # Check if plist is valid before processing
+        if not deserialized or not isinstance(deserialized, dict):
+            continue
         
-        tlactivity = 'WiFi Known Networks'
-        timeline(report_folder, tlactivity, known_data_list, data_headers)
-            
-    if len(scanned_data_list) > 0:
-        description = 'WiFi networks scanned while using fake ("private") MAC address. Dates are taken straight from the source plist.'
-        report = ArtifactHtmlReport('Locations')
-        report.start_artifact_report(report_folder, 'WiFi Networks Scanned (private)', description)
-        report.add_script()
-        data_headers = ['SSID','BSSID','Added At','Last Joined','Last Updated','MAC Used For Network','Private MAC Computed For Network','MAC Valid','In Known Networks','File']
-        report.write_artifact_data_table(data_headers, scanned_data_list, ', '.join(scanned_files))
-        report.end_artifact_report()
+        if 'KeepWiFiPoweredAirplaneMode' in deserialized:
+            val = (deserialized['KeepWiFiPoweredAirplaneMode'])
+            device_info('WiFi', 'Keep Wifi Powered Airplane Mode', val, file_found)
+
+        if 'List of known networks' in deserialized:
+            for known_network in deserialized['List of known networks']:
+                ssid = _decode_ssid(known_network.get('SSID_STR', b''))
+                bssid = known_network.get('BSSID', '')
+                net_usage = known_network.get('networkUsage', '')
+                country_code = known_network.get('80211D_IE', {}).get('IE_KEY_80211D_COUNTRY_CODE', '')
+                enabled = known_network.get('enabled', '')
+                carplay = known_network.get('CarPlayNetwork', known_network.get('CARPLAY_NETWORK', ''))
+                hidden = known_network.get('Hidden', '')
+
+                wps_info = known_network.get('WPS_PROB_RESP_IE', {})
+                device_name = wps_info.get('IE_KEY_WPS_DEV_NAME', '')
+                manufacturer = wps_info.get('IE_KEY_WPS_MANUFACTURER', '')
+                serial_number = wps_info.get('IE_KEY_WPS_SERIAL_NUM', '')
+                model_name = wps_info.get('IE_KEY_WPS_MODEL_NAME', '')
+
+                captive_profile = known_network.get('CaptiveProfile', {})
+                captive_network = captive_profile.get('CaptiveNetwork', '')
+                user_portal_url = captive_profile.get('UserPortalURL', '')
+
+                data_list.append([ssid, bssid, net_usage, country_code, device_name, manufacturer, 
+                                    serial_number, model_name, enabled, carplay, hidden, captive_network, 
+                                    user_portal_url, '', '', context.get_relative_path(file_found)])
+
+        if 'com.apple.wifi.known-networks.plist' in file_found:
+            for _, known_network in deserialized.items():
+                ssid = _decode_ssid(known_network.get('SSID', b''))
+                add_reason = known_network.get('AddReason', '')
+                bundle = known_network.get('BundleID', '')
+                hidden = known_network.get('Hidden', '')
+
+                os_specific = known_network.get('__OSSpecific__', {})
+                bssid = os_specific.get('BSSID', '')
+                net_usage = os_specific.get('networkUsage', '')
+                carplay = os_specific.get('CarPlayNetwork', known_network.get('CARPLAY_NETWORK', ''))
+
+                captive_profile = known_network.get('CaptiveProfile', {})
+                captive_network = captive_profile.get('CaptiveNetwork', '')
+                user_portal_url = captive_profile.get('UserPortalURL', '')
+
+                data_list.append([ssid, bssid, net_usage, '', '', '', '', '', '', carplay, hidden, 
+                                    captive_network, user_portal_url, add_reason, bundle, context.get_relative_path(file_found)])
+
+    data_headers = ('SSID', 'BSSID', 'Network Usage', 'Country Code', 'Device Name', 'Manufacturer', 
+                    'Serial Number', 'Model Name', 'Enabled', 'Carplay Network', 'Hidden', 
+                    'Captive Network', 'User Portal URL', 'Add Reason', 'Bundle ID', 'Source File')
+
+    return data_headers, data_list, 'see Source File for more info'
+
+@artifact_processor
+def appleWifiKnownNetworksTimes(context):
+    data_list = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        deserialized = get_plist_file_content(file_found)
+
+        if not deserialized or not isinstance(deserialized, dict):
+            continue
         
-        tsvname = 'WiFi Networks Scanned (private)'
-        tsv(report_folder, data_headers, scanned_data_list, tsvname)
+        if 'List of known networks' in deserialized:
+            for known_network in deserialized['List of known networks']:
+                ssid = _decode_ssid(known_network.get('SSID_STR', b''))
+                bssid = known_network.get('BSSID', '')
+                last_updated = _safe_plist_date(known_network.get('lastUpdated', ''))
+                last_auto_joined = _safe_plist_date(known_network.get('lastAutoJoined', ''))
+                last_joined = _safe_plist_date(known_network.get('lastJoined', ''))
+                wnpmd = _safe_plist_date(known_network.get('WiFiNetworkPasswordModificationDate', ''))
+                prev_joined = _safe_plist_date(known_network.get('prevJoined', ''))
+
+                data_list.append([last_updated, ssid, bssid, last_auto_joined, last_joined, '', '', wnpmd, '', '', '', '', prev_joined, context.get_relative_path(file_found)])
+
+        if 'com.apple.wifi.known-networks.plist' in file_found:
+            for _, known_network in deserialized.items():
+                ssid = _decode_ssid(known_network.get('SSID', b''))
+                last_updated = _safe_plist_date(known_network.get('UpdatedAt', ''))
+                system_joined = _safe_plist_date(known_network.get('JoinedBySystemAt', ''))
+                user_joined = _safe_plist_date(known_network.get('JoinedByUserAt', ''))
+                last_discovered = _safe_plist_date(known_network.get('LastDiscoveredAt', ''))
+                added_at = _safe_plist_date(known_network.get('AddedAt', ''))
+
+                captive_profile = known_network.get('CaptiveProfile', {})
+                whitelisted_probe_date = _safe_plist_date(captive_profile.get('WhitelistedCaptiveNetworkProbeDate', ''))
+                captive_web_sheet_login_date = _safe_plist_date(captive_profile.get('CaptiveWebSheetLoginDate', ''))
+
+                os_specific = known_network.get('__OSSpecific__', {})
+                bssid = os_specific.get('BSSID', '')
+                wnpmd = _safe_plist_date(os_specific.get('WiFiNetworkPasswordModificationDate', ''))
+                prev_joined = _safe_plist_date(os_specific.get('prevJoined', ''))
+
+                data_list.append([last_updated, ssid, bssid, '', '', system_joined, user_joined, wnpmd, 
+                                    last_discovered, added_at, whitelisted_probe_date, captive_web_sheet_login_date, 
+                                    prev_joined, context.get_relative_path(file_found)])
+
+    data_headers = (('Last Updated', 'datetime'), 'SSID', 'BSSID', ('Last Auto Joined', 'datetime'), 
+                    ('Last Joined', 'datetime'), ('System Joined', 'datetime'), ('User Joined', 'datetime'),
+                    ('WiFi Network Password Modification Date', 'datetime'), ('Last Discovered', 'datetime'),
+                    ('Added At', 'datetime'), ('Whitelisted Captive Network Probe Date', 'datetime'),
+                    ('Captive Web Sheet Login Date', 'datetime'), ('Previous Joined', 'datetime'), 'Source File')
+
+    return data_headers, data_list, 'see Source File for more info'
+
+@artifact_processor
+def appleWifiScannedPrivate(context):
+    data_list = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        deserialized = get_plist_file_content(file_found)
+        # Check if plist is valid before processing
+        if not deserialized or not isinstance(deserialized, dict):
+            continue
         
-        tlactivity = 'WiFi Networks Scanned (private)'
-        timeline(report_folder, tlactivity, scanned_data_list, data_headers)
+        if 'List of scanned networks with private mac' in deserialized:
+            for scanned_network in deserialized['List of scanned networks with private mac']:
+                ssid = scanned_network.get('SSID_STR', '')
+                bssid = scanned_network.get('BSSID', '')
+                last_updated = _safe_plist_date(scanned_network.get('lastUpdated', ''))
+                last_joined = _safe_plist_date(scanned_network.get('lastJoined', ''))
+                added_at = _safe_plist_date(scanned_network.get('addedAt', ''))
+                in_known_networks = scanned_network.get('PresentInKnownNetworks', '')
+                link_down_timestamp = _safe_plist_date(scanned_network.get('LinkDownTimestamp', ''))
+                mac_generation_timestamp = _safe_plist_date(scanned_network.get('MacGenerationTimeStamp', ''))
+                first_join_with_new_mac_timestamp = _safe_plist_date(scanned_network.get('FirstJoinWithNewMacTimestamp', ''))
+
+                private_mac = scanned_network.get('PRIVATE_MAC_ADDRESS', {})
+                private_mac_in_use = _bytes_to_mac_address(private_mac.get('PRIVATE_MAC_ADDRESS_IN_USE', b''))
+                private_mac_value = _bytes_to_mac_address(private_mac.get('PRIVATE_MAC_ADDRESS_VALUE', b''))
+                private_mac_valid = private_mac.get('PRIVATE_MAC_ADDRESS_VALID', '')
+
+                data_list.append([last_updated, added_at, last_joined, link_down_timestamp,
+                                    mac_generation_timestamp, first_join_with_new_mac_timestamp,
+                                    ssid, bssid, private_mac_in_use, private_mac_value, private_mac_valid, 
+                                    in_known_networks, context.get_relative_path(file_found)])
+
+    data_headers = (('Last Updated', 'datetime'), ('Added At', 'datetime'), 
+                    ('Last Joined', 'datetime'), ('Link Down Timestamp', 'datetime'),
+                    ('MAC Generation Timestamp', 'datetime'), ('First Join With New MAC Timestamp', 'datetime'),
+                    'SSID', 'BSSID', 'MAC Used For Network', 'Private MAC Computed For Network', 'MAC Valid', 
+                    'In Known Networks', 'Source File')
+
+    return data_headers, data_list, 'see Source File for more info'
+
+@artifact_processor
+def appleWifiBSSList(context):
+    data_list = []
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        deserialized = get_plist_file_content(file_found)
+        
+        if not deserialized or not isinstance(deserialized, dict):
+            continue
+        
+        if 'com.apple.wifi.known-networks.plist' in file_found:
+            for _, known_network in deserialized.items():
+                ssid = _decode_ssid(known_network.get('SSID', b''))
+                bss_list = known_network.get('BSSList', [])
+                for bss in bss_list:
+                    channel_flags = bss.get('ChannelFlags', '')
+                    channel = bss.get('Channel', '')
+                    last_associated_at = _safe_plist_date(bss.get('LastAssociatedAt', ''))
+                    bssid = bss.get('BSSID', '')
+                    location_accuracy = bss.get('LocationAccuracy', '')
+                    location_timestamp = _safe_plist_date(bss.get('LocationTimestamp', ''))
+                    location_latitude = bss.get('LocationLatitude', '')
+                    location_longitude = bss.get('LocationLongitude', '')
+
+                    data_list.append([
+                        ssid, bssid, channel_flags, channel, last_associated_at,
+                        location_accuracy, location_timestamp, location_latitude, location_longitude,
+                        context.get_relative_path(file_found)
+                    ])
+
+        if 'List of known networks' in deserialized:
+            for known_network in deserialized['List of known networks']:
+                ssid = known_network.get('SSID_STR', '')
+                bss_list = known_network.get('networkKnownBSSListKey', [])
+                for bss in bss_list:
+                    channel = bss.get('CHANNEL', '')
+                    last_roamed = _safe_plist_date(bss.get('lastRoamed', ''))
+                    bssid = bss.get('BSSID', '')
+                    channel_flags = bss.get('CHANNEL_FLAGS', '')
+
+                    data_list.append([
+                        ssid, bssid, channel_flags, channel, last_roamed,
+                        '', '', '', '',
+                        context.get_relative_path(file_found)
+                    ])
+
+    data_headers = (
+        'SSID', 'BSSID', 'Channel Flags', 'Channel', ('Last Associated/Roamed At', 'datetime'),
+        'Location Accuracy', ('Location Timestamp', 'datetime'), 'Latitude', 'Longitude',
+        'Source File'
+    )
+
+    return data_headers, data_list, 'see Source File for more info'

@@ -1,0 +1,51 @@
+name: Update Module Info
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/artifacts/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-module-info:
+    # Only run on the main repository, not on forks
+    if: startsWith(github.repository, 'abrignoni/')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Run documentation scripts
+      run: |
+        python admin/scripts/device_info_values.py
+        python admin/scripts/module_info.py
+        python admin/scripts/modules_parsing_sqlite_db.py
+
+    - name: Check for changes
+      id: git-check
+      run: |
+        git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+    - name: Commit changes
+      if: steps.git-check.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add admin/
+        git commit -m "Update documentation files"
+
+    - name: Push changes
+      if: steps.git-check.outputs.changes == 'true'
+      run: |
+        git push

@@ -1,0 +1,116 @@
+{
+  "metadata": {
+    "module_name": "whatsApp",
+    "artifact_name": "WhatsApp - Contacts",
+    "function_name": "whatsAppContacts",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 7,
+    "number_of_rows": 9,
+    "total_data_size_bytes": 826,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/whatsApp/testdata.whatsApp.whatsAppContacts.josh_ios15_ffs.zip",
+    "start_time": "2025-06-21T19:34:12.380995+00:00",
+    "end_time": "2025-06-21T19:34:12.441243+00:00",
+    "run_time_seconds": 0.0008831024169921875,
+    "last_commit": {
+      "hash": "7a03c9d90edeba84420bb53358387ffc37996bac",
+      "author_name": "Johann POLEWCZYK",
+      "author_email": "johannplw@me.com",
+      "date": "2025-05-13T09:42:25+02:00",
+      "message": "Update last_update_date of modules using media manager with hardlinks"
+    }
+  },
+  "headers": [
+    "Fullname",
+    "About Text",
+    "About Text Timestamp",
+    "Phone Number",
+    "Phone Number Label",
+    "Whatsapp ID",
+    "Identifier"
+  ],
+  "data": [
+    [
+      "This Is DFIR",
+      null,
+      null,
+      null,
+      "",
+      null,
+      "34911E25-1D9A-418C-A116-FF6B30DC66C4"
+    ],
+    [
+      "Thom De'Fer",
+      null,
+      null,
+      "(919) 802-7080",
+      "Mobile",
+      "19198027080@s.whatsapp.net",
+      "F02D3403-71FF-4024-AADA-02A5EA06CC1C"
+    ],
+    [
+      "Josh Hickman",
+      null,
+      null,
+      "(919) 579-0479",
+      "Mobile",
+      "19195790479@s.whatsapp.net",
+      "122812EA-4A87-4D38-A4AD-3A08DCBFA3E4"
+    ],
+    [
+      "ThisIs DFIRThree",
+      null,
+      null,
+      null,
+      "",
+      null,
+      "21E081B5-385A-429C-A871-7494D4866135"
+    ],
+    [
+      "This Is DFIR Two",
+      "Hey there! I am using WhatsApp.",
+      1683042855,
+      "(919) 888-7386",
+      "Mobile",
+      "19198887386@s.whatsapp.net",
+      "2D52AC5F-44DB-41F1-A23D-6D8309AD29E4"
+    ],
+    [
+      "Liz",
+      null,
+      null,
+      "+1 (919) 208-4530",
+      "Mobile",
+      "19192084530@s.whatsapp.net",
+      "D9BACA8A-5800-42C5-91B7-E131EB37A8C2"
+    ],
+    [
+      "Josh Hickman",
+      null,
+      null,
+      "(919) 391-2507",
+      "TextNow",
+      "19193912507@s.whatsapp.net",
+      "122812EA-4A87-4D38-A4AD-3A08DCBFA3E4"
+    ],
+    [
+      "This DFIR",
+      null,
+      null,
+      null,
+      "",
+      null,
+      "97D44148-DE42-4F60-9E67-72389BD2D96E"
+    ],
+    [
+      "Apple Inc.",
+      null,
+      null,
+      "1-800-MY-APPLE",
+      "Main",
+      "11800@s.whatsapp.net",
+      "6126AD49-9061-415A-B0DA-7C7D7170A50E"
+    ]
+  ]
+}
