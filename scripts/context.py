@@ -5,6 +5,8 @@ import re
 from os.path import basename
 from pathlib import Path
 
+from leapp_functions.app.artifact_result import ArtifactResult
+
 
 class Context:
     """
@@ -22,6 +24,7 @@ class Context:
     _module_name = None
     _module_file_path = None
     _artifact_name = None
+    _artifact_func_name = None
     _files_found = []
     _filename_lookup_map = {}
     _data_folder = None
@@ -109,6 +112,17 @@ class Context:
         """
 
         Context._artifact_name = artifact_name
+
+    @staticmethod
+    def set_artifact_func_name(artifact_func_name):
+        """
+        Sets the function name for the current artifact in the Context.
+
+        Args:
+            artifact_func_name (str): The artifact processor function name.
+        """
+
+        Context._artifact_func_name = artifact_func_name
 
     @staticmethod
     def set_files_found(files_found):
@@ -355,6 +369,23 @@ class Context:
         return Context._artifact_name
 
     @staticmethod
+    def get_artifact_func_name():
+        """
+        Retrieves the current artifact processor function name from the Context.
+
+        Raises:
+            ValueError: If the function name has not been set in the Context.
+
+        Returns:
+            str: The function name of the current artifact.
+        """
+
+        if not Context._artifact_func_name:
+            raise ValueError("Context not set. This function should be" +
+                             " called from within an artifact.")
+        return Context._artifact_func_name
+
+    @staticmethod
     def get_files_found():
         """
         Retrieves the list of files found in the current context.
@@ -438,6 +469,50 @@ class Context:
         Returns the global extraction folder path.
         """
         return Context._data_folder
+
+    @staticmethod
+    def create_artifact_result(
+        headers=None,
+        source_path=None,
+        estimated_row_count=None,
+        async_write=False,
+        queue_size=5000,
+        batch_size=10000,
+        rows=None,
+    ):
+        """
+        Create an artifact result wrapper for modules with large row sets.
+
+        Headers, source_path, and estimated_row_count are optional and can be
+        set later by the module before returning the result.
+        """
+        artifact_info = Context._artifact_info or {}
+        source_path_formatter = Context._normalize_source_path
+        writer_metadata = {
+            "category": artifact_info.get("category", ""),
+            "module_name": Context._module_name or "",
+            "artifact_name": Context._artifact_name or Context._module_name or "",
+            "func_name": Context._artifact_func_name,
+            "data_views": artifact_info.get("data_views"),
+            "artifact_icon": artifact_info.get("artifact_icon"),
+        }
+        return ArtifactResult(
+            headers=headers,
+            source_path=source_path,
+            estimated_row_count=estimated_row_count,
+            async_write=async_write,
+            queue_size=queue_size,
+            batch_size=batch_size,
+            rows=rows,
+            writer_metadata=writer_metadata,
+            source_path_formatter=source_path_formatter,
+        )
+
+    @staticmethod
+    def _normalize_source_path(source_path):
+        """Return extraction-relative source path metadata for reports and LAVA."""
+        return '\n'.join(
+            Context.get_relative_path(p) for p in str(source_path).split('\n'))
 
     @staticmethod
     def get_relative_path(full_path):
@@ -528,5 +603,6 @@ class Context:
         Context._module_name = None
         Context._module_file_path = None
         Context._artifact_name = None
+        Context._artifact_func_name = None
         Context._files_found = []
         Context._filename_lookup_map = {}

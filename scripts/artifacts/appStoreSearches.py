@@ -114,11 +114,10 @@ def appStoreSearches(context):
 @artifact_processor
 def appStoreCachedRequests(context):
     source_path = get_file_path(context.get_files_found(), 'Cache.db')
-    data_list = []
     data_headers = (
         ('Timestamp', 'datetime'), 'Host', 'Path', 'Request URL', 'Entry ID')
     if not source_path:
-        return data_headers, data_list, ''
+        return data_headers, [], ''
 
     query = '''
     SELECT entry_ID, request_key, time_stamp
@@ -126,10 +125,15 @@ def appStoreCachedRequests(context):
     ORDER BY time_stamp
     '''
 
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path=source_path,
+    )
+
     for record in get_sqlite_db_records(source_path, query):
         request_url = record['request_key'] or ''
         parsed = urllib.parse.urlparse(request_url)
-        data_list.append((
+        results.add_row((
             convert_human_ts_to_utc(record['time_stamp']),
             parsed.netloc,
             parsed.path,
@@ -137,4 +141,4 @@ def appStoreCachedRequests(context):
             record['entry_ID'],
         ))
 
-    return data_headers, data_list, source_path
+    return results

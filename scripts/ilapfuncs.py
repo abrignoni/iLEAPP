@@ -44,6 +44,7 @@ from leapp_functions.app.output import (
     resolve_output_folder_name,
     validate_output_folder_available,
 )
+from leapp_functions.app.artifact_result import ArtifactResult
 # pylint: enable=unused-import
 
 _console_write = sys.stdout.write
@@ -58,7 +59,8 @@ from functools import wraps
 import binascii
 from PIL import Image
 
-from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_get_media_item, \
+from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_iter_artifact_rows, \
+    lava_update_artifact_record_count, lava_get_media_item, \
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
     lava_get_full_media_info
 
@@ -466,6 +468,56 @@ def get_data_list_with_media(media_header_info, data_list):
 
     return html_data_list, txt_data_list
 
+
+def iter_data_list_with_media(media_header_info, data_list, html_output=False):
+    """
+    Stream rows with media reference columns converted for the requested output.
+    """
+    output_params = Context.get_output_params()
+
+    for data in data_list:
+        row = list(data)
+
+        for idx, style in media_header_info.items():
+            media_ref_id_cell = row[idx]
+            if not media_ref_id_cell:
+                row[idx] = ''
+                continue
+
+            html_code = ''
+            path_list = []
+            media_ref_ids = media_ref_id_cell if isinstance(media_ref_id_cell, list) else [media_ref_id_cell]
+
+            for ref_id in media_ref_ids:
+                media_item = lava_get_full_media_info(ref_id)
+                if not (media_item and media_item['extraction_path']):
+                    continue
+
+                canonical_path = os.path.join(output_params.output_folder_base, media_item['extraction_path'])
+                html_path = os.path.join(output_params.html_media_folder, Path(canonical_path).name)
+
+                if os.path.exists(canonical_path) and not os.path.exists(html_path):
+                    try:
+                        os.link(canonical_path, html_path)
+                    except OSError:
+                        shutil.copy2(canonical_path, html_path)
+
+                if html_output:
+                    html_code += html_media_tag(
+                        media_item['extraction_path'], media_item['type'], style, media_item['name'])
+                else:
+                    path_list.append(media_item['extraction_path'])
+
+            if html_output:
+                row[idx] = html_code
+            elif isinstance(media_ref_id_cell, list):
+                row[idx] = ' | '.join(path_list)
+            else:
+                row[idx] = path_list[0] if path_list else ''
+
+        yield tuple(row)
+
+
 _reported_unsafe_report_names = set()
 
 def sanitize_report_name(name, kind='name'):
@@ -521,12 +573,27 @@ def artifact_processor(func):
         Context.set_module_name(module_name)
         Context.set_module_file_path(module_file_path)
         Context.set_artifact_name(artifact_name)
+        Context.set_artifact_func_name(func_name)
 
         sig = inspect.signature(func)
         if len(sig.parameters) == 1:
-            data_headers, data_list, source_path = func(Context)
+            artifact_result = func(Context)
         else:
-            data_headers, data_list, source_path = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+            artifact_result = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+
+        is_artifact_result = isinstance(artifact_result, ArtifactResult)
+        if is_artifact_result:
+            data_headers = artifact_result.headers
+            data_list = artifact_result
+            source_path = artifact_result.source_path
+        else:
+            data_headers, data_list, source_path = artifact_result
+            is_artifact_result = isinstance(data_list, ArtifactResult)
+            if is_artifact_result:
+                if data_list.headers is None:
+                    data_list.set_headers(data_headers)
+                if source_path and not data_list.source_path:
+                    data_list.set_source_path(source_path)
 
         if data_list and not source_path:
             logfunc("No source_path provided")
@@ -535,63 +602,118 @@ def artifact_processor(func):
             source_path = '\n'.join(
                 Context.get_relative_path(p) for p in str(source_path).split('\n'))
 
-        if len(data_list):
-            if isinstance(data_list, tuple):
-                data_list, html_data_list = data_list
-            else:
-                html_data_list = data_list
-            logfunc(f"Found {len(data_list):,} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
-            # Path separators would break (or misplace) the report files, so the HTML, TSV
-            # and KML outputs are written under a path safe name. The sidebar keys off the
-            # on-disk names, so the icon lookup has to use the same safe names.
-            safe_artifact_name = sanitize_report_name(artifact_name)
-            safe_category = sanitize_report_name(category, 'category')
-            icons.setdefault(safe_category, {safe_artifact_name: icon}).update({safe_artifact_name: icon})
+        try:
+            if data_list:
+                if data_headers is None:
+                    raise ValueError(f"No data_headers provided for {artifact_name}")
+                if isinstance(data_list, tuple):
+                    data_list, html_data_list = data_list
+                else:
+                    html_data_list = data_list
 
-            # Strip tuples from headers for HTML, TSV, and timeline
-            stripped_headers = strip_tuple_from_headers(data_headers)
+                row_count = len(data_list)
+                if row_count:
+                    logfunc(f"Found {row_count:,} {'records' if row_count>1 else 'record'} for {artifact_name}")
+                else:
+                    logfunc(f"Processing streamed records for {artifact_name}")
 
-            # Check if headers contains a 'media' type
-            media_header_info = get_media_header_info(data_headers)
-            if media_header_info:
-                html_columns.extend([data_headers[idx][0] for idx in media_header_info])
-                html_data_list, txt_data_list = get_data_list_with_media(media_header_info, data_list)
+                # Path separators would break (or misplace) report files, so
+                # file outputs use safe names while LAVA keeps display names.
+                safe_artifact_name = sanitize_report_name(artifact_name)
+                safe_category = sanitize_report_name(category, 'category')
+                icons.setdefault(safe_category, {safe_artifact_name: icon}).update({safe_artifact_name: icon})
 
-            if check_output_types('html', output_types):
-                report = artifact_report.ArtifactHtmlReport(artifact_name)
-                report.start_artifact_report(report_folder, safe_artifact_name, description)
-                report.add_script()
-                report.write_artifact_data_table(stripped_headers, html_data_list, source_path, html_no_escape=html_columns)
-                report.end_artifact_report()
+                # Strip tuples from headers for HTML, TSV, and timeline
+                stripped_headers = strip_tuple_from_headers(data_headers)
 
-            if check_output_types('tsv', output_types):
-                tsv(report_folder, stripped_headers, txt_data_list if media_header_info else data_list, safe_artifact_name)
+                # Check if headers contains a 'media' type
+                media_header_info = get_media_header_info(data_headers)
+                needs_text_or_html_data = any(
+                    check_output_types(output_type, output_types)
+                    for output_type in ('html', 'tsv', 'timeline', 'kml')
+                )
+                if media_header_info and needs_text_or_html_data:
+                    html_columns.extend([data_headers[idx][0] for idx in media_header_info])
+                    if not is_artifact_result:
+                        html_data_list, txt_data_list = get_data_list_with_media(media_header_info, data_list)
 
-            if check_output_types('timeline', output_types):
-                timeline(report_folder, artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
+                table_name = None
+                object_columns = None
+                inserted_count = row_count
+                if is_artifact_result and data_list.is_lava_backed:
+                    data_list.close()
+                    table_name = data_list.table_name
+                    object_columns = data_list.object_columns
+                    inserted_count = data_list.row_count
+                    logfunc(f"Inserted {inserted_count:,} streamed records for {artifact_name}")
+                    if is_lava_only:
+                        lava_only_info(category, artifact_name, table_name, inserted_count)
+                elif is_artifact_result or check_output_types('lava', output_types):
+                    record_count = None if is_artifact_result else len(data_list)
+                    table_name, object_columns, column_map = lava_process_artifact(category,
+                                                                                   module_name,
+                                                                                   artifact_name,
+                                                                                   data_headers,
+                                                                                   record_count,
+                                                                                   func_name=func_name,
+                                                                                   data_views=artifact_info.get("data_views"),
+                                                                                   artifact_icon=icon,
+                                                                                   source_path=source_path)
+                    inserted_count = lava_insert_sqlite_data(
+                        table_name,
+                        data_list,
+                        object_columns,
+                        data_headers,
+                        column_map,
+                        async_write=getattr(data_list, 'async_write', False),
+                        queue_size=getattr(data_list, 'queue_size', 5000),
+                    )
+                    if is_artifact_result:
+                        data_list.set_row_count(inserted_count)
+                        lava_update_artifact_record_count(category, table_name, inserted_count)
+                        logfunc(f"Inserted {inserted_count:,} streamed records for {artifact_name}")
+                    if is_lava_only:
+                        lava_only_info(category, artifact_name, table_name, inserted_count)
 
-            if check_output_types('lava', output_types):
-                table_name, object_columns, column_map = lava_process_artifact(category,
-                                                                               module_name,
-                                                                               artifact_name,
-                                                                               data_headers,
-                                                                               len(data_list),
-                                                                               func_name=func_name,
-                                                                               data_views=artifact_info.get("data_views"),
-                                                                               artifact_icon=icon,
-                                                                               source_path=source_path)
-                if is_lava_only:
-                    lava_only_info(category, artifact_name, table_name, len(data_list))
-                lava_insert_sqlite_data(table_name, data_list, object_columns, data_headers, column_map)
+                def output_rows(html_output=False):
+                    rows = data_list
+                    if is_artifact_result:
+                        rows = lava_iter_artifact_rows(table_name, data_headers, object_columns, inserted_count)
+                    if media_header_info and needs_text_or_html_data:
+                        return iter_data_list_with_media(media_header_info, rows, html_output)
+                    return rows
 
-            if check_output_types('kml', output_types):
-                kmlgen(report_folder, safe_artifact_name, txt_data_list if media_header_info else data_list, stripped_headers)
+                if check_output_types('html', output_types):
+                    report = artifact_report.ArtifactHtmlReport(artifact_name)
+                    report.start_artifact_report(report_folder, safe_artifact_name, description)
+                    report.add_script()
+                    report.write_artifact_data_table(
+                        stripped_headers,
+                        output_rows(html_output=True) if is_artifact_result else html_data_list,
+                        source_path,
+                        html_no_escape=html_columns,
+                        row_count=inserted_count if is_artifact_result else None)
+                    report.end_artifact_report()
 
-        else:
-            if output_types != 'none':
+                if check_output_types('tsv', output_types):
+                    tsv_rows = output_rows() if is_artifact_result else txt_data_list if media_header_info else data_list
+                    tsv(report_folder, stripped_headers, tsv_rows, safe_artifact_name)
+
+                if check_output_types('timeline', output_types):
+                    timeline_rows = output_rows() if is_artifact_result else txt_data_list if media_header_info else data_list
+                    timeline(report_folder, artifact_name, timeline_rows, stripped_headers)
+
+                if check_output_types('kml', output_types):
+                    kml_rows = output_rows() if is_artifact_result else txt_data_list if media_header_info else data_list
+                    kmlgen(report_folder, safe_artifact_name, kml_rows, stripped_headers)
+
+            elif output_types != 'none':
                 logfunc(f"No data found for {artifact_name}")
                 if is_lava_only:
                     lava_only_info(category, artifact_name, artifact_name, 0)
+        finally:
+            if is_artifact_result:
+                data_list.cleanup()
 
         return data_headers, data_list, source_path
     return wrapper
@@ -906,10 +1028,8 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
 
     data = []
     kml = simplekml.Kml(open=1)    
-    a = 0
-    length = len(data_list)
-    while a < length:
-        modifiedDict = dict(zip(data_headers, data_list[a]))
+    for row in data_list:
+        modifiedDict = dict(zip(data_headers, row))
         lon = modifiedDict['Longitude']
         lat = modifiedDict['Latitude']
         times_header = "Timestamp"
@@ -926,7 +1046,6 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
             pnt.description = f"{times_header}: {times} - {kmlactivity}"
             pnt.coords = [(lon, lat)]
             data.append((times, lat, lon, kmlactivity))
-        a += 1
 
     if len(data) > 0:
         report_folder = report_folder.rstrip('/')

@@ -137,11 +137,37 @@ def _parse(context):
     return rows, ', '.join(sources)
 
 
+def _add_rows(context, add_row):
+    """Add (timestamp_local, type, notice, source_rel) rows; iOS 17+ only."""
+    if version.parse(iOS.get_version()) < version.parse("17"):
+        return
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        rel = context.get_relative_path(file_found)
+        try:
+            with open(file_found, 'r', encoding='utf8', errors='ignore') as f:
+                for line in f:
+                    for marker, desc in _EVENTS.items():
+                        if marker in line:
+                            values = _line_splitting(line)
+                            if values:
+                                add_row((values[0], desc, values[1], rel))
+                            break
+        except OSError:
+            continue
+
+
 @artifact_processor
 def mobileInstallb(context):
     data_headers = ('Timestamp (Local)', 'Type', 'Notice', 'Source File')
     rows, source = _parse(context)
-    return data_headers, rows, source
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path=source,
+    )
+    for row in rows:
+        results.add_row(row)
+    return results
 
 
 @artifact_processor

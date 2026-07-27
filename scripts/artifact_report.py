@@ -51,7 +51,8 @@ class ArtifactHtmlReport:
         table_responsive=True,
         table_style='',
         table_id='dtBasicExample',
-        html_no_escape=[]
+        html_no_escape=[],
+        row_count=None
     ):
         ''' Writes info about data, then writes the table to html file
             Parameters
@@ -77,11 +78,13 @@ class ArtifactHtmlReport:
             table_id       : Specify an identifier string, which will be referenced in javascript
 
             html_no_escape  : if html_escape=True, list of columns not to escape
+
+            row_count       : Optional precomputed row count for streaming data_list iterables
         '''
         if (not self.report_file):
             raise ValueError('Output report file is closed/unavailable!')
 
-        num_entries = len(data_list)
+        num_entries = row_count if row_count is not None else len(data_list)
         if write_total:
             self.write_minor_header(f'Total number of entries: {num_entries}', 'h6')
         if write_location:
