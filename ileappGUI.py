@@ -509,6 +509,7 @@ def process(casedata):
         mlist_frame.pack_forget()
         output_frame.pack_forget()
         input_frame.pack_forget()
+        keychain_frame.pack_forget()
         logtext_frame.pack(padx=8, pady=4, expand=True, fill='both')
         progress_bar_frame.pack(padx=2, pady=2, ipady=2, fill='x')
 
