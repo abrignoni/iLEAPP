@@ -187,12 +187,16 @@ __artifacts_v2__ = {
                        "Device.Power.PluggedIn biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field 3 is populated only while plugged in and is reported raw as its "
-                 "meaning is not confirmed. Modern counterpart of the "
-                 "_DKEvent.Device.IsPluggedIn stream parsed by Biome - Device Plugged In.",
+                 "meaning is not confirmed. A record is written whenever the device is "
+                 "charging, which includes wireless charging as well as a physical cable "
+                 "connection (observation by Ian Whiffin). Modern counterpart of the "
+                 "_DKEvent.Device.IsPluggedIn stream parsed by Biome - Device Plugged In. "
+                 "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/Device.Power.PluggedIn/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
