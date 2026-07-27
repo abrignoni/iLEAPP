@@ -112,6 +112,6 @@ def get_biomeCarplayisconnected(context):
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
-                    ('Time Write', 'datetime'), 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
+                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
 
     return data_headers, data_list, 'see Filename for more info'
