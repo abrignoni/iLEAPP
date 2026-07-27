@@ -9,7 +9,7 @@ __artifacts_v2__ = {
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains assetsd cloudServiceEnableLog.plist',
-'category': 'Photos.sqlite-Y-Settings-Plist-CPL-Service-Enabled',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/com.apple.assetsd/cloudServiceEnableLog.plist',),
 "output_types": ["standard", "tsv", "none"],

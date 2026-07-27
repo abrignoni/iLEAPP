@@ -10,7 +10,7 @@ __artifacts_v2__ = {
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains camera_smart_sharing_metadata.plist',
-'category': 'Photos.sqlite-Y-Settings-Plist-Camera-Smart-Share',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist',),
 "output_types": ["standard", "tsv", "none"],

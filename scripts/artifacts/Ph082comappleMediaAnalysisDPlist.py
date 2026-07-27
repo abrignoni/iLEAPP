@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "creation_date": "2025-01-05",
         "last_update_date": "2026-07-21",
         "requirements": "Acquisition that contains com.apple.mediaanalysisd.plist",
-        "category": "Photos.sqlite-Y-Settings-Plist-MediaAnalysis-PhotoLib-List",
+        "category": "Photos.sqlite",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mediaanalysisd.plist',),
         "output_types": ["html", "tsv", "lava"],

@@ -9,7 +9,7 @@ __artifacts_v2__ = {
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains com.apple.camera.plist',
-'category': 'Photos.sqlite-Y-Settings-Plist-Camera',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/mobile/Library/Preferences/com.apple.camera.plist',),
 "output_types": ["standard", "tsv", "none"],
