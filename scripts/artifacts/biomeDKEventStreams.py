@@ -109,11 +109,21 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Value follows the UIDeviceOrientation enumeration; the raw value is reported "
-                 "alongside the label.",
+        "notes": "Value follows the UIDeviceOrientation enumeration (UIKit, defined in "
+                 "UIDevice.h): 0 Unknown, 1 Portrait, 2 Portrait Upside Down, 3 Landscape "
+                 "Left, 4 Landscape Right, 5 Face Up, 6 Face Down. The raw value is reported "
+                 "alongside the label. Note the landscape values are the opposite of the "
+                 "Device.Display.InterfaceOrientation stream parsed by Biome - Interface "
+                 "Orientation, where Apple defines UIInterfaceOrientation with the two "
+                 "landscape cases crossed. Enumeration source: Apple UIKit header UIDevice.h, "
+                 "mirrored at "
+                 "https://github.com/silent0123/OSXDev/blob/master/uSav-Mac/usavMac/UIKit.framework/Headers/UIDevice.h "
+                 "Stream reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
+                 "Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/_DKEvent.Display.Orientation/local/*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
