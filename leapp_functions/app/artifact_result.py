@@ -7,12 +7,11 @@ outputs can return ``ArtifactResult`` instead and write rows one at a time:
 create the result, set headers and source metadata, call ``add_row()`` in the
 same loop that currently builds ``data_list``, then return the result.
 
-``ArtifactResult`` intentionally does not create a private spool format. Writer
-mode streams rows into the LAVA SQLite output in bounded batches while the
-module is still running. The core artifact processor then replays rows from
-that table for HTML, TSV, timeline, and KML outputs when those formats are
-requested. This keeps a beginner-friendly module-author contract while avoiding
-a second serialization layer.
+``ArtifactResult`` writer mode streams rows into the LAVA SQLite output in
+bounded batches while the module is still running. The core artifact processor
+then replays rows from that table for HTML, TSV, timeline, and KML outputs when
+those formats are requested. This keeps a beginner-friendly module-author
+contract while avoiding a second serialization layer.
 
 The traditional reusable list-return path remains unchanged. Advanced callers
 can still pass an iterable with ``rows=`` and let the core consume it, but the
@@ -166,10 +165,6 @@ class ArtifactResult:
         if len(self._write_batch) >= self.batch_size:
             self._flush_batch()
         return self
-
-    def append(self, row):
-        """Alias for add_row() for modules that prefer list-like naming."""
-        return self.add_row(row)
 
     def extend(self, rows):
         """Add rows from an iterable."""
