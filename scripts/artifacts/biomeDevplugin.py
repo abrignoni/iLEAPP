@@ -4,10 +4,14 @@ __artifacts_v2__ = {
         "description": "Parses device plugged in entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "A record is written whenever the device is charging, which includes wireless "
+                 "charging as well as a physical cable connection, so isCharging describes this "
+                 "state more accurately than plugged in (observation by Ian Whiffin). Reference: "
+                 "Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",

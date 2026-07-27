@@ -11,11 +11,29 @@ __artifacts_v2__ = {
                        "Device.Display.InterfaceOrientation biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Value follows the UIInterfaceOrientation enumeration; the raw value is "
-                 "reported alongside the label.",
+        "notes": "Value follows the UIInterfaceOrientation enumeration (UIKit, defined in "
+                 "UIApplication.h); the raw value is reported alongside the label. Read the "
+                 "landscape labels carefully: Apple crosses the two landscape cases against "
+                 "UIDeviceOrientation, so under UIInterfaceOrientation 3 is Landscape Right "
+                 "and 4 is Landscape Left, the opposite of the values in the "
+                 "_DKEvent.Display.Orientation stream parsed by Biome - Display Orientation "
+                 "DKEvent. Header text: UIInterfaceOrientationLandscapeLeft = "
+                 "UIDeviceOrientationLandscapeRight and UIInterfaceOrientationLandscapeRight = "
+                 "UIDeviceOrientationLandscapeLeft. Only values 0, 1 and 2 have been observed "
+                 "in sample data so far, and those three are identical in both enumerations, so "
+                 "the choice of enumeration is not yet confirmed by data: the stream name says "
+                 "interface orientation while the System Events plist describes it as capturing "
+                 "device orientation. A value of 5 or 6 appearing here would indicate the "
+                 "device enumeration instead, since UIInterfaceOrientation has no Face Up or "
+                 "Face Down case. Enumeration source: Apple UIKit headers UIApplication.h and "
+                 "UIDevice.h, mirrored at "
+                 "https://github.com/silent0123/OSXDev/blob/master/uSav-Mac/usavMac/UIKit.framework/Headers/UIApplication.h "
+                 "Stream reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
+                 "Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/Device.Display.InterfaceOrientation/local/*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
@@ -187,12 +205,16 @@ __artifacts_v2__ = {
                        "Device.Power.PluggedIn biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field 3 is populated only while plugged in and is reported raw as its "
-                 "meaning is not confirmed. Modern counterpart of the "
-                 "_DKEvent.Device.IsPluggedIn stream parsed by Biome - Device Plugged In.",
+                 "meaning is not confirmed. A record is written whenever the device is "
+                 "charging, which includes wireless charging as well as a physical cable "
+                 "connection (observation by Ian Whiffin). Modern counterpart of the "
+                 "_DKEvent.Device.IsPluggedIn stream parsed by Biome - Device Plugged In. "
+                 "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/Device.Power.PluggedIn/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
@@ -267,8 +289,14 @@ CONNECTED = {0: 'Not Connected', 1: 'Connected'}
 LOCKED = {0: 'Unlocked', 1: 'Locked'}
 PLUGGED = {0: 'Not Plugged In', 1: 'Plugged In'}
 SILENT = {0: 'Ringer On', 1: 'Silent'}
+# UIInterfaceOrientation (UIKit, UIApplication.h). Apple deliberately crosses the two
+# landscape cases against UIDeviceOrientation, because rotating the device left rotates
+# the interface right:
+#     UIInterfaceOrientationLandscapeLeft  = UIDeviceOrientationLandscapeRight  (4)
+#     UIInterfaceOrientationLandscapeRight = UIDeviceOrientationLandscapeLeft   (3)
+# Do not copy the 3/4 labels from ORIENTATION in biomeDKEventStreams.py; they are opposite.
 INTERFACE_ORIENTATION = {0: 'Unknown', 1: 'Portrait', 2: 'Portrait Upside Down',
-                         3: 'Landscape Left', 4: 'Landscape Right'}
+                         3: 'Landscape Right', 4: 'Landscape Left'}
 
 
 def _to_str(value):

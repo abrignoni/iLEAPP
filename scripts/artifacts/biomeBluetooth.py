@@ -4,10 +4,14 @@ __artifacts_v2__ = {
         "description": "Parses bluetooth connection entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Use caution when interpreting this artifact. Lists of Bluetooth devices have been "
+                 "observed sharing a single SEGB timestamp, so the presence of a device in this "
+                 "stream does not establish that the device was connected to the iOS device at "
+                 "that time. Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
+                 "Biome', https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*'),
         "output_types": "standard",
         "artifact_icon": "bluetooth",
