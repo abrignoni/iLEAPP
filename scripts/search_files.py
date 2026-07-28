@@ -658,7 +658,7 @@ class FileSeekerTar(FileSeekerBase):
         self.copied = {}
         self.file_infos = {}
 
-    def search(self, filepattern, return_on_first_hit=False, force=False):
+    def search(self, filepattern, return_on_first_hit=False, force=False, extract: bool = True):
         if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
             return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
@@ -669,26 +669,28 @@ class FileSeekerTar(FileSeekerBase):
             if pat(root + normcase(member.name)) is not None:
                 clean_name = sanitize_file_path(member.name)
                 full_path = os.path.join(self.data_folder, Path(clean_name))
-                if member.name not in self.copied or force:
-                    try:
-                        if member.isdir():
-                            os.makedirs(full_path, exist_ok=True)
-                        else:
-                            parent_dir = os.path.dirname(full_path)
-                            if not os.path.exists(parent_dir):
-                                os.makedirs(parent_dir)
-                            with open(full_path, "wb") as fout:
-                                fout.write(tarfile.ExFileObject(self.tar_file, member).read())
-                                fout.close()
-                                file_info = FileInfo(member.name, 0, member.mtime)
-                                self.file_infos[full_path] = file_info
-                                self.copied[member.name] = full_path
-                            os.utime(full_path, (member.mtime, member.mtime))
-                    except OSError as ex:
-                        logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
-                else:
-                    full_path = self.copied[member.name]
-                pathlist.append(full_path)
+                if extract:
+                    if member.name not in self.copied or force:
+                        try:
+                            if member.isdir():
+                                os.makedirs(full_path, exist_ok=True)
+                            else:
+                                parent_dir = os.path.dirname(full_path)
+                                if not os.path.exists(parent_dir):
+                                    os.makedirs(parent_dir)
+                                with open(full_path, "wb") as fout:
+                                    fout.write(tarfile.ExFileObject(self.tar_file, member).read())
+                                    fout.close()
+                                    file_info = FileInfo(member.name, 0, member.mtime)
+                                    self.file_infos[full_path] = file_info
+                                    self.copied[member.name] = full_path
+                                os.utime(full_path, (member.mtime, member.mtime))
+                        except Exception as ex:
+                            logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
+                    else:
+                        full_path = self.copied[member.name]
+                if not member.isdir():
+                    pathlist.append(full_path)
                 if return_on_first_hit:
                     self.searched[filepattern] = pathlist
                     return full_path
@@ -761,7 +763,7 @@ class FileSeekerZip(FileSeekerBase):
                 offset += data_size
         return None, None
 
-    def search(self, filepattern, return_on_first_hit=False, force=False):
+    def search(self, filepattern, return_on_first_hit=False, force=False, extract: bool = True):
         if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
             return self.searched[filepattern][0] if return_on_first_hit and pathlist else pathlist
@@ -771,27 +773,34 @@ class FileSeekerZip(FileSeekerBase):
         for member in self.name_list:
             if member.startswith("__MACOSX"):
                 continue
-            if pat(root + normcase(member)) is not None:
-                if member not in self.copied or force:
-                    try:
-                        # already replaces illegal chars with _ when exporting
-                        extracted_path = self.zip_file.extract(member, path=self.data_folder)
-                        f = self.zip_file.getinfo(member)
-                        creation_date, modification_date = self.decode_extended_timestamp(f.extra)
-                        file_info = FileInfo(member, creation_date, modification_date)
-                        self.file_infos[extracted_path] = file_info
-                        date_time = f.date_time
-                        date_time = timex.mktime(date_time + (0, 0, -1))
-                        os.utime(extracted_path, (date_time, date_time))
-                        self.copied[member] = extracted_path
-                    except OSError as ex:
-                        logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
+            if pat( root + normcase(member) ) is not None:
+                if member.endswith('/'): # Skip directories
+                    continue
+
+                if extract:
+                    # This block remains for when extraction is needed, but will be skipped.
+                    if member not in self.copied or force:
+                        try:
+                            extracted_path = self.zip_file.extract(member, path=self.data_folder)
+                            f = self.zip_file.getinfo(member)
+                            creation_date, modification_date = self.decode_extended_timestamp(f.extra)
+                            file_info = FileInfo(member, creation_date, modification_date)
+                            self.file_infos[extracted_path] = file_info
+                            date_time = f.date_time
+                            date_time = timex.mktime(date_time + (0, 0, -1))
+                            os.utime(extracted_path, (date_time, date_time))
+                            self.copied[member] = extracted_path
+                        except Exception as ex:
+                            logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
+                    pathlist.append(self.copied.get(member))
                 else:
-                    extracted_path = self.copied[member]
-                pathlist.append(extracted_path)
+                    # Not extracting, just append the sanitized relative path.
+                    pathlist.append(member.lstrip('/'))
+
                 if return_on_first_hit:
                     self.searched[filepattern] = pathlist
-                    return extracted_path
+                    # Return the last added path, which is the correct one.
+                    return pathlist[-1] if pathlist else None
         self.searched[filepattern] = pathlist
         return pathlist
 

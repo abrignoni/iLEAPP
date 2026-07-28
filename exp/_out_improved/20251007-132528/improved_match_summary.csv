@@ -1,0 +1,379 @@
+pattern_id,pattern,match_count,seconds
+1,*/Library/Caches/locationd/consolidated.db*,3,0.104874
+2,*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*,0,0.151264
+3,*/wireless/Library/Databases/DataUsage.sqlite*,3,0.083392
+4,*/Biome/streams/restricted/_DKEvent.App.Install/local/*,0,1.686122
+5,*/Biome/streams/restricted/App.Install/local/*,0,1.367044
+6,*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*,3,0.008149
+7,*Health/healthdb_secure.sqlite*,3,0.093884
+8,*Health/healthdb.sqlite*,3,0.089361
+9,*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,179,0.006309
+10,*/mobile/Containers/Data/Application/*/Preferences/*.plist,251,0.126196
+11,*/mobile/Library/Preferences/com.apple.mobiletimerd.plist,1,0.002173
+12,*/PhotoData/Photos.sqlite*,3,0.000458
+13,*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*,3,0.000477
+14,*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*,0,1.382227
+15,*/mobile/Library/AddressBook/AddressBook*.sqlitedb*,6,0.023335
+16,*/com.apple.commcenter.data.plist,1,0.061095
+17,*/Biome/streams/restricted/Device.Wireless.WiFi/local/*,0,1.340432
+18,**/Medialibrary.sqlitedb*,0,1.360067
+19,*/biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*,0,1.320429
+20,**/Library/Caches/Chat.sqlite*,0,0.118989
+21,**/Documents/yap-database.sqlite*,0,0.113450
+22,*/Biome/streams/restricted/_DKEvent.System.AirplaneMode/local/*,0,1.313054
+23,*/mobile/Media/PhotoData/Photos.sqlite*,3,0.000359
+24,*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*,0,1.367831
+25,*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist,1,0.001034
+26,**/mobile_installation.log.*,2,1.376078
+27,**/sysdiagnose_*.tar.gz,0,1.329406
+28,*DuetExpertCenter/_ATXDataStore.db*,3,0.083924
+29,*routined/Local.sqlite*,3,0.090095
+30,*/Caches/com.apple.findmy.fmipcore/Items.data,1,0.059572
+31,*/Library/Caches/locationd/cache.plist,1,0.061453
+32,*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist,1,0.058363
+33,*/*.torrent,0,0.397240
+34,*/Vipps.sqlite*,0,0.102890
+35,*/root/.obliterated,1,0.066328
+36,*/Biome/streams/public/TextInputSession/local/*,2,1.316879
+37,*/Biome/streams/restricted/Text.InputSession/local/*,0,1.360459
+38,*/Messaging_*.sqlite*,0,0.107877
+39,*/.ash_history,0,0.057958
+40,*/MTLibrary.sqlite*,0,0.110031
+41,*/Documents/AllTrails.sqlite*,3,0.084401
+42,*/logarchive*.json,0,1.363361
+43,*/Biome/streams/restricted/UserActivityMetadata/local*,2,1.312545
+44,**/AP.db*,3,0.082344
+45,*/root/Library/Lockdown/data_ark.plist,1,0.058865
+46,**/EngagedCompletions/Cache.db*,1,0.091753
+47,*/mobile/Library/Accounts/Accounts3.sqlite*,3,0.002769
+48,*/mobile/Containers/Data/Application/*/Documents/PayByPhone.sqlite*,0,0.017575
+49,*/AppIntent/local/*,3,1.352036
+50,*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*,3,0.002577
+51,*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*,3,0.004266
+52,*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*,3,0.001611
+53,*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*,8,0.023980
+54,**/*-wal,1129,0.409945
+55,**/*-journal,35,0.402034
+56,*/mobile_installation.log.*,2,1.304315
+57,**/MapTiles.sqlitedb*,3,1.334063
+58,*/mobile/Library/CallHistoryDB/CallHistory*,6,0.023285
+59,*/mobile/Library/CallHistoryDB/call_history.db*,0,0.005536
+60,*Media/PhotoData/Photos.sqlite*,3,0.000302
+61,*Media/DCIM/*/**,77,1.278889
+62,*/PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist,0,0.000357
+63,*/System/Library/CoreServices/SystemVersion.plist,1,0.056760
+64,*/netusage.sqlite*,3,0.086694
+65,*/nanopasses.sqlite3*,0,1.321047
+66,*/Cards/*.pkpass/pass.json,1,0.056349
+67,*/mobile/Library/com.apple.siri.inference/siriremembers*,2,0.025474
+68,*/Biome/streams/restricted/_DKEvent.Carplay.IsConnected/local/*,0,1.322200
+69,*/Biome/streams/restricted/_DKEvent.Keybag.IsLocked/local/*,0,1.310150
+70,*/Library/Preferences/com.apple.purplebuddy.plist,1,0.059590
+71,*/db/dhcpd_leases*,0,1.365113
+72,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/attachments/*,2,0.019729
+73,*/mobile/Library/Preferences/com.apple.mediaanalysisd.plist,1,0.001507
+74,**/mobileactivationd.log*,3,1.357909
+75,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-DiscoveredTileDB.sqlite*,0,0.002147
+76,**/PDPlaceCache.db*,3,0.080614
+77,*/mobile/Library/Preferences/com.apple.camera.plist,1,0.002589
+78,*/Quick Look/cloudthumbnails.db*,0,0.115058
+79,*/kik.sqlite*,3,0.087677
+80,*/Documents/DCLOG/YSDCLogItem.sqlite*,0,0.101628
+81,*/Documents/database.hik*,0,1.352752
+82,*/Documents/*/*/*/*.jpg,5,1.361682
+83,*/Documents/*/*/*/*.mov,0,1.356579
+84,*/Documents/*/*/*/*.mp4,3,1.545740
+85,*/mobile/Library/Preferences/com.apple.locationd.plist,1,0.001008
+86,*/Shared/AppGroup/*/Library/Preferences/group.com.apple.Maps.plist,1,0.061311
+87,*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist,124,0.002921
+88,*/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist,617,0.062227
+89,*/group.ch.protonmail.protonmail.plist,1,0.059435
+90,*/ProtonMail.sqlite*,3,0.089700
+91,*/Containers/Data/Application/*/tmp/*,351,0.142029
+92,*/IMODb2.sqlite*,3,0.083683
+93,*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp,1,0.141391
+94,*/activation_record.plist,1,0.061938
+95,*/com.hammerandchisel.discord/fsCachedData/*,13,1.384210
+96,*/Library/Caches/com.hackemist.SDImageCache/default/*,1235,1.331819
+97,*/Library/Caches/kv-storage/@account*/a*,3,1.284339
+98,*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*,0,0.000894
+99,*/biome/streams/restricted/_DKEvent.Safari.History/local/*,0,1.331152
+100,*/lightspeed-userDatabases/*.db*,3,0.107162
+101,*/wireless/Library/Databases/CellularUsage.db*,1,0.086947
+102,**/Line.sqlite*,3,0.089301
+103,*/Preferences/com.apple.MobileBackup.plist,1,0.059462
+104,*/iTunes_Control/iTunes/iTunesPrefs,0,0.059969
+105,*/mobile/Containers/Data/Application/*/Library/Preferences/com.booking.BookingApp.plist,0,0.008763
+106,*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageAccountDomain*,0,0.144448
+107,*/mobile/Containers/Data/Application/*/Library/Application Support/AccountSettings*,0,0.133500
+108,*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageRecentsDomain*,0,0.151833
+109,*/mobile/Containers/Data/Application/*/Library/Application Support/BookingClouds*,0,0.150412
+110,*/mobile/Containers/Data/Application/*/Library/Application Support/KeyValueStorageSharedDomain*,0,0.131756
+111,*/mobile/Containers/Data/Application/*/Library/Application Support/NotificationsModel.sqlite*,0,0.012482
+112,*/mobile/Containers/Data/Application/*/Library/Application Support/flight_rs_v2,0,0.005386
+113,*/Keychains/com.apple.security.keychain-defaultContext.TrustedPeersHelper.db*,3,0.092922
+114,*/mobile/Media/PhotoData/PhotoCloudSharingData/*,39,0.001866
+115,*/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*,0,0.004260
+116,*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*,1,0.003392
+117,*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/Downloads/*/Images/*,33,0.025693
+118,*/Data/Application/*/Library/Application Support/com.ubercab.UberClient/storagev2/*,0,1.735577
+119,*/Documents/user_accounts/*/dynamite.db*,3,0.100314
+120,*/*.resume,0,0.412149
+121,*/cacheV0.db*,2,0.085369
+122,*/mobile/Containers/Data/Application/*/Library/Preferences/com.ebaykleinanzeigen.ebc.plist,0,0.007542
+123,*/mobile/Containers/Data/Application/*/Library/Caches/conversation_cache,0,0.006315
+124,*/mobile/Containers/Data/Application/*/Library/Private Documents/.last_search_query,0,0.008732
+125,*/Library/Application Support/database.sqlite*,0,0.136520
+126,**/containermanagerd.log.*,1,1.394991
+127,*/mobile/Library/CoreAccessories/Analytics/acc_analytics_UserEventAgent_v3.db*,0,0.005356
+128,*/com.apple.assetsd/cloudServiceEnableLog.plist,1,0.060519
+129,*/Environments/Production/Accounts/*/*-internal.cashappapi.com.sqlite*,0,0.126027
+130,*/Biome/sync/sync.db*,3,0.083620
+131,*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist,1,0.002350
+132,*/Library/Preferences/com.apple.mobileslideshow.plist,1,0.063812
+133,*/DuetExpertCenter/streams/location/local/*,0,1.388601
+134,*/Biome/streams/public/Backlight/local/*,2,1.404868
+135,**/Reminders/Container_v1/Stores/*.sqlite*,15,0.108952
+136,*/otctl_status.txt,0,0.067119
+137,*/mobile/Library/Logs/CrashReporter/DiagnosticLogs/sysdiagnose/sysdiagnose_*.tar.gz,0,0.029329
+138,*/mobile/Library/Passes/passes23.sqlite*,1,0.005067
+139,*/db/dhcpclient/leases/en*,1,1.419659
+140,*/mobile/Library/SMS/sms*,3,0.020871
+141,**/Library/Application Support/CachedRoutes/*.plist,0,0.136228
+142,*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*,0,1.359063
+143,**/Safari/BrowserState.db*,3,0.090139
+144,**/Safari/CloudTabs.db*,3,0.079993
+145,*/mobile/MobileSoftwareUpdate/restore.log,1,0.059695
+146,*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata,0,1.380220
+147,*/mobile/Library/Preferences/com.apple.identityservices.idstatuscache.plist,0,0.002078
+148,*/mobile/Library/IdentityServices/idstatuscache.plist,1,0.002344
+149,*/mobile/Library/Preferences/com.apple.mobiletimer.plist,1,0.002620
+150,*/NoteStore.sqlite*,3,0.098635
+151,*/iclouddrive/Metadata.txt,0,0.065717
+152,*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist,1,0.001834
+153,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*,1,0.153096
+154,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsContactsManager-contact/*,1,0.141617
+155,*/mobile/Containers/Data/Application/*/Library/Caches/PersonRepository/*,0,0.146410
+156,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsFriendsListManager/*,1,0.140871
+157,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestSentListManager/*,1,0.145761
+158,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-RelationshipsRequestReceivedListManager/*,1,0.150186
+159,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.following/*,0,0.139975
+160,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-Production_FriendsStorage.followers/*,0,0.138079
+161,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-BlockedUserManager/*,1,0.132586
+162,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-subject-key/*,1,0.133035
+163,*/mobile/Containers/Shared/AppGroup/*/disk-bereal-Production_postFeedItems/*,0,0.021678
+164,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-MemoriesRepository-pinnedMemories-key/*,0,0.228693
+165,*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-PersonRepository-pinnedMemories-key/*,0,0.137618
+166,*/mobile/Containers/Shared/AppGroup/*/bereal-chat.sqlite*,0,0.001945
+167,*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default,2,0.004051
+168,*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt,0,0.001234
+169,**/Safari/Bookmarks.db*,3,0.089464
+170,*/Biome/streams/public/Notification/local/*,2,1.368868
+171,*/Library/Caches/Snapshots/*.ktx,0,1.338480
+172,*/Library/Caches/Snapshots/*.jpeg,0,1.302952
+173,*/SplashBoard/Snapshots/*.ktx,636,1.321510
+174,*/SplashBoard/Snapshots/*.jpeg,0,1.345685
+175,*/root/Library/Application Support/WiFiNetworkStoreModel.sqlite*,0,0.108839
+176,*/preferences/SystemConfiguration/com.apple.accounts.exists.plist,1,0.058893
+177,*/Library/Support/Devices.sqlite3*,0,1.267683
+178,*/Library/Support/configFile1,0,0.053236
+179,*/Library/Support/*/DMSSCloud.sqlite*,0,0.124152
+180,*/Documents/Captures/*,0,1.254586
+181,*/Documents/Videos/*,0,1.293872
+182,*/mobile/Library/FrontBoard/applicationState.db*,3,0.001142
+183,*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*,3,0.025313
+184,*/wireless/Library/Preferences/com.apple.commcenter.plist,1,0.059412
+185,*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*,0,0.136811
+186,**mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist,179,0.005563
+187,*/Biome/streams/restricted/OSAnalytics.Hardware.Reliability/local/*,0,1.285220
+188,*/mobile/Library/Caches/Backup/cloudkit_cache.db*,0,0.004816
+189,*/MapsSync_0.0.1*,6,1.252599
+190,*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/searchsqlitedb*,1,0.147572
+191,*/mobile/Containers/Data/Application/*/Library/Application Support/data/*/sqlitedb*,3,0.135048
+192,*NoteStore.sqlite*,3,0.064988
+193,*/biome/streams/restricted/_DKEvent.App.LocationActivity/local/*,0,1.291868
+194,*/mobile/Library/Caches/com.apple.appstored/storeUser.db*,3,0.002325
+195,*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*,3,0.002988
+196,*PrivateFeed,0,0.255596
+197,*PublicFeed,0,0.248914
+198,*FriendsFeed,0,0.241962
+199,*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*,0,0.003125
+200,**/com.apple.MobileBluetooth.ledevices.paired.db,1,0.056200
+201,*/telegram-data/account-*/postbox/db/db_sqlite*,4,1.258341
+202,*/telegram-data/account-*/postbox/media/**,2002,1.465179
+203,*/Shared/AppGroup/*/Library/teleguard_database.db*,0,0.139722
+204,*/.com.apple.mobile_container_manager.metadata.plist,1056,0.069992
+205,*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*,0,1.270552
+206,*/Application Support/DataStore*,3,1.256051
+207,*/Application Support/ClipsCache/*.png,3,1.336990
+208,*/biome/streams/restricted/App.InFocus/local/*,0,1.319218
+209,**/com.viber/settings/Settings.data*,6,1.267378
+210,**/com.viber/database/Contacts.data*,3,1.281332
+211,**/Containers/Data/Application/*/Documents/Attachments/*.*,2,0.149157
+212,**/com.viber/ViberIcons/*.*,5,1.285764
+213,*/fsCachedData/**,2138,1.250561
+214,**/interactionC.db*,3,0.087186
+215,**/com.apple.wifid.plist,1,0.055892
+216,*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*,0,0.017108
+217,*/shutdown.log,1,0.064384
+218,*wireless/Library/Preferences/com.apple.commcenter.plist,1,0.059749
+219,*/mobile/Library/UserNotifications*,273,0.024846
+220,*/installd/Library/MobileInstallation/LastBuildInfo.plist,1,0.056274
+221,*/logs/SystemVersion/SystemVersion.plist,0,0.065026
+222,*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*,0,0.014917
+223,*/cloudphotolibrary/Metadata.txt,0,0.065420
+224,*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*,1,0.019158
+225,*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist,1,0.066661
+226,*/mobile/Library/Preferences/com.apple.sharingd.plist,1,0.002557
+227,*/userNotificationEvents/local/*,2,1.279099
+228,*/mobile/Library/MedicalID/MedicalIDData.archive,0,0.001193
+229,*preferences/SystemConfiguration/preferences.plist,1,0.056884
+230,*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata,0,0.007006
+231,*/GeoHistory.mapsdata,0,0.071824
+232,*/CoreSpotlight/SpotlightKnowledge/index.V2/keyphrases/NSFileProtectionComplete/skg_archive.V2.*,0,1.268974
+233,*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionComplete/skg_archive.V2.*,0,1.305186
+234,*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionCompleteUntilFirstUserAuthentication/skg_archive-*,0,1.224410
+235,**/Library/Database/com.apple.MobileBluetooth.ledevices.other.db*,3,0.091885
+236,*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*,3,0.011152
+237,**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.*,0,0.144281
+238,**/Containers/Data/Application/*/Library/Application Support/drafts-*/*.*,0,0.139647
+239,**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist,0,0.004816
+240,**/Containers/Data/Application/*/Library/Preferences/com.segment.storage.oai.plist,0,0.005708
+241,**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.plist,0,0.006719
+242,**/Containers/Data/Application/*/tmp/recordings/*.*,0,0.141923
+243,**/Containers/Data/Application/*/tmp/photo-*.*,0,0.154452
+244,**/Containers/Data/Application/*/tmp/*/*.*,48,0.149741
+245,*/mobile/Containers/Data/Application/*/Library/FolderLockAdvanced.sqlite*,0,0.015070
+246,*/mobile/Containers/Data/Application/*/Documents/FolderLockAdvanced/Videos/Movies/*,0,0.144969
+247,*/com.apple.wifi.plist,1,0.055537
+248,*/com.apple.wifi-networks.plist.backup,0,0.059033
+249,*/com.apple.wifi.known-networks.plist,1,0.061417
+250,*/com.apple.wifi-private-mac-networks.plist,1,0.066502
+251,*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json,0,0.004740
+252,*/Library/Preferences/com.apple.locationd.plist,2,0.057897
+253,*/Library/Caches/locationd/clients.plist,1,0.056359
+254,*/Library/Preferences/com.apple.routined.plist,1,0.060709
+255,*/Documents/search_history/history_words/AWESearchHistory*,0,1.358226
+256,*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist,1,0.002360
+257,*/mobile/Library/ControlCenter/ModuleConfiguration.plist,1,0.002993
+258,*/mobile/Library/Logs/AppConduit/AppConduit.log.*,0,0.026742
+259,**/com.apple.MobileBluetooth.devices.plist,1,0.057477
+260,*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*,3,0.080184
+261,*AwemeIM.db*,1,0.065797
+262,*/mobile/Library/Application Support/CloudDocs/session/db/server.db*,3,0.002733
+263,*/mobile/Library/Application Support/CloudDocs/session/db/client.db*,3,0.001856
+264,*/iTunesMetadata.plist,54,0.125661
+265,**/BundleMetadata.plist,80,0.055325
+266,*/Biome/streams/public/NowPlaying/local/*,2,1.276463
+267,*/Library/Preferences/com.linkedin.LinkedIn.plist,0,0.062138
+268,*/Documents/msg_database.sqlite,0,0.058992
+269,info.plist,0,0.000013
+270,**/speedtest.sqlite*,0,0.108307
+271,*/Library/Preferences/com.apple.MobileBackup.plist,1,0.063771
+272,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/pending_uploads,1,0.002394
+273,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/chunked_upload_storage/data_cache/*,0,0.023476
+274,*/mobile/Containers/Data/Application/*/Documents/database.db*,0,0.013265
+275,*/mobile/Library/Preferences/com.apple.MobileSMS.plist,1,0.001455
+276,*/mobile/Library/Preferences/com.apple.mobileSMS.plist,0,0.003057
+277,*/Chrome/Default/History*,2,1.275636
+278,*/app_sbrowser/Default/History*,0,1.253993
+279,*/app_opera/History*,0,1.284320
+280,*/Chromium/Default/History*,2,1.281581
+281,*/Chrome/Default/Web Data*,2,1.288314
+282,*/app_sbrowser/Default/Web Data*,0,1.311459
+283,*/app_opera/Web Data*,0,1.297322
+284,*/Chromium/Default/Web Data*,2,1.276350
+285,*/Chrome/Default/Bookmarks*,1,1.322186
+286,*/app_sbrowser/Default/Bookmarks*,0,1.266344
+287,*/app_opera/Bookmarks*,0,1.317887
+288,*/Chromium/Default/Bookmarks*,0,1.346905
+289,*/Chrome/Default/Cookies*,0,1.284786
+290,*/app_sbrowser/Default/Cookies*,0,1.327374
+291,*/app_opera/Cookies*,0,1.408373
+292,*/Chromium/Default/Cookies*,0,1.271075
+293,*/Chrome/Default/Login Data*,2,1.319683
+294,*/app_sbrowser/Default/Login Data*,0,1.360612
+295,*/app_opera/Login Data*,0,1.300297
+296,*/Chromium/Default/Login Data*,2,1.299604
+297,*/Chrome/Default/Top Sites*,2,1.316393
+298,*/app_sbrowser/Default/Top Sites*,0,1.288222
+299,*/app_opera/Top Sites*,0,1.276277
+300,*/Chromium/Default/Top Sites*,0,1.286120
+301,*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*,0,0.104005
+302,*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*,0,0.106649
+303,*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*,0,0.113753
+304,*/Chrome/Default/Media History*,0,1.255139
+305,*/app_sbrowser/Default/Media History*,0,1.277570
+306,*/app_opera/Media History*,0,1.301112
+307,*/Chromium/Default/Media History*,0,1.306077
+308,*/Chrome/Default/Network Action Predictor*,0,1.273692
+309,*/app_sbrowser/Default/Network Action Predictor*,0,1.302246
+310,*/app_opera/Network Action Predictor*,0,1.256687
+311,*/Chromium/Default/Network Action Predictor*,0,1.291183
+312,*/mobile/Library/Preferences/com.apple.AppStore.plist,1,0.002041
+313,*/mobile/Containers/Data/Application/*/Library/Preferences/com.adhoclabs.burner.plist,1,0.007453
+314,*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*,3,0.010252
+315,*/Library/Caches/com.adhoclabs.burner/fsCachedData/*,6,1.314617
+316,*/mobile/Library/Voicemail/voicemail.db*,1,0.001676
+317,*/mobile/Library/Voicemail/*.amr,0,0.024774
+318,*/mobile/Library/Voicemail/*.transcript,0,0.024667
+319,*/mobile/Library/CoreAccessories/Analytics/acc_analytics_accessoryd_v3.db*,0,0.006406
+320,*/db/timed/Library/Preferences/com.apple.preferences.datetime.plist,1,0.072123
+321,*/mobile/Containers/Data/Application/*/Documents/user.db*,1,0.009080
+322,*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*,0,0.005748
+323,*/mobile/Containers/Shared/AppGroup/*/Documents/files/*,0,0.023087
+324,*/mobile/Containers/Shared/AppGroup/*/Documents/video/*,0,0.022336
+325,*/mobile/Containers/Shared/AppGroup/*/Documents/shareDialogList.db*,0,0.008368
+326,*/device_values.plist,0,0.060114
+327,*/Library/Caches/de.audi.myaudimobileassistant/fsCachedData/**,0,1.331949
+328,*/var/mobile/Library/CallHistoryTransactions/transactions.log*,0,0.019424
+329,**/SpringBoard/IconState.plist,1,0.063662
+330,*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root,0,0.009124
+331,*/Library/Caches/conversation_cache,0,0.063518
+332,*/mobile/Containers/Data/Application/*/Library/Application Support/RongCloud/*/storage*,0,0.141679
+333,*/mobile/Library/CoreDuet/People/interactionC.db*,3,0.002353
+334,*/mobile/Library/Mail/* Index*,6,0.023234
+335,*/mobile/Containers/Data/Application/*/Documents/translate.db*,0,0.012192
+336,**/kik.sqlite*,3,0.088748
+337,*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*,2,0.020424
+338,**/Safari/History.db*,3,0.077177
+339,*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-api.squareup.com.sqlite*,0,0.002894
+340,*/mobile/Containers/Shared/AppGroup/*/CCEntitySync-internal.cashappapi.com.sqlite*,0,0.002733
+341,*/*.mhtml,0,0.402302
+342,*/*.mht,0,0.396680
+343,**/query_predictions.db,0,0.054550
+344,*WebClips/*.webclip/*,0,1.369378
+345,*/biome/streams/restricted/_DKEvent.App.InFocus/local/*,0,1.463526
+346,*/com.apple.accountsd/cloudServiceEnableLog.plist,1,0.061424
+347,*PushStore*,0,1.317167
+348,*/mobile/Library/Preferences/com.apple.mobile.ldbackup.plist,1,0.000941
+349,*/preferences/SystemConfiguration/NetworkInterfaces.plist,1,0.059907
+350,*/mobile/Library/SMS/sms.db*,3,0.003114
+351,*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*,3,0.003085
+352,*/Library/Caches/WebKit/NetworkCache/Version*/salt,37,0.063436
+353,*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*,4137,1.322063
+354,**/Calendar.sqlitedb,1,0.062592
+355,*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*,3,0.139079
+356,*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*,0,0.002653
+357,*/Containers/Data/Application/*/Library/Application Support/account,0,0.007004
+358,*/Library/Application Support/coredata/*_Tracks*,0,1.404519
+359,*/Library/Application Support/coredata/*_HM3Timeline*,0,1.261162
+360,*/Library/Application Support/coredata/*_vasistas*,0,1.361912
+361,*/Library/Application Support/coredata/associated_device.sqlite,0,0.059375
+362,*/com.apple.CarPlayApp.plist,2,0.066016
+363,*/SMS/Drafts/*/composition.plist,0,0.060297
+364,*/Containers/Data/Application/*/Library/Application Support/user_*_messaging_core.sqlite3*,0,0.148001
+365,*/Biome/streams/restricted/NotesContent/local/*,0,1.344147
+366,*/Data/Application/*/Library/Preferences/com.apple.Maps.plist,1,0.058852
+367,**/Library/Preferences/com.apple.mobilesafari.plist,1,0.059121
+368,**/td/audio/*.json,5,1.459170
+369,**/td/audio/*.wav,5,1.348794
+370,**/Recordings/*.composition/manifest.plist,0,0.062160
+371,**/Recordings/*.m4a,0,1.343812
+372,*/mobile/Library/TCC/TCC.db*,3,0.001495
+373,*/logs/Accessibility/TCC.db*,0,0.110027
+374,*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat,1,0.002848
+375,*/mobile/Library/Keyboard/app_usage_database.plist,1,0.002739
+376,*/mobile/Library/Keyboard/user_model_database.sqlite*,3,0.005109
+377,*/com.life360.safetymap *.log,0,1.328323
+378,*/Library/Application Support/Messaging.sqlite*,0,0.107713
