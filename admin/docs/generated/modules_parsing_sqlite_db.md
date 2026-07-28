@@ -91,6 +91,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | imoHD_Chat |
 | instagramThreads |
 | interactionCcontacts |
+| keyboard |
 | keychain |
 | life360 |
 | line |
@@ -106,14 +107,17 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | ooklaSpeedtestData |
 | parsecdCache |
 | payByPhone |
+| personalizationPortrait |
 | photosDbexif |
 | photosMetadata |
 | photosMigration |
 | pingertextfree |
 | potatoChat |
+| powerlog |
 | protonMail |
 | queryPredictions |
 | quickLook |
+| recents |
 | reddit |
 | reminders |
 | safariBookmarks |
@@ -149,6 +153,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | voicemail |
 | waze |
 | whatsApp |
+| wifiAnalytics |
 | wire |
 <!-- GET_RECORDS_END -->
 
