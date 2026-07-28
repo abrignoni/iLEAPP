@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses app data from netusage.sqlite",
         "author": "@stark4n6, @snoop168",
         "creation_date": "2023-02-13",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-07-28",
         "requirements": "none",
         "category": "Network Usage",
         "notes": "",
@@ -114,7 +114,10 @@ def netusage_appdata(context):
         for row in all_rows:
             lastconnected = convert_cocoa_core_data_ts_to_utc(row[0])
             firstused = convert_cocoa_core_data_ts_to_utc(row[1])
-            lastused = convert_cocoa_core_data_ts_to_utc(row[2])
+            try:
+                lastused = convert_cocoa_core_data_ts_to_utc(row[2])
+            except (OSError):
+                lastused = None
 
             data_list.append((lastconnected,firstused,lastused,row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
