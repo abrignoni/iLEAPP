@@ -72,6 +72,24 @@ __artifacts_v2__ = {
             "jess_ios15": "iOS 15.0.2 | 3 rows",
             "magnet_ios16": "iOS 16.1.1 | 4 rows",
         }
+    },
+    "keyboardVulgarWordUsage": {
+        "name": "Keyboard Vulgar Word Usage",
+        "description": "Words and usage values stored in VulgarWordUsage.db",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-07-28",
+        "last_update_date": "2026-07-28",
+        "requirements": "none",
+        "category": "User Activity",
+        "notes": "The last-use timestamp uses the Apple Cocoa epoch.",
+        "paths": ("*/mobile/Library/Keyboard/VulgarWordUsage.db*",),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "message-2",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+        },
     }
 }
 
@@ -80,7 +98,10 @@ import string
 from os.path import dirname
 from datetime import datetime
 
-from scripts.ilapfuncs import open_sqlite_db_readonly, convert_ts_human_to_utc, artifact_processor
+from scripts.ilapfuncs import (
+    open_sqlite_db_readonly, convert_ts_human_to_utc, artifact_processor,
+    does_table_exist_in_db, get_sqlite_db_records,
+)
 
 @artifact_processor
 def keyboardLexicon(context):
@@ -155,3 +176,30 @@ def keyboardUsageStats(context):
     
     data_headers = (('Creation Date', 'datetime'), ('Last Update Date', 'datetime'), 'Key', 'Data Value', 'Source File')
     return data_headers, data_list, 'See source paths in data'
+
+
+@artifact_processor
+def keyboardVulgarWordUsage(context):
+    data_headers = (
+        ("Last Used", "datetime"), "Record ID", "Application", "Recipient", "Vulgar Word",
+        "Word Reading", "Usage Count", "Journaled",
+    )
+    data_list = []
+    source_path = next(
+        (str(path) for path in context.get_files_found()
+         if str(path).endswith("VulgarWordUsage.db")),
+        "",
+    )
+    if not source_path or not does_table_exist_in_db(source_path, "vword_usage"):
+        return data_headers, data_list, ""
+
+    query = """
+        SELECT CASE WHEN last_use_timestamp > 0
+                    THEN datetime(last_use_timestamp + 978307200, 'unixepoch') END,
+               ROWID, app, recipient, vword, word_reading, usage_count,
+               journaled
+        FROM vword_usage
+        ORDER BY last_use_timestamp
+    """
+    data_list.extend(tuple(row) for row in get_sqlite_db_records(source_path, query))
+    return data_headers, data_list, context.get_relative_path(source_path)
