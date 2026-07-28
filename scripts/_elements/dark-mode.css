@@ -1,18 +1,18 @@
 [data-theme="dark"] {
-    background-color: #111 !important;
-    color: #eee;
+  background-color: #111 !important;
+  color: #eee;
 }
 
 [data-theme="dark"] .bg-light {
-    background-color: #333 !important;
+  background-color: #333 !important;
 }
 
 [data-theme="dark"] .bg-white {
-    background-color: #000 !important;
+  background-color: #000 !important;
 }
 
 [data-theme="dark"] .bg-black {
-    background-color: #eee !important;
+  background-color: #eee !important;
 }
 
 /*[data-theme="dark"] .custom-select .background {
@@ -20,86 +20,73 @@
 }*/
 
 [data-theme="dark"] .nav-tabs .nav-link.active {
-    color: #eee;
-    background-color: #000;
-    border-top-color: rgb(222, 226, 230);
-    border-right-color: rgb(222, 226, 230);
-    border-bottom-color: rgb(0, 0, 0);
-    border-left-color: rgb(222, 226, 230);
-}
-
-[data-theme="dark"] .sidebar .nav-link {
-    color: #999;
-}
-
-[data-theme="dark"] .sidebar .nav-link.active {
-    color: #007bff;
+  color: #eee;
+  background-color: #000;
+  border-top-color: rgb(222, 226, 230);
+  border-right-color: rgb(222, 226, 230);
+  border-bottom-color: rgb(0, 0, 0);
+  border-left-color: rgb(222, 226, 230);
 }
 
 [data-theme="dark"] .table {
-    color: #bdbdbd;
+  color: #bdbdbd;
 }
 
 [data-theme="dark"] .pagination .page-item.active .page-link {
-    color: #fff;
-    box-shadow: 0 2px 5px 0 rgba(255,255,255,0.16),0 2px 10px 0 rgba(255,255,255,0.12);
+  box-shadow:
+    0 2px 5px 0 rgba(255, 255, 255, 0.16),
+    0 2px 10px 0 rgba(255, 255, 255, 0.12);
 }
 
 [data-theme="dark"] .pagination .page-item.disabled .page-link {
-    color: #414549
+  color: #414549;
 }
 
 [data-theme="dark"] .pagination .page-item .page-link:hover {
-    background-color: #777;
-    color: #bbb;
+  background-color: #777;
+  color: #bbb;
 }
 
 [data-theme="dark"] .pagination .page-item .page-link {
-    color: #bbb;
+  color: #bbb;
 }
 
 [data-theme="dark"] .form-control {
-    background-color: #555;
-    color: #eee;
+  background-color: #555;
+  color: #eee;
 }
 
 [data-theme="dark"] pre {
-    color: #bdbdbd;
+  color: #bdbdbd;
 }
 
 /* Table hover */
 
 [data-theme="dark"] .table-hover tbody tr:hover {
-    background-color: rgba(200, 200, 200, 0.975);
+  background-color: rgba(200, 200, 200, 0.975);
 }
 
 /* Table band odd rows */
 
 [data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgb(44, 44, 44);
+  background-color: rgb(44, 44, 44);
 }
 
 [data-theme="dark"] .note {
-    color: rgb(33, 37, 41)
+  color: rgb(33, 37, 41);
 }
 
 [data-theme="dark"] .list-group-item {
-    border-right-color: #555;
-    border-left-color:#555;
-    border-bottom-color: #555;
-    border-top-color:#555;
+  border-right-color: #555;
+  border-left-color: #555;
+  border-bottom-color: #555;
+  border-top-color: #555;
 }
 
 [data-theme="dark"] .card {
-    box-shadow: 0 2px 5px 0 rgba(255,255,255,0.16),0 2px 10px 0 rgba(255,255,255,0.12);
-}
-
-[data-theme="dark"] * {
-    scrollbar-color: #0079D3 #2E3645 !important;
-}
-
-* {
-    scrollbar-width: thin !important;
+  box-shadow:
+    0 2px 5px 0 rgba(255, 255, 255, 0.16),
+    0 2px 10px 0 rgba(255, 255, 255, 0.12);
 }
 
 /* For Chrome & Safari 

@@ -3,7 +3,7 @@ import os
 import sys
 from scripts.html_parts import *
 #from scripts.ilapfuncs import is_platform_windows
-from scripts.version_info import ileapp_version
+from scripts.version_info import leapp_version
 
 class ArtifactHtmlReport:
 
@@ -23,7 +23,7 @@ class ArtifactHtmlReport:
         # artifact_file_name =  artifact_file_name.replace(" ", "_") # Replace " " with "_" in HTML filenames
         self.report_file = open(os.path.join(report_folder, f'{artifact_file_name}.temphtml'), 'w', encoding='utf8')
         self.report_file.write(page_header.format(f'iLEAPP - {self.artifact_name} report'))
-        self.report_file.write(body_start.format(f'iLEAPP {ileapp_version}'))
+        self.report_file.write(body_start.format(f'iLEAPP {leapp_version}'))
         self.report_file.write(body_sidebar_setup)
         self.report_file.write(body_sidebar_dynamic_data_placeholder) # placeholder for sidebar data
         self.report_file.write(body_sidebar_trailer)

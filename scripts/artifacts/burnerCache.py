@@ -1,21 +1,6 @@
 __artifacts_v2__ = {
-    "burnerCache_preferences": {
-        "name": "Preferences",
-        "description": "Parses and extract Burner Cache Preferences",
-        "author": "@djangofaiola",
-        "version": "0.3",
-        "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
-        "requirements": "none",
-        "category": "Burner Cache",
-        "notes": ("https://djangofaiola.blogspot.com",
-                  "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11"),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.adhoclabs.burner.plist'),
-        "output_types": [ "none" ],
-        "artifact_icon": "settings"
-    },
     "burnerCache_accounts": {
-        "name": "Accounts",
+        "name": "Burner Cache Accounts",
         "description": "Parses and extract Burner Cache Accounts",
         "author": "@djangofaiola",
         "version": "0.3",
@@ -27,10 +12,15 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 2 rows",
+        }
     },
     "burnerCache_contacts": {
-        "name": "Contacts",
+        "name": "Burner Cache Contacts",
         "description": "Parses and extract Burner Cache Contacts",
         "author": "@djangofaiola",
         "version": "0.3",
@@ -42,10 +32,15 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 4 rows",
+        }
     },
     "burnerCache_numbers": {
-        "name": "Numbers",
+        "name": "Burner Cache Numbers",
         "description": "Parses and extract Burner Cache Numbers",
         "author": "@djangofaiola",
         "version": "0.3",
@@ -57,10 +52,15 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
-        "artifact_icon": "phone"
+        "artifact_icon": "phone",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 2 rows",
+        }
     },
     "burnerCache_messages": {
-        "name": "Messages",
+        "name": "Burner Cache Messages",
         "description": "Parses and extract Burner Cache Messages",
         "author": "@djangofaiola",
         "version": "0.3",
@@ -74,10 +74,15 @@ __artifacts_v2__ = {
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Media URL", "Source file name", "Location" ],
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 34 rows",
+            "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 9 rows",
+            "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 12 rows",
+        },
         "data_views": {
-            "chat": {
+            "conversation": {
                 "directionSentValue": "Outgoing",
-                "threadDiscriminatorColumn": "Thread",
+                "conversationDiscriminatorColumn": "Thread",
                 "textColumn": "Message",
                 "directionColumn": "Direction",
                 "timeColumn": "Sent",
@@ -88,19 +93,20 @@ __artifacts_v2__ = {
     }
 }
 
-import inspect
 from urllib.parse import urlparse, urlunparse
 import json
 import re
 import sqlite3
 from pathlib import Path
-from scripts.ilapfuncs import get_file_path, get_plist_file_content, open_sqlite_db_readonly, lava_get_full_media_info, \
+from scripts.ilapfuncs import get_file_path, open_sqlite_db_readonly, lava_get_full_media_info, \
     convert_unix_ts_to_utc, check_in_media, check_in_embedded_media, artifact_processor, logfunc
+from scripts.html_safe import esc, safe_join, safe_url
 
 
-# burner app id
-burner_app_identifier = None
-# <id, phone number (display name)>
+# <id, phone number (display name)> shared across the artifacts below.
+# NOTE: accounts/contacts/numbers populate entries that numbers/messages read,
+# so ID-to-number resolution is richer when artifacts run in file order;
+# readers fall back to raw IDs when an entry is missing.
 burner_uid_map = {}
 # constants
 LINE_BREAK = '\n'
@@ -151,7 +157,7 @@ def get_json_file_content(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             return json.load(file)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logfunc(f"Error reading file {file_path}: {str(e)}")
         return None
 
@@ -159,7 +165,7 @@ def get_json_file_content(file_path):
 def get_json_content(data):
     try:
         return json.loads(data)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         logfunc(f"Unexpected error reading json data: {str(e)}")
         return {}
 
@@ -188,8 +194,8 @@ def get_device_file_path(file_path, seeker):
 def get_cache_db_fs_path(data, file_found, seeker):
     if bool(data):
         # */<GUID>/Library/Caches/com.adhoclabs.burner/fsCachedData/<data>
-        filter = Path('*').joinpath(*Path(file_found).parts[-5:-1], 'fsCachedData', data)
-        json_file = seeker.search(filter, return_on_first_hit=True)
+        search_filter = Path('*').joinpath(*Path(file_found).parts[-5:-1], 'fsCachedData', data)
+        json_file = seeker.search(search_filter, return_on_first_hit=True)
         return json_file
     else:
         return None
@@ -200,7 +206,10 @@ def unordered_list(values, html_format=False):
     if not bool(values):
         return None
 
-    return HTML_LINE_BREAK.join(values) if html_format else LINE_BREAK.join(values)
+    # HTML path: escape each evidence value; plain/TSV path left unescaped by design.
+    if html_format:
+        return safe_join(values, HTML_LINE_BREAK)
+    return LINE_BREAK.join(values)
 
 
 # generic url
@@ -214,44 +223,19 @@ def generic_url(value, html_format=False):
         if not bool(u.scheme) and u.path.startswith('www'):
             u = u._replace(scheme='http')
         url = urlunparse(u)
-        result =  f'<a href="{url}" target="_blank">{value}</a>' if html_format else url
+        # HTML path: build a scheme-checked, escaped anchor so a crafted media
+        # URL cannot inject markup/script or a javascript:/data: link; plain path
+        # returns the raw URL.
+        result = safe_url(url, value) if html_format else url
 
     return result
 
 
-# preferences
-@artifact_processor
-def burnerCache_preferences(files_found, report_folder, seeker, wrap_text, timezone_offset):
-
-    source_path = None
-    global burner_app_identifier
-
-    # all files
-    for file_found in files_found:
-        file_found = str(file_found)
-        # prefs
-        plist_data = get_plist_file_content(file_found)
-        if not bool(plist_data):
-            continue
-
-        try:
-            # source path
-            source_path = file_found
-
-            # Library/Preferences/com.adhoclabs.burner.plist
-            burner_app_identifier = Path(file_found).parents[2].name
-
-        except Exception as e:
-            logfunc(f"Error: {str(e)}")
-            pass
-
-    # return empty
-    return (), [], source_path
-
-
 # accounts
 @artifact_processor
-def burnerCache_accounts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def burnerCache_accounts(context):
+    files_found = context.get_files_found()
+    seeker = context.get_seeker()
 
     data_headers = (
         ('Last updated', 'datetime'),
@@ -267,7 +251,6 @@ def burnerCache_accounts(files_found, report_folder, seeker, wrap_text, timezone
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['burnerCache_accounts']['name']
     file_found = get_file_path(files_found, "Cache.db")
     device_file_path = get_device_file_path(file_found, seeker)
 
@@ -338,7 +321,7 @@ def burnerCache_accounts(files_found, report_folder, seeker, wrap_text, timezone
                 location = COMMA_SEP.join(location)
 
                 # html row
-                data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, location))
+                data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, esc(location)))
                 # lava row
                 data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
         # account
@@ -352,11 +335,11 @@ def burnerCache_accounts(files_found, report_folder, seeker, wrap_text, timezone
             source_file_name_html = unordered_list(device_file_paths, html_format=True)
             # location
             location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
-            location.append(f"{record[3]}" if isDataOnFS else f"receiver_data")
+            location.append(f"{record[3]}" if isDataOnFS else "receiver_data")
             location = COMMA_SEP.join(location)
 
             # html row
-            data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, location))
+            data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, esc(location)))
             # lava row
             data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
 
@@ -365,7 +348,9 @@ def burnerCache_accounts(files_found, report_folder, seeker, wrap_text, timezone
 
 # contacts
 @artifact_processor
-def burnerCache_contacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def burnerCache_contacts(context):
+    files_found = context.get_files_found()
+    seeker = context.get_seeker()
 
     data_headers = (
         ('Created', 'datetime'),
@@ -383,7 +368,6 @@ def burnerCache_contacts(files_found, report_folder, seeker, wrap_text, timezone
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['burnerCache_contacts']['name']
     file_found = get_file_path(files_found, "Cache.db")
     device_file_path = get_device_file_path(file_found, seeker)
 
@@ -406,20 +390,6 @@ def burnerCache_contacts(files_found, report_folder, seeker, wrap_text, timezone
         blocked = 'Yes' if bool(contact.get('blocked')) else 'No'
         # muted
         muted = 'Yes' if bool(contact.get('muted')) else 'No'
-        # images ???
-        images = contact.get('images')
-        if bool(images):
-            # image = images.get('full', '')
-            image = ''
-            image_url = ''
-            #thumbnail = images.get('thumbnail', '')
-            thumbnail = ''
-            thumbnail_url = ''
-        else:
-            image = ''
-            image_url = ''
-            thumbnail = ''
-            thumbnail_url = ''
         # burner ids
         burner_ids = COMMA_SEP.join(contact.get('burnerIds', []))       
         # contact id
@@ -471,7 +441,7 @@ def burnerCache_contacts(files_found, report_folder, seeker, wrap_text, timezone
                 location = COMMA_SEP.join(location)
 
                 # html row
-                data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, location))
+                data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, esc(location)))
                 # lava row
                 data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
 
@@ -485,11 +455,11 @@ def burnerCache_contacts(files_found, report_folder, seeker, wrap_text, timezone
             source_file_name_html = unordered_list(device_file_paths, html_format=True)
             # location
             location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
-            location.append(f"{record[3]}" if isDataOnFS else f"receiver_data")
+            location.append(f"{record[3]}" if isDataOnFS else "receiver_data")
             location = COMMA_SEP.join(location)
 
             # html row
-            data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, location))
+            data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, esc(location)))
             # lava row
             data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
 
@@ -498,7 +468,9 @@ def burnerCache_contacts(files_found, report_folder, seeker, wrap_text, timezone
 
 # numbers
 @artifact_processor
-def burnerCache_numbers(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def burnerCache_numbers(context):
+    files_found = context.get_files_found()
+    seeker = context.get_seeker()
 
     data_headers = (
         ('Created', 'datetime'),
@@ -522,7 +494,6 @@ def burnerCache_numbers(files_found, report_folder, seeker, wrap_text, timezone_
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info_name = __artifacts_v2__['burnerCache_numbers']['name']
     file_found = get_file_path(files_found, "Cache.db")
     device_file_path = get_device_file_path(file_found, seeker)
 
@@ -570,6 +541,9 @@ def burnerCache_numbers(files_found, report_folder, seeker, wrap_text, timezone_
             voip = 'VoIP' if settings.get('voipEnabled') == True else 'Standard Voice'
             # auto-reply message
             auto_reply_message = settings.get('autoReplyMessage')
+            # defaults when no auto-reply is configured
+            auto_reply_enabled = 'No'
+            auto_reply_text = None
             if bool(auto_reply_message):
                 # auto-reply enabled
                 auto_reply_enabled = 'Yes' if auto_reply_message.get('active') == True else 'No'
@@ -640,7 +614,7 @@ def burnerCache_numbers(files_found, report_folder, seeker, wrap_text, timezone_
 
                 # html row
                 data_list_html.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
-                                       rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, location))
+                                       rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, esc(location)))
                 # lava row
                 data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
                                   rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
@@ -656,12 +630,12 @@ def burnerCache_numbers(files_found, report_folder, seeker, wrap_text, timezone_
             source_file_name_html = unordered_list(device_file_paths, html_format=True)
             # location
             location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
-            location.append(f"{record[3]}" if isDataOnFS else f"receiver_data")
+            location.append(f"{record[3]}" if isDataOnFS else "receiver_data")
             location = COMMA_SEP.join(location)
 
             # html row
             data_list_html.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
-                                   rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, location))
+                                   rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, esc(location)))
             # lava row
             data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
                               rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
@@ -671,7 +645,9 @@ def burnerCache_numbers(files_found, report_folder, seeker, wrap_text, timezone_
 
 # messages
 @artifact_processor
-def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def burnerCache_messages(context):
+    files_found = context.get_files_found()
+    seeker = context.get_seeker()
 
     data_headers = (
         'Thread',
@@ -691,8 +667,6 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
     data_list = []
     data_list_html = []
     device_file_paths = []
-    artifact_info = inspect.stack()[0]
-    artifact_info_name = __artifacts_v2__['burnerCache_messages']['name']
     file_found = get_file_path(files_found, "Cache.db")
     device_file_path = get_device_file_path(file_found, seeker)
 
@@ -854,8 +828,6 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
         return contact_phone_number, created, direction, read, sender, recipient, body, message_type, media_ref_id, ref_url, message_id
 
 
-    # fsCachedData
-    media_files = seeker.search(f"*/{burner_app_identifier}/Library/Caches/com.adhoclabs.burner/fsCachedData/*")
 
     # media
     query = BURNER_CACHE_DB_QUERY.format(r'https:\/\/s3\.amazonaws\.com\/burner-*')
@@ -911,7 +883,7 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
 
                 # html row
                 data_list_html.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url_html,
-                                       message_id, source_file_name_html, location))
+                                       message_id, source_file_name_html, esc(location)))
                 # lava row
                 data_list.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url,
                                   message_id, source_file_name, location))
@@ -935,12 +907,12 @@ def burnerCache_messages(files_found, report_folder, seeker, wrap_text, timezone
             source_file_name_html = unordered_list(device_file_paths, html_format=True)
             # location
             location = [ f"cfurl_cache_receiver_data (entry_ID: {record[0]})" ]
-            location.append(f"{record[3]}" if isDataOnFS else f"receiver_data")
+            location.append(f"{record[3]}" if isDataOnFS else "receiver_data")
             location = COMMA_SEP.join(location)
 
             # html row
             data_list_html.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url_html,
-                                   message_id, source_file_name_html, location))
+                                   message_id, source_file_name_html, esc(location)))
             # lava row
             data_list.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url,
                               message_id, source_file_name, location))

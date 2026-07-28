@@ -5,7 +5,7 @@ a = Analysis(
     ['../../ileappGUI.py'],
     pathex=['../scripts/artifacts'],
     binaries=[],
-    datas=[('../', 'scripts'), ('../../assets', 'assets')],
+    datas=[('../', 'scripts'), ('../../assets', 'assets'), ('../../leapp_functions', 'leapp_functions')],
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
@@ -19,7 +19,9 @@ a = Analysis(
         'nska_deserialize',
         'pandas',
         'pgpy',
+        'PIL.ImageDraw',
         'pillow_heif',
+        'typedstream',
         'xml.etree.ElementTree',
         ],
     hookspath=[],
@@ -61,5 +63,5 @@ app = BUNDLE(
     name='ileappGUI.app',
     icon='../../assets/icon.icns',
     bundle_identifier='4n6.brigs.iLEAPP',
-    version='2.3.0'
+    version='2026.3.0-dev.0'
 )

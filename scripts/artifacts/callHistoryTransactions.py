@@ -3,30 +3,48 @@ __artifacts_v2__ = {
         "name": "Call History Transactions",
         "description": "Parses transaction.log file in Call History Transactions",
         "author": "@JohnHyla",
-        "version": "0.0.1",
-        "date": "2024-12-11",
+        "creation_date": "2024-12-11",
+        "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
         "paths": ('*/var/mobile/Library/CallHistoryTransactions/transactions.log*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 6 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
-import os
-import blackboxprotobuf
-from datetime import *
 import struct
 import nska_deserialize as nd
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_ts_human_to_timezone_offset, \
-    convert_plist_date_to_timezone_offset
+from scripts.ilapfuncs import artifact_processor, \
+    convert_plist_date_to_utc
+
+from datetime import datetime as _dt
+
+def _safe_plist_date(value):
+    """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
+    return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
 
 
 @artifact_processor
-def callHistoryTransactions(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def callHistoryTransactions(context):
     data_list = []
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         with open(file_found, 'rb') as file:
             file.seek(0, 2)
@@ -38,15 +56,15 @@ def callHistoryTransactions(files_found, report_folder, seeker, wrap_text, timez
                 plist_data = file.read(length)
                 ds_plist = nd.deserialize_plist_from_string(plist_data)
                 inner_record = nd.deserialize_plist_from_string(ds_plist['record'])
-                date = convert_plist_date_to_timezone_offset(inner_record.get('date', ''), timezone_offset)
-                data_list.append([date, inner_record['handleType'], inner_record['callStatus'],
+                date = _safe_plist_date(inner_record.get('date', ''))
+                data_list.append((date, inner_record['handleType'], inner_record['callStatus'],
                                   inner_record['duration'], inner_record['remoteParticipantHandles'][0]['value'],
                                   inner_record['callerId'], inner_record['timeToEstablish'],
-                                  inner_record['disconnectedCause'], inner_record['uniqueId']])
+                                  inner_record['disconnectedCause'], inner_record['uniqueId'], context.get_relative_path(file_found)))
 
-    data_headers = [('Date', 'datetime'), 'handleType', 'callStatus', 'duration', 'remoteParticipantHandle', 'callerId',
-                    'timeToEstablish', 'disconnectedCause', 'uniqueId']
+    data_headers = (('Date', 'datetime'), 'handleType', 'callStatus', 'duration', 'remoteParticipantHandle', 'callerId',
+                    'timeToEstablish', 'disconnectedCause', 'uniqueId', 'Source File')
 
-    return data_headers, data_list, file_found
+    return data_headers, data_list, 'see Source File for more info'
 
 

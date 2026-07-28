@@ -13,8 +13,8 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/Documents/files/*',
             '*/mobile/Containers/Shared/AppGroup/*/Documents/video/*',
         ),
-        'output_types': 'standard',
-        'artifact_icon': 'message-square',
+        'output_types': 'all',
+        'artifact_icon': 'message',
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat-ID',
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/Documents/video/*',
         ),
         'output_types': 'standard',
-        'artifact_icon': 'message-square',
+        'artifact_icon': 'message',
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Group-ID',
@@ -122,18 +122,18 @@ def decode_varint(source_data, offset): # Taken from https://github.com/Whee30/A
     return value, offset
 
 @artifact_processor
-def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'tgdata.db')
+def potatochat_chats(context):
+    source_path = get_file_path(context.get_files_found(), 'tgdata.db')
     data_list = []
     #The table names aren't fix and change the trailing number from time to time
     messages_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'messages_v__';"
-    messages_nr = get_sqlite_db_records(source_path, messages_query)[0]['name']
+    messages_nr = next( get_sqlite_db_records(source_path, messages_query) )['name']
     media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
-    media_cache_nr = get_sqlite_db_records(source_path, media_cache_query)[0]['name']
+    media_cache_nr = next( get_sqlite_db_records(source_path, media_cache_query) )['name']
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
     conversations_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'convesations_v__' OR 'conversations_v__';"
-    conversations_nr = get_sqlite_db_records(source_path, conversations_query)[0]['name']
+    conversations_nr = next( get_sqlite_db_records(source_path, conversations_query) )['name']
 
     media_query = f'''
         SELECT
@@ -175,11 +175,11 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
             m.to_id,
             m.outgoing
         FROM {messages_nr} m
-        LEFT JOIN {users_nr} uf 
+        LEFT JOIN {users_nr} uf
             ON m.from_id = uf.uid
-        LEFT JOIN {users_nr} ut 
+        LEFT JOIN {users_nr} ut
             ON m.to_id = ut.uid
-        LEFT JOIN {users_nr} cn 
+        LEFT JOIN {users_nr} cn
             ON m.cid = cn.uid;
     '''
     user_cid_query = f'''
@@ -190,10 +190,12 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
         FROM {users_nr}
     '''
         
-    media_records = get_sqlite_db_records(source_path, media_query)
+    # NOTE: for the moment I'm list-ing the queries that may be walked over
+    #   more than once
+    media_records = list( get_sqlite_db_records(source_path, media_query) )
     db_records = get_sqlite_db_records(source_path, chat_query)
-    conv_records = get_sqlite_db_records(source_path, conv_query)
-    u_cid_records = get_sqlite_db_records(source_path, user_cid_query)
+    conv_records = list( get_sqlite_db_records(source_path, conv_query) )
+    u_cid_records = list( get_sqlite_db_records(source_path, user_cid_query) )
 
 
     for record in db_records:
@@ -214,26 +216,26 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
         receiver_id = record['to_id']
         outgoing = record['outgoing']
         message = record['message']
-        if message != None or message != "":
+        if message is not None or message != "":
             text = True
-        if chat_name == None:
+        if chat_name is None:
             for c_record in conv_records:
-                if c_record['cid'] == chat_id and c_record['participants'] != None:
+                if c_record['cid'] is chat_id and c_record['participants'] is not None:
                     p_blob = c_record['participants'][:16]
                     length = p_blob[4]
                     le_cid = p_blob[-length:]
                     sc_cid = int.from_bytes(le_cid, byteorder="little")
                     c_cid = next((rec for rec in u_cid_records if rec["uid"] == sc_cid), None)
                     if c_cid:
-                        if c_cid['last_name'] != None:
+                        if c_cid['last_name'] is not None:
                             new_name = f"{c_cid['first_name']} {c_cid['last_name']}"
                         else:
                             new_name = f"{c_cid['first_name']}"
                         chat_name = f"{new_name} (Secret Chat)"
-                        if sender == None: 
+                        if sender is None: 
                             sender = new_name
-                        if receiver == None:
-                            receiver = new_name  
+                        if receiver is None:
+                            receiver = new_name 
                     else:
                         chat_name = 'Unknown/Secret Chat'
 
@@ -242,14 +244,14 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
         lon = ""
         lat = ""
         filename = None
-        if message == "" or message == None:
+        if message == "" or message is None:
             if record['media']:
                 blob = record['media']
                 contact = bytes.fromhex("63 56 0a b9")
                 call = bytes.fromhex("8b e2 67 11 18")
                 location = bytes.fromhex("6e d0 9e 0c")
                 message = extract_attachment_message(blob)
-                if message != None:
+                if message is not None:
                     text = True
                 if message == "" or message == " ":
                     text = False
@@ -296,9 +298,10 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                             c_type = "Video "
                         else:
                             c_type = ""
+                        c_uid = int.from_bytes(uid_b, byteorder="little")
                         c_cid = next((rec for rec in u_cid_records if rec["uid"] == c_uid), None)
                         message = f"{c_type}Call - Duration: {dur_sec} Seconds"
-                except (IndexError, struct.error):
+                except (NameError, IndexError, struct.error):
                     pass
                 if b"TGDocumentAttributeFilename" in blob:
                     try:
@@ -320,7 +323,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                             filename = "file"
                         if fn_hex.startswith(b'file\x18'):
                             filename = "file"
-                        if message == None or message == "":
+                        if message is None or message == "":
                             m_type = "File"
                         else:
                             m_type = "Text and File"
@@ -347,7 +350,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                         pass
 
         attach_file = ''
-        if record['media'] != None:
+        if record['media'] is not None:
             for m_record in media_records:
                 media_str = record['media'].hex()
                 hex_path = format(abs(m_record['media_id']), 'x')
@@ -362,7 +365,7 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 m_type = "Text and Image"
                             else:
                                 m_type = "Image"
-                            if message == None or message == "":
+                            if message is None or message == "":
                                 m_type = "Image"
                         elif m_record['media_type'] == 1:
                             media_local_path = f'video/remote{hex_path}.mov'
@@ -370,10 +373,10 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 m_type = "Text and Video"
                             else:
                                 m_type = "Video"
-                            if message == None or message == "":
+                            if message is None or message == "":
                                 m_type = "Video"
                         elif m_record['media_type'] == 3:
-                            if filename == None:
+                            if filename is None:
                                 media_local_path = f'files/{hex_path}/file'
                                 if str(m_record['media_id']).startswith("-"):
                                     media_local_path = f'files/local{hex_path}/file'
@@ -381,15 +384,15 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
                                 media_local_path = f'files/{hex_path}/{filename}'
                                 if str(m_record['media_id']).startswith("-"):
                                     media_local_path = f'files/local{hex_path}/{filename}'
-                            if message == None or message == "":
+                            if message is None or message == "":
                                 m_type = "File"
                                 if filename and filename != "file":
                                     message = f"File: {filename}"
                             else:
                                 m_type = "Text and File"
-                        else: 
+                        else:
                             media_local_path = None
-                        if media_local_path != None:
+                        if media_local_path is not None:
                             attach_file_name = Path(media_local_path).name
                             attach_file = check_in_media(media_local_path, attach_file_name)
                         else:
@@ -410,13 +413,13 @@ def potatochat_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone
     return data_headers, data_list, source_path
 
 @artifact_processor
-def potatochat_users(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'tgdata.db')
+def potatochat_users(context):
+    source_path = get_file_path(context.get_files_found(), 'tgdata.db')
     data_list = []
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
     contact_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'contacts_v__';"
-    contact_nr = get_sqlite_db_records(source_path, contact_query)[0]['name']
+    contact_nr = next( get_sqlite_db_records(source_path, contact_query) )['name']
     list_query = f'''
         SELECT
             u.uid,
@@ -454,23 +457,23 @@ def potatochat_users(files_found, _report_folder, _seeker, _wrap_text, _timezone
     return data_headers, data_list, source_path
 
 @artifact_processor
-def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'tgdata.db')
-    share_dialog = get_file_path(files_found, 'shareDialogList.db')
+def potatochat_group_chats(context):
+    source_path = get_file_path(context.get_files_found(), 'tgdata.db')
+    share_dialog = get_file_path(context.get_files_found(), 'shareDialogList.db')
     data_list = []
     media_cache_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'media_cache_v__';"
-    media_cache_nr = get_sqlite_db_records(source_path, media_cache_query)[0]['name']
+    media_cache_nr = next( get_sqlite_db_records(source_path, media_cache_query) )['name']
     users_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'users_v__';"
-    users_nr = get_sqlite_db_records(source_path, users_query)[0]['name']
+    users_nr = next( get_sqlite_db_records(source_path, users_query) )['name']
     group_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'share_dialog_list_users_v__';"
-    group_nr = get_sqlite_db_records(share_dialog, group_query)[0]['name']
+    group_nr = next( get_sqlite_db_records(share_dialog, group_query) )['name']
     channels_query = "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'channel_messages_v__';"
-    channels_nr = get_sqlite_db_records(source_path, channels_query)[0]['name']
+    channels_nr = next( get_sqlite_db_records(source_path, channels_query) )['name']
     group_query = f"SELECT userInfosJson FROM {group_nr} WHERE typeId=2"
     try:
-        group_json = get_sqlite_db_records(share_dialog, group_query)[0]['userInfosJson'] 
+        group_json = next( get_sqlite_db_records(share_dialog, group_query) )['userInfosJson'] 
         groups = json.loads(group_json)
-    except (IndexError, KeyError): 
+    except (IndexError, KeyError):
         group_json = None
         groups = []
 
@@ -497,8 +500,8 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
             {media_cache_nr}
     '''
 
-    media_records = get_sqlite_db_records(source_path, media_query)
-    u_cid_records = get_sqlite_db_records(source_path, user_cid_query)
+    media_records = list( get_sqlite_db_records(source_path, media_query) )
+    u_cid_records = list( get_sqlite_db_records(source_path, user_cid_query) )
     db_records = get_sqlite_db_records(source_path, chat_query)
     for record in db_records:
         #message_id = record['mid']
@@ -513,11 +516,11 @@ def potatochat_group_chats(files_found, _report_folder, _seeker, _wrap_text, _ti
         m_type = 'Unknown/System-Message'
         filename = None
         while working_offset < blob_length:
-            title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length])
+            title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length], byteorder='big')
             working_offset += working_length
             ASCII_title = blob_data[working_offset:working_offset + title_length].decode('utf-8', errors='replace')
             working_offset += title_length
-            data_type = int.from_bytes(blob_data[working_offset:working_offset + 1])
+            data_type = int.from_bytes(blob_data[working_offset:working_offset + 1], byteorder='big')
             working_offset += 1
             if data_type == 1: 
                 d_t = "Str"

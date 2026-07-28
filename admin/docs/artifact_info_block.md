@@ -17,7 +17,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('Path/to/artifact/files',),
         "output_types": "all"  # or "standard" or ["html", "tsv", "timeline", "kml", "lava"],
-        "artifact_icon": "feather-icon-name"
+        "artifact_icon": "Tabler-icon-name",
+        "sample_data": {
+            "sample_name": "Short note about where this artifact has been tested"
+        }
     }
 }
 ```
@@ -37,7 +40,26 @@ __artifacts_v2__ = {
 | `notes`         | Any additional information about the artifact (can be an empty string) | Optional          |
 | `paths`         | A tuple containing one or more file paths (with wildcards if needed) where the artifact data can be found                                 | Required          |
 | `output_types`  | Specifies the desired output formats. See 'Output Types Details' below for options.                                                     | Required          |
-| `artifact_icon` | The name of the feathericon to display in the left sidebar ot the HTML report. List of available icons on [feathericons.com](https://feathericons.com) website | Optional          |
+| `artifact_icon` | The name of the Tabler icon to display in the left sidebar ot the HTML report. List of available icons on [tabler.io](https://tabler.io/icons) website | Optional          |
+| `sample_data`   | Optional human-readable notes about known sample data or test coverage for the artifact. This can include local image names, test case names, row counts, OS versions, or schema variations that were verified. Not used by the artifact processor. | Optional          |
+
+Example:
+
+```python
+"sample_data": {
+    "josh_ios_15": "23 rows; ZPEERINFO contains peer OS/model/name values",
+    "mvs_2026": "6 rows; ZPEERINFO is empty"
+}
+```
+
+### Path Pattern Matching
+
+The `paths` tuple uses **glob-like** wildcards, but matching is performed by Python's `fnmatch` module in `scripts/search_files.py` — not by `glob` or `pathlib`. Keep the following in mind when writing patterns:
+
+- **Not strict glob semantics.** In true glob (`pathlib`), `*` matches a single path segment and `**` matches zero or more directories recursively. In `fnmatch` (Python 3.11+), `*` and `**` are largely interchangeable — both can span `/` characters. Patterns like `*/mobile/...` and `**/mobile/...` therefore behave the same in practice.
+- **Patterns are permissive.** A single `*` in a path pattern may match more than one directory level. Do not assume `*` is limited to one path component.
+- **Case sensitivity depends on platform.** For filesystem, tar, and zip extractions, paths are normalized with `os.path.normcase` before matching. On Windows this makes matching case-insensitive; on macOS and Linux it is case-sensitive. iTunes backup matching (`FileSeekerItunes`) does not apply `normcase`, so it is always case-sensitive.
+- **Leading `**/` is common.** Patterns such as `**/Safari/History.db` match the suffix of a full extraction path. This works because the seeker prepends a synthetic `root/` prefix to absolute paths before matching.
 
 ### Output Types Details
 
@@ -84,7 +106,7 @@ __artifacts_v2__ = {
     }
 ```
 
-##### Chat View Configuration Fields
+##### Conversation View Configuration Fields
 
 - `conversationDiscriminatorColumn`: Identifies the column containing the unique identifier for each conversation.
 - `conversationLabelColumn`: (Optional) Specifies the column used to label or name each conversation (e.g., contact name, group chat name). If omitted the conversation will be named by the `conversationDiscriminatorColumn`
@@ -118,14 +140,14 @@ __artifacts_v3__ = {
     "app_name": "Name of the app this module parses data from",
     "app_id": "Bundle ID or domain associated with the app",
     "category": "Category of the artifact",
-    "category_icon": "feather-icon-name",
+    "category_icon": "Tabler-icon-name",
     "notes": "Additional notes, if any",
     "module_paths": ('Path/to/source/files',),
     "artifacts": {
         "artifact_function_name": {
             "name": "Specific Artifact Display Name",
             "paths": ('Path/to/source/files',),
-            "artifact_icon": "feather-icon-name",
+            "artifact_icon": "Tabler-icon-name",
             "artifact_notes": "Notes to be displayed at the top of the report",
             "artifact_warning": "Warning message to be displayed prominently"
         },
@@ -139,12 +161,12 @@ Key changes and additions:
 - `name`: The overall display name of the module
 - `app_name`: The name of the application this module parses data from
 - `app_id`: The bundle ID or domain developers have used when creating the app and submitting to app stores
-- `category_icon`: An icon (using Feather icons names) for the category
+- `category_icon`: An icon (using Tabler icons names) for the category
 - `module_paths`: A tuple containing one or more file paths (with wildcards if needed) where the artifact data can be found. This serves as a default for all artifacts within the module.
 - `performance_profile`: Hint about the module's processing time. Options: `"fast"`, `"normal"`, `"slow"`. Defaults to `"normal"` if omitted. Used for UI feedback.
 - `artifacts`: A dictionary of artifacts, where each key is the artifact name and the value is a dictionary containing details about that specific artifact:
   - `paths`: (Optional) A tuple of paths specific to this artifact. If provided, it overrides the `module_paths` for this artifact.
-  - `artifact_icon`: An icon specific to this artifact (using Feather icons names)
+  - `artifact_icon`: An icon specific to this artifact (using Tabler icons names)
   - `artifact_notes`: Notes to be displayed at the top of the artifact's report
   - `artifact_warning`: A warning message to be displayed prominently for this artifact
 

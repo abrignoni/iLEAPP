@@ -1,0 +1,49 @@
+{
+  "josh_ios15_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.zip",
+      "os": "macOS-15.7.4-x86_64-i386-64bit",
+      "timestamp": "2026-05-30T11:59:08.496149",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-05-30T11:59:08.471866",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "cloudkit_snapshots": {
+        "search_patterns": [
+          "*/Library/Caches/Backup/cloudkit_cache.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "cloudkit_files": {
+        "search_patterns": [
+          "*/Library/Caches/Backup/cloudkit_cache.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios15_ffs",
+    "image_info": {
+      "creation_date": "2023-05-20",
+      "os_name": "iPhone OS",
+      "os_version": "15.3.1",
+      "device_model": "iPhone 8",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  }
+}

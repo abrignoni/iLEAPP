@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "module_name": "meWe",
+    "artifact_name": "MeWe - Account Information",
+    "function_name": "meWeAccount",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 13,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 110,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/meWe/testdata.meWe.meWeAccount.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:18.782402+00:00",
+    "end_time": "2026-07-25T22:03:18.863555+00:00",
+    "run_time_seconds": 0.0010249614715576172,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:18.859103",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Name",
+    "Handle",
+    "User ID",
+    "First Name",
+    "Last Name",
+    "Primary Email",
+    "Primary Phone",
+    "Contact Invite ID",
+    "Registered",
+    "DSNP Registered",
+    "DSNP Handle",
+    "Fingerprint",
+    "Jail Date"
+  ],
+  "data": [
+    [
+      "This Is DFIR",
+      "thisisdfir",
+      "5e2f8b72ae8d404b182c0d14",
+      "This Is",
+      "DFIR",
+      null,
+      "+19195794674",
+      "thisisdfir",
+      "true",
+      "",
+      null,
+      "F9172843139584UVC2P",
+      ""
+    ]
+  ]
+}

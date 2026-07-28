@@ -2,89 +2,206 @@ __artifacts_v2__ = {
     "get_biomeAppinstall": {
         "name": "Biome - App Install",
         "description": "Parses airplane mode entries from biomes",
-        "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+       "author": "@JohnHyla, @Gear-I",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
         "paths": ('*/Biome/streams/restricted/_DKEvent.App.Install/local/*', '*/Biome/streams/restricted/App.Install/local/*'),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 178 rows",
+            "felix_ios17": "iOS 17.6.1 | 228 rows",
+            "fsfull002_ios17": "iOS 17.1 | 120 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 194 rows",
+            "iphone11_ios17": "iOS 17.3 | 151 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 92 rows",
+            "otto_ios17": "iOS 17.5.1 | 244 rows",
+            "iphone12_ios18": "iOS 18.7 | 123 rows",
+            "abe_ios16": "iOS 16.5 | 142 rows",
+            "felix23_ios16": "iOS 16.5 | 88 rows",
+            "magnet_ios16": "iOS 16.1.1 | 64 rows",
+        }
     }
 }
 
 import os
+import struct
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
 
 @artifact_processor
-def get_biomeAppinstall(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeAppinstall(context):
 
-    typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '4': {'type': 'int', 'name': ''}, '3': {'type': 'str', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
+    typess = {
+        '1': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {'type': 'str', 'name': ''},
+                '2': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {'type': 'int', 'name': ''},
+                        '2': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                }
+            },
+            'name': ''
+        },
+        '2': {'type': 'double', 'name': ''},
+        '3': {'type': 'double', 'name': ''},
+        '4': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {'type': 'int', 'name': ''},
+                        '2': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                },
+                '3': {'type': 'str', 'name': ''}
+            },
+            'name': ''
+        },
+        '5': {'type': 'str', 'name': ''},
+        '7': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {
+                    'type': 'message',
+                    'message_typedef': {},
+                    'name': ''
+                },
+                '2': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {
+                            'type': 'message',
+                            'message_typedef': {
+                                '1': {'type': 'int', 'name': ''},
+                                '2': {'type': 'int', 'name': ''}
+                            },
+                            'name': ''
+                        },
+                        '4': {'type': 'int', 'name': ''},
+                        '3': {'type': 'str', 'name': ''}
+                    },
+                    'name': ''
+                },
+                '3': {'type': 'int', 'name': ''}
+            },
+            'name': ''
+        },
+        '8': {'type': 'double', 'name': ''},
+        '10': {'type': 'int', 'name': ''}
+    }
 
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
+
         if filename.startswith('.'):
             continue
-        if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
-                continue
-            else:
-                report_file = os.path.dirname(file_found)
-        else:
+
+        if not os.path.isfile(file_found):
             continue
-    
+
+        if 'tombstone' in file_found:
+            continue
+
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
+                try:
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
-                protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
-            
-                activity = (protostuff['1']['1'])
-                timestart = (webkit_timestampsconv(protostuff['2']))
-                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
-                
-                
-                timeend = (webkit_timestampsconv(protostuff['3']))
-                timeend = convert_utc_human_to_timezone(timeend, timezone_offset)
-                
-                bundleid = (protostuff['4']['3'])
-                actionguid = (protostuff['5'])
-                appinfo1 = appinfo2 = ''
-                if protostuff.get('7', '') != '':
-                    if isinstance(protostuff['7'], list):
-                        if len(protostuff['7']) < 3:
-                            appinfo1 = (protostuff['7'][0]['2'].get('3', ''))
-                        else:
-                            appinfo1 = (protostuff['7'][0]['2'].get('3', ''))
-                            bundleinfo = (protostuff['7'][1]['2'].get('3', ''))
-                            appinfo2 = (protostuff['7'][2]['2'].get('3', ''))
-                    else:
-                        bundleinfo = ''
-                else:
-                    bundleinfo = ''
-                
-                timewrite = (webkit_timestampsconv(protostuff['8']))
-                timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
-                
-                data_list.append((ts, timestart, timeend, timewrite, record.state.name, activity, bundleid, bundleinfo,
-                                  appinfo1, appinfo2, actionguid, filename, record.data_start_offset))
+                    activity = protostuff['1']['1']
+                    timestart = webkit_timestampsconv(protostuff['2'])
+                    timeend = webkit_timestampsconv(protostuff['3'])
+
+                    bundleid = protostuff['4']['3']
+                    actionguid = protostuff['5']
+                    appinfo1 = appinfo2 = bundleinfo = ''
+
+                    if protostuff.get('7', '') != '':
+                        if isinstance(protostuff['7'], list):
+                            if len(protostuff['7']) < 3:
+                                appinfo1 = protostuff['7'][0]['2'].get('3', '')
+                            else:
+                                appinfo1 = protostuff['7'][0]['2'].get('3', '')
+                                bundleinfo = protostuff['7'][1]['2'].get('3', '')
+                                appinfo2 = protostuff['7'][2]['2'].get('3', '')
+
+                    timewrite = webkit_timestampsconv(protostuff['8'])
+                except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
+                    logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex} |"
+                    f"File: {context.get_relative_path(file_found)} | "
+                    f"Offset: {record.data_start_offset}"
+                    )
+                    continue
+
+                data_list.append((
+                    ts,
+                    timestart,
+                    timeend,
+                    timewrite,
+                    record.state.name,
+                    activity,
+                    bundleid,
+                    bundleinfo,
+                    appinfo1,
+                    appinfo2,
+                    actionguid,
+                    filename,
+                    record.data_start_offset
+                ))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, None, None, record.state.name, None, None, None, None, None, None, filename,
-                                  record.data_start_offset))
+                data_list.append((
+                    ts,
+                    None,
+                    None,
+                    None,
+                    record.state.name,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    filename,
+                    record.data_start_offset
+                ))
 
+    data_headers = (
+        ('SEGB Timestamp', 'datetime'),
+        ('Timestamp', 'datetime'),
+        ('Time End', 'datetime'),
+        ('Time Write', 'datetime'),
+        'SEGB State',
+        'Activity',
+        'Bundle ID',
+        'Bundle Info',
+        'App Info',
+        'App Info2',
+        'Action GUID',
+        'Filename',
+        'Offset'
+    )
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), ('Time End', 'datetime'), ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Bundle ID', 'Bundle Info', 'App Info', 'App Info2', 'Action GUID', 'Filename', 'Offset')
-
-    return data_headers, data_list, report_file
+    return data_headers, data_list, 'see Filename for more info'
 
 

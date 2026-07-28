@@ -3,149 +3,228 @@ __artifacts_v2__ = {
         "name": "Web History",
         "description": "Parses web history from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "history",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 9 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 5 rows",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 45 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 21 rows",
+        },
     },
     "chromeWebVisits": {
         "name": "Web Visits",
         "description": "Parses web visits from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "world",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 17 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 16 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 6 rows",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 200 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 52 rows",
+        },
     },
     "chromeWebSearch": {
         "name": "Web Searches",
         "description": "Parses web searches from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "search",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 1 row",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 7 rows",
+        },
     },
     "chromeDownloads": {
         "name": "Downloads",
         "description": "Parses downloads from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "download",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+        },
     },
     "chromeKeywordSearchTerms": {
         "name": "Keyword Search Terms",
         "description": "Parses keyword search terms from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
+        "artifact_icon": "search",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 1 row",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 7 rows",
+        },
     },
     "chromeAutofillEntries": {
         "name": "Autofill Entries",
         "description": "Parses autofill entries from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
+        "artifact_icon": "forms",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 9 rows",
+        },
     },
     "chromeAutofillProfiles": {
         "name": "Autofill Profiles",
         "description": "Parses Autofill Profiles from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
+        "artifact_icon": "user",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+        },
     },
     "chromeBookmarks": {
         "name": "Bookmarks",
         "description": "Parses Bookmarks from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
-        "last_update_date": "2025-06-20",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Bookmarks*', '*/app_sbrowser/Default/Bookmarks*', '*/app_opera/Bookmarks*',
                   '*/Chromium/Default/Bookmarks*'),
         "output_types": "standard",
+        "artifact_icon": "bookmark",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+        },
     },
     "chromeCookies": {
         "name": "Cookies",
         "description": "Parses Cookies from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
         "output_types": "standard",
+        "artifact_icon": "cookie",
     },
     "chromeLoginData": {
         "name": "Login Data",
         "description": "Parses Login Data from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
+        "artifact_icon": "key",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Brave Private Web Browser, VPN 1.61.1, Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 2 rows",
+        },
     },
     "chromeTopSites": {
         "name": "Top Sites",
         "description": "Parses Top Sites from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
+        "artifact_icon": "star",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Google Chrome 120.6099.119 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+        },
     },
     "chromeOfflinePages": {
         "name": "Offline Pages",
         "description": "Parses Offline Pages from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
@@ -153,83 +232,93 @@ __artifacts_v2__ = {
                   '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
         "output_types": "standard",
+        "artifact_icon": "wifi-off",
     },
     "chromeMediaHistorySessions": {
         "name": "Media History Sessions",
         "description": "Parses Media History Sessions from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "movie",
     },
     "chromeMediaHistoryPlaybacks": {
         "name": "Media History Playbacks",
         "description": "Parses Media History Playbacks from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "player-play",
     },
     "chromeMediaHistoryOrigins": {
         "name": "Media History Origins",
         "description": "Parses Media History Origins from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
+        "artifact_icon": "world",
     },
     "chromeNetworkActionPredictor": {
         "name": "Network Action Predictor",
         "description": "Parses Network Action Predictor records from Chromium Based Browsers",
         "author": "@stark4n6",
-        "version": "0.0.3",
-        "date": "2024-11-10",
+        "creation_date": "2024-11-10",
+        "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
         "notes": "",
         "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
                   '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
         "output_types": ['lava', 'tsv', 'html'],
+        "artifact_icon": "trending-up",
     },
 }
 
 import os
-import textwrap
 import urllib.parse
 import json
 import datetime
 import re
+import sqlite3
+
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 
 from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_utc_human_to_timezone, convert_ts_human_to_utc
+from scripts.ilapfuncs import logfunc, get_next_unused_name, open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db, lava_process_artifact, lava_insert_sqlite_data, artifact_processor, convert_ts_human_to_utc
+from scripts.context import Context
 
 
 def get_browser_name(file_name):
 
-    if 'brave' in file_name.lower():
+    name = file_name.lower()
+    if 'brave' in name:
         return 'Brave'
-    elif 'microsoft' in file_name.lower():
+    elif 'microsoft' in name:
         return 'Edge'
-    elif 'opera' in file_name.lower():
+    elif 'opera' in name:
         return 'Opera'
-    elif 'chrome' in file_name.lower():
+    elif 'chromium' in name:
+        return 'Chromium'
+    elif 'chrome' in name:
         return 'Chrome'
     else:
         return 'Unknown'
@@ -271,7 +360,7 @@ def get_valid_date(d1, d2):
 
 
 @artifact_processor
-def chromeWebHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeWebHistory(context):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -280,11 +369,11 @@ def chromeWebHistory(files_found, report_folder, seeker, wrap_text, timezone_off
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
     
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -318,18 +407,15 @@ def chromeWebHistory(files_found, report_folder, seeker, wrap_text, timezone_off
             report_name = f'{browser_name} - Web History'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
 
             for row in all_rows:
-                dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                if wrap_text:
-                    data_list.append((dt,textwrap.fill(row[1], width=100),row[2],row[3],row[4],row[5],row[6]))
-                else:
-                    data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
+                dt = convert_ts_human_to_utc(row[0])
+                data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -338,12 +424,13 @@ def chromeWebHistory(files_found, report_folder, seeker, wrap_text, timezone_off
             category = "Chromium"
             module_name = "chromeWebHistory"
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -356,7 +443,7 @@ def chromeWebHistory(files_found, report_folder, seeker, wrap_text, timezone_off
 
 
 @artifact_processor
-def chromeWebVisits(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeWebVisits(context):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -365,11 +452,11 @@ def chromeWebVisits(files_found, report_folder, seeker, wrap_text, timezone_offs
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -428,18 +515,15 @@ def chromeWebVisits(files_found, report_folder, seeker, wrap_text, timezone_offs
             report_name = f'{browser_name} - Web Visits'
             report = ArtifactHtmlReport(report_name)
             #check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
             data_list = []
             for row in all_rows:
-                dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]),timezone_offset)
-                if wrap_text:
-                    data_list.append((dt,textwrap.fill(row[1], width=100),row[2],row[3],row[4],row[5],row[6]))
-                else:
-                    data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
+                dt = convert_ts_human_to_utc(row[0])
+                data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -449,12 +533,13 @@ def chromeWebVisits(files_found, report_folder, seeker, wrap_text, timezone_offs
             module_name = "chromeWebVisits"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -467,7 +552,7 @@ def chromeWebVisits(files_found, report_folder, seeker, wrap_text, timezone_offs
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeWebSearch(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeWebSearch(context):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -477,11 +562,11 @@ def chromeWebSearch(files_found, report_folder, seeker, wrap_text, timezone_offs
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -510,20 +595,17 @@ def chromeWebSearch(files_found, report_folder, seeker, wrap_text, timezone_offs
             report_name = f'{browser_name} - Web Search'
             report = ArtifactHtmlReport(report_name)
             #check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
             data_list = []
             for row in all_rows:
-                dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[3]),timezone_offset)
+                dt = convert_ts_human_to_utc(row[3])
                 search = row[0].split('search?q=')[1].split('&')[0]
                 search = urllib.parse.unquote(search).replace('+', ' ')
-                if wrap_text:
-                    data_list.append((dt, search, (textwrap.fill(row[0], width=100)),row[1],row[2]))
-                else:
-                    data_list.append((dt, search, row[0], row[1], row[2]))
+                data_list.append((dt, search, row[0], row[1], row[2]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -534,12 +616,13 @@ def chromeWebSearch(files_found, report_folder, seeker, wrap_text, timezone_offs
             module_name = "chromeWebSearch"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -553,7 +636,7 @@ def chromeWebSearch(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def chromeDownloads(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeDownloads(context):
 
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
@@ -566,11 +649,11 @@ def chromeDownloads(files_found, report_folder, seeker, wrap_text, timezone_offs
     lava_data_headers[1] = (lava_data_headers[1], 'datetime')
     lava_data_headers[2] = (lava_data_headers[2], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -679,9 +762,9 @@ def chromeDownloads(files_found, report_folder, seeker, wrap_text, timezone_offs
             report_name = f'{browser_name} - Downloads'
             report = ArtifactHtmlReport(report_name)
             #check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -696,12 +779,13 @@ def chromeDownloads(files_found, report_folder, seeker, wrap_text, timezone_offs
             module_name = "chromeDownloads"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -714,7 +798,7 @@ def chromeDownloads(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def chromeKeywordSearchTerms(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeKeywordSearchTerms(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -723,11 +807,11 @@ def chromeKeywordSearchTerms(files_found, report_folder, seeker, wrap_text, time
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'History':  # skip -journal and other files
             continue
@@ -757,17 +841,14 @@ def chromeKeywordSearchTerms(files_found, report_folder, seeker, wrap_text, time
             report_name = f'{browser_name} - Keyword Search Terms'
             report = ArtifactHtmlReport(report_name)
             #check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9] # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
-                dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[4]),timezone_offset)
-                if wrap_text:
-                    data_list.append((dt, row[1],(textwrap.fill(row[3], width=100))))
-                else:
-                    data_list.append((dt, row[1], row[3]))
+                dt = convert_ts_human_to_utc(row[4])
+                data_list.append((dt, row[1], row[3]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -778,12 +859,13 @@ def chromeKeywordSearchTerms(files_found, report_folder, seeker, wrap_text, time
             module_name = "chromeKeywordSearchTerms"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -796,7 +878,7 @@ def chromeKeywordSearchTerms(files_found, report_folder, seeker, wrap_text, time
 
 
 @artifact_processor
-def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeAutofillEntries(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -806,14 +888,14 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
     lava_data_headers[3] = (lava_data_headers[3], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     category = "Chromium"
     module_name = "chromeAutofillEntries"
     
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
             continue
@@ -827,9 +909,9 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
         cursor = db.cursor()
 
         columns = [i[1] for i in cursor.execute('PRAGMA table_info(autofill)')]
-        # TODO: Was this supposed to be if 'date_last_used' in columns?
+        # Note: 'date_created' presence selects the modern autofill schema.
         if 'date_created' in columns:
-            cursor.execute(f'''
+            cursor.execute('''
             select
                 datetime(date_created, 'unixepoch'),
                 name,
@@ -844,15 +926,15 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
                 report_name = f'{browser_name} - Autofill - Entries'
                 report = ArtifactHtmlReport(report_name)
                 # check for existing and get next name for report file, so report from another file does not get overwritten
-                report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+                report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
                 report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-                report.start_artifact_report(report_folder, os.path.basename(report_path))
+                report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
                 report.add_script()
 
                 data_list = []
                 for row in all_rows:
-                    created_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                    last_used_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[3]), timezone_offset)
+                    created_dt = convert_ts_human_to_utc(row[0])
+                    last_used_dt = convert_ts_human_to_utc(row[3])
                     data_list.append((created_dt, row[1], row[2], last_used_dt, row[4]))
 
                 report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -861,12 +943,13 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
                 # Generate LAVA output
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
                 # Add browser name column to the data
-                data_list = [row + (browser_name,) for row in data_list]
+                data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
                 # Add current list to the combined list
                 all_data.extend(data_list)
@@ -875,7 +958,7 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
                 logfunc(f'No {browser_name} - Autofill - Entries data available')
 
         else:
-            cursor.execute(f'''
+            cursor.execute('''
             select
                 datetime(autofill_dates.date_created, 'unixepoch'),
                 autofill.name,
@@ -890,13 +973,13 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
                 report_name = f'{browser_name} - Autofill - Entries'
                 report = ArtifactHtmlReport(report_name)
                 # check for existing and get next name for report file, so report from another file does not get overwritten
-                report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+                report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
                 report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-                report.start_artifact_report(report_folder, os.path.basename(report_path))
+                report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
                 report.add_script()
                 data_list = []
                 for row in all_rows:
-                    created_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                    created_dt = convert_ts_human_to_utc(row[0])
                     data_list.append((created_dt, row[1], row[2], None, row[3]))
 
                 report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -905,12 +988,13 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
                 # Generate LAVA output
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
                 # Add browser name column to the data
-                data_list = [row + (browser_name,) for row in data_list]
+                data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
                 # Add current list to the combined list
                 all_data.extend(data_list)
@@ -924,7 +1008,7 @@ def chromeAutofillEntries(files_found, report_folder, seeker, wrap_text, timezon
 
 
 @artifact_processor
-def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeAutofillProfiles(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -934,11 +1018,11 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
     
     report_file = 'Unknown'
     
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Web Data':  # skip -journal and other files
             continue
@@ -953,7 +1037,7 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
         if does_table_exist_in_db(file_found, 'autofill_profiles'):
             cursor = db.cursor()
 
-            cursor.execute(f'''
+            cursor.execute('''
             select
                 datetime(date_modified, 'unixepoch'),
                 autofill_profiles.guid,
@@ -981,15 +1065,15 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
                 report_name = f'{browser_name} - Autofill - Profiles'
                 report = ArtifactHtmlReport(report_name)
                 # check for existing and get next name for report file, so report from another file does not get overwritten
-                report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+                report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
                 report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-                report.start_artifact_report(report_folder, os.path.basename(report_path))
+                report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
                 report.add_script()
 
                 data_list = []
                 for row in all_rows:
-                    modified_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                    last_used_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[12]), timezone_offset)
+                    modified_dt = convert_ts_human_to_utc(row[0])
+                    last_used_dt = convert_ts_human_to_utc(row[12])
 
                     data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                       row[10], row[11], last_used_dt, row[13]))
@@ -1003,12 +1087,13 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
                 module_name = "chromeAutofillProfiles"
 
                 table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list))
+                                                                               lava_data_headers, len(data_list),
+                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
                 lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
                 # Add browser name column to the data
-                data_list = [row + (browser_name,) for row in data_list]
+                data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
                 # Add current list to the combined list
                 all_data.extend(data_list)
@@ -1023,7 +1108,7 @@ def chromeAutofillProfiles(files_found, report_folder, seeker, wrap_text, timezo
 
 
 @artifact_processor
-def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeBookmarks(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1033,11 +1118,11 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
 
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         file_path = os.path.basename(file_found)
 
@@ -1050,25 +1135,25 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        with open(file_found, "r") as f:
+        with open(file_found, "r", encoding="utf-8") as f:
             dataa = json.load(f)
         data_list = []
-        for x, y in dataa.items():
+        for _x, y in dataa.items():
             children_items = list()
             if isinstance(y, dict):
-                for key, value in y.items():
+                for _key, value in y.items():
                     if isinstance(value, dict):
                         for keyb, valueb in value.items():
                             if keyb == 'children':
                                 if len(valueb) > 0:
                                     for index in range(len(valueb)):
-                                        url = valueb[index]['url']
-                                        dateadd = valueb[index]['date_added']
+                                        url = valueb[index].get('url', '')
+                                        dateadd = valueb[index].get('date_added', 0)
                                         dateaddconv = datetime.datetime(1601, 1, 1) + datetime.timedelta(
                                             microseconds=int(dateadd))
-                                        added_dt = convert_utc_human_to_timezone(dateaddconv, timezone_offset)
-                                        name = valueb[0]['name']
-                                        typed = valueb[0]['type']
+                                        added_dt = dateaddconv
+                                        name = valueb[index].get('name', '')
+                                        typed = valueb[index].get('type', '')
                                         children_items.append((url, dateadd, dateaddconv, added_dt, name, typed))
                             if keyb == 'name' and len(children_items) > 0:
                                 parent = valueb
@@ -1079,9 +1164,9 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
             report_name = f'{browser_name} - Bookmarks'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -1093,12 +1178,13 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
             module_name = "chromeBookmarks"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1109,7 +1195,7 @@ def chromeBookmarks(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def chromeCookies(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeCookies(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1121,11 +1207,11 @@ def chromeCookies(files_found, report_folder, seeker, wrap_text, timezone_offset
     lava_data_headers[4] = (lava_data_headers[4], 'datetime')
     lava_data_headers[5] = (lava_data_headers[5], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Cookies':  # skip -journal and other files
             continue
@@ -1179,20 +1265,16 @@ def chromeCookies(files_found, report_folder, seeker, wrap_text, timezone_offset
             report_name = f'{browser_name} - Cookies'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
-                last_accessed_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                created_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[4]), timezone_offset)
-                expiration_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[5]), timezone_offset)
-                if wrap_text:
-                    data_list.append(
-                        (last_accessed_dt, row[1], (textwrap.fill(row[2], width=50)), row[3], created_dt, expiration_dt, row[6]))
-                else:
-                    data_list.append((last_accessed_dt, row[1], row[2], row[3], created_dt, expiration_dt, row[6]))
+                last_accessed_dt = convert_ts_human_to_utc(row[0])
+                created_dt = convert_ts_human_to_utc(row[4])
+                expiration_dt = convert_ts_human_to_utc(row[5])
+                data_list.append((last_accessed_dt, row[1], row[2], row[3], created_dt, expiration_dt, row[6]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -1203,12 +1285,13 @@ def chromeCookies(files_found, report_folder, seeker, wrap_text, timezone_offset
             module_name = "chromeCookies"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1221,20 +1304,20 @@ def chromeCookies(files_found, report_folder, seeker, wrap_text, timezone_offset
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeLoginData(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
-    data_headers = ['Created Time', 'Username', 'Password', 'Origin URL', 'Blacklisted by User', 'Browser Name']
+    data_headers = ['Created Time', 'Username', 'Password', 'Origin URL', 'Blacklisted by User']
 
     lava_data_headers = data_headers.copy()
 
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Login Data':  # skip -journal and other files
             continue
@@ -1267,9 +1350,9 @@ def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offs
             report_name = f'{browser_name} - Login Data'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -1278,7 +1361,7 @@ def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offs
                 if password_enc:
                     password = decrypt(password_enc).decode("utf-8", 'replace')
                 valid_date = get_valid_date(row[2], row[3])
-                data_list.append((valid_date, row[0], password, row[4], row[5], browser_name))
+                data_list.append((valid_date, row[0], password, row[4], row[5]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
@@ -1289,12 +1372,13 @@ def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offs
             module_name = "chromeLoginData"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1307,7 +1391,7 @@ def chromeLoginData(files_found, report_folder, seeker, wrap_text, timezone_offs
 
 
 @artifact_processor
-def chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeTopSites(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1315,11 +1399,11 @@ def chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_offse
 
     lava_data_headers = data_headers.copy()
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'Top Sites':  # skip -journal and other files
             continue
@@ -1344,16 +1428,16 @@ def chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_offse
 
             all_rows = cursor.fetchall()
             usageentries = len(all_rows)
-        except:
+        except sqlite3.Error:
             usageentries = 0
 
         if usageentries > 0:
             report_name = f'{browser_name} - Top Sites'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
@@ -1368,12 +1452,13 @@ def chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_offse
             module_name = "chromeTopSites"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1387,7 +1472,7 @@ def chromeTopSites(files_found, report_folder, seeker, wrap_text, timezone_offse
 
 
 @artifact_processor
-def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeOfflinePages(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1398,11 +1483,11 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
     lava_data_headers[1] = (lava_data_headers[1], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.basename(file_found) == 'OfflinePages.db':  # skip -journal and other files
             continue
@@ -1431,19 +1516,15 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
             report_name = f'{browser_name} - Offline Pages'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
-                created_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                last_accessed_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[1]), timezone_offset)
-                if wrap_text:
-                    data_list.append(
-                        (created_dt, last_accessed_dt, (textwrap.fill(row[2], width=75)), row[3], row[4], row[5], row[6]))
-                else:
-                    data_list.append((created_dt, last_accessed_dt, row[2], row[3], row[4], row[5], row[6]))
+                created_dt = convert_ts_human_to_utc(row[0])
+                last_accessed_dt = convert_ts_human_to_utc(row[1])
+                data_list.append((created_dt, last_accessed_dt, row[2], row[3], row[4], row[5], row[6]))
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()
 
@@ -1453,12 +1534,13 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
             module_name = "chromeTopSites"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1472,7 +1554,7 @@ def chromeOfflinePages(files_found, report_folder, seeker, wrap_text, timezone_o
 
 
 @artifact_processor
-def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeMediaHistorySessions(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1482,11 +1564,11 @@ def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, ti
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Media History'):
             continue  # Skip all other files
@@ -1518,13 +1600,13 @@ def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, ti
             report_name = f'{browser_name} - Media History - Sessions'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
-                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                last_update_dt = convert_ts_human_to_utc(row[0])
                 data_list.append((last_update_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -1536,12 +1618,13 @@ def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, ti
             module_name = "chromeMediaHistorySessions"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1553,7 +1636,7 @@ def chromeMediaHistorySessions(files_found, report_folder, seeker, wrap_text, ti
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeMediaHistoryPlaybacks(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1563,11 +1646,11 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, t
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
     lava_data_headers[4] = (lava_data_headers[4], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Media History'):
             continue  # Skip all other files
@@ -1603,14 +1686,14 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, t
             report_name = f'{browser_name} - Media History - Playbacks'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
-                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
-                watch_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[4]), timezone_offset)
+                last_update_dt = convert_ts_human_to_utc(row[0])
+                watch_dt = convert_ts_human_to_utc(row[4])
                 data_list.append((last_update_dt, row[1], row[2], row[3], watch_dt, row[5], row[6]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -1622,12 +1705,13 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, t
             module_name = "chromeMediaHistoryPlaybacks"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1639,7 +1723,7 @@ def chromeMediaHistoryPlaybacks(files_found, report_folder, seeker, wrap_text, t
     return all_data_headers, all_data, report_file
 
 @artifact_processor
-def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeMediaHistoryOrigins(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1648,11 +1732,11 @@ def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, tim
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Media History'):
             continue  # Skip all other files
@@ -1680,13 +1764,13 @@ def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, tim
             report_name = f'{browser_name} - Media History - Origins'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
             data_list = []
             for row in all_rows:
-                last_update_dt = convert_utc_human_to_timezone(convert_ts_human_to_utc(row[0]), timezone_offset)
+                last_update_dt = convert_ts_human_to_utc(row[0])
                 data_list.append((last_update_dt, row[1], row[2], row[3]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
@@ -1698,12 +1782,13 @@ def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, tim
             module_name = "chromeMediaHistoryOrigins"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)
@@ -1717,7 +1802,7 @@ def chromeMediaHistoryOrigins(files_found, report_folder, seeker, wrap_text, tim
 
 
 @artifact_processor
-def chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def chromeNetworkActionPredictor(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
     all_data = []
 
@@ -1726,11 +1811,11 @@ def chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_text, 
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
 
-    all_data_headers = lava_data_headers + ['Browser Name']
+    all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
     report_file = 'Unknown'
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Network Action Predictor'):
             continue  # Skip all other files
@@ -1757,9 +1842,9 @@ def chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_text, 
             report_name = f'{browser_name} - Network Action Predictor'
             report = ArtifactHtmlReport(report_name)
             # check for existing and get next name for report file, so report from another file does not get overwritten
-            report_path = os.path.join(report_folder, f'{report_name}.temphtml')
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
             report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-            report.start_artifact_report(report_folder, os.path.basename(report_path))
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
             data_list = []
@@ -1775,12 +1860,13 @@ def chromeNetworkActionPredictor(files_found, report_folder, seeker, wrap_text, 
             module_name = "chromeNetworkActionPredictor"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                           lava_data_headers, len(data_list))
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
             lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
             # Add browser name column to the data
-            data_list = [row + (browser_name,) for row in data_list]
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
             # Add current list to the combined list
             all_data.extend(data_list)

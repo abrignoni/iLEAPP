@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Extract call history from WhatsApp',
         'author': '@Vinceckert',
         'creation_date': '2024-05-31',
-        'last_update_date': '2025-04-08',
+        'last_update_date': '2025-11-20',
         'requirements': 'none',
         'category': 'WhatsApp',
         'notes': '',
@@ -14,13 +14,27 @@ __artifacts_v2__ = {
         ),
         'output_types': 'standard',
         'artifact_icon': 'user',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | net.whatsapp.WhatsApp | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | WhatsApp Messenger 25.26.72 | 1 row',
+            'felix_ios17': 'iOS 17.6.1 | WhatsApp Messenger 24.17.78 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | WhatsApp Messenger 23.8.78 | 2 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 8 rows',
+            'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 3 rows',
+            'abe_ios16': 'iOS 16.5 | WhatsApp Messenger 23.11.80 | 0 rows',
+            'felix23_ios16': 'iOS 16.5 | WhatsApp Messenger 23.12.76 | 0 rows',
+            'hickman_ios13': 'iOS 13.3.1 | WhatsApp Messenger 2.20.31 | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | WhatsApp Messenger 2.21.20 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | WhatsApp Messenger 22.23.77 | 0 rows',
+        },
     },
     'whatsAppMessages': {
         'name': 'WhatsApp - Messages',
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
-        'last_update_date': '2025-05-13',
+        'last_update_date': '2026-07-03',
         'requirements': '',
         'category': 'WhatsApp',
         'notes': '',
@@ -29,7 +43,33 @@ __artifacts_v2__ = {
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/Message/Media/*/*/*/*'),
         'output_types': 'all',
-        'artifact_icon': 'message-square'
+        'artifact_icon': 'message',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | net.whatsapp.WhatsApp | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | WhatsApp Messenger 25.26.72 | 77 rows',
+            'felix_ios17': 'iOS 17.6.1 | WhatsApp Messenger 24.17.78 | 4 rows',
+            'fsfull002_ios17': 'iOS 17.1 | WhatsApp Messenger 23.8.78 | 33 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 15 rows',
+            'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 60 rows',
+            'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 1803 rows',
+            'abe_ios16': 'iOS 16.5 | WhatsApp Messenger 23.11.80 | 63 rows',
+            'felix23_ios16': 'iOS 16.5 | WhatsApp Messenger 23.12.76 | 10 rows',
+            'hickman_ios13': 'iOS 13.3.1 | WhatsApp Messenger 2.20.31 | 12 rows',
+            'hickman_ios14': 'iOS 14.3 | WhatsApp Messenger 2.21.20 | 17 rows',
+            'magnet_ios16': 'iOS 16.1.1 | WhatsApp Messenger 22.23.77 | 0 rows',
+        },
+        'data_views': {
+            'conversation': {
+                'conversationDiscriminatorColumn': 'Chat ID',
+                'conversationLabelColumn': 'Chat Name',
+                'textColumn': 'Message',
+                'directionColumn': 'Direction',
+                'directionSentValue': 'Outgoing',
+                'timeColumn': 'Timestamp',
+                'senderColumn': 'Sender Name',
+                'mediaColumn': 'Attachment File'
+            }
+        },
     },
     'whatsAppContacts': {
         'name': 'WhatsApp - Contacts',
@@ -41,23 +81,42 @@ __artifacts_v2__ = {
         'category': 'WhatsApp',
         'notes': '',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',),
-        'output_types': ['html', 'tsv', 'lava'],
-        'artifact_icon': 'users'
+        'output_types': 'standard',
+        'artifact_icon': 'users',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | net.whatsapp.WhatsApp | 21 rows',
+            'dexter_ios18': 'iOS 18.3.2 | WhatsApp Messenger 25.26.72 | 10 rows',
+            'felix_ios17': 'iOS 17.6.1 | WhatsApp Messenger 24.17.78 | 7 rows',
+            'fsfull002_ios17': 'iOS 17.1 | WhatsApp Messenger 23.8.78 | 6 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 2 rows',
+            'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 12 rows',
+            'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 1017 rows',
+            'abe_ios16': 'iOS 16.5 | WhatsApp Messenger 23.11.80 | 582 rows',
+            'felix23_ios16': 'iOS 16.5 | WhatsApp Messenger 23.12.76 | 6 rows',
+            'hickman_ios13': 'iOS 13.3.1 | WhatsApp Messenger 2.20.31 | 3 rows',
+            'hickman_ios14': 'iOS 14.3 | WhatsApp Messenger 2.21.20 | 5 rows',
+            'magnet_ios16': 'iOS 16.1.1 | WhatsApp Messenger 22.23.77 | 0 rows',
+        }
     }
 }
 
 
-import inspect
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 
 from pathlib import Path
-from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, \
-    check_in_media, convert_cocoa_core_data_ts_to_utc, logfunc
+from scripts.ilapfuncs import (
+    artifact_processor,
+    get_file_path,
+    get_sqlite_db_records,
+    attach_sqlite_db_readonly,
+    check_in_media,
+    convert_cocoa_core_data_ts_to_utc
+)
 
 
 @artifact_processor
-def whatsAppCallHistory(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def whatsAppCallHistory(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'CallHistory.sqlite')
     contacts_db = get_file_path(files_found, 'ContactsV2.sqlite')
 
@@ -75,10 +134,10 @@ def whatsAppCallHistory(files_found, report_folder, seeker, wrap_text, timezone_
     query = f'''
     SELECT
         ZWACDCALLEVENT.ZDATE,
-        ZWACDCALLEVENT.ZDATE + ZWACDCALLEVENT.ZDURATION AS 'Datetime_end', 
+        ZWACDCALLEVENT.ZDATE + ZWACDCALLEVENT.ZDURATION AS 'Datetime_end',
         time(ZWACDCALLEVENT.ZDURATION, 'unixepoch') AS 'Duration',
         CASE
-            WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming' 
+            WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming'
             ELSE 'Outgoing'
         END Direction,
         CASE ZWACDCALLEVENT.ZOUTCOME
@@ -125,7 +184,8 @@ def whatsAppCallHistory(files_found, report_folder, seeker, wrap_text, timezone_
 
 
 @artifact_processor
-def whatsAppContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def whatsAppContacts(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'ContactsV2.sqlite')
     data_list = []
 
@@ -168,8 +228,8 @@ def whatsAppContacts(files_found, report_folder, seeker, wrap_text, timezone_off
 
 
 @artifact_processor
-def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_offset):
-    artifact_info = inspect.stack()[0]
+def whatsAppMessages(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'ChatStorage.sqlite')
     contacts_db = get_file_path(files_found, 'ContactsV2.sqlite')
     data_list = []
@@ -189,17 +249,31 @@ def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_off
         ZLATITUDE,
         ZMEDIALOCALPATH,
         ZXMPPTHUMBPATH,
-        ZMETADATA
+        ZMETADATA,
+        ZWACHATSESSION.ZCONTACTJID
     FROM ZWAMESSAGE
-    LEFT JOIN ZWAMEDIAITEM ON ZWAMESSAGE.Z_PK = ZWAMEDIAITEM.ZMESSAGE 
+    LEFT JOIN ZWAMEDIAITEM ON ZWAMESSAGE.Z_PK = ZWAMEDIAITEM.ZMESSAGE
     LEFT JOIN ZWACHATSESSION ON ZWACHATSESSION.Z_PK = ZWAMESSAGE.ZCHATSESSION
     '''
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Sender Name', 'From ID', 'Receiver', 'To ID',
-        'Message', ('Attachment File', 'media'), ('Thumb', 'media'),
-        'Starred?', 'Number of Forwardings', 'Forwarded from',
-        'Latitude', 'Longitude',)
+        ('Timestamp', 'datetime'),
+        'Sender Name',
+        'From ID',
+        'Receiver',
+        'To ID',
+        'Message',
+        ('Attachment File', 'media'),
+        ('Thumb', 'media'),
+        'Starred?',
+        'Number of Forwardings',
+        'Forwarded from',
+        'Latitude',
+        'Longitude',
+        'Direction',
+        'Chat ID',
+        'Chat Name',
+        )
 
     db_records = get_sqlite_db_records(source_path, query)
 
@@ -228,8 +302,9 @@ def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_off
         if metadata:
             try:
                 decoded_data, _ = blackboxprotobuf.decode_message(metadata)
-                number_forward = f'{decoded_data.get("17")}'
-                from_forward = f'{decoded_data.get("21").decode("utf-8")}'
+                number_forward = f'{decoded_data.get("17", "")}'
+                forward_id = decoded_data.get("21")
+                from_forward = forward_id.decode("utf-8") if isinstance(forward_id, bytes) else ''
                 if contacts_db and from_forward:
                     attach_query = attach_sqlite_db_readonly(contacts_db, 'ContactsV2')
                     query_contact = f"""
@@ -240,19 +315,21 @@ def whatsAppMessages(files_found, report_folder, seeker, wrap_text, timezone_off
                                 FROM ContactsV2.ZWAADDRESSBOOKCONTACT
                                 WHERE ZWHATSAPPID = '{from_forward}'
                             """
-                    contact_records = get_sqlite_db_records(source_path, query_contact, attach_query)
+                    contact_records = list( get_sqlite_db_records(source_path, query_contact, attach_query) )
                     if contact_records:
                         forwardedwhatsappid, fullname, phone = contact_records[0]
                         from_forward = f"{fullname} ({phone}) - ({forwardedwhatsappid})"
 
-            except:
+            except (TypeError, ValueError, KeyError):
                 pass
 
         lon = record['ZLONGITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
         lat = record['ZLATITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
 
+        direction = 'Outgoing' if record['ZISFROMME'] == 1 else 'Incoming'
         data_list.append((message_date, sender, record['ZFROMJID'], receiver, record['ZTOJID'],
                           record['ZTEXT'], attach_file, thumb, record['ZSTARRED'],
-                          number_forward, from_forward, lat, lon,))
+                          number_forward, from_forward, lat, lon, direction,
+                          record['ZCONTACTJID'], record['ZPARTNERNAME'],))
 
     return data_headers, data_list, source_path

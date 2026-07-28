@@ -5,7 +5,7 @@ __artifacts_v2__ = {
             Dates and times shown are from file modified timestamps",
         "author": "@ydkhatri",
         "creation_date": "2020-07-23",
-        "last_update_date": "2025-05-13",
+        "last_update_date": "2026-06-18",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -15,18 +15,31 @@ __artifacts_v2__ = {
             '*/SplashBoard/Snapshots/*.ktx', 
             '*/SplashBoard/Snapshots/*.jpeg'),
         "output_types": "standard",
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 68 rows",
+            "dexter_ios18": "iOS 18.3.2 | 305 rows",
+            "felix_ios17": "iOS 17.6.1 | 178 rows",
+            "fsfull002_ios17": "iOS 17.1 | 106 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 207 rows",
+            "iphone11_ios17": "iOS 17.3 | 482 rows",
+            "iphone12_ios18": "iOS 18.7 | 194 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 529 rows",
+            "otto_ios17": "iOS 17.5.1 | 360 rows",
+            "abe_ios16": "iOS 16.5 | 364 rows",
+            "felix23_ios16": "iOS 16.5 | 234 rows",
+            "hickman_ios13": "iOS 13.3.1 | 287 rows",
+            "hickman_ios14": "iOS 14.3 | 342 rows",
+            "jess_ios15": "iOS 15.0.2 | 84 rows",
+            "magnet_ios16": "iOS 16.1.1 | 219 rows",
+        }
     },
 }
 
-
-import inspect
-import hashlib
-import shutil
 from pathlib import Path
 
 from PIL import Image
-from scripts.ktx.ios_ktx2png import KTX_reader, liblzfse
+from scripts.ktx.ios_ktx2png import KTX_reader
 from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
 
 
@@ -49,7 +62,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
                 # as per https://github.com/python-pillow/Pillow/issues/5986
 
                 return True
-        except (OSError, ValueError, liblzfse.error) as ex:
+        except (OSError, ValueError) as ex:
             logfunc(f'Had an exception - {str(ex)}')
     return False
 
@@ -57,7 +70,6 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
 @artifact_processor
 def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_text, timezone_offset):
     # artifact_info = inspect.stack()[0]
-    source_path = 'File path in the report below'
     data_list = []
     
     for file_found in context.get_files_found():
@@ -84,9 +96,9 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
         if not media_item:
             continue
             
-        last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)[-1])
-        data_list.append([last_modified_date, app_name, file_found, media_item])
+        last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)['updated_at'])
+        data_list.append([last_modified_date, app_name, context.get_relative_path(file_found), media_item])
     
     data_headers = (('Date Modified', 'datetime'), 'App Name', 'Source Path', ('Snapshot', 'media'))
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, 'see Source Path for more info'

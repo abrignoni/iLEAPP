@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "module_name": "clubhouse",
+    "artifact_name": "Clubhouse - Received Notifications",
+    "function_name": "clubhouseNotifications",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 2,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 46,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/clubhouse/testdata.clubhouse.clubhouseNotifications.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:20.310717+00:00",
+    "end_time": "2026-07-25T22:03:20.384299+00:00",
+    "run_time_seconds": 0.00018715858459472656,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:20.381520",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Notification ID"
+  ],
+  "data": [
+    [
+      1704842774,
+      "5e26eeed-ee1d-4f5a-b8f9-f23a6eb44c61"
+    ]
+  ]
+}

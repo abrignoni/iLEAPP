@@ -1,3 +1,5 @@
+"""ISO-BMFF file type matchers."""
+
 # -*- coding: utf-8 -*-
 import codecs
 
@@ -30,3 +32,6 @@ class IsoBmff(Type):
             compatible_brands.append(buf[i:i+4].decode(errors='ignore'))
 
         return major_brand, minor_version, compatible_brands
+
+    def match(self, buf):
+        pass

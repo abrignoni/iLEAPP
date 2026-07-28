@@ -4,24 +4,31 @@ __artifacts_v2__ = {
         "description": "Extract blocked contacts",
         "author": "@JohannPLW",
         "creation_date": "2023-12-08",
-        "last_update_date": "2024-12-20",
+        "last_update_date": "2025-11-03",
         "requirements": "none",
         "category": "Contacts",
         "notes": "",
-        "paths": ('*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist'),
+        "paths": ('*/mobile/Library/Preferences/com.apple.cmfsyncagent.plist',),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "user-x"
+        "artifact_icon": "user-x",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | 5 rows",
+            "hickman_ios14": "iOS 14.3 | 5 rows",
+        }
     }
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
 @artifact_processor
-def blockedContacts(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def blockedContacts(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.cmfsyncagent.plist")
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
     StoreArrayKey = pl.get('__kCMFBlockListStoreTopLevelKey', {}).get('__kCMFBlockListStoreArrayKey', {})
     for item in StoreArrayKey:
         type_key = item.get('__kCMFItemTypeKey', '')

@@ -14,25 +14,28 @@ __artifacts_v2__ = {
             #'*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionComplete/skg_archive-*',
             '*/CoreSpotlight/SpotlightKnowledge/index.V2/archives/NSFileProtectionCompleteUntilFirstUserAuthentication/skg_archive-*'
         ),
-        "output_types": "standard"
+        "output_types": "standard",
+        "artifact_icon": "search",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | 2219 rows",
+        }
     }
 }
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 import mdplist
 import nska_deserialize as nd
-import os
 from collections import defaultdict
 from pathlib import Path
 
 @artifact_processor
-def skg_archive(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def skg_archive(context):
 
     data_list = []
     dedupe = 0
     grouped_files = defaultdict(list)
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         path = Path(file_found)
         grouped_files[path.parent].append(path.name)
 

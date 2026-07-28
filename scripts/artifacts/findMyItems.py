@@ -3,68 +3,129 @@ __artifacts_v2__ = {
         "name": "Find My Items Info",
         "description": "Extract items information from Find My",
         "author": "@AlexisBrignoni",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
         "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "info-circle",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+        },
     },
     "findMyItemsLocations": {
         "name": "FindMy Items Locations",
         "description": "Extract items locations from Find My",
         "author": "@AlexisBrignoni",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+        }
     },
     "findMyItemsSafeLocations": {
         "name": "FindMy Items Safe Locations",
         "description": "Extract items safe locations from Find My",
         "author": "@AlexisBrignoni",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "shield-check",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+        }
     },
     "findMyItemsCrowdsourcedLocations": {
         "name": "FindMy Items Crowdsourced Locations",
         "description": "Extract items crowdsourced locations from Find My",
         "author": "@AlexisBrignoni",
-        "version": "0.3.1",
+        "version": "0.3.2",
         "date": "2022-01-22",
         "requirements": "none",
         "category": "Find My",
         "notes": "",
         "paths": ('*/Caches/com.apple.findmy.fmipcore/Items.data'),
-        "output_types": "all"
+        "output_types": "all",
+        "artifact_icon": "users",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+        }
     }
 }
 
 
 import json
-from scripts.ilapfuncs import artifact_processor
-from scripts.ilapfuncs import convert_unix_ts_to_timezone
+from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import convert_unix_ts_to_utc
+
+
+def _read_items_json(source_path):
+    """Deserializes Items.data, returning a list of items.
+
+    On recent iOS versions (~17.5+) Items.data is no longer plain JSON: it is
+    a binary plist wrapping an 'encryptedData' blob that cannot be decoded
+    without the device keys. Those files are reported and skipped instead of
+    crashing the artifact.
+    """
+    try:
+        with open(source_path, mode='r', encoding="UTF-8") as f:
+            return json.load(f)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        logfunc(f'Items.data is not JSON (encrypted on recent iOS versions), unable to parse: {source_path}')
+        return []
+
 
 @artifact_processor
-def findMyItemsInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def findMyItemsInfo(context):
     data_list = []
-    source_path = str(files_found[0])
-    
-    with open(source_path, mode='r', encoding="UTF-8") as f:
-        deserialized = json.load(f)
+    source_path = str(context.get_files_found()[0])
+
+    deserialized = _read_items_json(source_path)
+    if deserialized:
         for x in deserialized:
             name = (x['name'])
             serial = (x['serialNumber'])
-            id = (x['identifier'])
+            item_id = (x['identifier'])
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -81,7 +142,7 @@ def findMyItemsInfo(files_found, report_folder, seeker, wrap_text, timezone_offs
             sysver = (x['systemVersion'])
 
             data_list.append(
-                (name, serial, id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, owner, 
+                (name, serial, item_id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, owner, 
                     batstat, lostmode, cap, sysver,))
 
     data_headers = (
@@ -90,18 +151,18 @@ def findMyItemsInfo(files_found, report_folder, seeker, wrap_text, timezone_offs
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def findMyItemsLocations(context):
     data_list = []
-    source_path = str(files_found[0])
+    source_path = str(context.get_files_found()[0])
     
-    with open(source_path, mode='r', encoding="UTF-8") as f:
-        deserialized = json.load(f)
+    deserialized = _read_items_json(source_path)
+    if deserialized:
         for x in deserialized:
             ltimestamp = (x['location'].get('timeStamp'))
-            ltimestamp = convert_unix_ts_to_timezone(ltimestamp, timezone_offset)
+            ltimestamp = convert_unix_ts_to_utc(ltimestamp)
             name = (x['name'])
             serial = (x['serialNumber'])
-            id = (x['identifier'])
+            item_id = (x['identifier'])
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -140,7 +201,7 @@ def findMyItemsLocations(files_found, report_folder, seeker, wrap_text, timezone
             acountry =  (x['address'].get('country'))
 
             data_list.append(
-                (ltimestamp, name, serial, id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, 
+                (ltimestamp, name, serial, item_id, rname, remoji, ris, ptype, maname, pid, vid, ap, gid, 
                     owner, batstat, lostmode, cap, sysver, asubAdministrativeArea, aslabel, astreetAddress, 
                     acountryCode, astateCode, administrativeArea, astreetName, aformattedAddressLines, 
                     amapItemFullAddress, afullThroroughfare, areaOfInterest, alocality, lpostype, lverticalAccuracy, 
@@ -155,22 +216,22 @@ def findMyItemsLocations(files_found, report_folder, seeker, wrap_text, timezone
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsSafeLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def findMyItemsSafeLocations(context):
     data_list = []
-    source_path = str(files_found[0])
+    source_path = str(context.get_files_found()[0])
     
-    with open(source_path, mode='r', encoding="UTF-8") as f:
-        deserialized = json.load(f)
+    deserialized = _read_items_json(source_path)
+    if deserialized:
         for x in deserialized:
             name = (x['name'])
             serial = (x['serialNumber'])
-            id = (x['identifier'])
+            item_id = (x['identifier'])
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
             for safeloc in x.get('safeLocations'):
                 stimestamp = (safeloc['location'].get('timeStamp'))
-                stimestamp = convert_unix_ts_to_timezone(stimestamp, timezone_offset)
+                stimestamp = convert_unix_ts_to_utc(stimestamp)
                 sname = (safeloc.get('name'))
                 stype = (safeloc.get('type'))
                 sid = (safeloc.get('identifier'))
@@ -197,7 +258,7 @@ def findMyItemsSafeLocations(files_found, report_folder, seeker, wrap_text, time
                 scount = (safeloc['address'].get('country'))
 
                 data_list.append(
-                    (stimestamp, name, serial, id, rname, remoji, ris, sname, stype, sid, sva, sha, 
+                    (stimestamp, name, serial, item_id, rname, remoji, ris, sname, stype, sid, sva, sha, 
                         slong, slat, sfloor, sisina, sisold, salt, ssub, slabel, sstreet, scountry, 
                         sstate, sadmin, pstreetn, sformated, smapfull, sthro, saoi, sloc, scount))
 
@@ -209,18 +270,18 @@ def findMyItemsSafeLocations(files_found, report_folder, seeker, wrap_text, time
     return data_headers, data_list, source_path
 
 @artifact_processor
-def findMyItemsCrowdsourcedLocations(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def findMyItemsCrowdsourcedLocations(context):
     data_list = []
-    source_path = str(files_found[0])
+    source_path = str(context.get_files_found()[0])
     
-    with open(source_path, mode='r', encoding="UTF-8") as f:
-        deserialized = json.load(f)
+    deserialized = _read_items_json(source_path)
+    if deserialized:
         for x in deserialized:
             crowdtimestamp= (x['crowdSourcedLocation'].get('timeStamp'))
-            crowdtimestamp = convert_unix_ts_to_timezone(crowdtimestamp, timezone_offset)
+            crowdtimestamp = convert_unix_ts_to_utc(crowdtimestamp)
             name = (x['name'])
             serial = (x['serialNumber'])
-            id = (x['identifier'])
+            item_id = (x['identifier'])
             rname = (x['role'].get('name'))
             remoji = (x['role'].get('emoji'))
             ris = (x['role'].get('identifier'))
@@ -247,7 +308,7 @@ def findMyItemsCrowdsourcedLocations(files_found, report_folder, seeker, wrap_te
             crowdlocfin = (x['crowdSourcedLocation'].get('locationFinished'))
 
             data_list.append(
-                (crowdtimestamp, name, serial, id, rname, remoji, ris, ptype, maname, pid, vid, 
+                (crowdtimestamp, name, serial, item_id, rname, remoji, ris, ptype, maname, pid, vid, 
                 ap, gid, owner, batstat, lostmode, cap, sysver, crowdpostype, crowdvert, crowdlong, 
                 crowdlat, crowdalt, crowdfloor, crowdisacc, crowdisold, crowdhorzcc, crowdlocfin ))
 

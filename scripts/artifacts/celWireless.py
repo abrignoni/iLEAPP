@@ -3,42 +3,58 @@ __artifacts_v2__ = {
         "name": "Cellular Wireless",
         "description": "Extracts cellular wireless information from device preferences",
         "author": "@abrignoni",
-        "version": "1.0",
-        "date": "2024-10-22",
+        "creation_date": "2024-10-22",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "Cellular",
         "notes": "",
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.plist', 
                   '*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist'),
-        "output_types": "standard"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "antenna",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 53 rows",
+            "dexter_ios18": "iOS 18.3.2 | 65 rows",
+            "felix_ios17": "iOS 17.6.1 | 60 rows",
+            "fsfull002_ios17": "iOS 17.1 | 120 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 48 rows",
+            "iphone11_ios17": "iOS 17.3 | 62 rows",
+            "iphone12_ios18": "iOS 18.7 | 56 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 63 rows",
+            "otto_ios17": "iOS 17.5.1 | 62 rows",
+            "abe_ios16": "iOS 16.5 | 53 rows",
+            "felix23_ios16": "iOS 16.5 | 52 rows",
+            "hickman_ios13": "iOS 13.3.1 | 52 rows",
+            "hickman_ios14": "iOS 14.3 | 58 rows",
+            "jess_ios15": "iOS 15.0.2 | 58 rows",
+            "magnet_ios16": "iOS 16.1.1 | 55 rows",
+        }
     }
 }
 
 import os
-import plistlib
-
-from scripts.ilapfuncs import device_info, artifact_processor
+from scripts.ilapfuncs import device_info, artifact_processor, get_plist_file_content
 
 @artifact_processor
-def celWireless(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def celWireless(context):
     data_list = []
-    for filepath in files_found:
+    for filepath in context.get_files_found():
         basename = os.path.basename(filepath)
         if basename in ["com.apple.commcenter.device_specific_nobackup.plist", "com.apple.commcenter.plist"]:
-            with open(filepath, "rb") as p:
-                plist = plistlib.load(p)
-                for key, val in plist.items():
-                    data_list.append((key, str(val), filepath))
-                    if key == "ReportedPhoneNumber":
-                        device_info("Cellular", "Reported Phone Number", val, filepath)
-                    elif key == "CDMANetworkPhoneNumberICCID":
-                        device_info("Cellular", "CDMA Network Phone Number ICCID", val, filepath)
-                    elif key == "imei":
-                        device_info("Cellular", "IMEI", val, filepath)
-                    elif key == "LastKnownICCID":
-                        device_info("Cellular", "Last Known ICCID", val, filepath)
-                    elif key == "meid":
-                        device_info("Cellular", "MEID", val, filepath)
+            plist = get_plist_file_content(filepath)
+            for key, val in plist.items():
+                data_list.append((key, str(val), context.get_relative_path(filepath)))
+                if key == "ReportedPhoneNumber":
+                    device_info("Cellular", "Reported Phone Number", val, filepath)
+                elif key == "CDMANetworkPhoneNumberICCID":
+                    device_info("Cellular", "CDMA Network Phone Number ICCID", val, filepath)
+                elif key == "imei":
+                    device_info("Cellular", "IMEI", val, filepath)
+                elif key == "LastKnownICCID":
+                    device_info("Cellular", "Last Known ICCID", val, filepath)
+                elif key == "meid":
+                    device_info("Cellular", "MEID", val, filepath)
     
     data_headers = ('Data Key', 'Data Value', 'Source File')
-    return data_headers, data_list, filepath
+    
+    return data_headers, data_list, 'see Source File for more info'

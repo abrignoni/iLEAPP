@@ -35,10 +35,18 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python -m pip install -r requirements.txt
 
+      - name: Guard against PyPI blackboxprotobuf imports
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/test/scripts/test_no_pypi_blackboxprotobuf.py
+
+      # Fails only on warnings this pull request introduces. Long-lived modules carry
+      # deliberate pre-existing warnings (ileapp.py's wildcard imports, ilapfuncs.py's
+      # backward-compat re-exports), and failing on those pushed contributors toward
+      # unrelated refactors or blanket file-level disables. See the script's docstring.
       - name: Run on changed files
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: |
-          echo "Linting the following files:"
-          echo "${{ steps.changed-files-py.outputs.all_changed_files }}"
-          
-          PYTHONPATH=. pylint ${{ steps.changed-files-py.outputs.all_changed_files }} --disable=C,R
+          BASE=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+          echo "Comparing against merge base $BASE"
+          python admin/scripts/lint_changed.py --base-ref "$BASE" \
+            ${{ steps.changed-files-py.outputs.all_changed_files }}

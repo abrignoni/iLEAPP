@@ -31,6 +31,109 @@ Related work:
     https://gforce4n6.blogspot.com/2019/09/a-quick-look-into-ios-snapshots.html
 '''
 
+
+__artifacts_v2__ = {
+    "get_installed_apps": {
+        "name": "Application State",
+        "description": "Extract information about bundle container path and data path for Applications",
+        "author": "@AlexisBrignoni - @mxkrt",
+        "creation_date": "2025-08-27",
+        "last_update_date": "2025-10-24",
+        "requirements": "none",
+        "category": "Installed Apps",
+        "notes": "",
+        "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
+        "output_types": ["html","tsv","lava"],
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 109 rows",
+            "dexter_ios18": "iOS 18.3.2 | 190 rows",
+            "felix_ios17": "iOS 17.6.1 | 158 rows",
+            "fsfull002_ios17": "iOS 17.1 | 78 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 145 rows",
+            "iphone11_ios17": "iOS 17.3 | 144 rows",
+            "iphone12_ios18": "iOS 18.7 | 187 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 156 rows",
+            "otto_ios17": "iOS 17.5.1 | 168 rows",
+            "abe_ios16": "iOS 16.5 | 99 rows",
+            "felix23_ios16": "iOS 16.5 | 92 rows",
+            "hickman_ios13": "iOS 13.3.1 | 87 rows",
+            "hickman_ios14": "iOS 14.3 | 102 rows",
+            "jess_ios15": "iOS 15.0.2 | 84 rows",
+            "magnet_ios16": "iOS 16.1.1 | 120 rows",
+        }
+    },
+    "get_snapshot_creationDate": {
+        "name": "Application Snapshot",
+        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. "
+                       "NOTE: these timestamps do not always indicate application usage "
+                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these "
+                       "timestamps do indicate user-interaction with the "
+                       "device, such as switching between apps.",
+        "author": "@mxkrt",
+        "creation_date": "2025-08-04",
+        "last_update_date": "2025-10-24",
+        "requirements": "none",
+        "category": "Device Usage",
+        "notes": "",
+        "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
+        "output_types": "standard",
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 257 rows",
+            "dexter_ios18": "iOS 18.3.2 | 733 rows",
+            "felix_ios17": "iOS 17.6.1 | 323 rows",
+            "fsfull002_ios17": "iOS 17.1 | 240 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 362 rows",
+            "iphone11_ios17": "iOS 17.3 | 658 rows",
+            "iphone12_ios18": "iOS 18.7 | 621 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 536 rows",
+            "otto_ios17": "iOS 17.5.1 | 747 rows",
+            "abe_ios16": "iOS 16.5 | 625 rows",
+            "felix23_ios16": "iOS 16.5 | 484 rows",
+            "hickman_ios13": "iOS 13.3.1 | 353 rows",
+            "hickman_ios14": "iOS 14.3 | 497 rows",
+            "jess_ios15": "iOS 15.0.2 | 290 rows",
+            "magnet_ios16": "iOS 16.1.1 | 487 rows",
+        }
+    },
+    "get_snapshot_lastUsedDate": {
+        "name": "Application Snapshot lastUsedDate",
+        "description": "Extract XBApplicationSnapshotManifest records with a "
+                       "lastUsedDate from applicationState.db. "
+                       "NOTE: these timestamps do not always indicate application usage "
+                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these "
+                       "timestamps do indicate user-interaction with the "
+                       "device, such as switching between apps.",
+        "author": "@mxkrt",
+        "creation_date": "2025-08-04",
+        "last_update_date": "2025-10-24",
+        "requirements": "none",
+        "category": "Device Usage",
+        "notes": "",
+        "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
+        "output_types": "standard",
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 64 rows",
+            "dexter_ios18": "iOS 18.3.2 | 76 rows",
+            "felix_ios17": "iOS 17.6.1 | 19 rows",
+            "fsfull002_ios17": "iOS 17.1 | 23 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 31 rows",
+            "iphone11_ios17": "iOS 17.3 | 120 rows",
+            "iphone12_ios18": "iOS 18.7 | 85 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 24 rows",
+            "otto_ios17": "iOS 17.5.1 | 78 rows",
+            "abe_ios16": "iOS 16.5 | 61 rows",
+            "felix23_ios16": "iOS 16.5 | 20 rows",
+            "hickman_ios13": "iOS 13.3.1 | 59 rows",
+            "hickman_ios14": "iOS 14.3 | 87 rows",
+            "jess_ios15": "iOS 15.0.2 | 28 rows",
+            "magnet_ios16": "iOS 16.1.1 | 58 rows",
+        }
+    }
+}
+
 import biplist
 import io
 import nska_deserialize as nd
@@ -38,61 +141,8 @@ import plistlib
 import sys
 from collections import namedtuple as _nt
 
-from scripts.ilapfuncs import open_sqlite_db_readonly
-from scripts.ilapfuncs import artifact_processor
-from scripts.ilapfuncs import logfunc
-
-
-__artifacts_v2__ = {
-    "get_installed_apps": {
-        "name": "Application State",
-        "description": "Extract information about bundle container path and data path for Applications",
-        "author": "@AlexisBrignoni - @mxkrt",
-        "version": "0.2.3",
-        "date": "2025-08-27",
-        "requirements": "none",
-        "category": "Installed Apps",
-        "notes": "",
-        "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "output_types": ["html","tsv","lava"],
-        "artifact_icon": "package"
-    },
-    "get_snapshot_creationDate": {
-        "name": "Application Snapshot",
-        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. " +\
-                       "NOTE: these timestamps do not always indicate application usage " +\
-                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these " +\
-                       "timestamps do indicate user-interaction with the " +\
-                       "device, such as switching between apps.",
-        "author": "@mxkrt",
-        "version": "0.1",
-        "date": "2025-08-04",
-        "requirements": "none",
-        "category": "Device Usage",
-        "notes": "",
-        "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "output_types": "standard",
-        "artifact_icon": "smartphone"
-    },
-    "get_snapshot_lastUsedDate": {
-        "name": "Application Snapshot lastUsedDate",
-        "description": "Extract XBApplicationSnapshotManifest records with a " +\
-                       "lastUsedDate from applicationState.db. " +\
-                       "NOTE: these timestamps do not always indicate application usage " +\
-                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these " +\
-                       "timestamps do indicate user-interaction with the " +\
-                       "device, such as switching between apps.",
-        "author": "@mxkrt",
-        "version": "0.1",
-        "date": "2025-08-04",
-        "requirements": "none",
-        "category": "Device Usage",
-        "notes": "",
-        "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
-        "output_types": "standard",
-        "artifact_icon": "smartphone"
-    }
-}
+from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, \
+    logfunc, get_file_path
 
 
 # simply get all (application, key, value) entries, post-process in code
@@ -126,19 +176,17 @@ _snapshot_headers = ('Creation Date', 'Bundle ID', 'Snapshot Group',
 
 
 @artifact_processor
-def get_installed_apps(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_installed_apps(context):
     ''' get bundle container path and sandbox data path for installed applications '''
 
     # this is a refactored version of the original applicationstate.py module
-    for file_found in files_found:
-        file_found = str(file_found)
-        if file_found.endswith('applicationState.db'):
-            break
+    files_found = context.get_files_found()
+    file_found = get_file_path(files_found, 'applicationState.db')
 
     # get the records grouped by application identifier
     applications = _do_query(file_found)
     if applications is None:
-        return
+        return (), [], ''
 
     data_headers = ('Bundle ID','Bundle Path','Sandbox Path')
     data_list = []
@@ -158,26 +206,22 @@ def get_installed_apps(files_found, report_folder, seeker, wrap_text, timezone_o
 
 
 @artifact_processor
-def get_snapshot_creationDate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_snapshot_creationDate(context):
     ''' main artifact processor, parses XBApplicationSnapshotManifest snapshots '''
 
-    for file_found in files_found:
-        file_found = str(file_found)
-        if file_found.endswith('applicationState.db'):
-            break
+    files_found = context.get_files_found()
+    file_found = get_file_path(files_found, 'applicationState.db')
 
     data_list = _get_snapshots(file_found)
     return _snapshot_headers, data_list, file_found
 
 
 @artifact_processor
-def get_snapshot_lastUsedDate(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_snapshot_lastUsedDate(context):
     ''' add the lastUsedDate for each snapshot to the timeline '''
 
-    for file_found in files_found:
-        file_found = str(file_found)
-        if file_found.endswith('applicationState.db'):
-            break
+    files_found = context.get_files_found()
+    file_found = get_file_path(files_found, 'applicationState.db')
 
     data_list = _get_snapshots(file_found)
     new_data_list = []
@@ -199,8 +243,8 @@ def get_snapshot_lastUsedDate(files_found, report_folder, seeker, wrap_text, tim
     # swap Last Used Date and Creation Date in headers as well
     last_idx = _snapshot_headers.index('Last Used Date')
     new_headers = [hdr for hdr in _snapshot_headers[1:] if hdr != 'Last Used Date']
-    new_headers.insert(0, 'Last Used Date')
-    new_headers.insert(last_idx, 'Creation Date')
+    new_headers.insert(0, ('Last Used Date', 'datetime'))
+    new_headers.insert(last_idx, ('Creation Date', 'datetime'))
 
     return new_headers, new_data_list, file_found
 
@@ -217,8 +261,8 @@ def _do_query(file_found):
 
     # abort if we have no records
     if len(all_rows) == 0:
-        logfunc('No Application State data available')
-        return
+        #logfunc('No Application State data available')
+        return {}
 
     # group results by application identifier
     applications = _group_records(all_rows)
@@ -232,7 +276,7 @@ def _get_snapshots(file_found):
     # get the records grouped by application
     applications = _do_query(file_found)
     if applications is None:
-        return
+        return []
 
     # collect results in list
     snapshot_list = []
@@ -267,7 +311,7 @@ def _get_snapshots(file_found):
             identifier = metadata.get('identifier')
             if snapshot_group != identifier:
                 # we expect identifier and snapshot_group to be equal
-                logfunc(f"WARNING: assumption broken on identifier field")
+                logfunc("WARNING: assumption broken on identifier field")
 
             # get the snapshots
             snapshots = metadata.get('snapshots')

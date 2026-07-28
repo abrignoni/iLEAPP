@@ -4,32 +4,51 @@ __artifacts_v2__ = {
         "description": "Extraction of timers set",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2024-12-22",
-        "last_update_date": "2024-12-22",
+        "last_update_date": "2025-10-22",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
-        "artifact_icon": "clock"
+        "artifact_icon": "clock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
     }
 }
 
 import datetime
-
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, convert_plist_date_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
 @artifact_processor
-def timer(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def timer(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "com.apple.mobiletimerd.plist")
     data_list = []
 
     pl = get_plist_file_content(source_path)
+    if not pl or not isinstance(pl, dict):
+        return (), [], ''
+    
     if 'MTTimers' in pl:
         if 'MTTimers' in pl['MTTimers']:
             for timers in pl['MTTimers']['MTTimers']:
                 timers_dict = timers['$MTTimer']
                 timer_title = timers_dict.get('MTTimerTitle', '')
-                timer_time = timers_dict.get('MTTimerDuration', '')
                 timer_state = timers_dict.get('MTTimerState', '')
                 timer_duration = timers_dict.get('MTTimerDuration', '')
                 timer_lastModified = timers_dict.get('MTTimerLastModifiedDate', '')
@@ -40,20 +59,20 @@ def timer(files_found, report_folder, seeker, wrap_text, timezone_offset):
                     timer_firstDate = timer_fireTime.get('MTTimerTimeDate', '')
 
                 data_list.append((
+                    timer_firstDate, 
+                    timer_lastModified, 
                     timer_title, 
                     timer_state, 
                     str(datetime.timedelta(seconds = timer_duration)), 
-                    timer_firstDate, 
-                    timer_lastModified, 
                     timers_dict['MTTimerSound']['$MTSound']['MTSoundToneID'] 
                     ))
 
     data_headers = (
+            ('First Date', 'datetime'), 
+            ('Last Modified', 'datetime'), 
             'Timer Title', 
             'Timer State', 
             'Timer Time', 
-            ('First Date', 'datetime'), 
-            ('Last Modified', 'datetime'), 
             'Timer Sound'
             )
 

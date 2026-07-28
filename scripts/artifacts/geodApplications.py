@@ -1,59 +1,75 @@
-import base64
-import json
-import sqlite3
-import os
-from packaging import version
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, timeline, is_platform_windows, open_sqlite_db_readonly, does_table_exist_in_db
-
-
-def get_geodApplications(files_found, report_folder, seeker, wrap_text, timezone_offset):
-	for file_found in files_found:
-		file_found = str(file_found)
-		
-		if file_found.endswith('.db'):
-			break
-	
-	db = open_sqlite_db_readonly(file_found)
-	cursor = db.cursor()
-	
-	if does_table_exist_in_db(file_found, 'mkcount'):
-		query = "SELECT count_type, app_id, createtime FROM mkcount"
-	elif does_table_exist_in_db(file_found, 'dailycounts'):
-		query = "SELECT count_type, app_id, createtime FROM dailycounts"
-
-	cursor.execute(query)
-
-	all_rows = cursor.fetchall()
-	
-	usageentries = len(all_rows)
-	data_list = []
-	if usageentries > 0:
-		for row in all_rows:
-			data_list.append((row[2], row[0], row[1] ))
-			description = ''
-		report = ArtifactHtmlReport('Geolocation')
-		report.start_artifact_report(report_folder, 'Applications', description)
-		report.add_script()
-		data_headers = ("Creation Time", "Count ID", "Application")
-		report.write_artifact_data_table(data_headers, data_list, file_found, html_escape = False)
-		report.end_artifact_report()
-
-		tsvname = 'Geolocation Applications'
-		tsv(report_folder, data_headers, data_list, tsvname)
-		
-		tlactivity = 'Geolocation Applications'
-		timeline(report_folder, tlactivity, data_list, data_headers)
-
-	else:
-		logfunc('No data available for Geolocation Applications')
-
-	db.close()
-	return
-	
-__artifacts__ = {
-    "geodapplications": (
-        "Location",
-        ('**/AP.db*'),
-        get_geodApplications)
+__artifacts_v2__ = {
+    "geodapplications": {
+        "name": "Geolocation - Applications",
+        "description": "Per-application location count entries from the geod AP.db (mkcount/dailycounts)",
+        "author": "",
+        "creation_date": "2026-06-23",
+        "last_update_date": "2026-07-10",
+        "requirements": "none",
+        "category": "Location",
+        "notes": "createtime is stored either as Mac absolute time (Cocoa, seconds since 2001-01-01 UTC) or as a 'YYYY-MM-DD HH:MM:SS' text value assumed to be UTC.",
+        "paths": ('**/AP.db*',),
+        "output_types": "standard",
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 18 rows",
+            "iphone11_ios17": "iOS 17.3 | 114 rows",
+            "iphone12_ios18": "iOS 18.7 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | 27 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 3 rows",
+        }
+    }
 }
+
+from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, does_table_exist_in_db,
+                               convert_cocoa_core_data_ts_to_utc, convert_ts_human_to_utc, logfunc)
+
+
+def _convert_createtime(createtime):
+    """createtime is numeric Mac absolute time in some schema versions and a
+    'YYYY-MM-DD HH:MM:SS' text value (assumed UTC) in others."""
+    if createtime is None or createtime == '':
+        return ''
+    if isinstance(createtime, (int, float)):
+        return convert_cocoa_core_data_ts_to_utc(createtime)
+    try:
+        return convert_ts_human_to_utc(str(createtime))
+    except ValueError:
+        logfunc(f'Unrecognized createtime value in AP.db: {createtime}')
+        return ''
+
+
+@artifact_processor
+def geodapplications(context):
+    data_headers = (('Creation Time', 'datetime'), 'Count ID', 'Application')
+    data_list = []
+
+    source_path = ''
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if file_found.endswith('.db'):
+            source_path = file_found
+            break
+    if not source_path:
+        return data_headers, data_list, ''
+
+    table = ''
+    if does_table_exist_in_db(source_path, 'mkcount'):
+        table = 'mkcount'
+    elif does_table_exist_in_db(source_path, 'dailycounts'):
+        table = 'dailycounts'
+
+    if table:
+        for row in get_sqlite_db_records(source_path, f'SELECT count_type, app_id, createtime FROM {table}'):
+            data_list.append((_convert_createtime(row[2]), row[0], row[1]))
+
+    return data_headers, data_list, context.get_relative_path(source_path)

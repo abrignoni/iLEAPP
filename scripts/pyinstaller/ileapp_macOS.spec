@@ -20,6 +20,7 @@ a = Analysis(
         'pandas',
         'pgpy',
         'pillow_heif',
+        'typedstream',
         'xml.etree.ElementTree',
         ],
     hookspath=[],

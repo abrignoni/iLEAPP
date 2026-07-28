@@ -4,33 +4,42 @@ __artifacts_v2__ = {
         "description": "Extract trail details from AllTrails App",
         "author": "@stark4n6",
         "creation_date": "2022-04-28",
-        "last_update_date": "2024-12-17",
+        "last_update_date": "2025-10-08",
         "requirements": "none",
         "category": "Health & Fitness",
         "notes": "",
         "paths": ('*/Documents/AllTrails.sqlite*'),
-        "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "map"
+        "output_types": ["html", "tsv", "lava", "kml"],
+        "artifact_icon": "map",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | AllTrails: Hike, Bike & Run 18.8.0 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | AllTrails: Hike, Bike & Run 14.3.1 | 50 rows",
+        }
     },
     "allTrailsUserInfo": {
         "name": "AllTrails - User Info",
         "description": "Extract user info from AllTrails App",
         "author": "@stark4n6",
         "creation_date": "2022-04-28",
-        "last_update_date": "2024-12-17",
+        "last_update_date": "2025-10-08",
         "requirements": "none",
         "category": "Health & Fitness",
         "notes": "",
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": "all",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | AllTrails: Hike, Bike & Run 18.8.0 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | AllTrails: Hike, Bike & Run 14.3.1 | 1 row",
+        }
     }
 }
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
 
 @artifact_processor
-def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def allTrailsTrailDetails(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AllTrails.sqlite")
     data_list = []
 
@@ -81,13 +90,14 @@ def allTrailsTrailDetails(files_found, report_folder, seeker, wrap_text, timezon
         'Parking Area Name'
         )
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
 
     return data_headers, data_list, source_path
 
 
 @artifact_processor
-def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def allTrailsUserInfo(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AllTrails.sqlite")
     data_list = []
 
@@ -135,6 +145,7 @@ def allTrailsUserInfo(files_found, report_folder, seeker, wrap_text, timezone_of
         creation_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         data_list.append(
             (creation_timestamp, record[1], record[2], record[3], record[4], record[5], record[6], 
-             record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
+             record[7], record[8], record[9], record[10], record[11], record[12], record[13])
+        )
 
     return data_headers, data_list, source_path

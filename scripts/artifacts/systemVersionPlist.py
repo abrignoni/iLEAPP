@@ -16,7 +16,23 @@ __artifacts_v2__ = {
             "*/System/Library/CoreServices/SystemVersion.plist",
             "*/sysdiagnose_*.tar.gz"),
         "output_types": ["standard", "tsv", "none"],
-        "artifact_icon": "git-commit"
+        "artifact_icon": "git-commit",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 6 rows",
+            "dexter_ios18": "iOS 18.3.2 | 6 rows",
+            "felix_ios17": "iOS 17.6.1 | 6 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 6 rows",
+            "iphone11_ios17": "iOS 17.3 | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | 6 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows",
+            "otto_ios17": "iOS 17.5.1 | 6 rows",
+            "abe_ios16": "iOS 16.5 | 6 rows",
+            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | 6 rows",
+        }
     }
 }
 
@@ -36,9 +52,9 @@ def system_version_plist(context):
     sysdiagnose_archive = context.get_source_file_path("sysdiagnose_*.tar.gz")
 
     if plist_file:
-        data_source = system_version_plist
+        data_source = plist_file
         pl = get_plist_file_content(data_source)
-    elif 'sysdiagnose_' in sysdiagnose_archive and "IN_PROGRESS_" not in sysdiagnose_archive:
+    elif sysdiagnose_archive and 'sysdiagnose_' in sysdiagnose_archive and "IN_PROGRESS_" not in sysdiagnose_archive:
         tar = tarfile.open(sysdiagnose_archive)
         root = tar.getmembers()[0].name.split('/')[0]
         try:

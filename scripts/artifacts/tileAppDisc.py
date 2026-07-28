@@ -22,9 +22,9 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 @artifact_processor
-def tileAppDisc(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def tileAppDisc(context):
     source_path = get_file_path(
-        files_found, 'com.thetileapp.tile-DiscoveredTileDB.sqlite')
+        context.get_files_found(), 'com.thetileapp.tile-DiscoveredTileDB.sqlite')
     data_list = []
 
     query = '''

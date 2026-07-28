@@ -3,33 +3,108 @@ __artifacts_v2__ = {
         "name": "Biome - Device Plugged In",
         "description": "Parses device plugged in entries from biomes",
         "author": "@JohnHyla",
-        "version": "0.0.2",
-        "date": "2024-10-17",
+        "creation_date": "2024-10-17",
+        "last_update_date": "2026-07-27",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
-        "paths": ('*/biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
-        "output_types": "standard"
+        "notes": "A record is written whenever the device is charging, which includes wireless "
+                 "charging as well as a physical cable connection, so isCharging describes this "
+                 "state more accurately than plugged in (observation by Ian Whiffin). Reference: "
+                 "Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+        "paths": ('*/Biome/streams/restricted/_DKEvent.Device.IsPluggedIn/local/*'),
+        "output_types": "standard",
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 1415 rows",
+            "felix_ios17": "iOS 17.6.1 | 304 rows",
+            "fsfull002_ios17": "iOS 17.1 | 153 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 639 rows",
+            "iphone11_ios17": "iOS 17.3 | 476 rows",
+            "iphone12_ios18": "iOS 18.7 | 455 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 18 rows",
+            "otto_ios17": "iOS 17.5.1 | 746 rows",
+            "abe_ios16": "iOS 16.5 | 3619 rows",
+            "felix23_ios16": "iOS 16.5 | 170 rows",
+            "magnet_ios16": "iOS 16.1.1 | 36 rows",
+        }
     }
 }
 
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_utc_human_to_timezone
-
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
 
 @artifact_processor
-def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def get_biomeDevplugin(context):
 
-    typess = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'str', 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}}, 'name': ''}, '2': {'type': 'double', 'name': ''}, '3': {'type': 'double', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '4': {'type': 'int', 'name': ''}}, 'name': ''}, '5': {'type': 'str', 'name': ''}, '7': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {}, 'name': ''}, '2': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'int', 'name': ''}, '2': {'type': 'int', 'name': ''}}, 'name': ''}, '4': {'type': 'int', 'name': ''}}, 'name': ''}, '3': {'type': 'int', 'name': ''}}, 'name': ''}, '8': {'type': 'double', 'name': ''}, '10': {'type': 'int', 'name': ''}}
+    typess = {
+        '1': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {'type': 'str', 'name': ''},
+                '2': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {'type': 'int', 'name': ''},
+                        '2': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                }
+            },
+            'name': ''
+        },
+        '2': {'type': 'double', 'name': ''},
+        '3': {'type': 'double', 'name': ''},
+        '4': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {'type': 'int', 'name': ''},
+                        '2': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                },
+                '4': {'type': 'int', 'name': ''}
+            },
+            'name': ''
+        },
+        '5': {'type': 'str', 'name': ''},
+        '7': {
+            'type': 'message',
+            'message_typedef': {
+                '1': {'type': 'message', 'message_typedef': {}, 'name': ''},
+                '2': {
+                    'type': 'message',
+                    'message_typedef': {
+                        '1': {
+                            'type': 'message',
+                            'message_typedef': {
+                                '1': {'type': 'int', 'name': ''},
+                                '2': {'type': 'int', 'name': ''}
+                            },
+                            'name': ''
+                        },
+                        '4': {'type': 'int', 'name': ''}
+                    },
+                    'name': ''
+                },
+                '3': {'type': 'int', 'name': ''}
+            },
+            'name': ''
+        },
+        '8': {'type': 'double', 'name': ''},
+        '10': {'type': 'int', 'name': ''}
+    }
 
     data_list = []
-    report_file = 'Unknown'
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
@@ -37,8 +112,6 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_o
         if os.path.isfile(file_found):
             if 'tombstone' in file_found:
                 continue
-            else:
-                report_file = os.path.dirname(file_found)
         else:
             continue
 
@@ -47,17 +120,12 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_o
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, types = blackboxprotobuf.decode_message(record.data, typess)
+                protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
                 activity = (protostuff['1']['1'])
                 timestart = (webkit_timestampsconv(protostuff['2']))
-                timestart = convert_utc_human_to_timezone(timestart, timezone_offset)
-                
                 timeend = (webkit_timestampsconv(protostuff['3']))
-                timeend = convert_utc_human_to_timezone(timeend, timezone_offset)
-                
                 timewrite = (webkit_timestampsconv(protostuff['8']))
-                timewrite = convert_utc_human_to_timezone(timewrite, timezone_offset)
                 
                 con = (protostuff['4']['4'])
                 actionguid = (protostuff['5'])
@@ -72,4 +140,4 @@ def get_biomeDevplugin(files_found, report_folder, seeker, wrap_text, timezone_o
     data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
                     ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, 'see Filename for more info'

@@ -1,3 +1,5 @@
+"""Video file type matchers."""
+
 # -*- coding: utf-8 -*-
 
 from .base import Type
@@ -21,7 +23,7 @@ class Mp4(IsoBmff):
         if not self._is_isobmff(buf):
             return False
 
-        major_brand, minor_version, compatible_brands = self._get_ftyp(buf)
+        major_brand, _, compatible_brands = self._get_ftyp(buf)
         for brand in compatible_brands:
             if brand in ['mp41', 'mp42', 'isom']:
                 return True
@@ -106,7 +108,7 @@ class Mov(IsoBmff):
         if not self._is_isobmff(buf):
             return False
 
-        major_brand, minor_version, compatible_brands = self._get_ftyp(buf)
+        major_brand, _, _ = self._get_ftyp(buf)
         return major_brand == 'qt  '
 
 

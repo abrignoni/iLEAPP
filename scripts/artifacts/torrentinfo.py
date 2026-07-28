@@ -1,71 +1,124 @@
-import bencoding
+""" torrentinfo """
+__artifacts_v2__ = {
+    'torrent_info': {
+        'name': 'BitTorrent Info',
+        'description': 'Extracts metadata and file lists from .torrent files',
+        'author': '@AlexisBrignoni',
+        'creation_date': '2023-03-27',
+        'last_update_date': '2025-11-28',
+        'requirements': 'bencoding',
+        'category': 'Downloads',
+        'notes': '',
+        'paths': ('*/*.torrent',),
+        'output_types': 'standard',
+        'artifact_icon': 'download',
+        'html_columns': ['Data']
+    }
+}
+
 import hashlib
-import datetime
-import textwrap
+from html import escape
+import bencoding
+from bencoding.decoder import DecoderError
 
-from scripts.artifact_report import ArtifactHtmlReport
-from scripts.ilapfuncs import logfunc, tsv, is_platform_windows 
+from scripts.ilapfuncs import (
+    artifact_processor,
+    logfunc,
+    convert_unix_ts_to_utc
+)
 
-def timestampcalc(timevalue):
-    timestamp = (datetime.datetime.fromtimestamp(int(timevalue)).strftime('%Y-%m-%d %H:%M:%S'))
-    return timestamp
 
-def get_torrentinfo(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def _decode_torrent_value(value):
+    if isinstance(value, bytes):
+        return value.decode('utf-8', 'ignore')
+    return str(value)
 
+
+@artifact_processor
+def torrent_info(context):
+    """ see artifact description """
+    files_found = context.get_files_found()
     data_list = []
+    source_path = ''
+
     for file_found in files_found:
         file_found = str(file_found)
+        source_path = file_found
 
         try:
             with open(file_found, 'rb') as f:
-                decodedDict = bencoding.bdecode(f.read())
-            
+                decoded_dict = bencoding.bdecode(f.read())
+
             aggregate = ''
-            try:
-                infoh= hashlib.sha1(bencoding.bencode(decodedDict[b"info"])).hexdigest()
-                infohash = infoh
-            except:
-                infohash = ''
-                
-            for key, value in decodedDict.items():
-                if key.decode() == 'info':
+            infohash = ''
+
+            if b"info" in decoded_dict:
+                try:
+                    infoh = hashlib.sha1(bencoding.bencode(decoded_dict[b"info"])).hexdigest()
+                    infohash = infoh.upper()
+                except (KeyError, TypeError, ValueError):
+                    infohash = ''
+
+            for key, value in decoded_dict.items():
+                key_str = _decode_torrent_value(key)
+
+                if key_str == 'info':
                     for x, y in value.items():
-                        if x == b'pieces':
-                            pass
-                        elif key.decode() == 'info':
-                            for itemkey, itemvalue in value.items():
-                                if itemkey.decode() == 'files':
-                                    for y in itemvalue:
-                                        if len(y[b'path']) == 1:
-                                            file = (y[b'path'][0].decode())
-                                            aggregate = aggregate + f'Files: {file} <br>'
+                        x_str = _decode_torrent_value(x)
+
+                        if x_str == 'pieces':
+                            continue
+
+                        elif x_str == 'files':
+                            for file_item in y:
+                                path_str = ''
+                                size_str = ''
+
+                                if b'path' in file_item:
+                                    try:
+                                        path_parts = [_decode_torrent_value(p) for p in file_item[b'path']]
+                                        path_str = '/'.join(path_parts)
+                                    except (AttributeError, TypeError):
+                                        path_str = _decode_torrent_value(file_item[b'path'])
+
+                                if b'length' in file_item:
+                                    size_str = str(file_item[b'length'])
+
+                                aggregate += f'File: {escape(path_str)} <br>Size: {escape(size_str)} bytes <br>'
+
+                        elif x_str == 'name':
+                            name_val = _decode_torrent_value(y)
+                            aggregate += f'Name: {escape(name_val)} <br>'
+
+                        elif x_str == 'length':
+                            aggregate += f'Size: {escape(str(y))} bytes <br>'
+
                         else:
-                            aggregate = aggregate + f'{x.decode()}: {y.decode()} <br>'
-                
-                elif key.decode() == 'pieces':
-                    pass
-                elif key.decode() == 'creation date':
-                    aggregate = aggregate + f'{key.decode()}: {timestampcalc(value)} <br>'
+                            val_str = _decode_torrent_value(y)
+                            aggregate += f'{escape(x_str)}: {escape(val_str)} <br>'
+
+                elif key_str == 'pieces':
+                    continue
+
+                elif key_str == 'creation date':
+                    ts_obj = convert_unix_ts_to_utc(value)
+                    aggregate += f'{escape(key_str)}: {escape(str(ts_obj))} <br>'
+
                 else:
-                    aggregate = aggregate + f'{key.decode()}: {value.decode()} <br>' #add if value is binary decode
-        
-            data_list.append((textwrap.fill(file_found.strip(), width=25),infohash,aggregate))
-        except Exception as e: logfunc(str(e))
+                    val_str = _decode_torrent_value(value)
+                    aggregate += f'{escape(key_str)}: {escape(val_str)} <br>'
 
-    # Reporting
-    title = "Torrent Info"
-    report = ArtifactHtmlReport(title)
-    report.start_artifact_report(report_folder, title)
-    report.add_script()
+            aggregate = aggregate.strip()
+            relative_path = context.get_relative_path(file_found)
+            data_list.append((relative_path, infohash, aggregate))
+
+        except (DecoderError, OSError, TypeError, ValueError) as e:
+            logfunc(f"Error parsing {file_found}: {str(e)}")
+
     data_headers = ('File', 'InfoHash', 'Data')
-    report.write_artifact_data_table(data_headers, data_list, file_found, html_no_escape=['Data'])
-    report.end_artifact_report()
-    
-    tsv(report_folder, data_headers, data_list, title)
 
-__artifacts__ = {
-    "torrentinfo": (
-        "BitTorrent",
-        ('*/*.torrent'),
-        get_torrentinfo)
-}
+    if not data_list:
+        logfunc('No Torrent data found')
+        return data_headers, [], source_path
+
+    return data_headers, data_list, source_path

@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     'tileAppNetDb': {
         'name': 'Tile App Account Information',
-        'description': '',
+        'description': 'Parses the registered Tile account (registration timestamp, email, full name and phone number) from TileNetworkDB.',
         'author': '@AlexisBrignoni',
         'creation_date': '2020-09-03',
         'last_update_date': '2025-04-05',
@@ -11,10 +11,13 @@ __artifacts_v2__ = {
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/com.thetileapp.tile-TileNetworkDB.sqlite*', ),
         'output_types': 'standard',
-        'artifact_icon': 'user'
+        'artifact_icon': 'user',
+        'sample_data': {
+            'otto_ios17': 'iOS 17.5.1 | group.thetileapp.Tile.Documents | 0 rows',
+            'abe_ios16': 'iOS 16.5 | group.thetileapp.Tile.Documents | 1 row',
+        }
     }
 }
-
 
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, \
@@ -22,7 +25,8 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 @artifact_processor
-def tileAppNetDb(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def tileAppNetDb(context):
+    files_found = context.get_files_found()
     source_path = get_file_path(
         files_found, 'com.thetileapp.tile-TileNetworkDB.sqlite')
     data_list = []

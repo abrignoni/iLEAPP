@@ -1,3 +1,5 @@
+"""Archive file type matchers."""
+
 # -*- coding: utf-8 -*-
 
 import struct
