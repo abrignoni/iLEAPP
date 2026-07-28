@@ -48,6 +48,27 @@ __artifacts_v2__ = {
             "jess_ios15": "iOS 15.0.2 | 2 rows",
             "magnet_ios16": "iOS 16.1.1 | 1 row",
         }
+    },
+    "safariTabsDatabase": {
+        "name": "Safari Browser - Tabs (SafariTabs)",
+        "description": "Open normal and private Safari tabs from SafariTabs.db",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-07-28",
+        "last_update_date": "2026-07-28",
+        "requirements": "none",
+        "category": "Safari Browser",
+        "notes": "Public and LocalProfile are normal browsing; private is private browsing.",
+        "paths": ("**/Safari/SafariTabs.db*",),
+        "output_types": "standard",
+        "artifact_icon": "layout",
+        "sample_data": {
+            "hickman_ios15": "iOS 15 | 4 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 11 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
+        },
     }
 }
 
@@ -57,7 +78,9 @@ from datetime import datetime, timezone
 
 import nska_deserialize as nd
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
+from scripts.ilapfuncs import (
+    artifact_processor, does_table_exist_in_db, get_sqlite_db_records, logfunc,
+)
 
 _PLIST_ERRORS = (nd.DeserializeError, nd.biplist.NotBinaryPlistException,
                  nd.biplist.InvalidPlistException, nd.plistlib.InvalidFileException,
@@ -158,4 +181,60 @@ def safariTabsiCloud(context):
         data_list.append((_aware_utc(created), _aware_utc(modified), row[1], row[2], row[3],
                           row[4], row[5], mod_dev))
 
+    return data_headers, data_list, context.get_relative_path(source_path)
+
+
+@artifact_processor
+def safariTabsDatabase(context):
+    data_headers = (
+        ("Last Modified", "datetime"), ("Date Closed", "datetime"), "Tab ID", "Title",
+        "URL", "Parent ID", "Parent / Tab Group", "Browsing Mode",
+    )
+    data_list = []
+    source_path = _find(context, "SafariTabs.db")
+    if not source_path or not does_table_exist_in_db(source_path, "bookmarks"):
+        return data_headers, data_list, ""
+
+    query = """
+        WITH RECURSIVE ancestry(tab_id, ancestor_id, parent_id, ancestor_title, depth) AS (
+            SELECT id, id, parent, title, 0
+            FROM bookmarks
+            WHERE url IS NOT NULL AND trim(url) != '' AND COALESCE(deleted, 0) = 0
+            UNION ALL
+            SELECT ancestry.tab_id, parent.id, parent.parent, parent.title, ancestry.depth + 1
+            FROM ancestry
+            JOIN bookmarks AS parent ON parent.id = ancestry.parent_id
+            WHERE ancestry.depth < 20
+        ),
+        tab_context AS (
+            SELECT tab_id,
+                   MAX(CASE WHEN lower(ancestor_title) IN ('private', 'privatepinned')
+                            THEN 1 ELSE 0 END) AS is_private
+            FROM ancestry
+            GROUP BY tab_id
+        )
+        SELECT CASE WHEN tab.last_modified IS NULL THEN NULL
+                    WHEN tab.last_modified > 978307200
+                        THEN datetime(tab.last_modified, 'unixepoch')
+                    ELSE datetime(tab.last_modified + 978307200, 'unixepoch') END,
+               CASE WHEN tab.date_closed IS NULL THEN NULL
+                    WHEN tab.date_closed > 978307200
+                        THEN datetime(tab.date_closed, 'unixepoch')
+                    ELSE datetime(tab.date_closed + 978307200, 'unixepoch') END,
+               tab.id, tab.title, tab.url, tab.parent,
+               COALESCE(parent.title, CAST(tab.parent AS TEXT)),
+               CASE
+                   WHEN lower(CAST(tab.parent AS TEXT)) = 'private'
+                        OR tab_context.is_private = 1 THEN 'Private'
+                   WHEN lower(CAST(tab.parent AS TEXT)) IN ('public', 'localprofile', 'local')
+                        THEN 'Normal'
+                   ELSE 'Normal'
+               END
+        FROM bookmarks AS tab
+        LEFT JOIN bookmarks AS parent ON parent.id = tab.parent
+        LEFT JOIN tab_context ON tab_context.tab_id = tab.id
+        WHERE tab.url IS NOT NULL AND trim(tab.url) != '' AND COALESCE(tab.deleted, 0) = 0
+        ORDER BY tab.order_index
+    """
+    data_list.extend(tuple(row) for row in get_sqlite_db_records(source_path, query))
     return data_headers, data_list, context.get_relative_path(source_path)
