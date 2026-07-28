@@ -442,22 +442,40 @@ class Context:
     @staticmethod
     def get_relative_path(full_path):
         """
-        Converts a full on-disk path (from files_found) to a relative
-        extraction path by removing the global data_folder prefix.
+        Converts a full on-disk path to an extraction-relative path.
+
+        Prefer stripping the report data_folder (copied files). Fall back to
+        the seeker's evidence directory so paths that never land in data/
+        (e.g. iTunes backup-root Info.plist) still drop the examiner's local
+        filesystem prefix.
 
         Args:
             full_path (str): The full path to the file.
 
         Returns:
-            str: The relative extraction path, or the original path if
-                 the data_folder is not available.
+            str: The relative extraction path, or the original path if no
+                 known base prefix matches.
         """
-        if not full_path or not Context._data_folder:
+        if not full_path:
             return full_path
 
-        if full_path.startswith(Context._data_folder):
+        if Context._data_folder and full_path.startswith(Context._data_folder):
             # Strip the base path and any leading separators
             return full_path[len(Context._data_folder):].lstrip('/\\')
+
+        # Paths under the extraction source but not copied into data/
+        # (Info.plist at an iTunes backup root, FileSeekerDir originals, etc.)
+        seeker = Context._seeker
+        directory = getattr(seeker, 'directory', None) if seeker else None
+        if directory:
+            norm_full = full_path.replace('\\', '/')
+            norm_dir = directory.replace('\\', '/').rstrip('/')
+            if norm_full == norm_dir:
+                return '/'
+            prefix = norm_dir + '/'
+            if norm_full.startswith(prefix):
+                # Keep a leading slash so backup-root files read as /Info.plist
+                return '/' + norm_full[len(prefix):]
 
         return full_path
 
