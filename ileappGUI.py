@@ -93,18 +93,28 @@ def get_selected_modules():
     return selected_modules
 
 
+def module_matches_filter(module_infos, filter_term=None):
+    '''Return True when a module matches the active filter, meaning it is one of the modules
+    currently shown in the list. An empty filter matches every module.'''
+    if filter_term is None:
+        filter_term = modules_filter_var.get().lower()
+    return filter_term in f"{module_infos[0]} {module_infos[1]}".lower()
+
+
 def select_all():
-    '''Select all modules in the list of available modules and execute get_selected_modules'''
+    '''Select the modules currently shown in the list and execute get_selected_modules'''
     for module_infos in mlist.values():
-        module_infos[-1].set(True)
+        if module_matches_filter(module_infos):
+            module_infos[-1].set(True)
 
     get_selected_modules()
 
 
 def deselect_all():
-    '''Unselect all modules in the list of available modules and execute get_selected_modules'''
+    '''Unselect the modules currently shown in the list and execute get_selected_modules'''
     for module_infos in mlist.values():
-        module_infos[-1].set(False)
+        if module_matches_filter(module_infos):
+            module_infos[-1].set(False)
 
     get_selected_modules()
 
@@ -116,8 +126,7 @@ def filter_modules(*args):
     mlist_text.delete('0.0', tk.END)
 
     for artifact_name, module_infos in mlist.items():
-        filter_modules_info = f"{module_infos[0]} {module_infos[1]}".lower()
-        if filter_term in filter_modules_info:
+        if module_matches_filter(module_infos, filter_term):
             cb = tk.Checkbutton(mlist_text, name=f'mcb_{artifact_name}',
                                 text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
                                 variable=module_infos[-1], onvalue=True, offvalue=False, command=get_selected_modules)
