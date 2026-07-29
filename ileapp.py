@@ -511,9 +511,10 @@ def crunch_artifacts(
                 else:
                     log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
                     for pathh in found:
-                        if pathh.startswith('\\\\?\\'):
-                            pathh = pathh[4:]
-                        log.write(f'<ul><li>{pathh}</li></ul>')
+                        # Strip \\?\ only for log display; file_infos is keyed with the
+                        # original long-path form on Windows.
+                        display_path = pathh[4:] if pathh.startswith('\\\\?\\') else pathh
+                        log.write(f'<ul><li>{display_path}</li></ul>')
                         if seeker.file_infos.get(pathh):
                             file_path_id = id(seeker.file_infos.get(pathh))
                             if not pattern_already_searched and file_path_id not in file_path_ids:
