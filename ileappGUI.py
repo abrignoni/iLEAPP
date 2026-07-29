@@ -127,15 +127,32 @@ def filter_modules(*args):
 
     for artifact_name, module_infos in mlist.items():
         if module_matches_filter(module_infos, filter_term):
-            cb = ttk.Checkbutton(
-                mlist_text,
-                name=f'mcb_{artifact_name}',
-                text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
-                variable=module_infos[-1],
-                onvalue=True,
-                offvalue=False,
-                command=get_selected_modules,
-                style='Module.TCheckbutton')
+            if is_platform_macos():
+                cb = ttk.Checkbutton(
+                    mlist_text,
+                    name=f'mcb_{artifact_name}',
+                    text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                    variable=module_infos[-1],
+                    onvalue=True,
+                    offvalue=False,
+                    command=get_selected_modules,
+                    style='Module.TCheckbutton')
+            else:
+                cb = tk.Checkbutton(
+                    mlist_text,
+                    name=f'mcb_{artifact_name}',
+                    text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                    variable=module_infos[-1],
+                    onvalue=True,
+                    offvalue=False,
+                    command=get_selected_modules)
+                cb.config(
+                    background=theme_bgcolor,
+                    fg=theme_fgcolor,
+                    selectcolor=theme_inputcolor,
+                    highlightthickness=0,
+                    activebackground=theme_bgcolor,
+                    activeforeground=theme_fgcolor)
             mlist_text.window_create('insert', window=cb)
             mlist_text.insert('end', '\n')
     mlist_text.config(state='disabled')
