@@ -87,7 +87,7 @@ def get_application_bundle_name(file_found, app_plist_map):
                         )
                         if bundle_id:
                             return str(bundle_id)
-            except Exception:
+            except (OSError, plistlib.InvalidFileException):
                 pass
 
             candidates.append(stem)
