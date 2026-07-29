@@ -349,14 +349,18 @@ def _projected(value):
 @artifact_processor
 def twitterTweets(context):
     source_path = get_file_path(context.get_files_found(), 'modelCache.sqlite3')
-    data_list = []
     data_headers = (
         ('Posted', 'datetime'), ('Cache Updated', 'datetime'), 'Text',
         'Author User ID', 'Language', 'Replies', 'Retweets', 'Quotes',
         'Bookmarks', 'Views', 'Possibly Sensitive', 'Quoted Post URL',
         'Conversation ID', 'Post ID')
     if not source_path:
-        return data_headers, data_list, ''
+        return data_headers, [], ''
+
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path=source_path,
+    )
 
     for uid, model in _iter_cached_models(source_path, MODEL_TYPE_STATUS):
         view_count = model.get('viewCountInfo')
@@ -364,7 +368,7 @@ def twitterTweets(context):
         posted = model.get('date')
         updated = model.get('updatedTimestamp')
 
-        data_list.append((
+        results.add_row((
             convert_cocoa_core_data_ts_to_utc(posted) if isinstance(posted, (int, float)) else '',
             convert_cocoa_core_data_ts_to_utc(updated) if isinstance(updated, (int, float)) else '',
             model.get('originalText'),
@@ -381,7 +385,7 @@ def twitterTweets(context):
             uid,
         ))
 
-    return data_headers, data_list, source_path
+    return results
 
 
 @artifact_processor

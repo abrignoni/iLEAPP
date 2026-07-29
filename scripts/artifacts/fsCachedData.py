@@ -45,21 +45,26 @@ def fsCachedData(context):
         'Mime Type',
         'Filename',
         'Path')
-    data_list = []
+    files_found = [str(file_found) for file_found in context.get_files_found()]
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path='',
+        estimated_row_count=len(files_found),
+    )
+
+    for file_found in files_found:
         if not os.path.isfile(file_found):
             continue
 
         modified_time = convert_unix_ts_to_utc(os.path.getmtime(file_found))
         mime = guess_mime(file_found)
         media_ref = check_in_media(file_found)
-        data_list.append((
+        results.add_row((
             modified_time,
             media_ref,
             mime,
             os.path.basename(file_found),
             context.get_relative_path(file_found)))
 
-    return data_headers, data_list, ''
+    return results

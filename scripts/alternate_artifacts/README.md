@@ -20,3 +20,14 @@ The GUI and default CLI runs never load them, so regular users are unaffected.
   - `installedappinventory`: one row per app container (bundle ID, path, UUID)
   - `appfileinventory`: every file in the extraction mapped to its app
     container (lava_only; can be hundreds of thousands of rows)
+
+- **perfArtifactResult.py** - synthetic benchmark artifacts used to compare
+  legacy list-based artifact returns with LAVA-streamed `ArtifactResult` returns.
+  Generate the fixture database with:
+
+```
+python admin/test/scripts/make_perf_sqlite.py
+```
+
+  Then run iLEAPP with `--custom_artifacts_path scripts/alternate_artifacts`
+  and one of the profiles in `admin/test/perf_profiles`.

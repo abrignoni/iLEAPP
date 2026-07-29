@@ -36,10 +36,13 @@ from scripts.ilapfuncs import (artifact_processor, get_file_path, get_sqlite_db_
 @artifact_processor
 def CacheSQLite_Locations(context):
 
-    data_list = []
-
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, 'Cache.sqlite')
+    data_headers = (
+        ('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Horizontal Accuracy (Meters)',
+        'Speed (Meters/Sec)', 'Speed (Miles/Hour)')
+    if not source_path:
+        return data_headers, [], ''
 
     query = '''
     SELECT
@@ -55,6 +58,11 @@ def CacheSQLite_Locations(context):
     FROM ZRTCLLOCATIONMO
     '''
 
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path=source_path,
+    )
+
     try:
         db_records = get_sqlite_db_records(source_path, query)
 
@@ -62,12 +70,9 @@ def CacheSQLite_Locations(context):
             unix_timestamp = record[0] + 978307200
             timestampr = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
 
-            data_list.append((timestampr, record[1], record[2], record[3], record[4], record[5]))
+            results.add_row((timestampr, record[1], record[2], record[3], record[4], record[5]))
 
     except Exception as e:  # pylint: disable=broad-exception-caught
         logfunc(f'Error processing Cache.sqlite locations: {e}')
 
-    data_headers = (
-        ('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Horizontal Accuracy (Meters)', 'Speed (Meters/Sec)', 'Speed (Miles/Hour)')
-
-    return data_headers, data_list, source_path
+    return results
