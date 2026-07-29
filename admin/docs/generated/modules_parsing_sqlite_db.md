@@ -90,6 +90,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | iOSCacheLocations |
 | imoHD_Chat |
 | instagramThreads |
+| installHistory |
 | interactionCcontacts |
 | keyboard |
 | keychain |
