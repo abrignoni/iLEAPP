@@ -10,8 +10,10 @@ __artifacts_v2__ = {
         'category': 'Installed Apps',
         'notes': ('Store metadata is an NSKeyedArchiver payload recorded at install time, so the '
                   'version, genre and purchase date describe the app as it was when installed. '
-                  'The phase, update type and source type columns are integer codes whose values '
-                  'are not documented and are reported as stored.'),
+                  'The phase, update type, source type, one shot bootstrap and switch '
+                  'distributor columns are integer codes whose values are not documented and '
+                  'are reported as stored. Bundle directory name arrived with iOS 26 and was '
+                  'empty on every row of the image tested, so what it holds is unknown.'),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'device-mobile-down',
@@ -20,6 +22,9 @@ __artifacts_v2__ = {
                             'store metadata carries no storefrontCountryCode',
             'josh_ios17_ffs': 'iOS 17.3 | 0 rows; table present and empty',
             'local iOS 18.7.8 image': '26 rows; install_finished_timestamp empty on every row',
+            'local iOS 26.5.2 image': '12 rows; gains bundle_directory_name (empty on every '
+                                      'row), one_shot_bootstrap, switch_distributor and '
+                                      'optimal_download_duration, and drops download_volume',
         },
     },
     'storeSystemAppUpdates': {
@@ -42,6 +47,8 @@ __artifacts_v2__ = {
             'mvs_ios_2023': 'iOS 14.7.1 | 0 rows; no package_type column on this schema',
             'josh_ios17_ffs': 'iOS 17.3 | 0 rows; table present and empty',
             'local iOS 18.7.8 image': '28 rows; install_date populated on 2 of 28',
+            'local iOS 26.5.2 image': '15 rows; gains installer_packaging_type, populated on '
+                                      '11 of 15',
         },
     },
     'storeSystemAppPackages': {
@@ -63,6 +70,7 @@ __artifacts_v2__ = {
                             'extracted_content_size columns on this schema',
             'josh_ios17_ffs': 'iOS 17.3 | 0 rows; table present and empty',
             'local iOS 18.7.8 image': '49 rows across 26 installs',
+            'local iOS 26.5.2 image': '24 rows; schema unchanged',
         },
     },
 }
@@ -155,15 +163,21 @@ def storeSystemAppInstalls(context):
         ('App Release Date', 'datetime'), 'App Name', 'Bundle ID', 'Short Version',
         'Bundle Version', 'Developer', 'Genre', 'Rating', 'Apple ID', 'Account DSID',
         'altDSID', 'Item ID', 'External Version ID', 'Storefront Country', 'Storefront',
-        'Source App', 'Client ID', 'Install Path', 'Transaction ID', 'Phase', 'Update Type',
-        'Source Type', 'Redownload')
+        'Source App', 'Client ID', 'Install Path', 'Bundle Directory Name', 'Transaction ID',
+        'Phase', 'Update Type', 'Source Type', 'Redownload', 'One Shot Bootstrap',
+        'Switch Distributor', 'Optimal Download Duration')
     if not source_path or not does_table_exist_in_db(source_path, 'app_install'):
         return data_headers, data_list, ''
 
+    # bundle_directory_name, one_shot_bootstrap, switch_distributor and
+    # optimal_download_duration arrived with iOS 26; download_volume went away in
+    # the same release. Selecting against the table covers both directions.
     wanted = ('timestamp', 'install_finished_timestamp', 'last_start_date', 'bundle_id',
-              'bundle_name', 'bundle_version', 'bundle_url', 'vendor_name', 'item_id',
-              'storefront', 'client_id', 'transaction_id', 'phase', 'update_type',
-              'source_type', 'redownload', 'account_id', 'store_metadata')
+              'bundle_name', 'bundle_version', 'bundle_url', 'bundle_directory_name',
+              'vendor_name', 'item_id', 'storefront', 'client_id', 'transaction_id',
+              'phase', 'update_type', 'source_type', 'redownload', 'one_shot_bootstrap',
+              'switch_distributor', 'optimal_download_duration', 'account_id',
+              'store_metadata')
     available = _existing_columns(source_path, 'app_install')
     columns = ', '.join(column for column in wanted if column in available)
     query = f'''
@@ -197,11 +211,15 @@ def storeSystemAppInstalls(context):
             metadata.get('sourceApp', ''),
             _get(record, 'client_id'),
             _get(record, 'bundle_url'),
+            _get(record, 'bundle_directory_name'),
             _get(record, 'transaction_id'),
             _get(record, 'phase'),
             _get(record, 'update_type'),
             _get(record, 'source_type'),
             _get(record, 'redownload'),
+            _get(record, 'one_shot_bootstrap'),
+            _get(record, 'switch_distributor'),
+            _get(record, 'optimal_download_duration'),
         ))
 
     return data_headers, data_list, source_path
@@ -216,12 +234,14 @@ def storeSystemAppUpdates(context):
         ('Latest Version Released', 'datetime'), ('App First Released', 'datetime'),
         'App Name', 'Bundle ID', 'Developer', 'Genre', 'Latest Version', 'Release Notes',
         'Item ID', 'Store Software Version ID', 'External Version ID', 'Update State',
-        'Package Type', 'App Store URL')
+        'Package Type', 'Installer Packaging Type', 'App Store URL')
     if not source_path or not does_table_exist_in_db(source_path, 'mapi_app_update'):
         return data_headers, data_list, ''
 
+    # installer_packaging_type arrived with iOS 26.
     wanted = ('timestamp', 'install_date', 'bundle_id', 'item_id',
-              'store_software_version_id', 'update_state', 'package_type', 'metadata')
+              'store_software_version_id', 'update_state', 'package_type',
+              'installer_packaging_type', 'metadata')
     available = _existing_columns(source_path, 'mapi_app_update')
     columns = ', '.join(column for column in wanted if column in available)
     query = f'''
@@ -250,6 +270,7 @@ def storeSystemAppUpdates(context):
             ios.get('externalVersionId', ''),
             _get(record, 'update_state'),
             _get(record, 'package_type'),
+            _get(record, 'installer_packaging_type'),
             attributes.get('url', ''),
         ))
 

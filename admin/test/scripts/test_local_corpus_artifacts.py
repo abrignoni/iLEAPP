@@ -345,10 +345,11 @@ class LocationdCacheLocalTest(LocalCorpusTestCase):
         self.assert_row_shape(headers, rows)
         if not rows:
             self.skipTest('WifiLocation is empty in this image')
-        self._assert_coordinates(rows)
+        self._assert_coordinates(rows, 2, 3)
         for row in rows:
             self.assert_plausible_timestamp(row[0])
-            self.assert_matches(row[3], r'^([0-9a-f]{2}:){5}[0-9a-f]{2}$', 'BSSID')
+            self.assert_plausible_timestamp(row[1])   # ALS query, iOS 26 and later
+            self.assert_matches(row[4], r'^([0-9a-f]{2}:){5}[0-9a-f]{2}$', 'BSSID')
 
     def test_wifi_harvest_structure(self):
         headers, rows, _ = locationdWifiHarvest.__wrapped__(_Context(self.path))
