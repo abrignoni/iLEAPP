@@ -100,17 +100,24 @@ def find_archive_roots(files_found):
     """Work out what to hand the parser from the paths the seeker returned.
 
     Returns (logarchive_dir, diagnostics_dir, uuidtext_dir), where either the first item
-    is set (the examiner supplied a ready-made .logarchive) or the other two are.
+    is set (a usable .logarchive package) or the other two are.
 
-    An extraction can hold the same directory name on more than one partition. A UFED
-    zip of an iPhone carries filesystem1 (system) and filesystem2 (data), and
-    filesystem1 has an *empty* private/var/db/diagnostics; the populated one lives at
-    filesystem2/db/diagnostics. Taking the first name match handed the parser the empty
-    directory and a real image reported zero records with no error anywhere. So roots
-    are chosen by how many found files sit beneath them, judged from the seeker's list
-    alone - the paths may describe files that only exist inside an archive.
+    Roots are chosen by how many found files sit beneath them, judged from the seeker's
+    list alone - the paths may describe files that only exist inside an archive. Two
+    real-world traps drove that:
+
+    - A UFED zip carries filesystem1 (system) with an *empty* private/var/db/diagnostics
+      next to the populated one on filesystem2; taking the first name match handed the
+      parser the empty directory.
+    - iPhones carry their own .logarchive leftovers: an interrupted sysdiagnose leaves
+      .../DiagnosticLogs/sysdiagnose/IN_PROGRESS_.../system_logs.logarchive in the
+      extraction. Giving any .logarchive absolute priority handed the parser a stale,
+      near-empty 2022 snapshot while 556 MB of live tracev3 sat in var/db - zero records,
+      no error. A .logarchive only wins when the device store has no tracev3 content;
+      when the examiner's input IS a .logarchive package, there is no diagnostics
+      directory in sight and it wins by default.
     """
-    logarchive = None
+    logarchive_candidates = {}
     diagnostics_candidates = {}
     uuidtext_candidates = {}
 
@@ -119,9 +126,8 @@ def find_archive_roots(files_found):
         is_file = bool(components) and not str(path).replace('\\', '/').endswith('/')
         for index, component in enumerate(components):
             if component.lower().endswith('.logarchive'):
-                logarchive = logarchive or '/'.join(components[:index + 1])
-                continue
-            if component == DIAGNOSTICS_DIR:
+                candidates = logarchive_candidates
+            elif component == DIAGNOSTICS_DIR:
                 candidates = diagnostics_candidates
             elif component == UUIDTEXT_DIR:
                 candidates = uuidtext_candidates
@@ -138,7 +144,18 @@ def find_archive_roots(files_found):
         # directory still resolves when it is all there is.
         return max(candidates, key=lambda root: candidates[root])
 
-    return logarchive, best(diagnostics_candidates), best(uuidtext_candidates)
+    best_diagnostics = best(diagnostics_candidates)
+    best_logarchive = best(logarchive_candidates)
+
+    if best_diagnostics and diagnostics_candidates[best_diagnostics] > 0:
+        return None, best_diagnostics, best(uuidtext_candidates)
+    if best_logarchive and logarchive_candidates[best_logarchive] > 0:
+        return best_logarchive, None, None
+    # Nothing populated: keep the old preference order so an empty input still
+    # resolves to something and the artifact reports absence of data honestly.
+    if best_logarchive:
+        return best_logarchive, None, None
+    return None, best_diagnostics, best(uuidtext_candidates)
 
 
 def _link_file(source, destination):

@@ -162,6 +162,33 @@ class TestArchiveRootDiscovery(unittest.TestCase):
         self.assertEqual(diagnostics, '/out/data/filesystem2/db/diagnostics')
         self.assertEqual(uuidtext, '/out/data/filesystem2/db/uuidtext')
 
+    def test_stale_sysdiagnose_logarchive_does_not_outrank_device_store(self):
+        """The Jess trap: iPhones carry their own .logarchive leftovers. An interrupted
+        sysdiagnose left IN_PROGRESS_.../system_logs.logarchive in the extraction, the
+        old absolute .logarchive priority handed the parser that stale 2022 snapshot,
+        and 556 MB of live tracev3 produced zero records with no error anywhere."""
+        found = [
+            '/o/data/private/var/mobile/Library/Logs/CrashReporter/DiagnosticLogs/'
+            'sysdiagnose/IN_PROGRESS_sysdiagnose_2022.02.14_12-57-34-0500/'
+            'system_logs.logarchive/Persist',
+            '/o/data/private/var/db/diagnostics/Persist/0000000000000001.tracev3',
+            '/o/data/private/var/db/diagnostics/timesync/0000000000000002.timesync',
+            '/o/data/private/var/db/uuidtext/00/AABBCCDD',
+        ]
+        archive, diagnostics, uuidtext = unifiedlogs.find_archive_roots(found)
+        self.assertIsNone(archive, 'stale sysdiagnose leftovers won over the device store')
+        self.assertEqual(diagnostics, '/o/data/private/var/db/diagnostics')
+        self.assertEqual(uuidtext, '/o/data/private/var/db/uuidtext')
+
+    def test_populated_logarchive_wins_when_no_device_store(self):
+        # A completed sysdiagnose (or examiner-collected archive) with real content is
+        # the right choice when there is no populated diagnostics directory at all.
+        found = ['/case/sysdiagnose/system_logs.logarchive/Persist/0000000000000001.tracev3',
+                 '/case/sysdiagnose/system_logs.logarchive/dsc/ABCDEF']
+        archive, diagnostics, _ = unifiedlogs.find_archive_roots(found)
+        self.assertEqual(archive, '/case/sysdiagnose/system_logs.logarchive')
+        self.assertIsNone(diagnostics)
+
     def test_lone_empty_directory_still_resolves(self):
         # With nothing better on offer, an empty directory is still the right answer;
         # the artifact reports the absence of tracev3 data rather than "no files found".
