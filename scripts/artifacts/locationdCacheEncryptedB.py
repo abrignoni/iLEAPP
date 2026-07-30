@@ -12,7 +12,8 @@ __artifacts_v2__ = {
                   'is the position of the access point, not of the device, and does not mean '
                   'the device connected to it. Accuracy is coarse: treat the coordinates as '
                   'an area rather than a point. Speed and course of -1 mean no value was '
-                  'recorded.'),
+                  'recorded. AlsQueryTimestamp arrived with iOS 26; what distinguishes it '
+                  'from Timestamp is not documented, so both are reported as stored.'),
         'paths': ('*/root/Library/Caches/locationd/cache_encryptedB.db*',),
         'output_types': 'all',
         'artifact_icon': 'wifi',
@@ -20,6 +21,7 @@ __artifacts_v2__ = {
             'josh_ios17_ffs': 'iOS 17.3 | 30665 rows',
             'mvs_ios_2023': 'iOS 14.7.1 | 0 rows; table present and empty',
             'local iOS 18.7.8 image': '90783 rows',
+            'local iOS 26.5.2 image': '142 rows; gains AlsQueryTimestamp',
         },
     },
     'locationdWifiHarvest': {
@@ -45,6 +47,7 @@ __artifacts_v2__ = {
             'mvs_ios_2023': 'iOS 14.7.1 | table absent on this schema',
             'josh_ios17_ffs': 'iOS 17.3 | 0 rows; case data not committed, see the case note',
             'local iOS 18.7.8 image': '122 rows',
+            'local iOS 26.5.2 image': '148 rows; schema unchanged',
         },
     },
     'locationdCellLocations': {
@@ -71,6 +74,7 @@ __artifacts_v2__ = {
                               'the case note',
             'mvs_ios_2023': 'iOS 14.7.1 | 0 rows across all nine tables',
             'local iOS 18.7.8 image': '1090 rows, all LTE; the other eight tables were empty',
+            'local iOS 26.5.2 image': '450 rows, all LTE; schema unchanged',
         },
     },
     'locationdWifiTiles': {
@@ -93,6 +97,7 @@ __artifacts_v2__ = {
             'josh_ios17_ffs': 'iOS 17.3 | 89 rows; case data not committed, see the case note',
             'mvs_ios_2023': 'iOS 14.7.1 | 0 rows',
             'local iOS 18.7.8 image': '180 rows',
+            'local iOS 26.5.2 image': '74 rows; schema unchanged',
         },
     },
 }
@@ -146,22 +151,31 @@ def locationdWifiLocations(context):
     source_path = get_file_path(context.get_files_found(), 'cache_encryptedB.db')
     data_list = []
     data_headers = (
-        ('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'BSSID',
-        'Horizontal Accuracy', 'Altitude', 'Vertical Accuracy', 'Speed', 'Course',
-        'Channel', 'Confidence', 'Score', 'Reach', 'Info Mask')
+        ('Timestamp', 'datetime'), ('ALS Query Timestamp', 'datetime'), 'Latitude',
+        'Longitude', 'BSSID', 'Horizontal Accuracy', 'Altitude', 'Vertical Accuracy',
+        'Speed', 'Course', 'Channel', 'Confidence', 'Score', 'Reach', 'Info Mask')
     if not source_path or not does_table_exist_in_db(source_path, 'WifiLocation'):
         return data_headers, data_list, ''
 
-    query = '''
-    SELECT Timestamp, Latitude, Longitude, MAC, HorizontalAccuracy, Altitude,
-           VerticalAccuracy, Speed, Course, Channel, Confidence, Score, Reach, InfoMask
+    # AlsQueryTimestamp arrived with iOS 26, so the column list is built from the
+    # table rather than hardcoded.
+    wanted = ('Timestamp', 'AlsQueryTimestamp', 'Latitude', 'Longitude', 'MAC',
+              'HorizontalAccuracy', 'Altitude', 'VerticalAccuracy', 'Speed', 'Course',
+              'Channel', 'Confidence', 'Score', 'Reach', 'InfoMask')
+    available = {record['name'] for record in
+                 get_sqlite_db_records(source_path, 'PRAGMA table_info(WifiLocation)')}
+    columns = ', '.join(name for name in wanted if name in available)
+    query = f'''
+    SELECT {columns}
     FROM WifiLocation
     ORDER BY Timestamp
     '''
 
     for record in get_sqlite_db_records(source_path, query):
+        keys = record.keys()
         data_list.append((
             _timestamp(record['Timestamp']),
+            _timestamp(record['AlsQueryTimestamp']) if 'AlsQueryTimestamp' in keys else '',
             record['Latitude'],
             record['Longitude'],
             _mac(record['MAC']),

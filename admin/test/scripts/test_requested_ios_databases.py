@@ -273,6 +273,75 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         self.assertEqual(rows[0][1], '')                  # absent column reads as empty
         self.assertEqual(rows[0][5], "Example")           # falls back to bundle_name
 
+    APP_INSTALL_IOS26 = (
+        "CREATE TABLE app_install (pid INTEGER PRIMARY KEY, account_id INTEGER, "
+        "bundle_id TEXT, bundle_name TEXT, bundle_version TEXT, bundle_url TEXT, "
+        "bundle_directory_name TEXT, vendor_name TEXT, item_id INTEGER, storefront TEXT, "
+        "client_id TEXT, transaction_id TEXT, phase INTEGER, update_type INTEGER, "
+        "source_type INTEGER, redownload INTEGER, one_shot_bootstrap INTEGER, "
+        "switch_distributor INTEGER, optimal_download_duration INTEGER, "
+        "install_finished_timestamp DATETIME, last_start_date DATETIME, timestamp DATETIME, "
+        "store_metadata BLOB)")
+    MAPI_IOS26 = (
+        "CREATE TABLE mapi_app_update (pid INTEGER PRIMARY KEY, bundle_id TEXT, "
+        "install_date DATETIME, item_id INTEGER, metadata BLOB, package_type INTEGER, "
+        "installer_packaging_type INTEGER, store_software_version_id INTEGER, "
+        "timestamp DATETIME, update_state INTEGER)")
+
+    def test_store_system_installs_ios26_columns(self):
+        """iOS 26 adds four app_install columns and drops download_volume."""
+        path = self._database("containers/Data/System/GUID/Documents/Persistence/"
+                              "storeSystem.db", [
+            (self.APP_INSTALL_IOS26, ()),
+            ("INSERT INTO app_install (pid, bundle_id, bundle_name, bundle_directory_name, "
+             "timestamp, one_shot_bootstrap, switch_distributor, optimal_download_duration) "
+             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+             (1, "com.example.app", "Example", "Example.app", self.COCOA_TS, 0, 1, 338)),
+        ])
+        headers, rows, _ = storeSystemAppInstalls.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][22], "Example.app")   # Bundle Directory Name
+        self.assertEqual(rows[0][28], 0)               # One Shot Bootstrap
+        self.assertEqual(rows[0][29], 1)               # Switch Distributor
+        self.assertEqual(rows[0][30], 338)             # Optimal Download Duration
+
+    def test_store_system_installs_pre_ios26_leaves_new_columns_empty(self):
+        path = self._database("containers/Data/System/GUID/Documents/Persistence/"
+                              "storeSystem.db", [
+            (self.APP_INSTALL_LEGACY, ()),
+            ("INSERT INTO app_install (pid, bundle_id, timestamp) VALUES (?, ?, ?)",
+             (1, "com.example.app", self.COCOA_TS)),
+        ])
+        headers, rows, _ = storeSystemAppInstalls.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        for index in (22, 28, 29, 30):
+            self.assertEqual(rows[0][index], '')
+
+    def test_store_system_updates_ios26_packaging_type(self):
+        path = self._database("containers/Data/System/GUID/Documents/Persistence/"
+                              "storeSystem.db", [
+            (self.MAPI_IOS26, ()),
+            ("INSERT INTO mapi_app_update (pid, bundle_id, timestamp, package_type, "
+             "installer_packaging_type) VALUES (?, ?, ?, ?, ?)",
+             (1, "com.example.app", self.COCOA_TS, 1, 1)),
+        ])
+        headers, rows, _ = storeSystemAppUpdates.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][15], 1)               # Installer Packaging Type
+
+    def test_locationd_wifi_locations_ios26_als_timestamp(self):
+        path = self._locationd_database([
+            (self.WIFI_LOCATION_SCHEMA.replace(
+                "MAC INTEGER,", "MAC INTEGER, AlsQueryTimestamp FLOAT,"), ()),
+            ("INSERT INTO WifiLocation (MAC, AlsQueryTimestamp, Timestamp, Latitude, "
+             "Longitude) VALUES (?, ?, ?, ?, ?)",
+             (44616141971906, self.COCOA_TS + 3600, self.COCOA_TS, 42.684352, -73.817619)),
+        ])
+        headers, rows, _ = locationdWifiLocations.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertIn("2026-04-29T18:35:08", rows[0][1].isoformat())
+        self.assertGreater(rows[0][1], rows[0][0])
+
     def test_store_system_packages_legacy_schema(self):
         """iOS 14 and 17 lack delta_algorithm and extracted_content_size."""
         path = self._database("containers/Data/System/GUID/Documents/Persistence/"
@@ -544,8 +613,9 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         ])
         headers, rows, _ = locationdWifiLocations.__wrapped__(_Context(path))
         self.assertEqual(len(headers), len(rows[0]))
-        self.assertEqual(rows[0][3], "28:94:01:4b:21:c2")
+        self.assertEqual(rows[0][4], "28:94:01:4b:21:c2")
         self.assertIn("2026-04-29T17:35:08", rows[0][0].isoformat())
+        self.assertEqual(rows[0][1], '')          # no AlsQueryTimestamp before iOS 26
 
     def test_locationd_wifi_harvest(self):
         path = self._locationd_database([

@@ -4,21 +4,21 @@
     "artifact_name": "Installed Apps - App Store Install Records",
     "function_name": "storeSystemAppInstalls",
     "case_number": "mvs_ios_2023",
-    "number_of_columns": 27,
+    "number_of_columns": 31,
     "number_of_rows": 16,
     "total_data_size_bytes": 6240,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/storeSystem/testdata.storeSystem.storeSystemAppInstalls.mvs_ios_2023.zip",
-    "start_time": "2026-07-30T03:08:34.949967+00:00",
-    "end_time": "2026-07-30T03:08:35.051415+00:00",
-    "run_time_seconds": 0.006356239318847656,
+    "start_time": "2026-07-30T05:07:25.537880+00:00",
+    "end_time": "2026-07-30T05:07:25.564614+00:00",
+    "run_time_seconds": 0.006324052810668945,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-07-29T22:08:35.041595",
-      "message": "File not yet committed to git"
+      "hash": "ac54a35d9b06f76a444950ebac7583642765b2aa",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-29T22:12:22-05:00",
+      "message": "feat: parse installed app records from storeSystem.db"
     }
   },
   "headers": [
@@ -44,11 +44,15 @@
     "Source App",
     "Client ID",
     "Install Path",
+    "Bundle Directory Name",
     "Transaction ID",
     "Phase",
     "Update Type",
     "Source Type",
-    "Redownload"
+    "Redownload",
+    "One Shot Bootstrap",
+    "Switch Distributor",
+    "Optimal Download Duration"
   ],
   "data": [
     [
@@ -74,11 +78,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/BBD02C46-3739-4955-9C4A-1656B9828C0B/Roblox.app/",
+      "",
       "J20N_C_502071586218138258",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1671144313,
@@ -103,11 +111,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/F0DAB6FB-272C-48A2-812C-0BFA31FB6818/candycrushsaga.app/",
+      "",
       "J20N_C_502071585457134242",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1671144327,
@@ -132,11 +144,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/0396D8FB-DD53-403F-8649-AE6BC406BBFC/DuolingoMobile.app/",
+      "",
       "J20N_C_502071585782961958",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1671144327,
@@ -161,11 +177,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/DADABF7F-CAA3-4724-8CA4-A1C0434774E8/TikTok.app/",
+      "",
       "J20N_C_502071585814338646",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1671231328,
@@ -190,11 +210,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/4D867879-C7BD-4906-8865-EAE0AA4E6236/LinkedIn.app/",
+      "",
       "J20N_C_502071585691243396",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1671419871,
@@ -219,11 +243,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/8A557134-AD6A-475C-A0A5-D72FB40AFD0C/Authy.app/",
+      "",
       "J20N_C_502071585551260031",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1671419871,
@@ -248,11 +276,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/99B3D87B-A8DF-4B01-B4E5-0236AD5714EA/Todoist.app/",
+      "",
       "J20N_C_502071585677088590",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1672236483,
@@ -277,11 +309,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/D60E70D0-4EEE-41C4-B312-0CAD242E4F78/WhatsApp.app/",
+      "",
       "J20N_C_502071585540149447",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1672236483,
@@ -306,11 +342,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/1D644FE6-6906-424D-9E21-86040C28FB7D/Snapchat.app/",
+      "",
       "J20N_C_502071585927137175",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1672236483,
@@ -335,11 +375,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/1C42FDA4-125A-49AE-B0D1-0CE62B2C284A/Discord.app/",
+      "",
       "J20N_C_502071585442139787",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1672236483,
@@ -364,11 +408,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/EF7C5A02-3398-4198-A33C-339CE6389BC5/GroupMe.app/",
+      "",
       "J20N_C_502071585575984582",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1672236483,
@@ -393,11 +441,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/10D39F64-5B8E-4CF9-B9D9-720363B8AA0A/Twitter.app/",
+      "",
       "J20N_C_502071586046546680",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1672748098,
@@ -422,11 +474,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/266BBA89-03E7-44BD-9F4E-A2CE8BF471CE/Signal.app/",
+      "",
       "J20N_C_502071586034932258",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1672748098,
@@ -451,11 +507,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/F88250AF-8063-4E83-8202-59B42CF57E8C/Mastodon.app/",
+      "",
       "J20N_C_502071585803633837",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1672748122,
@@ -480,11 +540,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/3409E2CC-93EB-44EB-B870-5720129AD02C/Yik%20Yak.app/",
+      "",
       "J20N_C_502071585907268910",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ],
     [
       1673042441,
@@ -509,11 +573,15 @@
       "com.apple.AppStore",
       "com.apple.AppStore",
       "file:///private/var/containers/Bundle/Application/8B10D974-47C5-4211-A86E-BD7DF9C429D4/Slack.app/",
+      "",
       "J20N_C_502071580021250219",
       10,
       1,
       0,
-      0
+      0,
+      "",
+      "",
+      ""
     ]
   ]
 }

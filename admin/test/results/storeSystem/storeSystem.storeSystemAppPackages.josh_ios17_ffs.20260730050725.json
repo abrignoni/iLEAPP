@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/storeSystem/testdata.storeSystem.storeSystemAppPackages.josh_ios17_ffs.zip",
-    "start_time": "2026-07-30T03:08:34.748205+00:00",
-    "end_time": "2026-07-30T03:08:34.849415+00:00",
-    "run_time_seconds": 0.0019061565399169922,
+    "start_time": "2026-07-30T05:07:25.415970+00:00",
+    "end_time": "2026-07-30T05:07:25.441005+00:00",
+    "run_time_seconds": 0.0017478466033935547,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-07-29T22:08:34.842878",
-      "message": "File not yet committed to git"
+      "hash": "ac54a35d9b06f76a444950ebac7583642765b2aa",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-29T22:12:22-05:00",
+      "message": "feat: parse installed app records from storeSystem.db"
     }
   },
   "headers": [
