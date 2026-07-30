@@ -243,11 +243,18 @@ def parse_iterator_timestamp(timestamp):
 def rows_from_json(source_path):
     """Yield rows from a 'log show --style json' export."""
     truncate_after_last_bracket(source_path)
+    # Progress by file position: a log show export runs to tens of gigabytes and gave
+    # no output at all while ijson chewed through it. f.tell() moves in reader buffer
+    # strides, which is plenty accurate against a multi-gigabyte total.
+    progress = unifiedlogs.ImportProgress(os.path.getsize(source_path))
     incval = 0
     with open(source_path, 'rb') as f:
         for record in ijson.items(f, 'item', multiple_values=True):  # if the json is a list
             if isinstance(record, dict):
                 incval = incval + 1
+                progress.add_record()
+                if incval % unifiedlogs.ImportProgress.CHECK_EVERY == 0:
+                    progress.set_bytes_done(f.tell())
                 timestamp = record.get('timestamp', '')
                 timestamp = convert_to_utc(timestamp) if timestamp else ''
                 yield (timestamp,
@@ -258,6 +265,7 @@ def rows_from_json(source_path):
                        record.get('category', ''),
                        str(record.get('eventMessage', '')),
                        str(record.get('traceID', '')))
+    progress.finish()
 
 
 def rows_from_tracev3(binary, archive_dir):
