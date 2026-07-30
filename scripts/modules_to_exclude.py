@@ -1,7 +1,17 @@
 # This list contains the filenames of artifact scripts that take a long time to run.
 # These modules are deselected by default in the GUI.
+#
+# Entries are module filenames (the .py stem), not artifact names, so one entry covers
+# every artifact a module declares.
 
 modules_to_exclude = [
+    # Apple Unified Logs. Reading the .tracev3 data in a full file system extraction is
+    # the largest single job in iLEAPP: an iOS 17.1 image produced 30.4 million records in
+    # 16 minutes and a 6.4 GB LAVA database, and getting there means extracting the whole
+    # of uuidtext (hundreds of megabytes) before parsing starts. Worth every second when
+    # Unified Logs are what the case turns on, and worth nothing at all otherwise, so the
+    # examiner opts in rather than paying for it on every run.
+    'logarchive',
     'photosDbexif',
     'photosMetadata',
     'walStrings',
