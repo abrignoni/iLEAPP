@@ -54,10 +54,13 @@ __artifacts_v2__ = {
         "description": "Open normal and private Safari tabs from SafariTabs.db",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "Safari Browser",
-        "notes": "Public and LocalProfile are normal browsing; private is private browsing.",
+        "notes": "Public and LocalProfile are normal browsing; private is private browsing. "
+                 "The bookmarks.last_modified and date_closed columns are NULL on every image "
+                 "tested (iOS 18.7 and 26.5.2); the per-tab timestamps and state live in the "
+                 "extra_attributes / local_attributes binary plists instead.",
         "paths": ("**/Safari/SafariTabs.db*",),
         "output_types": "standard",
         "artifact_icon": "layout",
@@ -79,7 +82,8 @@ from datetime import datetime, timezone
 import nska_deserialize as nd
 
 from scripts.ilapfuncs import (
-    artifact_processor, does_table_exist_in_db, get_sqlite_db_records, logfunc,
+    artifact_processor, does_column_exist_in_db, does_table_exist_in_db,
+    get_sqlite_db_records, logfunc,
 )
 
 _PLIST_ERRORS = (nd.DeserializeError, nd.biplist.NotBinaryPlistException,
@@ -109,6 +113,13 @@ def _load_blob_plist(blob):
     except _PLIST_ERRORS as ex:
         logfunc(f'Safari iCloud Tabs: failed to read plist, error was: {ex}')
         return None
+
+
+def _yes_no(value):
+    """Render a plist boolean as Yes/No, leaving an absent key blank."""
+    if value is None:
+        return ''
+    return 'Yes' if value else 'No'
 
 
 def _find(context, filename):
@@ -189,13 +200,27 @@ def safariTabsDatabase(context):
     data_headers = (
         ("Last Modified", "datetime"), ("Date Closed", "datetime"), "Tab ID", "Title",
         "URL", "Parent ID", "Parent / Tab Group", "Browsing Mode",
+        ("Last Visit Time", "datetime"), ("Date Last Viewed", "datetime"),
+        "Opened from Link", "Tab Index", "Muted", "Showing Reader", "Tab UUID",
     )
     data_list = []
     source_path = _find(context, "SafariTabs.db")
     if not source_path or not does_table_exist_in_db(source_path, "bookmarks"):
         return data_headers, data_list, ""
 
-    query = """
+    # The attribute plists and external_uuid are absent from older/reduced
+    # bookmarks schemas, so select them only when the columns really exist.
+    extra_col = ('tab.extra_attributes'
+                 if does_column_exist_in_db(source_path, 'bookmarks', 'extra_attributes')
+                 else 'NULL')
+    local_col = ('tab.local_attributes'
+                 if does_column_exist_in_db(source_path, 'bookmarks', 'local_attributes')
+                 else 'NULL')
+    uuid_col = ('tab.external_uuid'
+                if does_column_exist_in_db(source_path, 'bookmarks', 'external_uuid')
+                else 'NULL')
+
+    query = f"""
         WITH RECURSIVE ancestry(tab_id, ancestor_id, parent_id, ancestor_title, depth) AS (
             SELECT id, id, parent, title, 0
             FROM bookmarks
@@ -229,12 +254,31 @@ def safariTabsDatabase(context):
                    WHEN lower(CAST(tab.parent AS TEXT)) IN ('public', 'localprofile', 'local')
                         THEN 'Normal'
                    ELSE 'Normal'
-               END
+               END,
+               {extra_col}, {local_col}, {uuid_col}
         FROM bookmarks AS tab
         LEFT JOIN bookmarks AS parent ON parent.id = tab.parent
         LEFT JOIN tab_context ON tab_context.tab_id = tab.id
         WHERE tab.url IS NOT NULL AND trim(tab.url) != '' AND COALESCE(tab.deleted, 0) = 0
         ORDER BY tab.order_index
     """
-    data_list.extend(tuple(row) for row in get_sqlite_db_records(source_path, query))
+    for row in get_sqlite_db_records(source_path, query):
+        # Safari keeps the per-tab timestamps and state in two binary plists rather
+        # than in table columns: LastVisitTime/OpenedFromLink/TabIndex/IsMuted/
+        # ShowingReader in local_attributes, DateLastViewed in extra_attributes.
+        extra = _load_blob_plist(row[8])
+        local = _load_blob_plist(row[9])
+        extra = extra if isinstance(extra, dict) else {}
+        local = local if isinstance(local, dict) else {}
+        data_list.append((
+            row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
+            _aware_utc(local.get('LastVisitTime', '')),
+            _aware_utc(extra.get('DateLastViewed', '')),
+            _yes_no(local.get('OpenedFromLink')),
+            local.get('TabIndex', ''),
+            _yes_no(local.get('IsMuted')),
+            _yes_no(local.get('ShowingReader')),
+            row[10] or '',
+        ))
+
     return data_headers, data_list, context.get_relative_path(source_path)
