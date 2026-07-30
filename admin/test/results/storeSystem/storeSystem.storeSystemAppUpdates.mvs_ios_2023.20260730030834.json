@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "module_name": "storeSystem",
+    "artifact_name": "Installed Apps - App Store Update Records",
+    "function_name": "storeSystemAppUpdates",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 16,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/storeSystem/testdata.storeSystem.storeSystemAppUpdates.mvs_ios_2023.zip",
+    "start_time": "2026-07-30T03:08:34.849739+00:00",
+    "end_time": "2026-07-30T03:08:34.949647+00:00",
+    "run_time_seconds": 0.001249074935913086,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-29T22:08:34.944895",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Record Timestamp",
+    "Install Date",
+    "Latest Version Released",
+    "App First Released",
+    "App Name",
+    "Bundle ID",
+    "Developer",
+    "Genre",
+    "Latest Version",
+    "Release Notes",
+    "Item ID",
+    "Store Software Version ID",
+    "External Version ID",
+    "Update State",
+    "Package Type",
+    "App Store URL"
+  ],
+  "data": []
+}

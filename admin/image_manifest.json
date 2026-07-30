@@ -58,7 +58,8 @@
         "description": "Magnet Virtual Summit 2023 iOS image for forensic testing and training",
         "local_image_paths": [
             "~/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
-            "/home/user/images/magnet_mvs_2023_ios.zip"
+            "/home/user/images/magnet_mvs_2023_ios.zip",
+            "/Volumes/data/iOS Extractions/00008101-0010541A1130001E_files_full-001.zip"
         ],
         "file_path_list": "admin/data/filepath-lists/magnet-mvs-2023-ios.csv.zip",
         "download_url": "https://cfreds.nist.gov/all/MagnetForensics/MagnetVirtualSummit2023",

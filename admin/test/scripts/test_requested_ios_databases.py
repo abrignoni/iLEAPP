@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Focused parser tests for the iOS databases requested in July 2026."""
 
+import json
+import plistlib
 import sqlite3
 import tempfile
 import unittest
@@ -13,6 +15,8 @@ from scripts.artifacts.personalizationPortrait import personalizationPortraitLoc
 from scripts.artifacts.powerlog import powerlogApplicationRuntime
 from scripts.artifacts.recents import appleRecents
 from scripts.artifacts.safariTabs import safariTabsDatabase
+from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
+    storeSystemAppUpdates
 from scripts.artifacts.wifiAnalytics import wifiAnalyticsGeotags
 
 
@@ -184,6 +188,142 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         self.assertEqual(len(headers), len(rows[0]))
         self.assertEqual(rows[0][2], 3)
         self.assertEqual(rows[0][3], "MID002")
+
+    # storeSystem.db changes shape between iOS versions: iOS 14 has no
+    # install_finished_timestamp on app_install and no package_type on
+    # mapi_app_update, and neither iOS 14 nor iOS 17 has delta_algorithm or
+    # extracted_content_size on app_package. The current-schema fixtures below
+    # carry those columns and the legacy ones leave them out.
+    APP_INSTALL_CURRENT = (
+        "CREATE TABLE app_install (pid INTEGER PRIMARY KEY, account_id INTEGER, "
+        "bundle_id TEXT, bundle_name TEXT, bundle_version TEXT, bundle_url TEXT, "
+        "vendor_name TEXT, item_id INTEGER, storefront TEXT, client_id TEXT, "
+        "transaction_id TEXT, phase INTEGER, update_type INTEGER, source_type INTEGER, "
+        "redownload INTEGER, install_finished_timestamp DATETIME, last_start_date DATETIME, "
+        "timestamp DATETIME, store_metadata BLOB)")
+    APP_INSTALL_LEGACY = (
+        "CREATE TABLE app_install (pid INTEGER PRIMARY KEY, account_id INTEGER, "
+        "bundle_id TEXT, bundle_name TEXT, bundle_version TEXT, bundle_url TEXT, "
+        "vendor_name TEXT, item_id INTEGER, storefront TEXT, client_id TEXT, "
+        "transaction_id TEXT, phase INTEGER, update_type INTEGER, source_type INTEGER, "
+        "redownload INTEGER, last_start_date DATETIME, timestamp DATETIME, "
+        "store_metadata BLOB)")
+    APP_PACKAGE_LEGACY = (
+        "CREATE TABLE app_package (pid INTEGER PRIMARY KEY, parent_id, archive_type INTEGER, "
+        "bytes_total INTEGER, disk_usage INTEGER, compression INTEGER, package_type INTEGER, "
+        "package_url TEXT, request_count INTEGER, variant_id TEXT, timestamp DATETIME)")
+    MAPI_LEGACY = (
+        "CREATE TABLE mapi_app_update (pid INTEGER PRIMARY KEY, bundle_id TEXT, "
+        "install_date DATETIME, item_id INTEGER, metadata BLOB, "
+        "store_software_version_id INTEGER, timestamp DATETIME, update_state INTEGER)")
+
+    # 2026-04-29T17:35:08Z as a Cocoa timestamp.
+    COCOA_TS = 799176908
+
+    def _store_metadata_plist(self):
+        """A minimal NSKeyedArchiver payload shaped like store_metadata."""
+        return plistlib.dumps({
+            '$archiver': 'NSKeyedArchiver',
+            '$version': 100000,
+            '$top': {'root': plistlib.UID(1)},
+            '$objects': [
+                '$null',
+                {'itemName': plistlib.UID(2), 'artistName': plistlib.UID(3),
+                 'genre': plistlib.UID(4), 'purchaseDate': plistlib.UID(5),
+                 'appleID': plistlib.UID(6)},
+                'Test App', 'Test Developer', 'Utilities', '2025-10-22T12:55:30Z',
+                'user@example.com',
+            ],
+        }, fmt=plistlib.PlistFormat.FMT_BINARY)
+
+    def test_store_system_installs_current_schema(self):
+        path = self._database("containers/Data/System/GUID/Documents/Persistence/"
+                              "storeSystem.db", [
+            (self.APP_INSTALL_CURRENT, ()),
+            ("INSERT INTO app_install (pid, bundle_id, bundle_name, bundle_version, "
+             "vendor_name, item_id, timestamp, phase, store_metadata) "
+             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (1, "com.example.app", "Example", "1.2.3", "Example Ltd", 12345,
+              self.COCOA_TS, 10, self._store_metadata_plist())),
+        ])
+        headers, rows, _ = storeSystemAppInstalls.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertIn("2026-04-29T17:35:08", rows[0][0].isoformat())
+        self.assertEqual(rows[0][5], "Test App")          # itemName wins over bundle_name
+        self.assertEqual(rows[0][6], "com.example.app")
+        self.assertEqual(rows[0][9], "Test Developer")    # artistName wins over vendor_name
+        self.assertEqual(rows[0][12], "user@example.com")
+
+    def test_store_system_installs_legacy_schema(self):
+        """iOS 14 lacks install_finished_timestamp; the query must still run."""
+        path = self._database("containers/Data/System/GUID/Documents/Persistence/"
+                              "storeSystem.db", [
+            (self.APP_INSTALL_LEGACY, ()),
+            ("INSERT INTO app_install (pid, bundle_id, bundle_name, timestamp) "
+             "VALUES (?, ?, ?, ?)", (1, "com.example.app", "Example", self.COCOA_TS)),
+        ])
+        headers, rows, _ = storeSystemAppInstalls.__wrapped__(_Context(path))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][1], '')                  # absent column reads as empty
+        self.assertEqual(rows[0][5], "Example")           # falls back to bundle_name
+
+    def test_store_system_packages_legacy_schema(self):
+        """iOS 14 and 17 lack delta_algorithm and extracted_content_size."""
+        path = self._database("containers/Data/System/GUID/Documents/Persistence/"
+                              "storeSystem.db", [
+            (self.APP_INSTALL_LEGACY, ()),
+            (self.APP_PACKAGE_LEGACY, ()),
+            ("INSERT INTO app_install (pid, bundle_id, bundle_name) VALUES (?, ?, ?)",
+             (7, "com.example.app", "Example")),
+            ("INSERT INTO app_package (pid, parent_id, bytes_total, disk_usage, timestamp) "
+             "VALUES (?, ?, ?, ?, ?)", (1, 7, 1000, 2000, self.COCOA_TS)),
+        ])
+        headers, rows, _ = storeSystemAppPackages.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][1], "com.example.app")   # joined through parent_id
+        self.assertEqual(rows[0][4], 1000)
+        self.assertEqual(rows[0][6], '')                  # extracted_content_size absent
+        self.assertEqual(rows[0][9], '')                  # delta_algorithm absent
+
+    def test_store_system_updates_legacy_schema(self):
+        """iOS 14 lacks package_type, and the catalog blob is JSON rather than a plist."""
+        catalog = json.dumps({
+            'attributes': {
+                'name': 'Catalog App',
+                'artistName': 'Catalog Developer',
+                'genreDisplayName': 'Productivity',
+                'url': 'https://apps.apple.com/us/app/id1',
+                'platformAttributes': {'ios': {
+                    'releaseDate': '2013-11-26',
+                    'latestVersionInfo': {'versionDisplay': '7.4.3',
+                                          'releaseTimestamp': '2025-12-17T21:04:59Z'},
+                }},
+            },
+        }).encode('utf-8')
+        path = self._database("containers/Data/System/GUID/Documents/Persistence/"
+                              "storeSystem.db", [
+            (self.MAPI_LEGACY, ()),
+            ("INSERT INTO mapi_app_update (pid, bundle_id, item_id, metadata, timestamp, "
+             "update_state) VALUES (?, ?, ?, ?, ?, ?)",
+             (1, "com.example.app", 42, catalog, self.COCOA_TS, 1)),
+        ])
+        headers, rows, _ = storeSystemAppUpdates.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][4], "Catalog App")
+        self.assertEqual(rows[0][8], "7.4.3")
+        self.assertIn("2025-12-17T21:04:59", rows[0][2].isoformat())
+        self.assertEqual(rows[0][14], '')                 # package_type absent
+
+    def test_store_system_missing_tables(self):
+        path = self._database("containers/Data/System/GUID/Documents/Persistence/"
+                              "storeSystem.db", [("CREATE TABLE unrelated (a)", ())])
+        for processor in (storeSystemAppInstalls, storeSystemAppUpdates,
+                          storeSystemAppPackages):
+            headers, rows, source = processor.__wrapped__(_Context(path))
+            self.assertEqual(rows, [])
+            self.assertEqual(source, "")
+            self.assertTrue(headers)
 
     def test_apple_account_deleted_device_list_missing_table(self):
         path = self._devicelist_database([(self.DEVICE_LIST_SCHEMA, ())])
