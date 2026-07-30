@@ -4,24 +4,29 @@ __artifacts_v2__ = {
         "description": "Path-level file-system event records from the fseventsd disk log stream",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
             "FSEvents records do not contain per-event timestamps. Event IDs provide sequence, "
             "not time. Notifications can be coalesced, paths can be truncated, and a record "
             "does not establish which process or user caused an event. Interpret flags as file-"
-            "system notifications and correlate them with other evidence. Supports gzip-wrapped "
+            "system notifications and correlate them with other evidence. Covers the data "
+            "volume stream at /private/var/.fseventsd and the user-space stream at "
+            "/private/var/mobile/.fseventsd. Supports gzip-wrapped "
             "1SLD, 2SLD, and 3SLD streams. Format and flag research: Joachim Metz/libyal and "
             "Yogesh Khatri/mac_apt. References: https://github.com/libyal/dtformats/blob/main/"
             "documentation/MacOS%20File%20System%20Events%20Disk%20Log%20Stream%20format."
             "asciidoc and https://github.com/ydkhatri/mac_apt/blob/master/plugins/fsevents.py"
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "file-search",
         "sample_data": {
-            "hc_ios18_7": "iOS 18.7.8 | 11939 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 26957 rows (11939 data volume, 15018 user space)",
         },
     },
     "iosFileSystemEventsCommunications": {
@@ -29,7 +34,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths associated with communications, contacts, calls, and accounts",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -37,7 +42,10 @@ __artifacts_v2__ = {
             "file-system notification, not message content or proof of a user communication. "
             "Rows can overlap other Items of Interest reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "messages",
         "sample_data": {},
@@ -49,7 +57,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -58,7 +66,10 @@ __artifacts_v2__ = {
             "do not, alone, prove completion or identify an actor. Rows can overlap other Items of "
             "Interest reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "device-mobile-up",
         "sample_data": {},
@@ -68,7 +79,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths within application and shared application containers",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -76,7 +87,10 @@ __artifacts_v2__ = {
             "A container-path notification does not establish application execution or user "
             "interaction. Rows can overlap other Items of Interest reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "apps",
         "sample_data": {},
@@ -86,7 +100,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths associated with location and routing services",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -94,7 +108,10 @@ __artifacts_v2__ = {
             "does not establish the device's location. Rows can overlap other Items of Interest "
             "reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "map-pin",
         "sample_data": {},
@@ -104,7 +121,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths associated with keychains, keybags, trust, and access control",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -112,7 +129,10 @@ __artifacts_v2__ = {
             "an actor. Interpret notifications with the underlying artifacts and system logs. "
             "Rows can overlap other Items of Interest reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "shield-lock",
         "sample_data": {},
@@ -122,7 +142,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths specifically associated with restore, erase, and backup services",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -130,7 +150,10 @@ __artifacts_v2__ = {
             "A matching notification is not, by itself, proof that a restore, erase, or backup "
             "completed. Rows can overlap other Items of Interest reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "restore",
         "sample_data": {},
@@ -140,14 +163,17 @@ __artifacts_v2__ = {
         "description": "FSEvents paths associated with Safari, WebKit, and browser storage",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
             "This is a path-based subset and does not contain browsing content or prove a website "
             "visit. Rows can overlap other Items of Interest reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "world",
         "sample_data": {},
@@ -157,7 +183,7 @@ __artifacts_v2__ = {
         "description": "FSEvents paths associated with APT, dpkg, Cydia, Sileo, and Zebra",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -165,7 +191,10 @@ __artifacts_v2__ = {
             "They are not labeled as proof of jailbreak status and should be correlated with "
             "other device evidence. Rows can overlap other Items of Interest reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package",
         "sample_data": {},
@@ -175,7 +204,7 @@ __artifacts_v2__ = {
         "description": "FSEvents records carrying the Removed event flag",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -183,7 +212,10 @@ __artifacts_v2__ = {
             "deletion. Events can be coalesced and can carry Created and Removed together. "
             "Rows can overlap other Items of Interest reports."
         ),
-        "paths": ("*/private/var/.fseventsd/*",),
+        "paths": (
+            "*/private/var/.fseventsd/*",
+            "*/private/var/mobile/.fseventsd/*",
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "trash",
         "sample_data": {},
