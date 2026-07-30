@@ -40,6 +40,28 @@ jobs:
           # root is no longer needed here; pyliblzfse cp314 wheels ship in whl_files.
           python-version: '3.14'
 
+      - name: Provide OpenSSL for the cryptography source build (arm64 only)
+        # cryptography publishes no win_arm64 wheels at all (49.0.0 checked), so on
+        # Windows-on-ARM pip builds it from source: Rust is on the runner already,
+        # OpenSSL is not. Everything else heavy (numpy, pandas, pillow, mmh3,
+        # pillow_heif) ships cp314 win_arm64 wheels, and pycryptodome covers it with
+        # an abi3 wheel - cryptography is the one wall.
+        if: matrix.arch == 'arm64'
+        run: |
+          $vcpkg = 'vcpkg'
+          if (-not (Get-Command vcpkg -ErrorAction SilentlyContinue)) {
+            git clone --depth 1 https://github.com/microsoft/vcpkg C:\vcpkg-local
+            & C:\vcpkg-local\bootstrap-vcpkg.bat
+            $vcpkg = 'C:\vcpkg-local\vcpkg.exe'
+          }
+          & $vcpkg install openssl:arm64-windows-static-md
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $roots = @('C:\vcpkg-local', $env:VCPKG_INSTALLATION_ROOT) | Where-Object { $_ }
+          $installed = $roots | ForEach-Object { Join-Path $_ 'installed\arm64-windows-static-md' } | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $installed) { Write-Error 'vcpkg OpenSSL install dir not found'; exit 1 }
+          "OPENSSL_DIR=$installed" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "OPENSSL_STATIC=1" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
