@@ -97,6 +97,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | keychain |
 | life360 |
 | line |
+| locationdCacheEncryptedB |
 | logarchive |
 | mailprotect |
 | mastodon |
