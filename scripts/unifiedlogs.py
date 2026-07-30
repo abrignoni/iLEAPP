@@ -31,6 +31,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 from scripts.ilapfuncs import logfunc, is_platform_windows
 
@@ -183,6 +184,98 @@ def assemble_archive(diagnostics_dir, uuidtext_dir, workdir):
     return workdir
 
 
+def _format_duration(seconds):
+    """1:05 / 12:07 / 1:02:33 - compact, no unit soup."""
+    seconds = max(0, int(seconds))
+    hours, remainder = divmod(seconds, 3600)
+    minutes, secs = divmod(remainder, 60)
+    if hours:
+        return f'{hours}:{minutes:02d}:{secs:02d}'
+    return f'{minutes}:{secs:02d}'
+
+
+class ImportProgress:
+    """Throttled progress lines for a long import, through logfunc.
+
+    A Unified Log import runs for 10-15 minutes on a real image with no output at
+    all between "artifact started" and the final record count, which reads as a
+    hang. This emits a line at most every `interval` seconds, carrying the numbers
+    an examiner actually wants: records so far, percent of the source data consumed,
+    rate, elapsed, and a remaining-time estimate.
+
+    Percent is by BYTES of source consumed, not records, because the total record
+    count is unknowable without a second pass. The callers know their bytes:
+    the tracev3 path advances on evidence-file transitions (each record names its
+    source file), the json path uses the file read position. The estimate is
+    labelled "about" because parse rate varies between log streams; it converges
+    as the import runs.
+
+    The per-record cost has to survive 30M calls, so add_record() is a counter
+    increment plus one modulo check; the clock is consulted at most once per 8192
+    records.
+    """
+
+    CHECK_EVERY = 8192
+
+    def __init__(self, total_bytes, label='Unified Logs import', interval=20.0,
+                 clock=time.monotonic, log=logfunc):
+        self.total_bytes = max(0, int(total_bytes or 0))
+        self.label = label
+        self.interval = interval
+        self.clock = clock
+        self.log = log
+        self.records = 0
+        self.bytes_done = 0
+        self.started = clock()
+        self.last_report = self.started
+
+    def add_record(self):
+        self.records += 1
+        if self.records % self.CHECK_EVERY == 0:
+            self.maybe_report()
+
+    def set_bytes_done(self, done):
+        self.bytes_done = min(int(done), self.total_bytes) if self.total_bytes else int(done)
+
+    def maybe_report(self):
+        now = self.clock()
+        if now - self.last_report < self.interval:
+            return
+        self.last_report = now
+        elapsed = now - self.started
+        parts = [f'{self.label}: {self.records:,} records']
+        if self.total_bytes and self.bytes_done:
+            percent = 100.0 * self.bytes_done / self.total_bytes
+            parts.append(f'{percent:.0f}% of source data')
+        if elapsed > 0:
+            parts.append(f'{self.records / elapsed:,.0f} records/s')
+        parts.append(f'elapsed {_format_duration(elapsed)}')
+        if self.total_bytes and 0 < self.bytes_done < self.total_bytes and elapsed > 0:
+            remaining = (self.total_bytes - self.bytes_done) / (self.bytes_done / elapsed)
+            parts.append(f'about {_format_duration(remaining)} left')
+        self.log(' | '.join(parts))
+
+    def finish(self):
+        elapsed = self.clock() - self.started
+        rate = f', {self.records / elapsed:,.0f} records/s' if elapsed > 0 else ''
+        self.log(f'{self.label} finished: {self.records:,} records '
+                 f'in {_format_duration(elapsed)}{rate}')
+
+
+def _tracev3_sizes(archive_dir):
+    """Map every .tracev3 path under archive_dir to its size, for byte progress."""
+    sizes = {}
+    for root, _, filenames in os.walk(archive_dir):
+        for filename in filenames:
+            if filename.endswith('.tracev3'):
+                path = os.path.join(root, filename)
+                try:
+                    sizes[path] = os.path.getsize(path)
+                except OSError:
+                    sizes[path] = 0
+    return sizes
+
+
 def _report_parser_diagnostics(stderr_file):
     """Summarize what the parser complained about, without flooding the iLEAPP log."""
     stderr_file.seek(0)
@@ -217,6 +310,14 @@ def stream_records(binary, archive_dir):
     """
     command = [binary, '--mode', 'log-archive', '--input', archive_dir, '--format', 'jsonl']
 
+    # Byte-accurate progress: every record names its source tracev3 file in the
+    # 'evidence' field, so a change of evidence file means the previous file is
+    # fully parsed. pop() keeps a revisited file from being counted twice.
+    remaining_sizes = _tracev3_sizes(archive_dir)
+    progress = ImportProgress(sum(remaining_sizes.values()))
+    parsed_bytes = 0
+    current_evidence = None
+
     with tempfile.TemporaryFile(mode='w+', encoding='utf-8', errors='replace') as stderr_file:
         with subprocess.Popen(
                 command,
@@ -233,12 +334,22 @@ def stream_records(binary, archive_dir):
                 if not line:
                     continue
                 try:
-                    yield json.loads(line)
+                    record = json.loads(line)
                 except json.JSONDecodeError:
                     malformed += 1
                     if malformed <= MAX_REPORTED_ERRORS:
                         logfunc('unifiedlog_iterator emitted a line that is not valid JSON: '
                                 f'{line[:MAX_DIAGNOSTIC_LINE_LENGTH]}')
+                    continue
+
+                evidence = record.get('evidence')
+                if evidence != current_evidence:
+                    if current_evidence is not None:
+                        parsed_bytes += remaining_sizes.pop(current_evidence, 0)
+                        progress.set_bytes_done(parsed_bytes)
+                    current_evidence = evidence
+                progress.add_record()
+                yield record
 
             return_code = process.wait()
 
@@ -246,6 +357,8 @@ def stream_records(binary, archive_dir):
             logfunc(f'{malformed:,} unreadable output lines in total from unifiedlog_iterator')
 
         _report_parser_diagnostics(stderr_file)
+
+    progress.finish()
 
     # A non-zero exit after records were already yielded means a partial parse. Say so
     # rather than letting the artifact look complete.

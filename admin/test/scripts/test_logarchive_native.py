@@ -204,6 +204,77 @@ class TestArchiveAssembly(unittest.TestCase):
         self.assertEqual(len(os.listdir(target)), 4)
 
 
+class TestImportProgress(unittest.TestCase):
+    """The progress reporter has one job: honest numbers, rarely, cheaply.
+
+    A Unified Log import is silent for 10+ minutes without it, which reads as a
+    hang. But it runs inside a 30-million-iteration loop, so the throttle and the
+    per-record cost are correctness concerns, not niceties.
+    """
+
+    def setUp(self):
+        self.now = [0.0]
+        self.lines = []
+
+    def _make(self, total_bytes=1000, interval=20.0):
+        progress = unifiedlogs.ImportProgress(
+            total_bytes, interval=interval,
+            clock=lambda: self.now[0], log=self.lines.append)
+        return progress
+
+    def test_throttle_no_output_before_interval(self):
+        progress = self._make()
+        for _ in range(unifiedlogs.ImportProgress.CHECK_EVERY * 3):
+            progress.add_record()
+        self.assertEqual(self.lines, [], 'reported before the interval elapsed')
+
+    def test_reports_after_interval_with_all_fields(self):
+        progress = self._make(total_bytes=1000)
+        progress.set_bytes_done(400)
+        self.now[0] = 25.0
+        for _ in range(unifiedlogs.ImportProgress.CHECK_EVERY):
+            progress.add_record()
+        self.assertEqual(len(self.lines), 1)
+        line = self.lines[0]
+        self.assertIn('8,192 records', line)
+        self.assertIn('40% of source data', line)
+        self.assertIn('records/s', line)
+        self.assertIn('elapsed 0:25', line)
+        # 400 bytes in 25s -> 600 remaining at 16 B/s = 37.5s
+        self.assertIn('about 0:37 left', line)
+
+    def test_no_percent_or_eta_when_total_unknown(self):
+        progress = self._make(total_bytes=0)
+        self.now[0] = 30.0
+        for _ in range(unifiedlogs.ImportProgress.CHECK_EVERY):
+            progress.add_record()
+        self.assertEqual(len(self.lines), 1)
+        self.assertNotIn('%', self.lines[0])
+        self.assertNotIn('left', self.lines[0])
+
+    def test_finish_line_has_total_elapsed_and_rate(self):
+        progress = self._make()
+        for _ in range(100):
+            progress.add_record()
+        self.now[0] = 10.0
+        progress.finish()
+        self.assertIn('finished: 100 records', self.lines[-1])
+        self.assertIn('0:10', self.lines[-1])
+        self.assertIn('10 records/s', self.lines[-1])
+
+    def test_bytes_done_clamped_to_total(self):
+        # A stale size map must never produce 130% progress in a report.
+        progress = self._make(total_bytes=100)
+        progress.set_bytes_done(130)
+        self.assertEqual(progress.bytes_done, 100)
+
+    def test_duration_formatting(self):
+        fmt = unifiedlogs._format_duration  # pylint: disable=protected-access
+        self.assertEqual(fmt(65), '1:05')
+        self.assertEqual(fmt(3753), '1:02:33')
+        self.assertEqual(fmt(-3), '0:00')
+
+
 class TestBinaryDiscovery(unittest.TestCase):
     """A missing binary must degrade to 'not available', never to a crash."""
 
