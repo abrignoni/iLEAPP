@@ -59,6 +59,69 @@ class TestIteratorTimestamp(unittest.TestCase):
         self.assertEqual(logarchive.parse_iterator_timestamp(''), '')
 
 
+class TestSearchPatternsMatchRealLayouts(unittest.TestCase):
+    """The declared globs must match every extraction layout the data arrives in.
+
+    This failed in the field before it failed in a test: the globs were anchored at
+    private/var/db/, Cellebrite UFED zips store the data partition as filesystem2/db/
+    with no private/var prefix, and an 18 GB image with 616 MB of tracev3 data produced
+    'No data found for logarchive' in three seconds. The corpus CSVs in
+    admin/data/filepath-lists use the same filesystem2/db/ layout.
+
+    Matching is checked with the seeker's own machinery (fnmatch against 'root/' + path),
+    not a reimplementation, so these stay honest if the seeker changes.
+    """
+
+    # Verbatim shapes from, respectively: a UFED FFS zip (CTF23 Felix), an Apple-native
+    # full file system extraction, and a collected/reconstructed logarchive package.
+    UFED = [
+        'filesystem2/db/diagnostics/Persist/000000000000034f.tracev3',
+        'filesystem2/db/diagnostics/timesync/0000000000000002.timesync',
+        'filesystem2/db/uuidtext/03/1122334455667788',
+        'filesystem2/db/uuidtext/dsc/ABCDEF0011',
+    ]
+    NATIVE = [
+        'private/var/db/diagnostics/Persist/0000000000000001.tracev3',
+        'private/var/db/uuidtext/00/AABBCCDD',
+    ]
+    LOGARCHIVE = [
+        'case/device.logarchive/Persist/0000000000000001.tracev3',
+        'case/device.logarchive/dsc/ABCDEF',
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        from fnmatch import _compile_pattern  # what search_files.py matches with
+        patterns = logarchive.__artifacts_v2__['logarchive']['paths']
+        compiled = [_compile_pattern(os.path.normcase(p)) for p in patterns]
+        cls.matches = staticmethod(
+            lambda path: any(pat(os.path.normcase('root/' + path)) for pat in compiled))
+
+    def test_ufed_layout_matches(self):
+        for path in self.UFED:
+            with self.subTest(path=path):
+                self.assertTrue(self.matches(path), f'globs miss UFED path {path}')
+
+    def test_apple_native_layout_matches(self):
+        for path in self.NATIVE:
+            with self.subTest(path=path):
+                self.assertTrue(self.matches(path), f'globs miss native path {path}')
+
+    def test_logarchive_package_matches(self):
+        for path in self.LOGARCHIVE:
+            with self.subTest(path=path):
+                self.assertTrue(self.matches(path), f'globs miss logarchive path {path}')
+
+    def test_globs_do_not_swallow_unrelated_databases(self):
+        # 'db' appears all over an iOS filesystem; the diagnostics/uuidtext anchors are
+        # what keep this artifact from claiming files that belong to other modules.
+        for path in ('private/var/db/CoreDuet/Knowledge/knowledgeC.db',
+                     'private/var/mobile/Library/CallHistoryDB/CallHistory.storedata',
+                     'filesystem2/db/timezone/localtime'):
+            with self.subTest(path=path):
+                self.assertFalse(self.matches(path), f'globs wrongly claim {path}')
+
+
 class TestArchiveRootDiscovery(unittest.TestCase):
     """The parser needs directory roots, but the seeker hands back individual file paths."""
 
@@ -82,6 +145,29 @@ class TestArchiveRootDiscovery(unittest.TestCase):
         self.assertEqual(archive, '/case/device.logarchive')
         self.assertIsNone(diagnostics)
         self.assertIsNone(uuidtext)
+
+    def test_populated_partition_beats_empty_system_partition(self):
+        """The UFED two-partition trap: CTF23 Felix reported zero records because
+        filesystem1's empty diagnostics directory was found first and won on order.
+        The root with the files under it has to win regardless of position."""
+        found = [
+            # The system partition's directory arrives first and is empty (the seeker
+            # extracts the bare directory entry from the zip).
+            '/out/data/filesystem1/private/var/db/diagnostics/',
+            '/out/data/filesystem2/db/diagnostics/Persist/000000000000034f.tracev3',
+            '/out/data/filesystem2/db/diagnostics/timesync/0000000000000002.timesync',
+            '/out/data/filesystem2/db/uuidtext/03/1122334455667788',
+        ]
+        _, diagnostics, uuidtext = unifiedlogs.find_archive_roots(found)
+        self.assertEqual(diagnostics, '/out/data/filesystem2/db/diagnostics')
+        self.assertEqual(uuidtext, '/out/data/filesystem2/db/uuidtext')
+
+    def test_lone_empty_directory_still_resolves(self):
+        # With nothing better on offer, an empty directory is still the right answer;
+        # the artifact reports the absence of tracev3 data rather than "no files found".
+        found = ['/out/data/private/var/db/diagnostics/']
+        _, diagnostics, _ = unifiedlogs.find_archive_roots(found)
+        self.assertEqual(diagnostics, '/out/data/private/var/db/diagnostics')
 
 
 class TestArchiveAssembly(unittest.TestCase):

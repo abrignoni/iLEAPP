@@ -100,22 +100,44 @@ def find_archive_roots(files_found):
 
     Returns (logarchive_dir, diagnostics_dir, uuidtext_dir), where either the first item
     is set (the examiner supplied a ready-made .logarchive) or the other two are.
+
+    An extraction can hold the same directory name on more than one partition. A UFED
+    zip of an iPhone carries filesystem1 (system) and filesystem2 (data), and
+    filesystem1 has an *empty* private/var/db/diagnostics; the populated one lives at
+    filesystem2/db/diagnostics. Taking the first name match handed the parser the empty
+    directory and a real image reported zero records with no error anywhere. So roots
+    are chosen by how many found files sit beneath them, judged from the seeker's list
+    alone - the paths may describe files that only exist inside an archive.
     """
     logarchive = None
-    diagnostics = None
-    uuidtext = None
+    diagnostics_candidates = {}
+    uuidtext_candidates = {}
 
     for path in files_found:
         components = _path_components(path)
+        is_file = bool(components) and not str(path).replace('\\', '/').endswith('/')
         for index, component in enumerate(components):
             if component.lower().endswith('.logarchive'):
                 logarchive = logarchive or '/'.join(components[:index + 1])
-            elif component == DIAGNOSTICS_DIR:
-                diagnostics = diagnostics or '/'.join(components[:index + 1])
+                continue
+            if component == DIAGNOSTICS_DIR:
+                candidates = diagnostics_candidates
             elif component == UUIDTEXT_DIR:
-                uuidtext = uuidtext or '/'.join(components[:index + 1])
+                candidates = uuidtext_candidates
+            else:
+                continue
+            root = '/'.join(components[:index + 1])
+            below = index + 1 < len(components) and is_file
+            candidates[root] = candidates.get(root, 0) + (1 if below else 0)
 
-    return logarchive, diagnostics, uuidtext
+    def best(candidates):
+        if not candidates:
+            return None
+        # Most files underneath wins; insertion order breaks ties, so a lone empty
+        # directory still resolves when it is all there is.
+        return max(candidates, key=lambda root: candidates[root])
+
+    return logarchive, best(diagnostics_candidates), best(uuidtext_candidates)
 
 
 def _link_file(source, destination):

@@ -10,9 +10,14 @@ __artifacts_v2__ = {
                         "binary; see scripts/unifiedlogs.py",
         "category": "Unified Logs",
         "notes": "",
+        # The tracev3 globs are anchored at db/, not private/var/db/: Cellebrite UFED
+        # zips (and the corpus CSVs in admin/data/filepath-lists) store the data
+        # partition as filesystem2/db/diagnostics with no private/var prefix, and the
+        # anchored form never matched them. fnmatch's '*' crosses path separators, so
+        # these cover the Apple-native layout too.
         "paths": ('*/logarchive*.json',
-                  '*/private/var/db/diagnostics/*',
-                  '*/private/var/db/uuidtext/*',
+                  '*/db/diagnostics/*',
+                  '*/db/uuidtext/*',
                   '*.logarchive/*'),
         "output_types": "lava_only",
         "artifact_icon": "database",
