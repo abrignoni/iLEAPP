@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "module_name": "locationdCacheEncryptedB",
+    "artifact_name": "Locationd Cache - Wi-Fi Tiles",
+    "function_name": "locationdWifiTiles",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 16,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/locationdCacheEncryptedB/testdata.locationdCacheEncryptedB.locationdWifiTiles.mvs_ios_2023.zip",
+    "start_time": "2026-07-30T03:58:04.719263+00:00",
+    "end_time": "2026-07-30T03:58:04.813587+00:00",
+    "run_time_seconds": 0.0014820098876953125,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-29T22:58:04.808070",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Access Timestamp",
+    "Generation Timestamp",
+    "Latitude",
+    "Longitude",
+    "Delta Latitude",
+    "Delta Longitude",
+    "Tile X",
+    "Tile Y",
+    "Altitude",
+    "Minimum Altitude",
+    "Maximum Altitude",
+    "Index Entries",
+    "Input Points",
+    "Expiration Age",
+    "Version",
+    "Flags"
+  ],
+  "data": []
+}

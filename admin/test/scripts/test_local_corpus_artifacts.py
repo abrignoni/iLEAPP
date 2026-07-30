@@ -30,6 +30,8 @@ from pathlib import Path
 
 from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceList, \
     appleAccountDeviceList
+from scripts.artifacts.locationdCacheEncryptedB import locationdCellLocations, \
+    locationdWifiHarvest, locationdWifiLocations, locationdWifiTiles
 from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
@@ -314,6 +316,72 @@ class ThreeBarsLocalTest(LocalCorpusTestCase):
             self.skipTest('ZTILE is empty in this image')
         for row in rows:
             self.assert_plausible_timestamp(row[0])
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class LocationdCacheLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/Caches/locationd/cache_encryptedB.db'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+        self.fetch(self.SUFFIX + '-wal')
+        self.fetch(self.SUFFIX + '-shm')
+
+    def _assert_coordinates(self, rows, latitude_index=1, longitude_index=2):
+        for row in rows:
+            latitude, longitude = row[latitude_index], row[longitude_index]
+            if latitude in (None, '') and longitude in (None, ''):
+                continue
+            self.assertTrue(-90 <= latitude <= 90,
+                            f'latitude out of range; shape was {_redact(latitude)}')
+            self.assertTrue(-180 <= longitude <= 180,
+                            f'longitude out of range; shape was {_redact(longitude)}')
+
+    def test_wifi_locations_structure(self):
+        headers, rows, _ = locationdWifiLocations.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('WifiLocation is empty in this image')
+        self._assert_coordinates(rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_matches(row[3], r'^([0-9a-f]{2}:){5}[0-9a-f]{2}$', 'BSSID')
+
+    def test_wifi_harvest_structure(self):
+        headers, rows, _ = locationdWifiHarvest.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('WifiAssociatedApWifiHarvestTable is empty in this image')
+        self._assert_coordinates(rows, 2, 3)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_plausible_timestamp(row[1])
+            self.assert_matches(row[4], r'^([0-9a-f]{2}:){5}[0-9a-f]{2}$', 'BSSID')
+
+    def test_cell_locations_structure(self):
+        headers, rows, _ = locationdCellLocations.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('no cell table holds rows in this image')
+        self._assert_coordinates(rows)
+        known_radios = {'GSM/UMTS', 'GSM/UMTS (Local)', 'LTE', 'LTE (Local)', '5G NR',
+                        'TD-SCDMA', 'CDMA', 'CDMA (Local)'}
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assertIn(row[3], known_radios)
+
+    def test_wifi_tiles_structure(self):
+        headers, rows, _ = locationdWifiTiles.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('WifiTileHeader is empty in this image')
+        self._assert_coordinates(rows, 2, 3)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_plausible_timestamp(row[1])
 
 
 if __name__ == '__main__':

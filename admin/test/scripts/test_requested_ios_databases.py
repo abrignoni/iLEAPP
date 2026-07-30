@@ -11,6 +11,8 @@ from pathlib import Path
 from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceList, \
     appleAccountDeviceList
 from scripts.artifacts.keyboard import keyboardVulgarWordUsage
+from scripts.artifacts.locationdCacheEncryptedB import locationdCellLocations, \
+    locationdWifiHarvest, locationdWifiLocations, locationdWifiTiles
 from scripts.artifacts.personalizationPortrait import personalizationPortraitLocations
 from scripts.artifacts.powerlog import powerlogApplicationRuntime
 from scripts.artifacts.recents import appleRecents
@@ -499,6 +501,144 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         self.assertEqual(len(headers), len(rows[0]))
         self.assertEqual(rows[0][1], 80472075)
         self.assertEqual(rows[0][2], 21)
+
+    WIFI_LOCATION_SCHEMA = (
+        "CREATE TABLE WifiLocation (MAC INTEGER, Channel INTEGER, InfoMask INTEGER, "
+        "Timestamp FLOAT, Latitude FLOAT, Longitude FLOAT, HorizontalAccuracy FLOAT, "
+        "Altitude FLOAT, VerticalAccuracy FLOAT, Speed FLOAT, Course FLOAT, "
+        "Confidence INTEGER, Score INTEGER, Reach INTEGER, FenceForeignKey INTEGER, "
+        "ZaxisHarvestTraces INTEGER)")
+    LTE_CELL_SCHEMA = (
+        "CREATE TABLE LteCellLocation (MCC INTEGER, MNC INTEGER, TAC INTEGER, CI INTEGER, "
+        "UARFCN INTEGER, PID INTEGER, Timestamp FLOAT, Latitude FLOAT, Longitude FLOAT, "
+        "HorizontalAccuracy FLOAT, Altitude FLOAT, VerticalAccuracy FLOAT, Speed FLOAT, "
+        "Course FLOAT, Confidence INTEGER)")
+    CDMA_CELL_SCHEMA = (
+        "CREATE TABLE CdmaCellLocation (MCC INTEGER, SID INTEGER, NID INTEGER, BSID INTEGER, "
+        "ZONEID INTEGER, BANDCLASS INTEGER, CHANNEL INTEGER, PNOFFSET INTEGER, "
+        "Timestamp FLOAT, Latitude FLOAT, Longitude FLOAT, HorizontalAccuracy FLOAT, "
+        "Altitude FLOAT, VerticalAccuracy FLOAT, Speed FLOAT, Course FLOAT, "
+        "Confidence INTEGER)")
+    WIFI_HARVEST_SCHEMA = (
+        "CREATE TABLE WifiAssociatedApWifiHarvestTable (MAC INTEGER, Channel INTEGER, "
+        "Rssi INTEGER, ScanTimestamp FLOAT, Timestamp FLOAT, Latitude FLOAT, Longitude FLOAT, "
+        "HorizontalAccuracy FLOAT, Altitude FLOAT, VerticalAccuracy FLOAT, LoiType INTEGER)")
+    WIFI_TILE_SCHEMA = (
+        "CREATE TABLE WifiTileHeader (TileX INTEGER, TileY INTEGER, "
+        "SouthwestLatitude FLOAT, SouthwestLongitude FLOAT, DeltaLatitude FLOAT, "
+        "DeltaLongitude FLOAT, Altitude FLOAT, MinimumAltitude FLOAT, MaximumAltitude FLOAT, "
+        "GenerationTimestamp INTEGER, ExpirationAge INTEGER, Version INTEGER, Flags INTEGER, "
+        "NumberOfIndexEntries INTEGER, AccessTimestamp INTEGER, GizmoSyncTimestamp INTEGER, "
+        "NumberOfInputPoints INTEGER)")
+
+    def _locationd_database(self, statements):
+        return self._database(
+            "root/Library/Caches/locationd/cache_encryptedB.db", statements)
+
+    def test_locationd_wifi_locations_mac_formatting(self):
+        path = self._locationd_database([
+            (self.WIFI_LOCATION_SCHEMA, ()),
+            ("INSERT INTO WifiLocation (MAC, Channel, Timestamp, Latitude, Longitude, "
+             "HorizontalAccuracy, Speed, Course) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+             (44616141971906, 40, self.COCOA_TS, 42.684352, -73.817619, 99.0, -1.0, -1.0)),
+        ])
+        headers, rows, _ = locationdWifiLocations.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][3], "28:94:01:4b:21:c2")
+        self.assertIn("2026-04-29T17:35:08", rows[0][0].isoformat())
+
+    def test_locationd_wifi_harvest(self):
+        path = self._locationd_database([
+            (self.WIFI_HARVEST_SCHEMA, ()),
+            ("INSERT INTO WifiAssociatedApWifiHarvestTable (MAC, Channel, Rssi, "
+             "ScanTimestamp, Timestamp, Latitude, Longitude, HorizontalAccuracy, LoiType) "
+             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (44616141971906, 40, -49, self.COCOA_TS, self.COCOA_TS + 60, 42.684352,
+              -73.817619, 99.0, -1)),
+        ])
+        headers, rows, _ = locationdWifiHarvest.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][4], "28:94:01:4b:21:c2")
+        self.assertEqual(rows[0][5], -49)
+        self.assertLess(rows[0][1], rows[0][0])   # scan precedes the harvest record
+
+    def test_locationd_wifi_harvest_sentinel_scan_timestamp(self):
+        """A -1 scan timestamp is no value, not a date in 2000."""
+        path = self._locationd_database([
+            (self.WIFI_HARVEST_SCHEMA, ()),
+            ("INSERT INTO WifiAssociatedApWifiHarvestTable (MAC, ScanTimestamp, Timestamp, "
+             "Latitude, Longitude) VALUES (?, ?, ?, ?, ?)",
+             (44616141971906, -1.0, self.COCOA_TS, 42.684352, -73.817619)),
+        ])
+        _, rows, _ = locationdWifiHarvest.__wrapped__(_Context(path))
+        self.assertEqual(rows[0][1], '')
+        self.assertIn("2026-04-29T17:35:08", rows[0][0].isoformat())
+
+    def test_locationd_cell_locations_fold_radios(self):
+        """LTE and CDMA rows land in shared columns with their radio named."""
+        path = self._locationd_database([
+            (self.LTE_CELL_SCHEMA, ()),
+            (self.CDMA_CELL_SCHEMA, ()),
+            ("INSERT INTO LteCellLocation (MCC, MNC, TAC, CI, UARFCN, PID, Timestamp, "
+             "Latitude, Longitude, Confidence) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (311, 480, 18176, 18254852, -1, -1, self.COCOA_TS, 42.687908, -73.809982, 70)),
+            ("INSERT INTO CdmaCellLocation (MCC, SID, NID, BSID, ZONEID, BANDCLASS, CHANNEL, "
+             "PNOFFSET, Timestamp, Latitude, Longitude) "
+             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (310, 1, 2, 3, 4, 5, 6, 7, self.COCOA_TS + 1, 41.0, -87.0)),
+        ])
+        headers, rows, _ = locationdCellLocations.__wrapped__(_Context(path))
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            self.assertEqual(len(headers), len(row))
+        by_radio = {row[3]: row for row in rows}
+        self.assertEqual(by_radio['LTE'][6], 18176)        # TAC lands in Area Code
+        self.assertEqual(by_radio['LTE'][7], 18254852)     # CI lands in Cell ID
+        self.assertEqual(by_radio['LTE'][10], '')          # no CDMA extras
+        self.assertEqual(by_radio['CDMA'][5], '')          # CDMA has no MNC column
+        self.assertEqual(by_radio['CDMA'][6], '')          # nor an area code
+        self.assertEqual(by_radio['CDMA'][7], 3)           # BSID lands in Cell ID
+        self.assertIn("SID=1", by_radio['CDMA'][10])
+        self.assertIn("BANDCLASS=5", by_radio['CDMA'][10])
+
+    def test_locationd_cell_locations_skips_absent_tables(self):
+        """Only LteCellLocation exists; the other eight must not fail the run."""
+        path = self._locationd_database([
+            (self.LTE_CELL_SCHEMA, ()),
+            ("INSERT INTO LteCellLocation (MCC, MNC, TAC, CI, Timestamp, Latitude, Longitude) "
+             "VALUES (?, ?, ?, ?, ?, ?, ?)",
+             (311, 480, 18176, 18254852, self.COCOA_TS, 42.687908, -73.809982)),
+        ])
+        _, rows, _ = locationdCellLocations.__wrapped__(_Context(path))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0][3], "LTE")
+
+    def test_locationd_wifi_tiles(self):
+        path = self._locationd_database([
+            (self.WIFI_TILE_SCHEMA, ()),
+            ("INSERT INTO WifiTileHeader (TileX, TileY, SouthwestLatitude, "
+             "SouthwestLongitude, DeltaLatitude, DeltaLongitude, GenerationTimestamp, "
+             "AccessTimestamp, NumberOfIndexEntries) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (1061500, 1324500, 42.45, -73.85, 0.05, 0.05, int(self.COCOA_TS),
+              int(self.COCOA_TS), 244)),
+        ])
+        headers, rows, _ = locationdWifiTiles.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertAlmostEqual(rows[0][2], 42.45)
+        self.assertAlmostEqual(rows[0][4], 0.05)
+        self.assertEqual(rows[0][11], 244)
+
+    def test_locationd_missing_tables(self):
+        path = self._locationd_database([("CREATE TABLE unrelated (a)", ())])
+        for processor in (locationdWifiLocations, locationdWifiHarvest, locationdWifiTiles):
+            headers, rows, source = processor.__wrapped__(_Context(path))
+            self.assertEqual(rows, [])
+            self.assertEqual(source, "")
+            self.assertTrue(headers)
+        # The cell artifact has no single required table, so it reports nothing
+        # rather than bailing out.
+        _, rows, _ = locationdCellLocations.__wrapped__(_Context(path))
+        self.assertEqual(rows, [])
 
     def test_three_bars_missing_tables(self):
         path = self._threebars_database([("CREATE TABLE unrelated (a)", ())])
