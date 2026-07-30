@@ -452,6 +452,12 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%transition source:%'
         OR event_message LIKE '%[Flashlight Controller]%'
         OR event_message LIKE '%<<<<AVFlashlight>>>>-%'
+        -- AVFoundation's logging macro renders as '<<<< AVFlashlight >>>> -[AVFlashlight
+        -- turnPowerOff]: ...' with spaces inside the brackets on iOS 17.1, which the
+        -- unspaced predicate above misses entirely. Both forms are kept because the
+        -- unspaced one was written from observed output on another release. The method
+        -- prefix is not matched, so class methods ('+[') are picked up too.
+        OR event_message LIKE '%<<<< AVFlashlight >>>>%'
         OR event_message LIKE '%Tethering is now enabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
@@ -501,8 +507,11 @@ def logarchive_flashlight(context):
     query = '''
     SELECT *
     FROM logarchive_artifacts
-    WHERE event_message LIKE '%[Flashlight Controller]%' 
+    WHERE event_message LIKE '%[Flashlight Controller]%'
     OR event_message LIKE '%<<<<AVFlashlight>>>>-%'
+    -- Spaced variant; see the note in logarchive_artifacts. Both queries need it, since
+    -- this artifact reads from the table that one builds.
+    OR event_message LIKE '%<<<< AVFlashlight >>>>%'
     '''
     
     data_list = list( get_sqlite_db_records(source_path, query) )

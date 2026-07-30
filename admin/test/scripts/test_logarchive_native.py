@@ -242,6 +242,49 @@ class TestStreamingWriter(unittest.TestCase):
         self.assertNotIn('streaming_probe', tables)
 
 
+class TestFlashlightPredicates(unittest.TestCase):
+    """The flashlight artifact has to match both spellings AVFoundation emits.
+
+    On iOS 17.1 the logging macro renders '<<<< AVFlashlight >>>> -[AVFlashlight
+    turnPowerOff]:' with spaces inside the brackets. The original predicate has no spaces,
+    so an image with 190 genuine flashlight records reported nothing at all, which reads
+    as "the flashlight was never used" rather than "the pattern did not match". Both
+    spellings are now matched and both must stay.
+
+    logarchive_flashlight selects from the table logarchive_artifacts builds, so a
+    predicate missing from the broad query cannot be recovered by the narrow one. That
+    coupling is the easy thing to get wrong, hence checking both.
+    """
+
+    SPACED = "'%<<<< AVFlashlight >>>>%'"
+    UNSPACED = "'%<<<<AVFlashlight>>>>-%'"
+
+    def _query_for(self, function_name):
+        source = pathlib.Path(logarchive.__file__).read_text(encoding='utf-8')
+        return source.split(f'def {function_name}', 1)[1].split("'''")[1]
+
+    def test_broad_query_matches_both_spellings(self):
+        query = self._query_for('logarchive_artifacts')
+        self.assertIn(self.UNSPACED, query)
+        self.assertIn(self.SPACED, query)
+
+    def test_flashlight_artifact_matches_both_spellings(self):
+        query = self._query_for('logarchive_flashlight')
+        self.assertIn(self.UNSPACED, query)
+        self.assertIn(self.SPACED, query)
+
+    def test_spaced_predicate_matches_real_message_text(self):
+        # Verbatim from an iOS 17.1 extraction.
+        message = ('<<<< AVFlashlight >>>> -[AVFlashlight setFlashlightLevel:withError:]: '
+                   'called (2800F8780) level 0')
+        with sqlite3.connect(':memory:') as connection:
+            connection.execute('CREATE TABLE t (event_message TEXT)')
+            connection.execute('INSERT INTO t VALUES (?)', (message,))
+            matched = connection.execute(
+                f'SELECT COUNT(*) FROM t WHERE event_message LIKE {self.SPACED}').fetchone()[0]
+        self.assertEqual(matched, 1)
+
+
 class TestColumnContract(unittest.TestCase):
     """Both sources must produce the eight columns the dependent artifacts query."""
 
