@@ -1,15 +1,15 @@
-name: Windows test build
+name: Test builds
 
-# Build the Windows CLI and GUI binaries with PyInstaller and smoke-test them on a
-# real Windows machine, then upload them as a workflow artifact.
+# Build the CLI and GUI binaries with PyInstaller on every platform PyInstaller
+# cannot cross-build for, smoke-test them on their own architecture, and upload
+# them as workflow artifacts.
 #
-# Manual only. This is not the release pipeline; it exists so a Windows binary can be
-# produced and actually executed on Windows without anyone owning a Windows box.
-# PyInstaller cannot cross-build, so this cannot run on the macOS/Linux runners.
+# Manual only. This is not the release pipeline; it exists so testable binaries can
+# be produced and actually executed per platform without anyone owning the hardware.
 #
 # The smoke tests are the point, not decoration: the frozen builds shipped a startup
 # crash for a long time (missing google.protobuf/PIL/leapp_functions) precisely
-# because nothing ever ran a built binary. Every step here that runs an .exe is a
+# because nothing ever ran a built binary. Every step here that runs a binary is a
 # regression test for that class of failure.
 
 on:
@@ -97,5 +97,78 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ileapp-windows-${{ matrix.arch }}-test
+          path: artifact/
+          retention-days: 14
+
+  build-linux:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install tk libraries for the GUI build
+        # The GUI imports tkinter; PyInstaller needs the import to succeed at
+        # analysis time. The hard check turns a missing-toolkit problem into a
+        # readable failure instead of a cryptic PyInstaller one.
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q libtcl8.6 libtk8.6
+          python -c "import tkinter" || { echo "tkinter unavailable in this Python"; exit 1; }
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Fetch the Unified Log parser (digest-verified)
+        run: python admin/scripts/fetch_unifiedlog_iterator.py
+
+      - name: Smoke test the parser binary on Linux
+        # On x64 this is the musl build's first execution anywhere in the
+        # pipeline - statically linked precisely so it runs on any distro, and
+        # this proves it. arm64 gets the gnu build (no musl published upstream).
+        run: bin/unifiedlog_iterator --help
+
+      - name: Build CLI and GUI with PyInstaller
+        working-directory: scripts/pyinstaller
+        run: |
+          pyinstaller ileapp_Linux.spec --distpath ../../dist_build --workpath ../../build_tmp --noconfirm
+          pyinstaller ileappGUI_Linux.spec --distpath ../../dist_build --workpath ../../build_tmp --noconfirm
+
+      - name: Smoke test the frozen CLI
+        run: |
+          dist_build/ileapp --help
+          mkdir smoke_in smoke_out
+          echo placeholder > smoke_in/placeholder.txt
+          dist_build/ileapp -t fs -i smoke_in -o smoke_out
+
+      - name: Verify the parser is bundled inside the frozen CLI
+        run: |
+          if ! grep -q "unifiedlog_iterator" build_tmp/ileapp/Analysis-00.toc; then
+            echo "unifiedlog_iterator was not bundled into the CLI build"
+            exit 1
+          fi
+
+      - name: Package artifact
+        run: |
+          mkdir artifact
+          cp dist_build/ileapp dist_build/ileappGUI artifact/
+          cp bin/LICENSE-unifiedlog_iterator artifact/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ileapp-linux-${{ matrix.arch }}-test
           path: artifact/
           retention-days: 14
