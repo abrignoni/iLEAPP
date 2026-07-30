@@ -471,11 +471,6 @@ def crunch_artifacts(
     log.write(f'Timezone selected: {time_offset}<br><br>')
 
     ctx_mp = multiprocessing.get_context("spawn") if mp_per_plugin else None
-    if mp_per_plugin:
-        # Parent does not need an open connection while children write to the DB.
-        # Closed here (not right after initialize_lava) so any parent-side LAVA
-        # writes during setup above still have a valid connection.
-        lava_close_db()
     installed_os_version = ''
     current_proc = None
     last_interrupt_ts = 0.0
@@ -558,6 +553,11 @@ def crunch_artifacts(
             "installed_os_version": installed_os_version,
             "seeker_all_files": seeker_all_files,
         }
+        # Parent doesn't hold a write lock while the child writes to the same DB file
+        # (lavafuncs uses plain sqlite3.connect with no WAL/busy_timeout, so a lingering
+        # parent connection risks "database is locked"). Reopened right after the child
+        # finishes, since the loop needs it again for the next plugin's bookkeeping.
+        lava_close_db()
         proc = ctx_mp.Process(target=run_one_plugin, args=(payload, q))
         current_proc = proc
         proc.start()
@@ -573,6 +573,10 @@ def crunch_artifacts(
             except Exception:
                 pass
             proc.join(timeout=0.25)
+
+        # Child is done writing; safe to reopen the parent's connection for the
+        # rest of this iteration's bookkeeping and the next plugin's.
+        lava_open_existing(out_params.output_folder_base)
 
         # If we killed the process due to interrupt/skip, treat it as a skip and keep going.
         # IMPORTANT: do this BEFORE attempting any queue reads, because queue state can be corrupted
