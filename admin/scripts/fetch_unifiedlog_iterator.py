@@ -36,15 +36,19 @@ BASE_URL = f'https://github.com/{REPO}/releases/download/{PINNED_VERSION}'
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 BIN_DIR = REPO_ROOT / 'bin'
 
-# sha256 of each release archive, read from the .sha256 files published with v0.6.0.
-# Note: some of upstream's .sha256 files print the digest twice on one line; these are
-# the single correct value.
+# sha256 of each release archive. Every digest below was verified by downloading the
+# archive and hashing it independently, not just read from the published .sha256 files.
+# All values are stored lowercase; comparisons are case-insensitive (see
+# _normalize_digest) because upstream's per-platform build runners disagree on case -
+# the Windows .sha256 is uppercase (PowerShell Get-FileHash style), the rest lowercase.
 ASSETS = {
     'macos-arm64': ('unifiedlog_iterator-v0.6.0-aarch64-apple-darwin.tar.gz',
                     'd3e0e620b51358dc3f4a7d376551a435153e9a4a7942cb52ddb7144a72bbdb63'),
-    'macos-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-apple-darwin.tar.gz', None),
+    'macos-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-apple-darwin.tar.gz',
+                     '28f4a5641543559ef90472537950fafb344a13eb64c432d7929748b45007afe8'),
     # No musl build is published for aarch64; gnu is the only option there.
-    'linux-arm64': ('unifiedlog_iterator-v0.6.0-aarch64-unknown-linux-gnu.tar.gz', None),
+    'linux-arm64': ('unifiedlog_iterator-v0.6.0-aarch64-unknown-linux-gnu.tar.gz',
+                    '1e519eef11e5763d44311600077318d9bdd2c8b1c806191b7c9b345e1c995c5f'),
     # Linux x86_64 deliberately takes the musl build (verified static-pie linked, no
     # dynamic libc). The gnu build links whatever glibc the release runner carries, and a
     # binary built against a newer glibc refuses to start on older distros - the exact
@@ -52,9 +56,25 @@ ASSETS = {
     # build stays reachable below for anyone who wants it.
     'linux-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-unknown-linux-musl.tar.gz',
                      '43fb304af5b3cc19ce15490f6e0ff4255e7707b69c51fc67e279677ea9784adb'),
-    'linux-x86_64-gnu': ('unifiedlog_iterator-v0.6.0-x86_64-unknown-linux-gnu.tar.gz', None),
-    'windows-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-pc-windows-msvc.zip', None),
+    'linux-x86_64-gnu': ('unifiedlog_iterator-v0.6.0-x86_64-unknown-linux-gnu.tar.gz',
+                         'f5a17b056092be347e5d7f5051a6c3698e635bd7eeb22e595efbf13897e03419'),
+    'windows-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-pc-windows-msvc.zip',
+                       '749731fc09d0d107958d777188c99682db8f2d7810835d6afe46172e1d0d9d36'),
 }
+
+
+def _normalize_digest(value):
+    """Lowercase a hex digest and unfold upstream's doubled-digest quirk.
+
+    Two independent formatting differences in upstream's published .sha256 files have
+    produced false "mismatch" refusals for users: the Windows file is UPPERCASE
+    (PowerShell Get-FileHash), and some files print the digest twice on one line. The
+    hex value is what matters; its presentation is not evidence of tampering.
+    """
+    value = value.strip().split()[0].lower() if value.strip() else ''
+    if len(value) == 128 and value[:64] == value[64:]:
+        value = value[:64]
+    return value
 
 
 def current_platform():
@@ -93,13 +113,11 @@ def _download(url):
 
 def _expected_digest(asset, pinned):
     """Use the pinned digest, or fall back to the published .sha256 for platforms we
-    have not pinned yet, reporting the value so it can be added above."""
+    have not pinned yet (a new PINNED_VERSION), reporting the value so it can be
+    added above."""
     if pinned:
-        return pinned
-    published = _download(f'{BASE_URL}/{asset}.sha256').decode().split()[0]
-    # Upstream concatenates the digest with itself; take one copy.
-    if len(published) == 128 and published[:64] == published[64:]:
-        published = published[:64]
+        return _normalize_digest(pinned)
+    published = _normalize_digest(_download(f'{BASE_URL}/{asset}.sha256').decode())
     print(f'  no pinned digest for {asset}; published value is {published}')
     return published
 
@@ -144,7 +162,7 @@ def fetch(key):
     expected = _expected_digest(asset, pinned)
     archive_bytes = _download(f'{BASE_URL}/{asset}')
     actual = hashlib.sha256(archive_bytes).hexdigest()
-    if actual != expected:
+    if _normalize_digest(actual) != expected:
         raise SystemExit(f'  DIGEST MISMATCH for {asset}\n'
                          f'    expected {expected}\n    got      {actual}\n'
                          f'  Nothing was written.')
