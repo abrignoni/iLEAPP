@@ -177,8 +177,10 @@ jobs:
           dist_build/ileapp -t fs -i smoke_in -o smoke_out
 
       - name: Verify the parser is bundled inside the frozen CLI
+        # The workpath subfolder is named after the spec file: ileapp_Linux here,
+        # not ileapp as on Windows.
         run: |
-          if ! grep -q "unifiedlog_iterator" build_tmp/ileapp/Analysis-00.toc; then
+          if ! grep -q "unifiedlog_iterator" build_tmp/ileapp_Linux/Analysis-00.toc; then
             echo "unifiedlog_iterator was not bundled into the CLI build"
             exit 1
           fi
