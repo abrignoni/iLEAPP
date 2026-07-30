@@ -1,14 +1,19 @@
 __artifacts_v2__ = {
     "logarchive": {
         "name": "logarchive",
-        "description": "Processes a json file from a logarchive",
+        "description": "Processes Apple Unified Logs, either from tracev3 data in the "
+                       "extraction or from a json file exported with 'log show'",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-06",
-        "last_update_date": "2025-05-06",
-        "requirements": "none",
+        "last_update_date": "2026-07-29",
+        "requirements": "Reading tracev3 data natively requires the unifiedlog_iterator "
+                        "binary; see scripts/unifiedlogs.py",
         "category": "Unified Logs",
         "notes": "",
-        "paths": ('*/logarchive*.json',),
+        "paths": ('*/logarchive*.json',
+                  '*/private/var/db/diagnostics/*',
+                  '*/private/var/db/uuidtext/*',
+                  '*.logarchive/*'),
         "output_types": "lava_only",
         "artifact_icon": "database",
     },
@@ -170,9 +175,16 @@ __artifacts_v2__ = {
     }
 }
 
+import os
+
 import ijson
 from datetime import datetime, timezone
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc
+from scripts import unifiedlogs
+from scripts.ilapfuncs import artifact_processor, artifact_processor_streaming, get_file_path, \
+    get_sqlite_db_records, logfunc
+
+DATA_HEADERS = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
+                'Subsystem', 'Category', 'Event Message', 'Trace ID')
 
 
 def convert_to_utc(timestamp):
@@ -204,33 +216,115 @@ def truncate_after_last_bracket(file_path):
                 return
         print("No closing bracket `]` found.")
 
-@artifact_processor
-def logarchive(context):
-    source_path = get_file_path(context.get_files_found(), 'logarchive*.json')
-    data_list = []
+def parse_iterator_timestamp(timestamp):
+    """Parse the RFC 3339 timestamp unifiedlog_iterator emits, e.g. 2026-07-29T14:11:07.452774400Z.
 
+    It carries nanosecond precision and a 'Z' suffix. datetime.fromisoformat() only learned
+    to accept either of those in 3.11, and iLEAPP still supports 3.10, so normalize both
+    here rather than depending on the interpreter version.
+    """
+    if not timestamp:
+        return ''
+    normalized = timestamp[:-1] if timestamp.endswith('Z') else timestamp
+    if '.' in normalized:
+        whole, fraction = normalized.split('.', 1)
+        normalized = f'{whole}.{fraction[:6]}'
+    try:
+        return datetime.fromisoformat(normalized).replace(tzinfo=timezone.utc)
+    except ValueError:
+        return ''
+
+
+def rows_from_json(source_path):
+    """Yield rows from a 'log show --style json' export."""
+    truncate_after_last_bracket(source_path)
     incval = 0
-    if source_path:
-        truncate_after_last_bracket(source_path)
-        with open(source_path, 'rb') as f:
-            for record in ijson.items(f, 'item', multiple_values=True ): # if the json is a list
-                if isinstance(record, dict):
-                    incval = incval + 1
-                    timestamp = record.get('timestamp', '')
-                    timestamp = convert_to_utc(timestamp) if timestamp else ''
-                    processid = record.get('processID', '')
-                    process_image_path = record.get('processImagePath', '')
-                    subsystem = record.get('subsystem', '')
-                    category = record.get('category', '')
-                    eventmessage = str(record.get('eventMessage', ''))
-                    traceid = str(record.get('traceID', ''))
-                    
-                    t0 = ( timestamp, incval,  process_image_path,  processid,  subsystem,  category,  eventmessage,  traceid)
-                    data_list.append(t0)
+    with open(source_path, 'rb') as f:
+        for record in ijson.items(f, 'item', multiple_values=True):  # if the json is a list
+            if isinstance(record, dict):
+                incval = incval + 1
+                timestamp = record.get('timestamp', '')
+                timestamp = convert_to_utc(timestamp) if timestamp else ''
+                yield (timestamp,
+                       incval,
+                       record.get('processImagePath', ''),
+                       record.get('processID', ''),
+                       record.get('subsystem', ''),
+                       record.get('category', ''),
+                       str(record.get('eventMessage', '')),
+                       str(record.get('traceID', '')))
 
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
-                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
-    return data_headers, data_list, source_path
+
+def rows_from_tracev3(binary, archive_dir):
+    """Yield rows parsed straight out of the tracev3 data.
+
+    Column meanings are kept identical to the json import so the dependent artifacts, which
+    all query this one table, work the same either way. Trace ID is the one exception:
+    unifiedlog_iterator does not emit it, so it stays empty. No artifact queries it, and the
+    parser supplies several fields Apple's json export does not (thread id, activity id,
+    boot uuid, euid) that could be surfaced later.
+    """
+    incval = 0
+    for record in unifiedlogs.stream_records(binary, archive_dir):
+        incval = incval + 1
+        yield (parse_iterator_timestamp(record.get('timestamp', '')),
+               incval,
+               record.get('process', ''),
+               record.get('pid', ''),
+               record.get('subsystem', ''),
+               record.get('category', ''),
+               str(record.get('message', '')),
+               '')
+
+
+@artifact_processor_streaming
+def logarchive(context):
+    """Import Apple Unified Logs into the LAVA database.
+
+    Two sources, in order of preference:
+
+      1. a 'logarchive*.json' export the examiner produced with 'log show' on a Mac, which
+         stays the documented workflow and is what an examiner explicitly chose to provide;
+      2. the tracev3 data in the extraction itself, read natively, which needs no Mac and no
+         intermediate json file.
+
+    Rows are streamed rather than accumulated: a full archive runs to tens of millions of
+    records, which is more than fits in memory as Python tuples.
+    """
+    files_found = context.get_files_found()
+
+    source_path = get_file_path(files_found, 'logarchive*.json')
+    if source_path:
+        return DATA_HEADERS, rows_from_json(source_path), source_path
+
+    logarchive_dir, diagnostics_dir, uuidtext_dir = unifiedlogs.find_archive_roots(files_found)
+    if not logarchive_dir and not diagnostics_dir:
+        return DATA_HEADERS, iter(()), None
+
+    binary = unifiedlogs.find_iterator()
+    if not binary:
+        logfunc('Unified Log tracev3 data was found but the unifiedlog_iterator binary is not '
+                'available, so it cannot be read natively. Either install the binary (see '
+                'scripts/unifiedlogs.py) or supply a logarchive*.json export.')
+        return DATA_HEADERS, iter(()), None
+
+    if logarchive_dir:
+        archive_dir = logarchive_dir
+        source_path = logarchive_dir
+    else:
+        if not uuidtext_dir:
+            # Without uuidtext the parser cannot resolve format strings, so the messages
+            # would come back as placeholders. Better to say why than to import junk.
+            logfunc('Unified Log tracev3 data was found but the uuidtext directory was not, '
+                    'so log messages cannot be resolved. Skipping.')
+            return DATA_HEADERS, iter(()), None
+        archive_dir = unifiedlogs.assemble_archive(
+            diagnostics_dir, uuidtext_dir,
+            os.path.join(context.get_data_folder(), '_logarchive_native'))
+        source_path = f'{diagnostics_dir}\n{uuidtext_dir}'
+
+    logfunc(f'Reading Apple Unified Logs natively with {os.path.basename(binary)}')
+    return DATA_HEADERS, rows_from_tracev3(binary, archive_dir), source_path
 
 @artifact_processor
 def logarchive_artifacts(context):

@@ -449,6 +449,27 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
     lava_db.commit()
 
 
+def lava_update_record_count(category, tablename, record_count):
+    """
+    Set an artifact's record count after its rows have been written.
+
+    lava_process_artifact() records the count up front, which assumes the caller counted
+    the rows before inserting them. Artifacts streamed straight into SQLite only know the
+    total once the stream is exhausted, so they register the artifact first and correct
+    the count here.
+
+    Args:
+        category (str): The category the artifact was registered under.
+        tablename (str): The sanitized table name returned by lava_process_artifact.
+        record_count (int): The number of rows actually written.
+    """
+
+    for artifact in lava_data["artifacts"].get(category, []):
+        if artifact.get("tablename") == tablename:
+            artifact["record_count"] = record_count
+            return
+
+
 def lava_get_media_item(media_id):
     """
     Retrieve a media item from the lava database by its ID.

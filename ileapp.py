@@ -504,7 +504,9 @@ def crunch_artifacts(
                     if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':
                         src = os.path.join(os.path.dirname(input_path), "logarchive.json")
                         dst = os.path.join(out_params.data_folder, "logarchive.json")
-                        if os.path.exists(src):
+                        # The artifact declares several search patterns, so this branch is
+                        # reached once per pattern that misses; only pick the export up once.
+                        if os.path.exists(src) and dst not in files_found:
                             copy2(src, dst)
                             files_found.append(dst)
                     log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
