@@ -1,11 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import sys
+
+sys.path.insert(0, SPECPATH)
+from unifiedlog_binary import unifiedlog_binaries, unifiedlog_datas
+
 block_cipher = None
 
 a = Analysis(['..\\..\\ileappGUI.py'],
              pathex=['..\\scripts\\artifacts'],
-             binaries=[],
-             datas=[('..\\', '.\\scripts'), ('..\\..\\assets', '.\\assets'), ('..\\..\\leapp_functions', '.\\leapp_functions')],
+             binaries=unifiedlog_binaries(windows=True),
+             datas=[('..\\', '.\\scripts'), ('..\\..\\assets', '.\\assets'), ('..\\..\\leapp_functions', '.\\leapp_functions')] + unifiedlog_datas(windows=True),
              hiddenimports=[
                 'astc_decomp_faster',
                 'bencoding',

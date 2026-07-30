@@ -19,10 +19,11 @@ format directly. Three properties make it a fit:
 On a 1.16 GB / 29.3M event store it parsed in 250s against 355s for `log show` on the
 same data, so this path is not a speed trade-off.
 
-The binary is not vendored in this repository. `find_iterator()` looks for it in an
-explicit environment variable, then alongside the packaged application, then on PATH;
-when it is absent the artifact reports that and does nothing, leaving the existing JSON
-workflow as the supported route.
+The binary is not committed to this repository; release builds fetch a digest-verified
+copy into bin/ (see bin/PROVENANCE.md). `find_iterator()` looks for it in an explicit
+environment variable, then alongside the packaged application, then on PATH; when it is
+absent the artifact reports that and does nothing, leaving the existing JSON workflow as
+the supported route.
 """
 import json
 import os
@@ -55,13 +56,19 @@ MAX_DIAGNOSTIC_LINE_LENGTH = 300
 
 
 def _bundled_binary_dirs():
-    """Directories to search for a binary shipped with iLEAPP, frozen or from source."""
+    """Directories to search for a binary shipped with iLEAPP, frozen or from source.
+
+    Both point at 'bin': the PyInstaller specs place the executable there inside the
+    bundle, and admin/scripts/fetch_unifiedlog_iterator.py places it in the repository's
+    bin/ for a source checkout. Keep the two in step; a mismatch means a build that
+    bundles the parser cannot find it at runtime.
+    """
     dirs = []
     meipass = getattr(sys, '_MEIPASS', None)
     if meipass:
         dirs.append(os.path.join(meipass, 'bin'))
     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    dirs.append(os.path.join(repo_root, 'scripts', 'bin'))
+    dirs.append(os.path.join(repo_root, 'bin'))
     return dirs
 
 
