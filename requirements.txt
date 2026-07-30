@@ -3,6 +3,11 @@ pytypedstream
 bencoding
 biplist
 bs4
+# admin/scripts/fetch_unifiedlog_iterator.py falls back to certifi's CA bundle on
+# python.org installs, which ship without a certificate store until the user runs
+# 'Install Certificates.command'. Without this, a fresh build venv cannot fetch the
+# Unified Log parser binary (CERTIFICATE_VERIFY_FAILED).
+certifi
 ijson
 mmh3
 mdplistlib
