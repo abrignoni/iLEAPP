@@ -29,12 +29,14 @@ protobuf==5.29.6
 pycryptodome
 pyinstaller
 
-# pyliblzfse for Windows
-whl_files/pyliblzfse-0.4.1-cp310-cp310-win_amd64.whl; python_version == "3.10" and platform_system == "Windows"
-whl_files/pyliblzfse-0.4.1-cp311-cp311-win_amd64.whl; python_version == "3.11" and platform_system == "Windows"
-whl_files/pyliblzfse-0.4.1-cp312-cp312-win_amd64.whl; python_version == "3.12" and platform_system == "Windows"
-whl_files/pyliblzfse-0.4.1-cp313-cp313-win_amd64.whl; python_version == "3.13" and platform_system == "Windows"
-whl_files/pyliblzfse-0.4.1-cp314-cp314-win_amd64.whl; python_version == "3.14" and platform_system == "Windows"
+# pyliblzfse for Windows on x64. The markers pin the machine as well as the OS:
+# these wheels are win_amd64, and on Windows-on-ARM pip would otherwise try to
+# install them and fail. ARM builds compile pyliblzfse from the sdist below.
+whl_files/pyliblzfse-0.4.1-cp310-cp310-win_amd64.whl; python_version == "3.10" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp311-cp311-win_amd64.whl; python_version == "3.11" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp312-cp312-win_amd64.whl; python_version == "3.12" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp313-cp313-win_amd64.whl; python_version == "3.13" and platform_system == "Windows" and platform_machine == "AMD64"
+whl_files/pyliblzfse-0.4.1-cp314-cp314-win_amd64.whl; python_version == "3.14" and platform_system == "Windows" and platform_machine == "AMD64"
 
 pyliblzfse
 

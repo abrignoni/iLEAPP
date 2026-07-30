@@ -20,7 +20,15 @@ permissions:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            arch: x64
+          - runner: windows-11-arm
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +52,9 @@ jobs:
         # First time the Mandiant Windows build is executed anywhere in this
         # project's pipeline. --help is used because unifiedlog_iterator exits
         # non-zero on --version alone in some releases; either proves it runs.
+        # On the arm64 runner this is the x64 build under Windows 11's x64
+        # emulation - Mandiant publishes no windows-arm64 parser - so passing
+        # here also proves the emulation path an ARM examiner would rely on.
         run: |
           bin\unifiedlog_iterator.exe --help
           if ($LASTEXITCODE -ne 0) { exit 1 }
@@ -85,6 +96,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ileapp-windows-x64-test
+          name: ileapp-windows-${{ matrix.arch }}-test
           path: artifact/
           retention-days: 14
