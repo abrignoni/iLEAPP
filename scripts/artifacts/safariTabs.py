@@ -82,7 +82,8 @@ from datetime import datetime, timezone
 import nska_deserialize as nd
 
 from scripts.ilapfuncs import (
-    artifact_processor, does_table_exist_in_db, get_sqlite_db_records, logfunc,
+    artifact_processor, does_column_exist_in_db, does_table_exist_in_db,
+    get_sqlite_db_records, logfunc,
 )
 
 _PLIST_ERRORS = (nd.DeserializeError, nd.biplist.NotBinaryPlistException,
@@ -197,17 +198,29 @@ def safariTabsiCloud(context):
 @artifact_processor
 def safariTabsDatabase(context):
     data_headers = (
-        ("Last Visit Time", "datetime"), ("Date Last Viewed", "datetime"),
         ("Last Modified", "datetime"), ("Date Closed", "datetime"), "Tab ID", "Title",
-        "URL", "Parent ID", "Parent / Tab Group", "Browsing Mode", "Opened from Link",
-        "Tab Index", "Muted", "Showing Reader", "Tab UUID",
+        "URL", "Parent ID", "Parent / Tab Group", "Browsing Mode",
+        ("Last Visit Time", "datetime"), ("Date Last Viewed", "datetime"),
+        "Opened from Link", "Tab Index", "Muted", "Showing Reader", "Tab UUID",
     )
     data_list = []
     source_path = _find(context, "SafariTabs.db")
     if not source_path or not does_table_exist_in_db(source_path, "bookmarks"):
         return data_headers, data_list, ""
 
-    query = """
+    # The attribute plists and external_uuid are absent from older/reduced
+    # bookmarks schemas, so select them only when the columns really exist.
+    extra_col = ('tab.extra_attributes'
+                 if does_column_exist_in_db(source_path, 'bookmarks', 'extra_attributes')
+                 else 'NULL')
+    local_col = ('tab.local_attributes'
+                 if does_column_exist_in_db(source_path, 'bookmarks', 'local_attributes')
+                 else 'NULL')
+    uuid_col = ('tab.external_uuid'
+                if does_column_exist_in_db(source_path, 'bookmarks', 'external_uuid')
+                else 'NULL')
+
+    query = f"""
         WITH RECURSIVE ancestry(tab_id, ancestor_id, parent_id, ancestor_title, depth) AS (
             SELECT id, id, parent, title, 0
             FROM bookmarks
@@ -242,7 +255,7 @@ def safariTabsDatabase(context):
                         THEN 'Normal'
                    ELSE 'Normal'
                END,
-               tab.extra_attributes, tab.local_attributes, tab.external_uuid
+               {extra_col}, {local_col}, {uuid_col}
         FROM bookmarks AS tab
         LEFT JOIN bookmarks AS parent ON parent.id = tab.parent
         LEFT JOIN tab_context ON tab_context.tab_id = tab.id
@@ -258,9 +271,9 @@ def safariTabsDatabase(context):
         extra = extra if isinstance(extra, dict) else {}
         local = local if isinstance(local, dict) else {}
         data_list.append((
+            row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
             _aware_utc(local.get('LastVisitTime', '')),
             _aware_utc(extra.get('DateLastViewed', '')),
-            row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
             _yes_no(local.get('OpenedFromLink')),
             local.get('TabIndex', ''),
             _yes_no(local.get('IsMuted')),
