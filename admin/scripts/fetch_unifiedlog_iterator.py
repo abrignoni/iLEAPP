@@ -37,14 +37,22 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 BIN_DIR = REPO_ROOT / 'bin'
 
 # sha256 of each release archive, read from the .sha256 files published with v0.6.0.
-# Note: upstream's .sha256 files print the digest twice on one line; these are the single
-# correct value.
+# Note: some of upstream's .sha256 files print the digest twice on one line; these are
+# the single correct value.
 ASSETS = {
     'macos-arm64': ('unifiedlog_iterator-v0.6.0-aarch64-apple-darwin.tar.gz',
                     'd3e0e620b51358dc3f4a7d376551a435153e9a4a7942cb52ddb7144a72bbdb63'),
     'macos-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-apple-darwin.tar.gz', None),
+    # No musl build is published for aarch64; gnu is the only option there.
     'linux-arm64': ('unifiedlog_iterator-v0.6.0-aarch64-unknown-linux-gnu.tar.gz', None),
-    'linux-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-unknown-linux-gnu.tar.gz', None),
+    # Linux x86_64 deliberately takes the musl build (verified static-pie linked, no
+    # dynamic libc). The gnu build links whatever glibc the release runner carries, and a
+    # binary built against a newer glibc refuses to start on older distros - the exact
+    # machines an AppImage exists to support, and forensic workstations skew old. The gnu
+    # build stays reachable below for anyone who wants it.
+    'linux-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-unknown-linux-musl.tar.gz',
+                     '43fb304af5b3cc19ce15490f6e0ff4255e7707b69c51fc67e279677ea9784adb'),
+    'linux-x86_64-gnu': ('unifiedlog_iterator-v0.6.0-x86_64-unknown-linux-gnu.tar.gz', None),
     'windows-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-pc-windows-msvc.zip', None),
 }
 

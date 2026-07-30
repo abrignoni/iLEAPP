@@ -22,11 +22,21 @@ just ship without native Unified Log support, and the artifact reports that at r
 | Version | v0.6.0 (released 2026-05-07) |
 | License | Apache-2.0 (`LICENSE-unifiedlog_iterator`) |
 | macOS arm64 archive sha256 | `d3e0e620b51358dc3f4a7d376551a435153e9a4a7942cb52ddb7144a72bbdb63` |
+| Linux x86_64 (musl) archive sha256 | `43fb304af5b3cc19ce15490f6e0ff4255e7707b69c51fc67e279677ea9784adb` |
 
 Digests for the other platforms are read from the `.sha256` files published with the
 release and printed by the fetch script; pin them in `ASSETS` as each is first used for a
-build. Upstream's `.sha256` files repeat the digest twice on one line, which is a quirk of
-their release workflow, not a corrupted file.
+build. Some of upstream's `.sha256` files repeat the digest twice on one line, which is a
+quirk of their release workflow, not a corrupted file.
+
+## Linux: musl, not gnu
+
+`linux-x86_64` fetches the **musl** build, verified `static-pie linked` - it carries no
+dynamic libc dependency at all. The gnu build links the glibc of whatever machine built
+it, and a binary built against a newer glibc refuses to start on older distros with
+`version 'GLIBC_x.yy' not found`. iLEAPP ships Linux as an AppImage, whose whole premise
+is one file that runs anywhere; forensic workstations also skew old and locked down.
+`--platform linux-x86_64-gnu` remains available. No musl build is published for aarch64.
 
 ## Why the version is pinned
 
