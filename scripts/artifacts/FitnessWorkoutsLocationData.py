@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "(point counts vs expected, capture timespan/average, workout type and times)",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-28",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
                        "(healthdb_secure.sqlite)",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-28",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, does_table_exist_in_db
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, does_table_exist_in_db, does_column_exist_in_db
 
 _ACTIVITY_TYPE_CASE = '''CASE activity_type
     WHEN 1 THEN "American Football"
@@ -173,31 +173,56 @@ def fitnessWorkoutsAnalysis(context):
         'Elapsed Time', 'Workout Time', 'Location Data Capture Timespan',
         'Location Data Capture Average (in Seconds)')
     data_list = []
+    data_source = context.get_source_file_path('healthdb_secure.sqlite')
 
     db_path = _find_healthdb(context)
     if not db_path or not _has_required_tables(db_path):
         return data_headers, data_list, ''
 
-    query = f'''
-    SELECT
-        datetime(workout_activities.start_date + 978307200, 'UNIXEPOCH'),
-        min(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
-        datetime(workout_activities.end_date + 978307200, 'UNIXEPOCH'),
-        max(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
-        data_series.count,
-        round(((workout_activities.end_date - workout_activities.start_date) * ((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count))),
-        {_ACTIVITY_TYPE_CASE},
-        substr(datetime((workout_activities.end_date - workout_activities.start_date) + 978307200, 'UNIXEPOCH'),12,8),
-        substr(datetime(workout_activities.duration + 978307200, 'UNIXEPOCH'),12,8),
-        substr((datetime((max(location_series_data.timestamp) - min(location_series_data.timestamp)) + 978307200, 'UNIXEPOCH')),12,8),
-        substr(((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count),1,5)
-        FROM location_series_data
-        LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
-        LEFT OUTER JOIN associations on associations.child_id = data_series.data_id
-        LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
-        GROUP BY location_series_data.series_identifier
-        ORDER BY workout_activities.start_date
-    '''
+    associations_child_id_exists = does_column_exist_in_db(data_source, 'associations', 'child_id')
+
+    if associations_child_id_exists:
+        query = f'''
+        SELECT
+            datetime(workout_activities.start_date + 978307200, 'UNIXEPOCH'),
+            min(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
+            datetime(workout_activities.end_date + 978307200, 'UNIXEPOCH'),
+            max(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
+            data_series.count,
+            round(((workout_activities.end_date - workout_activities.start_date) * ((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count))),
+            {_ACTIVITY_TYPE_CASE},
+            substr(datetime((workout_activities.end_date - workout_activities.start_date) + 978307200, 'UNIXEPOCH'),12,8),
+            substr(datetime(workout_activities.duration + 978307200, 'UNIXEPOCH'),12,8),
+            substr((datetime((max(location_series_data.timestamp) - min(location_series_data.timestamp)) + 978307200, 'UNIXEPOCH')),12,8),
+            substr(((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count),1,5)
+            FROM location_series_data
+            LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
+            LEFT OUTER JOIN associations on associations.child_id = data_series.data_id
+            LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
+            GROUP BY location_series_data.series_identifier
+            ORDER BY workout_activities.start_date
+        '''
+    else:
+        query = f'''
+        SELECT
+            datetime(workout_activities.start_date + 978307200, 'UNIXEPOCH'),
+            min(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
+            datetime(workout_activities.end_date + 978307200, 'UNIXEPOCH'),
+            max(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
+            data_series.count,
+            round(((workout_activities.end_date - workout_activities.start_date) * ((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count))),
+            {_ACTIVITY_TYPE_CASE},
+            substr(datetime((workout_activities.end_date - workout_activities.start_date) + 978307200, 'UNIXEPOCH'),12,8),
+            substr(datetime(workout_activities.duration + 978307200, 'UNIXEPOCH'),12,8),
+            substr((datetime((max(location_series_data.timestamp) - min(location_series_data.timestamp)) + 978307200, 'UNIXEPOCH')),12,8),
+            substr(((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count),1,5)
+            FROM location_series_data
+            LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
+            LEFT OUTER JOIN associations on associations.source_object_id = data_series.data_id
+            LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.destination_object_id
+            GROUP BY location_series_data.series_identifier
+            ORDER BY workout_activities.start_date
+        '''        
     # for row in get_sqlite_db_records(db_path, query):
     #     data_list.append(tuple(row))
     data_list = list( get_sqlite_db_records(db_path, query) )
@@ -211,27 +236,48 @@ def fitnessWorkoutsLocation(context):
         ('Timestamp', 'datetime'), 'Workout Type', 'Latitude', 'Longitude', 'Altitude', 'Speed',
         'Course', 'Horizontal Accuracy', 'Series Identifier')
     data_list = []
+    data_source = context.get_source_file_path('healthdb_secure.sqlite')
 
     db_path = _find_healthdb(context)
     if not db_path or not _has_required_tables(db_path):
         return data_headers, data_list, ''
 
-    query = f'''
-    SELECT
-        datetime(timestamp+978307200,'unixepoch'),
-        {_ACTIVITY_TYPE_CASE},
-        latitude,
-        longitude,
-        substr(altitude,1,8),
-        substr(speed,1,6),
-        substr(course,1,6),
-        substr(horizontal_accuracy,1,6),
-        series_identifier
-        FROM location_series_data
-        LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
-        LEFT OUTER JOIN associations on associations.child_id = data_series.data_id
-        LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
-    '''
+    associations_child_id_exists = does_column_exist_in_db(data_source, 'associations', 'child_id')
+    
+    if associations_child_id_exists:
+        query = f'''
+        SELECT
+            datetime(timestamp+978307200,'unixepoch'),
+            {_ACTIVITY_TYPE_CASE},
+            latitude,
+            longitude,
+            substr(altitude,1,8),
+            substr(speed,1,6),
+            substr(course,1,6),
+            substr(horizontal_accuracy,1,6),
+            series_identifier
+            FROM location_series_data
+            LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
+            LEFT OUTER JOIN associations on associations.child_id = data_series.data_id
+            LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
+        '''
+    else:
+        query = f'''
+        SELECT
+            datetime(timestamp+978307200,'unixepoch'),
+            {_ACTIVITY_TYPE_CASE},
+            latitude,
+            longitude,
+            substr(altitude,1,8),
+            substr(speed,1,6),
+            substr(course,1,6),
+            substr(horizontal_accuracy,1,6),
+            series_identifier
+            FROM location_series_data
+            LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
+            LEFT OUTER JOIN associations on associations.source_object_id = data_series.data_id
+            LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.destination_object_id
+        '''
     # for row in get_sqlite_db_records(db_path, query):
     #     data_list.append(tuple(row))
     data_list = list( get_sqlite_db_records(db_path, query) )
