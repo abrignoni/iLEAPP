@@ -54,10 +54,13 @@ __artifacts_v2__ = {
         "description": "Open normal and private Safari tabs from SafariTabs.db",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "Safari Browser",
-        "notes": "Public and LocalProfile are normal browsing; private is private browsing.",
+        "notes": "Public and LocalProfile are normal browsing; private is private browsing. "
+                 "The bookmarks.last_modified and date_closed columns are NULL on every image "
+                 "tested (iOS 18.7 and 26.5.2); the per-tab timestamps and state live in the "
+                 "extra_attributes / local_attributes binary plists instead.",
         "paths": ("**/Safari/SafariTabs.db*",),
         "output_types": "standard",
         "artifact_icon": "layout",
@@ -109,6 +112,13 @@ def _load_blob_plist(blob):
     except _PLIST_ERRORS as ex:
         logfunc(f'Safari iCloud Tabs: failed to read plist, error was: {ex}')
         return None
+
+
+def _yes_no(value):
+    """Render a plist boolean as Yes/No, leaving an absent key blank."""
+    if value is None:
+        return ''
+    return 'Yes' if value else 'No'
 
 
 def _find(context, filename):
@@ -187,8 +197,10 @@ def safariTabsiCloud(context):
 @artifact_processor
 def safariTabsDatabase(context):
     data_headers = (
+        ("Last Visit Time", "datetime"), ("Date Last Viewed", "datetime"),
         ("Last Modified", "datetime"), ("Date Closed", "datetime"), "Tab ID", "Title",
-        "URL", "Parent ID", "Parent / Tab Group", "Browsing Mode",
+        "URL", "Parent ID", "Parent / Tab Group", "Browsing Mode", "Opened from Link",
+        "Tab Index", "Muted", "Showing Reader", "Tab UUID",
     )
     data_list = []
     source_path = _find(context, "SafariTabs.db")
@@ -229,12 +241,31 @@ def safariTabsDatabase(context):
                    WHEN lower(CAST(tab.parent AS TEXT)) IN ('public', 'localprofile', 'local')
                         THEN 'Normal'
                    ELSE 'Normal'
-               END
+               END,
+               tab.extra_attributes, tab.local_attributes, tab.external_uuid
         FROM bookmarks AS tab
         LEFT JOIN bookmarks AS parent ON parent.id = tab.parent
         LEFT JOIN tab_context ON tab_context.tab_id = tab.id
         WHERE tab.url IS NOT NULL AND trim(tab.url) != '' AND COALESCE(tab.deleted, 0) = 0
         ORDER BY tab.order_index
     """
-    data_list.extend(tuple(row) for row in get_sqlite_db_records(source_path, query))
+    for row in get_sqlite_db_records(source_path, query):
+        # Safari keeps the per-tab timestamps and state in two binary plists rather
+        # than in table columns: LastVisitTime/OpenedFromLink/TabIndex/IsMuted/
+        # ShowingReader in local_attributes, DateLastViewed in extra_attributes.
+        extra = _load_blob_plist(row[8])
+        local = _load_blob_plist(row[9])
+        extra = extra if isinstance(extra, dict) else {}
+        local = local if isinstance(local, dict) else {}
+        data_list.append((
+            _aware_utc(local.get('LastVisitTime', '')),
+            _aware_utc(extra.get('DateLastViewed', '')),
+            row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
+            _yes_no(local.get('OpenedFromLink')),
+            local.get('TabIndex', ''),
+            _yes_no(local.get('IsMuted')),
+            _yes_no(local.get('ShowingReader')),
+            row[10] or '',
+        ))
+
     return data_headers, data_list, context.get_relative_path(source_path)
