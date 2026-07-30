@@ -33,6 +33,8 @@ from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceLi
 from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
+from scripts.artifacts.threeBars import threeBarsAccessPoints, threeBarsNetworks, \
+    threeBarsTiles
 
 LOCAL_IMAGE = os.environ.get('ILEAPP_LOCAL_IMAGE', '')
 
@@ -257,6 +259,61 @@ class SafariCacheLocalTest(LocalCorpusTestCase):
         for row in inline:
             self.assertIsInstance(row[8], int)
             self.assertGreater(row[8], 0)
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class ThreeBarsLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/Caches/com.apple.wifid/ThreeBars.sqlite'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+        self.fetch(self.SUFFIX + '-wal')
+        self.fetch(self.SUFFIX + '-shm')
+
+    def _assert_coordinates(self, rows, latitude_index, longitude_index):
+        for row in rows:
+            latitude, longitude = row[latitude_index], row[longitude_index]
+            if latitude == '' and longitude == '':
+                continue        # the blanked 0/0 placeholder
+            self.assertTrue(-90 <= latitude <= 90,
+                            f'latitude out of range; shape was {_redact(latitude)}')
+            self.assertTrue(-180 <= longitude <= 180,
+                            f'longitude out of range; shape was {_redact(longitude)}')
+            self.assertFalse(latitude == 0 and longitude == 0,
+                             'a 0/0 pair reached the report unblanked')
+
+    def test_networks_structure(self):
+        headers, rows, _ = threeBarsNetworks.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('ZNETWORK is empty in this image')
+        self._assert_coordinates(rows, 1, 2)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            for flag_index in (6, 7, 8, 9, 10):
+                self.assert_matches(row[flag_index], r'^(Yes|No)$', 'flag column')
+
+    def test_access_points_structure(self):
+        headers, rows, _ = threeBarsAccessPoints.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('ZACCESSPOINT is empty in this image')
+        self._assert_coordinates(rows, 1, 2)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            if row[3]:
+                self.assert_matches(row[3], r'^([0-9a-f]{2}:){5}[0-9a-f]{2}$', 'BSSID')
+
+    def test_tiles_structure(self):
+        headers, rows, _ = threeBarsTiles.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('ZTILE is empty in this image')
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
 
 
 if __name__ == '__main__':

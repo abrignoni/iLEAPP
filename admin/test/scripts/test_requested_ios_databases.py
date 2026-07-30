@@ -18,6 +18,8 @@ from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.safariTabs import safariTabsDatabase
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
+from scripts.artifacts.threeBars import threeBarsAccessPoints, threeBarsNetworks, \
+    threeBarsTiles
 from scripts.artifacts.wifiAnalytics import wifiAnalyticsGeotags
 
 
@@ -401,6 +403,110 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         self.assertEqual(rows[0][1], "https://example.com/")
         self.assertEqual(rows[0][2], '')                  # no status recoverable
         self.assertEqual(rows[0][6], '')                  # no payload at all
+
+    ZNETWORK_SCHEMA = (
+        "CREATE TABLE ZNETWORK (Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, "
+        "ZACCESSPOINTCOUNT INTEGER, ZAUTHMASK INTEGER, ZCAPTIVE INTEGER, ZLOWQUALITY INTEGER, "
+        "ZMOVING INTEGER, ZPOPULARITYSCOREVALUE INTEGER, ZPUBLIC INTEGER, "
+        "ZQUALITYSCOREVALUE INTEGER, ZSUSPICIOUS INTEGER, ZTILEKEY INTEGER, "
+        "ZTIMESTAMP INTEGER, ZTYPE INTEGER, ZVENUEGROUP INTEGER, ZVENUETYPE INTEGER, "
+        "ZTILE INTEGER, ZCENTROIDLAT FLOAT, ZCENTROIDLNG FLOAT, ZCREATED TIMESTAMP, "
+        "ZIDENTIFIER VARCHAR, ZNAME VARCHAR, ZOWNERIDENTIFIERS BLOB)")
+    ZACCESSPOINT_SCHEMA = (
+        "CREATE TABLE ZACCESSPOINT (Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, "
+        "ZEDGE INTEGER, ZPOPULARITYSCOREVALUE INTEGER, ZQUALITYSCOREVALUE INTEGER, "
+        "ZTCPGOOD INTEGER, ZNETWORK INTEGER, ZCREATED TIMESTAMP, ZLAT FLOAT, ZLNG FLOAT, "
+        "ZBSSID VARCHAR)")
+    ZTILE_SCHEMA = (
+        "CREATE TABLE ZTILE (Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, "
+        "ZKEY INTEGER, ZNETWORKCOUNT INTEGER, ZCREATED TIMESTAMP, ZETAG VARCHAR)")
+
+    def _threebars_database(self, statements):
+        return self._database(
+            "root/Library/Caches/com.apple.wifid/ThreeBars.sqlite", statements)
+
+    def test_three_bars_networks(self):
+        path = self._threebars_database([
+            (self.ZNETWORK_SCHEMA, ()),
+            ("INSERT INTO ZNETWORK (Z_PK, ZCREATED, ZCENTROIDLAT, ZCENTROIDLNG, ZIDENTIFIER, "
+             "ZACCESSPOINTCOUNT, ZCAPTIVE, ZPUBLIC, ZMOVING, ZSUSPICIOUS, ZLOWQUALITY) "
+             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+             (1, self.COCOA_TS, 42.709167, -73.822319, "185004130109620", 7, 0, 1, 0, 0, 1)),
+        ])
+        headers, rows, _ = threeBarsNetworks.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertIn("2026-04-29T17:35:08", rows[0][0].isoformat())
+        self.assertAlmostEqual(rows[0][1], 42.709167)
+        self.assertEqual(rows[0][6], "No")        # Captive
+        self.assertEqual(rows[0][7], "Yes")       # Public
+        self.assertEqual(rows[0][10], "Yes")      # Low Quality
+
+    def test_three_bars_zero_coordinates_are_blanked(self):
+        """A 0/0 pair is the absence of a position, not a point at sea."""
+        path = self._threebars_database([
+            (self.ZNETWORK_SCHEMA, ()),
+            (self.ZACCESSPOINT_SCHEMA, ()),
+            ("INSERT INTO ZNETWORK (Z_PK, ZCREATED, ZCENTROIDLAT, ZCENTROIDLNG) "
+             "VALUES (?, ?, ?, ?)", (1, self.COCOA_TS, 0.0, 0.0)),
+            ("INSERT INTO ZACCESSPOINT (Z_PK, ZNETWORK, ZCREATED, ZLAT, ZLNG, ZBSSID) "
+             "VALUES (?, ?, ?, ?, ?, ?)",
+             (1, 1, self.COCOA_TS, 0.0, 0.0, "00:11:22:33:44:55")),
+        ])
+        _, networks, _ = threeBarsNetworks.__wrapped__(_Context(path))
+        _, access_points, _ = threeBarsAccessPoints.__wrapped__(_Context(path))
+        self.assertEqual((networks[0][1], networks[0][2]), ('', ''))
+        self.assertEqual((access_points[0][1], access_points[0][2]), ('', ''))
+        # The rest of the row still reports.
+        self.assertEqual(access_points[0][3], "00:11:22:33:44:55")
+
+    def test_three_bars_access_points_join_network(self):
+        path = self._threebars_database([
+            (self.ZNETWORK_SCHEMA, ()),
+            (self.ZACCESSPOINT_SCHEMA, ()),
+            ("INSERT INTO ZNETWORK (Z_PK, ZIDENTIFIER, ZNAME) VALUES (?, ?, ?)",
+             (5, "185004130109620", "Test SSID")),
+            ("INSERT INTO ZACCESSPOINT (Z_PK, ZNETWORK, ZCREATED, ZLAT, ZLNG, ZBSSID, "
+             "ZTCPGOOD) VALUES (?, ?, ?, ?, ?, ?, ?)",
+             (1, 5, self.COCOA_TS, 42.689187, -73.824839, "6c:8d:77:e8:32:c2", 1)),
+        ])
+        headers, rows, _ = threeBarsAccessPoints.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][4], "Test SSID")
+        self.assertEqual(rows[0][5], "185004130109620")
+        self.assertEqual(rows[0][7], "Yes")       # TCP Good
+
+    def test_three_bars_access_points_without_network_table(self):
+        """The join is dropped rather than failing the query."""
+        path = self._threebars_database([
+            (self.ZACCESSPOINT_SCHEMA, ()),
+            ("INSERT INTO ZACCESSPOINT (Z_PK, ZNETWORK, ZCREATED, ZLAT, ZLNG, ZBSSID) "
+             "VALUES (?, ?, ?, ?, ?, ?)",
+             (1, 5, self.COCOA_TS, 42.689187, -73.824839, "6c:8d:77:e8:32:c2")),
+        ])
+        headers, rows, _ = threeBarsAccessPoints.__wrapped__(_Context(path))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][4], '')          # no network name available
+        self.assertEqual(rows[0][3], "6c:8d:77:e8:32:c2")
+
+    def test_three_bars_tiles(self):
+        path = self._threebars_database([
+            (self.ZTILE_SCHEMA, ()),
+            ("INSERT INTO ZTILE (Z_PK, ZKEY, ZNETWORKCOUNT, ZCREATED, ZETAG) "
+             "VALUES (?, ?, ?, ?, ?)", (1, 80472075, 21, self.COCOA_TS, "etag-value")),
+        ])
+        headers, rows, _ = threeBarsTiles.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][1], 80472075)
+        self.assertEqual(rows[0][2], 21)
+
+    def test_three_bars_missing_tables(self):
+        path = self._threebars_database([("CREATE TABLE unrelated (a)", ())])
+        for processor in (threeBarsNetworks, threeBarsAccessPoints, threeBarsTiles):
+            headers, rows, source = processor.__wrapped__(_Context(path))
+            self.assertEqual(rows, [])
+            self.assertEqual(source, "")
+            self.assertTrue(headers)
 
     def test_store_system_missing_tables(self):
         path = self._database("containers/Data/System/GUID/Documents/Persistence/"
