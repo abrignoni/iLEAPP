@@ -1,11 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+import sys
+
+sys.path.insert(0, SPECPATH)
+from unifiedlog_binary import unifiedlog_binaries, unifiedlog_datas
+
 a = Analysis(
     ['../../ileapp.py'],
     pathex=['../scripts/artifacts'],
-    binaries=[],
-    datas=[('../', 'scripts')],
+    binaries=unifiedlog_binaries(),
+    datas=[('../', 'scripts')] + unifiedlog_datas(),
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
