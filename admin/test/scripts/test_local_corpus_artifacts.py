@@ -30,6 +30,8 @@ from pathlib import Path
 
 from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceList, \
     appleAccountDeviceList
+from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
+    storeSystemAppUpdates
 
 LOCAL_IMAGE = os.environ.get('ILEAPP_LOCAL_IMAGE', '')
 
@@ -162,6 +164,56 @@ class AppleAccountDeviceListLocalTest(LocalCorpusTestCase):
                 continue
             populated = any(row[index] not in (None, '') for row in rows)
             self.assertTrue(populated, f'every row is empty for column {label}')
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class StoreSystemLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Documents/Persistence/storeSystem.db'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+
+    def test_installs_structure(self):
+        headers, rows, _ = storeSystemAppInstalls.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('app_install is empty in this image')
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])   # Record Timestamp
+            self.assert_plausible_timestamp(row[2])   # Last Start Date
+            self.assert_plausible_timestamp(row[3])   # Purchase Date
+            self.assert_matches(row[6], r'^[\w.-]+$', 'Bundle ID')
+            if row[12]:                               # Apple ID, when metadata carried one
+                self.assert_matches(row[12], r'^[^@\s]+@[^@\s]+$', 'Apple ID')
+            if row[21]:                               # Install Path
+                self.assert_matches(row[21], r'^file:///.*\.app/?$', 'Install Path')
+
+    def test_updates_structure(self):
+        headers, rows, _ = storeSystemAppUpdates.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('mapi_app_update is empty in this image')
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_plausible_timestamp(row[1])
+            self.assert_matches(row[5], r'^[\w.-]+$', 'Bundle ID')
+
+    def test_packages_join_resolves(self):
+        """Every package should resolve to the install record that owns it."""
+        headers, rows, _ = storeSystemAppPackages.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('app_package is empty in this image')
+        unresolved = sum(1 for row in rows if not row[1])
+        self.assertEqual(unresolved, 0,
+                         f'{unresolved} of {len(rows)} packages did not join to an install')
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            if row[4] not in (None, ''):              # Bytes Total
+                self.assertGreater(row[4], 0)
 
 
 if __name__ == '__main__':
