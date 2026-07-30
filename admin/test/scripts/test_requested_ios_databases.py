@@ -6,6 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceList, \
+    appleAccountDeviceList
 from scripts.artifacts.keyboard import keyboardVulgarWordUsage
 from scripts.artifacts.personalizationPortrait import personalizationPortraitLocations
 from scripts.artifacts.powerlog import powerlogApplicationRuntime
@@ -127,6 +129,68 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         headers, rows, _ = powerlogApplicationRuntime.__wrapped__(_Context(path))
         self.assertEqual(len(headers), len(rows[0]))
         self.assertEqual(rows[0][1], "com.apple.mobilesafari")
+
+    def _devicelist_database(self, statements):
+        return self._database(
+            "mobile/Library/Application Support/com.apple.akd/devicelist.db", statements)
+
+    DEVICE_LIST_SCHEMA = (
+        "CREATE TABLE device_list (mid TEXT PRIMARY KEY, name TEXT, serial_number TEXT, "
+        "model TEXT, os TEXT, os_version TEXT, dc TEXT, clcg TEXT, clbg TEXT, clhs TEXT, "
+        "dec TEXT, circle_status INTEGER, build_number TEXT, trusted INTEGER, "
+        "last_updated_date DOUBLE, additional_info BLOB, altDSID TEXT, services TEXT, "
+        "last_cache_updated_date DOUBLE)")
+    DELETED_DEVICE_LIST_SCHEMA = (
+        "CREATE TABLE deleted_device_list (mid TEXT PRIMARY KEY, reason INTEGER, "
+        "last_updated_date DOUBLE, altDSID TEXT, deleted_date DOUBLE)")
+
+    def test_apple_account_device_list(self):
+        path = self._devicelist_database([
+            (self.DEVICE_LIST_SCHEMA, ()),
+            ("INSERT INTO device_list VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+             "?, ?, ?)",
+             ("MID000", "Test iPhone", "SERIAL00", "iPhone11,2", "iOS", "18.7.8", "1", "1",
+              "0", "1", "1", 0, "22H352", 1, 1781275553.938,
+              b'{"phones":[{"imei":"000000000000000","slotID":1}]}', "ALTDSID00",
+              "itunesstore,icloud", 1781315778.68896)),
+        ])
+        headers, rows, _ = appleAccountDeviceList.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertIn("2026-06-12T14:45:53", rows[0][0].isoformat())
+        self.assertEqual(rows[0][2], "Test iPhone")
+        self.assertEqual(rows[0][8], "000000000000000")
+        self.assertEqual(rows[0][9], "Yes")
+
+    def test_apple_account_device_list_unparsable_additional_info(self):
+        path = self._devicelist_database([
+            (self.DEVICE_LIST_SCHEMA, ()),
+            ("INSERT INTO device_list (mid, name, additional_info, trusted) VALUES (?, ?, ?, ?)",
+             ("MID001", "Test iPad", b"\x00\x01not json", 2)),
+        ])
+        headers, rows, _ = appleAccountDeviceList.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][8], "")
+        self.assertEqual(rows[0][9], 2)
+        self.assertIn("not json", rows[0][-1])
+
+    def test_apple_account_deleted_device_list(self):
+        path = self._devicelist_database([
+            (self.DEVICE_LIST_SCHEMA, ()),
+            (self.DELETED_DEVICE_LIST_SCHEMA, ()),
+            ("INSERT INTO deleted_device_list VALUES (?, ?, ?, ?, ?)",
+             ("MID002", 3, 1781275553.938, "ALTDSID00", 1781315778.68896)),
+        ])
+        headers, rows, _ = appleAccountDeletedDeviceList.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][2], 3)
+        self.assertEqual(rows[0][3], "MID002")
+
+    def test_apple_account_deleted_device_list_missing_table(self):
+        path = self._devicelist_database([(self.DEVICE_LIST_SCHEMA, ())])
+        headers, rows, source = appleAccountDeletedDeviceList.__wrapped__(_Context(path))
+        self.assertEqual(rows, [])
+        self.assertEqual(source, "")
+        self.assertTrue(headers)
 
 
 if __name__ == "__main__":
