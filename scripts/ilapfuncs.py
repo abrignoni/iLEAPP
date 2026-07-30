@@ -5,6 +5,7 @@ import csv
 import hashlib
 import inspect
 import io
+import itertools
 import json
 import math
 import nska_deserialize
@@ -60,7 +61,7 @@ from PIL import Image
 
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_get_media_item, \
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
-    lava_get_full_media_info
+    lava_get_full_media_info, lava_update_record_count
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -594,6 +595,111 @@ def artifact_processor(func):
                     lava_only_info(category, artifact_name, artifact_name, 0)
 
         return data_headers, data_list, source_path
+    return wrapper
+
+
+# Rows written per INSERT batch by artifact_processor_streaming. Large enough that the
+# per-statement overhead disappears, small enough that the batch itself stays small.
+STREAMING_BATCH_SIZE = 50000
+
+
+def _batched(iterable, size):
+    """Yield lists of up to `size` items. itertools.batched is 3.12+, iLEAPP supports 3.10."""
+    batch = []
+    for item in iterable:
+        batch.append(item)
+        if len(batch) >= size:
+            yield batch
+            batch = []
+    if batch:
+        yield batch
+
+
+def artifact_processor_streaming(func):
+    """LAVA-only artifact_processor for artifacts too large to hold in memory.
+
+    artifact_processor() needs a materialized data_list: it takes len() of it, hands it to
+    the HTML/TSV/timeline writers, and lava_insert_sqlite_data() then builds a second full
+    list of converted rows before executemany(). At roughly 617 bytes per row that is
+    ~19 GB for a 31M row Unified Log import, and ~39 GB at peak with both lists live.
+
+    A function decorated here returns an *iterator* of rows instead of a list, and the
+    rows are written to SQLite in batches as they arrive; peak memory stays flat at the
+    batch size regardless of how many records the artifact produces.
+
+    The trade-off is that nothing which needs the whole result set is available, so this
+    is restricted to lava_only artifacts: no HTML, TSV, timeline or KML output, and the
+    record count is known only once the stream ends.
+    """
+    @wraps(func)
+    def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
+        module_name = func.__module__.split('.')[-1]
+        func_name = func.__name__
+        module_file_path = inspect.getfile(func)
+
+        all_artifacts_info = func.__globals__.get('__artifacts_v2__', {})
+        artifact_info = all_artifacts_info.get(func_name, {})
+
+        artifact_name = artifact_info.get('name', func_name)
+        category = artifact_info.get('category', '')
+        icon = artifact_info.get('artifact_icon', '')
+        output_types = artifact_info.get('output_types', [])
+
+        if 'lava_only' not in output_types:
+            logfunc(f"{artifact_name} uses artifact_processor_streaming but is not declared "
+                    f"lava_only; no output will be produced")
+            return None, iter(()), None
+
+        Context.clear()
+        Context.set_report_folder(report_folder)
+        Context.set_seeker(seeker)
+        Context.set_files_found(files_found)
+        Context.set_artifact_info(artifact_info)
+        Context.set_module_name(module_name)
+        Context.set_module_file_path(module_file_path)
+        Context.set_artifact_name(artifact_name)
+
+        sig = inspect.signature(func)
+        if len(sig.parameters) == 1:
+            data_headers, row_iterator, source_path = func(Context)
+        else:
+            data_headers, row_iterator, source_path = func(
+                files_found, report_folder, seeker, wrap_text, timezone_offset)
+
+        rows = iter(row_iterator)
+        # Registering the artifact creates its table, so only do it once a row proves
+        # there is something to store. Otherwise an empty table would be left behind and
+        # would read as "parsed, found nothing" rather than "did not run".
+        first_batch = next(_batched(rows, STREAMING_BATCH_SIZE), None)
+        if not first_batch:
+            logfunc(f"No data found for {artifact_name}")
+            lava_only_info(category, artifact_name, artifact_name, 0)
+            return data_headers, iter(()), source_path
+
+        if source_path:
+            source_path = '\n'.join(
+                Context.get_relative_path(p) for p in str(source_path).split('\n'))
+
+        safe_artifact_name = sanitize_report_name(artifact_name)
+        safe_category = sanitize_report_name(category, 'category')
+        icons.setdefault(safe_category, {safe_artifact_name: icon}).update({safe_artifact_name: icon})
+
+        table_name, object_columns, column_map = lava_process_artifact(
+            category, module_name, artifact_name, data_headers,
+            record_count=0, func_name=func_name,
+            data_views=artifact_info.get("data_views"),
+            artifact_icon=icon, source_path=source_path)
+
+        record_count = 0
+        for batch in itertools.chain([first_batch], _batched(rows, STREAMING_BATCH_SIZE)):
+            lava_insert_sqlite_data(table_name, batch, object_columns, data_headers, column_map)
+            record_count += len(batch)
+
+        lava_update_record_count(category, table_name, record_count)
+        lava_only_info(category, artifact_name, table_name, record_count)
+        logfunc(f"Found {record_count:,} {'records' if record_count > 1 else 'record'} for {artifact_name}")
+
+        return data_headers, iter(()), source_path
     return wrapper
 
 
