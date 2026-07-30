@@ -16,11 +16,28 @@ raises rather than quietly omitting it.
 import pathlib
 import sys
 import tempfile
+import types
 import unittest
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(REPO_ROOT / 'scripts' / 'pyinstaller'))
+
+# The specs import collect_submodules from PyInstaller, which CI does not install (it
+# only installs requirements.txt). A stub is injected unconditionally - not just when the
+# real thing is absent - so the assertions below can look for deterministic sentinels
+# instead of whatever set of submodules the local PyInstaller happens to resolve. The
+# tests thereby verify that a spec ASKS for a package's submodules, which is the part a
+# regenerated spec loses; what PyInstaller does with the request is its own business.
+_hooks_stub = types.ModuleType('PyInstaller.utils.hooks')
+_hooks_stub.collect_submodules = lambda package: [f'<collect_submodules:{package}>']
+_pyinstaller_stub = types.ModuleType('PyInstaller')
+_pyinstaller_utils_stub = types.ModuleType('PyInstaller.utils')
+_pyinstaller_stub.utils = _pyinstaller_utils_stub
+_pyinstaller_utils_stub.hooks = _hooks_stub
+sys.modules['PyInstaller'] = _pyinstaller_stub
+sys.modules['PyInstaller.utils'] = _pyinstaller_utils_stub
+sys.modules['PyInstaller.utils.hooks'] = _hooks_stub
 
 import unifiedlog_binary  # pylint: disable=wrong-import-position
 
@@ -119,6 +136,46 @@ class TestSpecsBundleTheParser(unittest.TestCase):
                 datas = _run_spec(SPEC_DIR / name)['datas']
                 self.assertTrue(any('scripts' in str(dest) for _, dest in datas),
                                 f'{name} lost its scripts data entry: {datas}')
+
+
+class TestFrozenStartupDependencies(unittest.TestCase):
+    """Every spec must declare the imports a frozen build dies without.
+
+    These were found the expensive way: a build from the specs on main crashed on
+    startup, three times over, each failure hidden behind the previous one.
+
+    - Every spec listed the *vendored* blackboxprotobuf as a hidden import (PyInstaller
+      warns it is 'not found', which reads as noise), while nothing declared the real
+      google.protobuf package whose internals it imports. First run:
+      ModuleNotFoundError: google.protobuf.internal.
+    - PIL.ImageDraw was never collected. Second run: ImportError from PIL.
+    - The CLI specs bundled scripts/ but not leapp_functions/ or assets/, which the GUI
+      specs already carried. Third run: ModuleNotFoundError: leapp_functions.parsers.
+
+    The sentinels come from the stubbed collect_submodules above, so these assertions
+    check that each spec requests the collection - the exact thing lost when a spec is
+    regenerated or the entry is 'cleaned up' as unused.
+    """
+
+    def test_every_spec_collects_protobuf_and_pil(self):
+        for name in sorted(EXPECTED_SPECS):
+            with self.subTest(spec=name):
+                hidden = _run_spec(SPEC_DIR / name)['hiddenimports']
+                self.assertIn('<collect_submodules:google.protobuf>', hidden,
+                              f'{name} no longer collects google.protobuf; frozen builds '
+                              f'crash on startup without it')
+                self.assertIn('<collect_submodules:PIL>', hidden,
+                              f'{name} no longer collects PIL')
+
+    def test_every_spec_bundles_leapp_functions_and_assets(self):
+        for name in sorted(EXPECTED_SPECS):
+            with self.subTest(spec=name):
+                destinations = [str(dest).replace('.\\', '').replace('\\', '/')
+                                for _, dest in _run_spec(SPEC_DIR / name)['datas']]
+                self.assertIn('leapp_functions', destinations,
+                              f'{name} does not bundle leapp_functions')
+                self.assertIn('assets', destinations,
+                              f'{name} does not bundle assets')
 
 
 class TestBuildsWithoutTheBinary(unittest.TestCase):
