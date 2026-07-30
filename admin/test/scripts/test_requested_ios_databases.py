@@ -14,6 +14,7 @@ from scripts.artifacts.keyboard import keyboardVulgarWordUsage
 from scripts.artifacts.personalizationPortrait import personalizationPortraitLocations
 from scripts.artifacts.powerlog import powerlogApplicationRuntime
 from scripts.artifacts.recents import appleRecents
+from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.safariTabs import safariTabsDatabase
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
@@ -314,6 +315,92 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         self.assertEqual(rows[0][8], "7.4.3")
         self.assertIn("2025-12-17T21:04:59", rows[0][2].isoformat())
         self.assertEqual(rows[0][14], '')                 # package_type absent
+
+    CFURL_SCHEMA = (
+        ("CREATE TABLE cfurl_cache_response (entry_ID INTEGER PRIMARY KEY, version INTEGER, "
+         "hash_value INTEGER, storage_policy INTEGER, request_key TEXT, time_stamp, "
+         "partition TEXT)", ()),
+        ("CREATE TABLE cfurl_cache_blob_data (entry_ID INTEGER PRIMARY KEY, "
+         "response_object BLOB, request_object BLOB, proto_props BLOB, user_info BLOB)", ()),
+        ("CREATE TABLE cfurl_cache_receiver_data (entry_ID INTEGER PRIMARY KEY, "
+         "isDataOnFS INTEGER, receiver_data BLOB)", ()),
+    )
+
+    def _archived(self, values):
+        """Build a CFURL archive blob the way CFNetwork serializes one."""
+        return plistlib.dumps({'Version': 1, 'Array': values},
+                              fmt=plistlib.PlistFormat.FMT_BINARY)
+
+    def _safari_cache_database(self, entries):
+        statements = list(self.CFURL_SCHEMA)
+        for entry in entries:
+            statements.append((
+                "INSERT INTO cfurl_cache_response (entry_ID, request_key, time_stamp, "
+                "partition, storage_policy) VALUES (?, ?, ?, ?, ?)",
+                (entry['id'], entry['url'], entry['timestamp'], '', 0)))
+            statements.append((
+                "INSERT INTO cfurl_cache_blob_data (entry_ID, response_object, "
+                "request_object) VALUES (?, ?, ?)",
+                (entry['id'], entry['response'], entry['request'])))
+            statements.append((
+                "INSERT INTO cfurl_cache_receiver_data (entry_ID, isDataOnFS, receiver_data) "
+                "VALUES (?, ?, ?)",
+                (entry['id'], entry['on_fs'], entry['payload'])))
+        return self._database(
+            "mobile/Containers/Data/Application/GUID/Library/Caches/"
+            "com.apple.mobilesafari/Cache.db", statements)
+
+    def test_safari_cache_inline_payload(self):
+        response = self._archived([
+            {'_CFURLStringType': 15, '_CFURLString': 'https://example.com/a.json'},
+            800286812.796131, 0, 200,
+            {'Content-Type': 'application/json', 'Content-Length': '2',
+             'Server': 'nginx', '__hhaa__': 'base64 noise that should be dropped'},
+            '__CFURLResponseNullTokenString__', 'application/json',
+        ])
+        request = self._archived([
+            False, {'_CFURLStringType': 15, '_CFURLString': 'https://example.com/a.json'},
+            60.0, 'GET', {'Accept': '*/*'},
+        ])
+        path = self._safari_cache_database([{
+            'id': 1, 'url': 'https://example.com/a.json', 'timestamp': '2026-05-12 13:53:32',
+            'response': response, 'request': request, 'on_fs': 0, 'payload': b'{}',
+        }])
+        headers, rows, _ = safariCache.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][2], 200)                 # HTTP Status
+        self.assertEqual(rows[0][3], "GET")               # Request Method
+        self.assertEqual(rows[0][4], "application/json")  # MIME Type
+        self.assertEqual(rows[0][6], "Database")          # Payload Location
+        self.assertEqual(rows[0][8], 2)                   # Payload Size
+        self.assertEqual(rows[0][10], "application/json")  # Content Type header
+        self.assertEqual(rows[0][16], "nginx")            # Server header
+
+    def test_safari_cache_filesystem_payload_missing(self):
+        """A record whose payload file did not come across still reports."""
+        path = self._safari_cache_database([{
+            'id': 1, 'url': 'https://example.com/big.bin', 'timestamp': '2026-05-12 13:53:32',
+            'response': self._archived([200]), 'request': self._archived(['GET']),
+            'on_fs': 1, 'payload': b'0A1B2C3D-0000-0000-0000-000000000000',
+        }])
+        headers, rows, _ = safariCache.__wrapped__(_Context(path))
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][6], "File system")
+        self.assertEqual(rows[0][7], "0A1B2C3D-0000-0000-0000-000000000000")
+        self.assertEqual(rows[0][8], '')                  # size unknown without the file
+
+    def test_safari_cache_unarchivable_blobs(self):
+        """A response blob that is not a plist must not lose the row."""
+        path = self._safari_cache_database([{
+            'id': 1, 'url': 'https://example.com/', 'timestamp': '2026-05-12 13:53:32',
+            'response': b'not a plist', 'request': None, 'on_fs': 0, 'payload': None,
+        }])
+        headers, rows, _ = safariCache.__wrapped__(_Context(path))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(len(headers), len(rows[0]))
+        self.assertEqual(rows[0][1], "https://example.com/")
+        self.assertEqual(rows[0][2], '')                  # no status recoverable
+        self.assertEqual(rows[0][6], '')                  # no payload at all
 
     def test_store_system_missing_tables(self):
         path = self._database("containers/Data/System/GUID/Documents/Persistence/"
