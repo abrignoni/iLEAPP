@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+"""Opt-in structural checks against a local, non-public extraction.
+
+Some artifacts are only present in images that cannot be committed to this
+repository, so the usual route (`make_test_data.py` into
+`admin/test/cases/data/`, expected output into `admin/test/results/`) is not
+available: both of those record the parsed values themselves.
+
+These tests take the other route. Point ILEAPP_LOCAL_IMAGE at an extraction and
+they run the real artifact code over the real database, asserting only
+structural invariants: column counts, value shapes, timestamp sanity. No value
+from the image is written to disk or recorded in an assertion, so nothing about
+the device enters the repository or the test output. Without the variable set
+they skip, which is what happens in CI.
+
+    ILEAPP_LOCAL_IMAGE=/path/to/extraction.zip \
+        python -m pytest admin/test/scripts/test_local_corpus_artifacts.py -v
+
+Accepts a .zip extraction or a directory of extracted files.
+"""
+
+import os
+import re
+import shutil
+import tempfile
+import unittest
+import zipfile
+from datetime import datetime, timezone
+from pathlib import Path
+
+from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceList, \
+    appleAccountDeviceList
+
+LOCAL_IMAGE = os.environ.get('ILEAPP_LOCAL_IMAGE', '')
+
+# Timestamps outside this window mean the epoch was read wrong, whatever the
+# image is. Apple shipped no iOS device before 2007 and these are not future
+# dated fields.
+EARLIEST_PLAUSIBLE = datetime(2007, 1, 1, tzinfo=timezone.utc)
+LATEST_PLAUSIBLE = datetime(2100, 1, 1, tzinfo=timezone.utc)
+
+
+def _redact(value):
+    """Reduce a value to its shape so failures can be reported safely."""
+    return re.sub(r'\w', '#', str(value))
+
+
+class _Context:
+    def __init__(self, path):
+        self.path = str(path)
+
+    def get_files_found(self):
+        return [self.path]
+
+    def get_relative_path(self, path):
+        return Path(path).name
+
+
+class LocalCorpusTestCase(unittest.TestCase):
+    """Base class handling the lookup of a file inside the local image."""
+
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+
+    def fetch(self, suffix):
+        """Copy the first file whose path ends with suffix out of the image.
+
+        Returns None when the image does not carry the file, which is a skip
+        rather than a failure: these images are whatever the examiner had.
+        """
+        destination = Path(self.temp_dir.name) / Path(suffix).name
+        source = Path(LOCAL_IMAGE)
+
+        if source.is_dir():
+            for candidate in source.rglob(Path(suffix).name):
+                if str(candidate).replace(os.sep, '/').endswith(suffix):
+                    shutil.copy2(candidate, destination)
+                    return destination
+            return None
+
+        with zipfile.ZipFile(source) as archive:
+            for name in archive.namelist():
+                if name.endswith(suffix):
+                    with archive.open(name) as member, open(destination, 'wb') as out:
+                        shutil.copyfileobj(member, out)
+                    return destination
+        return None
+
+    def assert_row_shape(self, headers, rows):
+        """Every row matches the declared headers."""
+        for row in rows:
+            self.assertEqual(len(row), len(headers))
+
+    def assert_matches(self, value, pattern, label):
+        """Assert a value's shape, reporting only the shape when it fails.
+
+        unittest prints the compared values on failure, which would put image
+        content in the test log. Everything reported here is redacted first.
+        """
+        self.assertTrue(
+            re.match(pattern, str(value)),
+            f'{label} does not match {pattern}; value shape was {_redact(value)}')
+
+    def assert_plausible_timestamp(self, value):
+        """A parsed timestamp column holds a sane datetime, or nothing at all."""
+        if value in (None, ''):
+            return
+        self.assertIsInstance(value, datetime)
+        self.assertIsNotNone(value.tzinfo)
+        self.assertTrue(
+            EARLIEST_PLAUSIBLE < value < LATEST_PLAUSIBLE,
+            f'timestamp outside {EARLIEST_PLAUSIBLE.year}-{LATEST_PLAUSIBLE.year}; '
+            f'value shape was {_redact(value)}')
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class AppleAccountDeviceListLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/Application Support/com.apple.akd/devicelist.db'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+
+    def test_device_list_structure(self):
+        headers, rows, source = appleAccountDeviceList.__wrapped__(_Context(self.path))
+        self.assertEqual(source, str(self.path))
+        self.assertTrue(rows, 'device_list parsed no rows')
+        self.assert_row_shape(headers, rows)
+
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])   # Last Updated
+            self.assert_plausible_timestamp(row[1])   # Last Cache Updated
+            self.assert_matches(row[9], r'^(Yes|No)$', 'Trusted')
+            if row[8]:                                # IMEI, when the blob held one
+                for imei in row[8].split(', '):
+                    self.assert_matches(imei, r'^\d{14,16}$', 'IMEI')
+            if row[5]:                                # OS Version
+                self.assert_matches(row[5], r'^\d+(\.\d+)*$', 'OS Version')
+
+    def test_deleted_device_list_structure(self):
+        headers, rows, _ = appleAccountDeletedDeviceList.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_plausible_timestamp(row[1])
+
+    def test_no_column_is_wholly_unparsed(self):
+        """Catch a column that silently yields nothing on every row.
+
+        A header that is empty in every row usually means the query names a
+        column the schema does not have, or a decode step failed. Columns that
+        are legitimately sparse are listed as exempt.
+        """
+        headers, rows, _ = appleAccountDeviceList.__wrapped__(_Context(self.path))
+        exempt = {'IMEI', 'Additional Info', 'Circle Status'}
+        for index, header in enumerate(headers):
+            label = header[0] if isinstance(header, tuple) else header
+            if label in exempt:
+                continue
+            populated = any(row[index] not in (None, '') for row in rows)
+            self.assertTrue(populated, f'every row is empty for column {label}')
+
+
+if __name__ == '__main__':
+    unittest.main()
