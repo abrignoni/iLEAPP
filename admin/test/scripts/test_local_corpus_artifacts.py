@@ -30,6 +30,7 @@ from pathlib import Path
 
 from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceList, \
     appleAccountDeviceList
+from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
 
@@ -214,6 +215,48 @@ class StoreSystemLocalTest(LocalCorpusTestCase):
             self.assert_plausible_timestamp(row[0])
             if row[4] not in (None, ''):              # Bytes Total
                 self.assertGreater(row[4], 0)
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class SafariCacheLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/Caches/com.apple.mobilesafari/Cache.db'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+        # The WAL carries records that the database file alone does not, so a run
+        # without it silently under-reports. Pull it across when the image has one.
+        self.fetch(self.SUFFIX + '-wal')
+        self.fetch(self.SUFFIX + '-shm')
+
+    def test_cache_structure(self):
+        headers, rows, _ = safariCache.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        if not rows:
+            self.skipTest('cfurl_cache_response is empty in this image')
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_matches(row[1], r'^\w+:', 'Request URL')
+            if row[2] != '':                              # HTTP Status
+                self.assertGreaterEqual(row[2], 100)
+                self.assertLessEqual(row[2], 599)
+            if row[4]:                                    # MIME Type
+                self.assert_matches(row[4], r'^[\w.+-]+/[\w.+-]+$', 'MIME Type')
+            self.assertIn(row[6], ('Database', 'File system', ''))
+
+    def test_payload_sizes_are_consistent(self):
+        """An inline payload reports the byte count actually held in the row."""
+        _, rows, _ = safariCache.__wrapped__(_Context(self.path))
+        if not rows:
+            self.skipTest('cfurl_cache_response is empty in this image')
+        inline = [row for row in rows if row[6] == 'Database']
+        if not inline:
+            self.skipTest('no inline payloads in this image')
+        for row in inline:
+            self.assertIsInstance(row[8], int)
+            self.assertGreater(row[8], 0)
 
 
 if __name__ == '__main__':
