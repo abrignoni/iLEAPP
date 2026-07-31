@@ -154,10 +154,10 @@ __artifacts_v2__ = {
     },
     "logarchive_motionstate": {
         "name": "logarchive motion state transitions",
-        "description": "Navigation entries",
+        "description": "Motion state transition entries",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-04-30",
-        "last_update_date": "2025-04-30",
+        "last_update_date": "2026-07-30",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "",

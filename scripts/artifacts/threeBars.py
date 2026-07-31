@@ -5,11 +5,11 @@ __artifacts_v2__ = {
                        'centroid coordinates the location service reported for each one',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-07-30',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('ThreeBars caches tiles of Wi-Fi location data that the device downloaded '
-                  'for areas around it. A row records what the location service reported '
+        'notes': ('ThreeBars caches tiles of Wi-Fi location data that the device downloaded. '
+                  'A row records what the location service reported '
                   'about a network, not that this device connected to it or observed it, and '
                   'the coordinates are the network position rather than a device position. '
                   'The venue, type, authentication mask and score columns are integer codes '

@@ -4,11 +4,10 @@ __artifacts_v2__ = {
         'description': 'Access point positions cached by locationd, keyed by BSSID',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-07-30',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('These are positions the location service reported for access points near '
-                  'the device, downloaded so the device can locate itself without GPS. A row '
+        'notes': ('These are positions the location service reported for access points. A row '
                   'is the position of the access point, not of the device, and does not mean '
                   'the device connected to it. Accuracy is coarse: treat the coordinates as '
                   'an area rather than a point. Speed and course of -1 mean no value was '
@@ -30,12 +29,13 @@ __artifacts_v2__ = {
                        'a position and signal strength at the time of the scan',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-07-30',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('Unlike the Wi-Fi Locations table, these rows come from the device '
-                  'associating with an access point and recording where it was at the time, '
-                  'so the coordinates are a device position. Two timestamps are kept: the '
+        'notes': ('Unlike the Wi-Fi Locations table, these rows record access points the '
+                  'device associated with, per the name of the source table. Whether the '
+                  'coordinates are the position of the device at that time or of the access '
+                  'point is not documented. Two timestamps are kept: the '
                   'scan and the harvest record. A scan timestamp of -1 means locationd '
                   'recorded none, and is reported empty rather than converted to a real '
                   'looking date in 2000. The LoiType column is an integer code whose values '

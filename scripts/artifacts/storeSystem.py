@@ -1,11 +1,11 @@
 __artifacts_v2__ = {
     'storeSystemAppInstalls': {
         'name': 'Installed Apps - App Store Install Records',
-        'description': 'App Store install records held by appstored, including the purchasing '
+        'description': 'App Store install records from storeSystem.db, including the purchasing '
                        'Apple Account and the on-disk bundle path',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-07-30',
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ('Store metadata is an NSKeyedArchiver payload recorded at install time, so the '
@@ -29,11 +29,11 @@ __artifacts_v2__ = {
     },
     'storeSystemAppUpdates': {
         'name': 'Installed Apps - App Store Update Records',
-        'description': 'Per-app update state tracked by appstored, with the App Store catalog '
+        'description': 'Per-app update state from storeSystem.db, with the App Store catalog '
                        'metadata cached alongside it',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-07-30',
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ('The catalog metadata is a cached copy of the App Store listing, so the latest '
@@ -53,11 +53,11 @@ __artifacts_v2__ = {
     },
     'storeSystemAppPackages': {
         'name': 'Installed Apps - App Store Download Packages',
-        'description': 'Download packages recorded by appstored, with sizes and source URLs, '
-                       'joined to the install record they belong to',
+        'description': 'Download packages recorded in storeSystem.db, with sizes and source '
+                       'URLs, joined to the install record they belong to',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-07-30',
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ('One install can own several packages, such as the app itself plus its '
