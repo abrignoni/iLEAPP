@@ -1,8 +1,8 @@
 """Biome audio and media route streams.
 
 Both streams record the route in use when audio or media plays. Bluetooth and
-CarPlay routes carry the accessory MAC address and name, which places a specific
-accessory with the device at a specific time.
+CarPlay routes carry an accessory identifier and name, which may associate an
+accessory with the device at the recorded time.
 """
 __artifacts_v2__ = {
     "get_biomeAudioRoute": {

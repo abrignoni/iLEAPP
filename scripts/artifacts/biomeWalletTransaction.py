@@ -1,12 +1,12 @@
 __artifacts_v2__ = {
     "get_biomeWalletTransaction": {
         "name": "Biome - Wallet Transactions",
-        "description": "Parses Apple Pay transaction events from the Wallet.Transaction biome "
-                       "stream: transaction time, the card used (name as shown in Wallet), the "
+        "description": "Parses Wallet transaction events from the Wallet.Transaction biome "
+                       "stream: record time, the card used (name as shown in Wallet), the "
                        "pass identifier and a per-transaction UUID.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field mapped from a private sample of this stream; the stream is absent from "

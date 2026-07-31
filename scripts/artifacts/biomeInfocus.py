@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses InFocus Events from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "The Foreground/Background labels for values 1 and 0 are an interpretation of the App.InFocus stream name; other values are reported as stored.",
         "paths": ('*/Biome/streams/restricted/App.InFocus/local/*'),
         "output_types": "standard",
         "artifact_icon": "focus-2"
@@ -50,7 +50,8 @@ def get_biomeInfocus(context):
 
                 bundleid = (protostuff['6'])
                 timestart = (webkit_timestampsconv(protostuff['4']))
-                foreground = ('Foreground' if protostuff['3'] == 1 else 'Background')
+                state = protostuff['3']
+                foreground = {1: 'Foreground', 0: 'Background'}.get(state, str(state))
 
                 data_list.append((ts, timestart, record.state.name, bundleid, foreground, filename, record.data_start_offset))
 

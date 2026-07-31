@@ -2,11 +2,11 @@ __artifacts_v2__ = {
     "get_biomeAutonamingMessageIds": {
         "name": "Biome - Autonaming Message IDs",
         "description": "Parses message references (message GUID, conversation identifier and message "
-                       "date) from the Autonaming.Messages.MessageIds biome stream, used by Messages "
-                       "conversation auto-naming.",
+                       "date) from the Autonaming.Messages.MessageIds biome stream, apparently "
+                       "related to Messages conversation auto-naming (per the stream name).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Message GUIDs and Unix epoch double dates validated against sms.db (guid, date) "

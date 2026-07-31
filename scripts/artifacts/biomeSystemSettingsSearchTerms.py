@@ -2,11 +2,11 @@ __artifacts_v2__ = {
     "get_biomeSystemSettingsSearchTerms": {
         "name": "Biome - System Settings Search Terms",
         "description": "Parses searches typed in the Settings app from the "
-                       "SystemSettings.SearchTerms biome stream, including the settings pane the "
-                       "user selected from the results.",
+                       "SystemSettings.SearchTerms biome stream, including result URIs and "
+                       "labels recorded with the search.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -98,6 +98,6 @@ def get_biomeSystemSettingsSearchTerms(context):
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Search Term',
-                    'Selected Result URI', 'Selected Result Label', 'Filename', 'Offset')
+                    'Result URI(s)', 'Result Label(s)', 'Filename', 'Offset')
 
     return data_headers, data_list, 'see Filename for more info'

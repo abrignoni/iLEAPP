@@ -3,11 +3,11 @@ __artifacts_v2__ = {
         "name": "Biome - Emergency Voice Call",
         "description": "Parses emergency voice calls from the "
                        "CommCenter.Call.EmergencyVoiceCall biome stream: the emergency number "
-                       "that was dialled and the mobile country and network codes of the "
-                       "serving network at the time of the call.",
+                       "that was dialled and the apparent mobile country and network codes of "
+                       "the serving network at the time of the call.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field mapped from a small private sample, so read the columns with that in "

@@ -2,12 +2,12 @@ __artifacts_v2__ = {
     "get_biomeAppInstallation": {
         "name": "Biome - App Installation",
         "description": "Parses app installation events from the App.Installation biome stream: "
-                       "the bundle identifier, the app's install UUID, its short and build "
+                       "the bundle identifier, a per-app UUID, its short and build "
                        "version, and the time the event was recorded. Complements the older "
                        "App.Install and _DKEvent.App.Install streams.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "The event type field takes values 1, 2 and 3 in the sample; which of install, "
