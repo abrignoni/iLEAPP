@@ -83,7 +83,7 @@ def get_biomeAppWebUsage(context):
             if record.state == EntryState.Written:
                 protostuff, _types = blackboxprotobuf.decode_message(record.data, typess)
 
-                guid               = protostuff.get('bundle_id', '')
+                guid               = protostuff.get('guid', '')
                 timestamp          = webkit_timestampsconv(protostuff['timestamp'])
                 pb_int_3           = protostuff.get('pb_int_3', None)
                 url                = protostuff.get('url', '')
