@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "get_biomeAppinstall": {
         "name": "Biome - App Install",
-        "description": "Parses airplane mode entries from biomes",
+        "description": "Parses app install entries from biomes",
        "author": "@JohnHyla, @Gear-I",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",

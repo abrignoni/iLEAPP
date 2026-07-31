@@ -56,10 +56,11 @@ __artifacts_v2__ = {
                        "time it was read).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/Biome/streams/restricted/Messages.Read/local/*',
                   '*/biome/streams/restricted/Messages.Read/local/*'),
         "output_types": "standard",
@@ -77,13 +78,15 @@ __artifacts_v2__ = {
     },
     "biomeScreenTimeAppUsage": {
         "name": "Biome - ScreenTime App Usage",
-        "description": "Per-app foreground start/end events from the ScreenTime.AppUsage biome stream.",
+        "description": "Per-app usage events from the ScreenTime.AppUsage biome stream; the event code's "
+                       "meaning is not documented and is reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The SEGB record timestamp is used; an embedded timestamp field in this stream is unreliable.",
+        "notes": "The SEGB record timestamp is used; an embedded timestamp field in this stream is unreliable. "
+                 "The event code's meaning is not documented; its value is reported as stored.",
         "paths": ('*/Biome/streams/restricted/ScreenTime.AppUsage/local/*',
                   '*/biome/streams/restricted/ScreenTime.AppUsage/local/*'),
         "output_types": "standard",
@@ -103,10 +106,12 @@ __artifacts_v2__ = {
                        "with their frequency.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Some tokens are stored in a non-text form and appear blank.",
+        "notes": "Some tokens are stored in a non-text form and appear blank. Reference: Mattia Epifani, "
+                 "'84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/Biome/streams/restricted/Keyboard.TokenFrequency/local/*',
                   '*/biome/streams/restricted/Keyboard.TokenFrequency/local/*'),
         "output_types": "standard",
@@ -238,14 +243,14 @@ def biomeMessagesRead(context):
 
 @artifact_processor
 def biomeScreenTimeAppUsage(context):
-    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Event', 'Filename', 'Offset')
+    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Event (as stored)', 'Filename',
+                    'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context):
         if message is None:
             data_list.append((ts, state, '', '', filename, offset))
             continue
-        event = message.get('1')
-        event = 'Start' if event == 1 else 'End' if event == 0 else _txt(event)
+        event = _txt(message.get('1'))
         data_list.append((ts, state, _txt(message.get('3')), event, filename, offset))
     return data_headers, data_list, 'see Filename for more info'
 

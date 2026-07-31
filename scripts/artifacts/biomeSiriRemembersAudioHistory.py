@@ -3,19 +3,21 @@ __artifacts_v2__ = {
         "name": "Biome - Siri Remembers Audio History",
         "description": "Parses media playback intents from the Siri.Remembers.AudioHistory "
                        "biome stream: the app that played the media, the title, artist and "
-                       "media type of what was played, and the app's own identifier for it. "
-                       "Audiobook and music playback both appear.",
+                       "media type of what was played, and a media identifier. "
+                       "Audiobook and music playback were both observed in test data.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Shares the intent record shape of the other Siri.Remembers streams. The "
                  "media details come from a JSON attribute on the item entity; title, artist "
                  "and media type were present on every record in the sample, with mediaName "
-                 "appearing on some. The media identifier is the playing app's own catalogue "
-                 "id, so for Audible it is the ASIN. The stream syncs between devices, so the "
-                 "Sync Origin column separates local records from ones received elsewhere.",
+                 "appearing on some. In the sample data the media identifier matched the "
+                 "playing app's catalogue id; for Audible items it was the ASIN. Records are "
+                 "read from both the local and remote subfolders; the Sync Origin column "
+                 "reports which one a record came from. The local/remote naming is the "
+                 "stream's own folder layout; cross-device sync semantics are not documented.",
         "paths": (
             '*/streams/*/Siri.Remembers.AudioHistory/local/*',
             '*/streams/*/Siri.Remembers.AudioHistory/remote/*',

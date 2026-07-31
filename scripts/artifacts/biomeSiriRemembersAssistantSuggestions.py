@@ -1,19 +1,20 @@
 __artifacts_v2__ = {
     "get_biomeSiriRemembersAssistantSuggestions": {
         "name": "Biome - Siri Remembers Assistant Suggestions",
-        "description": "Parses Siri suggestion events from the "
-                       "Siri.Remembers.AssistantSuggestions biome stream: when Siri offered "
-                       "suggestions and which suggestions were shown, for example reminders "
-                       "due today or unread mail.",
+        "description": "Parses suggestion events recorded in the "
+                       "Siri.Remembers.AssistantSuggestions biome stream, with the suggestion "
+                       "names carried in each record, for example reminders due today or "
+                       "unread mail.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Shares the intent record shape of the other Siri.Remembers streams, with the "
                  "suggestion names carried as a list of entities rather than a single value. "
-                 "The stream syncs between devices, so the Sync Origin column distinguishes "
-                 "records written locally from those received from another device.",
+                 "Records are read from both the local and remote subfolders; the Sync Origin "
+                 "column reports which one a record came from. The local/remote naming is the "
+                 "stream's own folder layout; cross-device sync semantics are not documented.",
         "paths": (
             '*/streams/*/Siri.Remembers.AssistantSuggestions/local/*',
             '*/streams/*/Siri.Remembers.AssistantSuggestions/remote/*',

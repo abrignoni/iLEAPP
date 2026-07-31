@@ -1,13 +1,14 @@
 __artifacts_v2__ = {
     "get_biomeSiriUI": {
         "name": "Biome - Siri UI",
-        "description": "Parses Siri interface sessions from the Siri.UI biome stream. Records "
-                       "pair up: one marks the Siri interface appearing and the next marks it "
-                       "going away, carrying the reason it was dismissed, so the stream shows "
-                       "both that Siri was invoked and how each invocation ended.",
+        "description": "Parses Siri interface sessions from the Siri.UI biome stream. In test "
+                       "data records paired: one carrying state 1 with no dismissal reason, "
+                       "followed by one carrying state 0 and a dismissal reason (e.g. "
+                       "HardwareButton), consistent with the Siri interface appearing and "
+                       "being dismissed.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Dismissal reasons observed: HardwareButton, Punchout, Timeout and "

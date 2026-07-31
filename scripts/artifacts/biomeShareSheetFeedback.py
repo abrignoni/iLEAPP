@@ -3,16 +3,17 @@ __artifacts_v2__ = {
         "name": "Biome - Share Sheet Feedback",
         "description": "Parses share sheet activity from the ShareSheet.Feedback biome stream: "
                        "the app the content was shared from, the activity the user chose (for "
-                       "example copy to pasteboard, save photo, open in Safari) and the full "
-                       "list of share targets that were offered.",
+                       "example copy to pasteboard, save photo, open in Safari) and the list "
+                       "of share targets that were offered.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The offered candidates list names third party apps installed at the time of "
-                 "the share, which can evidence app presence even after removal. Field 4 holds "
-                 "an NSKeyedArchiver plist that is not currently parsed.",
+        "notes": "In tested data the candidate list contained bundle IDs of apps installed on "
+                 "the device; if that holds generally, entries can indicate an app's past "
+                 "presence. Field 4 holds an NSKeyedArchiver plist that is not currently "
+                 "parsed.",
         "paths": ('*/streams/*/ShareSheet.Feedback/local/*',),
         "output_types": "standard",
         "artifact_icon": "share-2",

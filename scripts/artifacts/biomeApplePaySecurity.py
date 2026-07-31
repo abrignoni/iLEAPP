@@ -178,10 +178,11 @@ __artifacts_v2__ = {
                        "by Apple in the ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Timestamps are normalized by Apple to the start of the day.",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
+                 "Timestamps are normalized by Apple to the start of the day.",
         "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
         "output_types": "standard",
         "artifact_icon": "headphones",

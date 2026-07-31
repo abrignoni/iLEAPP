@@ -6,12 +6,13 @@ __artifacts_v2__ = {
                        "such as note titles or map activity details.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "The expiration timestamp was observed to be exactly 30 days after the record "
-                 "timestamp (the NSUserActivity default). Payload strings are URL-decoded for "
-                 "display.",
+                 "timestamp. Payload strings are URL-decoded for display. Reference: Mattia "
+                 "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/App.Activity/local/*',),
         "output_types": "standard",
         "artifact_icon": "activity",

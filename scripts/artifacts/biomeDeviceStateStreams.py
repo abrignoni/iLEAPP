@@ -66,11 +66,11 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Modern counterpart of the _DKEvent.System.AirplaneMode stream parsed by "
-                 "Biome - Airplane Mode DKEvent.",
+        "notes": "Appears to be the modern counterpart of the _DKEvent.System.AirplaneMode "
+                 "stream parsed by Biome - Airplane Mode DKEvent.",
         "paths": ('*/streams/*/Device.Wireless.AirplaneMode/local/*',),
         "output_types": "standard",
         "artifact_icon": "airplay",
@@ -103,11 +103,11 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Modern counterpart of the _DKEvent.Carplay.IsConnected stream parsed by "
-                 "Biome - Carplay.",
+        "notes": "Appears to be the modern counterpart of the _DKEvent.Carplay.IsConnected "
+                 "stream parsed by Biome - Carplay.",
         "paths": ('*/streams/*/CarPlay.Connected/local/*',),
         "output_types": "standard",
         "artifact_icon": "truck",
@@ -160,17 +160,18 @@ __artifacts_v2__ = {
     "get_biomeKeybagLocked": {
         "name": "Biome - Keybag Locked",
         "description": "Parses keybag lock state changes from the Device.KeybagLocked biome "
-                       "stream. The keybag holds the class keys that protect file data, so its "
-                       "state tracks whether the device was unlocked after first unlock.",
+                       "stream. The keybag holds the class keys that protect file data; the "
+                       "stream records its locked state over time.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Lock polarity validated against the _DKEvent.Keybag.IsLocked stream on the "
                  "same device: 124 of 128 overlapping records agree, the exceptions falling on "
                  "interval boundaries. Modern counterpart of that stream, parsed by "
-                 "Biome - Keybag.",
+                 "Biome - Keybag. Reference: Apple Platform Security, 'Keybags for Data "
+                 "Protection', https://support.apple.com/guide/security/sec6483d5760/web",
         "paths": ('*/streams/*/Device.KeybagLocked/local/*',),
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -185,12 +186,12 @@ __artifacts_v2__ = {
                        "stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "The level is a percentage stored as a double (observed range 1.0 to 100.0). "
-                 "Modern counterpart of the _DKEvent.Device.BatteryPercentage stream parsed by "
-                 "Biome - Battery Percentage.",
+                 "Appears to be the modern counterpart of the _DKEvent.Device.BatteryPercentage "
+                 "stream parsed by Biome - Battery Percentage.",
         "paths": ('*/streams/*/Device.Power.BatteryLevel/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery",

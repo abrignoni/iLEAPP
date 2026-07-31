@@ -44,14 +44,15 @@ __artifacts_v2__ = {
                        "AppleIntelligence.Reporting.AssetDeliveryLog.ModelCatalog biome "
                        "stream. Each record names the Apple Intelligence feature whose model "
                        "was requested, for example a text composition or summarisation "
-                       "feature, and the language it was requested for, which evidences which "
-                       "AI features were exercised on the device and when.",
+                       "feature, and the language it was requested for, showing which "
+                       "features' models were requested on the device and when; user exercise "
+                       "of the feature is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "This is the highest volume stream of the Apple Intelligence family.",
+        "notes": "In test data, this is the highest volume stream of the Apple Intelligence family.",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.ModelCatalog/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
@@ -79,7 +80,7 @@ __artifacts_v2__ = {
                        "even where the payload itself no longer survives.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "The sample for this stream held only deleted records, so the written record "
@@ -89,7 +90,7 @@ __artifacts_v2__ = {
                  "sample shows a different layout the detail columns will be empty while the "
                  "timestamps stay correct. Deleted payloads in the sample were largely "
                  "overwritten and did not decode, but their SEGB timestamps are intact and "
-                 "still evidence that reporting occurred at those times.",
+                 "consistent with reporting having occurred at those times.",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.SafetyOverrides/local/*',),
         "output_types": "standard",
         "artifact_icon": "shield",
