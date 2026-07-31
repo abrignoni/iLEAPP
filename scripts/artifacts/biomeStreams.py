@@ -5,13 +5,12 @@ __artifacts_v2__ = {
                        "(harvest time, the message date, subject, sender and recipient).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "The message date comes from an embedded CFAbsoluteTime value; the harvest time is the SEGB "
                  "record timestamp.",
-        "paths": ('*/Biome/streams/restricted/ProactiveHarvesting.Mail/local/*',
-                  '*/biome/streams/restricted/ProactiveHarvesting.Mail/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',),
         "output_types": "standard",
         "artifact_icon": "mail",
         "sample_data": {
@@ -31,12 +30,11 @@ __artifacts_v2__ = {
                        "stream (service and handle, message text, sender).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/restricted/ProactiveHarvesting.Messages/local/*',
-                  '*/biome/streams/restricted/ProactiveHarvesting.Messages/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Messages/local/*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "sample_data": {
@@ -61,8 +59,7 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
-        "paths": ('*/Biome/streams/restricted/Messages.Read/local/*',
-                  '*/biome/streams/restricted/Messages.Read/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/Messages.Read/local/*',),
         "output_types": "standard",
         "artifact_icon": "check",
         "sample_data": {
@@ -87,8 +84,7 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "The SEGB record timestamp is used; an embedded timestamp field in this stream is unreliable. "
                  "The event code's meaning is not documented; its value is reported as stored.",
-        "paths": ('*/Biome/streams/restricted/ScreenTime.AppUsage/local/*',
-                  '*/biome/streams/restricted/ScreenTime.AppUsage/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/ScreenTime.AppUsage/local/*',),
         "output_types": "standard",
         "artifact_icon": "clock",
         "sample_data": {
@@ -112,8 +108,7 @@ __artifacts_v2__ = {
         "notes": "Some tokens are stored in a non-text form and appear blank. Reference: Mattia Epifani, "
                  "'84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
-        "paths": ('*/Biome/streams/restricted/Keyboard.TokenFrequency/local/*',
-                  '*/biome/streams/restricted/Keyboard.TokenFrequency/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/Keyboard.TokenFrequency/local/*',),
         "output_types": "standard",
         "artifact_icon": "keyboard",
         "sample_data": {
