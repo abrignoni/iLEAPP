@@ -48,6 +48,12 @@ BINARY_ENV_VAR = 'ILEAPP_UNIFIEDLOG_ITERATOR'
 DIAGNOSTICS_DIR = 'diagnostics'
 UUIDTEXT_DIR = 'uuidtext'
 
+# Subdirectories the log store keeps its tracev3 streams in, and the timesync directory
+# that sits beside them. These identify bundle *contents* when no path component names
+# the bundle itself; see _bundle_content_candidates.
+TRACEV3_SUBDIRS = ('Persist', 'Special', 'Signpost', 'HighVolume')
+TIMESYNC_DIR = 'timesync'
+
 # How many parser errors to surface before going quiet. The parser logs one line per
 # record it cannot decode; a handful is normal and thousands would drown the iLEAPP log.
 MAX_REPORTED_ERRORS = 20
@@ -96,6 +102,41 @@ def _path_components(path):
     return os.path.normpath(path).replace('\\', '/').split('/')
 
 
+def _bundle_content_candidates(files_found):
+    """Roots recognized by bundle-content layout rather than by directory name.
+
+    When the examiner selects a bare .logarchive package as the input root - which is
+    exactly what UFADE's "Collect Unified Logs" hands them - the seeker matches the
+    original absolute paths but returns data-folder copies with the input root stripped,
+    and with it the only '.logarchive' component. Nothing is left for find_archive_roots
+    to match by name, so every file was found and copied yet the artifact reported
+    "No data found".
+
+    The layout still gives the bundle away: tracev3 streams live in
+    Persist/Special/Signpost/HighVolume, next to a timesync directory. Each such
+    component's parent becomes a candidate root, scored by the store files under it the
+    same way the name-based candidates are. Only populated evidence registers - a stray
+    'Special' folder full of plists must not turn into an archive root.
+    """
+    candidates = {}
+    for path in files_found:
+        components = _path_components(path)
+        is_file = bool(components) and not str(path).replace('\\', '/').endswith('/')
+        if not is_file:
+            continue
+        for index in range(1, len(components) - 1):
+            component = components[index]
+            if component in TRACEV3_SUBDIRS:
+                if not components[-1].lower().endswith('.tracev3'):
+                    continue
+            elif component != TIMESYNC_DIR:
+                continue
+            root = '/'.join(components[:index])
+            if root:
+                candidates[root] = candidates.get(root, 0) + 1
+    return candidates
+
+
 def find_archive_roots(files_found):
     """Work out what to hand the parser from the paths the seeker returned.
 
@@ -116,6 +157,12 @@ def find_archive_roots(files_found):
       no error. A .logarchive only wins when the device store has no tracev3 content;
       when the examiner's input IS a .logarchive package, there is no diagnostics
       directory in sight and it wins by default.
+
+    A third trap has no name to match at all: an examiner who selects a bare .logarchive
+    bundle as the input root (UFADE's "Collect Unified Logs" output) gets seeker paths
+    with the input root - and with it the '.logarchive' component - stripped. When
+    nothing matches by name, roots are recognized from the bundle-content layout instead;
+    see _bundle_content_candidates.
     """
     logarchive_candidates = {}
     diagnostics_candidates = {}
@@ -136,6 +183,12 @@ def find_archive_roots(files_found):
             root = '/'.join(components[:index + 1])
             below = index + 1 < len(components) and is_file
             candidates[root] = candidates.get(root, 0) + (1 if below else 0)
+
+    if not logarchive_candidates and not diagnostics_candidates:
+        # Bare-bundle fallback: nothing to match by name, so let the content layout
+        # identify the archive. Structural candidates only ever register populated,
+        # so a recognized bundle wins below just like a named one would.
+        logarchive_candidates = _bundle_content_candidates(files_found)
 
     def best(candidates):
         if not candidates:
