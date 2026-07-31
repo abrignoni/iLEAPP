@@ -8,9 +8,22 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "The Foreground/Background labels for values 1 and 0 are an interpretation of the App.InFocus stream name; other values are reported as stored.",
-        "paths": ('*/Biome/streams/restricted/App.InFocus/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/App.InFocus/local/*',),
         "output_types": "standard",
-        "artifact_icon": "focus-2"
+        "artifact_icon": "focus-2",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 2439 rows",
+            "felix_ios17": "iOS 17.6.1 | 516 rows",
+            "fsfull002_ios17": "iOS 17.1 | 559 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 4031 rows",
+            "iphone11_ios17": "iOS 17.3 | 4943 rows",
+            "iphone12_ios18": "iOS 18.7 | 1868 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 262 rows",
+            "otto_ios17": "iOS 17.5.1 | 825 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
