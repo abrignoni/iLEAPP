@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Cash App transactions and account data from the CCEntitySync SQLite stores.",
         "author": "@gforce4n6",
         "creation_date": "2021-10-06",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Banking",
         "notes": "",
@@ -34,9 +34,11 @@ def get_cashApp(context):
 
 -- Description of the role of the user account signed into the CashApp application of the device.
 -- Unrecognized role values are reported as stored in the record.
+-- ZSYNCPAYMENT is a BLOB, so SUBSTR over it also returns a BLOB. The result is CAST to TEXT so
+-- that extracted values render as text and an empty extraction renders as a blank cell.
 CASE WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"RECIPIENT"%' THEN 'RECIPIENT'
-WHEN INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') > 0 THEN SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') + 8,
-INSTR(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') + 8), '"') - 1) END AS "Account Owner Role",
+WHEN INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') > 0 THEN CAST(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') + 8,
+INSTR(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') + 8), '"') - 1) AS TEXT) END AS "Account Owner Role",
 
 --Full name from the name fields of the customer record.
 LTRIM(SUBSTR(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), INSTR(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), CAST(',"full_name":' AS BLOB)),
@@ -61,9 +63,11 @@ instr(CAST(ZPAYMENT.ZSYNCPAYMENT AS BLOB), CAST('"note":' AS BLOB))), ',"note":'
 
 --State of the transaction. Certain times the user may have to accept or decline a payment or payment request from the sender.
 -- Unrecognized state values are reported as stored in the record.
+-- ZSYNCPAYMENT is a BLOB, so SUBSTR over it also returns a BLOB. The result is CAST to TEXT so
+-- that extracted values render as text and an empty extraction renders as a blank cell.
 CASE WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"COMPLETED"%' THEN 'COMPLETED' WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"CANCELED"%' THEN 'CANCELED'
-WHEN INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') > 0 THEN SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') + 9,
-INSTR(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') + 9), '"') - 1) END AS 'Transaction State',
+WHEN INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') > 0 THEN CAST(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') + 9,
+INSTR(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') + 9), '"') - 1) AS TEXT) END AS 'Transaction State',
 
 --Unix Epoch timestamp for the transaction display time.
 ZPAYMENT.ZDISPLAYDATE as "TRANSACTION DISPLAY DATE"
