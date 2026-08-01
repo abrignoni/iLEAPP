@@ -60,8 +60,8 @@ def wireAccount(context):
 
     has_location_data = does_column_exist_in_db(
         source_path,
-        'ZUSER',
-        'ZUSERCLIENT.ZACTIVATIONLOCATIONLATITUDE'
+        'ZUSERCLIENT',
+        'ZACTIVATIONLOCATIONLATITUDE'
         )
 
     if has_location_data:

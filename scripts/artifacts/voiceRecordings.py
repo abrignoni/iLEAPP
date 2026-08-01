@@ -61,7 +61,7 @@ def voice_memos(context):
         SELECT
             ZDATE,
             time(ZDURATION, 'unixepoch') as ZDURATION,
-            ZCUSTOMLABEL,
+            ZCUSTOMLABEL AS ZCUSTOMLABELFORSORTING,
             ZPATH
         FROM ZRECORDING
         """
