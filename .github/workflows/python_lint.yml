@@ -39,6 +39,13 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/test/scripts/test_no_pypi_blackboxprotobuf.py
 
+      # Artifact name/description fields ship to the HTML report and the LAVA manifest
+      # and get quoted in casework, so they must not assert what the data means in the
+      # real world. See the script's docstring for the allowlist workflow.
+      - name: Guard against unsupported claim language
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_claim_language.py
+
       # Fails only on warnings this pull request introduces. Long-lived modules carry
       # deliberate pre-existing warnings (ileapp.py's wildcard imports, ilapfuncs.py's
       # backward-compat re-exports), and failing on those pushed contributors toward

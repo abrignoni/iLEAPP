@@ -2,12 +2,12 @@ __artifacts_v2__ = {
     "get_biomeShareSheetFeedback": {
         "name": "Biome - Share Sheet Feedback",
         "description": "Parses share sheet activity from the ShareSheet.Feedback biome stream: "
-                       "the app the content was shared from, the activity the user chose (for "
-                       "example copy to pasteboard, save photo, open in Safari) and the list "
-                       "of share targets that were offered.",
+                       "the app the content was shared from, the activity recorded as chosen "
+                       "(for example copy to pasteboard, save photo, open in Safari) and the "
+                       "list of share targets that were offered.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Biome",
         "notes": "In tested data the candidate list contained bundle IDs of apps installed on "

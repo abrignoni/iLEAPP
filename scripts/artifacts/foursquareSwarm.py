@@ -148,10 +148,10 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_photos": {
         "name": "Foursquare Swarm - Photos",
-        "description": "Parses and extracts Foursquare Swarm photos from all artifacts",
+        "description": "Parses and extracts Foursquare Swarm photos",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -169,11 +169,11 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_comments": {
         "name": "Foursquare Swarm - Comments",
-        "description": "Parses and extracts all Foursquare Swarm comments from "
+        "description": "Parses and extracts Foursquare Swarm comments from "
                        "check-ins, plans, tips, lists, and stickers",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
