@@ -78,11 +78,16 @@ import sys
 # The stems below are left UNCLOSED on purpose so inflections still match:
 #   \bcomplete -> complete, completeness, completely
 #   \breliable -> reliable and its compounds
-#   \bhabit    -> habit, habits
-# The cost of the open \bhabit is that it also matches "habitat"; no artifact in
-# this repo uses that word today, and this spelling is kept deliberately in sync
-# with the ALEAPP implementation of the same check. If a habitat-related artifact
-# ever lands, close it to \bhabits?\b rather than allowlisting the artifact.
+#   \bhabit    -> habit, habits, habitual, habitually
+# The open \bhabit is kept for "habitual", the inference word most likely to turn
+# up in a description of app usage data; the closed spelling \bhabits?\b does not
+# catch it. The cost is that the open stem also matches "habitat", which no
+# artifact name or description in this repo uses today (verified by grep over
+# scripts/artifacts). ALEAPP's implementation of this check uses the closed
+# \bhabits?\b and has since it was written, so the two spellings differ on
+# purpose -- they are not, and have never been, kept in sync. If a
+# habitat-related artifact ever lands here, close the stem rather than
+# allowlisting the artifact.
 CLAIM_PATTERN = re.compile(
     r'\ball\b'
     r'|\bevery\b'
