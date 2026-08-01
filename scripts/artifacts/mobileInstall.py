@@ -61,10 +61,10 @@ __artifacts_v2__ = {
     },
     "mobileInstall_historical": {
         "name": "Apps - Historical Combined",
-        "description": "All app install/update/uninstall/container/reboot events from mobile_installation.log",
+        "description": "App install/update/uninstall/container/reboot events from mobile_installation.log",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time.",

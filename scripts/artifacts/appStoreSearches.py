@@ -18,10 +18,10 @@ __artifacts_v2__ = {
     },
     'appStoreCachedRequests': {
         'name': 'App Store - Cached Requests',
-        'description': 'All App Store API requests held in the application URL cache',
+        'description': 'App Store API requests held in the application URL cache',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-01',
         'requirements': 'none',
         'category': 'App Store',
         'notes': '',
