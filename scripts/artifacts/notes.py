@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "description": "Apple Notes including decoded note body text and embedded attachments",
         "author": "",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
         "notes": "Note body text is decompressed and parsed from the protobuf blob. "
@@ -38,10 +38,10 @@ __artifacts_v2__ = {
         "description": "People a note is shared with, decoded from the CloudKit share record held against each invitation",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
-        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA.",
+        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA. Reference: Apple CloudKit, CKShareParticipant (role/permission/acceptance enums; raw values per the CloudKit.framework SDK header), https://developer.apple.com/documentation/cloudkit/ckshare/participantrole",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -203,7 +203,7 @@ def notes(context):
         ('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents', 'Folder',
         'Storage Place', ('Last Modified', 'datetime'), 'Password Protected', 'Password Hint',
         'Marked for Deletion', 'Pinned', ('Attachment', 'media'), 'Attachment Original Filename',
-        'Attachment Storage Folder', 'Attachment Size in KB', 'Attachment Type',
+        'Attachment Storage Folder', 'Attachment Size (as stored)', 'Attachment Type',
         ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'))
     data_list = []
     sources = []
@@ -254,7 +254,7 @@ def notes(context):
 
 
 # CloudKit share enumerations, as they appear in ZICINVITATION.ZSERVERSHAREDATA.
-_PARTICIPANT_TYPE = {1: 'Owner', 2: 'Private User', 3: 'Public User'}
+_PARTICIPANT_TYPE = {0: 'Unknown', 1: 'Owner', 2: 'Administrator', 3: 'Private User', 4: 'Public User'}
 _PARTICIPANT_PERMISSION = {1: 'None', 2: 'Read Only', 3: 'Read/Write'}
 _PARTICIPANT_ACCEPTANCE = {1: 'Pending', 2: 'Accepted', 3: 'Removed'}
 

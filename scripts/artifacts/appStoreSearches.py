@@ -4,16 +4,16 @@ __artifacts_v2__ = {
         'description': 'Search terms submitted in the App Store, recovered from the cached search API requests',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'App Store',
-        'notes': ('Suggestion rows are typeahead lookups fired per keystroke, so a single search '
-                  'usually appears as a run of lengthening prefixes ending in the submitted term.'),
+        'notes': ('In test data, cached suggestion requests appeared in per-keystroke progressions; '
+                  'whether a search term was submitted by the user is not established by a cache entry.'),
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.AppStore/Cache.db*',),
         'output_types': 'standard',
         'artifact_icon': 'search',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 27 rows (24 suggestion, 3 submitted)',
+            'josh_ios17_ffs': 'iOS 17.3 | 27 rows (24 suggestions endpoint, 3 search endpoint)',
         },
     },
     'appStoreCachedRequests': {
@@ -39,12 +39,11 @@ import urllib.parse
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, get_sqlite_db_records, convert_human_ts_to_utc
 
-# Path fragments that identify a search request, mapped to how the request was
-# made. The suggestions endpoint is hit while the user types; the plain search
-# endpoint is hit when a term is actually submitted.
+# Path fragments that identify a search request, mapped to the API endpoint
+# that served it.
 SEARCH_ENDPOINTS = (
-    ('/search/suggestions', 'Suggestion (typed)'),
-    ('/search', 'Search (submitted)'),
+    ('/search/suggestions', 'Suggestions endpoint'),
+    ('/search', 'Search endpoint'),
 )
 
 # Query parameters that have held the search text across App Store versions.

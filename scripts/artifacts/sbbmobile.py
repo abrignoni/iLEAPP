@@ -4,13 +4,13 @@ __artifacts_v2__ = {
         "description": "Parse search history in the SBB Mobile app",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-03-18",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/ch.sbb.coredata.searchhistory.sqlite*'),
         "output_types": "standard",
-        "html_columns": ['Location of the search (link)'],
+        "html_columns": ['Result Coordinates (link)'],
         "artifact_icon": "search"
     },
     "sbb_easyride_trips": {
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "description": "Parse EasyRide check-in and check-out events",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-23",
-        "last_update_date": "2026-03-23",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
         "notes": "",
@@ -31,10 +31,10 @@ __artifacts_v2__ = {
         "description": "Parse purchased tickets from SbbMobile",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-24",
-        "last_update_date": "2026-03-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
-        "notes": "",
+        "notes": "Refund-state values other than COMPLETE are reported as stored.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SbbMobile.db*'),
         "output_types": "standard",
         "artifact_icon": "star"
@@ -58,7 +58,7 @@ def sbb_searchhistory(context):
 
     query = """
         SELECT	
-            datetime(ZTIMESTAMP / 1000, 'unixepoch', 'localtime'),
+            datetime(ZTIMESTAMP / 1000, 'unixepoch'),
             ZFROM,
             ZFROMTYPE,
             ZTO,
@@ -69,12 +69,12 @@ def sbb_searchhistory(context):
     """
 
     data_headers = (
-        ('Search timestamp (local time)','datetime'), 
+        ('Search timestamp (UTC)','datetime'),
         'Departure', 
         'Departure type', 
         'Target', 
         'Target type', 
-        'Location of search (link)',
+        'Result Coordinates (link)',
     )
 
     db_records = get_sqlite_db_records(source_path, query)
@@ -106,14 +106,14 @@ def sbb_easyride_trips(context):
         SELECT 
             ZTIMESTAMP,
             ZMESSAGE,
-            datetime(ZTIMESTAMP + 978307200, 'unixepoch', 'localtime')
+            datetime(ZTIMESTAMP + 978307200, 'unixepoch')
         FROM ZLOGENTRY
         ORDER BY ZTIMESTAMP ASC
     '''
 
     data_headers = (
-        ('Check-in Time (Local time)', 'datetime'), 
-        'Check-out Time (Local time)', 
+        ('Check-in Time (UTC)', 'datetime'),
+        'Check-out Time (UTC)',
         'Duration (min)',
     )
 
@@ -186,8 +186,7 @@ def sbb_purchased_tickets(context):
             traveler,
             validFrom,
             validUntil,
-            CASE	
-                WHEN refundState = 'NORMAL' THEN 'Not Refunded'
+            CASE
                 WHEN refundState = 'COMPLETE' THEN 'Refunded'
                 ELSE refundState
             END AS refundState,

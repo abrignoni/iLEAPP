@@ -1,11 +1,11 @@
 __artifacts_v2__ = {
     "applicationSnapshots": {
         "name": "App Snapshots",
-        "description": "Snapshots saved by iOS for individual apps appear here. Blank screenshots are excluded here. \
+        "description": "Snapshots saved by iOS for individual apps appear here. KTX files smaller than 2500 bytes are skipped. \
             Dates and times shown are from file modified timestamps",
         "author": "@ydkhatri",
         "creation_date": "2020-07-23",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",

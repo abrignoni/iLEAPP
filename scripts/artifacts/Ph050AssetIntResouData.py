@@ -49,10 +49,11 @@ __artifacts_v2__ = {
 'author': 'Scott Koenig',
 'version': '6.0',
 'date': '2026-05-27',
+'last_update_date': '2026-07-31',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',
-'paths': ('*/PhotoData/Photos.sqlite*',),
+'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database",
 'sample_data': {

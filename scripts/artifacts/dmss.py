@@ -97,7 +97,7 @@ __artifacts_v2__ = {
 Developed by Evangelos Dragonas (@theAtropos4n6)
 
 Research for this artifact was conducted by Evangelos Dragonas, Costas Lambrinoudakis and Michael Kotsis. 
-For more information read their research paper here: Link_to_be_uploaded
+For more information read their research paper here: E. Dragonas, C. Lambrinoudakis, M. Kotsis, 'IoT Forensics: Investigating the Mobile App of Dahua Technology', 2023 IEEE International Conference on Cyber Security and Resilience (CSR), https://ieeexplore.ieee.org/document/10224982
 
 Updated:18-04-2023
 

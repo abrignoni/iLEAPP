@@ -48,10 +48,10 @@ __artifacts_v2__ = {
         "description": "Parses Life360 chat messages",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-07-03",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Life360",
-        "notes": "",
+        "notes": "Sent-status value mapping observed in testing; unrecognized values reported as stored",
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),
         "output_types": "all",
         "artifact_icon": "message-circle",
@@ -176,7 +176,7 @@ def life360DeviceBattery(context):
 @artifact_processor
 def life360ChatMessages(context):
     data_headers = (('Timestamp', 'datetime'), 'Message ID', 'Sender First Name', 'Sender Last Name',
-                    'Message', 'Sent Status', 'Message Seen', 'Message Deleted', 'Message Liked',
+                    'Message', 'Sent Status', 'Message Seen', 'Message Deleted (Locally)', 'Message Liked',
                     'Action', 'Location Name', 'Latitude', 'Longitude', 'Direction', 'Thread ID')
     data_list = []
     source_path = _find_db(context)
@@ -190,7 +190,8 @@ def life360ChatMessages(context):
         ZCHATMEMBER.ZFIRSTNAME,
         ZCHATMEMBER.ZLASTNAME,
         ZCHATMESSAGE.ZMESSAGETEXT,
-        CASE ZCHATMESSAGE.ZSENTSTATUSASINTEGER WHEN 2 THEN 'Sent' WHEN 3 THEN 'Failed' END,
+        CASE ZCHATMESSAGE.ZSENTSTATUSASINTEGER WHEN 2 THEN 'Sent' WHEN 3 THEN 'Failed'
+            ELSE ZCHATMESSAGE.ZSENTSTATUSASINTEGER END,
         CASE ZCHATMESSAGE.ZISREAD WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
         CASE ZCHATMESSAGE.ZISLOCALLYDELETED WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
         CASE ZCHATMESSAGE.ZISLIKED WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,

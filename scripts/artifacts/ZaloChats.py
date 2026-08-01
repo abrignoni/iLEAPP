@@ -5,10 +5,10 @@ __artifacts_v2__ = {
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-07-31",
         "requirements": "pillow",
         "category": "Zalo",
-        "notes": "",
+        "notes": "Message type mappings were established through testing and are not vendor-documented; unrecognized types are reported as Unknown with the raw Type ID column.",
         "paths": (  
             '*/mobile/Containers/Data/Application/*/Documents/chat_dbs/*/*',
             '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite',

@@ -1,17 +1,17 @@
 __artifacts_v2__ = {
     "duetNotifications": {
         "name": "DuetExpertCenter - Notifications",
-        "description": "Parses the notification history DuetExpertCenter keeps to rank and summarize "
-                       "notifications, including the delivering app, urgency, delivery method and the "
-                       "user's most recent interaction outcome",
+        "description": "Parses the notification history in DuetExpertCenter's "
+                       "notificationAndSuggestionDB.db, including the delivering app, urgency, "
+                       "delivery method and the latest recorded outcome",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "DuetExpertCenter",
-        "notes": "This database records that a notification was received and how it was handled, not "
-                 "its content. It commonly retains far more history than an app's own database, so it "
-                 "can show app activity after the app's data has been cleared. The numeric urgency, "
+        "notes": "No notification body text was present in tested databases; only metadata such as "
+                 "body length. In tested images this database retained notification records older "
+                 "than some apps' own message databases. The numeric urgency, "
                  "delivery-method, delivery-reason and outcome codes are Apple-internal and are "
                  "reported verbatim rather than guessed at.",
         "paths": ('*/mobile/Library/DuetExpertCenter/notificationAndSuggestionDB.db*',),
@@ -28,11 +28,11 @@ __artifacts_v2__ = {
     },
     "duetNotificationSuggestions": {
         "name": "DuetExpertCenter - Notification Suggestions",
-        "description": "Parses the notification-handling suggestions (such as Smart Pause) generated "
+        "description": "Parses the notification-handling suggestions generated "
                        "by DuetExpertCenter, with the triggering notification and the outcome",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "DuetExpertCenter",
         "notes": "Suggestion, scope and outcome codes are Apple-internal and are reported verbatim. "

@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses Apple Maps search history entries and timestamps from GeoHistory.mapsdata.",
         "author": "@any333",
         "creation_date": "2021-01-29",
-        "last_update_date": "2023-10-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Locations",
-        "notes": "",
+        "notes": "Search terms have been documented in GeoHistory.mapsdata by published research; the specific protobuf field positions used here were established through testing. Reference: Heather Mahalik, 'How the Grinch Stole Apple Maps Artifacts (Or Did He Just Hide Them?)', https://smarterforensics.com/2016/12/how-the-grinch-stole-apple-maps-artifacts-or-did-he-just-hide-them/",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata',
             '*/GeoHistory.mapsdata',

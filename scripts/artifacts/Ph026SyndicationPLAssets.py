@@ -6,7 +6,7 @@ __artifacts_v2__ = {
 ' Syndication.photoslibrary-database-Photos.sqlite'
 ' and supports iOS 15-18. Parses assets that have a ZADDITIONALASSETATTRIBUTES'
 ' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields'
-' can be used to filter those results: ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER:'
+' can be used to filter those results: ZASSET ZSYNDICATIONSTATE:'
 ' 0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0 1-SyndPs-Sent-SWY_Synd_Asset-1'
 ' 2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
 ' 8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
@@ -17,6 +17,7 @@ __artifacts_v2__ = {
 'author': 'Scott Koenig',
 'version': '6.0',
 'date': '2026-05-27',
+'last_update_date': '2026-07-31',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',
@@ -48,7 +49,7 @@ __artifacts_v2__ = {
 ' Syndication.photoslibrary-database-Photos.sqlite'
 ' and supports iOS 15-18. Parses assets that have a ZADDITIONALASSETATTRIBUTES'
 ' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields'
-' can be used to filter those results: ZADDITIONALASSETATTRIBUTES ZSYNDICATIONIDENTIFIER:'
+' can be used to filter those results: ZASSET ZSYNDICATIONSTATE:'
 ' 0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0 1-SyndPs-Sent-SWY_Synd_Asset-1'
 ' 2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
 ' 8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
@@ -59,6 +60,7 @@ __artifacts_v2__ = {
 'author': 'Scott Koenig',
 'version': '6.0',
 'date': '2026-05-27',
+'last_update_date': '2026-07-31',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',

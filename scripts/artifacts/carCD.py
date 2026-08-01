@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "carCD": {
         "name": "Last Car Connection and UDID",
-        "description": "Parses the last connected CarPlay vehicle and the device UDID from the locationd cache.plist.",
+        "description": "Parses the last connected CarPlay vehicle and the CalibrationUDID value from the locationd cache.plist.",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-30",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "",
+        "notes": "Which array position holds the connect vs disconnect timestamp is inferred; the cited research documents that both are recorded. Reference: Josh Hickman, 'Ridin' With Apple CarPlay', https://thebinaryhick.blog/2019/05/08/ridin-with-apple-carplay/",
         "paths": ('*/Library/Caches/locationd/cache.plist'),
         "output_types": "none",
         "artifact_icon": "car",

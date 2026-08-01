@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses Discord chat messages from fsCachedData and the local KV storage database",
         "author": "Original Unknown, John Hyla & @stark4n6",
         "creation_date": "",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Discord",
-        "notes": "",
+        "notes": "Reference: Discord Developer Documentation, 'Message Resource', https://docs.discord.com/developers/resources/message",
         "paths": (
             "*/activation_record.plist",
             "*/com.hammerandchisel.discord/fsCachedData/*",

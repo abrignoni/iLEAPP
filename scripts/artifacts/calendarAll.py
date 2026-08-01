@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "List of calendar events",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2023-11-11",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Calendar",
-        "notes": "",
+        "notes": "Participant status is reported as stored. Apple's public EKParticipantStatus enum defines Pending=1, Accepted=2, Declined=3, Tentative=4; whether the Calendar database column follows that enum is unverified. Reference: Apple EventKit, EKParticipantStatus, https://developer.apple.com/documentation/eventkit/ekparticipantstatus",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Location Coordinates', 'Invitees'],
         "output_types": "standard",
@@ -32,10 +32,10 @@ __artifacts_v2__ = {
     },
     "calendarBirthdays": {
         "name": "Calendar Birthdays",
-        "description": "List of calendar birthdays",
+        "description": "Calendar items on the gregorian birthday calendar scale (commonly Contacts birthdays)",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2024-10-30",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
@@ -66,10 +66,10 @@ __artifacts_v2__ = {
         "description": "List of calendars",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2023-11-11",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Calendar",
-        "notes": "",
+        "notes": "Sharing status and access level value mappings observed in testing; unrecognized values reported as stored.",
         "paths": ('*/Calendar.sqlitedb',),
         "html_columns": ['Calendar Name', 'Sharing Participants'],
         "output_types": ["html","lava","tsv"],
@@ -149,14 +149,7 @@ def get_invitees(cursor):
     SELECT Participant.owner_id,
     Identity.display_name,
     Participant.email,
-    CASE Participant.status
-        WHEN 0 THEN 'No response'
-        WHEN 1 THEN 'Accepted'
-        WHEN 2 THEN 'Declined'
-        WHEN 3 THEN 'Maybe'
-        WHEN 7 THEN 'No response'
-        ELSE Participant.status
-    END AS 'Status'
+    Participant.status AS 'Status'
     FROM Participant
     LEFT JOIN Identity ON Participant.identity_id = Identity.ROWID
     WHERE Participant.entity_type = 7
@@ -172,16 +165,11 @@ def get_invitees(cursor):
             participant = f'{row[1]} - {row[2]}' if row[1] else row[2]
             participant_html = f'{esc(row[1])} - {esc(row[2])}' if row[1] else esc(row[2])
             status = row[3]
-            if status == 'No response':
-                html_status = '<span style="color: gray;" title="No response">&#11044;</span>'
-            elif status == 'Accepted':
-                html_status = '<span style="color: green;" title="Accepted">&#11044;</span>'
-            elif status == 'Declined':
-                html_status = '<span style="color: red;" title="Declined">&#11044;</span>'
-            elif status == 'Maybe':
-                html_status = '<span style="color: orange;" title="Maybe">&#11044;</span>'
-            else:
+            # Participant status is reported as stored (see artifact notes).
+            if status is None or status == '':
                 html_status = ''
+            else:
+                html_status = f'<span title="Participant status (as stored)">[{esc(str(status))}]</span>'
             sharing_participant = f'{html_status} {participant_html}'
 
             sharing_participants = data_dict.get(key, '')
@@ -338,7 +326,7 @@ def calendarBirthdays(context):
 
     data_list_html = []
     data_list = []
-    data_headers = ('Date of Birth', 'Person Name', 'Calendar Name', 'Account Name', 'Source File')
+    data_headers = ('Start Date', 'Event Title', 'Calendar Name', 'Account Name', 'Source File')
 
     for file_found in context.get_files_found():
         file_found = str(file_found)

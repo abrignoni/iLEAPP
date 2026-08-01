@@ -7,10 +7,10 @@ __artifacts_v2__ = {
                        "information regarding Viber settings.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
-        'last_update_date': '2025-10-10',
+        'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'Viber',
-        'notes': '',
+        'notes': 'Negative values are reported as stored.',
         'paths': ('*/com.viber/settings/Settings.data',),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'settings',
@@ -48,11 +48,11 @@ __artifacts_v2__ = {
     'viber_call_remnants': {
         'name': 'Viber - Call Remnants',
         'description': "Parses contacts db, extracts and reports on user's "
-                       "recent calls that have no corresponding message (ZVIBERMESSAGE) "
-                       "entry, indicating these messages have been deleted.",
+                       "recent calls that have no corresponding ZVIBERMESSAGE "
+                       "entry, which may indicate deletion.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
-        'last_update_date': '2025-10-11',
+        'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'Viber',
         'notes': '',
@@ -74,10 +74,11 @@ __artifacts_v2__ = {
                        "and phone numbers.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
-        'last_update_date': '2026-07-03',
+        'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'Viber',
-        'notes': '',
+        'notes': 'Column-to-meaning alignment for ZDATE/ZSTATEDATE follows the '
+                 "column names; the app's exact semantics are not vendor-documented.",
         'paths': (
             '**/com.viber/database/Contacts.data*',
             '**/Containers/Data/Application/*/Documents/Attachments/*.*',
@@ -212,13 +213,13 @@ def viber_settings(context):
             setting = 'Auto Backup Last Run Time - UTC'
             x = str(record[1])
             if x.startswith("-"):
-                value = 'Not Applied'
+                value = record[1]
             else:
                 value = convert_unix_ts_to_utc(record[1])
         elif record[0] == '_lastBackupStartDate':
             x = str(record[1])
             if x.startswith("-"):
-                value = 'Not Applied'
+                value = record[1]
             else:
                 value = convert_unix_ts_to_utc(record[1])
         elif record[0] == '_hiddenChatsPINData':
@@ -337,8 +338,8 @@ def viber_chats(context):
         CHATS.Chat_Name AS 'Chat Name',
         CHATS.CHAT_MEMBERS AS 'Chat Participant(s)',
         CHATS.CHAT_PHONES 'Chat Phone(s)',
-        ZVIBERMESSAGE.ZSTATEDATE AS 'Message Creation Date - UTC',
-        ZVIBERMESSAGE.ZDATE AS 'Message Change State Date - UTC',
+        ZVIBERMESSAGE.ZDATE AS 'Message Date - UTC',
+        ZVIBERMESSAGE.ZSTATEDATE AS 'Message State Date - UTC',
         RECENT.ZRECENTDATE AS 'Call Date - UTC',
         CASE
             WHEN ZCALLTYPE = 'missed' THEN 'Missed Audio Call'
@@ -367,12 +368,12 @@ def viber_chats(context):
             WHEN CHATS.Chat_Deleted = 1 THEN 'True'
             WHEN CHATS.Chat_Deleted = 0 THEN 'False'
             ELSE CHATS.Chat_Deleted
-        END AS 'Conversation Deleted',
+        END AS 'Conversation Being Deleted',
         CASE
             WHEN ZVIBERMESSAGE.ZBEINGDELETED = 1 THEN 'True'
             WHEN ZVIBERMESSAGE.ZBEINGDELETED = 0 THEN 'False'
             ELSE ZVIBERMESSAGE.ZBEINGDELETED
-        END AS 'Message Deleted',
+        END AS 'Message Being Deleted',
         CHATS.ZTIMEBOMBDURATION AS 'Conversation Time Bomb Duration',
         ZVIBERMESSAGE.ZTIMEBOMBDURATION AS 'Message Time Bomb Duration',
         ZVIBERMESSAGE.ZTIMEBOMBTIMESTAMP AS 'Message Time Bomb Timestamp',
@@ -466,11 +467,11 @@ def viber_chats(context):
     data_headers = (
         ('Timestamp', 'datetime'), 'Sender (Display Full Name)', 'Sender (Display Short Name)',
         'Sender (Phone)', 'Chat Name', 'Chat Participant(s)', 'Chat Phone(s)',
-        'Message Creation Date - UTC', 'Message Change State Date - UTC',
+        'Message Date - UTC', 'Message State Date - UTC',
         'Message Content', 'Attachment Name', ('Attachment', 'media'), 'Call Date - UTC',
-        'Call Type', 'State', 'Duration (Seconds)', 'System Type Description',
-        'Attachment Type', 'Attachment Size', 'Latitude', 'Longitude', 'Conversation Deleted',
-        'Message Deleted', 'Conversation Time Bomb Duration', 'Message Time Bomb Duration',
+        'Call Type', 'State', 'Duration (as stored)', 'System Type Description',
+        'Attachment Type', 'Attachment Size', 'Latitude', 'Longitude', 'Conversation Being Deleted',
+        'Message Being Deleted', 'Conversation Time Bomb Duration', 'Message Time Bomb Duration',
         'Message Time Bomb Timestamp - UTC', 'Conversation Marked Favorite', 'Likes Count',
         'Message Metadata Fragments')
 
@@ -780,13 +781,13 @@ def viber_chats(context):
         else:
             thumb = ''
 
-        creation_ts = convert_cocoa_core_data_ts_to_utc(record[6])
-        change_ts = convert_cocoa_core_data_ts_to_utc(record[7])
+        message_ts = convert_cocoa_core_data_ts_to_utc(record[6])
+        state_ts = convert_cocoa_core_data_ts_to_utc(record[7])
         call_ts = convert_cocoa_core_data_ts_to_utc(record[8])
         msg_time_bomb_ts = convert_unix_ts_to_utc(record[24])
         record = tuple(temp_list)
-        data_list.append((creation_ts, record[0], record[1], record[2], record[3],
-                          record[4], record[5], creation_ts, change_ts, record[14],
+        data_list.append((message_ts, record[0], record[1], record[2], record[3],
+                          record[4], record[5], message_ts, state_ts, record[14],
                           record[15], thumb, call_ts, record[9], record[10],
                           record[11], record[12], record[16], record[17], record[18],
                           record[19], record[20], record[21], record[22], record[23],

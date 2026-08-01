@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "tileAppDb": {
         "name": "Tile App DB Info & Geolocation",
-        "description": "Tile device information and last-known geolocation from the Tile network database",
+        "description": "Tile device information and most recent stored coordinates (via the TILESTATE join) from the Tile network database",
         "author": "",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Locations",
         "notes": "Timestamps are Cocoa/Mac absolute time (seconds since 2001-01-01 UTC), converted to UTC.",
@@ -26,7 +26,7 @@ def tileAppDb(context):
     data_headers = (
         ('Timestamp', 'datetime'), 'Tile Name', ('Activation Timestamp', 'datetime'),
         ('Registration Timestamp', 'datetime'), 'Altitude', 'Latitude', 'Longitude', 'Tile ID',
-        'Tile Type', 'Status', 'Is Lost?', ('Last Community Connection', 'datetime'))
+        'Tile Type', 'Status', 'Is Lost?', ('Last Lost-Tile Community Connection', 'datetime'))
     data_list = []
 
     source_path = ''

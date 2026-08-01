@@ -29,10 +29,11 @@ __artifacts_v2__ = {
         "description": "Extracts keyboard application usage data",
         "author": "@yany333",
         "creation_date": "2023-05-24",
-        "last_update_date": "2023-05-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "User Activity",
-        "notes": "",
+        "notes": "Field units and semantics for app_usage_database.plist are not "
+                 "documented; values are reported as stored.",
         "paths": ('*/mobile/Library/Keyboard/app_usage_database.plist',),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "keyboard",
@@ -78,10 +79,11 @@ __artifacts_v2__ = {
         "description": "Words and usage values stored in VulgarWordUsage.db",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "User Activity",
-        "notes": "The last-use timestamp uses the Apple Cocoa epoch.",
+        "notes": "The last-use timestamp is interpreted as Apple Cocoa epoch; "
+                 "no populated sample was available to verify.",
         "paths": ("*/mobile/Library/Keyboard/VulgarWordUsage.db*",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "message-2",
@@ -149,7 +151,7 @@ def keyboardAppUsage(context):
 
                         data_list.append((start_date, app, entry['appTime'], ', '.join(map(str, entry['keyboardTimes']))))  
                                                  
-    data_headers = (('Date', 'datetime'), 'Application Name', 'Application Time Used in Seconds', 'Keyboard Times Used in Seconds')
+    data_headers = (('Date', 'datetime'), 'Application Name', 'appTime (as stored)', 'keyboardTimes (as stored)')
     return data_headers, data_list, files_found[0]
 
 @artifact_processor

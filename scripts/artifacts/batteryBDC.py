@@ -5,10 +5,14 @@ __artifacts_v2__ = {
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
         "author": "@stark4n6",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-05-27",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Battery",
-        "notes": "",
+        "notes": "Temperature scale: the reference below documents the stored Temperature value "
+                 "as Celsius x 1000, while this parser divides the stored value by 100; the "
+                 "discrepancy is noted here rather than silently changed. "
+                 "Reference: Kevin Pagano, 'BDC - More Battery Temps & Charging Stats', "
+                 "https://www.stark4n6.com/2026/03/bdc-more-battery-temps-charging-stats.html",
         "paths": ('*/Battery/BDC/BDC_SBC_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",

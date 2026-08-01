@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Battery Percentages extracted from knowledgeC database",
         "author": "@JohannPLW",
         "creation_date": "2023-11-05",
-        "last_update_date": "2023-11-05",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "",
+        "notes": "ZHASSTRUCTUREDMETADATA indicates whether a structured-metadata row exists; the fully-charged flag lives in the structured metadata itself per APOLLO's knowledge_device_batterylevel module. Reference: Sarah Edwards, APOLLO, https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_batterylevel.txt",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -260,7 +260,7 @@ def knowledgeC_BatteryPercentage(context):
             WHEN 0 THEN 'No'
             WHEN 1 THEN 'Yes'
         ELSE ZOBJECT.ZHASSTRUCTUREDMETADATA
-        END AS 'Is Fully Charged?',
+        END AS 'Has Structured Metadata',
         datetime('2001-01-01', ZOBJECT.ZCREATIONDATE || ' seconds') AS 'Time Added'
         FROM ZOBJECT
         WHERE ZOBJECT.ZSTREAMNAME = '/device/batteryPercentage'
@@ -276,7 +276,7 @@ def knowledgeC_BatteryPercentage(context):
             data_list.append((start_time, end_time, row[2], row[3], added_time))
 
     data_headers = (
-         ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Battery Percentage', 'Is Fully Charged?',
+         ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Battery Percentage', 'Has Structured Metadata',
          ('Time Added', 'datetime'))
     return data_headers, data_list, db_file
 

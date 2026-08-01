@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "twint_transactions": {
         "name": "Twint - Transactions",
-        "description": "Extract data related to transactions made with the instant payment app Twint prepaid",
+        "description": "Extract data related to transactions made with the instant payment app Twint",
         "author": "@KefreR (Frank Ressat)",
         "creation_date": "2023-11-21",
-        "last_update_date": "2024-11-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Finance",
         "notes": "",
@@ -73,9 +73,9 @@ def twint_transactions(context):
 
     data_headers = (
         ('Creation date', 'datetime'),
-        ('Sender confirmation date', 'datetime'),
-        ('Receiver validation date', 'datetime'),
-        ('Transaction expiry date', 'datetime'),
+        ('Modified Timestamp', 'datetime'),
+        ('Second Phase Timestamp', 'datetime'),
+        ('Status Pending Until', 'datetime'),
         'Merchant branch name', 'Merchant name',
         ('Sender mobile number', 'phonenumber'),
         'Sender message',

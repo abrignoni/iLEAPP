@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         "description": "Parses expenses information from Splitwise app",
         "author": "@KevinPagano3",
         "creation_date": "2024-04-09",
-        "last_update_date": "2025-01-07",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Finance",
         "notes": "",
@@ -174,7 +174,7 @@ def splitwiseExpenses(context):
     data_headers = (
         ('Created Timestamp', 'datetime'), 
         ('Updated Timestamp', 'datetime'), 
-        'Payer', 
+        'Created By',
         'Expense Description', 
         'Cost', 
         'Currency', 

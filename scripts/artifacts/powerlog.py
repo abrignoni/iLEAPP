@@ -4,12 +4,15 @@ __artifacts_v2__ = {
         "description": "Application foreground and background runtime recorded by PowerLog",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
             "Parses PLAppTimeService_Aggregate_AppRunTime. PowerLog contains many additional "
-            "version-specific tables that require separate validation."
+            "version-specific tables that require separate validation. "
+            "Reference: Sarah Edwards, APOLLO powerlog_app_usage_by_hour module, "
+            "https://github.com/mac4n6/APOLLO/blob/master/modules/powerlog_app_usage_by_hour.txt "
+            "(SCREENONTIME/BACKGROUNDTIME in seconds)."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",

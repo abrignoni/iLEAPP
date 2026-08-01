@@ -28,13 +28,13 @@ __artifacts_v2__ = {
         "description": "Saved travelers / companions from the United profile.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-17",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
             "Core Data: ZUACDUSER.ZSAVEDTRAVELERSJSON (simplifiedTravelers). "
             "Per-traveler MileagePlus/KTN are usually on trip passengers, not this list. "
-            "Column may be absent on older app versions."
+            "In examined extractions, the column may be absent on older app versions."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         "description": "Active and past United wallet reservations and flight segments.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-17",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
@@ -83,12 +83,12 @@ __artifacts_v2__ = {
         "description": "Mobile boarding passes (MBP) from United wallet Core Data.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-17",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
             "Core Data table: ZUACDWALLETMBP. "
-            "Often present on older app versions when wallet reservation JSON is empty."
+            "In examined extractions, often present on older app versions when wallet reservation JSON is empty."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -149,12 +149,12 @@ __artifacts_v2__ = {
         "description": "Boarding / travel-day status snapshots from Documents/logFile.txt.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
             "Source: Documents/logFile.txt (concatenated JSON travel-mode status history). "
-            "Not present on all app versions."
+            "In examined extractions, not present on all app versions."
         ),
         "paths": (
             "*/com.united.UnitedCustomerFacingIPhone*/Documents/logFile.txt",
@@ -164,11 +164,11 @@ __artifacts_v2__ = {
         "artifact_icon": "clock",
     },
     "united_ife_watch_history": {
-        "name": "United - IFE Watch History",
-        "description": "Inflight entertainment watch / resume history from prefs and Core Data.",
+        "name": "United - IFE Playback Resume Positions",
+        "description": "Inflight entertainment playback resume positions from prefs and Core Data.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-17",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
@@ -209,13 +209,13 @@ __artifacts_v2__ = {
         ),
         "author": "James Habben",
         "creation_date": "2026-07-16",
-        "last_update_date": "2026-07-16",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
             "Source: MobileSMS PluginMetaDataCache plist for "
             "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension. "
-            "Shows handles the plugin has been used with; not full message content. "
+            "Handles present in the plugin's metadata cache; not full message content. "
             "Prefer the AppDomain-com.apple.MobileSMS copy over the notification-extension stub."
         ),
         "paths": (
@@ -616,7 +616,7 @@ def united_trips(context):
             for row in db.execute("SELECT * FROM ZUACDWALLETRESERVATION"):
                 record_locator = _row_get(row, "ZRECORDLOCATOR")
                 data_list.append((
-                    "Active",
+                    "Wallet Reservation",
                     record_locator,
                     _row_get(row, "ZFIRSTNAME"),
                     _row_get(row, "ZORIGIN"),
@@ -652,7 +652,8 @@ def united_trips(context):
                         data_list, "Active Segment", segments, record_locator, relative
                     )
 
-        # Past reservations (older schemas often have column data but empty ZJSON)
+        # Past reservations (in examined extractions, older schemas often have
+        # column data but empty ZJSON)
         if _table_exists(db, "ZUACDWALLETPASTRESERVATION"):
             for row in db.execute("SELECT * FROM ZUACDWALLETPASTRESERVATION"):
                 record_locator = _row_get(row, "ZRECORDLOCATOR")
@@ -800,8 +801,8 @@ def united_trip_passengers(context):
                         relative,
                     ))
 
-        # Older app versions often keep passenger identity on mobile boarding passes
-        # instead of wallet reservation JSON.
+        # In examined extractions, older app versions often keep passenger identity
+        # on mobile boarding passes instead of wallet reservation JSON.
         if _table_exists(db, "ZUACDWALLETMBP"):
             for row in db.execute("SELECT * FROM ZUACDWALLETMBP"):
                 extra = _parse_mbp_additional(_row_get(row, "ZADDITIONALDATA"))
@@ -1273,7 +1274,7 @@ def united_ife_watch_history(context):
                 relative,
             ))
 
-        # Explicit stream-accessed URL flags (corroboration only)
+        # Stream keys present in the plist (corroboration only)
         for key, value in plist.items():
             if not isinstance(key, str):
                 continue
@@ -1297,7 +1298,7 @@ def united_ife_watch_history(context):
         "Title",
         "Asset / Media ID",
         "Media ID (int)",
-        "Position (seconds)",
+        "Position (as stored)",
         "Position (raw)",
         "Subtitle",
         "Source File",

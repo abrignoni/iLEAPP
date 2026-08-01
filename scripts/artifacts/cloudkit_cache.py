@@ -35,10 +35,10 @@ __artifacts_v2__ = {
         "description": "Parses file listings from CloudKit cache snapshots",
         "author": "@JamesHabben",
         "creation_date": "2023-04-11",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "CloudKit",
-        "notes": "",
+        "notes": "File-type value mapping observed in testing; unrecognized values reported as stored.",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -215,7 +215,8 @@ def cloudkit_files(context):
                 CASE
                     WHEN Files.fileType = 0 THEN 'File'
                     WHEN Files.fileType = 1 THEN 'Folder'
-                END AS file_type,  
+                    ELSE Files.fileType
+                END AS file_type,
                 Files.size,
                 Files.protectionClass,
                 Manifests.manifestID
