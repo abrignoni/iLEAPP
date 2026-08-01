@@ -34,10 +34,22 @@ Two ways a match gets resolved:
   saying why**. The allowlist is a record of decisions someone made on purpose;
   it is not a place to park a description nobody wanted to rewrite.
 
+Two things the check reports rather than hides, because both are ways it can
+quietly stop doing its job:
+
+* An ALLOWLIST entry that no longer matches anything. It means the description
+  was reworded or the artifact key changed, and the entry now shields nothing --
+  except the next claim that lands under the same key. Stale entries fail the
+  run and must be deleted.
+* A module whose `__artifacts_v2__` is not a static literal (built by a helper,
+  or absent). Its fields cannot be read without importing the module, so they
+  are never checked. Those modules are printed as NOT CHECKED on every run, so
+  the coverage hole stays visible.
+
 Usage:
     python admin/scripts/check_claim_language.py           # CI mode, exits 1 on a violation
     python admin/scripts/check_claim_language.py --list    # every match, allowlisted included
-    python admin/scripts/check_claim_language.py --verbose # also report unparsed modules
+    python admin/scripts/check_claim_language.py --verbose # coverage and allowlist counts
 """
 
 import argparse
@@ -55,12 +67,26 @@ import sys
 #     ("the user viewed", "user-created", "searched by", "manually")
 #   - certainty and inference-about-conduct words ("proves", "definitively",
 #     "always", "reliable", "visited", "habits")
-# Matching is case-insensitive and boundary-aware, so "install" does not trip
-# "all" and "unreliable" does not trip "reliable".
+#
+# Every alternative is anchored with an explicit \b. Do NOT express a boundary as
+# a trailing space ("all ", "every ", "always "): that spelling matches inside
+# "call log", "calllog.db" and similar, and in a sibling implementation it turned
+# 35 of 37 raw hits into call-log false positives, which is enough noise to make
+# the check worth ignoring. Word boundaries also keep the hedges quiet -- neither
+# "unreliable" nor "incomplete" trips, because there is no boundary mid-word.
+#
+# The stems below are left UNCLOSED on purpose so inflections still match:
+#   \bcomplete -> complete, completeness, completely
+#   \breliable -> reliable and its compounds
+#   \bhabit    -> habit, habits
+# The cost of the open \bhabit is that it also matches "habitat"; no artifact in
+# this repo uses that word today, and this spelling is kept deliberately in sync
+# with the ALEAPP implementation of the same check. If a habitat-related artifact
+# ever lands, close it to \bhabits?\b rather than allowlisting the artifact.
 CLAIM_PATTERN = re.compile(
     r'\ball\b'
     r'|\bevery\b'
-    r'|\bcomplete\w*'
+    r'|\bcomplete'
     r'|\bfull list\b'
     r'|\bentire\b'
     r'|\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|read|sent'
@@ -74,9 +100,9 @@ CLAIM_PATTERN = re.compile(
     r'|\bproves?\b'
     r'|\bdefinitively\b'
     r'|\balways\b'
-    r'|\breliable\b'
+    r'|\breliable'
     r'|\bvisited\b'
-    r'|\bhabits?\b',
+    r'|\bhabit',
     re.IGNORECASE)
 
 # Fields that reach the examiner through the report and the LAVA manifest.
@@ -236,6 +262,7 @@ def main():
     violations = []
     allowlisted = []
     skipped = []
+    fired = set()
     for path in paths:
         rel_path = os.path.relpath(path, root)
         matches, skip_reason = scan_file(path)
@@ -244,15 +271,38 @@ def main():
             continue
         for match in matches:
             entry = (rel_path,) + match[1:]
+            fired.add((os.path.basename(path), match[1], match[2]))
             if match[5]:
                 allowlisted.append(entry)
             else:
                 violations.append(entry)
 
-    if args.verbose and skipped:
-        print(f'Skipped {len(skipped)} module(s):')
+    # An allowlist entry that no longer matches anything is either a fixed
+    # description or a stale key, and it hides the next real claim behind a name
+    # nobody rechecks. Surface it so the allowlist stays a list of live decisions.
+    stale = sorted(ALLOWLIST - fired)
+
+    # A module whose __artifacts_v2__ cannot be evaluated statically is a real
+    # coverage hole: its fields are never checked. Report it rather than hide it.
+    if skipped:
+        print(f'NOT CHECKED -- {len(skipped)} module(s) have no statically readable '
+              f'__artifacts_v2__:')
         for rel_path, reason in skipped:
             print(f'  {rel_path}: {reason}')
+        print()
+
+    if args.verbose:
+        print(f'Scanned {len(paths)} module(s); {len(paths) - len(skipped)} checked, '
+              f'{len(skipped)} skipped.')
+        print(f'Allowlist holds {len(ALLOWLIST)} entr(ies); {len(allowlisted)} fired '
+              f'this run.')
+        print()
+
+    if stale:
+        print(f'Stale ALLOWLIST entr(ies) ({len(stale)}) -- these no longer match '
+              f'anything and should be deleted:')
+        for entry in stale:
+            print(f'  {entry[0]}:{entry[1]}:{entry[2]}')
         print()
 
     if args.list_all and allowlisted:
@@ -270,8 +320,16 @@ def main():
         print(STANDARD_NOTE)
         return 1
 
-    print(f'Checked {len(paths)} artifact module(s): no unsupported claim language '
-          f'({len(allowlisted)} reviewed exception(s) allowlisted).')
+    if stale:
+        print('Remove the stale entr(ies) above from ALLOWLIST in '
+              'admin/scripts/check_claim_language.py.')
+        return 1
+
+    summary = (f'Checked {len(paths) - len(skipped)} artifact module(s): no unsupported '
+               f'claim language ({len(allowlisted)} reviewed exception(s) allowlisted).')
+    if skipped:
+        summary += f' {len(skipped)} module(s) NOT checked, listed above.'
+    print(summary)
     return 0
 
 
