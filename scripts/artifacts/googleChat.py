@@ -4,10 +4,11 @@ __artifacts_v2__ = {
         "description": "Parses google chats",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Google Chats",
-        "notes": "",
+        "notes": "Group-type value mapping observed in testing; unrecognized values reported as stored. "
+                 "Reaction protobuf field positions established through testing.",
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',
                   '*/Documents/user_accounts/*/tmp/*'),
         "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]

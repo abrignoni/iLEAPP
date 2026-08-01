@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2025-12-16",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Clock",
-        "notes": "",
+        "notes": "Repeat-schedule bitmask mapping observed in testing; not vendor-documented.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -162,7 +162,7 @@ def alarms(context):
         'Repeat Schedule', 
         'Alarm Sound', 
         'Is Sleep Alarm', 
-        'Bedtime Not Disturbed', 
+        'Bedtime Do Not Disturb',
         'Bedtime Fire Date'
         )
     return data_headers, data_list, source_path

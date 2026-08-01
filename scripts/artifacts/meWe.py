@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         'description': 'Chat messages, attachments and shared locations from the MeWe application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'MeWe',
-        'notes': 'Shared locations are sent as OpenStreetMap links; coordinates are parsed out of the message text.',
+        'notes': 'In examined data shared locations appeared as OpenStreetMap links; coordinates are parsed out of the message text.',
         'paths': ('*/mobile/Containers/Data/Application/*/Documents/sgrouplesdb.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'message',
@@ -76,10 +76,10 @@ __artifacts_v2__ = {
     },
     'meWePolls': {
         'name': 'MeWe - Polls',
-        'description': 'Polls seen in the MeWe application, with their options and vote counts',
+        'description': 'Polls cached by the MeWe application, with their options and vote counts',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'MeWe',
         'notes': '',
@@ -487,7 +487,7 @@ def meWePolls(context):
 
     data_headers = (
         ('Post Created', 'datetime'), ('End Date', 'datetime'), 'Question',
-        'Options', 'Option Votes', 'Selected By User', 'Option Count', 'Closed',
+        'Options', 'Option Votes', 'Selected Option (client state)', 'Option Count', 'Closed',
         'Posted By User ID', 'Post ID')
 
     return data_headers, data_list, source_path

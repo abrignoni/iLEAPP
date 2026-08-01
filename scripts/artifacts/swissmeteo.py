@@ -4,13 +4,13 @@ __artifacts_v2__ = {
         "description": "Parse the interaction with meteo prevision of particular places",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-11",
-        "last_update_date": "2026-03-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Meteo",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*'),
         "output_types": "standard",
-        "html_columns": ['Meteo of the city (link)', 'Consultation Location'],
+        "html_columns": ['Meteo of the city (link)', 'Coordinates (lat/lon)'],
         "artifact_icon": "flag"
     },
     "swissmeteo_plz": {
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "description": "Parse the app opening time and location",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-11",
-        "last_update_date": "2026-03-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Meteo",
         "notes": "",
@@ -51,14 +51,14 @@ def plz_interaction(context):
     if prediction_db != "":
         query = '''
         SELECT 
-            datetime(timestamp/1000, 'unixepoch', 'localtime') AS created_date,
+            datetime(timestamp/1000, 'unixepoch') AS created_date,
             plz,
             lat,
             lon
         FROM plz_interaction
         '''
 
-        data_headers = (('Consulted Timestamp','datetime'), "Meteo of the city", "Meteo of the city (link)", "Consultation Location")
+        data_headers = (('Interaction Timestamp','datetime'), "Meteo of the city", "Meteo of the city (link)", "Coordinates (lat/lon)")
         db_records = get_sqlite_db_records(prediction_db, query)
 
         local_data = []
@@ -97,7 +97,7 @@ def swissmeteo_plz(context):
     if prediction_db != "":
         query = '''
         SELECT 
-            datetime(timestamp/1000, 'unixepoch', 'localtime') AS created_date,
+            datetime(timestamp/1000, 'unixepoch') AS created_date,
             lat,
             lon
         FROM app_open

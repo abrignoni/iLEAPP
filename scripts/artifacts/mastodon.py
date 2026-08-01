@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     'mastodonDirectMessages': {
         'name': 'Mastodon - Direct Messages',
-        'description': 'Private (direct visibility) statuses exchanged through the Mastodon application',
+        'description': 'Private (direct visibility) statuses cached by the Mastodon application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Mastodon',
         'notes': 'Mastodon models direct messages as statuses with a visibility of "direct".',

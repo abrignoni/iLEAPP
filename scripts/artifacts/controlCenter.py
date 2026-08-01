@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses controls/apps added to the Control Center",
         "author": "@KevinPagano3",
         "creation_date": "2024-10-18",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Control Center",
         "notes": "",
@@ -41,7 +41,7 @@ def controlCenter(context):
         pl = get_plist_file_content(file_found)
             
         for control_type, key, prefix in [
-            ('Active', 'module-identifiers', 'A'),
+            ('Module Identifiers (in order)', 'module-identifiers', 'A'),
             ('User Toggled', 'userenabled-fixed-module-identifiers', 'U'),
             ('Disabled', 'disabled-module-identifiers', 'D')
         ]:

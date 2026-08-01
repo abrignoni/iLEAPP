@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Apple App Store application foreground events",
         "author": "@stark4n6",
         "creation_date": "2025-07-21",
-        "last_update_date": "2026-07-13",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "App Usage",
-        "notes": "",
+        "notes": "Reference: Kevin Pagano, 'iOS App Storage Usage via AMDSQLite.db', https://www.stark4n6.com/2025/07/ios-app-storage-usage-via-amdsqlite-db.html",
         "paths": (
             '*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*',
             '*/mobile/Library/Caches/com.apple.appstored/storeUser.db*'
@@ -187,7 +187,7 @@ def AMDSQLiteDB_UsageEvents(context):
 
         data_list.append((time, record[1], final_app_name, final_bundle_id, record[3], record[4], record[9], record[5], record[6], record[7]))
                             
-    data_headers = (('Timestamp', 'datetime'),'App Action','App Name','Bundle ID','AdamID','App Version','Vendor Name','Foreground Duration (Secs)','Apple ID','User ID')
+    data_headers = (('Timestamp', 'datetime'),'App Action','App Name','Bundle ID','AdamID','App Version','Vendor Name','Foreground Duration (as stored)','Apple ID','User ID')
     return data_headers, data_list, source_path
     
 @artifact_processor

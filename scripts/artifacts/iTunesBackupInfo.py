@@ -20,10 +20,11 @@ __artifacts_v2__ = {
                        "Info.plist file of an iTunes backup",
         "author": "@johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-10-14",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The storeCohort date substring's relationship to install time is "
+                 "not documented; the value is reported as decoded.",
         "paths": ("info.plist",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package"
@@ -147,7 +148,7 @@ def itunes_backup_installed_applications(context):
                 data_list.append(app_info)
 
     data_headers = ('Bundle ID', ('App Icon', 'media', 'width: 60px;'), 'Item Name',
-                    'Artist Name', 'Version', 'Genre', ('Install Date', 'date'),
+                    'Artist Name', 'Version', 'Genre', ('storeCohort Date (as stored)', 'date'),
                     'Downloaded by', ('Purchase Date', 'datetime'),
                     ('Release Date', 'datetime'), 'Source App', 'Auto Download',
                     'Purchased Redownload', 'Factory Install', 'Side Loaded',

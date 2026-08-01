@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Media items (music, video, podcasts, e-books) from Medialibrary.sqlitedb",
         "author": "",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Media Library",
-        "notes": "",
+        "notes": "Media-kind value mapping observed in testing; not documented by a published source; unrecognized values are reported as stored.",
         "paths": ('**/Medialibrary.sqlitedb*',),
         "output_types": "standard",
         "artifact_icon": "music"

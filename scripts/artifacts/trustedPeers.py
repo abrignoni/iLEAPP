@@ -2,10 +2,10 @@
 __artifacts_v2__ = {
     "trusted_peers": {
         "name": "Trusted Peers",
-        "description": "Devices Associated with iCloud Account",
+        "description": "Peer records from TrustedPeersHelper.db (Apple trust-circle data)",
         "author": "Heather Charpentier",
         "creation_date": "2024-12-13",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Trusted Peers",
         "notes": "",
@@ -178,7 +178,7 @@ def trusted_peers(context):
         'Model Version',
         'Device Name',
         'Serial Number',
-        'Passcode Length',
+        'Secure Backup Numeric Passphrase Length',
         'Device Color',
         'Device Enclosure Color',
         'Peer OS Version',

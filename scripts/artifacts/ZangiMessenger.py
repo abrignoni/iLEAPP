@@ -10,10 +10,10 @@ __artifacts_v2__ = {
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
-        "last_update_date": "2026-03-03",
+        "last_update_date": "2026-07-31",
         "requirements": "pathlib",
         "category": "Chats",
-        "notes": "",
+        "notes": "Message type mappings observed in testing (app version 5.6.7); not vendor-documented.",
         "paths": (  
             '*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite',
             '*/mobile/Containers/Shared/AppGroup/*/*/image/*/msgId*',

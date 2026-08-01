@@ -1,13 +1,14 @@
 __artifacts_v2__ = {
     "get_obliterated": {
         "name": "Obliterated Time",
-        "description": "Parses obliterated timestamp",
+        "description": "Reports the last-modified time of /root/.obliterated, a file created when the device is wiped; the timestamp reflects the first boot after reset.",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "",
+        "notes": "The file is not present in every extraction and extraction handling can disturb file times; corroborate with containermanagerd logs. Reference: Cellebrite, 'Upgrade From Null: Detecting iOS Wipe Artifacts', https://cellebrite.com/en/blog/upgrade-from-null-detecting-ios-wipe-artifacts/",
         "paths": ('*/root/.obliterated'),
         "output_types": "standard",
         "artifact_icon": "trash",

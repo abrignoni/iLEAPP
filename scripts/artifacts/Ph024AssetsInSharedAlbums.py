@@ -2,11 +2,12 @@ __artifacts_v2__ = {
 'Ph024AssetinSharedAlbumsInvitesPhDaPsql': {
 'name': 'Ph024-Assets in Shared Albums & Invites-PhDaPsql',
 'description': 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS.'
-' Parses limited asset data with full non-shared album data.'
+' Parses limited asset data with full shared album data.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'version': '6.0',
 'date': '2026-05-27',
+'last_update_date': '2026-07-31',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',

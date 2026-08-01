@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct message conversations cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it holds the trusted, untrusted and low quality timelines.',
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         'description': 'Twitter X accounts cached alongside the direct message inbox',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         'description': 'Posts (tweets) cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'Cached objects are gzip compressed JSON stored in the Items table.',
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         'description': 'User profiles cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         'description': 'In-app notifications cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -102,8 +102,9 @@ from scripts.ilapfuncs import artifact_processor, logfunc, \
     get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc, \
     convert_unix_ts_to_utc
 
-# The three inbox timelines the app keeps. Conversations that were never
-# accepted land in the untrusted or low quality lists rather than the main one.
+# The three inbox timelines the app keeps. Per X's message-request behavior as
+# observed in testing, conversations that were never accepted land in the
+# untrusted or low quality lists rather than the main one.
 INBOX_TIMELINES = (
     ('trusted_conversations_timeline', 'Trusted'),
     ('untrusted_conversations_timeline', 'Untrusted'),
@@ -194,7 +195,7 @@ def twitterDirectMessages(context):
         'Attachment Display URL', 'Marked As Spam', 'Marked As Abuse',
         'In Reply To Message ID', 'Message ID', 'Account ID', 'From Me')
 
-    # The cache directory holds one archive per signed-in account, so every
+    # One archive per signed-in account was observed in test data, so every
     # matched file is parsed rather than only the first.
     source_paths = _dm_cache_paths(context)
     if not source_paths:
@@ -332,7 +333,7 @@ def _iter_cached_models(source_path, model_type):
 
     if evicted:
         logfunc(f'Twitter X {model_type}: {evicted} cache key(s) had no stored '
-                f'object (evicted from cache) and are not reported.')
+                f'object (possibly evicted) and are not reported.')
     if undecodable:
         logfunc(f'Twitter X {model_type}: {undecodable} cached object(s) could '
                 f'not be decoded.')

@@ -4,10 +4,13 @@ __artifacts_v2__ = {
         "description": "Wi-Fi networks synced via iCloud (com.apple.wifid.plist)",
         "author": "",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Wifi Connections",
-        "notes": "",
+        "notes": "In local test images this plist carried no entries. "
+                 "Reference: cheeky4n6monkey (based on research by M. Epifani, H. Mahalik), "
+                 "'iOS_sysdiagnose_forensic_scripts', "
+                 "https://github.com/cheeky4n6monkey/iOS_sysdiagnose_forensic_scripts",
         "paths": ('**/com.apple.wifid.plist',),
         "output_types": "standard",
         "artifact_icon": "wifi",

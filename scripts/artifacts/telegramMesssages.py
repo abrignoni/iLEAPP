@@ -6,17 +6,18 @@ __artifacts_v2__ = {
             "Parses Telegram messages, including text, media, and forwarding information "
             "from the local cache database. The Chat/Chat ID columns identify the conversation; "
             "the Author/Author ID columns identify the sender of each individual message. On "
-            "Outgoing messages the Author ID is the account owner's user id, so the device "
-            "owner's Telegram id can be identified from any Outgoing message."
+            "messages without the Incoming flag, the Author ID field, when present, reflects "
+            "the signed-in account's user id."
         ),
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
-        "last_update_date": "2026-06-25",
+        "last_update_date": "2026-07-31",
         "requirements": "Python packages: mmh3",
         "category": "Telegram",
         "notes": "Original Gist: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713. "
                  "This module processes the db_sqlite file from Telegram's local cache (postbox/db). "
-                 "Media files are linked from the postbox/media directory.",
+                 "Media files are linked from the postbox/media directory. "
+                 "Some media sub-field labels (live-location period, venue fields) are best-effort interpretations of observed keys.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'

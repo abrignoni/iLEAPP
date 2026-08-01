@@ -28,8 +28,9 @@ __artifacts_v2__ = {
     "googleDuoClips": {
         "name": "Google Duo - Clips",
         "description": "Google Duo media clips (with thumbnails from ClipsCache)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Google Duo", "notes": "",
+        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "category": "Google Duo",
+        "notes": "The media_clip_source value's direction semantics are not documented in published research; the value is reported as stored.",
         "paths": ('*/Application Support/DataStore*', '*/Application Support/ClipsCache/*.png'),
         "output_types": "standard", "artifact_icon": "movie",
         "sample_data": {
@@ -103,7 +104,7 @@ def googleDuoCallHistory(context):
 @artifact_processor
 def googleDuoClips(context):
     data_headers = (('Creation Date', 'datetime'), ('Message Date', 'datetime'),
-                    ('Viewed Date', 'datetime'), 'Local User ID', 'Clip Direction',
+                    ('Viewed Date', 'datetime'), 'Local User ID', 'Media Clip Source (as stored)',
                     'Text Representation', 'Message ID', 'MD5 Checksum', 'Content Size',
                     'Transferred Size', ('Clip', 'media'))
     data_list = []
@@ -118,7 +119,7 @@ def googleDuoClips(context):
         datetime(media_clip_message_date/1000000, 'unixepoch'),
         datetime(media_clip_viewed_date/1000000, 'unixepoch'),
         media_clip_local_id,
-        CASE media_clip_source WHEN 0 THEN 'Received' WHEN 1 THEN 'Sent' END,
+        media_clip_source,
         media_clip_text_representation,
         media_clip_message_id,
         media_clip_md5_checksum,

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts account information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-19",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts searched locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts recent locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-19",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts favorite locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts synchronized calendar events and planned trips.",
         "author": "@djangofaiola",
         "creation_date": "2026-06-13",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -1033,7 +1033,7 @@ def waze_account(context):
         'Email',
         'Waze User ID',
         'Invisible Mode',
-        ('Last App Launch', 'datetime'),
+        ('Dynamic Splash Screen Last Shown', 'datetime'),
         'Provider First Name',
         'Provider Last Name',
         'Provider Name',
@@ -1487,7 +1487,7 @@ def waze_track_gps_quality(context):
 @artifact_processor
 def waze_search_history(context):
     """
-    Extracts all locations manually searched by the user from the PLACES table.
+    Extracts location entries from the PLACES table (includes searched and referenced places).
     """
 
     data_headers = (
@@ -1649,7 +1649,7 @@ def waze_search_history(context):
 @artifact_processor
 def waze_recent_locations(context):
     """
-    Extracts the history of recently visited or selected locations, 
+    Extracts the history of recently accessed location entries,
     joining RECENTS with the PLACES table for full coordinates.
     """
 
@@ -2126,7 +2126,7 @@ def waze_favorite_locations(context):
         'Latitude',
         'Longitude',
         ('Created', 'datetime'),
-        ('Modified', 'datetime'),
+        ('Possible Timestamp (field 10)', 'datetime'),
         ('Last Waypoint Access', 'datetime'),
         'Rank',
         'Server ID',
@@ -2313,10 +2313,8 @@ def waze_shared_locations(context):
 @artifact_processor
 def waze_planned_events(context):
     """
-    Extracts locations and scheduled destinations synchronized from calendar
-    events.  Waze reads the device calendar, resolves each event address
-    against the PLACES table and stores the result in EVENTS_PLACES inside
-    user.db.
+    Extracts calendar-derived events stored in EVENTS_PLACES with resolved
+    places, inside user.db.
     """
 
     data_headers = (

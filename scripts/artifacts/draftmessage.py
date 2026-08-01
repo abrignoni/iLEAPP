@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses unsent draft iMessage and SMS messages and their modified times from SMS/Drafts composition.plist files.",
         "author": "@abrignoni",
         "creation_date": "2022-10-18",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Messages",
         "notes": "",
@@ -22,7 +22,7 @@ from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_pl
 @artifact_processor
 def get_draftmessage(context):
     data_list = []
-    data_headers = (('Modified Time', 'datetime'),'Intended Recipient','Draft Message', 'Source file')
+    data_headers = (('Modified Time', 'datetime'),'Chat Directory Name','Draft Message', 'Source file')
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found) #reusing old code and adding new underneath. I know. "Cringe."

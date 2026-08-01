@@ -40,10 +40,10 @@ __artifacts_v2__ = {
     },
     "box_previews": {
         "name": "Box - Previews",
-        "description": "Parses and extracts all Previews and Original media files",
+        "description": "Parses preview and original media files referenced in PreviewItem.db",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",

@@ -25,10 +25,10 @@ __artifacts_v2__ = {
         "description": "Wire messages, including message sender, associated user identifiers and message type",
         "author": "Elliot Glendye",
         "creation_date": "2024-01-21",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "",
         "category": "Business",
-        "notes": "",
+        "notes": "Rows with category 1 (undefined per the Wire source) are excluded. Unrecognized category values (including bitmask combinations) are reported as stored. Reference: Wire open source, wire-ios-data-model MessageCategory (OptionSet raw values), https://github.com/wireapp/wire-ios/blob/develop/wire-ios-data-model/Source/Model/Message/ZMMessage%2BCategorization.swift",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -143,10 +143,12 @@ def wireMessages(context):
         ZUSER.ZNAME AS 'Display Name',
         ZMESSAGE.ZNORMALIZEDTEXT AS 'Message',
         CASE ZMESSAGE.ZCACHEDCATEGORY
-            WHEN 0 THEN 'Audio / Video Call'
+            WHEN 0 THEN 'None (uncategorized)'
             WHEN 2 THEN 'Text Message'
-            WHEN 8 THEN 'Media Message'
+            WHEN 8 THEN 'Image Message'
             WHEN 256 THEN 'Location Message'
+            WHEN 2048 THEN 'System Message'
+            ELSE ZMESSAGE.ZCACHEDCATEGORY
         END AS 'Message Type',
         ZMESSAGE.ZDURATION AS 'Call Duration (seconds)'
     FROM ZMESSAGE

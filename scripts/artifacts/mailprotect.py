@@ -4,10 +4,11 @@ __artifacts_v2__ = {
         "description": "Apple Mail messages from the Envelope Index and Protected Index databases (iOS 13+)",
         "author": "@abrignoni - @stark4n6",
         "creation_date": "2020-05-07",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Apple Mail",
-        "notes": "Supports iOS 13 and later.",
+        "notes": ("Supports iOS 13 and later. The recipients.type = 1 = To mapping was "
+                  "established through testing; other type values are not decoded."),
         "paths": ('*/mobile/Library/Mail/* Index*',),
         "output_types": "standard",
         "artifact_icon": "mail",
@@ -34,10 +35,10 @@ __artifacts_v2__ = {
         "description": "RFC 822 headers of Apple Mail messages, including CC and BCC, read from the .emlx files in MessageData",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Apple Mail",
-        "notes": ("CC and BCC are not stored in the Envelope Index at all, only in the message files. "
+        "notes": ("In the examined corpora no CC/BCC recipients appeared in the Envelope Index recipients table. "
                   "The CC/BCC columns are parsed per RFC 822 but no message in the available test "
                   "corpora carries either header, so those two columns are unexercised."),
         "paths": ('*/mobile/Library/Mail/MessageData/*/*.emlx',),
@@ -60,9 +61,9 @@ from scripts.ilapfuncs import (artifact_processor, attach_sqlite_db_readonly,
                                get_sqlite_db_records, logfunc,
                                convert_unix_ts_to_utc)
 
-# Recipient rows are typed; only To recipients (type 1) are persisted here.
-# CC and BCC never reach this table, they live in the .emlx headers instead —
-# see the mailHeaders artifact.
+# Recipient rows are typed; only To recipients (type 1) are decoded here.
+# In the examined corpora no CC/BCC recipients appeared in this table; they
+# live in the .emlx headers instead — see the mailHeaders artifact.
 _RECIPIENT_TYPE_TO = 1
 
 # LEFT JOINs throughout on purpose. Joining subjects/addresses/summaries with
@@ -167,7 +168,7 @@ def _decode_header(value):
 @artifact_processor
 def mailHeaders(context):
     data_headers = (
-        ('Date Received', 'datetime'), 'From Address', 'To Address', 'CC', 'BCC', 'Reply To',
+        ('Date (from message Date header, UTC)', 'datetime'), 'From Address', 'To Address', 'CC', 'BCC', 'Reply To',
         'Subject', 'Date', 'Message ID', 'Return Path', 'List Unsubscribe',
         'Attachment Filenames', 'Global Message ID', 'Raw Headers', 'Source File')
     data_list = []

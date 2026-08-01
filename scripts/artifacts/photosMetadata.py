@@ -1,15 +1,23 @@
 __artifacts_v2__ = {
     "photosMetadata": {
         "name": "Photos.sqlite Metadata",
-        "description": "Comprehensive asset metadata from Photos.sqlite (per iOS version): "
-                       "timestamps, location/reverse-geocode, faces, moments, fingerprints and more.",
+        "description": "Comprehensive asset metadata from Photos.sqlite: "
+                       "timestamps, location/reverse-geocode, faces, moments, fingerprints and more. "
+                       "Supported schemas: iOS 12-14 queries; on newer iOS versions this artifact "
+                       "returns no rows (see the Ph* artifact series for current schemas).",
         "author": "",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Photos",
-        "notes": "Schema varies by iOS version; the matching query is selected automatically. "
-                 "Reverse-location bplists are written to the report folder.",
+        "notes": "Supported schemas: iOS 12-14 queries; on newer iOS versions this artifact returns "
+                 "no rows (see the Ph* artifact series for current schemas). The matching query is "
+                 "selected automatically. "
+                 "Reverse-location bplists are written to the report folder. "
+                 "Orientation labels correspond to EXIF orientation values. "
+                 "Reference: Scott Koenig, iOS_Local_PL_Photos.sqlite_Queries, "
+                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries and "
+                 "https://theforensicscooter.com/2022/02/21/photos-sqlite-update/",
         "paths": ('*/mobile/Media/PhotoData/Photos.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "photo",

@@ -6,17 +6,21 @@ __artifacts_v2__ = {
                        "recoverable and which are not.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
         "notes": "The main Notes artifact reports that a note is locked but not how it is locked. "
                  "This surfaces ZPASSWORDHINT and classifies the per-note crypto: a 24-byte "
-                 "wrapped key with a PBKDF2 iteration count is the documented scheme "
-                 "(PBKDF2-SHA256 -> AES Key Wrap -> AES-GCM) and is recoverable with the note "
-                 "password; a 16-byte wrapped key is the revised scheme seen from iOS 16 onward "
-                 "and is not recoverable with that method. The scheme tracks how the note was "
-                 "locked, not the iOS version, so both appear across the same releases. Note body "
-                 "and title stay encrypted; this artifact does not attempt to decrypt them.",
+                 "wrapped key with a PBKDF2 iteration count is the scheme described in the cited "
+                 "research (PBKDF2-SHA256 -> AES Key Wrap -> AES-GCM) and is recoverable with the "
+                 "note password per the cited research; hashcat mode 16200 targets these hashes. "
+                 "A 16-byte wrapped key is the revised scheme seen from iOS 16 onward "
+                 "and is not recoverable with that method. In tested samples the scheme "
+                 "correlated with how the note was locked rather than the iOS version, so both "
+                 "appear across the same releases. Note body "
+                 "and title stay encrypted; this artifact does not attempt to decrypt them. "
+                 "Reference: Ciofeca Forensics, 'Apple Notes Revisited: Encrypted Notes', "
+                 "https://www.ciofecaforensics.com/2020/07/31/apple-notes-revisited-encrypted-notes/",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "lock",

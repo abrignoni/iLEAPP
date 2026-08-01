@@ -60,10 +60,10 @@ __artifacts_v2__ = {
     },
     'googleVoiceContacts': {
         'name': 'Google Voice - Contacts',
-        'description': 'Phone numbers the Google Voice account exchanged messages or calls with',
+        'description': 'Phone numbers stored in the Google Voice threading database (participants)',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Google Voice',
         'notes': '',

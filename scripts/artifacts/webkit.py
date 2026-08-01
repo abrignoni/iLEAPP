@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Extracts detailed information from WebKit Network Cache record files",
         "author": "@JamesHabben",
         "creation_date": "2024-10-24",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Browser",
-        "notes": "",
+        "notes": "The cache record layout (timestamp, hash, response-code positions) was established through reverse engineering and is unverified against WebKit source; undeciphered fields are reported as U1-U8.",
         "paths": (
             '*/Library/Caches/WebKit/NetworkCache/Version*/salt',
             '*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*',
