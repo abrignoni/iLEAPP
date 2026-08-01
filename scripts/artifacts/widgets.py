@@ -73,7 +73,6 @@ def widgets(context):
         png_path = media_path.with_suffix((".png"))
         if save_ktx_to_png_if_valid(media_path, png_path):
             media_item = check_in_media(file_found, app_name, png_path)
-            print(f"file_found = [{file_found}], media_item = [{media_item}]")
         else:
             continue
 
