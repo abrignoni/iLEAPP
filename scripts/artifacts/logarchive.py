@@ -40,10 +40,14 @@ __artifacts_v2__ = {
         "description": "Identify time changes",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-22",
-        "last_update_date": "2025-05-22",
+        "last_update_date": "2026-08-01",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "2026-08-01: added the system 'Significant time change' broadcast "
+                 "(observed on iOS 18.7) and the timed manual-time-setting entries "
+                 "(TMSetManualTime / 'setting manual time'), which record a clock set by "
+                 "hand on the device. Manual-time patterns documented at "
+                 "https://www.ios-unifiedlogs.com/post/ios-unified-logs-don-t-trust-the-clock-timestamp.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -92,10 +96,18 @@ __artifacts_v2__ = {
         "description": "Airplane Mode",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-27",
-        "last_update_date": "2025-05-27",
+        "last_update_date": "2026-08-01",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "2026-08-01: added the SpringBoard 'Toggle AirPlane Mode state' and the "
+                 "Preferences/assistant 'Setting airplane mode enabled' forms, both "
+                 "observed on iOS 18.7; the logging process distinguishes a Control "
+                 "Center toggle from Settings or Siri "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode). "
+                 "The CoreTelephony 'isAirplaneMode' state reads described at "
+                 "https://thesisfriday.com/thesis-friday-13-aul-detecting-airplane-mode-activation-in-ios-26-beta/ "
+                 "are deliberately not collected: they are frequent state polls, not "
+                 "toggle events.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "wifi-off",
@@ -118,10 +130,15 @@ __artifacts_v2__ = {
         "description": "WiFi Status",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-28",
-        "last_update_date": "2025-05-28",
+        "last_update_date": "2026-08-01",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "2026-08-01: added wifid WFMacRandomisation entries (per-network MAC "
+                 "randomisation records, observed on iOS 18.7 and usable against router "
+                 "logs) and 'manual association' entries, which the cited research "
+                 "records when a network is picked by hand in Settings rather than "
+                 "auto-joined "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries).",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "wifi",
@@ -177,6 +194,329 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "map-pin",
+    },
+    # The artifacts below come from the 2026-08-01 unified log predicate survey.
+    # Every message pattern is either documented in a cited publication, observed
+    # in an iOS 18.7 (22H20) full file system image, or both; the per-artifact
+    # notes say which. Dynamic payloads in these messages are usually redacted to
+    # <private> on production devices, so the static message text is the signal.
+    "logarchive_calls": {
+        "name": "logarchive call events",
+        "description": "Unified log entries recording telephony activity: call tracking "
+                       "start and end from callservicesd, Phone app open requests with the "
+                       "originating process, Phone app tab changes, and keypad tone "
+                       "requests (actionID 1200-1209 map to keypad digits 0-9)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-making-a-call and "
+                 "https://www.ios-unifiedlogs.com/post/watchos-unified-logs-introduction-and-calls) "
+                 "and observed on iOS 18.7. The open-request entries name the process that "
+                 "asked for the call UI (touch, Siri, or a Bluetooth accessory). Keypad tone "
+                 "entries come from mediaserverd in the cited research and from audiomxd on "
+                 "iOS 18.7, and only appear when keypad sounds are enabled. Number payloads "
+                 "are redacted to <private>.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "phone",
+    },
+    "logarchive_typing": {
+        "name": "logarchive keyboard activity",
+        "description": "Unified log entries recording on-screen keyboard activity: "
+                       "keyboard touch signposts logged per app (category "
+                       "KeyboardSignposts) and keyboard sound requests for character "
+                       "(actionID 1104), delete (1155) and modifier (1156) keys",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Signpost entries documented at "
+                 "https://thesisfriday.com/thesis-friday-17-touch-events-on-the-ios-on-screen-keyboard/ "
+                 "(subsystem UIKitCore there; com.apple.TextInput on iOS 18.7). Sound-request "
+                 "actionID mapping documented at "
+                 "https://www.ios-unifiedlogs.com/post/ios-unified-logs-typing-and-sending-a-message-in-whatsapp; "
+                 "those entries require keyboard sounds to be enabled and name the client "
+                 "app. Text content is not recorded. High volume: over 200k signpost rows "
+                 "were observed in a single iOS 18.7 image, so this artifact is LAVA-only.",
+        "paths": None,
+        "output_types": "lava_only",
+        "artifact_icon": "type",
+    },
+    "logarchive_faceid_presence": {
+        "name": "logarchive Face ID sensor events",
+        "description": "Unified log entries from the Face ID camera stack recording "
+                       "sensor frames with face-detected, attention and glasses flags "
+                       "(PearlCamFrameReceived), face-to-device distance readings "
+                       "(getFaceDetectInfo), and SpringBoard face-in-view notices",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented at https://thesisfriday.com/thesis-friday-1-aul-faceid/ and "
+                 "https://thesisfriday.com/thesis-friday-12-aul-first-glance-at-ios-26/ "
+                 "(iOS 18.2.1 and iOS 26 beta); both entry families were also observed on "
+                 "iOS 18.7. Sensor-level entries record what the camera saw, not an unlock "
+                 "decision; pair with the lock status artifacts. High volume, LAVA-only.",
+        "paths": None,
+        "output_types": "lava_only",
+        "artifact_icon": "eye",
+    },
+    "logarchive_pocket_state": {
+        "name": "logarchive pocket state",
+        "description": "Unified log entries recording front infrared sensor pocket-state "
+                       "detection (Doppler in pocket state detected/cleared) and "
+                       "SpringBoard PocketState changes",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented by Ian Whiffin (https://doubleblak.com/blogPost.php?k=doppler) "
+                 "and Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
+                 "observed on iOS 18.7. Indicates the front sensor was obstructed (device "
+                 "face-down or stowed) versus clear; the cited research reports bursts of "
+                 "entries per obstruction period.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "moon",
+    },
+    "logarchive_touch": {
+        "name": "logarchive touchscreen events",
+        "description": "Unified log entries recording physical screen contact: digitizer "
+                       "contact presence transitions, per-app touch statistics windows "
+                       "(touchstats), touch attention events, and tap-to-wake",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented at https://thesisfriday.com/thesis-friday-14-aul-touch-events/ "
+                 "(iOS 18.5) and "
+                 "https://www.ios-unifiedlogs.com/news/ios-unified-logs-touching-the-iphone-screen; "
+                 "observed on iOS 18.7. Contact entries record finger presence on the "
+                 "digitizer, not which control was touched. High volume, LAVA-only.",
+        "paths": None,
+        "output_types": "lava_only",
+        "artifact_icon": "target",
+    },
+    "logarchive_usb_connections": {
+        "name": "logarchive USB and power connections",
+        "description": "Unified log entries recording external power and USB cable "
+                       "attach/detach: powerexperienced plugin state changes and kernel "
+                       "IOAccessoryUSBConnectShim cable-detect events",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented at "
+                 "https://thesisfriday.com/thesis-friday-9-aul-connecting-a-usb-cable/ and "
+                 "https://thesisfriday.com/thesis-friday-20-project-stark-forensic-reconstruction-of-the-carplay-handshake/; "
+                 "observed on iOS 18.7, where the shim entry reads 'AppleUSBCableDetect 1' "
+                 "rather than the documented VBUS/CON_DET form. These entries record cable "
+                 "presence, not what was connected; examiner acquisition also produces "
+                 "them.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "zap",
+    },
+    "logarchive_camera": {
+        "name": "logarchive camera capture",
+        "description": "Unified log entries from the Camera app and photo pipeline "
+                       "recording capture mode changes, moment capture begin/commit, "
+                       "still image capture, and assets being added to the photo library",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
+                 "the full chain (mode change, capture, asset added) was observed on "
+                 "iOS 18.7. Asset filenames (IMG_ names) appear in assetsd entries when "
+                 "not redacted.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "camera",
+    },
+    "logarchive_notifications": {
+        "name": "logarchive notification interactions",
+        "description": "Unified log entries recording interaction with notifications: "
+                       "removal of notification requests, group expansion, cell default "
+                       "actions (tap-through), long-look presentation, and reply actions",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries). "
+                 "Removal entries were observed on iOS 18.7; the tap-through, expansion and "
+                 "reply patterns are from the cited research and did not occur in the "
+                 "validation image's log window. Notification content is not recorded.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "bell",
+    },
+    "logarchive_app_focus": {
+        "name": "logarchive app focus and lifecycle",
+        "description": "Unified log entries recording which app held focus and lifecycle "
+                       "transitions: contextstored inFocus values, SpringBoard app "
+                       "bootstrap with launch intent, scene lifecycle changes, icon taps, "
+                       "and terminations from the app switcher",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-unlock and "
+                 "https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
+                 "observed on iOS 18.7. 'Bootstrapping ... with intent "
+                 "foreground-interactive' indicates a launch from a fully closed state; the "
+                 "iOS 16 form is 'Bootstrapping application<bundle>' and iOS 17+ is "
+                 "'Bootstrapping app<bundle>'. An empty inFocus value indicates return to "
+                 "the home screen. Complements the logarchive executed apps artifact.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "layers",
+    },
+    "logarchive_media_playback": {
+        "name": "logarchive media playback",
+        "description": "Unified log entries in the MediaRemote category recording "
+                       "now-playing state: originating app bundle id, playback state "
+                       "changes, and route information",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Category documented by Sarah Edwards "
+                 "(https://www.mac4n6.com/blog/2020/5/22/analysis-of-apple-unified-logs-quarantine-edition-entry-9-we-all-know-youre-binging-netflix-now-playing-on-your-apple-devices); "
+                 "observed on iOS 18.7. The cited research reports media duration, elapsed "
+                 "time, playback rate and AirPlay target names in these entries.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "play-circle",
+    },
+    "logarchive_sim_cellular": {
+        "name": "logarchive SIM and cellular state",
+        "description": "Unified log entries recording SIM slot status "
+                       "(kCTSIMSupportSIMStatus values), cellular data network type "
+                       "changes, and itunestored network type observations",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode); "
+                 "observed on iOS 18.7, including kCTSIMSupportSIMStatusNotInserted from "
+                 "the Preferences SIMCache. SIM status entries record slot state at "
+                 "logging time, not the moment a card was inserted or removed.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "radio",
+    },
+    "logarchive_unlock_auth": {
+        "name": "logarchive unlock sessions and method",
+        "description": "Unified log entries recording lock/unlock session durations (apsd "
+                       "'Was locked/unlocked for N seconds'), authentication requests with "
+                       "type and outcome, chronod locked-state transitions, keybag/APFS "
+                       "volume unlock, and locks from the side button",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-unlock) and "
+                 "https://thesisfriday.com/thesis-friday-12-aul-first-glance-at-ios-26/; "
+                 "observed on iOS 18.7. In 'Processed authentication request' entries the "
+                 "cited research maps type 1 to passcode and type 2 to biometric, and "
+                 "success=NO entries record failed attempts. Complements the logarchive "
+                 "lock status artifact with durations and method.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "unlock",
+    },
+    "logarchive_dictation": {
+        "name": "logarchive dictation",
+        "description": "Unified log entries recording keyboard dictation sessions: "
+                       "dictation start with language code, begin/end feedback events, "
+                       "and assistantd dictation-type audio record preparation",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented at "
+                 "https://www.ios-unifiedlogs.com/post/ios-unified-logs-the-use-of-the-dictaphone; "
+                 "observed on iOS 18.7. The CSAudioRecordTypeDictation entries distinguish "
+                 "keyboard dictation from Siri requests. Dictated content is not recorded.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "mic",
+    },
+    "logarchive_audio_routes": {
+        "name": "logarchive audio routes",
+        "description": "Unified log entries from the audio server recording output route "
+                       "configuration and changes (receiver, speaker, or a Bluetooth "
+                       "device) for calls and other audio sessions",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented at "
+                 "https://www.ios-unifiedlogs.com/news/ios-unified-logs-calls-and-audio-output; "
+                 "observed on iOS 18.7 from audiomxd. The cited research shows Bluetooth "
+                 "routes carrying the accessory MAC address in the route state.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "volume-2",
+    },
+    "logarchive_battery_state": {
+        "name": "logarchive battery state",
+        "description": "Unified log entries recording battery charge level changes posted "
+                       "by powerd and battery info updates from PowerUIAgent",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
+                 "observed on iOS 18.7. Complements the charger-connected entries in the "
+                 "logarchive artifacts filter with a charge-level timeline.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery-charging",
+    },
+    "logarchive_ui_navigation": {
+        "name": "logarchive interface navigation",
+        "description": "Unified log entries recording interface navigation between apps: "
+                       "Control Center launch and visibility, Today view overlay "
+                       "appearance, widget visibility changes, and home screen page "
+                       "scrolling",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
+                 "observed on iOS 18.7. These entries record deliberate interface "
+                 "interaction between app launches.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "grid",
     }
 }
 
@@ -487,6 +827,106 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%destination%'
         OR event_message LIKE '%At the light%'
         OR event_message LIKE '%Starting route to%'
+        -- Patterns below were added by the 2026-08-01 unified log predicate survey.
+        -- Each is documented in the source cited by the artifact that consumes it
+        -- (see __artifacts_v2__ notes) and, unless noted there, was observed in an
+        -- iOS 18.7 image. Grouped by consuming artifact.
+        -- logarchive_calls
+        OR event_message LIKE '%Started tracking call%'
+        OR event_message LIKE '%Dialed call%'
+        OR event_message LIKE '%Call started outgoing%'
+        OR event_message LIKE '%All calls ended%'
+        OR event_message LIKE '%Received trusted open application request%'
+        OR event_message LIKE '%Resuming to tab type%'
+        OR event_message LIKE '%tab bar tab changed%'
+        -- logarchive_calls (keypad tones) and logarchive_typing (key sounds); the
+        -- actionID space also carries other UI sounds, which stay in this table
+        -- for context without a dedicated artifact
+        OR event_message LIKE '%Incoming Request : actionID%'
+        -- logarchive_typing
+        OR category = 'KeyboardSignposts'
+        -- logarchive_faceid_presence
+        OR event_message LIKE '%PearlCamFrameReceived%'
+        OR event_message LIKE '%getFaceDetectInfo%'
+        OR event_message LIKE '%[User Presence Monitor]%'
+        -- logarchive_pocket_state
+        OR event_message LIKE '%Doppler in pocket state%'
+        OR event_message LIKE '%PocketState changed%'
+        -- logarchive_touch
+        OR event_message LIKE '%contact _ presence:%'
+        OR event_message LIKE '%touchstats%'
+        OR event_message LIKE '%received tapToWake%'
+        OR event_message LIKE '%AttentionAwareness.Touch%'
+        -- logarchive_usb_connections
+        OR event_message LIKE '%plugin state changed to%'
+        OR event_message LIKE '%IOAccessoryUSBConnectShim%'
+        -- logarchive_camera
+        OR event_message LIKE '%will change to: Photo%'
+        OR event_message LIKE '%MomentCapture%'
+        OR event_message LIKE '%Still image capture type%'
+        OR event_message LIKE '%IrisWillBeginCapture%'
+        OR event_message LIKE '%added photo to library%'
+        OR event_message LIKE '%added video to library%'
+        OR event_message LIKE '%Created asset IMG%'
+        -- logarchive_notifications
+        OR event_message LIKE '%removing notification request%'
+        OR event_message LIKE '%expanding notification group%'
+        OR event_message LIKE '%notification cell executing default action%'
+        OR event_message LIKE '%will present long look%'
+        OR event_message LIKE '%action reply for notification%'
+        -- logarchive_app_focus
+        OR event_message LIKE '%/device/app/inFocus%'
+        OR event_message LIKE '%Bootstrapping app<%'
+        OR event_message LIKE '%Bootstrapping application<%'
+        OR event_message LIKE '%killed from app switcher%'
+        OR event_message LIKE '%elementWithFocusBundleID changed%'
+        OR event_message LIKE '%Icon tapped%'
+        OR event_message LIKE '%Initiating launch from icon view%'
+        OR event_message LIKE '%Scene lifecycle state did change%'
+        -- logarchive_media_playback
+        OR category = 'MediaRemote'
+        -- logarchive_sim_cellular
+        OR event_message LIKE '%kCTSIMSupportSIMStatus%'
+        OR event_message LIKE '%dataNetwork changed to%'
+        OR event_message LIKE '%disabling dataNetwork%'
+        -- logarchive_unlock_auth
+        OR event_message LIKE '%Screen did unlock%'
+        OR event_message LIKE '%Processed authentication request%'
+        OR event_message LIKE '%Transition: locked ->%'
+        OR event_message LIKE '%apfs is being UN-locked%'
+        OR event_message LIKE '%lock button source%'
+        -- logarchive_dictation
+        OR event_message LIKE '%DictationConnection startDictation%'
+        OR event_message LIKE '%Dictation did begin%'
+        OR event_message LIKE '%Dictation did end%'
+        OR event_message LIKE '%CSAudioRecordTypeDictation%'
+        -- logarchive_audio_routes
+        OR event_message LIKE '%vaemConfigurePVMSettings%'
+        OR event_message LIKE '%vaemVADRouteChangeListener%'
+        OR event_message LIKE '%cmsmActivateEndpointFromRouteDescription%'
+        OR event_message LIKE '%currently activating endpoint%'
+        -- logarchive_battery_state
+        OR event_message LIKE '%Battery capacity change posted%'
+        OR event_message LIKE '%battery info changed to%'
+        -- logarchive_ui_navigation
+        OR event_message LIKE '%Control Center launched%'
+        OR event_message LIKE '%Control Center Visible%'
+        OR event_message LIKE '%Setting visibility of widget%'
+        OR event_message LIKE '%Today view overlay%'
+        OR event_message LIKE '%user-initiated scroll%'
+        -- logarchive_airplane_mode additions (Control Center and Settings/Siri
+        -- toggle forms; https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode)
+        OR event_message LIKE '%Toggle AirPlane Mode state%'
+        OR event_message LIKE '%Setting airplane mode enabled%'
+        -- logarchive_wifi_status additions (per-network MAC randomisation records
+        -- and hand-picked network joins; Notari SQL queries post)
+        OR event_message LIKE '%WFMacRandomisation%'
+        OR event_message LIKE '%manual association%'
+        -- logarchive_time_change additions (system time-shift broadcast and
+        -- on-device manual clock setting; Notari clock-trust post)
+        OR event_message LIKE '%Significant time change%'
+        OR event_message LIKE '%TMSetManualTime%'
+        OR event_message LIKE '%setting manual time%'
     '''
 
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -504,6 +944,10 @@ def logarchive_time_change(context):
     SELECT *
     FROM logarchive_artifacts
     WHERE event_message LIKE '%Time change: Clock shifted by%'
+        OR event_message LIKE '%Significant time change%'
+        -- Manual clock setting on the device; see the artifact notes for sourcing.
+        OR event_message LIKE '%TMSetManualTime%'
+        OR event_message LIKE '%setting manual time%'
     '''
     
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -609,6 +1053,9 @@ def logarchive_airplane_mode(context):
         OR event_message LIKE '%Setting airplane mode to false%'
         OR event_message LIKE '%Airplane mode now inactive%'
         OR event_message LIKE '%Airplane mode Disabled%'
+        -- Toggle forms observed on iOS 18.7; see the artifact notes for sourcing.
+        OR event_message LIKE '%Toggle AirPlane Mode state%'
+        OR event_message LIKE '%Setting airplane mode enabled%'
     '''
     
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -674,6 +1121,10 @@ def logarchive_wifi_status(context):
         OR event_message LIKE '%to list of known networks%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 2Ghz Channels found:%'
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
+        -- Per-network MAC randomisation records and hand-picked joins; see the
+        -- artifact notes for sourcing.
+        OR event_message LIKE '%WFMacRandomisation%'
+        OR event_message LIKE '%manual association%'
     '''
     
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -782,3 +1233,166 @@ def logarchive_navigation(context):
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
     return data_headers, data_list, source_path
+def _artifacts_table_records(context, where_clause):
+    """Rows from the logarchive_artifacts table matching where_clause.
+
+    Shared by the artifacts added in the 2026-08-01 predicate survey. Each one is a
+    filter over the table the logarchive_artifacts artifact materializes, exactly like
+    the older artifacts above; the WHERE fragment is the only thing that varies.
+    """
+    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
+    query = f'SELECT * FROM logarchive_artifacts WHERE {where_clause}'
+    data_list = list(get_sqlite_db_records(source_path, query))
+    return DATA_HEADERS, data_list, source_path
+
+@artifact_processor
+def logarchive_calls(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Started tracking call%'
+        OR event_message LIKE '%Dialed call%'
+        OR event_message LIKE '%Call started outgoing%'
+        OR event_message LIKE '%All calls ended%'
+        OR event_message LIKE '%Received trusted open application request%'
+        OR event_message LIKE '%Resuming to tab type%'
+        OR event_message LIKE '%tab bar tab changed%'
+        -- Keypad tones: actionID 1200-1209 map to keypad digits 0-9
+        OR event_message LIKE '%Incoming Request : actionID 120%'
+    ''')
+
+@artifact_processor
+def logarchive_typing(context):
+    return _artifacts_table_records(context, '''
+        category = 'KeyboardSignposts'
+        -- Keyboard sounds: 1104 character, 1155 delete, 1156 modifier
+        OR event_message LIKE '%Incoming Request : actionID 1104%'
+        OR event_message LIKE '%Incoming Request : actionID 1155%'
+        OR event_message LIKE '%Incoming Request : actionID 1156%'
+    ''')
+
+@artifact_processor
+def logarchive_faceid_presence(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%PearlCamFrameReceived%'
+        OR event_message LIKE '%getFaceDetectInfo%'
+        OR event_message LIKE '%[User Presence Monitor]%'
+    ''')
+
+@artifact_processor
+def logarchive_pocket_state(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Doppler in pocket state%'
+        OR event_message LIKE '%PocketState changed%'
+    ''')
+
+@artifact_processor
+def logarchive_touch(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%contact _ presence:%'
+        OR event_message LIKE '%touchstats%'
+        OR event_message LIKE '%received tapToWake%'
+        OR event_message LIKE '%AttentionAwareness.Touch%'
+    ''')
+
+@artifact_processor
+def logarchive_usb_connections(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%plugin state changed to%'
+        OR event_message LIKE '%IOAccessoryUSBConnectShim%'
+    ''')
+
+@artifact_processor
+def logarchive_camera(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%will change to: Photo%'
+        OR event_message LIKE '%MomentCapture%'
+        OR event_message LIKE '%Still image capture type%'
+        OR event_message LIKE '%IrisWillBeginCapture%'
+        OR event_message LIKE '%added photo to library%'
+        OR event_message LIKE '%added video to library%'
+        OR event_message LIKE '%Created asset IMG%'
+    ''')
+
+@artifact_processor
+def logarchive_notifications(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%removing notification request%'
+        OR event_message LIKE '%expanding notification group%'
+        OR event_message LIKE '%notification cell executing default action%'
+        OR event_message LIKE '%will present long look%'
+        OR event_message LIKE '%action reply for notification%'
+    ''')
+
+@artifact_processor
+def logarchive_app_focus(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%/device/app/inFocus%'
+        -- iOS 17+ and iOS 16 bootstrap forms respectively
+        OR event_message LIKE '%Bootstrapping app<%'
+        OR event_message LIKE '%Bootstrapping application<%'
+        OR event_message LIKE '%killed from app switcher%'
+        OR event_message LIKE '%elementWithFocusBundleID changed%'
+        OR event_message LIKE '%Icon tapped%'
+        OR event_message LIKE '%Initiating launch from icon view%'
+        OR event_message LIKE '%Scene lifecycle state did change%'
+    ''')
+
+@artifact_processor
+def logarchive_media_playback(context):
+    return _artifacts_table_records(context, '''
+        category = 'MediaRemote'
+    ''')
+
+@artifact_processor
+def logarchive_sim_cellular(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%kCTSIMSupportSIMStatus%'
+        OR event_message LIKE '%dataNetwork changed to%'
+        OR event_message LIKE '%disabling dataNetwork%'
+        OR event_message LIKE '%ISNetworkObserver: Set network type%'
+    ''')
+
+@artifact_processor
+def logarchive_unlock_auth(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Screen did unlock (Was locked for%'
+        OR event_message LIKE '%Screen did lock (Was unlocked for%'
+        OR event_message LIKE '%Processed authentication request%'
+        OR event_message LIKE '%Transition: locked ->%'
+        OR event_message LIKE '%apfs is being UN-locked%'
+        OR event_message LIKE '%lock button source%'
+    ''')
+
+@artifact_processor
+def logarchive_dictation(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%DictationConnection startDictation%'
+        OR event_message LIKE '%Dictation did begin%'
+        OR event_message LIKE '%Dictation did end%'
+        OR event_message LIKE '%CSAudioRecordTypeDictation%'
+    ''')
+
+@artifact_processor
+def logarchive_audio_routes(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%vaemConfigurePVMSettings%'
+        OR event_message LIKE '%vaemVADRouteChangeListener%'
+        OR event_message LIKE '%cmsmActivateEndpointFromRouteDescription%'
+        OR event_message LIKE '%currently activating endpoint%'
+    ''')
+
+@artifact_processor
+def logarchive_battery_state(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Battery capacity change posted%'
+        OR event_message LIKE '%battery info changed to%'
+    ''')
+
+@artifact_processor
+def logarchive_ui_navigation(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Control Center launched%'
+        OR event_message LIKE '%Control Center Visible%'
+        OR event_message LIKE '%Setting visibility of widget%'
+        OR event_message LIKE '%Today view overlay%'
+        OR event_message LIKE '%user-initiated scroll%'
+    ''')
