@@ -3,13 +3,21 @@ __artifacts_v2__ = {
         "name": "Sysdiagnose - Shutdown Log Processes",
         "description": "Parses the processes still running at shutdown from the shutdown.log file "
                        "in Sysdiagnose logs, based off work by Kaspersky Lab "
-                       "https://github.com/KasperskyLab/iShutdown",
+                       "https://github.com/KasperskyLab/iShutdown. Includes the shutdown delay "
+                       "each process appeared under and marks paths in directories that "
+                       "Kaspersky's research associates with mobile malware",
         "author": "@KevinPagano3",
         "creation_date": "2024-02-13",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "",
+        "notes": "The Location Indicator column marks processes running from /private/var/db/ "
+                 "or /private/var/tmp/. Kaspersky's analysis of Pegasus, Reign and Predator "
+                 "infections found their processes (e.g. 'rolexd', 'libtouchregd') delaying "
+                 "reboot from these directories "
+                 "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
+                 "Legitimate software can also run from these paths, so a mark is a lead to "
+                 "review, not a finding.",
         "paths": ('*/shutdown*.log',),
         "output_types": "standard",
         "artifact_icon": "power",
@@ -31,13 +39,20 @@ __artifacts_v2__ = {
     "sysShutdownReboots": {
         "name": "Sysdiagnose - Shutdown Log Reboots",
         "description": "Parses reboot events from the shutdown.log file in Sysdiagnose logs, based off "
-                       "work by Kaspersky Lab https://github.com/KasperskyLab/iShutdown",
+                       "work by Kaspersky Lab https://github.com/KasperskyLab/iShutdown. Includes "
+                       "the count of shutdown delay notices and the longest delay per reboot",
         "author": "@KevinPagano3",
         "creation_date": "2024-02-13",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "",
+        "notes": "Delay Notices counts the 'these clients are still here' messages logged "
+                 "before a reboot's SIGTERM. Kaspersky's research reports a handful per "
+                 "reboot as typical and treats counts above three or four as worth review, "
+                 "since processes resisting termination produced elevated counts on infected "
+                 "devices "
+                 "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
+                 "Elevated counts also occur for benign reasons.",
         "paths": ('*/shutdown*.log',),
         "output_types": "standard",
         "artifact_icon": "refresh",
@@ -63,8 +78,28 @@ import re
 from scripts.ilapfuncs import artifact_processor, convert_ts_int_to_utc, logfunc
 
 
+# Directories Kaspersky's iShutdown research associates with mobile malware
+# (Pegasus, Reign, Predator ran from these; see the artifact notes). Legitimate
+# software can also live here, so matches are surfaced, not judged.
+INDICATOR_DIRS = ('/private/var/db/', '/private/var/tmp/')
+
+
+def _path_indicator(path):
+    for prefix in INDICATOR_DIRS:
+        if path.startswith(prefix):
+            return f'path in {prefix}'
+    return ''
+
+
 def _parse_shutdown_logs(context):
-    """Parse shutdown.log(s): return (processes, reboots, joined sources). Times are UTC."""
+    """Parse shutdown.log(s): return (processes, reboots, joined sources). Times are UTC.
+
+    Per reboot block, the log records one or more 'After N s, these clients are
+    still here:' notices, each followed by the 'remaining client pid' lines that
+    were delaying shutdown, then a 'SIGTERM: [epoch]' line when logd flushed. A
+    process row keeps the delay of the notice it appeared under; a reboot row
+    keeps the notice count and the longest delay of its block.
+    """
     processes = []
     reboots = []
     sources = []
@@ -82,20 +117,34 @@ def _parse_shutdown_logs(context):
         entry_num = 1
         reboot_num = 1
         entries = []
+        current_delay = None
+        delay_notices = 0
+        longest_delay = None
         for line in lines:
+            delay_match = re.search(r'After ([0-9.]+)\s*s, these clients are still here', line)
+            if delay_match:
+                current_delay = float(delay_match.group(1))
+                delay_notices += 1
+                if longest_delay is None or current_delay > longest_delay:
+                    longest_delay = current_delay
+
             pid_match = re.search(r'remaining client pid: (\d+) \((.*?)\)', line)
             if pid_match:
-                entries.append(pid_match.groups())
+                entries.append(pid_match.groups() + (current_delay,))
 
             sigterm_match = re.search(r'SIGTERM: \[(\d+)\]', line)
             if sigterm_match:
                 reboot_time = convert_ts_int_to_utc(int(sigterm_match.group(1)))
-                reboots.append((reboot_time, reboot_num, rel))
+                reboots.append((reboot_time, reboot_num, delay_notices, longest_delay, rel))
                 reboot_num += 1
-                for pid, path in entries:
-                    processes.append((reboot_time, entry_num, pid, path, rel))
+                for pid, path, delay in entries:
+                    processes.append((reboot_time, entry_num, pid, path, delay,
+                                      _path_indicator(path), rel))
                     entry_num += 1
                 entries = []
+                current_delay = None
+                delay_notices = 0
+                longest_delay = None
         sources.append(rel)
 
     return processes, reboots, ', '.join(dict.fromkeys(sources))
@@ -103,13 +152,15 @@ def _parse_shutdown_logs(context):
 
 @artifact_processor
 def sysShutdownProcesses(context):
-    data_headers = (('Timestamp', 'datetime'), 'Entry Number', 'PID', 'Path', 'Source File')
+    data_headers = (('Timestamp', 'datetime'), 'Entry Number', 'PID', 'Path', 'Delay (s)',
+                    'Location Indicator', 'Source File')
     processes, _reboots, source_path = _parse_shutdown_logs(context)
     return data_headers, processes, source_path
 
 
 @artifact_processor
 def sysShutdownReboots(context):
-    data_headers = (('Timestamp', 'datetime'), 'Reboot Number', 'Source File')
+    data_headers = (('Timestamp', 'datetime'), 'Reboot Number', 'Delay Notices',
+                    'Longest Delay (s)', 'Source File')
     _processes, reboots, source_path = _parse_shutdown_logs(context)
     return data_headers, reboots, source_path
