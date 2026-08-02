@@ -321,20 +321,28 @@ __artifacts_v2__ = {
     "logarchive_usb_connections": {
         "name": "logarchive USB and power connections",
         "description": "Unified log entries recording external power and USB cable "
-                       "attach/detach: powerexperienced plugin state changes and kernel "
-                       "IOAccessoryUSBConnectShim cable-detect events",
+                       "attach/detach: powerexperienced plugin state changes, kernel "
+                       "IOAccessoryUSBConnectShim cable-detect events, and the kernel "
+                       "VBUS power and CON_DET physical-connection states",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-08-02",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented at "
                  "https://thesisfriday.com/thesis-friday-9-aul-connecting-a-usb-cable/ and "
                  "https://thesisfriday.com/thesis-friday-20-project-stark-forensic-reconstruction-of-the-carplay-handshake/; "
-                 "observed on iOS 18.7, where the shim entry reads 'AppleUSBCableDetect 1' "
-                 "rather than the documented VBUS/CON_DET form. These entries record cable "
-                 "presence, not what was connected; examiner acquisition also produces "
-                 "them.",
+                 "observed on iOS 18.7, where the shim also emits an 'AppleUSBCableDetect 1' "
+                 "form. The 'USB Power (VBUS) Present' pattern was added 2026-08-02 as "
+                 "version insurance, not as a fix: the cited CarPlay research, revised for "
+                 "iOS 26.6, quotes that line without the shim prefix and treats it as the "
+                 "most consistent connection marker, with 'Present: 0' the reliable detach "
+                 "signal while CON_DET can remain 1. On our images every VBUS line did "
+                 "carry the shim prefix and was therefore already collected (30 records on "
+                 "iOS 18.7, 40 on iOS 17.1, none without the prefix), so the pattern is "
+                 "redundant on those versions and only earns its place if a release drops "
+                 "the prefix. These entries record cable presence, not what was connected; "
+                 "examiner acquisition also produces them.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "zap",
@@ -643,6 +651,45 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "share",
+    },
+    "logarchive_carplay_session": {
+        "name": "logarchive CarPlay session",
+        "description": "Unified log entries recording the CarPlay connection sequence: "
+                       "the airplayd USB DirectLink notice that marks a wired session, "
+                       "CarKit session authentication and activation states, CarPlayApp "
+                       "vehicle identifier entries, and the wifid CarPlay session vehicle "
+                       "record carrying the reported model and manufacturer",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-02",
+        "last_update_date": "2026-08-02",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "NOT YET VALIDATED IN-HOUSE. Every pattern here comes from Tim Korver's "
+                 "CarPlay handshake research "
+                 "(https://thesisfriday.com/thesis-friday-20-project-stark-forensic-reconstruction-of-the-carplay-handshake/), "
+                 "which documents the sequence on iOS 26.6 (build 23G71, iPhone 14) after "
+                 "an earlier iOS 18 revision. None of it has been observed in our own test "
+                 "images, because none of them contain a CarPlay session. Sweeping the full "
+                 "marker set across complete iOS 17.1 and 18.7 extractions on 2026-08-02 "
+                 "returned zero for every pattern here, as did an earlier DirectLink and "
+                 "vehicle identifier sweep of an iOS 16.5 extraction; matches on "
+                 "'com.apple.carkit' and 'CarPlayApp' in those images are subsystem and "
+                 "process mentions in unrelated entries, not session markers. Treat output "
+                 "as unconfirmed until seen on a device known to have used CarPlay. Caveats "
+                 "from the source: the vehicle identifier is "
+                 "assigned by the device rather than read from the car, so it needs the "
+                 "surrounding session to attribute it to a vehicle; the CarKit session "
+                 "entries appear roughly a thousand times per session and carry their "
+                 "meaning in the isAuthenticated and isActivated values rather than the "
+                 "message; the FrontBoard bootstrap line appeared in only one of three "
+                 "runs and its absence shows nothing; the research covered one vehicle over "
+                 "wired USB, with first-time pairing and wireless sessions untested. The "
+                 "'Stark' subsystem the feature was built on no longer exists as of iOS "
+                 "26.6. Pair with the USB and power connections artifact, whose VBUS "
+                 "entries bracket a wired session.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "truck",
     }
 }
 
@@ -1094,6 +1141,19 @@ def logarchive_artifacts(context):
         -- button devices; home button press form is documented-only)
         OR event_message LIKE '%kAppleBiometricFinger%'
         OR event_message LIKE '%Home Button Was Pressed%'
+        -- logarchive_usb_connections addition: the kernel VBUS/CON_DET line the
+        -- CarPlay research calls the most consistent connect marker, and whose
+        -- 'VBUS) Present: 0' form is the reliable detach signal
+        OR event_message LIKE '%USB Power (VBUS) Present%'
+        -- logarchive_carplay_session. Documented-only, from the cited CarPlay
+        -- handshake research; not observed in any of our validation images, none
+        -- of which contain a CarPlay session. See the artifact notes.
+        OR event_message LIKE '%Found USB DirectLink%'
+        OR event_message LIKE '%session isAuthenticated%'
+        OR event_message LIKE '%vehicle ID%'
+        OR event_message LIKE '%Persisting widget state%'
+        OR event_message LIKE '%WiFiDeviceManagerSetCarPlaySessionState%'
+        OR event_message LIKE '%CarPlay session vehicle inform%'
     '''
 
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -1475,6 +1535,8 @@ def logarchive_usb_connections(context):
     return _artifacts_table_records(context, '''
         event_message LIKE '%plugin state changed to%'
         OR event_message LIKE '%IOAccessoryUSBConnectShim%'
+        -- Matches both the attach ('Present: 1') and detach ('Present: 0') forms
+        OR event_message LIKE '%USB Power (VBUS) Present%'
     ''')
 
 @artifact_processor
@@ -1624,4 +1686,17 @@ def logarchive_airdrop(context):
         OR event_message LIKE '%New incoming transfer%'
         OR event_message LIKE '%alertLog: idx:%'
         OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
+    ''')
+
+@artifact_processor
+def logarchive_carplay_session(context):
+    # Documented-only patterns; see the artifact notes for sourcing and caveats.
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Found USB DirectLink%'
+        OR event_message LIKE '%session isAuthenticated%'
+        OR event_message LIKE '%vehicle ID%'
+        OR event_message LIKE '%Persisting widget state%'
+        OR event_message LIKE '%WiFiDeviceManagerSetCarPlaySessionState%'
+        OR event_message LIKE '%CarPlay session vehicle inform%'
+        OR event_message LIKE '%CarPlay Connection Event%'
     ''')
