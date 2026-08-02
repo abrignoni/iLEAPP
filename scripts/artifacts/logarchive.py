@@ -138,7 +138,12 @@ __artifacts_v2__ = {
                  "logs) and 'manual association' entries, which the cited research "
                  "records when a network is picked by hand in Settings rather than "
                  "auto-joined "
-                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries).",
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries). "
+                 "Also added, observed on iOS 16.5/17.1: keychain password retrieval "
+                 "(WiFiNetworkCopyPasswordWithTimeout), '{AUTOJOIN, ASSOC*} Attempting "
+                 "auto join association of <SSID>' with the network name in the clear, "
+                 "'Link went down', and per-network 'Total connection time' entries "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode).",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "wifi",
@@ -247,21 +252,29 @@ __artifacts_v2__ = {
         "artifact_icon": "type",
     },
     "logarchive_faceid_presence": {
-        "name": "logarchive Face ID sensor events",
-        "description": "Unified log entries from the Face ID camera stack recording "
-                       "sensor frames with face-detected, attention and glasses flags "
+        "name": "logarchive biometric sensor events",
+        "description": "Unified log entries from biometric sensor stacks: Face ID camera "
+                       "frames with face-detected, attention and glasses flags "
                        "(PearlCamFrameReceived), face-to-device distance readings "
-                       "(getFaceDetectInfo), and SpringBoard face-in-view notices",
+                       "(getFaceDetectInfo), SpringBoard face-in-view notices, and Touch ID "
+                       "finger-on/finger-off events on home button devices",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
         "last_update_date": "2026-08-01",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Documented at https://thesisfriday.com/thesis-friday-1-aul-faceid/ and "
+        "notes": "Face ID entries documented at "
+                 "https://thesisfriday.com/thesis-friday-1-aul-faceid/ and "
                  "https://thesisfriday.com/thesis-friday-12-aul-first-glance-at-ios-26/ "
                  "(iOS 18.2.1 and iOS 26 beta); both entry families were also observed on "
-                 "iOS 18.7. Sensor-level entries record what the camera saw, not an unlock "
-                 "decision; pair with the lock status artifacts. High volume, LAVA-only.",
+                 "iOS 18.7. Touch ID kAppleBiometricFingerOn/OffEvent kernel entries "
+                 "documented at "
+                 "https://thesisfriday.com/thesis-friday-10-artefacts-on-a-iphone-6-ios-12-5-7/ "
+                 "(iOS 12.5.7) and observed on an iPhone 8 Plus running iOS 16.5; the "
+                 "same source's home button press entries were not observed there and are "
+                 "collected as documented-only. Sensor-level entries record what the "
+                 "sensor saw, not an unlock decision; pair with the lock status "
+                 "artifacts. High volume, LAVA-only.",
         "paths": None,
         "output_types": "lava_only",
         "artifact_icon": "eye",
@@ -517,6 +530,119 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "grid",
+    },
+    # The artifacts below extend the 2026-08-01 survey with patterns that did not
+    # occur on the first validation image and were confirmed against two more:
+    # an iPhone 8 Plus on iOS 16.5 (CTF device with staged usage) and an
+    # iPhone 11 Pro on iOS 17.1.
+    "logarchive_driving": {
+        "name": "logarchive driving state",
+        "description": "Unified log entries recording vehicular motion classification: "
+                       "wifid CMMotionActivity driving start/stop, locationd vehicular "
+                       "episode markers, Driving Focus engagement, and the "
+                       "pedestrian-after-driving motion alarm",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented at https://www.ios-unifiedlogs.com/post/ios-unified-logs-driving; "
+                 "observed on iOS 16.5 and 17.1. The cited research cautions that these "
+                 "entries do not distinguish driver from passenger and that their absence "
+                 "shows nothing. The motion classification also fires on other transport. "
+                 "Complements the motion state transitions artifact.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "truck",
+    },
+    "logarchive_bluetooth_pairing": {
+        "name": "logarchive bluetooth pairing",
+        "description": "Unified log entries recording device discovery and pairing: "
+                       "bluetoothd CBDevice discovery records carrying accessory name, "
+                       "Bluetooth address and product identifiers, plus pairing session "
+                       "lifecycle entries",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Pairing sequence documented at "
+                 "https://www.ios-unifiedlogs.com/news/bluetooth-pairing. 'Device found: "
+                 "CBDevice' records (with accessory names and addresses in the clear) and "
+                 "rapportd 'Pairing completed' entries were observed on iOS 16.5/17.1; the "
+                 "cited bluetoothd forms for pairing start, numeric comparison and SDP are "
+                 "collected as documented-only since no new pairing occurred in the "
+                 "validation images' log windows. Complements the bluetooth status "
+                 "artifact, which covers connect/disconnect of known devices.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "bluetooth",
+    },
+    "logarchive_emergency_sos": {
+        "name": "logarchive emergency SOS engine",
+        "description": "Unified log entries from sosd recording SOS engine status "
+                       "broadcasts and flow state, including the paired-device trigger "
+                       "entry",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented at "
+                 "https://thesisfriday.com/thesis-friday-19-emergency-sos-decoding-the-cross-device-help-handshake/. "
+                 "Status broadcasts and flow entries were observed on iOS 16.5 and 17.1 "
+                 "on devices with no known SOS use, so their presence alone does not "
+                 "show an SOS call; the payloads are redacted to <private>. The "
+                 "sosTriggeredOnPairedDevice entry (documented from a paired Apple Watch "
+                 "trigger) is collected as documented-only. Complements the SOS claw "
+                 "gesture entries in the logarchive artifacts filter.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "alert-triangle",
+    },
+    "logarchive_power_events": {
+        "name": "logarchive power events",
+        "description": "Unified log entries marking device boot and shutdown: the kernel "
+                       "iBoot version line logged at startup, the SpringBoard "
+                       "orientation-deferral shutdown notice, and locationd shutting down",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented at https://www.ios-unifiedlogs.com/post/ios-unified-logs-unlock "
+                 "and the same author's SQL queries post; all three entry families "
+                 "observed on iOS 16.5 and 17.1. The iBoot line marks a boot; the "
+                 "SpringBoard and locationd lines mark orderly shutdowns. Pair with the "
+                 "Sysdiagnose shutdown.log artifacts, which record reboot times and the "
+                 "processes delaying them.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "power",
+    },
+    "logarchive_airdrop": {
+        "name": "logarchive AirDrop",
+        "description": "Unified log entries from sharingd's AirDrop and share sheet "
+                       "categories: the device's rotating AirDrop ID, discoverability "
+                       "scanning mode (Everyone/Contacts Only/Off), SharingDaemon state "
+                       "dumps, share sheet activation, and transfer entries",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-01",
+        "last_update_date": "2026-08-01",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Documented by Sarah Edwards "
+                 "(https://www.mac4n6.com/blog/2020/6/5/analysis-of-apple-unified-logs-quarantine-edition-entry-11-airdropping-some-knowledge). "
+                 "'Current AirDrop ID is ...' (identifier in the clear), 'Scanning mode "
+                 "Contacts Only' and SharingDaemon state dumps were observed on iOS 17.1, "
+                 "and share sheet activation with 'startSending' on iOS 18.7. The "
+                 "incoming-transfer and accept/decline entries are collected as "
+                 "documented-only; no transfer occurred in the validation images' log "
+                 "windows. AirDrop IDs rotate, so an ID ties activity together only "
+                 "within a session.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "share",
     }
 }
 
@@ -741,7 +867,10 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%{AUTOJOIN, SCAN*} Scanning 5Ghz Channels found:%'
         OR event_message LIKE '%ATXModeDrivingFeaturizer: Driving mode%'
         OR event_message LIKE '%ATXModeCorrelatedAppsDataSource: user%'
-        OR event_message LIKE '%VEHICULAR:vehicularStartTime%'
+        -- The observed locationd form is 'VEHICULAR: vehicularStartTime' with a
+        -- space after the colon, which the original unspaced pattern missed; the
+        -- bare token matches both.
+        OR event_message LIKE '%vehicularStartTime%'
         OR event_message LIKE '%Handling com.apple.vehiclePolicy.DNDMode notification%'
         OR event_message LIKE '%Get mode configuration, identifier=com.apple.donotdisturb.mode.driving%'
         OR event_message LIKE '%Engaging Driving%'
@@ -927,6 +1056,44 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Significant time change%'
         OR event_message LIKE '%TMSetManualTime%'
         OR event_message LIKE '%setting manual time%'
+        -- Patterns below were confirmed against iOS 16.5 and 17.1 images where
+        -- the corresponding events occurred; grouped by consuming artifact.
+        -- logarchive_driving (Engaging Driving, DND driving mode and
+        -- ATXModeDrivingFeaturizer are already collected above)
+        OR event_message LIKE '%MotionState: Driving%'
+        OR event_message LIKE '%PedestrianAfterDriving%'
+        -- logarchive_bluetooth_pairing
+        OR event_message LIKE '%Device found: CBDevice%'
+        OR event_message LIKE '%pairing complete%'
+        OR event_message LIKE '%pairing started%'
+        OR event_message LIKE '%numeric comparison%'
+        OR event_message LIKE '%Running SDP%'
+        -- logarchive_emergency_sos
+        OR event_message LIKE '%broadcasting SOSStatus%'
+        OR event_message LIKE '%flowStartedOnEitherDevice%'
+        OR event_message LIKE '%sosTriggeredOnPairedDevice%'
+        -- logarchive_power_events
+        OR event_message LIKE '%iBoot version%'
+        OR event_message LIKE '%Deferring device orientation updates for reason: shutdown%'
+        OR event_message LIKE '%locationd shutting down%'
+        -- logarchive_airdrop
+        OR event_message LIKE '%AirDrop ID%'
+        OR event_message LIKE '%SharingDaemon State%'
+        OR event_message LIKE '%Scanning mode%'
+        OR event_message LIKE '%startSending%'
+        OR event_message LIKE '%New incoming transfer%'
+        OR event_message LIKE '%alertLog: idx:%'
+        OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
+        -- logarchive_wifi_status additions (password retrieval, auto-join with
+        -- SSID in the clear, link loss, session duration)
+        OR event_message LIKE '%Copy password for Network%'
+        OR event_message LIKE '%Attempting auto join association%'
+        OR event_message LIKE '%Link went down%'
+        OR event_message LIKE '%Total connection time%'
+        -- logarchive_faceid_presence additions (Touch ID sensor events on home
+        -- button devices; home button press form is documented-only)
+        OR event_message LIKE '%kAppleBiometricFinger%'
+        OR event_message LIKE '%Home Button Was Pressed%'
     '''
 
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -1125,6 +1292,12 @@ def logarchive_wifi_status(context):
         -- artifact notes for sourcing.
         OR event_message LIKE '%WFMacRandomisation%'
         OR event_message LIKE '%manual association%'
+        -- Keychain password retrieval, auto-join with SSID in the clear, link
+        -- loss and per-network session duration; see the artifact notes.
+        OR event_message LIKE '%Copy password for Network%'
+        OR event_message LIKE '%Attempting auto join association%'
+        OR event_message LIKE '%Link went down%'
+        OR event_message LIKE '%Total connection time%'
     '''
     
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -1275,6 +1448,10 @@ def logarchive_faceid_presence(context):
         event_message LIKE '%PearlCamFrameReceived%'
         OR event_message LIKE '%getFaceDetectInfo%'
         OR event_message LIKE '%[User Presence Monitor]%'
+        -- Touch ID sensor events on home button devices; the home button press
+        -- form is documented-only (see artifact notes)
+        OR event_message LIKE '%kAppleBiometricFinger%'
+        OR event_message LIKE '%Home Button Was Pressed%'
     ''')
 
 @artifact_processor
@@ -1395,4 +1572,56 @@ def logarchive_ui_navigation(context):
         OR event_message LIKE '%Setting visibility of widget%'
         OR event_message LIKE '%Today view overlay%'
         OR event_message LIKE '%user-initiated scroll%'
+    ''')
+
+@artifact_processor
+def logarchive_driving(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%MotionState: Driving%'
+        OR event_message LIKE '%vehicularStartTime%'
+        OR event_message LIKE '%PedestrianAfterDriving%'
+        OR event_message LIKE '%Engaging Driving%'
+        OR event_message LIKE '%com.apple.donotdisturb.mode.driving%'
+        OR event_message LIKE '%ATXModeDrivingFeaturizer%'
+    ''')
+
+@artifact_processor
+def logarchive_bluetooth_pairing(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Device found: CBDevice%'
+        -- Matches rapportd 'Pairing completed' and the documented bluetoothd
+        -- 'pairing complete' event form
+        OR event_message LIKE '%pairing complete%'
+        -- Documented-only below; no new pairing occurred in the validation images
+        OR event_message LIKE '%pairing started%'
+        OR event_message LIKE '%numeric comparison%'
+        OR event_message LIKE '%Running SDP%'
+    ''')
+
+@artifact_processor
+def logarchive_emergency_sos(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%broadcasting SOSStatus%'
+        OR event_message LIKE '%flowStartedOnEitherDevice%'
+        OR event_message LIKE '%sosTriggeredOnPairedDevice%'
+    ''')
+
+@artifact_processor
+def logarchive_power_events(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%iBoot version%'
+        OR event_message LIKE '%Deferring device orientation updates for reason: shutdown%'
+        OR event_message LIKE '%locationd shutting down%'
+    ''')
+
+@artifact_processor
+def logarchive_airdrop(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%AirDrop ID%'
+        OR event_message LIKE '%SharingDaemon State%'
+        OR event_message LIKE '%Scanning mode%'
+        OR event_message LIKE '%startSending%'
+        OR event_message LIKE '%New incoming transfer%'
+        OR event_message LIKE '%alertLog: idx:%'
+        OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
     ''')
