@@ -445,5 +445,122 @@ class PowerlogLocalTest(LocalCorpusTestCase):
             self.assert_matches(row[1], r'^(Yes|No|\d+)$', 'Active')
 
 
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class TelegramLocalTest(LocalCorpusTestCase):
+    """Structural checks for the Telegram accounts/contacts/settings artifacts.
+
+    These artifacts route files by their path tails (account-<id>/postbox vs
+    accounts-metadata), so fetched files keep their trailing directories
+    instead of being flattened into the temp directory.
+    """
+
+    # Tail patterns to mirror out of the image, with -wal/-shm companions so
+    # recent rows are not lost for databases mid-checkpoint.
+    TAILS = (
+        re.compile(r'telegram-data/account-\d+/postbox/db/db_sqlite(-wal|-shm)?$'),
+        re.compile(r'telegram-data/accounts-metadata/db/db_sqlite(-wal|-shm)?$'),
+        re.compile(r'telegram-data/accounts-metadata/atomic-state$'),
+    )
+    TAIL_ANCHOR = 'telegram-data/'
+
+    def setUp(self):
+        super().setUp()
+        self.paths = self.fetch_tree()
+        if not any(p.replace(os.sep, '/').endswith('/postbox/db/db_sqlite')
+                   for p in self.paths):
+            self.skipTest(f'no Telegram postbox database in {LOCAL_IMAGE}')
+
+    def fetch_tree(self):
+        """Copy matching files out of the image, keeping the telegram-data tail."""
+        found = []
+        source = Path(LOCAL_IMAGE)
+
+        def keep(name):
+            normalized = name.replace(os.sep, '/')
+            return any(tail.search(normalized) for tail in self.TAILS)
+
+        def destination_for(name):
+            normalized = name.replace(os.sep, '/')
+            tail = normalized[normalized.rindex(self.TAIL_ANCHOR):]
+            destination = Path(self.temp_dir.name) / tail
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            return destination
+
+        if source.is_dir():
+            for candidate in source.rglob('*'):
+                name = str(candidate)
+                if candidate.is_file() and self.TAIL_ANCHOR in name.replace(os.sep, '/') \
+                        and keep(name):
+                    destination = destination_for(name)
+                    shutil.copy2(candidate, destination)
+                    found.append(str(destination))
+        else:
+            with zipfile.ZipFile(source) as archive:
+                for name in archive.namelist():
+                    if self.TAIL_ANCHOR in name and keep(name):
+                        destination = destination_for(name)
+                        with archive.open(name) as member, \
+                                open(destination, 'wb') as out:
+                            shutil.copyfileobj(member, out)
+                        found.append(str(destination))
+        return found
+
+    def test_accounts_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramAccounts
+        headers, rows, _ = telegramAccounts.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramAccounts parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_matches(row[1], r'^\d+$', 'Account ID')
+            self.assert_matches(row[2], r'^(Yes|)$', 'Active Account')
+            if row[3]:
+                self.assert_matches(row[3], r'^\d+$', 'User ID')
+            if row[4]:
+                self.assert_matches(row[4], r'^(Production|Test)$', 'Environment')
+
+    def test_contacts_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramContacts
+        headers, rows, _ = telegramContacts.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramContacts parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_matches(row[0], r'^\d+$', 'Account ID')
+            self.assert_matches(row[1], r'^-?\d+$', 'Peer ID')
+            self.assert_matches(
+                row[2], r'^(User|Group|Channel|Secret Chat|Unknown)$', 'Type')
+            self.assertIsInstance(row[8], int)      # Messages In Chat
+            self.assertGreaterEqual(row[8], 0)
+            self.assert_matches(row[9], r'^(Yes|)$', 'In Spotlight Cache')
+
+    def test_settings_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramSettings
+        headers, rows, _ = telegramSettings.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramSettings parsed no rows')
+        self.assert_row_shape(headers, rows)
+        settings_seen = set()
+        for row in rows:
+            self.assert_matches(row[0], r'^(Shared|Account \d+)$', 'Scope')
+            self.assertIsInstance(row[3], int)      # Key ID
+            self.assertTrue(row[2], 'empty settings value')
+            settings_seen.add(row[3])
+        # The headline settings are reported even when the user never changed
+        # them, so their key IDs are always present for each store that exists.
+        self.assertIn(1020, settings_seen)          # save to Photos (per account)
+        if any(p.replace(os.sep, '/').endswith('/accounts-metadata/db/db_sqlite')
+               for p in self.paths):
+            self.assertIn(1002, settings_seen)      # media auto-download (shared)
+
+
+class _ListContext(_Context):
+    """A context over several found files, as multi-path artifacts receive."""
+
+    def __init__(self, paths):     # pylint: disable=super-init-not-called
+        self.paths = [str(p) for p in paths]
+
+    def get_files_found(self):
+        return self.paths
+
+
 if __name__ == '__main__':
     unittest.main()
