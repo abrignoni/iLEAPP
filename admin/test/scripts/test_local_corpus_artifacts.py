@@ -34,7 +34,8 @@ from scripts.artifacts.locationdCacheEncryptedB import locationdCellLocations, \
     locationdWifiHarvest, locationdWifiLocations, locationdWifiTiles
 from scripts.artifacts.powerlog import powerlogApplicationRuntime, powerlogAppState, \
     powerlogAudioRouting, powerlogBatteryLevel, powerlogDeviceLock, \
-    powerlogDevicePowerState, powerlogDisplayState
+    powerlogDevicePowerState, powerlogDisplayState, powerTelemetryBatteryDataDaily, \
+    powerTelemetrySmartCharging
 from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
@@ -443,6 +444,37 @@ class PowerlogLocalTest(LocalCorpusTestCase):
     def test_audio_routing_structure(self):
         for row in self.run_artifact(powerlogAudioRouting):
             self.assert_matches(row[1], r'^(Yes|No|\d+)$', 'Active')
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class PowerTelemetryLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/PerfPowerTelemetry/ExtendedPersistence/CurrentLog.EPSQL'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+
+    def run_artifact(self, func):
+        headers, rows, _ = func.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            if row[-2] is not None:
+                self.assertIsInstance(row[-2], int)   # applied offset
+        return rows
+
+    def test_battery_data_daily_structure(self):
+        for row in self.run_artifact(powerTelemetryBatteryDataDaily):
+            if row[1] is not None:
+                self.assertGreaterEqual(row[1], 0)    # Cycle Count
+            if row[2] is not None:
+                self.assertTrue(0 <= row[2] <= 120,
+                                f'max capacity shape {_redact(row[2])}')
+
+    def test_smart_charging_structure(self):
+        self.run_artifact(powerTelemetrySmartCharging)
 
 
 @unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')

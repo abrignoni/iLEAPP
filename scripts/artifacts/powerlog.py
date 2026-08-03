@@ -872,6 +872,300 @@ __artifacts_v2__ = {
             "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 3 rows",
         },
     },
+    "powerTelemetryBatteryDataDaily": {
+        "name": "Power Telemetry - Battery Data Daily",
+        "description": "Daily battery data samples recorded in the PerfPowerTelemetry "
+                       "extended persistence log (BatteryDataCollection_BDC_Daily table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "Power Telemetry",
+        "notes": (
+            "CycleCount, MaxCapacityPercent, NominalChargeCapacity, and "
+            "ChargingVoltage are reported as stored; no units are asserted. "
+            "MaxCapacityPercent is absent from iOS 15/16 schemas and reported "
+            "empty there. In test data rows spanned more than a year on one "
+            "device. "
+            "Raw timestamp values are adjusted using the time-offset table in "
+            "this log (PPTStorageOperator_TimeOffset; its retention suffix "
+            "varies by iOS version) and the applied offset is reported per row; "
+            "see the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/PerfPowerTelemetry/*/*.EPSQL*",
+            "*/powerlogs/*.EPSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "battery",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 48 rows",
+            "hickman_ios15": "iOS 15 | 77 rows",
+            "magnet_ios16": "iOS 16.1.1 | 93 rows",
+            "abe_ios16": "iOS 16.5 | 208 rows",
+            "felix23_ios16": "iOS 16.5 | 245 rows",
+            "fsfull002_ios17": "iOS 17.1 | 193 rows",
+            "iphone11_ios17": "iOS 17.3 | 598 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 608 rows",
+            "otto_ios17": "iOS 17.5.1 | 110 rows",
+            "felix_ios17": "iOS 17.6.1 | 58 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 52 rows",
+            "dexter_ios18": "iOS 18.3.2 | 82 rows",
+            "iphone12_ios18": "iOS 18.7 | 46 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 225 rows",
+            "hc_ios26": "iOS 26 | 15 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 26 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 1349 rows",
+        },
+    },
+    "powerTelemetrySmartCharging": {
+        "name": "Power Telemetry - Smart Charging",
+        "description": "Smart charging state samples recorded in the PerfPowerTelemetry "
+                       "extended persistence log (BatteryDataCollection_BDC_SmartCharging "
+                       "table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "Power Telemetry",
+        "notes": (
+            "ChargeLimit, ChargingState, CheckPoint, DecisionMaker, InflowState, "
+            "and ModeOfOperation are integer codes reported as stored; their "
+            "meanings are not decoded here. DecisionMaker is absent from iOS 16 "
+            "schemas and reported empty there. "
+            "Raw timestamp values are adjusted using the time-offset table in "
+            "this log (PPTStorageOperator_TimeOffset; its retention suffix "
+            "varies by iOS version) and the applied offset is reported per row; "
+            "see the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/PerfPowerTelemetry/*/*.EPSQL*",
+            "*/powerlogs/*.EPSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+            "abe_ios16": "iOS 16.5 | 160 rows",
+            "felix23_ios16": "iOS 16.5 | 26 rows",
+            "fsfull002_ios17": "iOS 17.1 | 49 rows",
+            "iphone11_ios17": "iOS 17.3 | 241 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 247 rows",
+            "otto_ios17": "iOS 17.5.1 | 442 rows",
+            "felix_ios17": "iOS 17.6.1 | 38 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 12 rows",
+            "dexter_ios18": "iOS 18.3.2 | 160 rows",
+            "iphone12_ios18": "iOS 18.7 | 75 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 189 rows",
+            "hc_ios26": "iOS 26 | 17 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 26 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 3525 rows",
+        },
+    },
+    "powerTelemetryBatteryHardware": {
+        "name": "Power Telemetry - Battery Hardware Data",
+        "description": "Battery hardware data rows recorded in the PerfPowerTelemetry "
+                       "extended persistence log (BatteryDataCollection_BDC_Once table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "Power Telemetry",
+        "notes": (
+            "DesignCapacity, ChemID, AlgoChemID, EEEE, YWW, and "
+            "GasGaugeFirmwareVersion are reported as stored; no interpretation "
+            "is applied. Test images held at most two rows each. "
+            "Raw timestamp values are adjusted using the time-offset table in "
+            "this log (PPTStorageOperator_TimeOffset; its retention suffix "
+            "varies by iOS version) and the applied offset is reported per row; "
+            "see the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/PerfPowerTelemetry/*/*.EPSQL*",
+            "*/powerlogs/*.EPSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "settings",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 1 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 1 rows",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 1 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 2 rows",
+        },
+    },
+    "powerTelemetryBatteryTrustedDaily": {
+        "name": "Power Telemetry - Battery Trusted Data Daily",
+        "description": "Daily trusted battery data samples recorded in the "
+                       "PerfPowerTelemetry extended persistence log "
+                       "(BatteryTrustedData_Daily table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "Power Telemetry",
+        "notes": (
+            "TrustedCycleCount, TrustedMaximumCapacity, and TrustedLifeTimeMaxWRdc "
+            "are reported as stored. TrustedDateOfFirstUse decodes as a standard "
+            "Unix timestamp, unlike the offset-skewed timestamp column: on two "
+            "validation devices it held one stable calendar date each, preceding "
+            "every daily sample. The table exists on iOS 18+ test images only; one "
+            "validation device carried a full year of daily rows. "
+            "Raw timestamp values are adjusted using the time-offset table in "
+            "this log (PPTStorageOperator_TimeOffset; its retention suffix "
+            "varies by iOS version) and the applied offset is reported per row; "
+            "see the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/PerfPowerTelemetry/*/*.EPSQL*",
+            "*/powerlogs/*.EPSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "clock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 42 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 364 rows",
+        },
+    },
+    "powerTelemetryBackgroundTaskInstances": {
+        "name": "Power Telemetry - Background Task Instances",
+        "description": "Background task execution records from the PerfPowerTelemetry "
+                       "background processing log (BackgroundProcessing_TaskInstanceData "
+                       "table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "Power Telemetry",
+        "notes": (
+            "StartDate and EndDate hold standard Unix timestamps as stored; the "
+            "row timestamp runs on the internal clock and is offset-corrected "
+            "here, and on validation data the corrected value aligns with "
+            "StartDate in the same rows. StartedOnBattery holds 0/1, reported "
+            "as No/Yes. Observed only in iOS 26 test data; iOS 18 background "
+            "processing logs exist without this table. "
+            "Raw timestamp values are adjusted using the time-offset table in "
+            "this log (BackgroundProcessing_TimeOffset) and the applied offset "
+            "is reported per row; see the PowerLog - Application Runtime notes "
+            "for the mechanism."
+        ),
+        "paths": (
+            "*/PerfPowerTelemetry/*/*.BGSQL*",
+            "*/powerlogs/*.BGSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 15297 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 26912 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 109132 rows",
+        },
+    },
+    "powerTelemetryBackgroundTaskMetadata": {
+        "name": "Power Telemetry - Background Task Metadata",
+        "description": "Background task registrations from the PerfPowerTelemetry "
+                       "background processing log (BackgroundProcessing_TaskMetadata table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "Power Telemetry",
+        "notes": (
+            "BundleID, Name, ServiceName, GroupName, and LaunchReason are "
+            "reported as recorded. Observed only in iOS 26 test data; iOS 18 "
+            "background processing logs exist without this table. "
+            "Raw timestamp values are adjusted using the time-offset table in "
+            "this log (BackgroundProcessing_TimeOffset) and the applied offset "
+            "is reported per row; see the PowerLog - Application Runtime notes "
+            "for the mechanism."
+        ),
+        "paths": (
+            "*/PerfPowerTelemetry/*/*.BGSQL*",
+            "*/powerlogs/*.BGSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 2092 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 2591 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 1623 rows",
+        },
+    },
 }
 
 import gzip
@@ -924,38 +1218,58 @@ def _materialize_gz(gz_path):
     return out_path
 
 
-def _powerlog_sources(context):
-    """(queryable path, evidence path) for every PowerLog db found.
+def _powerlog_sources(context, extension=".PLSQL"):
+    """(queryable path, evidence path) for every matching telemetry db found.
 
-    Plain .PLSQL files are used in place; .PLSQL.gz rotated archives are
+    Plain database files are used in place; .PLSQL.gz rotated archives are
     decompressed to a temp dir but keep their original path for reporting.
     -wal/-shm sidecars ride along on disk for SQLite and are not listed.
     A file matched by more than one glob is returned once.
     """
     sources = []
     for path in dict.fromkeys(str(p) for p in context.get_files_found()):
-        if path.endswith(".PLSQL"):
+        if path.endswith(extension):
             sources.append((path, path))
-        elif path.endswith(".PLSQL.gz"):
+        elif extension == ".PLSQL" and path.endswith(".PLSQL.gz"):
             materialized = _materialize_gz(path)
             if materialized:
                 sources.append((materialized, path))
     return sources
 
 
-def _load_time_offsets(source_path):
+def _resolve_table(source_path, prefix):
+    """Actual table name for a family whose retention suffix varies by iOS.
+
+    Matches the exact name first, then prefix + '_' (skipping _Array_ side
+    tables). Returns None when the db has no such table.
+    """
+    if does_table_exist_in_db(source_path, prefix):
+        return prefix
+    for row in get_sqlite_db_records(source_path, '''
+            SELECT name FROM sqlite_master
+            WHERE type = 'table'
+            ORDER BY name
+        '''):
+        name = row[0]
+        if name.startswith(prefix + "_") and "_Array_" not in name:
+            return name
+    return None
+
+
+def _load_time_offsets(source_path, offset_prefix=TIME_OFFSET_TABLE):
     """Read the log's clock corrections as parallel timestamp-sorted lists.
 
     Returns ([raw timestamp], [offset seconds]); empty lists when the table
     is missing or holds no usable rows.
     """
-    if not does_table_exist_in_db(source_path, TIME_OFFSET_TABLE):
+    offset_table = _resolve_table(source_path, offset_prefix)
+    if not offset_table:
         return [], []
     stamps = []
     offsets = []
     for row in get_sqlite_db_records(source_path, f'''
             SELECT timestamp, system
-            FROM "{TIME_OFFSET_TABLE}"
+            FROM "{offset_table}"
             WHERE timestamp IS NOT NULL AND system IS NOT NULL
             ORDER BY timestamp
         '''):
@@ -982,29 +1296,34 @@ def _corrected_utc(raw_ts, stamps, offsets):
     return convert_unix_ts_to_utc(raw_ts + offset), int(round(offset))
 
 
-def _parse_powerlog_table(context, table, columns, row_builder, optional=()):
-    """Run one query shape over every PowerLog db found.
+def _parse_powerlog_table(context, table, columns, row_builder, optional=(),
+                          extension=".PLSQL", offset_prefix=TIME_OFFSET_TABLE):
+    """Run one query shape over every matching telemetry db found.
 
-    columns are selected as-is; names in optional are selected as NULL where
-    a given file's schema lacks them, so row shape stays fixed across iOS
-    versions. row_builder(corrected_ts, offset, row, evidence_path) -> tuple.
+    table may be an exact name or a family prefix whose retention suffix
+    varies by iOS version. columns are selected as-is; names in optional are
+    selected as NULL where a given file's schema lacks them, so row shape
+    stays fixed across iOS versions.
+    row_builder(corrected_ts, offset, row, evidence_path) -> tuple.
     """
     data_list = []
-    sources = _powerlog_sources(context)
+    sources = _powerlog_sources(context, extension)
     for db_path, evidence_path in sources:
-        if not does_table_exist_in_db(db_path, table):
+        actual_table = _resolve_table(db_path, table)
+        if not actual_table:
             continue
         select_parts = []
         for col in columns:
-            if col in optional and not does_column_exist_in_db(db_path, table, col):
+            if col in optional and not does_column_exist_in_db(
+                    db_path, actual_table, col):
                 select_parts.append(f'NULL AS "{col}"')
             else:
                 select_parts.append(f'"{col}"')
-        stamps, offsets = _load_time_offsets(db_path)
+        stamps, offsets = _load_time_offsets(db_path, offset_prefix)
         relative_path = context.get_relative_path(evidence_path)
         for row in get_sqlite_db_records(db_path, f'''
                 SELECT {", ".join(select_parts)}
-                FROM "{table}"
+                FROM "{actual_table}"
                 ORDER BY timestamp
             '''):
             ts, offset = _corrected_utc(row[0], stamps, offsets)
@@ -1319,5 +1638,127 @@ def powerlogGenerativeOptIn(context):
         context, "GenerativeFunctionMetrics_OptIn_1_2",
         ("timestamp", "Enabled"),
         lambda ts, offset, row, rel: (ts, _yes_no(row[1]), offset, rel),
+    )
+    return data_headers, data_list, source
+
+EPSQL_OFFSET = "PPTStorageOperator_TimeOffset"
+BGSQL_OFFSET = "BackgroundProcessing_TimeOffset"
+
+
+@artifact_processor
+def powerTelemetryBatteryDataDaily(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Cycle Count", "Max Capacity (%)",
+        "Nominal Charge Capacity (as stored)", "Charging Voltage (as stored)",
+        "Time Offset (seconds)", "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "BatteryDataCollection_BDC_Daily",
+        ("timestamp", "CycleCount", "MaxCapacityPercent",
+         "NominalChargeCapacity", "ChargingVoltage"),
+        lambda ts, offset, row, rel: (
+            ts, row[1], row[2], row[3], row[4], offset, rel),
+        optional=("MaxCapacityPercent",),
+        extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerTelemetrySmartCharging(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "ChargeLimit (as stored)",
+        "ChargingState (as stored)", "CheckPoint (as stored)",
+        "DecisionMaker (as stored)", "InflowState (as stored)",
+        "ModeOfOperation (as stored)", "Time Offset (seconds)", "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "BatteryDataCollection_BDC_SmartCharging",
+        ("timestamp", "ChargeLimit", "ChargingState", "CheckPoint",
+         "DecisionMaker", "InflowState", "ModeOfOperation"),
+        lambda ts, offset, row, rel: (
+            ts, row[1], row[2], row[3], row[4], row[5], row[6], offset, rel),
+        optional=("DecisionMaker",),
+        extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerTelemetryBatteryHardware(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Design Capacity (as stored)",
+        "ChemID (as stored)", "AlgoChemID (as stored)", "EEEE (as stored)",
+        "YWW (as stored)", "Gas Gauge Firmware (as stored)",
+        "Time Offset (seconds)", "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "BatteryDataCollection_BDC_Once",
+        ("timestamp", "DesignCapacity", "ChemID", "AlgoChemID", "EEEE", "YWW",
+         "GasGaugeFirmwareVersion"),
+        lambda ts, offset, row, rel: (
+            ts, row[1], row[2], row[3], row[4], row[5], row[6], offset, rel),
+        optional=("GasGaugeFirmwareVersion",),
+        extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerTelemetryBatteryTrustedDaily(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Trusted Cycle Count",
+        "Trusted Maximum Capacity (as stored)",
+        "Trusted LifeTime Max WRdc (as stored)",
+        ("Trusted Date Of First Use", "datetime"),
+        "Time Offset (seconds)", "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "BatteryTrustedData_Daily",
+        ("timestamp", "TrustedCycleCount", "TrustedMaximumCapacity",
+         "TrustedLifeTimeMaxWRdc", "TrustedDateOfFirstUse"),
+        lambda ts, offset, row, rel: (
+            ts, row[1], row[2], row[3], convert_unix_ts_to_utc(row[4]),
+            offset, rel),
+        extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerTelemetryBackgroundTaskInstances(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Process Name", "PID",
+        ("Start Date", "datetime"), ("End Date", "datetime"),
+        "Started On Battery", "Task ID", "Time Offset (seconds)",
+        "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "BackgroundProcessing_TaskInstanceData",
+        ("timestamp", "ProcessName", "PID", "StartDate", "EndDate",
+         "StartedOnBattery", "TaskID"),
+        lambda ts, offset, row, rel: (
+            ts, row[1], row[2], convert_unix_ts_to_utc(row[3]),
+            convert_unix_ts_to_utc(row[4]), _yes_no(row[5]), row[6], offset,
+            rel),
+        extension=".BGSQL", offset_prefix=BGSQL_OFFSET,
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerTelemetryBackgroundTaskMetadata(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Bundle ID", "Name", "Service Name",
+        "Group Name", "Launch Reason", "Task ID", "Time Offset (seconds)",
+        "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "BackgroundProcessing_TaskMetadata",
+        ("timestamp", "BundleID", "Name", "ServiceName", "GroupName",
+         "LaunchReason", "TaskID"),
+        lambda ts, offset, row, rel: (
+            ts, row[1], row[2], row[3], row[4], row[5], row[6], offset, rel),
+        extension=".BGSQL", offset_prefix=BGSQL_OFFSET,
     )
     return data_headers, data_list, source
