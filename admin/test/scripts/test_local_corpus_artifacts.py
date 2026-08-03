@@ -32,6 +32,8 @@ from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceLi
     appleAccountDeviceList
 from scripts.artifacts.locationdCacheEncryptedB import locationdCellLocations, \
     locationdWifiHarvest, locationdWifiLocations, locationdWifiTiles
+from scripts.artifacts.powerlog import powerlogApplicationRuntime, powerlogAppState, \
+    powerlogBatteryLevel, powerlogDevicePowerState
 from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
@@ -383,6 +385,49 @@ class LocationdCacheLocalTest(LocalCorpusTestCase):
         for row in rows:
             self.assert_plausible_timestamp(row[0])
             self.assert_plausible_timestamp(row[1])
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class PowerlogLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/BatteryLife/CurrentPowerlog.PLSQL'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+
+    def run_artifact(self, func):
+        headers, rows, _ = func.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            # Corrected timestamp first, applied offset second-to-last.
+            self.assert_plausible_timestamp(row[0])
+            if row[-2] is not None:
+                self.assertIsInstance(row[-2], int)
+        return rows
+
+    def test_application_runtime_structure(self):
+        for row in self.run_artifact(powerlogApplicationRuntime):
+            if row[2] is not None:
+                self.assertGreaterEqual(row[2], 0)   # Background Time
+            if row[3] is not None:
+                self.assertGreaterEqual(row[3], 0)   # Screen-on Time
+
+    def test_battery_level_structure(self):
+        for row in self.run_artifact(powerlogBatteryLevel):
+            if row[1] is not None:
+                self.assertTrue(0 <= row[1] <= 100,
+                                f'battery level shape {_redact(row[1])}')
+            self.assert_matches(row[2], r'^(Yes|No|\d+)$', 'Is Charging')
+
+    def test_device_power_state_structure(self):
+        self.run_artifact(powerlogDevicePowerState)
+
+    def test_app_state_structure(self):
+        for row in self.run_artifact(powerlogAppState):
+            if row[3] is not None:
+                self.assertIsInstance(row[3], int)   # State code as stored
 
 
 if __name__ == '__main__':
