@@ -531,7 +531,8 @@ class TelegramLocalTest(LocalCorpusTestCase):
                 row[2], r'^(User|Group|Channel|Secret Chat|Unknown)$', 'Type')
             self.assertIsInstance(row[8], int)      # Messages In Chat
             self.assertGreaterEqual(row[8], 0)
-            self.assert_matches(row[9], r'^(Yes|)$', 'In Spotlight Cache')
+            self.assert_matches(row[9], r'^(Yes|)$', 'In Contact List')
+            self.assert_matches(row[10], r'^(Yes|)$', 'In Spotlight Cache')
 
     def test_settings_structure(self):
         from scripts.artifacts.telegramAccounts import telegramSettings

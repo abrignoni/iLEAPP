@@ -33,10 +33,11 @@ __artifacts_v2__ = {
         "name": "Telegram Contacts & Peers",
         "description": (
             "Parses cached peer records (users, bots, groups, channels, secret chats) from "
-            "table t2 of each Telegram account's Postbox database, joined with the Spotlight "
-            "contact cache and cached avatar images. Telegram caches peer records returned "
-            "by its global search, so a peer can appear here without any exchanged "
-            "messages; the Messages In Chat column is 0 for such peers."
+            "table t2 of each Telegram account's Postbox database, joined with the contact "
+            "list (table t16), the Spotlight contact cache, and cached avatar images. "
+            "Telegram caches peer records returned by its global search, so a peer can "
+            "appear here without any exchanged messages and without being a saved contact; "
+            "the Messages In Chat column is 0 and In Contact List is blank for such peers."
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
@@ -44,8 +45,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Telegram",
         "notes": "Peer record field names (fn, ln, un, p, ph) follow the open-source "
-                 "Telegram-iOS Postbox serialization. Avatar images are matched from "
-                 "telegram-peer-photo-size files in postbox/media and from the "
+                 "Telegram-iOS Postbox serialization. Contact-list membership is read "
+                 "from the Postbox ContactTable (table t16, tableSpec(16) in Postbox.swift), "
+                 "whose keys are the peer ids of saved contacts. Avatar images are matched "
+                 "from telegram-peer-photo-size files in postbox/media and from the "
                  "accounts-metadata Spotlight cache.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
@@ -352,6 +355,7 @@ def telegramContacts(context):
         'Phone',
         'Title',
         'Messages In Chat',
+        'In Contact List',
         'In Spotlight Cache',
         ('Avatar', 'media'),
     ]
@@ -406,6 +410,20 @@ def telegramContacts(context):
                     peer = struct.unpack('>q', key[:8])[0]
                     chat_counts[peer] = chat_counts.get(peer, 0) + 1
 
+            # Contact-list membership: the Postbox ContactTable (table t16) is
+            # keyed by the peer id of each saved contact, distinguishing real
+            # contacts from peers merely cached by search.
+            contact_ids = set()
+            try:
+                cursor.execute('SELECT key FROM t16')
+                for (key,) in cursor:
+                    if isinstance(key, bytes) and len(key) == 8:
+                        contact_ids.add(struct.unpack('>q', key)[0])
+                    elif isinstance(key, int):
+                        contact_ids.add(key)
+            except sqlite3.Error:
+                pass
+
             cursor.execute('SELECT key, value FROM t2')
             for key, value in cursor.fetchall():
                 if not isinstance(value, bytes):
@@ -444,6 +462,7 @@ def telegramContacts(context):
                     peer.get('p', ''),
                     peer.get('t', ''),
                     chat_counts.get(peer_id, 0),
+                    'Yes' if peer_id in contact_ids else '',
                     'Yes' if cached else '',
                     media_ref,
                 ))
