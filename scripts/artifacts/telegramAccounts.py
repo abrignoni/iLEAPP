@@ -63,6 +63,41 @@ __artifacts_v2__ = {
             "hc_ios18_7": "iOS 18.7.8 | Telegram Messenger 12.6.3 | 253 rows",
         },
     },
+    "telegramCachedPeerData": {
+        "name": "Telegram Cached Peer Details",
+        "description": (
+            "Parses the cached peer detail records Telegram stores for users and channels "
+            "in table t18 of each account's Postbox database. Reports the profile bio or "
+            "channel description, a contact's stored birthday, whether a user is blocked, "
+            "the number of groups in common, scheduled-message and auto-delete state, and "
+            "who invited the account to a channel. These details are cached from the "
+            "server when a profile is opened, so a record can exist for a peer the user "
+            "never exchanged messages with."
+        ),
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "Telegram",
+        "notes": "Table t18 is the Postbox CachedPeerDataTable (tableSpec(18) in "
+                 "Postbox.swift), keyed by peer id. Field names are taken from the "
+                 "open-source Telegram-iOS client: CachedUserData encodes 'a' as about, "
+                 "'b' as isBlocked, 'cg' as commonGroupCount and 'bday' as a JSON birthday; "
+                 "CachedChannelData encodes 'a' as about and 'b' as botInfos, so the "
+                 "Blocked column is populated only for user records. The auto-delete "
+                 "field wraps its value in a known/unknown record, so 'None set' means "
+                 "Telegram cached the timer state and found none, while a blank means it "
+                 "was never cached. Peer names are resolved from the peer table (t2).",
+        "paths": (
+            '*/telegram-data/account-*/postbox/db/db_sqlite*',
+        ),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "address-book",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Telegram Messenger 11.0 | 33 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Telegram Messenger 12.6.3 | 90 rows",
+        },
+    },
     "telegramSettings": {
         "name": "Telegram Settings",
         "description": (
@@ -469,6 +504,175 @@ def telegramContacts(context):
             source_paths.append(db_path)
         except sqlite3.Error as err:
             logfunc(f'Telegram contacts: error reading {db_path}: {err}')
+        finally:
+            db.close()
+
+    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    return data_headers, data_list, source_path
+
+
+# --- Telegram Cached Peer Details -------------------------------------------
+
+# Type-hash labels for the cached peer detail records stored in table t18.
+_CACHED_TYPE_NAMES = {
+    _murmur('CachedUserData'): 'User',
+    _murmur('CachedGroupData'): 'Group',
+    _murmur('CachedChannelData'): 'Channel',
+    _murmur('CachedSecretChatData'): 'Secret Chat',
+}
+
+
+def _peer_display_name(peer):
+    """Best available label for a decoded t2 peer record."""
+    name = f"{peer.get('fn', '')} {peer.get('ln', '')}".strip()
+    if not name:
+        name = peer.get('t', '') or ''
+    username = peer.get('un', '')
+    if name and username:
+        return f'{name} (@{username})'
+    if username:
+        return f'@{username}'
+    return name
+
+
+def _format_birthday(value):
+    """Telegram stores the birthday as JSON; the year is optional."""
+    if not isinstance(value, dict):
+        return ''
+    day = value.get('day')
+    month = value.get('month')
+    if not day or not month:
+        return ''
+    year = value.get('year')
+    if year:
+        return f'{year:04d}-{month:02d}-{day:02d}'
+    return f'--{month:02d}-{day:02d}'
+
+
+def _format_autoremove(value):
+    """Render the autoremoveTimeout known/unknown wrapper.
+
+    Telegram encodes _v = 1 when the timeout is known and 0 when it has not
+    been fetched; a known wrapper holding no value means the peer has no
+    auto-delete timer set, which is distinct from never having been cached.
+    """
+    if not isinstance(value, dict):
+        return ''
+    if value.get('_v') != 1:
+        return ''
+    inner = value.get('v')
+    if isinstance(inner, dict):
+        seconds = inner.get('peerValue')
+        if isinstance(seconds, int) and not isinstance(seconds, bool):
+            return f'{seconds} seconds'
+        return ''
+    return 'None set'
+
+
+def _peer_key_to_id(key, fallback=''):
+    if isinstance(key, bytes) and len(key) == 8:
+        return struct.unpack('>q', key)[0]
+    if isinstance(key, int):
+        return key
+    return fallback
+
+
+@artifact_processor
+def telegramCachedPeerData(context):
+    """ see artifact description """
+    data_headers = [
+        'Account ID',
+        'Peer ID',
+        'Peer Name',
+        'Record Type',
+        'About / Description',
+        'Birthday',
+        'Blocked',
+        'Common Group Count',
+        'Has Scheduled Messages',
+        'Auto-Delete Timer',
+        'Invited By',
+    ]
+    data_list = []
+    source_paths = []
+
+    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+        db = open_sqlite_db_readonly(db_path)
+        if db is None:
+            continue
+        try:
+            cursor = db.cursor()
+
+            # Peer names, so cached records read as more than bare ids.
+            peer_names = {}
+            try:
+                cursor.execute('SELECT key, value FROM t2')
+                for key, value in cursor.fetchall():
+                    if not isinstance(value, bytes):
+                        continue
+                    decoded = _decode_root(value)
+                    peer_id = _peer_key_to_id(key, decoded.get('i', ''))
+                    name = _peer_display_name(decoded)
+                    if name:
+                        peer_names[peer_id] = name
+            except sqlite3.Error:
+                pass
+
+            cursor.execute('SELECT key, value FROM t18')
+            for key, value in cursor.fetchall():
+                if not isinstance(value, bytes):
+                    continue
+                cached = _decode_root(value)
+                peer_id = _peer_key_to_id(key)
+                record_type = _CACHED_TYPE_NAMES.get(cached.get('@type'), 'Unknown')
+                is_user = record_type == 'User'
+
+                # 'b' is isBlocked on user records but botInfos on channel records,
+                # so it is only meaningful for users.
+                blocked = ''
+                if is_user and isinstance(cached.get('b'), int) \
+                        and not isinstance(cached.get('b'), bool):
+                    blocked = 'Yes' if cached['b'] else 'No'
+
+                common_groups = ''
+                if is_user and isinstance(cached.get('cg'), int):
+                    common_groups = cached['cg']
+
+                scheduled = cached.get('hsm')
+                if isinstance(scheduled, bool):
+                    scheduled = 'Yes' if scheduled else 'No'
+                elif isinstance(scheduled, int):
+                    scheduled = 'Yes' if scheduled else 'No'
+                else:
+                    scheduled = ''
+
+                invited_by = cached.get('invBy')
+                if isinstance(invited_by, int) and not isinstance(invited_by, bool):
+                    invited_name = peer_names.get(invited_by)
+                    invited_by = (f'{invited_name} ({invited_by})'
+                                  if invited_name else str(invited_by))
+                else:
+                    invited_by = ''
+
+                about = cached.get('a')
+                about = about.strip() if isinstance(about, str) else ''
+
+                data_list.append((
+                    account_id,
+                    peer_id,
+                    peer_names.get(peer_id, ''),
+                    record_type,
+                    about,
+                    _format_birthday(cached.get('bday')),
+                    blocked,
+                    common_groups,
+                    scheduled,
+                    _format_autoremove(cached.get('artv')),
+                    invited_by,
+                ))
+            source_paths.append(db_path)
+        except sqlite3.Error as err:
+            logfunc(f'Telegram cached peer data: error reading {db_path}: {err}')
         finally:
             db.close()
 

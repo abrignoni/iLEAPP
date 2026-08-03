@@ -566,6 +566,31 @@ class TelegramLocalTest(LocalCorpusTestCase):
             self.assert_matches(row[9], r'^(Yes|)$', 'In Contact List')
             self.assert_matches(row[10], r'^(Yes|)$', 'In Spotlight Cache')
 
+    def test_cached_peer_data_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramCachedPeerData
+        headers, rows, _ = telegramCachedPeerData.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramCachedPeerData parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_matches(row[0], r'^\d+$', 'Account ID')
+            self.assert_matches(row[1], r'^-?\d+$', 'Peer ID')
+            self.assert_matches(
+                row[3], r'^(User|Group|Channel|Secret Chat|Unknown)$', 'Record Type')
+            if row[5]:                                  # Birthday, year optional
+                self.assert_matches(row[5], r'^(\d{4}|--)-\d{2}-\d{2}$', 'Birthday')
+            self.assert_matches(row[6], r'^(Yes|No|)$', 'Blocked')
+            if row[7] != '':                            # Common Group Count
+                self.assertIsInstance(row[7], int)
+                self.assertGreaterEqual(row[7], 0)
+            self.assert_matches(row[8], r'^(Yes|No|)$', 'Has Scheduled Messages')
+            self.assert_matches(
+                row[9], r'^(None set|\d+ seconds|)$', 'Auto-Delete Timer')
+        # Blocked and common-group counts are user-only fields; channel records
+        # encode 'b' as botInfos and must not be reported as a blocked state.
+        for row in rows:
+            if row[3] == 'Channel':
+                self.assertEqual(row[6], '', 'channel record reported a Blocked value')
+
     def test_settings_structure(self):
         from scripts.artifacts.telegramAccounts import telegramSettings
         headers, rows, _ = telegramSettings.__wrapped__(_ListContext(self.paths))
