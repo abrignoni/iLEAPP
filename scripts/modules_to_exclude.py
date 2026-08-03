@@ -11,10 +11,8 @@ modules_to_exclude = [
     # of uuidtext (hundreds of megabytes) before parsing starts. Worth every second when
     # Unified Logs are what the case turns on, and worth nothing at all otherwise, so the
     # examiner opts in rather than paying for it on every run.
+    'c2paProvenance',
     'logarchive',
-    'photosDbexif',
-    'photosMetadata',
-    'walStrings',
     'Ph008HasAdjustment',
     'Ph009BurstAvalanche',
     'Ph011KwrdsCapsTitlesDescripsBasicAssetData',
@@ -42,4 +40,7 @@ modules_to_exclude = [
     'Ph097iOS17REFforAssetAnalysis',
     'Ph098iOS18REFforAssetAnalysis',
     'Ph126iOS26REFforAssetAnalysis',
+    'photosDbexif',
+    'photosMetadata',
+    'walStrings',
 ]
