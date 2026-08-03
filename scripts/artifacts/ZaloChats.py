@@ -58,7 +58,7 @@ from pathlib import Path
 from PIL import Image
 
 from scripts.ilapfuncs import artifact_processor, \
-    convert_unix_ts_to_utc, get_sqlite_db_records, \
+    convert_unix_ts_to_utc, get_sqlite_db_records, does_column_exist_in_db, \
     check_in_media, check_in_embedded_media, get_file_path
 
 def extract_last_url(blob) -> str | None:
