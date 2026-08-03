@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-03",
         "requirements": "none",
         "category": "Zalo",
         "notes": "",
@@ -58,7 +58,7 @@ from pathlib import Path
 from PIL import Image
 
 from scripts.ilapfuncs import artifact_processor, \
-    convert_unix_ts_to_utc, get_sqlite_db_records, \
+    convert_unix_ts_to_utc, get_sqlite_db_records, does_column_exist_in_db, \
     check_in_media, check_in_embedded_media, get_file_path
 
 def extract_last_url(blob) -> str | None:
@@ -104,26 +104,43 @@ def zalo_users(context):
     data_list = []
     source_path = get_file_path(files_found, 'profile.sqlite')
 
-    user_query = '''
-        SELECT
-            pe.userid,
-            pe.displayname,
-            be.mobile,
-            ge.globalid
-        FROM
-            ProfileEntity pe
-        LEFT JOIN BuddyEntity be
-            ON pe.userid=be.zaloid
-        LEFT JOIN GlobalIdEntity ge
-            ON pe.userid=ge.rawid
-        '''
+    rawid = does_column_exist_in_db(source_path, 'GlobalIdEntity', 'rawid')
+
+    if rawid:
+        user_query = '''
+            SELECT
+                pe.userid,
+                pe.displayname,
+                be.mobile,
+                ge.globalid
+            FROM
+                ProfileEntity pe
+            LEFT JOIN BuddyEntity be
+                ON pe.userid=be.zaloid
+            LEFT JOIN GlobalIdEntity ge
+                ON pe.userid=ge.rawid
+            '''
+    else:
+        user_query = '''
+            SELECT
+                pe.userid,
+                pe.displayname,
+                be.mobile
+            FROM
+                ProfileEntity pe
+            LEFT JOIN BuddyEntity be
+                ON pe.userid=be.zaloid
+            '''
 
     user_records = get_sqlite_db_records(source_path, user_query)
     for record in user_records:
         uid = record["userid"]
         uname = record["displayname"]
         umobile = record["mobile"]
-        uglobal = record["globalid"]
+        if rawid:
+            uglobal = record["globalid"]
+        else:
+            uglobal = None
 
         data_list.append([uid, uname, umobile, uglobal])
 
