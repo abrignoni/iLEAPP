@@ -203,6 +203,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | serialNumber |
 | swissmeteo |
 | teams |
+| telegramAccounts |
 | telegramMesssages |
 | uberClient |
 | uberPlaces |
