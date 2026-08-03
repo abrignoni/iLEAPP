@@ -33,7 +33,8 @@ from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceLi
 from scripts.artifacts.locationdCacheEncryptedB import locationdCellLocations, \
     locationdWifiHarvest, locationdWifiLocations, locationdWifiTiles
 from scripts.artifacts.powerlog import powerlogApplicationRuntime, powerlogAppState, \
-    powerlogBatteryLevel, powerlogDevicePowerState
+    powerlogAudioRouting, powerlogBatteryLevel, powerlogDeviceLock, \
+    powerlogDevicePowerState, powerlogDisplayState
 from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
@@ -428,6 +429,20 @@ class PowerlogLocalTest(LocalCorpusTestCase):
         for row in self.run_artifact(powerlogAppState):
             if row[3] is not None:
                 self.assertIsInstance(row[3], int)   # State code as stored
+
+    def test_device_lock_structure(self):
+        for row in self.run_artifact(powerlogDeviceLock):
+            self.assert_matches(row[1], r'^(Yes|No|\d+)$', 'Locked')
+
+    def test_display_state_structure(self):
+        for row in self.run_artifact(powerlogDisplayState):
+            if row[1] is not None:
+                self.assertTrue(0 <= row[1] <= 100,
+                                f'brightness shape {_redact(row[1])}')
+
+    def test_audio_routing_structure(self):
+        for row in self.run_artifact(powerlogAudioRouting):
+            self.assert_matches(row[1], r'^(Yes|No|\d+)$', 'Active')
 
 
 if __name__ == '__main__':
