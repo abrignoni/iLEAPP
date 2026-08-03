@@ -28,6 +28,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
@@ -42,6 +43,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 11986 rows",
             "fsfull002_ios17": "iOS 17.1 | 8059 rows",
             "iphone11_ios17": "iOS 17.3 | 55157 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 6266 rows",
             "otto_ios17": "iOS 17.5.1 | 2364 rows",
             "felix_ios17": "iOS 17.6.1 | 33829 rows",
             "iphone14plus_ios18": "iOS 18.0 | 10541 rows",
@@ -49,6 +51,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 4884 rows",
             "hc_ios18_7": "iOS 18.7.8 | 23095 rows",
             "hc_ios26": "iOS 26 | 17659 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 5650 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 18883 rows",
         },
     },
     "powerlogBatteryLevel": {
@@ -70,6 +74,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery-charging",
@@ -84,6 +89,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 4905 rows",
             "fsfull002_ios17": "iOS 17.1 | 2999 rows",
             "iphone11_ios17": "iOS 17.3 | 13704 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 1591 rows",
             "otto_ios17": "iOS 17.5.1 | 5229 rows",
             "felix_ios17": "iOS 17.6.1 | 44171 rows",
             "iphone14plus_ios18": "iOS 18.0 | 9098 rows",
@@ -91,6 +97,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 5966 rows",
             "hc_ios18_7": "iOS 18.7.8 | 19008 rows",
             "hc_ios26": "iOS 26 | 3968 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 1746 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 7827 rows",
         },
     },
     "powerlogDevicePowerState": {
@@ -112,6 +120,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "power",
@@ -126,6 +135,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 3173 rows",
             "fsfull002_ios17": "iOS 17.1 | 3150 rows",
             "iphone11_ios17": "iOS 17.3 | 22977 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 2670 rows",
             "otto_ios17": "iOS 17.5.1 | 5809 rows",
             "felix_ios17": "iOS 17.6.1 | 1206 rows",
             "iphone14plus_ios18": "iOS 18.0 | 2528 rows",
@@ -133,6 +143,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 2646 rows",
             "hc_ios18_7": "iOS 18.7.8 | 3392 rows",
             "hc_ios26": "iOS 26 | 5275 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 1370 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 5963 rows",
         },
     },
     "powerlogAppState": {
@@ -154,6 +166,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "activity",
@@ -168,6 +181,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 2268 rows",
             "fsfull002_ios17": "iOS 17.1 | 921 rows",
             "iphone11_ios17": "iOS 17.3 | 18444 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 5345 rows",
             "otto_ios17": "iOS 17.5.1 | 5404 rows",
             "felix_ios17": "iOS 17.6.1 | 5630 rows",
             "iphone14plus_ios18": "iOS 18.0 | 1591 rows",
@@ -175,6 +189,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 10806 rows",
             "hc_ios18_7": "iOS 18.7.8 | 5933 rows",
             "hc_ios26": "iOS 26 | 5610 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 1065 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 8499 rows",
         },
     },
     "powerlogDeviceLock": {
@@ -196,6 +212,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "lock",
@@ -210,6 +227,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 34 rows",
             "fsfull002_ios17": "iOS 17.1 | 7 rows",
             "iphone11_ios17": "iOS 17.3 | 114 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 40 rows",
             "otto_ios17": "iOS 17.5.1 | 4 rows",
             "felix_ios17": "iOS 17.6.1 | 39 rows",
             "iphone14plus_ios18": "iOS 18.0 | 6 rows",
@@ -217,6 +235,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 42 rows",
             "hc_ios18_7": "iOS 18.7.8 | 57 rows",
             "hc_ios26": "iOS 26 | 53 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 5 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 27 rows",
         },
     },
     "powerlogAutolock": {
@@ -238,6 +258,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "clock",
@@ -252,6 +273,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 35 rows",
             "fsfull002_ios17": "iOS 17.1 | 20 rows",
             "iphone11_ios17": "iOS 17.3 | 201 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 70 rows",
             "otto_ios17": "iOS 17.5.1 | 182 rows",
             "felix_ios17": "iOS 17.6.1 | 52 rows",
             "iphone14plus_ios18": "iOS 18.0 | 22 rows",
@@ -259,6 +281,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 100 rows",
             "hc_ios18_7": "iOS 18.7.8 | 59 rows",
             "hc_ios26": "iOS 26 | 81 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 18 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 63 rows",
         },
     },
     "powerlogTorch": {
@@ -281,6 +305,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "zap",
@@ -295,6 +320,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 6 rows",
             "fsfull002_ios17": "iOS 17.1 | 6 rows",
             "iphone11_ios17": "iOS 17.3 | 11 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 1 rows",
             "otto_ios17": "iOS 17.5.1 | 2 rows",
             "felix_ios17": "iOS 17.6.1 | 2 rows",
             "iphone14plus_ios18": "iOS 18.0 | 3 rows",
@@ -302,6 +328,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 0 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
             "hc_ios26": "iOS 26 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 1 rows",
         },
     },
     "powerlogDisplayState": {
@@ -323,6 +351,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "sun",
@@ -337,6 +366,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 110 rows",
             "fsfull002_ios17": "iOS 17.1 | 131 rows",
             "iphone11_ios17": "iOS 17.3 | 5369 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 1009 rows",
             "otto_ios17": "iOS 17.5.1 | 519 rows",
             "felix_ios17": "iOS 17.6.1 | 667 rows",
             "iphone14plus_ios18": "iOS 18.0 | 710 rows",
@@ -344,6 +374,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 8313 rows",
             "hc_ios18_7": "iOS 18.7.8 | 388 rows",
             "hc_ios26": "iOS 26 | 3091 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 163 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 1434 rows",
         },
     },
     "powerlogAudioRouting": {
@@ -368,6 +400,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "headphones",
@@ -382,6 +415,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 40 rows",
             "fsfull002_ios17": "iOS 17.1 | 13 rows",
             "iphone11_ios17": "iOS 17.3 | 2097 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 261 rows",
             "otto_ios17": "iOS 17.5.1 | 34 rows",
             "felix_ios17": "iOS 17.6.1 | 22 rows",
             "iphone14plus_ios18": "iOS 18.0 | 22 rows",
@@ -389,6 +423,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 594 rows",
             "hc_ios18_7": "iOS 18.7.8 | 262 rows",
             "hc_ios26": "iOS 26 | 91 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 3 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 43 rows",
         },
     },
     "powerlogAdapter": {
@@ -413,6 +449,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "plug-connected",
@@ -427,6 +464,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 1085 rows",
             "iphone11_ios17": "iOS 17.3 | 17679 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 2764 rows",
             "otto_ios17": "iOS 17.5.1 | 2848 rows",
             "felix_ios17": "iOS 17.6.1 | 43487 rows",
             "iphone14plus_ios18": "iOS 18.0 | 1615 rows",
@@ -434,6 +472,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 6036 rows",
             "hc_ios18_7": "iOS 18.7.8 | 2674 rows",
             "hc_ios26": "iOS 26 | 3110 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 367 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 3105 rows",
         },
     },
     "powerlogCameraState": {
@@ -457,6 +497,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "camera",
@@ -471,6 +512,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 14 rows",
             "fsfull002_ios17": "iOS 17.1 | 27 rows",
             "iphone11_ios17": "iOS 17.3 | 245 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 94 rows",
             "otto_ios17": "iOS 17.5.1 | 41 rows",
             "felix_ios17": "iOS 17.6.1 | 8 rows",
             "iphone14plus_ios18": "iOS 18.0 | 21 rows",
@@ -478,6 +520,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 74 rows",
             "hc_ios18_7": "iOS 18.7.8 | 18 rows",
             "hc_ios26": "iOS 26 | 23 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 1 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 118 rows",
         },
     },
     "powerlogNeuralEngineModelLoad": {
@@ -500,6 +544,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -514,6 +559,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 42 rows",
@@ -521,6 +567,8 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 1562 rows",
             "hc_ios18_7": "iOS 18.7.8 | 36 rows",
             "hc_ios26": "iOS 26 | 88 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 7 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 216 rows",
         },
     },
     "powerlogNeuralEngineModelUnload": {
@@ -542,6 +590,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -556,6 +605,7 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 43 rows",
@@ -563,6 +613,263 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 1472 rows",
             "hc_ios18_7": "iOS 18.7.8 | 39 rows",
             "hc_ios26": "iOS 26 | 86 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 7 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 200 rows",
+        },
+    },
+    "powerlogGenerativeSummarization": {
+        "name": "PowerLog - Generative Function Summarization",
+        "description": "Summarization request events recorded by PowerLog "
+                       "(GenerativeFunctionMetrics_Summarization_1_2 table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "bundleID holds app bundle identifiers as recorded. kind, exitReason, "
+            "and isUrgent are integer codes reported as stored; observed kind "
+            "0/2/3 and exitReason 6/12/13. "
+            "In test data these tables held rows only on an Apple Intelligence "
+            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
+            "test images they exist with zero rows. Timestamps are adjusted using "
+            "PowerLog's time-offset table and the applied offset is reported per "
+            "row; end times preserve the recorded duration against the corrected "
+            "start. See the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "cpu",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 309 rows",
+        },
+    },
+    "powerlogGenerativeTextRequests": {
+        "name": "PowerLog - Generative Function Text Generation",
+        "description": "Text generation inference request events recorded by PowerLog "
+                       "(GenerativeFunctionMetrics_tgiExecuteRequest_1_2 table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "Token counts, latencies, and type codes are reported as stored; no "
+            "units are asserted for latency values. The table carries additional "
+            "speculative-decoding counters (sd_*) that are not parsed here. "
+            "In test data these tables held rows only on an Apple Intelligence "
+            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
+            "test images they exist with zero rows. Timestamps are adjusted using "
+            "PowerLog's time-offset table and the applied offset is reported per "
+            "row; end times preserve the recorded duration against the corrected "
+            "start. See the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "cpu",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 46 rows",
+        },
+    },
+    "powerlogGenerativeInferenceRequests": {
+        "name": "PowerLog - Generative Function Inference Requests",
+        "description": "Model inference request events recorded by PowerLog "
+                       "(GenerativeFunctionMetrics_mmExecuteRequest_1_2 table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "useCaseIdentifier is a text value reported verbatim; observed values "
+            "include summarization.summarizeMailMessage, "
+            "classification.classifyMailMessage, memoryCreation.QueryUnderstanding, "
+            "and textUnderstanding.TextEventExtraction. Bundle and provider "
+            "identifiers are reported as recorded. "
+            "In test data these tables held rows only on an Apple Intelligence "
+            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
+            "test images they exist with zero rows. Timestamps are adjusted using "
+            "PowerLog's time-offset table and the applied offset is reported per "
+            "row; end times preserve the recorded duration against the corrected "
+            "start. See the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "cpu",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 255 rows",
+        },
+    },
+    "powerlogGenerativeAssetLoad": {
+        "name": "PowerLog - Generative Function Asset Loads",
+        "description": "Model asset load events recorded by PowerLog "
+                       "(GenerativeFunctionMetrics_assetLoad_1_2 table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "catalogResourceIdentifier is reported verbatim; observed values "
+            "reference foundation language model assets (for example "
+            "fm.language.instruct_3b variants and gm.safety_* resources). "
+            "loadType, reason, and result are integer codes reported as stored. "
+            "In test data these tables held rows only on an Apple Intelligence "
+            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
+            "test images they exist with zero rows. Timestamps are adjusted using "
+            "PowerLog's time-offset table and the applied offset is reported per "
+            "row; end times preserve the recorded duration against the corrected "
+            "start. See the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "cpu",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 329 rows",
+        },
+    },
+    "powerlogGenerativeOptIn": {
+        "name": "PowerLog - Generative Function Opt-In",
+        "description": "Opt-in state samples recorded by PowerLog "
+                       "(GenerativeFunctionMetrics_OptIn_1_2 table)",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-03",
+        "last_update_date": "2026-08-03",
+        "requirements": "none",
+        "category": "PowerLog",
+        "notes": (
+            "Enabled holds 0/1, reported as No/Yes with other values passed "
+            "through as stored. On the device with data, raw timestamps for this "
+            "table were decades off wall-clock time until corrected by the "
+            "time-offset table, so the reported offset column is essential "
+            "context. "
+            "In test data these tables held rows only on an Apple Intelligence "
+            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
+            "test images they exist with zero rows. Timestamps are adjusted using "
+            "PowerLog's time-offset table and the applied offset is reported per "
+            "row; end times preserve the recorded duration against the corrected "
+            "start. See the PowerLog - Application Runtime notes for the mechanism."
+        ),
+        "paths": (
+            "*/BatteryLife/*.PLSQL*",
+            "*/[Pp]ower[Ll]og/*.PLSQL*",
+            "*/powerlogs/*.PLSQL*",
+        ),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "cpu",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "hc_ios26": "iOS 26 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 3 rows",
         },
     },
 }
@@ -572,6 +879,7 @@ import os
 import shutil
 import tempfile
 from bisect import bisect_right
+from datetime import timedelta
 
 from scripts.ilapfuncs import (
     artifact_processor,
@@ -703,6 +1011,18 @@ def _parse_powerlog_table(context, table, columns, row_builder, optional=()):
             data_list.append(row_builder(ts, offset, row, relative_path))
     source = "See source paths in data" if sources else ""
     return data_list, source
+
+
+def _end_utc(start_dt, raw_start, raw_end):
+    """Corrected end time: the corrected start plus the recorded raw duration.
+
+    Both raw values run on the same internal clock, so the difference is
+    offset-invariant; this avoids a second offset lookup that could straddle
+    an offset boundary inside one short request.
+    """
+    if start_dt is None or raw_start is None or raw_end is None:
+        return None
+    return start_dt + timedelta(seconds=raw_end - raw_start)
 
 
 def _yes_no(value):
@@ -909,5 +1229,95 @@ def powerlogNeuralEngineModelUnload(context):
         context, "ANE_modelUnload_1_2",
         ("timestamp", "csIdentity", "modelURL"),
         lambda ts, offset, row, rel: (ts, row[1], row[2], offset, rel),
+    )
+    return data_headers, data_list, source
+@artifact_processor
+def powerlogGenerativeSummarization(context):
+    data_headers = (
+        ("Start Time", "datetime"), ("End Time", "datetime"), "Bundle ID",
+        "kind (as stored)", "exitReason (as stored)", "isUrgent (as stored)",
+        "Request Identifier", "Time Offset (seconds)", "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "GenerativeFunctionMetrics_Summarization_1_2",
+        ("timestamp", "timestampEnd", "bundleID", "kind", "exitReason",
+         "isUrgent", "requestIdentifier"),
+        lambda ts, offset, row, rel: (
+            ts, _end_utc(ts, row[0], row[1]), row[2], row[3], row[4], row[5],
+            row[6], offset, rel),
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerlogGenerativeTextRequests(context):
+    data_headers = (
+        ("Start Time", "datetime"), ("End Time", "datetime"),
+        "requestType (as stored)", "errorType (as stored)",
+        "Input Tokens (as stored)", "Output Tokens (as stored)",
+        "qos (as stored)", "Request Identifier", "Time Offset (seconds)",
+        "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "GenerativeFunctionMetrics_tgiExecuteRequest_1_2",
+        ("timestamp", "timestampEnd", "requestType", "errorType",
+         "inputTokensCount", "outputTokensCount", "qos", "requestIdentifier"),
+        lambda ts, offset, row, rel: (
+            ts, _end_utc(ts, row[0], row[1]), row[2], row[3], row[4], row[5],
+            row[6], row[7], offset, rel),
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerlogGenerativeInferenceRequests(context):
+    data_headers = (
+        ("Start Time", "datetime"), ("End Time", "datetime"), "Use Case",
+        "Created By", "On Behalf Of", "Inference Provider",
+        "error (as stored)", "requestType (as stored)", "Session Identifier",
+        "Time Offset (seconds)", "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "GenerativeFunctionMetrics_mmExecuteRequest_1_2",
+        ("timestamp", "timestampEnd", "useCaseIdentifier",
+         "createdByBundleIdentifier", "onBehalfOfBundleIdentifier",
+         "inferenceProviderIdentifier", "error", "requestType",
+         "sessionIdentifier"),
+        lambda ts, offset, row, rel: (
+            ts, _end_utc(ts, row[0], row[1]), row[2], row[3], row[4], row[5],
+            row[6], row[7], row[8], offset, rel),
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerlogGenerativeAssetLoad(context):
+    data_headers = (
+        ("Start Time", "datetime"), ("End Time", "datetime"),
+        "Catalog Resource", "loadType (as stored)", "reason (as stored)",
+        "result (as stored)", "Session Identifier", "Time Offset (seconds)",
+        "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "GenerativeFunctionMetrics_assetLoad_1_2",
+        ("timestamp", "timestampEnd", "catalogResourceIdentifier", "loadType",
+         "reason", "result", "sessionIdentifier"),
+        lambda ts, offset, row, rel: (
+            ts, _end_utc(ts, row[0], row[1]), row[2], row[3], row[4], row[5],
+            row[6], offset, rel),
+    )
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def powerlogGenerativeOptIn(context):
+    data_headers = (
+        ("Timestamp", "datetime"), "Enabled", "Time Offset (seconds)",
+        "Source File",
+    )
+    data_list, source = _parse_powerlog_table(
+        context, "GenerativeFunctionMetrics_OptIn_1_2",
+        ("timestamp", "Enabled"),
+        lambda ts, offset, row, rel: (ts, _yes_no(row[1]), offset, rel),
     )
     return data_headers, data_list, source
