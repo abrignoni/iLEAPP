@@ -42,3 +42,6 @@ pyliblzfse
 
 pytz
 simplekml
+cryptography
+asn1crypto
+sqlcipher3-wheels
