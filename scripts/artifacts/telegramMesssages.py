@@ -930,6 +930,13 @@ def telegramMessages(context):
             setChatWallpaper = 33; setSameChatWallpaper = 34; botAppAccessGranted = 35
             giftCode = 36; giveawayLaunched = 37; joinedChannel = 38; giveawayResults = 39
             boostsApplied = 40; paymentRefunded = 41; giftStars = 42; prizeStars = 43; starGift = 44
+            starGiftUnique = 45; paidMessagesRefunded = 46; paidMessagesPriceEdited = 47
+            conferenceCall = 48; todoCompletions = 49; todoAppendTasks = 50
+            suggestedPostApprovalStatus = 51; giftTon = 52; suggestedPostSuccess = 53
+            suggestedPostRefund = 54; suggestedBirthday = 55; starGiftPurchaseOffer = 56
+            starGiftPurchaseOfferDeclined = 57; groupCreatorChange = 59
+            copyProtectionToggle = 60; copyProtectionRequest = 61; managedBotCreated = 62
+            pollOptionAppended = 63; pollOptionDeleted = 64; communityChanged = 65
 
         def __init__(self, dec):
             raw = {k: v for k, t, v in dec._iter_kv()} # Get all key-value pairs
@@ -944,8 +951,52 @@ def telegramMessages(context):
                 del raw['_rawValue']
             self.payload = raw # Store the rest of the decoded fields as payload
 
+        # Payload field names as stored, mapped to what the client calls them.
+        FIELD_LABELS = {
+            'i': 'id', 'd': 'duration (seconds)', 'dr': 'discard reason',
+            'vc': 'video call', 't': 'timeout (seconds)', 'src': 'set by',
+            's': 'score', 'dst': 'distance (metres)', 'fromId': 'from',
+            'toId': 'to', 'cid': 'call id', 'dur': 'duration (seconds)',
+            'part': 'other participants', 'ta': 'total amount',
+            'callId': 'call id', 'duration': 'duration (seconds)',
+            'peerIds': 'members', 'inviter': 'inviter', 'title': 'title',
+            'text': 'text', 'currency': 'currency', 'amount': 'amount',
+            'botId': 'bot id', 'newValue': 'new value',
+            'previousValue': 'previous value', 'birthday': 'birthday',
+        }
+        # PhoneCallDiscardReason, as an Int32 in the 'dr' field.
+        DISCARD_REASONS = {0: 'missed', 1: 'disconnected', 2: 'hung up', 3: 'busy'}
+
+        @staticmethod
+        def _format_value(value):
+            """Keep the column readable: summarise nested objects and blobs."""
+            if isinstance(value, bytes):
+                return f'<{len(value)} bytes>'
+            if isinstance(value, list):
+                if value and all(isinstance(item, int) for item in value):
+                    return ', '.join(str(item) for item in value)
+                return '<present>'
+            if not isinstance(value, (str, int, float, bool)):
+                # A decoded media object or similar; its full dump is not
+                # useful in this column and the media columns carry the detail.
+                return '<present>'
+            text = str(value)
+            return text if len(text) <= 120 else text[:120] + '…'
+
         def __repr__(self):
-            payload_repr = ', '.join([f"{k}={v}" for k,v in self.payload.items()])
+            parts = []
+            for key, value in self.payload.items():
+                if value is None or value == '' or value == [] or value == {}:
+                    continue
+                if key == 'dr':
+                    value = self.DISCARD_REASONS.get(value, value)
+                elif key == 'vc':
+                    if not value:
+                        continue
+                    value = 'yes'
+                label = self.FIELD_LABELS.get(key, key)
+                parts.append(f"{label}={self._format_value(value)}")
+            payload_repr = ', '.join(parts)
             return f"<{self.type.name} ({payload_repr if payload_repr else 'No payload'})>"
 
 
