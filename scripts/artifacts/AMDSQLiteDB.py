@@ -4,10 +4,16 @@ __artifacts_v2__ = {
         "description": "Apple App Store application foreground events",
         "author": "@stark4n6",
         "creation_date": "2025-07-21",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "App Usage",
-        "notes": "Reference: Kevin Pagano, 'iOS App Storage Usage via AMDSQLite.db', https://www.stark4n6.com/2025/07/ios-app-storage-usage-via-amdsqlite-db.html",
+        "notes": "App names, bundle IDs and vendors are resolved from the extraction itself: "
+                 "storeUser.db current_apps (installed apps) and purchase_history_apps (the "
+                 "account's purchase history, which retains uninstalled apps). Events whose "
+                 "adamId appears in neither table are labeled Unknown. Earlier versions queried "
+                 "itunes.apple.com per adamId; the online lookup was removed so processing stays "
+                 "offline. Reference: Kevin Pagano, 'iOS App Storage Usage via AMDSQLite.db', "
+                 "https://www.stark4n6.com/2025/07/ios-app-storage-usage-via-amdsqlite-db.html",
         "paths": (
             '*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*',
             '*/mobile/Library/Caches/com.apple.appstored/storeUser.db*'
@@ -61,60 +67,41 @@ __artifacts_v2__ = {
     }
 }
 
-import urllib.request
-import json
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, \
+    attach_sqlite_db_readonly, does_table_exist_in_db, logfunc, convert_unix_ts_to_utc
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, logfunc, convert_unix_ts_to_utc
+def get_purchase_history(store_user_db):
+    """Map adamId -> (title, bundle_id, developer_name) from purchase_history_apps.
 
-def get_data_from_itunes(lookup_value, lookup_type):
-    response_json_data = None
-    base_url = "http://itunes.apple.com/lookup?"
-    
-    if lookup_type == "adamId":
-        url = f"{base_url}id={lookup_value}"
-    elif lookup_type == "bundleId":
-        url = f"{base_url}bundleId={lookup_value}"
-    else:
-        return f"ERROR: Invalid lookup type '{lookup_type}'. Must be 'adamId' or 'bundleId'.", None
-
-    try:
-        with urllib.request.urlopen(url) as response:
-            response_data = response.read()
-            response_json_data = json.loads(response_data)
-    except Exception:  # pylint: disable=broad-exception-caught
-        return f"\nERROR fetching data for {lookup_value} ({lookup_type})", None
-    return None, response_json_data
-
-def process_ids(item_record, data_dictionary, lookup_type):
-    if item_record not in data_dictionary:
-        error, result = get_data_from_itunes(item_record, lookup_type)
-        if error:
-            logfunc(error)
-            data_dictionary[item_record] = ''
-        else:
-            data_dictionary[item_record] = result
-    return data_dictionary
-
-def results_for_id(item_record, data_dictionary):    
-    if item_record in data_dictionary:
-        app_name = bundle_name = ''
-        data = data_dictionary[item_record]
-        if data and data.get('resultCount', 0) > 0:
-            if 'trackName' in data['results'][0]:
-                app_name = data['results'][0].get('trackName','')
-                bundle_name = data['results'][0].get('bundleId','')
-                return app_name, bundle_name
-        else:
-            return app_name, bundle_name
+    The account's purchase history covers apps that were uninstalled and are no
+    longer in current_apps, so usage events for removed apps can still be named
+    from the extraction itself. The table is absent in some older storeUser.db
+    schemas, hence the existence check.
+    """
+    history = {}
+    if not store_user_db or not does_table_exist_in_db(store_user_db, 'purchase_history_apps'):
+        return history
+    query = '''
+    select
+    store_item_id,
+    title,
+    bundle_id,
+    developer_name
+    from purchase_history_apps
+    '''
+    for row in get_sqlite_db_records(store_user_db, query):
+        if row[0] is not None and row[0] not in history:
+            history[row[0]] = (row[1], row[2], row[3])
+    return history
 
 @artifact_processor
 def AMDSQLiteDB_UsageEvents(context):
     data_list = []
-    my_data_store = {}
     files_found = context.get_files_found()
     source_path = get_file_path(files_found, "AMDSQLite.db.0")
-    
+
     storeUserDB = get_file_path(files_found, "storeUser.db")
+    purchase_history = get_purchase_history(storeUserDB)
     
     if storeUserDB:
         logfunc("storeUser.db found. Running combined database query.")
@@ -169,23 +156,28 @@ def AMDSQLiteDB_UsageEvents(context):
 
         local_bundle_id = record[2]
         adam_id = record[3]
-        local_item_name = record[8] # The new item_name column
-        
-        # Fetch from iTunes
-        app_name_api, bundle_name_api = results_for_id(adam_id, process_ids(adam_id, my_data_store, 'adamId'))
-        
-        # Resolve Bundle ID: Local DB first, then API
-        final_bundle_id = local_bundle_id if local_bundle_id else bundle_name_api
-        
-        # Resolve App Name: API first, then Local DB, then Bundle ID as last resort
-        if app_name_api:
-            final_app_name = app_name_api
-        elif local_item_name:
-            final_app_name = local_item_name
-        else:
-            final_app_name = f"Unknown ({final_bundle_id})"
+        local_item_name = record[8]
+        local_vendor_name = record[9]
 
-        data_list.append((time, record[1], final_app_name, final_bundle_id, record[3], record[4], record[9], record[5], record[6], record[7]))
+        # Resolve name/bundle/vendor from the extraction only: current_apps
+        # first (installed apps), then the account's purchase history
+        # (uninstalled apps). Values recorded on the device at the time of the
+        # events beat a live store lookup, whose listings can be renamed or
+        # delisted after the fact.
+        history_title, history_bundle_id, history_vendor = purchase_history.get(
+            adam_id, (None, None, None))
+
+        final_bundle_id = local_bundle_id or history_bundle_id or ''
+        final_vendor_name = local_vendor_name or history_vendor or ''
+
+        if local_item_name:
+            final_app_name = local_item_name
+        elif history_title:
+            final_app_name = history_title
+        else:
+            final_app_name = f"Unknown ({final_bundle_id or adam_id})"
+
+        data_list.append((time, record[1], final_app_name, final_bundle_id, record[3], record[4], final_vendor_name, record[5], record[6], record[7]))
                             
     data_headers = (('Timestamp', 'datetime'),'App Action','App Name','Bundle ID','AdamID','App Version','Vendor Name','Foreground Duration (as stored)','Apple ID','User ID')
     return data_headers, data_list, source_path
