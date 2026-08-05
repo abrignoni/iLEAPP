@@ -108,7 +108,7 @@ def swissmeteo_plz(context):
         for record in db_records:
             data_list.append((record[0], record[1], record[2], coordinate_to_osm(record[1], record[2])))
     else:
-        logfunc('No app_open')
+        logfunc('Swissmeteo favorites_prediction_db.sqlite not found')
 
     return data_headers, data_list, source_path
 
