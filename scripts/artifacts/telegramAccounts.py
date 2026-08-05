@@ -129,6 +129,68 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | Telegram Messenger 11.0 | 1016 rows",
         },
     },
+    "telegramPeerPresence": {
+        "name": "Telegram Peer Presence",
+        "description": (
+            "Parses the last-seen state Telegram cached for each peer, from table t20 of "
+            "each account's Postbox database. Reports the status the server last returned "
+            "for the peer, the time it applies to when the status carries one, whether the "
+            "peer hides their exact last-seen time, and the last activity time the client "
+            "recorded."
+        ),
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-05",
+        "last_update_date": "2026-08-05",
+        "requirements": "none",
+        "category": "Telegram",
+        "notes": "Table t20 is the Postbox PeerPresenceTable (tableSpec(20) in Postbox.swift). "
+                 "The record is a TelegramUserPresence: 'v' selects the status, where 0 is "
+                 "none, 1 is present with the time in 't', 2 is recently, 3 is last week and "
+                 "4 is last month, and 'h' is the hidden flag those bucketed statuses carry. "
+                 "'la' is the last activity value the client stored. The bucketed statuses "
+                 "are what the server returns when a peer restricts their last-seen "
+                 "visibility, so they are a privacy setting on the other account rather than "
+                 "a measurement of when that person was last online.",
+        "paths": (
+            '*/telegram-data/account-*/postbox/db/db_sqlite*',
+        ),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "user-circle",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Telegram Messenger 11.0 | 266 rows",
+        },
+    },
+    "telegramMessageTags": {
+        "name": "Telegram Message Tags",
+        "description": (
+            "Parses the per-message category index Telegram maintains in table t12 of each "
+            "account's Postbox database. Each row ties a stored message to a category such "
+            "as photo, video, file, music, voice, link or pinned, so the messages of one "
+            "kind within a chat can be listed from the index alone."
+        ),
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-05",
+        "last_update_date": "2026-08-05",
+        "requirements": "none",
+        "category": "Telegram",
+        "notes": "Table t12 is the Postbox MessageHistoryTagsTable (tableSpec(12) in "
+                 "Postbox.swift). The whole entry is in the key, big-endian: peer id, tag "
+                 "value, namespace, timestamp and message id, per the key function in "
+                 "MessageHistoryTagsTable.swift. The tag values are the MessageTags bit "
+                 "flags defined in the client, from photoOrVideo at bit 0 through "
+                 "unseenPollVote at bit 15; a bit with no name in the client source is "
+                 "reported as its raw value. An entry records how the client indexed the "
+                 "message, so it reflects the client's categorisation rather than an "
+                 "independent examination of the message content.",
+        "paths": (
+            '*/telegram-data/account-*/postbox/db/db_sqlite*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "tags",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Telegram Messenger 11.0 | 2328 rows",
+        },
+    },
     "telegramCachedPeerData": {
         "name": "Telegram Cached Peer Details",
         "description": (
@@ -772,6 +834,145 @@ def telegramDeviceContacts(context):
             source_paths.append(db_path)
         except sqlite3.Error as err:
             logfunc(f'Telegram device contacts: error reading {db_path}: {err}')
+        finally:
+            db.close()
+
+    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    return data_headers, data_list, source_path
+
+
+# --- Telegram Peer Presence --------------------------------------------------
+
+# UserPresenceStatus, per SyncCore_TelegramUserPresence.swift.
+_PRESENCE_STATUS = {
+    0: 'None', 1: 'Online until', 2: 'Recently',
+    3: 'Within last week', 4: 'Within last month',
+}
+
+# MessageTags bit flags, per SyncCore_Namespaces.swift.
+_MESSAGE_TAGS = {
+    0: 'Photo or video', 1: 'File', 2: 'Music', 3: 'Web page',
+    4: 'Voice or instant video', 5: 'Unseen personal message', 6: 'Live location',
+    7: 'GIF', 8: 'Photo', 9: 'Video', 10: 'Pinned', 11: 'Unseen reaction',
+    12: 'Voice', 13: 'Round video', 14: 'Poll', 15: 'Unseen poll vote',
+}
+
+
+def _peer_names(cursor):
+    names = {}
+    try:
+        cursor.execute('SELECT key, value FROM t2')
+        for key, value in cursor.fetchall():
+            if not isinstance(value, bytes):
+                continue
+            peer = _decode_root(value)
+            names[_peer_key_to_id(key, peer.get('i', ''))] = _peer_display_name(peer)
+    except sqlite3.Error:
+        pass
+    return names
+
+
+@artifact_processor
+def telegramPeerPresence(context):
+    """ see artifact description """
+    data_headers = [
+        ('Last Activity', 'datetime'),
+        'Account ID',
+        'Peer ID',
+        'Peer',
+        'Status',
+        ('Status Time', 'datetime'),
+        'Hides Last Seen',
+    ]
+    data_list = []
+    source_paths = []
+
+    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+        db = open_sqlite_db_readonly(db_path)
+        if db is None:
+            continue
+        try:
+            cursor = db.cursor()
+            names = _peer_names(cursor)
+            cursor.execute('SELECT key, value FROM t20')
+            for key, value in cursor.fetchall():
+                if not isinstance(value, bytes):
+                    continue
+                record = _decode_root(value)
+                peer_id = _peer_key_to_id(key)
+                variant = record.get('v')
+                status_time = record.get('t')
+                activity = record.get('la')
+                data_list.append((
+                    datetime.datetime.fromtimestamp(activity, tz=datetime.timezone.utc)
+                    if isinstance(activity, int) and activity > 0 else '',
+                    account_id,
+                    peer_id,
+                    names.get(peer_id, ''),
+                    _PRESENCE_STATUS.get(variant, f'Unrecognised ({variant})'),
+                    datetime.datetime.fromtimestamp(status_time, tz=datetime.timezone.utc)
+                    if isinstance(status_time, int) and 0 < status_time < 2147483647 else '',
+                    'Yes' if record.get('h') else '',
+                ))
+            source_paths.append(db_path)
+        except sqlite3.Error as err:
+            logfunc(f'Telegram peer presence: error reading {db_path}: {err}')
+        finally:
+            db.close()
+
+    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    return data_headers, data_list, source_path
+
+
+# --- Telegram Message Tags ---------------------------------------------------
+
+@artifact_processor
+def telegramMessageTags(context):
+    """ see artifact description """
+    data_headers = [
+        ('Timestamp', 'datetime'),
+        'Account ID',
+        'Chat ID',
+        'Chat',
+        'Category',
+        'Message ID',
+    ]
+    data_list = []
+    source_paths = []
+
+    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+        db = open_sqlite_db_readonly(db_path)
+        if db is None:
+            continue
+        try:
+            cursor = db.cursor()
+            names = _peer_names(cursor)
+            cursor.execute('SELECT key FROM t12')
+            for (key,) in cursor.fetchall():
+                # peerId int64, tag uint32, namespace int32, timestamp int32,
+                # message id int32, all big-endian per the table's key function.
+                if not isinstance(key, bytes) or len(key) < 24:
+                    continue
+                peer_id = struct.unpack('>q', key[0:8])[0]
+                tag = struct.unpack('>I', key[8:12])[0]
+                timestamp = struct.unpack('>i', key[16:20])[0]
+                message_id = struct.unpack('>i', key[20:24])[0]
+                labels = [name for bit, name in _MESSAGE_TAGS.items() if tag & (1 << bit)]
+                unknown = tag & ~sum(1 << bit for bit in _MESSAGE_TAGS)
+                if unknown:
+                    labels.append(f'{unknown:#x}')
+                data_list.append((
+                    datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+                    if timestamp else '',
+                    account_id,
+                    peer_id,
+                    names.get(peer_id, ''),
+                    ', '.join(labels) if labels else '',
+                    message_id,
+                ))
+            source_paths.append(db_path)
+        except sqlite3.Error as err:
+            logfunc(f'Telegram message tags: error reading {db_path}: {err}')
         finally:
             db.close()
 

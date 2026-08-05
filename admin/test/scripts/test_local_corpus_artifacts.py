@@ -582,6 +582,39 @@ class TelegramLocalTest(LocalCorpusTestCase):
             self.assertGreaterEqual(row[8], 0)
             self.assert_matches(row[9], r'^(Yes|)$', 'Marked Unread')
 
+    def test_peer_presence_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramPeerPresence
+        headers, rows, _ = telegramPeerPresence.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramPeerPresence parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_plausible_timestamp(row[5])
+            self.assert_matches(row[2], r'^-?\d+$', 'Peer ID')
+            self.assert_matches(
+                row[4], r'^(None|Online until|Recently|Within last week|'
+                        r'Within last month|Unrecognised .*)$', 'Status')
+            self.assert_matches(row[6], r'^(Yes|)$', 'Hides Last Seen')
+
+    def test_message_tags_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramMessageTags
+        headers, rows, _ = telegramMessageTags.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramMessageTags parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_matches(row[2], r'^-?\d+$', 'Chat ID')
+            self.assertIsInstance(row[5], int)          # Message ID
+
+    def test_device_contacts_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramDeviceContacts
+        headers, rows, _ = telegramDeviceContacts.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramDeviceContacts parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assertTrue(row[1], 'device contact row has no phone number')
+            self.assert_matches(row[4], r'^(Imported|Retry later|)$', 'Import State')
+
     def test_cached_peer_data_structure(self):
         from scripts.artifacts.telegramAccounts import telegramCachedPeerData
         headers, rows, _ = telegramCachedPeerData.__wrapped__(_ListContext(self.paths))
