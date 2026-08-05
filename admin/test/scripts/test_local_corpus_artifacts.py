@@ -566,6 +566,22 @@ class TelegramLocalTest(LocalCorpusTestCase):
             self.assert_matches(row[9], r'^(Yes|)$', 'In Contact List')
             self.assert_matches(row[10], r'^(Yes|)$', 'In Spotlight Cache')
 
+    def test_chats_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramChats
+        headers, rows, _ = telegramChats.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramChats parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_matches(row[1], r'^\d+$', 'Account ID')
+            self.assert_matches(row[2], r'^-?\d+$', 'Chat ID')
+            self.assert_matches(row[5], r'^(Main|Archived)$', 'Folder')
+            self.assert_matches(row[6], r'^(Yes|)$', 'Pinned')
+            self.assertIsInstance(row[7], int)      # Messages Stored
+            self.assertIsInstance(row[8], int)      # Unread Count
+            self.assertGreaterEqual(row[8], 0)
+            self.assert_matches(row[9], r'^(Yes|)$', 'Marked Unread')
+
     def test_cached_peer_data_structure(self):
         from scripts.artifacts.telegramAccounts import telegramCachedPeerData
         headers, rows, _ = telegramCachedPeerData.__wrapped__(_ListContext(self.paths))

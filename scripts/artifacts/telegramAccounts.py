@@ -63,6 +63,37 @@ __artifacts_v2__ = {
             "hc_ios18_7": "iOS 18.7.8 | Telegram Messenger 12.6.3 | 253 rows",
         },
     },
+    "telegramChats": {
+        "name": "Telegram Chats",
+        "description": (
+            "Parses the Telegram chat list from the Postbox chat list table, reporting each "
+            "chat with the time of its most recent message, whether it is pinned, whether it "
+            "sits in the main list or the archive, the number of messages stored for it and "
+            "the unread count."
+        ),
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-04",
+        "last_update_date": "2026-08-04",
+        "requirements": "none",
+        "category": "Telegram",
+        "notes": "The chat list is table t9, the Postbox ChatListTable (tableSpec(9) in "
+                 "Postbox.swift). Its key carries the whole entry: a group id, a pinning "
+                 "value, the timestamp and id of the top message, and the peer id, in that "
+                 "order and big-endian. Group id 0 is the main list and 1 is the archive. A "
+                 "pinning value of 0 means the chat is not pinned. Unread counts come from "
+                 "table t14, the MessageHistoryReadStateTable, whose id-based records carry "
+                 "the count and a marked-unread flag. Names are resolved from the peer table "
+                 "(t2) and the stored message count from the message table (t7).",
+        "paths": (
+            '*/telegram-data/account-*/postbox/db/db_sqlite*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "messages",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Telegram Messenger 11.0 | 13 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Telegram Messenger 12.6.3 | 6 rows",
+        },
+    },
     "telegramCachedPeerData": {
         "name": "Telegram Cached Peer Details",
         "description": (
@@ -504,6 +535,141 @@ def telegramContacts(context):
             source_paths.append(db_path)
         except sqlite3.Error as err:
             logfunc(f'Telegram contacts: error reading {db_path}: {err}')
+        finally:
+            db.close()
+
+    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    return data_headers, data_list, source_path
+
+
+# --- Telegram Chats ----------------------------------------------------------
+
+def _read_chat_list_key(key):
+    """Unpack a ChatListTable key.
+
+    Layout from ChatListTable.swift extractKey: group id, pinning value, top
+    message timestamp, namespace, message id, peer id, entry type. Postbox keys
+    are big-endian so that they sort.
+    """
+    if not isinstance(key, bytes) or len(key) < 23:
+        return None
+    group_id = struct.unpack('>i', key[0:4])[0]
+    pinning = struct.unpack('>H', key[4:6])[0]
+    timestamp = struct.unpack('>i', key[6:10])[0]
+    peer_id = struct.unpack('>q', key[15:23])[0]
+    return group_id, pinning, timestamp, peer_id
+
+
+def _read_read_states(db):
+    """Unread counts per peer from the MessageHistoryReadStateTable (t14).
+
+    Value layout from MessageHistoryReadStateTable.swift: a namespace count,
+    then per namespace an id and a kind byte; an id-based record carries the
+    max read ids, the unread count and a flags word whose first bit is the
+    manually marked-unread state. Values are written natively, little-endian.
+    """
+    states = {}
+    try:
+        cursor = db.cursor()
+        cursor.execute('SELECT key, value FROM t14')
+        rows = cursor.fetchall()
+    except sqlite3.Error:
+        return states
+    for key, value in rows:
+        peer_id = _peer_key_to_id(key)
+        if not isinstance(value, bytes) or len(value) < 4:
+            continue
+        try:
+            offset = 0
+            namespaces = struct.unpack_from('<i', value, offset)[0]
+            offset += 4
+            unread, marked = 0, False
+            for _ in range(max(0, min(namespaces, 16))):
+                offset += 4                                  # namespace id
+                kind = value[offset]
+                offset += 1
+                if kind == 0:
+                    offset += 12                             # three max ids
+                    unread = max(unread, struct.unpack_from('<i', value, offset)[0])
+                    offset += 4
+                    flags = struct.unpack_from('<i', value, offset)[0]
+                    offset += 4
+                    marked = marked or bool(flags & 1)
+                else:
+                    break                                    # index-based record
+            states[peer_id] = (unread, marked)
+        except (struct.error, IndexError):
+            continue
+    return states
+
+
+@artifact_processor
+def telegramChats(context):
+    """ see artifact description """
+    data_headers = [
+        ('Last Message', 'datetime'),
+        'Account ID',
+        'Chat ID',
+        'Chat',
+        'Type',
+        'Folder',
+        'Pinned',
+        'Messages Stored',
+        'Unread Count',
+        'Marked Unread',
+    ]
+    data_list = []
+    source_paths = []
+
+    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+        db = open_sqlite_db_readonly(db_path)
+        if db is None:
+            continue
+        try:
+            cursor = db.cursor()
+
+            names, types = {}, {}
+            cursor.execute('SELECT key, value FROM t2')
+            for key, value in cursor.fetchall():
+                if not isinstance(value, bytes):
+                    continue
+                peer = _decode_root(value)
+                peer_id = _peer_key_to_id(key, peer.get('i', ''))
+                names[peer_id] = _peer_display_name(peer)
+                types[peer_id] = _PEER_TYPE_NAMES.get(peer.get('@type'), 'Unknown')
+
+            counts = {}
+            cursor.execute('SELECT key FROM t7')
+            for (key,) in cursor:
+                if isinstance(key, bytes) and len(key) >= 8:
+                    peer = struct.unpack('>q', key[:8])[0]
+                    counts[peer] = counts.get(peer, 0) + 1
+
+            read_states = _read_read_states(db)
+
+            cursor.execute('SELECT key FROM t9')
+            for (key,) in cursor.fetchall():
+                entry = _read_chat_list_key(key)
+                if entry is None:
+                    continue
+                group_id, pinning, timestamp, peer_id = entry
+                unread, marked = read_states.get(peer_id, (0, False))
+                data_list.append((
+                    datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+                    if timestamp else '',
+                    account_id,
+                    peer_id,
+                    names.get(peer_id, ''),
+                    types.get(peer_id, ''),
+                    'Archived' if group_id == 1 else 'Main',
+                    'Yes' if pinning else '',
+                    counts.get(peer_id, 0),
+                    unread,
+                    'Yes' if marked else '',
+                ))
+            source_paths.append(db_path)
+        except sqlite3.Error as err:
+            logfunc(f'Telegram chats: error reading {db_path}: {err}')
         finally:
             db.close()
 
