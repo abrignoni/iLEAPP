@@ -94,6 +94,41 @@ __artifacts_v2__ = {
             "hc_ios18_7": "iOS 18.7.8 | Telegram Messenger 12.6.3 | 6 rows",
         },
     },
+    "telegramDeviceContacts": {
+        "name": "Telegram Device Contacts",
+        "description": (
+            "Parses the device address-book entries Telegram recorded for contact import, "
+            "from table t54 of each account's Postbox database. Each entry is keyed by a "
+            "phone number from the device address book and carries the name as stored on the "
+            "device, whether the import succeeded, how many other accounts Telegram reported "
+            "as having that number saved, and the Telegram user the number resolved to when "
+            "it resolved to one. Numbers appear here whether or not they belong to a "
+            "Telegram user, so this reflects the device address book rather than the "
+            "Telegram contact list."
+        ),
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-05",
+        "last_update_date": "2026-08-05",
+        "requirements": "none",
+        "category": "Telegram",
+        "notes": "Table t54 is the Postbox DeviceContactImportInfoTable (tableSpec(54) in "
+                 "Postbox.swift). The key is a one-byte prefix of 0 followed by the "
+                 "normalised phone number, per TelegramDeviceContactImportIdentifier. The "
+                 "value is a TelegramDeviceContactImportedData record: '_t' 0 is imported and "
+                 "1 is a deferred retry, 'd' holds the device contact data with 'f' first "
+                 "name, 'l' last name and 'dis' the device's own contact identifiers, 'c' is "
+                 "the imported-by count the server returned, and 'pid' is the resolved "
+                 "Telegram peer id when present. The imported-by count is a value Telegram "
+                 "reported, not something derived from this device.",
+        "paths": (
+            '*/telegram-data/account-*/postbox/db/db_sqlite*',
+        ),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "address-book",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | Telegram Messenger 11.0 | 1016 rows",
+        },
+    },
     "telegramCachedPeerData": {
         "name": "Telegram Cached Peer Details",
         "description": (
@@ -670,6 +705,73 @@ def telegramChats(context):
             source_paths.append(db_path)
         except sqlite3.Error as err:
             logfunc(f'Telegram chats: error reading {db_path}: {err}')
+        finally:
+            db.close()
+
+    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    return data_headers, data_list, source_path
+
+
+# --- Telegram Device Contacts ------------------------------------------------
+
+@artifact_processor
+def telegramDeviceContacts(context):
+    """ see artifact description """
+    data_headers = [
+        'Account ID',
+        'Phone Number',
+        'First Name',
+        'Last Name',
+        'Import State',
+        'Imported By Count',
+        'Telegram User ID',
+        'Device Contact Identifiers',
+    ]
+    data_list = []
+    source_paths = []
+
+    for account_id, db_path in _postbox_dbs(context.get_files_found()):
+        db = open_sqlite_db_readonly(db_path)
+        if db is None:
+            continue
+        try:
+            cursor = db.cursor()
+            cursor.execute('SELECT key, value FROM t54')
+            for key, value in cursor.fetchall():
+                if not isinstance(key, bytes) or len(key) < 2:
+                    continue
+                # One-byte prefix of 0, then the normalised number.
+                if key[0] != 0:
+                    continue
+                phone = key[1:].decode('utf-8', 'replace')
+                record = _decode_root(value) if isinstance(value, bytes) else {}
+                contact = record.get('d') if isinstance(record.get('d'), dict) else {}
+                state = record.get('_t')
+                if state == 0:
+                    state_text = 'Imported'
+                elif state == 1:
+                    state_text = 'Retry later'
+                else:
+                    state_text = ''
+                identifiers = contact.get('dis')
+                if isinstance(identifiers, list):
+                    identifiers = ', '.join(str(item) for item in identifiers)
+                else:
+                    identifiers = ''
+                count = record.get('c')
+                data_list.append((
+                    account_id,
+                    phone,
+                    contact.get('f', ''),
+                    contact.get('l', ''),
+                    state_text,
+                    count if isinstance(count, int) else '',
+                    record.get('pid', ''),
+                    identifiers,
+                ))
+            source_paths.append(db_path)
+        except sqlite3.Error as err:
+            logfunc(f'Telegram device contacts: error reading {db_path}: {err}')
         finally:
             db.close()
 
