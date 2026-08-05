@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts detailed information from WebKit Network Cache record files",
         "author": "@JamesHabben",
         "creation_date": "2024-10-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Browser",
         "notes": "The cache record layout (timestamp, hash, response-code positions) was established through reverse engineering and is unverified against WebKit source; undeciphered fields are reported as U1-U8.",
@@ -41,6 +41,20 @@ import json
 from datetime import datetime, timezone
 from collections import OrderedDict
 from scripts.ilapfuncs import logfunc, artifact_processor, check_in_media, check_in_embedded_media
+
+def cache_record_timestamp(timestamp):
+    """Convert a cache record's double timestamp, tolerating garbage values.
+
+    Corrupt or overwritten records carry doubles far outside the platform's
+    time_t range; fromtimestamp() then raises (OverflowError/OSError/ValueError
+    depending on platform) and a single bad record used to abort the whole
+    artifact. Out-of-range values are reported as no timestamp instead.
+    """
+    try:
+        return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+    except (OverflowError, OSError, ValueError):
+        return None
+
 
 def read_vf(file):
     """Read a variable-length field from a file"""
@@ -134,7 +148,7 @@ def webkit_cache_records(context):
                 file_data['Filename'] = f.read(20).hex()
                 file_data['Foldername'] = f.read(20).hex()
                 timestamp = struct.unpack('<d', f.read(8))[0]
-                file_data['Timestamp'] = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+                file_data['Timestamp'] = cache_record_timestamp(timestamp)
                 file_data['Meta SHA1'] = f.read(20).hex()
                 file_data['Meta Size'] = struct.unpack('<Q', f.read(8))[0]
                 file_data['Body SHA1'] = f.read(20).hex()

@@ -194,7 +194,7 @@ __artifacts_v2__ = {
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -1066,7 +1066,15 @@ def health_achievements(context):
     db_records = get_sqlite_db_records(data_source, query)
 
     for record in db_records:
-        created_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        # created_date is REAL (Core Data seconds) in older schemas but TEXT in
+        # newer ones (seen on iOS 26); a str value made the converter's
+        # arithmetic raise and abort the artifact. Convert numeric values
+        # (including numeric strings) and pass other text through as-is.
+        created_date = record[0]
+        try:
+            created_timestamp = convert_cocoa_core_data_ts_to_utc(float(created_date))
+        except (TypeError, ValueError):
+            created_timestamp = created_date
         data_list.append((created_timestamp, record[1], record[2], record[3],
                           record[4], record[5]))
 

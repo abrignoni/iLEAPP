@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parse the interaction with meteo prevision of particular places",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Meteo",
         "notes": "",
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "description": "Parse the app opening time and location",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Meteo",
         "notes": "",
@@ -35,6 +35,7 @@ from scripts.ilapfuncs import artifact_processor, get_file_path, \
 @artifact_processor
 def plz_interaction(context):
     source_path = get_file_path(context.get_files_found(), "favorites_prediction_db.sqlite")
+    data_headers = (('Interaction Timestamp','datetime'), "Meteo of the city", "Meteo of the city (link)", "Coordinates (lat/lon)")
     data_list = []
     cursor = None
     prediction_db = ""
@@ -50,7 +51,7 @@ def plz_interaction(context):
 
     if prediction_db != "":
         query = '''
-        SELECT 
+        SELECT
             datetime(timestamp/1000, 'unixepoch') AS created_date,
             plz,
             lat,
@@ -58,7 +59,6 @@ def plz_interaction(context):
         FROM plz_interaction
         '''
 
-        data_headers = (('Interaction Timestamp','datetime'), "Meteo of the city", "Meteo of the city (link)", "Coordinates (lat/lon)")
         db_records = get_sqlite_db_records(prediction_db, query)
 
         local_data = []
@@ -67,7 +67,7 @@ def plz_interaction(context):
             cursor = db.cursor()
 
         for record in db_records:
-            local_data = get_location_infos(cursor, record[1])
+            local_data = get_location_infos(cursor, record[1]) if cursor else []
             # test for 1111 postal code case
             if len(local_data) > 0:
                 meteo_link = lv03_to_osm(local_data[0][1], local_data[0][2])
@@ -78,14 +78,15 @@ def plz_interaction(context):
                 data_list.append((record[0], local_data[0][4], meteo_link, cons_link))
             else:
                 data_list.append(record)
-
-        return data_headers, data_list, source_path
     else:
         logfunc('No Swissmeteo')
+
+    return data_headers, data_list, source_path
 
 @artifact_processor
 def swissmeteo_plz(context):
     source_path = get_file_path(context.get_files_found(), "favorites_prediction_db.sqlite")
+    data_headers = (('Opened Timestamp','datetime'), 'Latitude', 'Longitude', "Map link")
     data_list = []
     prediction_db = ""
 
@@ -96,21 +97,20 @@ def swissmeteo_plz(context):
 
     if prediction_db != "":
         query = '''
-        SELECT 
+        SELECT
             datetime(timestamp/1000, 'unixepoch') AS created_date,
             lat,
             lon
         FROM app_open
         '''
 
-        data_headers = (('Opened Timestamp','datetime'), 'Latitude', 'Longitude', "Map link")
         db_records = get_sqlite_db_records(prediction_db, query)
         for record in db_records:
             data_list.append((record[0], record[1], record[2], coordinate_to_osm(record[1], record[2])))
-
-        return data_headers, data_list, source_path
     else:
         logfunc('No app_open')
+
+    return data_headers, data_list, source_path
 
 def coordinate_to_osm(lat, lon): 
     return f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
