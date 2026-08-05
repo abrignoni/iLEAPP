@@ -17,7 +17,10 @@ __artifacts_v2__ = {
         "notes": "Original Gist: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713. "
                  "This module processes the db_sqlite file from Telegram's local cache (postbox/db). "
                  "Media files are linked from the postbox/media directory. "
-                 "Some media sub-field labels (live-location period, venue fields) are best-effort interpretations of observed keys.",
+                 "Some media sub-field labels (live-location period, venue fields) are best-effort interpretations of observed keys. "
+                 "A photo is stored on the device once per size the client downloaded, each under its own file name, so every "
+                 "representation of an image is offered to the file search rather than the largest alone. When only a _partial "
+                 "file is present the media was referenced by the message but never fully downloaded, and the row says so.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'
@@ -61,7 +64,7 @@ import struct
 import enum
 import mmh3
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media, logfunc
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media
 
 # Code courtesy of Stek29 / Victor Oreshkin
 # Github: https://gist.github.com/stek29
@@ -92,6 +95,7 @@ def telegramMessages(context):
     # These caches will be passed to helper functions
     peer_cache_global = {}
     media_cache_global = {}
+    media_index_global = {}   # media file basename -> full path, built once
 
     # Inner classes and enums (byteutil, MessageDataFlags, FwdInfoFlags, etc.)
     # These are self-contained and should not need modification for this refactor.
@@ -365,15 +369,18 @@ def telegramMessages(context):
                 key=lambda x: getattr(x, 'height', 0) * getattr(x, 'width', 0),
                 reverse=True
             )
-            if (
-                reps
-                and hasattr(reps[0], 'resource')
-                and isinstance(reps[0].resource, CloudPhotoSizeMediaResource)
-            ):
-                res = reps[0].resource
-                unique_id_attr = getattr(res, 'uniqueId', 'N/A')
-                text_for_report = f"Image: ID {unique_id_attr}"
-                searchable_filename = unique_id_attr
+            candidates = [
+                getattr(rep.resource, 'uniqueId', None) for rep in reps
+                if isinstance(rep.resource, CloudPhotoSizeMediaResource)
+            ]
+            candidates = [c for c in candidates if c]
+            if candidates:
+                # Each representation is a different stored size of the same
+                # photo and each has its own file name. The device keeps only
+                # the sizes it downloaded, so every size is offered to the file
+                # search, largest first, rather than the largest alone.
+                text_for_report = f"Image: ID {candidates[0]}"
+                searchable_filename = candidates
             else:
                 text_for_report = "Image: Malformed representation or resource"
 
@@ -432,10 +439,16 @@ def telegramMessages(context):
         else:
             text_for_report = f"Media: Type {type(m).__name__}, content {str(m)[:100]}"
 
-        return {'text_for_report': text_for_report, 'identifier_for_file_search': searchable_filename}
+        if searchable_filename is None:
+            identifiers = []
+        elif isinstance(searchable_filename, list):
+            identifiers = searchable_filename
+        else:
+            identifiers = [searchable_filename]
+        return {'text_for_report': text_for_report, 'identifiers_for_file_search': identifiers}
 
     def process_message_for_report(idx, msg_data, con_param, peer_cache_param, media_cache_param,
-                                   files_found_param_main):
+                                   files_found_param_main, media_index_param):
         direction = 'Incoming' if MessageFlags.Incoming in msg_data['flags'] else 'Outgoing'
         ts = datetime.datetime.fromtimestamp(idx.timestamp, tz=datetime.timezone.utc)
         # idx.peerId is the chat/conversation the message belongs to (distinct from the sender).
@@ -461,53 +474,63 @@ def telegramMessages(context):
             )
 
         action_data_parts = []
-        primary_media_search_id = None
+        media_search_ids = []
 
         for m_emb in msg_data.get('embeddedMedia', []):
             details = print_media_info(m_emb)
             action_data_parts.append(details['text_for_report'])
-            if details['identifier_for_file_search'] and not primary_media_search_id:
-                primary_media_search_id = details['identifier_for_file_search']
+            media_search_ids.extend(details['identifiers_for_file_search'])
 
         for mref_id_tuple in msg_data.get("referencedMediaIds", []):
             m_ref = get_ref_media(mref_id_tuple[0], mref_id_tuple[1], con_param, media_cache_param, idx)
             if m_ref:
                 details = print_media_info(m_ref)
                 action_data_parts.append(details['text_for_report'])
-                if details['identifier_for_file_search'] and not primary_media_search_id:
-                    primary_media_search_id = details['identifier_for_file_search']
+                media_search_ids.extend(details['identifiers_for_file_search'])
             else:
                 action_data_parts.append(
                     f"Referenced media not found: ns={mref_id_tuple[0]}, "
                     f"id={mref_id_tuple[1]}"
                 )
 
-        final_action_data_text = '; '.join(filter(None, action_data_parts))
         media_item_ref_id = ''
 
-        if primary_media_search_id:
-            found_media_file_path = None
-            for f_path_item in files_found_param_main:
-                current_f_path_str = str(f_path_item)
-                normalized_f_path = current_f_path_str.replace('\\', '/')
-                basename_matches = normalized_f_path.rsplit('/', 1)[-1] == primary_media_search_id
-                is_in_media_path = "/postbox/media/" in normalized_f_path
+        if media_search_ids:
+            # Index the media directory once per run instead of walking the
+            # whole file list for every message.
+            if not media_index_param:
+                for f_path_item in files_found_param_main:
+                    current_f_path_str = str(f_path_item)
+                    normalized_f_path = current_f_path_str.replace('\\', '/')
+                    if "/postbox/media/" not in normalized_f_path:
+                        continue
+                    media_index_param[normalized_f_path.rsplit('/', 1)[-1]] = \
+                        current_f_path_str
 
-                if is_in_media_path and basename_matches:
-                    is_file = os.path.isfile(current_f_path_str)
-                    if is_file:
-                        found_media_file_path = current_f_path_str
+            found_media_file_path = None
+            partial_only = False
+            for candidate in media_search_ids:
+                path = media_index_param.get(candidate)
+                if path and os.path.isfile(path):
+                    found_media_file_path = path
+                    break
+            if not found_media_file_path:
+                # A _partial file is a download the device started and never
+                # finished. The message referenced the media; the bytes on disk
+                # are incomplete. That is reported rather than dropped.
+                for candidate in media_search_ids:
+                    path = media_index_param.get(f'{candidate}_partial')
+                    if path and os.path.isfile(path):
+                        found_media_file_path = path
+                        partial_only = True
                         break
 
             if found_media_file_path:
                 media_item_ref_id = check_in_media(file_path=found_media_file_path)
-            else:
-                logfunc(
-                    "INFO: No valid media file found for "
-                    f"primary_media_search_id = '{primary_media_search_id}' "
-                    "after checking all files_found."
-                )
+                if partial_only:
+                    action_data_parts.append('Media file on device is an incomplete download')
 
+        final_action_data_text = '; '.join(filter(None, action_data_parts))
         text_content = msg_data.get('text', '')
 
         return (
@@ -1004,7 +1027,12 @@ def telegramMessages(context):
     for file_found_single_path in context.get_files_found():
         file_found_single_path = str(file_found_single_path)
 
-        if (file_found_single_path.endswith('db_sqlite')) and ('media' not in file_found_single_path):
+        # Anchor on the media directory itself. A bare 'media' substring test
+        # also excluded the account database whenever the case or output path
+        # happened to contain the word, which silently produced no messages.
+        normalized_db_path = file_found_single_path.replace('\\', '/')
+        if (normalized_db_path.endswith('db_sqlite')
+                and '/postbox/media/' not in normalized_db_path):
             report_file_path = file_found_single_path # This is the source_path for the report
 
             db_connection = None
@@ -1017,7 +1045,7 @@ def telegramMessages(context):
                         processed_row = process_message_for_report(
                             idx, msg_content, db_connection,
                             peer_cache_global, media_cache_global,
-                            context.get_files_found() # Pass main files_found
+                            context.get_files_found(), media_index_global
                         )
                         data_list.append(processed_row)
 
