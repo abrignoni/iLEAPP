@@ -296,11 +296,9 @@ def calendarEvents(context):
                     location_coordinates = f'{latitude}, {longitude}' if latitude and longitude else ''
 
                     if latitude and longitude:
-                        location_coordinates_tag = f'''
-                        {esc(location_coordinates)} &nbsp;
-                        <a href="https://www.openstreetmap.org/?lat={esc(latitude)}&lon=%20{esc(longitude)}&zoom=17&layers=M" target="_blank">
-                        &#x1F5FA;</a>
-                        '''
+                        # Coordinates only. This carried an openstreetmap.org anchor;
+                        # a report links to nothing outside its own folder.
+                        location_coordinates_tag = esc(location_coordinates)
                     else:
                         location_coordinates_tag = ''
 

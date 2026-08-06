@@ -555,8 +555,9 @@ def oura_find_my_ring_location(context):
     if isinstance(loc, dict) and "latitude" in loc and "longitude" in loc:
         lat = loc.get("latitude", "")
         lon = loc.get("longitude", "")
-        map_link = (f'<a href="https://www.google.com/maps?q={esc(lat)},{esc(lon)}" '
-                    f'target="_blank">View on map</a>') if lat != "" and lon != "" else ""
+        # Coordinates as text, not a google.com/maps anchor: a report links to
+        # nothing outside its own folder.
+        map_link = f'{esc(lat)}, {esc(lon)}' if lat != "" and lon != "" else ""
         data_list.append((
             ts_cocoa(loc.get("timestamp")),
             lat,
