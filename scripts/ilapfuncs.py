@@ -536,11 +536,11 @@ def artifact_processor(func):
             source_path = '\n'.join(
                 Context.get_relative_path(p) for p in str(source_path).split('\n'))
 
+        if isinstance(data_list, tuple):
+            data_list, html_data_list = data_list
+        else:
+            html_data_list = data_list
         if len(data_list):
-            if isinstance(data_list, tuple):
-                data_list, html_data_list = data_list
-            else:
-                html_data_list = data_list
             logfunc(f"Found {len(data_list):,} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
             # Path separators would break (or misplace) the report files, so the HTML, TSV
             # and KML outputs are written under a path safe name. The sidebar keys off the
