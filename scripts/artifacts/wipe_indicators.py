@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
-    "get_obliterated": {
-        "name": "Obliterated Time",
-        "description": "Reports the last-modified time of /root/.obliterated, a file created when the device is wiped; the timestamp reflects the first boot after reset.",
+    "wipe_indicators": {
+        "name": "Wipe Indicators",
+        "description": "Reports the last-modified time of /root/.obliterated and /root/.bootstrapped, files created when the device is wiped; the timestamp reflects the first boot after reset.",
         "author": "@JohnHyla",
         "version": "0.0.2",
         "date": "2024-10-17",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-06",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "The file is not present in every extraction and extraction handling can disturb file times; corroborate with containermanagerd logs. Reference: Cellebrite, 'Upgrade From Null: Detecting iOS Wipe Artifacts', https://cellebrite.com/en/blog/upgrade-from-null-detecting-ios-wipe-artifacts/",
-        "paths": ('*/root/.obliterated'),
+        "paths": ('*/root/.obliterated','*/root/.bootstrapped'),
         "output_types": "standard",
         "artifact_icon": "trash",
         "sample_data": {
@@ -32,19 +32,22 @@ __artifacts_v2__ = {
 import datetime
 from datetime import timezone
 import os
-from scripts.ilapfuncs import logdevinfo, artifact_processor
+from scripts.ilapfuncs import logdevinfo, artifact_processor, convert_unix_ts_to_utc
 
 @artifact_processor
-def get_obliterated(context):
-    file_found = str(context.get_files_found()[0])
+def wipe_indicators(context):
+    files_found = context.get_files_found()
+    data_list = []
+    source_path = ""
     
-    modified_time = os.path.getmtime(file_found)
-    utc_modified_date = datetime.datetime.fromtimestamp(modified_time, tz=timezone.utc)
+    for source_path in files_found:
+        source_name = str(context.get_relative_path(source_path))
+        source_name_log = source_name.rsplit('\\', 1)[-1]
+        utc_modified_date = convert_unix_ts_to_utc(os.path.getmtime(source_path))
     
-    logdevinfo(f'<b>Obliterated Timestamp: </b>{utc_modified_date}')
+        logdevinfo(f'<b>{source_name_log} Timestamp: </b>{utc_modified_date}')
     
-    data_list = [(utc_modified_date,)]
+        data_list.append((utc_modified_date, source_name_log, source_name))
 
-    data_headers = (('Timestamp', 'datetime'), )
-
-    return data_headers, data_list, file_found
+    data_headers = (('Timestamp', 'datetime'),'Source File','Source Path')
+    return data_headers, data_list, 'See source file below'
