@@ -64,13 +64,19 @@ def wireAccount(context):
         'ZACTIVATIONLOCATIONLATITUDE'
         )
 
+    # Newer Wire versions drop ZUSER.ZPHONENUMBER, so it is selected only when present.
+    phone_column = (
+        'ZUSER.ZPHONENUMBER' if does_column_exist_in_db(source_path, 'ZUSER', 'ZPHONENUMBER')
+        else 'NULL'
+        )
+
     if has_location_data:
-        query = '''
+        query = f'''
         SELECT
             DISTINCT ZUSER.ZHANDLE AS 'User ID',
             ZUSER.ZNAME AS 'Display Name',
             ZUSERCLIENT.ZACTIVATIONDATE AS 'Activation Date',
-            ZUSER.ZPHONENUMBER AS 'Phone Number',
+            {phone_column} AS 'Phone Number',
             ZUSER.ZEMAILADDRESS AS 'Email Address',
             ZUSERCLIENT.ZACTIVATIONLOCATIONLATITUDE AS 'Activation Latitude',
             ZUSERCLIENT.ZACTIVATIONLOCATIONLONGITUDE AS 'Activation Longitude'
@@ -87,12 +93,12 @@ def wireAccount(context):
             'Longitude'
             )
     else:
-        query = '''
+        query = f'''
         SELECT
             DISTINCT ZUSER.ZHANDLE AS 'User ID',
             ZUSER.ZNAME AS 'Display Name',
             ZUSERCLIENT.ZACTIVATIONDATE AS 'Activation Date',
-            ZUSER.ZPHONENUMBER AS 'Phone Number',
+            {phone_column} AS 'Phone Number',
             ZUSER.ZEMAILADDRESS AS 'Email Address'
         FROM ZUSER
         LEFT JOIN ZUSERCLIENT ON ZUSER.Z_PK = ZUSERCLIENT.ZUSER;
