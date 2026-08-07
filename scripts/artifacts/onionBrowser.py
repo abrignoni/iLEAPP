@@ -37,13 +37,76 @@ __artifacts_v2__ = {
             "hc_ios26": "iOS 26.5.2 | Onion Browser | settings reported",
         },
     },
+    "onion_browser_bookmarks": {
+        "name": "Onion Browser - Bookmarks",
+        "description": "Bookmarks saved in Onion Browser, with the page title, the URL and the site "
+                       "icon",
+        "author": "",
+        "creation_date": "2026-08-07",
+        "last_update_date": "2026-08-07",
+        "requirements": "none",
+        "category": "Onion Browser",
+        "notes": "Read from the class_BookmarkItem table of the app's Realm store "
+                 "(Documents/default.realm) using the vendored realm_parser. The stored icon is a "
+                 "base64 PNG and is checked in.",
+        "paths": ('*/Documents/default.realm*',),
+        "output_types": "standard",
+        "artifact_icon": "bookmark",
+        "sample_data": {
+            "hc_ios26": "iOS 26.5.2 | Onion Browser | 1 row",
+        },
+    },
+    "onion_browser_favourites": {
+        "name": "Onion Browser - Favourites",
+        "description": "Favourite sites shown on the Onion Browser start page, with the title, the "
+                       "URL and the site icon",
+        "author": "",
+        "creation_date": "2026-08-07",
+        "last_update_date": "2026-08-07",
+        "requirements": "none",
+        "category": "Onion Browser",
+        "notes": "Read from the class_FavouriteModel table of the app's Realm store. The app ships "
+                 "with preset favourites, so a row does not on its own show the user added it.",
+        "paths": ('*/Documents/default.realm*',),
+        "output_types": "standard",
+        "artifact_icon": "star",
+        "sample_data": {
+            "hc_ios26": "iOS 26.5.2 | Onion Browser | 7 rows",
+        },
+    },
+    "onion_browser_history": {
+        "name": "Onion Browser - Browsing History",
+        "description": "Pages recorded in Onion Browser browsing history, with the title, the URL, "
+                       "the site icon and the date and time shown to the user",
+        "author": "",
+        "creation_date": "2026-08-07",
+        "last_update_date": "2026-08-07",
+        "requirements": "none",
+        "category": "Onion Browser",
+        "notes": "Read from the class_BrowsingHistoryItem table of the app's Realm store. The date "
+                 "and time are the display strings the app stored, in device local time.",
+        "paths": ('*/Documents/default.realm*',),
+        "output_types": "standard",
+        "artifact_icon": "clock",
+        "sample_data": {
+            "hc_ios26": "iOS 26.5.2 | Onion Browser | 1 row",
+        },
+    },
 }
 
+import base64
+import binascii
 import plistlib
 
 import nska_deserialize
 
-from scripts.ilapfuncs import artifact_processor, convert_plist_date_to_utc, get_file_path
+from scripts.ilapfuncs import (
+    artifact_processor,
+    check_in_embedded_media,
+    convert_plist_date_to_utc,
+    get_file_path,
+)
+from scripts.realm_parser import parse_realm_file, realm_rows
 
 # Preference keys reported by the settings artifact, in the order shown, with readable labels.
 _SETTINGS = [
@@ -144,5 +207,94 @@ def onion_browser_settings(context):
     data_headers = (
         'Setting',
         'Value',
+    )
+    return data_headers, data_list, source_path
+
+
+def _is_onion_realm(path):
+    """The default.realm glob is shared by several apps, so confirm this Realm
+    carries Onion Browser classes before reporting rows."""
+    tables = parse_realm_file(path).get("active", {})
+    return any(name in tables for name in
+               ('class_BookmarkItem', 'class_FavouriteModel', 'class_BrowsingHistoryItem'))
+
+
+def _onion_realm_path(files_found):
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith('default.realm') and _is_onion_realm(file_found):
+            return file_found
+    return ''
+
+
+def _check_in_icon(source_path, icon, name):
+    """Onion Browser stores site icons as base64 PNG; decode and check in."""
+    if not icon or not isinstance(icon, str):
+        return ''
+    try:
+        raw = base64.b64decode(icon)
+    except (binascii.Error, ValueError):
+        return ''
+    if not raw.startswith(b'\x89PNG\r\n\x1a\n'):
+        return ''
+    return check_in_embedded_media(source_path, raw, name,
+                                   force_type='image/png', force_extension='png') or ''
+
+
+@artifact_processor
+def onion_browser_bookmarks(context):
+    source_path = _onion_realm_path(context.get_files_found())
+    data_list = []
+
+    for index, row in enumerate(realm_rows(source_path, 'class_BookmarkItem')):
+        icon = _check_in_icon(source_path, row.get('icon'), f'onion_bookmark_{index}.png')
+        data_list.append((row.get('title'), row.get('url'), icon))
+
+    data_headers = (
+        'Title',
+        ('URL', 'url'),
+        ('Icon', 'media'),
+    )
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def onion_browser_favourites(context):
+    source_path = _onion_realm_path(context.get_files_found())
+    data_list = []
+
+    for index, row in enumerate(realm_rows(source_path, 'class_FavouriteModel')):
+        icon = _check_in_icon(source_path, row.get('icon'), f'onion_favourite_{index}.png')
+        data_list.append((row.get('title'), row.get('url'), icon))
+
+    data_headers = (
+        'Title',
+        ('URL', 'url'),
+        ('Icon', 'media'),
+    )
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def onion_browser_history(context):
+    source_path = _onion_realm_path(context.get_files_found())
+    data_list = []
+
+    for index, row in enumerate(realm_rows(source_path, 'class_BrowsingHistoryItem')):
+        icon = _check_in_icon(source_path, row.get('icon'), f'onion_history_{index}.png')
+        data_list.append((
+            row.get('date'),
+            row.get('time'),
+            row.get('title'),
+            row.get('url'),
+            icon,
+        ))
+
+    data_headers = (
+        'Date (device local)',
+        'Time (device local)',
+        'Title',
+        ('URL', 'url'),
+        ('Icon', 'media'),
     )
     return data_headers, data_list, source_path
