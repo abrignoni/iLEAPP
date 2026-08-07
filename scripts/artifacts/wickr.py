@@ -188,6 +188,34 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17 | AWS Wickr (com.wickr.pro.prod) | 0 rows",
         },
     },
+    "wickr_keychain_account": {
+        "name": "Wickr - Account Identity (Keychain)",
+        "description": "The Wickr account identity held in the iOS keychain, including the user "
+                       "name in the clear, the device identifier and the server the app was "
+                       "registered against. Needs a keychain, supplied or carried by the "
+                       "extraction",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-07",
+        "last_update_date": "2026-08-07",
+        "requirements": "none",
+        "category": "Wickr",
+        "notes": "Read from the keychain items in Wickr's access group, which on the tested image "
+                 "is the team identifier W8RC3R952A. These are the only Wickr strings recovered in "
+                 "the clear anywhere: the database itself stores every text-bearing column as an "
+                 "encrypted blob, so without a keychain the user is visible only as the hash in "
+                 "the Wickr - Users artifact. The items reported are the wickrusername and userID "
+                 "accounts, the devid account and the baseURL account. All four were stored with "
+                 "the accessible-after-first-unlock-this-device-only protection class on the "
+                 "tested image. Nothing here decrypts the message database; the storage key is "
+                 "not among these items. Requires a keychain, so this artifact is empty when none "
+                 "is supplied and none is found in the extraction.",
+        "paths": ('*/wickrLocal.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "key",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17 | AWS Wickr, with the extraction's own keychain | 4 rows",
+        },
+    },
     "wickr_app_log": {
         "name": "Wickr - App Log Message Events",
         "description": "Incoming message events recorded in the Wickr application logs, with the "
@@ -219,6 +247,7 @@ __artifacts_v2__ = {
 import json
 import re
 
+from scripts.ios_keychain import active_keychain_path, find_keychain_secrets
 from scripts.ilapfuncs import (artifact_processor, convert_cocoa_core_data_ts_to_utc,
                                convert_unix_ts_to_utc, does_column_exist_in_db,
                                does_table_exist_in_db, get_sqlite_db_records, logfunc)
@@ -695,6 +724,62 @@ def wickr_recent_searches(context):
         'Search Query',
     )
     return data_headers, data_list, source_path
+
+
+# The keychain accounts Wickr uses, and what each one holds. The access group is
+# the team identifier, which is what keeps this from matching another app.
+WICKR_ACCESS_GROUP = 'W8RC3R952A'
+WICKR_KEYCHAIN_ACCOUNTS = (
+    ('!wickrusername!', 'User Name'),
+    ('userID', 'User ID'),
+    ('!devid!', 'Device Identifier'),
+    ('baseURL', 'Server'),
+)
+
+
+def _printable(raw):
+    """Wickr's keychain values are UTF-8 strings, except devid which is a binary
+    prefix followed by a UUID. Report text as text and anything else as hex."""
+    try:
+        text = raw.decode('utf-8')
+    except UnicodeDecodeError:
+        tail = raw[32:]
+        try:
+            return f'{raw[:32].hex()} + {tail.decode("ascii")}'
+        except UnicodeDecodeError:
+            return raw.hex()
+    return text if text.isprintable() else raw.hex()
+
+
+@artifact_processor
+def wickr_keychain_account(context):
+    data_list = []
+    source_path = ''
+    for path in _db_paths(context.get_files_found()):
+        source_path = path
+        break
+
+    keychain_path = active_keychain_path()
+    if not keychain_path:
+        if source_path:
+            logfunc('Wickr: no keychain is available, so the account identity stays hidden. '
+                    'The database holds only hashes. Supply a keychain with --keychain or the '
+                    'keychain field in the GUI.')
+        return _KEYCHAIN_HEADERS, data_list, source_path
+
+    for account, label in WICKR_KEYCHAIN_ACCOUNTS:
+        for secret in find_keychain_secrets(keychain_path, WICKR_ACCESS_GROUP, account):
+            data_list.append((label, account, _printable(secret), len(secret)))
+
+    return _KEYCHAIN_HEADERS, data_list, source_path or keychain_path
+
+
+_KEYCHAIN_HEADERS = (
+    'Item',
+    'Keychain Account',
+    'Value',
+    'Length',
+)
 
 
 @artifact_processor
