@@ -2,6 +2,7 @@
 import codecs  # pylint: disable=unused-import  # re-exported
 import contextlib
 import csv
+import dataclasses
 import hashlib
 import inspect
 import io
@@ -15,6 +16,7 @@ import re  # pylint: disable=unused-import  # re-exported for modules importing 
 import shutil
 import sqlite3
 import sys
+import typing
 import xml
 
 from datetime import datetime, timezone, timedelta
@@ -112,6 +114,125 @@ class OutputParameters:
         os.makedirs(self.media_folder, exist_ok=True)
         os.makedirs(self.html_media_folder, exist_ok=True)
         
+
+@dataclasses.dataclass(frozen=True)
+class OutputParametersExisting:
+    """
+    Lightweight, picklable output parameters for subprocess use.
+
+    Unlike OutputParameters.__init__, this does NOT create a new timestamped report folder.
+    It is meant to point at an already-initialized output folder tree created by the parent.
+    """
+    output_folder_base: str
+    data_folder: str
+    media_folder: str
+    html_media_folder: str
+
+    screen_output_file_path: str
+    screen_output_file_path_devinfo: str
+    screen_output_file_path_lava_only: str
+
+
+def output_params_from_existing_output_folder_base(
+        output_folder_base: str,
+        *,
+        ensure_dirs: bool = False) -> OutputParametersExisting:
+    """
+    Build OutputParametersExisting from an existing output folder base.
+
+    If ensure_dirs=True, ensures the expected log/data/media directories exist (exist_ok=True).
+    """
+    data_folder = os.path.join(output_folder_base, 'data')
+    media_folder = os.path.join(output_folder_base, 'media')
+    html_media_folder = os.path.join(output_folder_base, '_HTML', 'media')
+
+    screen_output_file_path = os.path.join(
+        output_folder_base, '_HTML', '_Script_Logs', 'Screen_Output.html')
+    screen_output_file_path_devinfo = os.path.join(
+        output_folder_base, '_HTML', '_Script_Logs', 'DeviceInfo.html')
+    screen_output_file_path_lava_only = os.path.join(
+        output_folder_base, '_HTML', '_Script_Logs', 'Lava_only_artifacts_log.html')
+
+    if ensure_dirs:
+        os.makedirs(os.path.join(output_folder_base, '_HTML', '_Script_Logs'), exist_ok=True)
+        os.makedirs(data_folder, exist_ok=True)
+        os.makedirs(media_folder, exist_ok=True)
+        os.makedirs(html_media_folder, exist_ok=True)
+
+    # logfunc() writes to these static paths, so we must set them in subprocesses too.
+    OutputParameters.screen_output_file_path = screen_output_file_path
+    OutputParameters.screen_output_file_path_devinfo = screen_output_file_path_devinfo
+    OutputParameters.screen_output_file_path_lava_only = screen_output_file_path_lava_only
+
+    return OutputParametersExisting(
+        output_folder_base=output_folder_base,
+        data_folder=data_folder,
+        media_folder=media_folder,
+        html_media_folder=html_media_folder,
+        screen_output_file_path=screen_output_file_path,
+        screen_output_file_path_devinfo=screen_output_file_path_devinfo,
+        screen_output_file_path_lava_only=screen_output_file_path_lava_only,
+    )
+
+
+@dataclasses.dataclass(frozen=True)
+class FileInfoSnapshot:
+    """
+    Picklable snapshot of scripts.search_files.FileInfo.
+    """
+    source_path: str
+    creation_date: float
+    modification_date: float
+
+
+class SeekerProxy:
+    """
+    Minimal seeker stand-in for subprocesses.
+
+    Currently only provides .file_infos, which is used by media helpers to map extracted
+    paths back to original source paths and timestamps.
+    """
+    def __init__(self, file_infos: dict[str, FileInfoSnapshot], all_files: typing.Optional[list[str]] = None):
+        self.file_infos = file_infos
+        # Optional lightweight search index: list of "virtual paths" (eg. iTunes full paths like
+        # private/var/mobile/Library/...).
+        self._all_files = all_files or []
+        self.searched = {}
+
+    def search(self, filepattern, return_on_first_hit: bool = False, force: bool = False):
+        """
+        Lightweight seeker.search() for subprocess mode.
+
+        This mimics FileSeekerItunes.search() behavior for matching (fnmatch against virtual paths),
+        but returns *already-extracted* paths only. It does NOT perform extraction/copying.
+        It exists so plugins that call seeker.search() for auxiliary files don't crash in mp mode.
+        """
+        try:
+            if filepattern in self.searched and not force:
+                pathlist = self.searched[filepattern]
+                return pathlist[0] if return_on_first_hit and pathlist else pathlist
+
+            import fnmatch as _fnmatch  # local import to keep module import side-effects minimal
+
+            matches = _fnmatch.filter(self._all_files, filepattern) if self._all_files else []
+
+            # Map virtual paths to extracted paths via known file_infos (only those copied/extracted so far)
+            found = []
+            if matches:
+                for extracted_path, finfo in (self.file_infos or {}).items():
+                    try:
+                        if finfo and finfo.source_path in matches:
+                            found.append(extracted_path)
+                            if return_on_first_hit:
+                                break
+                    except Exception:
+                        continue
+
+            self.searched[filepattern] = found
+            return found[0] if return_on_first_hit and found else found
+        except Exception:
+            return "" if return_on_first_hit else []
+
 class GuiWindow:
     '''This only exists to hold window handle if script is run from GUI'''
     window_handle = None  # static variable

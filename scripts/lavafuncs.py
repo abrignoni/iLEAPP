@@ -34,6 +34,7 @@ from platform import platform
 from collections import OrderedDict
 import re
 import datetime
+import typing
 
 from scripts.version_info import leapp_name, leapp_version
 from scripts.context import Context
@@ -43,6 +44,9 @@ lava_data = None
 lava_db = None
 lava_db_name = '_lava_artifacts.db'
 lava_json_name = '_lava_data.lava'
+
+def _get_lava_db_path(output_path: str) -> str:
+    return os.path.join(output_path, lava_db_name)
 
 
 def sanitize_sql_name(name):
@@ -137,7 +141,7 @@ def initialize_lava(input_path, output_path, input_type):
         }
     }
 
-    db_path = os.path.join(output_path, lava_db_name)
+    db_path = _get_lava_db_path(output_path)
     lava_db = sqlite3.connect(db_path)
 
     cursor = lava_db.cursor()
@@ -155,7 +159,7 @@ def initialize_lava(input_path, output_path, input_type):
                         file_path_id INTEGER NOT NULL,
                         FOREIGN KEY (artifact_search_pattern_id) REFERENCES _artifact_search_patterns(id),
                         FOREIGN KEY (file_path_id) REFERENCES _file_path_list(id))''')
-    cursor.execute('''CREATE TABLE _lava_media_items (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS _lava_media_items (
                         id TEXT PRIMARY KEY,
                         source_path TEXT,
                         extraction_path TEXT,
@@ -164,13 +168,15 @@ def initialize_lava(input_path, output_path, input_type):
                         created_at INTEGER,
                         updated_at INTEGER,
                         is_embedded INTEGER)''')
-    cursor.execute('''CREATE TABLE _lava_media_references (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS _lava_media_references (
                         id TEXT PRIMARY KEY,
                         media_item_id TEXT,
                         module_name TEXT,
                         artifact_name TEXT,
                         name TEXT,
                         FOREIGN KEY (media_item_id) REFERENCES _lava_media_items(id))''')
+    # Make view creation idempotent (eg, safe across subprocesses)
+    cursor.execute('''DROP VIEW IF EXISTS _lava_media_info''')
     cursor.execute('''CREATE VIEW _lava_media_info AS
                         SELECT
                             lmr.id as 'media_ref_id',
@@ -187,6 +193,185 @@ def initialize_lava(input_path, output_path, input_type):
                             lmi.is_embedded
                         FROM _lava_media_references as lmr
                         LEFT JOIN _lava_media_items as lmi ON lmr.media_item_id = lmi.id''')
+    lava_db.commit()
+
+
+def lava_open_existing(output_path: str) -> None:
+    """
+    Open an existing `_lava_artifacts.db` inside a child process.
+
+    The parent process is expected to have created the database file already.
+    """
+    global lava_db
+    db_path = _get_lava_db_path(output_path)
+    lava_db = sqlite3.connect(db_path)
+
+
+def lava_close_db() -> None:
+    """Close the global LAVA sqlite connection if open."""
+    global lava_db
+    if lava_db is not None:
+        try:
+            lava_db.close()
+        finally:
+            lava_db = None
+
+
+def _normalize_data_views_for_lava(data_views: typing.Optional[dict], data_headers) -> typing.Optional[dict]:
+    """
+    Normalize & sanitize data views for storing in LAVA metadata.
+
+    - Upgrades legacy 'chat' view to 'conversation'
+    - Sanitizes values that reference column names so they match table schema sanitization
+    """
+    if not data_views:
+        return None
+
+    # Deep copy (avoid mutating caller/module globals)
+    try:
+        normalized = json.loads(json.dumps(data_views))
+    except Exception:
+        # If non-JSONable, fall back to shallow copy
+        normalized = dict(data_views)
+
+    # Backward compatibility for chat view. Remove 'chat' once modules are updated.
+    if "chat" in normalized:
+        view_params = normalized.pop("chat")
+        normalized["conversation"] = view_params
+
+    view_params = normalized.get("conversation")
+    if not view_params:
+        return normalized
+
+    # Get original column names for dynamic sanitization check
+    column_names = [item[0] if isinstance(item, tuple) else item for item in data_headers]
+
+    # Conversion map for backward compatibility. Remove once modules are updated.
+    convert_map = {
+        "threadDiscriminatorColumn": "conversationDiscriminatorColumn",
+        "threadLabelColumn": "conversationLabelColumn",
+    }
+
+    sanitized_params = {}
+    for key, value in view_params.items():
+        final_key = convert_map.get(key, key)
+
+        # Sanitize value if it's a column name, otherwise pass through
+        if value in column_names:
+            sanitized_params[final_key] = sanitize_sql_name(value)
+        else:
+            sanitized_params[final_key] = value
+
+    normalized["conversation"] = sanitized_params
+    return normalized
+
+
+def lava_build_artifact_meta_delta(
+        *,
+        category: str,
+        module_name: str,
+        module_filename: str,
+        artifact_name: str,
+        artifact_info: dict,
+        table_name: str,
+        column_map: dict,
+        object_columns: typing.Optional[dict] = None,
+        record_count: typing.Optional[int] = None,
+        artifact_icon: typing.Optional[str] = None,
+        source_path: typing.Optional[str] = None,
+        data_headers=None,
+        data_views: typing.Optional[dict] = None,
+) -> dict:
+    """
+    Build a pure-data delta for the LAVA metadata structure (picklable).
+
+    Intended to be produced in a subprocess and merged into the parent's in-memory
+    lava_data, so the parent can write a correct `_lava_data.lava` at the end.
+    """
+    artifact_meta = {
+        "artifact_key": table_name,
+        "tablename": table_name,
+        "name": artifact_name,
+        "description": artifact_info.get('description', ''),
+        "author": artifact_info.get('author', ''),
+        "created_date": artifact_info.get('creation_date', ''),
+        "last_updated_date": artifact_info.get('last_update_date', ''),
+        "notes": artifact_info.get('notes', ''),
+        "category": category
+    }
+
+    artifact = {
+        "name": artifact_name,
+        "tablename": table_name,
+        "module": module_name,
+        "column_map": column_map
+    }
+
+    if artifact_icon:
+        artifact['artifact_icon'] = artifact_icon
+
+    if record_count is not None:
+        artifact["record_count"] = record_count
+
+    if source_path:
+        artifact['source_path'] = source_path
+
+    if object_columns:
+        artifact["object_columns"] = [{"name": name, "type": type_} for name, type_ in object_columns.items()]
+
+    if data_views:
+        normalized = _normalize_data_views_for_lava(data_views, data_headers) if data_headers else data_views
+        if normalized:
+            artifact['data_views'] = normalized
+
+    return {
+        "meta_modules": [{
+            "module_name": module_name,
+            "module_filename": module_filename,
+            "artifacts": [artifact_meta]
+        }],
+        "artifacts": {
+            category: [artifact]
+        }
+    }
+
+
+def lava_merge_meta_delta(lava_data_obj: dict, delta: dict) -> None:
+    """
+    Merge a delta created by lava_build_artifact_meta_delta() into lava_data_obj.
+    """
+    if not delta:
+        return
+
+    lava_data_obj.setdefault("artifacts", OrderedDict())
+    lava_data_obj.setdefault("meta", {}).setdefault("modules", [])
+
+    # Merge artifacts by category
+    for category, artifacts in (delta.get("artifacts") or {}).items():
+        if category not in lava_data_obj["artifacts"]:
+            lava_data_obj["artifacts"][category] = []
+        existing = {a.get("tablename") for a in lava_data_obj["artifacts"][category]}
+        for artifact in artifacts:
+            if artifact.get("tablename") not in existing:
+                lava_data_obj["artifacts"][category].append(artifact)
+
+    # Merge meta modules + artifact meta
+    for mod in delta.get("meta_modules") or []:
+        module_name = mod.get("module_name")
+        module_filename = mod.get("module_filename")
+        module_info = next((m for m in lava_data_obj["meta"]["modules"] if m.get("module_name") == module_name), None)
+        if not module_info:
+            module_info = {
+                "module_name": module_name,
+                "module_filename": module_filename,
+                "artifacts": []
+            }
+            lava_data_obj["meta"]["modules"].append(module_info)
+
+        existing_keys = {a.get("artifact_key") for a in (module_info.get("artifacts") or [])}
+        for artifact_meta in mod.get("artifacts") or []:
+            if artifact_meta.get("artifact_key") not in existing_keys:
+                module_info["artifacts"].append(artifact_meta)
 
 
 def lava_process_artifact(
@@ -267,40 +452,9 @@ def lava_process_artifact(
         artifact["object_columns"] = [{"name": name, "type": type_} for name, type_ in object_columns.items()]
 
     if data_views:
-        view_params = None
-
-        # Backward compatibility for chat view. Remove 'chat' once modules are updated.
-        if "chat" in data_views:
-            view_params = data_views.pop("chat")
-            data_views["conversation"] = view_params  # Upgrade to conversation
-        elif "conversation" in data_views:
-            view_params = data_views.get("conversation")
-
-        if view_params:
-            sanitized_params = {}
-
-            # Get original column names for dynamic sanitization check
-            column_names = [item[0] if isinstance(item, tuple) else item for item in data]
-
-            # Conversion map for backward compatibility. Remove once modules are updated.
-            convert_map = {
-                "threadDiscriminatorColumn": "conversationDiscriminatorColumn",
-                "threadLabelColumn": "conversationLabelColumn"
-            }
-
-            for key, value in view_params.items():
-                # Remap old keys to new keys
-                final_key = convert_map.get(key, key)
-
-                # Sanitize value if it's a column name, otherwise pass through
-                if value in column_names:
-                    sanitized_params[final_key] = sanitize_sql_name(value)
-                else:
-                    sanitized_params[final_key] = value
-
-            data_views["conversation"] = sanitized_params
-
-        artifact['data_views'] = data_views
+        normalized = _normalize_data_views_for_lava(data_views, data)
+        if normalized:
+            artifact['data_views'] = normalized
 
     lava_data["artifacts"][category].append(artifact)
 
@@ -698,5 +852,6 @@ def lava_finalize_output(output_path):
     with open(os.path.join(output_path, lava_json_name), 'w', encoding='utf-8') as f:
         json.dump(lava_data, f, indent=4)
 
-    # Close the SQLite database
-    lava_db.close()
+    # Close the SQLite database (may be None in per-plugin multiprocessing mode)
+    if lava_db is not None:
+        lava_db.close()

@@ -10,9 +10,14 @@ import typing
 import scripts.report as report
 import traceback
 import sys
+import multiprocessing
+import signal
+import time as time_module
+ 
 
 import scripts.plugin_loader as plugin_loader
 import leapp_functions.app.history as history
+import scripts.lavafuncs as lavafuncs
 
 from shutil import copy2
 from getpass import getpass
@@ -25,7 +30,7 @@ from scripts.lavafuncs import *  # pylint: disable=wildcard-import,unused-wildca
 from scripts.context import Context
 from scripts.ios_keychain import report_supplied_keychain
 from scripts.lavafuncs import lava_json_name
-
+from scripts.mp_plugin_runner import run_one_plugin
 
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
@@ -203,13 +208,32 @@ def main():
                         help=("Path to a keychain file captured from the device. Some apps keep "
                               "their database key in the keychain, which is collected separately "
                               "from the file system extraction."))
+    parser.add_argument('--mp_per_plugin', required=False, action="store_true", default=False,
+                        help=("EXPERIMENTAL: Run each plugin in its own subprocess (spawn). "
+                              "This enables skipping a long-running plugin (planned) without stopping the whole run."))
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit()
 
-    args = parser.parse_args()
+    # Filter out multiprocessing spawn arguments that argparse doesn't recognize
+    # When using multiprocessing with 'spawn', Python may inject internal flags that
+    # our CLI parser doesn't know about (and would otherwise treat as fatal errors).
+    filtered_argv = []
+    for arg in sys.argv[1:]:
+        # Skip multiprocessing / interpreter-injected arguments
+        if (
+            arg.startswith('--multiprocessing-')
+            or arg.startswith('tracker_fd=')
+            or arg.startswith('pipe_handle=')
+            or arg in ['-B', '-S', '-I']  # Python optimization / startup flags
+        ):
+            continue
+        filtered_argv.append(arg)
+
+    # Use filtered arguments for parsing so frozen mp children don't break argparse
+    args = parser.parse_args(filtered_argv)
 
     available_plugins = []
     loader_paths = [plugin_loader.PLUGINPATH]
@@ -352,6 +376,9 @@ def main():
     out_params = OutputParameters(output_path, custom_output_folder)
     Context.set_output_params(out_params)
 
+    if args.mp_per_plugin:
+        logfunc("EXPERIMENTAL MODE ENABLED: --mp_per_plugin (per-plugin subprocess execution)")
+
     initialize_lava(input_path, out_params.output_folder_base, extracttype)
 
     # Record history if enabled
@@ -359,13 +386,14 @@ def main():
     history.record_output_path(output_path)
 
     crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
-        profile_filename, itunes_backup_password)
+        profile_filename, itunes_backup_password, decryption_keys=None, mp_per_plugin=args.mp_per_plugin)
 
     lava_finalize_output(out_params.output_folder_base)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
-        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, itunes_backup_password=None, decryption_keys=None):
+        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename,
+        itunes_backup_password=None, decryption_keys=None, mp_per_plugin: bool = False):
     start = process_time()
     start_wall = perf_counter()
 
@@ -442,6 +470,168 @@ def crunch_artifacts(
     log.write(f'Extraction/Path selected: {input_path}<br><br>')
     log.write(f'Timezone selected: {time_offset}<br><br>')
 
+    ctx_mp = multiprocessing.get_context("spawn") if mp_per_plugin else None
+    installed_os_version = ''
+    current_proc = None
+    last_interrupt_ts = 0.0
+    # Tracks subprocess state for Ctrl+C handling; kept lightweight (no debug logging).
+    seeker_all_files = []
+    try:
+        # For iTunes backups, seeker._all_files is a dict keyed by "virtual paths" in backup
+        # (eg. private/var/mobile/Library/...).
+        if hasattr(seeker, "_all_files") and isinstance(seeker._all_files, dict):
+            seeker_all_files = list(seeker._all_files.keys())
+        elif hasattr(seeker, "_all_files") and isinstance(seeker._all_files, list):
+            seeker_all_files = list(seeker._all_files)
+    except Exception:
+        seeker_all_files = []
+
+    def _terminate_current_plugin_proc(reason: str):
+        nonlocal current_proc
+        if current_proc is not None and current_proc.is_alive():
+            logfunc(f"Skip requested ({reason}). Terminating current plugin subprocess (pid={current_proc.pid}) ...")
+            try:
+                current_proc.terminate()
+            except Exception:
+                pass
+
+    def _interrupt_handler(signum, frame):
+        """
+        Ctrl+C / Ctrl+Break handling for mp mode:
+        - first press: terminate current plugin process and continue
+        - second press within 2 seconds: abort run
+        """
+        nonlocal last_interrupt_ts
+        # IMPORTANT: use time module explicitly; `time` can be shadowed by datetime.time via star-imports.
+        now = time_module.time()
+        if now - last_interrupt_ts < 2.0:
+            logfunc("Second interrupt received. Aborting run.")
+            raise KeyboardInterrupt
+        last_interrupt_ts = now
+        _terminate_current_plugin_proc("SIGINT/SIGBREAK")
+
+    def _skip_handler(signum, frame):
+        """
+        SIGUSR1/SIGUSR2 handling for mp mode:
+        - Always skip current plugin (no abort risk)
+        - Can be sent externally via: kill -USR1 <pid> or kill -USR2 <pid>
+        """
+        signal_name = "SIGUSR1" if signum == signal.SIGUSR1 else "SIGUSR2"
+        _terminate_current_plugin_proc(signal_name)
+
+    if mp_per_plugin:
+        # Register interrupt handler (cross-platform):
+        # - SIGINT is Ctrl+C everywhere
+        # - SIGBREAK is Ctrl+Break on Windows (if present)
+        signal.signal(signal.SIGINT, _interrupt_handler)
+        if hasattr(signal, "SIGBREAK"):
+            signal.signal(signal.SIGBREAK, _interrupt_handler)
+        # Register skip handlers (Unix-like systems only):
+        # - SIGUSR1: dedicated skip signal (no abort risk)
+        # - SIGUSR2: dedicated skip signal (no abort risk)
+        if hasattr(signal, "SIGUSR1"):
+            signal.signal(signal.SIGUSR1, _skip_handler)
+        if hasattr(signal, "SIGUSR2"):
+            signal.signal(signal.SIGUSR2, _skip_handler)
+
+    def _run_plugin_subprocess(plugin_key: str, files_found: list, category_folder: str, file_infos_subset: dict | None = None):
+        """Run a plugin in a spawned subprocess and merge returned deltas into parent globals."""
+        nonlocal installed_os_version
+        nonlocal current_proc
+        q = ctx_mp.SimpleQueue()
+        q_reader = getattr(q, "_reader", None)
+        payload = {
+            "plugin_key": plugin_key,
+            "files_found": files_found,
+            "category_folder": category_folder,
+            "wrap_text": wrap_text,
+            "time_offset": time_offset,
+            "output_folder_base": out_params.output_folder_base,
+            "input_path": input_path,
+            "extracttype": extracttype,
+            "file_infos_subset": file_infos_subset or {},
+            "installed_os_version": installed_os_version,
+            "seeker_all_files": seeker_all_files,
+        }
+        # Parent doesn't hold a write lock while the child writes to the same DB file
+        # (lavafuncs uses plain sqlite3.connect with no WAL/busy_timeout, so a lingering
+        # parent connection risks "database is locked"). Reopened right after the child
+        # finishes, since the loop needs it again for the next plugin's bookkeeping.
+        lava_close_db()
+        proc = ctx_mp.Process(target=run_one_plugin, args=(payload, q))
+        current_proc = proc
+        proc.start()
+
+        # Join in a loop so we can react to Ctrl+C and treat it as "skip current plugin".
+        # Also proactively drain the queue while the child is alive to avoid the child blocking on put().
+        result = None
+        while proc.is_alive():
+            # Try to drain once per tick if data is available, but never block.
+            try:
+                if result is None and q_reader is not None and hasattr(q_reader, "poll") and q_reader.poll(0):
+                    result = q.get()
+            except Exception:
+                pass
+            proc.join(timeout=0.25)
+
+        # Child is done writing; safe to reopen the parent's connection for the
+        # rest of this iteration's bookkeeping and the next plugin's.
+        lava_open_existing(out_params.output_folder_base)
+
+        # If we killed the process due to interrupt/skip, treat it as a skip and keep going.
+        # IMPORTANT: do this BEFORE attempting any queue reads, because queue state can be corrupted
+        # if the child was terminated mid-put.
+        if proc.exitcode is not None and proc.exitcode < 0:
+            logfunc(f"Plugin {plugin_key} was interrupted (exitcode={proc.exitcode}). Skipping.")
+            current_proc = None
+            return {"ok": True, "plugin_key": plugin_key, "skipped": True}
+
+        if result is None:
+            result = None
+        try:
+            # multiprocessing.SimpleQueue.get() has no timeout; use underlying reader.poll() to avoid blocking.
+            has_data = None
+            try:
+                if q_reader is not None and hasattr(q_reader, "poll"):
+                    has_data = bool(q_reader.poll(0))
+            except Exception:
+                has_data = None
+            if result is None and has_data:
+                result = q.get()
+        except Exception:
+            result = None
+        if not result or not result.get("ok"):
+            err = (result or {}).get("error") if result else "Child process failed without result"
+            tb = (result or {}).get("traceback") if result else ""
+            raise RuntimeError(f"Subprocess plugin run failed for {plugin_key}: {err}\n{tb}")
+
+        icons_delta = result.get("icons_delta") or {}
+        for cat, icon_map in icons_delta.items():
+            icons.setdefault(cat, {}).update(icon_map)
+
+        lava_meta_delta = result.get("lava_meta_delta")
+        if lava_meta_delta:
+            # IMPORTANT: use module global, not the `lava_data` name imported into this module.
+            lavafuncs.lava_merge_meta_delta(lavafuncs.lava_data, lava_meta_delta)
+
+        for item in (result.get("lava_only_delta") or []):
+            try:
+                lava_only_info(item["category"], item["artifact_name"], item["table_name"], item["records"])
+            except Exception:
+                pass
+
+        # Keep installed OS version in parent so we can pass it to future subprocesses
+        discovered_os_version = result.get("installed_os_version") or ''
+        if discovered_os_version:
+            installed_os_version = discovered_os_version
+            try:
+                iOS.set_version(discovered_os_version)
+                Context.set_installed_os_version(discovered_os_version)
+            except Exception:
+                pass
+
+        return result
+
     # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
     if extracttype == 'itunes':
         info_plist_path = os.path.join(input_path, 'Info.plist')
@@ -455,7 +645,10 @@ def crunch_artifacts(
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            if not mp_per_plugin:
+                loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            else:
+                _run_plugin_subprocess("itunes_backup_info", [info_plist_path], report_folder)
             report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'Installed Apps')
             if not os.path.exists(report_folder):
                 try:
@@ -463,7 +656,10 @@ def crunch_artifacts(
                 except (FileExistsError, FileNotFoundError) as ex:
                     logfunc('Error creating report directory at path {}'.format(report_folder))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["itunes_backup_installed_applications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            if not mp_per_plugin:
+                loader["itunes_backup_installed_applications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+            else:
+                _run_plugin_subprocess("itunes_backup_installed_applications", [info_plist_path], report_folder)
             #del search_list['last_build'] # removing last_build as this takes its place
             print([info_plist_path])  # Future: remove special consideration for itunes? Merge into main search
         else:
@@ -538,11 +734,26 @@ def crunch_artifacts(
                     logfunc('Error was {}'.format(str(ex)))
                     continue  # cannot do work
             try:
-                plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                if not mp_per_plugin:
+                    plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                else:
+                    file_infos_subset = {}
+                    try:
+                        for pth in files_found:
+                            fi = getattr(seeker, "file_infos", {}).get(pth)
+                            if fi:
+                                file_infos_subset[pth] = (fi.source_path, fi.creation_date, fi.modification_date)
+                    except Exception:
+                        file_infos_subset = {}
+                    _run_plugin_subprocess(plugin.name, files_found, category_folder, file_infos_subset)
+
                 if plugin.name == 'logarchive':
                     lava_db_path = os.path.join(out_params.output_folder_base, '_lava_artifacts.db')
                     if does_table_exist_in_db(lava_db_path, 'logarchive'):
-                        loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                        if not mp_per_plugin:
+                            loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                        else:
+                            _run_plugin_subprocess("logarchive_artifacts", [lava_db_path], category_folder, {})
                     if does_table_exist_in_db(lava_db_path, 'logarchive_artifacts'):
                         unifed_logs_artifacts = []
                         unifed_logs_artifacts = [plugin.name for plugin in loader.plugins
@@ -550,7 +761,10 @@ def crunch_artifacts(
                                                  and plugin.name != 'logarchive'
                                                  and plugin.name != 'logarchive_artifacts']
                         for unifed_log_artifact in unifed_logs_artifacts:
-                            loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                            if not mp_per_plugin:
+                                loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                            else:
+                                _run_plugin_subprocess(unifed_log_artifact, [lava_db_path], category_folder, {})
             except Exception as ex:  # pylint: disable=broad-exception-caught
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
@@ -600,4 +814,6 @@ def crunch_artifacts(
     return True
 
 if __name__ == '__main__':
+    # Support for multiprocessing with PyInstaller frozen binaries
+    multiprocessing.freeze_support()
     main()
