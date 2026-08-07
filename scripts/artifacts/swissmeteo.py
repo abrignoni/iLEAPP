@@ -10,7 +10,6 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*'),
         "output_types": "standard",
-        "html_columns": ['Meteo of the city (link)', 'Coordinates (lat/lon)'],
         "artifact_icon": "flag"
     },
     "swissmeteo_plz": {
@@ -24,7 +23,6 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*'),
         "output_types": "all",
-        "html_columns": ['Map link'],
         "artifact_icon": "flag"
     }
 }
@@ -35,7 +33,7 @@ from scripts.ilapfuncs import artifact_processor, get_file_path, \
 @artifact_processor
 def plz_interaction(context):
     source_path = get_file_path(context.get_files_found(), "favorites_prediction_db.sqlite")
-    data_headers = (('Interaction Timestamp','datetime'), "Meteo of the city", "Meteo of the city (link)", "Coordinates (lat/lon)")
+    data_headers = (('Interaction Timestamp','datetime'), "Meteo of the city", "Meteo of the city (lat/lon)", "Coordinates (lat/lon)")
     data_list = []
     cursor = None
     prediction_db = ""
@@ -70,11 +68,11 @@ def plz_interaction(context):
             local_data = get_location_infos(cursor, record[1]) if cursor else []
             # test for 1111 postal code case
             if len(local_data) > 0:
-                meteo_link = lv03_to_osm(local_data[0][1], local_data[0][2])
+                meteo_link = lv03_to_text(local_data[0][1], local_data[0][2])
                 if not (record[2] and record[3]):
                     cons_link = ''
                 else:
-                    cons_link = coordinate_to_osm(record[2], record[3])
+                    cons_link = coordinate_to_text(record[2], record[3])
                 data_list.append((record[0], local_data[0][4], meteo_link, cons_link))
             else:
                 data_list.append(record)
@@ -86,7 +84,7 @@ def plz_interaction(context):
 @artifact_processor
 def swissmeteo_plz(context):
     source_path = get_file_path(context.get_files_found(), "favorites_prediction_db.sqlite")
-    data_headers = (('Opened Timestamp','datetime'), 'Latitude', 'Longitude', "Map link")
+    data_headers = (('Opened Timestamp','datetime'), 'Latitude', 'Longitude', "Coordinates (lat/lon)")
     data_list = []
     prediction_db = ""
 
@@ -106,16 +104,21 @@ def swissmeteo_plz(context):
 
         db_records = get_sqlite_db_records(prediction_db, query)
         for record in db_records:
-            data_list.append((record[0], record[1], record[2], coordinate_to_osm(record[1], record[2])))
+            data_list.append((record[0], record[1], record[2], coordinate_to_text(record[1], record[2])))
     else:
         logfunc('Swissmeteo favorites_prediction_db.sqlite not found')
 
     return data_headers, data_list, source_path
 
-def coordinate_to_osm(lat, lon): 
-    return f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
+def coordinate_to_text(lat, lon):
+    """Return the coordinates as text.
 
-def lv03_to_osm(E, N): 
+    This built an openstreetmap.org URL. A report links to nothing outside its own
+    folder, so the coordinates are reported as the data they are.
+    """
+    return f"{lat}, {lon}"
+
+def lv03_to_text(E, N): 
     # based on https://github.com/ValentinMinder/Swisstopo-WGS84-LV03/blob/master/scripts/py/wgs84_ch1903.py
     y, x = (E-600000)/1e6, (N-200000)/1e6
     lat = (16.9023892 + (3.238272 * x)) + \
@@ -128,7 +131,7 @@ def lv03_to_osm(E, N):
                 + (0.1306 * y * pow(x, 2))) + \
                 - (0.0436 * pow(y, 3))
     lat, lon = lat*100/36, lon*100/36
-    return f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
+    return f"{lat}, {lon}"
 
 def get_location_infos(cursor, NPA):
     query = '''

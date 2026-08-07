@@ -101,32 +101,37 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 from scripts.html_safe import esc
 
 def get_google_map_link(latitude_value, longitude_value):
+    """Return the coordinates as escaped text.
+
+    This was a live google.com/maps anchor. A report links to nothing outside its own
+    folder, so the coordinates are reported as the data they are; an examiner who
+    wants a map pastes them into one deliberately.
+    """
     if latitude_value is None or longitude_value is None:
         return ""
 
-    lat = esc(latitude_value)
-    lon = esc(longitude_value)
-    return f"<a href='https://www.google.com/maps?q={lat},{lon}' target='_blank'>https://www.google.com/maps?q={lat},{lon}</a>"
+    return f"{esc(latitude_value)}, {esc(longitude_value)}"
 
 def get_google_dir_link(o_latitude_value, o_longitude_value, d_latitude_value, d_longitude_value, mode):
+    """Return the origin, destination and travel mode as escaped text.
+
+    Formerly a google.com/maps directions anchor; see get_google_map_link().
+    """
     if o_latitude_value is None or o_longitude_value is None or d_latitude_value is None or d_longitude_value is None:
         return ""
 
-    base_url = "https://www.google.com/maps/dir/?api=1"
-    origin = f"&origin={esc(o_latitude_value)},{esc(o_longitude_value)}"
-    destination = f"&destination={esc(d_latitude_value)},{esc(d_longitude_value)}"
+    origin = f"{esc(o_latitude_value)}, {esc(o_longitude_value)}"
+    destination = f"{esc(d_latitude_value)}, {esc(d_longitude_value)}"
 
     # Travel mode
     if mode == 1:
-        travel_mode = "&travelmode=walking"
+        travel_mode = " (walking)"
     elif mode == 4:
-        travel_mode = "&travelmode=driving"
+        travel_mode = " (driving)"
     else:
         travel_mode = ""
 
-    url = base_url + origin + destination + travel_mode
-
-    return f"<a href='{url}' target='_blank'>{url}</a>"
+    return f"From {origin} to {destination}{travel_mode}"
 
 @artifact_processor
 def appleMapsTrips(context):
