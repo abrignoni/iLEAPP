@@ -68,7 +68,9 @@ a module-level violation uses `<module>`.
 
 Coverage holes are printed, never hidden. A module whose `__artifacts_v2__` is not a
 static literal cannot have its `html_columns` read, so `unguarded-html-columns` cannot
-run on it; those are listed as NOT CHECKED on every run.
+run on it; those are listed as NOT CHECKED on every run. The other two rules do still
+run on them -- an unreadable declaration is treated as a sink rather than as a
+non-sink, so the uncertainty costs coverage of one rule instead of all three.
 
 `scripts/artifact_report.py` is deliberately out of scope. It implements the
 escape/no-escape branch itself, so it is the sink these rules protect, not a producer.
@@ -457,7 +459,13 @@ def scan_file(path, rel_path):
     # Elsewhere the writer escapes the whole cell, so a hand-built tag renders as
     # visible text -- a display bug, not an injection, and not this check's business.
     in_scope_functions = FRAMEWORK_FUNCTIONS.get(rel_path)
-    is_sink = bool(declares) or uses_media_helper(tree) or in_scope_functions
+    # `declares` is None when __artifacts_v2__ could not be read statically. Treat
+    # that as a sink: an unreadable declaration is the one case where we cannot tell,
+    # and guessing "not a sink" turns all three rules off silently. A module can then
+    # gain an html_columns and stay unguarded with nothing in the output changing.
+    # Assume the worst when the answer is unknown.
+    is_sink = (declares is None or bool(declares) or uses_media_helper(tree)
+               or in_scope_functions)
 
     findings = []
     if is_sink:
@@ -528,7 +536,8 @@ def main():
 
     if skipped:
         print(f'NOT CHECKED -- {len(skipped)} module(s) have no statically readable '
-              f'__artifacts_v2__, so html_columns could not be read:')
+              f'__artifacts_v2__, so html_columns could not be read. They are still '
+              f'scanned for unescaped markup and remote destinations:')
         for rel_path, reason in skipped:
             print(f'  {rel_path}: {reason}')
         print()
