@@ -30,7 +30,10 @@ def get_audiTripdata(context):
             with open(file_found, "r", encoding="utf-8") as f:
                 data = f.read()
 
-            jsondata = json.loads(data)
+            try:
+                jsondata = json.loads(data)
+            except (json.JSONDecodeError, RecursionError):
+                continue
 
             for _, values in jsondata.items():
                 if isinstance(values, dict):

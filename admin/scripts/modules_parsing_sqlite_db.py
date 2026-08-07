@@ -19,7 +19,7 @@ def find_function_calls(file_path, function_name):
                         return True
                     elif function_name == 'get_sqlite_db_records':
                         return True
-    except:
+    except (SyntaxError, ValueError):
         return False
     
 
