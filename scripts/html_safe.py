@@ -27,7 +27,7 @@ destinations -- ``media/<file>`` thumbnails, files an artifact writes beside the
 """
 
 import html
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 
 
 def esc(value):
@@ -57,6 +57,45 @@ def safe_url(url, text=None, target=None):      # pylint: disable=unused-argumen
     return esc(text if text is not None else url)
 
 
+def _is_report_relative(path, allow_parent=False):
+    """True when ``path`` names something reachable from the report folder.
+
+    Rejects a URL scheme, a protocol-relative ``//host`` and an absolute path, so a
+    crafted media name cannot turn a report cell into a remote fetch. ``..`` is
+    rejected too unless ``allow_parent`` is set: media_to_html() genuinely emits
+    ``../data/...`` to reach the extraction folder next to the report, and that is a
+    deliberate part of the report layout rather than an escape.
+    """
+    if path.startswith(('/', '\\')):
+        return False
+    normalized = path.replace('\\', '/')
+    if normalized.startswith('//'):
+        return False
+    if not allow_parent and '..' in normalized.split('/'):
+        return False
+    try:
+        if urlparse(path).scheme:
+            return False
+    except ValueError:
+        return False
+    return True
+
+
+def safe_local_path(path, allow_parent=False):
+    """Percent-encode a report-relative path for use in an ``href``/``src`` attribute.
+
+    Returns ``''`` when the path is not report-relative, so a crafted media filename
+    can neither point the report at a remote host nor reach outside the report folder.
+    The encoded result is HTML-escaped as well, so it is safe inside a quoted
+    attribute. Use this for the attribute value; use safe_local_link() when you want
+    the whole anchor.
+    """
+    path = '' if path is None else str(path).strip()
+    if not path or not _is_report_relative(path, allow_parent):
+        return ''
+    return esc(quote(path, safe='/.'))
+
+
 def safe_local_link(path, text=None):
     """Build an ``<a href>`` to a file inside the report folder.
 
@@ -67,14 +106,7 @@ def safe_local_link(path, text=None):
     """
     path = '' if path is None else str(path).strip()
     label = esc(text if text is not None else path)
-    if not path:
-        return label
-    if path.startswith(('/', '\\', '//')) or '..' in path.replace('\\', '/').split('/'):
-        return label
-    try:
-        if urlparse(path).scheme:
-            return label
-    except ValueError:
+    if not path or not _is_report_relative(path):
         return label
     return f'<a href="{esc(path)}" target="_blank">{label}</a>'
 
