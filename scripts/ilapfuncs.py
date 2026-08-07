@@ -59,6 +59,7 @@ from functools import wraps
 import binascii
 from PIL import Image
 
+from scripts.html_safe import esc, safe_local_path
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_get_media_item, \
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
     lava_get_full_media_info, lava_update_record_count
@@ -388,20 +389,25 @@ def html_media_tag(media_path, mimetype, style, title=''):
         filename = Path(source).name
         return f"media/{filename}"
 
-    filename = Path(media_path).name
-    media_path = quote(relative_paths(media_path))
+    # The media name comes from the evidence, so every place it is emitted is
+    # escaped: percent-encoded in src/href by safe_local_path(), which also refuses a
+    # target that would leave the report folder, and HTML-escaped in title= and in the
+    # fallback link text. Before this, a crafted attachment filename broke out of the
+    # title attribute and ran in the examiner's report (CWE-79).
+    filename = esc(Path(media_path).name)
+    media_path = safe_local_path(relative_paths(media_path))
 
-    if mimetype == None:
+    if mimetype is None:
         mimetype = ''
     if 'video' in mimetype:
         thumb = f'<video width="320" height="240" controls="controls"><source src="{media_path}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
     elif 'image' in mimetype:
-        image_style = style if style else "max-height:300px; max-width:400px;"
-        thumb = f'<a href="{media_path}" target="_blank"><img title="{title}"  src="{media_path}" style="{image_style}"></img></a>'
+        image_style = esc(style) if style else "max-height:300px; max-width:400px;"
+        thumb = f'<a href="{media_path}" target="_blank"><img title="{esc(title)}"  src="{media_path}" style="{image_style}"></img></a>'
     elif 'audio' in mimetype:
         thumb = f'<audio controls><source src="{media_path}" type="audio/ogg"><source src="{media_path}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
     else:
-        thumb = f'<a href="{media_path}" target="_blank"> Link to {filename} file</>'
+        thumb = f'<a href="{media_path}" target="_blank"> Link to {filename} file</a>'
     return thumb
 
 def get_data_list_with_media(media_header_info, data_list):
@@ -1111,17 +1117,23 @@ def media_to_html(media_path, files_found, report_folder):
             source = relative_paths(str(source), splitter)
 
         mimetype = guess_mime(match)
-        if mimetype == None:
+        if mimetype is None:
             mimetype = ''
+
+        # allow_parent: relative_paths() above deliberately emits ../data/... to reach
+        # the extraction folder beside the report. The evidence filename in the
+        # fallback link text is escaped -- it used to be interpolated raw.
+        source = safe_local_path(source, allow_parent=True)
+        filename = esc(filename)
 
         if 'video' in mimetype:
             thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
         elif 'image' in mimetype:
-            thumb = f'<a href="{source}" target="_blank"><img src="{source}"width="300"></img></a>'
+            thumb = f'<a href="{source}" target="_blank"><img src="{source}" width="300"></img></a>'
         elif 'audio' in mimetype:
             thumb = f'<audio controls><source src="{source}" type="audio/ogg"><source src="{source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
         else:
-            thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
+            thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</a>'
     return thumb
 
 
