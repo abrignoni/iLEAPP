@@ -1123,17 +1123,21 @@ def media_to_html(media_path, files_found, report_folder):
         # allow_parent: relative_paths() above deliberately emits ../data/... to reach
         # the extraction folder beside the report. The evidence filename in the
         # fallback link text is escaped -- it used to be interpolated raw.
-        source = safe_local_path(source, allow_parent=True)
-        filename = esc(filename)
+        # Bind the escaped values to their own names rather than writing back over
+        # `source`, which is assigned several times above. Reading a name that only
+        # ever holds a checked value makes the safety local and obvious, to a reader
+        # and to admin/scripts/check_html_safety.py alike.
+        safe_source = safe_local_path(source, allow_parent=True)
+        safe_filename = esc(filename)
 
         if 'video' in mimetype:
-            thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
+            thumb = f'<video width="320" height="240" controls="controls"><source src="{safe_source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
         elif 'image' in mimetype:
-            thumb = f'<a href="{source}" target="_blank"><img src="{source}" width="300"></img></a>'
+            thumb = f'<a href="{safe_source}" target="_blank"><img src="{safe_source}" width="300"></img></a>'
         elif 'audio' in mimetype:
-            thumb = f'<audio controls><source src="{source}" type="audio/ogg"><source src="{source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
+            thumb = f'<audio controls><source src="{safe_source}" type="audio/ogg"><source src="{safe_source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
         else:
-            thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</a>'
+            thumb = f'<a href="{safe_source}" target="_blank"> Link to {safe_filename} file</a>'
     return thumb
 
 
