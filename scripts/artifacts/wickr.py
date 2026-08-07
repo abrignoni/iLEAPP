@@ -1,9 +1,10 @@
 __artifacts_v2__ = {
     "wickr_messages": {
-        "name": "Wickr - Messages",
-        "description": "Message records from the Wickr local store, with the timestamp, the "
-                       "conversation, the sending user, the read and delivery timestamps and any "
-                       "attached file. Message text is not included: Wickr stores it encrypted",
+        "name": "Wickr - Messages (Metadata Only)",
+        "description": "NO MESSAGE CONTENT. Wickr stores message text encrypted and it is not "
+                       "recovered here. This artifact reports message metadata only: the "
+                       "timestamp, the conversation, the sending user, the read and delivery "
+                       "timestamps, the stored type values and any attached file",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
@@ -17,7 +18,14 @@ __artifacts_v2__ = {
                  "ZUSERIDHASH and ZUSERALIASHASH values, which are the only identifiers held in "
                  "the clear. Message Type and Primary Type are the stored ZFULLTYPE and "
                  "ZPRIMARYTYPE integers; the app binary declares a WickrMessageType enum but does "
-                 "not carry its case names, so no labels are asserted for them. Timestamps are "
+                 "not carry its case names, so the values ship unlabelled with one exception. "
+                 "ZFULLTYPE 6000 is labelled File Transfer: on the tested image the set of "
+                 "messages carrying a linked file and the set with ZFULLTYPE 6000 are identical "
+                 "and no other value appears among file-linked messages, and the same value is "
+                 "reported independently by Josh Hickman, 'Wickr - Alright, We'll Call It A "
+                 "Draw', thebinaryhick.blog, 2019-08-23. The other observed values (1000, 4001, "
+                 "4006, 4007, 7000, 8000, 9000) have no such support and are reported as stored. "
+                 "Timestamps are "
                  "Cocoa Core Data epoch. On the tested image the ZMSGID values and Cocoa "
                  "timestamps match the messageId and arrival time independently recorded in the "
                  "app's own plaintext logs, which cross-validates both readings.",
@@ -30,10 +38,11 @@ __artifacts_v2__ = {
         },
     },
     "wickr_conversations": {
-        "name": "Wickr - Conversations",
-        "description": "Conversations and secure rooms in the Wickr local store, with the group "
-                       "identifier, the last message and sync timestamps, the member list and the "
-                       "room administrators",
+        "name": "Wickr - Conversations (No Names)",
+        "description": "NO CONVERSATION NAMES. Wickr stores room names and descriptions encrypted "
+                       "and they are not recovered here. This artifact reports the group "
+                       "identifier, the kind of conversation, the last message and sync "
+                       "timestamps, the member list and the room administrators",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
@@ -44,8 +53,12 @@ __artifacts_v2__ = {
                  "Z_ENT 5 to Secex_Convo and Z_ENT 6 to Secex_Secure_Room in the tested images. "
                  "Those entity numbers are model-version specific and differ between the two "
                  "images tested, so they are resolved from Z_PRIMARYKEY at run time rather than "
-                 "hardcoded. Members come from the Z_5USERS join table and administrators from "
-                 "Z_6MASTERS, both reported as the users' stored ZUSERIDHASH values. Conversation "
+                 "hardcoded. The member and administrator join tables are named after those same "
+                 "entity numbers, so they are located at run time by decoding their column names "
+                 "through Z_PRIMARYKEY rather than by name; the file-to-message join is Z_13MSG "
+                 "on both images tested but is reported as Z_11MSG on a 2019 app version. "
+                 "Members and administrators are reported as the users' stored ZUSERIDHASH "
+                 "values. Conversation "
                  "names and descriptions are stored as encrypted blobs and are not decoded.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
@@ -56,9 +69,11 @@ __artifacts_v2__ = {
         },
     },
     "wickr_users": {
-        "name": "Wickr - Users",
-        "description": "User records from the Wickr local store, with the stored user and alias "
-                       "hashes, the network membership flags and the last activity timestamp",
+        "name": "Wickr - Users (Hashes Only)",
+        "description": "NO USER NAMES. Wickr stores user names and aliases encrypted and they are "
+                       "not recovered here. Users are identified only by the stored hash values. "
+                       "This artifact reports those hashes, the network membership flags and the "
+                       "last activity timestamp",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
@@ -78,16 +93,21 @@ __artifacts_v2__ = {
         },
     },
     "wickr_files": {
-        "name": "Wickr - Files",
-        "description": "File records from the Wickr local store, with the file GUID, the stored "
-                       "status value and the message the file is linked to",
+        "name": "Wickr - Files (Metadata Only)",
+        "description": "NO FILE NAMES OR CONTENT. Wickr stores file titles and mime types "
+                       "encrypted, and the attachment files themselves are encrypted on disk. "
+                       "This artifact reports the file GUID, the stored status value and the "
+                       "message each file is linked to",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from ZWICKR_FILE in wickrLocal.sqlite, linked to messages through the "
-                 "Z_13MSG join table. ZTITLE and ZMIMETYPE are stored as encrypted blobs and are "
+                 "Core Data join table for the file and message entities. That table is named "
+                 "after the entity numbers, so it is Z_13MSG on both images tested and Z_11MSG "
+                 "on a 2019 app version; it is located at run time through Z_PRIMARYKEY rather "
+                 "than by name. ZTITLE and ZMIMETYPE are stored as encrypted blobs and are "
                  "not decoded. On the tested image each ZGUID matches the name of a file held in "
                  "the app group container; those files are encrypted at rest, so they are reported "
                  "by name and are not checked in as media. Status is the stored ZSTATUS integer.",
@@ -230,6 +250,27 @@ def _entity_names(path):
     return names
 
 
+def _find_join(path, entities, entity_a, entity_b):
+    """Core Data names a many-to-many join table and its columns after the entity
+    numbers, so the same relationship is Z_11MSG on one app version and Z_13MSG on
+    another. Resolve the table and its two columns by decoding the column names
+    through Z_PRIMARYKEY instead of hardcoding either name.
+
+    Returns (table, column_for_entity_a, column_for_entity_b) or None."""
+    query = ("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'Z\\_%' "
+             "ESCAPE '\\' AND name NOT IN ('Z_PRIMARYKEY','Z_METADATA','Z_MODELCACHE')")
+    for record in get_sqlite_db_records(path, query):
+        table = record[0]
+        columns = {}
+        for column in get_sqlite_db_records(path, f'PRAGMA table_info("{table}")'):
+            match = re.match(r'Z_(\d+)(.+)', column[1])
+            if match:
+                columns[entities.get(int(match.group(1)))] = column[1]
+        if entity_a in columns and entity_b in columns:
+            return table, columns[entity_a], columns[entity_b]
+    return None
+
+
 def _cocoa(value):
     if value in (None, '', 0):
         return ''
@@ -252,6 +293,14 @@ def _text(value):
     return '' if value is None else value
 
 
+def _message_type(value):
+    """ZFULLTYPE is otherwise undocumented, so only the one value with support is
+    labelled and the rest ship as the stored integer. See the artifact notes."""
+    if value == 6000:
+        return '6000 (File Transfer)'
+    return value
+
+
 def _user_hashes(path):
     hashes = {}
     for record in get_sqlite_db_records(path, 'SELECT Z_PK, ZUSERIDHASH FROM ZSECEX_USER'):
@@ -259,13 +308,15 @@ def _user_hashes(path):
     return hashes
 
 
-def _joined(path, table, key_column, value_column, hashes):
-    """Read a Core Data many-to-many join table into {owner: [user hash, ...]}."""
+def _joined(path, entities, owner_entity, hashes):
+    """Read the join table linking owner_entity to Secex_User into
+    {owner pk: [user hash, ...]}."""
     result = {}
-    if not does_table_exist_in_db(path, table):
+    join = _find_join(path, entities, owner_entity, 'Secex_User')
+    if not join:
         return result
-    query = f'SELECT {key_column}, {value_column} FROM {table}'
-    for record in get_sqlite_db_records(path, query):
+    table, owner_column, user_column = join
+    for record in get_sqlite_db_records(path, f'SELECT {owner_column}, {user_column} FROM {table}'):
         result.setdefault(record[0], []).append(hashes.get(record[1], str(record[1])))
     return result
 
@@ -281,11 +332,14 @@ def wickr_messages(context):
         source_path = path
 
         files_by_message = {}
-        if does_table_exist_in_db(path, 'Z_13MSG'):
+        join = _find_join(path, _entity_names(path), 'Wickr_file', 'Wickr_Message')
+        if join and does_table_exist_in_db(path, 'ZWICKR_FILE'):
+            table, file_column, message_column = join
             guids = {}
             for record in get_sqlite_db_records(path, 'SELECT Z_PK, ZGUID FROM ZWICKR_FILE'):
                 guids[record[0]] = record[1] or ''
-            for record in get_sqlite_db_records(path, 'SELECT Z_13FILES, Z_16MSG FROM Z_13MSG'):
+            query = f'SELECT {file_column}, {message_column} FROM {table}'
+            for record in get_sqlite_db_records(path, query):
                 files_by_message.setdefault(record[1], []).append(guids.get(record[0], ''))
 
         read_ts = _optional(path, 'ZWICKR_MESSAGE', 'ZREADTIMESTAMP')
@@ -308,7 +362,7 @@ def wickr_messages(context):
                 _cocoa(record[3]),
                 record[4] or (f'Convo {record[15]}' if record[15] else ''),
                 record[5] or (f'User {record[16]}' if record[16] else ''),
-                record[6],
+                _message_type(record[6]),
                 record[7],
                 'Yes' if record[8] else 'No',
                 'Yes' if record[9] else 'No',
@@ -326,7 +380,7 @@ def wickr_messages(context):
         ('Delivery Timestamp', 'datetime'),
         'Conversation Group ID',
         'Sender User ID Hash',
-        'Message Type (as stored)',
+        'Message Type',
         'Primary Type (as stored)',
         'Is Read',
         'Is Starred',
@@ -351,8 +405,8 @@ def wickr_conversations(context):
         source_path = path
         entities = _entity_names(path)
         hashes = _user_hashes(path)
-        members = _joined(path, 'Z_5USERS', 'Z_5CONVOS', 'Z_12USERS', hashes)
-        masters = _joined(path, 'Z_6MASTERS', 'Z_6MASTERROLES', 'Z_12MASTERS', hashes)
+        members = _joined(path, entities, 'Secex_Convo', hashes)
+        masters = _joined(path, entities, 'Secex_Secure_Room', hashes)
 
         is_external = _optional(path, 'ZSECEX_CONVO', 'ZISEXTERNAL')
         is_pinned = _optional(path, 'ZSECEX_CONVO', 'ZISPINNED')
@@ -477,11 +531,13 @@ def wickr_files(context):
         source_path = path
 
         messages = {}
-        if does_table_exist_in_db(path, 'Z_13MSG'):
-            query = '''
-            SELECT j.Z_13FILES, m.ZMSGID, m.ZTIMESTAMP, c.ZVGROUPID
-            FROM Z_13MSG j
-            LEFT JOIN ZWICKR_MESSAGE m ON j.Z_16MSG = m.Z_PK
+        join = _find_join(path, _entity_names(path), 'Wickr_file', 'Wickr_Message')
+        if join and does_table_exist_in_db(path, 'ZWICKR_MESSAGE'):
+            table, file_column, message_column = join
+            query = f'''
+            SELECT j.{file_column}, m.ZMSGID, m.ZTIMESTAMP, c.ZVGROUPID
+            FROM {table} j
+            LEFT JOIN ZWICKR_MESSAGE m ON j.{message_column} = m.Z_PK
             LEFT JOIN ZSECEX_CONVO c ON m.ZCONVO = c.Z_PK
             '''
             for record in get_sqlite_db_records(path, query):
