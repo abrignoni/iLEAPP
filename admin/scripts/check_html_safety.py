@@ -111,66 +111,46 @@ HTML_FLAG_PATTERN = re.compile(r'html_format|html_output|is_html|as_html')
 # scripts/html_safe.py; `escape` is the stdlib import artifacts predating it still use;
 # `quote` is urllib's percent-encoder, used on report-relative media paths.
 ESCAPER_NAMES = frozenset({
-    'esc', 'safe_url', 'safe_join', 'safe_source', 'safe_local_link', 'escape', 'quote',
+    'esc', 'safe_url', 'safe_join', 'safe_source', 'safe_local_link', 'safe_local_path',
+    'escape', 'quote',
 })
 
 # The subset of the above that yields a destination which resolves inside the report
 # folder. Only these may complete an href= or src=. The media helpers belong here
 # because they rewrite an extraction path to `media/<file>` beside the report.
 LOCAL_LINK_NAMES = frozenset({
-    'safe_local_link', 'media_to_html', 'check_in_media', 'html_media_tag',
+    'safe_local_path', 'safe_local_link', 'media_to_html', 'check_in_media',
+    'html_media_tag',
 })
 
 # Pre-existing violations. Delete an entry when its violation is fixed; a stale entry
 # fails the run. See the module docstring before adding one.
 BASELINE = {
-    # -- Report-relative destinations the checker cannot yet prove are local. These
-    # clear when the media path and the artifact output path are produced by
-    # safe_local_link() instead of by hand-built string concatenation.
-    ('scripts/ilapfuncs.py', 'remote-destination', 'html_media_tag'),
+    # media_to_html() assigns `source` four times before emitting it -- the raw match,
+    # a relative path, a copied path, then safe_local_path(). A name is treated as safe
+    # only when *every* assignment to it is, because this check does not order
+    # assignments, so the safe final write cannot be told apart from an unsafe one.
+    # The function is in fact correct: the last write is safe_local_path() and nothing
+    # reads `source` before it. Proving that needs real flow analysis, which is not
+    # worth building for one call site. Rewriting the function to bind the escaped
+    # value to its own name would clear this honestly.
     ('scripts/ilapfuncs.py', 'remote-destination', 'media_to_html'),
-    ('scripts/artifacts/walStrings.py', 'remote-destination', 'process_journal_files'),
-    ('scripts/artifacts/googleTranslate.py', 'remote-destination', 'googleTranslateTts'),
-
-    # -- Unescaped evidence in a no-escape cell.
-    # html_media_tag / media_to_html put the media item's name into title= and into
-    # the fallback anchor text with no escaping, tool-wide. A crafted attachment
-    # filename breaks out of the title attribute. GHSA-45q2-q93c-cfv2 deferred this.
-    ('scripts/ilapfuncs.py', 'unescaped-interpolation', 'html_media_tag'),
     ('scripts/ilapfuncs.py', 'unescaped-interpolation', 'media_to_html'),
-    # BeReal joins raw contact phone numbers with <br />; the value is never escaped.
-    ('scripts/artifacts/BeReal.py', 'unescaped-interpolation', 'bereal_contacts'),
-    # BeReal's generic_url() helper returns a prebuilt anchor the checker cannot see
-    # into. Both callers clear once that helper stops emitting remote anchors.
+
+    # BeReal's generic_url() returns a prebuilt string, and this check does not follow
+    # a value through a helper's return. That helper routes through safe_url(), which
+    # is now text-only, so both call sites are already safe -- but not provably so from
+    # the call site alone. They clear if generic_url() is inlined or the joins move to
+    # safe_join().
     ('scripts/artifacts/BeReal.py', 'unescaped-interpolation', 'get_links'),
     ('scripts/artifacts/BeReal.py', 'unescaped-interpolation', 'get_realmojis'),
-    ('scripts/artifacts/appleMapsTrips.py', 'unescaped-interpolation',
-     'get_google_dir_link'),
-
-    # -- Live remote destinations. Each becomes escaped text.
-    # Tool-authored map links: openstreetmap.org and google.com/maps.
-    ('scripts/artifacts/calendarAll.py', 'remote-destination', 'calendarEvents'),
-    ('scripts/artifacts/Oura.py', 'remote-destination', 'oura_find_my_ring_location'),
-    ('scripts/artifacts/appleMapsTrips.py', 'remote-destination', 'get_google_map_link'),
-    ('scripts/artifacts/appleMapsTrips.py', 'remote-destination', 'get_google_dir_link'),
-    # Evidence-derived destinations: each format_url() anchors a URL read from the app.
-    ('scripts/artifacts/box.py', 'remote-destination', 'format_url'),
-    ('scripts/artifacts/booking.py', 'remote-destination', 'format_url'),
-    ('scripts/artifacts/foursquareSwarm.py', 'remote-destination', 'format_url'),
-    ('scripts/artifacts/waze.py', 'remote-destination', 'format_url'),
-
-    # -- swissmeteo and sbbmobile put a bare openstreetmap.org URL in an html_column
-    # and escape nothing. The URL is not an anchor, so the cell already renders as
-    # text; dropping html_columns removes the sink at no cost to the report.
-    ('scripts/artifacts/swissmeteo.py', 'unguarded-html-columns', '<module>'),
-    ('scripts/artifacts/sbbmobile.py', 'unguarded-html-columns', '<module>'),
 }
 
 # Reviewed exceptions expected to stay. Every entry needs a comment saying why.
 ALLOWLIST = {
-    # Both declare a single media column and nothing else. The cell is built by the
-    # framework's media helper, so the module itself has no evidence text to escape.
-    ('scripts/artifacts/googleTranslate.py', 'unguarded-html-columns', '<module>'),
+    # Declares a single media column and nothing else. The cell is built by the
+    # framework's media helper, so the module has no evidence text of its own to
+    # escape.
     ('scripts/artifacts/nsVault.py', 'unguarded-html-columns', '<module>'),
 }
 
@@ -349,13 +329,27 @@ def local_assignments(tree):
     Augmented assignment (`aggregate += f'...'`) records the right-hand side, so an
     accumulator built only from escaped fragments still resolves as escaped.
     """
+    def own_nodes(scope):
+        """Walk a function body without descending into nested functions.
+
+        A nested helper has its own bindings. html_media_tag()'s inner
+        relative_paths() binds `filename` to an unescaped value, and letting that
+        leak into the outer table made the outer function's own escaped `filename`
+        look unsafe.
+        """
+        for child in ast.iter_child_nodes(scope):
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            yield child
+            yield from own_nodes(child)
+
     per_function = {}
     for node in ast.walk(tree):
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Module)):
             continue
         key = node.name if hasattr(node, 'name') else '<module>'
         table = per_function.setdefault(key, {})
-        for child in ast.walk(node):
+        for child in own_nodes(node):
             if isinstance(child, ast.Assign):
                 for target in child.targets:
                     if isinstance(target, ast.Name):
