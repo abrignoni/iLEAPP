@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "by category.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Merges the account/device, user-profile and identifier data into one view.",
@@ -93,11 +93,12 @@ __artifacts_v2__ = {
     },
     "oura_app_activity": {
         "name": "Oura - App Activity Timeline",
-        "description": "Every timestamp-bearing field in the suite plist: launches, "
-                       "syncs, token refresh, uploads, PPG/stress sensing, and more.",
+        "description": "Timestamp-bearing fields found by a heuristic scan of the suite "
+                       "plist: launches, syncs, token refresh, uploads, PPG/stress "
+                       "sensing, and more.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-06-02",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Mixed ISO/Unix/Cocoa timestamps are normalised to UTC.",
@@ -183,11 +184,11 @@ __artifacts_v2__ = {
     },
     "oura_analytics_event_plan": {
         "name": "Oura - Analytics Event Plan",
-        "description": "Segment tracking plan: every analytics event name the app records "
-                       "(track/identify/group), showing collected telemetry.",
+        "description": "Analytics event names listed in the Segment tracking plan "
+                       "(configuration), with enabled flag.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
-        "last_update_date": "2026-06-04",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "From the 'plan' block of 'segment.settings'; bulk, so TSV + LAVA only.",
@@ -221,6 +222,7 @@ import plistlib
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, get_file_path, logfunc
+from scripts.html_safe import esc
 
 # Cocoa/NSDate epoch (2001-01-01 UTC) as Unix seconds.
 COCOA_EPOCH = 978307200
@@ -490,8 +492,8 @@ def oura_account_identity_profile(context):
         braze.get("chosenCountryOfResidence") or traits.get("chosenCountryOfResidence"),
         "chosenCountryOfResidence")
     add("Demographics", "Membership Status", traits.get("membershipStatus"), "membershipStatus")
-    add("Body", "Height (m)", traits.get("height"), "height")
-    add("Body", "Weight (kg)", traits.get("weight"), "weight")
+    add("Body", "Height (as stored)", traits.get("height"), "height")
+    add("Body", "Weight (as stored)", traits.get("weight"), "weight")
 
     add("App", "App Version", app_details.get("version"))
     # SEGVersionKey is the app version Segment records to spot updates (alongside
@@ -553,8 +555,9 @@ def oura_find_my_ring_location(context):
     if isinstance(loc, dict) and "latitude" in loc and "longitude" in loc:
         lat = loc.get("latitude", "")
         lon = loc.get("longitude", "")
-        map_link = (f'<a href="https://www.google.com/maps?q={lat},{lon}" '
-                    f'target="_blank">View on map</a>') if lat != "" and lon != "" else ""
+        # Coordinates as text, not a google.com/maps anchor: a report links to
+        # nothing outside its own folder.
+        map_link = f'{esc(lat)}, {esc(lon)}' if lat != "" and lon != "" else ""
         data_list.append((
             ts_cocoa(loc.get("timestamp")),
             lat,

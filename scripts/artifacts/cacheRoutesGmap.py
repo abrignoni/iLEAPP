@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses cached Google Maps route data and timestamps from the app CachedRoutes plists.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Locations",
-        "notes": "",
+        "notes": "The plist filename is interpreted as a millisecond Unix timestamp based on observed values; app attribution rests on tested extractions.",
         "paths": ('*/Library/Application Support/CachedRoutes/*.plist',),
         "output_types": "all",
         "artifact_icon": "route",
@@ -60,6 +60,6 @@ def get_cacheRoutesGmap(context):
             except (KeyError, TypeError):
                 pass
 
-    data_headers = (('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Source File')
+    data_headers = (('Timestamp (from filename)', 'datetime'), 'Latitude', 'Longitude', 'Source File')
 
     return data_headers, data_list, 'see Source File for more info'

@@ -11,7 +11,7 @@ __artifacts_v2__ = {
 'version': '1.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains device_values.plist',
-'category': 'Photos.sqlite-Y-Settings-UFED-Device-Info',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/device_values.plist',),
 "output_types": ["standard", "tsv", "none"],
@@ -40,40 +40,37 @@ def Ph087UFEDdevcievaluesplist(context):
                 logfunc(f"iOS version: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "Product Version", str(val), data_source)
 
-            if key == "BuildVersion":
+            elif key == "BuildVersion":
                 logfunc(f"Build Version: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "Build Version", str(val), data_source)
 
-            if key == "ProductType":
+            elif key == "ProductType":
                 logfunc(f"Product Type: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "Product Type", str(val), data_source)
 
-            if key == "HardwareModel":
+            elif key == "HardwareModel":
                 logfunc(f"Hardware Model: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "Hardware Model", str(val), data_source)
 
-            if key == "InternationalMobileEquipmentIdentity":
+            elif key == "InternationalMobileEquipmentIdentity":
                 logfunc(f"IMEI: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "IMEI", str(val), data_source)
 
-            if key == "SerialNumber":
+            elif key == "SerialNumber":
                 logfunc(f"Serial Number: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "Serial Number", str(val), data_source)
 
-            if key == "DeviceName":
+            elif key == "DeviceName":
                 logfunc(f"Device Name: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "Device Name", str(val), data_source)
 
-            if key == "PasswordProtected":
+            elif key == "PasswordProtected":
                 logfunc(f"Password Protected: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "Password Protected", str(val), data_source)
 
-            if key == "TimeZone":
+            elif key == "TimeZone":
                 logfunc(f"TimeZone: {val}")
                 device_info("devicevaluesplist-ufedadvlog", "TimeZone", str(val), data_source)
-
-            else:
-                data_list.append((key, str(val)))
 
     data_headers = ("Property", "Property Value")
 

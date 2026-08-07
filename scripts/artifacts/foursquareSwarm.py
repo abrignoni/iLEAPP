@@ -148,10 +148,10 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_photos": {
         "name": "Foursquare Swarm - Photos",
-        "description": "Parses and extracts Foursquare Swarm photos from all artifacts",
+        "description": "Parses and extracts Foursquare Swarm photos",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -169,11 +169,11 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_comments": {
         "name": "Foursquare Swarm - Comments",
-        "description": "Parses and extracts all Foursquare Swarm comments from "
+        "description": "Parses and extracts Foursquare Swarm comments from "
                        "check-ins, plans, tips, lists, and stickers",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -331,6 +331,7 @@ from scripts.filetype import get_type
 from scripts.ilapfuncs import get_sqlite_db_records, open_sqlite_db_readonly, \
     does_column_exist_in_db, get_plist_content, check_in_embedded_media, \
     convert_unix_ts_to_utc, get_birthdate, check_in_media, artifact_processor, logfunc
+from scripts.html_safe import safe_join
 
 # Constants
 COMMA_SEP = ', '
@@ -463,19 +464,11 @@ def format_url(str_url: str | None, html_format: bool = False, label: str | None
     # Visible text: label or raw URL
     visible = label if label else s
 
-    # HTML rendering
+    # HTML rendering: escaped text, never an anchor. The host in a Foursquare URL
+    # comes from the evidence, and a report must not reach a destination outside its
+    # own folder. The URL is preserved verbatim for the examiner to read and copy.
     if html_format:
-        safe_text = html.escape(visible, quote=False)
-
-        if is_clickable:
-            safe_href = html.escape(s, quote=True)
-            return (
-                f'<a href="{safe_href}" target="_blank" '
-                f'rel="noopener noreferrer">{safe_text}</a>'
-            )
-
-        # Non-clickable: return escaped plain text — evidence preserved
-        return safe_text
+        return html.escape(visible, quote=False)
 
     # Plain text rendering
     if is_clickable and label:
@@ -3940,15 +3933,15 @@ def foursquare_swarm_feed(context):
             # Extract social intelligence
             participants = _extract_zblob_participants(entities_blob, target_blob)
             p_participants = LIST_SEP.join(participants)
-            h_participants = HTML_LINE_BREAK.join(participants)
+            h_participants = safe_join(participants, HTML_LINE_BREAK)
 
             replies = _extract_zblob_replies(entities_blob, target_blob)
             p_replies = LIST_SEP.join(replies)
-            h_replies = HTML_LINE_BREAK.join(replies)
+            h_replies = safe_join(replies, HTML_LINE_BREAK)
 
             social_actors = _extract_zblob_social_actors(entities_blob, target_blob)
             p_social_actors = LIST_SEP.join(social_actors)
-            h_social_actors = HTML_LINE_BREAK.join(social_actors)
+            h_social_actors = safe_join(social_actors, HTML_LINE_BREAK)
 
             # Fallback mechanism: extract strings directly from the decoded Core Data object
             if not text:

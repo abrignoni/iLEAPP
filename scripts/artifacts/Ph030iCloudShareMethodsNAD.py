@@ -5,13 +5,14 @@ __artifacts_v2__ = {
 ' found in the PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
 ' Parses iCloud Share Methods and Participant records only no asset data being parsed.'
 ' The iCloud Share methods being stored in these records include'
-' Shred iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
+' Shared iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'version': '6.0',
 'date': '2026-05-27',
+'last_update_date': '2026-07-31',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-Shared-iCloud-Methods-NAD-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],

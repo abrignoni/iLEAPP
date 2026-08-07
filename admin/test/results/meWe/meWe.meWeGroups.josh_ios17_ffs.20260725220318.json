@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "module_name": "meWe",
+    "artifact_name": "MeWe - Groups",
+    "function_name": "meWeGroups",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 17,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 229,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/meWe/testdata.meWe.meWeGroups.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:18.863851+00:00",
+    "end_time": "2026-07-25T22:03:18.943465+00:00",
+    "run_time_seconds": 0.0009229183197021484,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:18.939493",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Group Name",
+    "Group ID",
+    "Description",
+    "Category",
+    "Owner ID",
+    "Role",
+    "Public Role",
+    "Members Count",
+    "Cached Post Count",
+    "Unseen Posts",
+    "Public",
+    "Confirmed",
+    "Muted",
+    "Owner Or Admin",
+    "Chat Mode",
+    "Email",
+    "Public URL ID"
+  ],
+  "data": [
+    [
+      "MeWe News and Updates",
+      "55f9dd29e4b050c69e693558",
+      "Welcome to MeWe News & Updates. Here we update you about all things MeWe, Pop Culture, and the world at large.",
+      "Communication",
+      "62298114217fb30053037d20",
+      "Limited",
+      "Limited",
+      0,
+      30,
+      269,
+      "Yes",
+      "Yes",
+      "",
+      "",
+      "off",
+      null,
+      "mewe"
+    ]
+  ]
+}

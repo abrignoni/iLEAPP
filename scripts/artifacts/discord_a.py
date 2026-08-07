@@ -4,11 +4,13 @@ __artifacts_v2__ = {
         "description": "Parses Discord chats from \"a\" database",
         "author": "@stark4n6",
         "creation_date": "2025-03-31",
-        "last_update_date": "2026-07-03",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Discord",
         "notes": "Direction is derived by comparing the message sender id to the "
-                 "account id in the kv-storage/@account.<id>/ path.",
+                 "account id in the kv-storage/@account.<id>/ path. "
+                 "Reference: Discord Developer Documentation, 'Message Resource', "
+                 "https://docs.discord.com/developers/resources/message",
         "paths": ('*/Library/Caches/kv-storage/@account*/a*'),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "message-circle",

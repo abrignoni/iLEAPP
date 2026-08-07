@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts Backup settings",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-10-04",
-        "last_update_date": "2025-10-29",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
@@ -50,11 +50,11 @@ def backupSettings(context):
             device_info("Backup Settings", "Last iTunes Backup TZ", val, source_path)
         elif key == 'LastCloudBackupDate':
             lastcloudtime = convert_cocoa_core_data_ts_to_utc(val)
-            data_list.append(('Last Cloud iTunes Backup Date', lastcloudtime))
-            device_info("Backup Settings", "Last Cloud iTunes Backup Date", lastcloudtime, source_path)
+            data_list.append(('Last Cloud Backup Date', lastcloudtime))
+            device_info("Backup Settings", "Last Cloud Backup Date", lastcloudtime, source_path)
         elif key == 'LastCloudBackupTZ':
             data_list.append((key, val))
-            device_info("Backup Settings", "Last Cloud iTunes Backup TZ", val, source_path)
+            device_info("Backup Settings", "Last Cloud Backup TZ", val, source_path)
         elif key == 'CloudBackupEnabled':
             data_list.append((key,val))
             device_info("Backup Settings", "Cloud Backup Enabled", val, source_path)

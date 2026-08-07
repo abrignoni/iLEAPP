@@ -1,92 +1,92 @@
 __artifacts_v2__ = {
-'Ph098_1iOS18RefforAssetAnalysisPhDaPsql': {
-'name': 'Ph098.1-iOS18_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
-'version': '5.0',
-'date': '2025-01-05',
-'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-Z-TableJoinReference-iOS18-PhotoData-Psql',
-'notes': '',
-'paths': ('*/PhotoData/Photos.sqlite*',),
-"output_types": ["standard", "tsv", "none"],
-"artifact_icon": "database",
-'sample_data': {
-'ctf2020_ios12': 'iOS 12.4 | 0 rows',
-'dexter_ios18': 'iOS 18.3.2 | 31445 rows',
-'felix_ios17': 'iOS 17.6.1 | 0 rows',
-'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-'hc_ios18_7': 'iOS 18.7.8 | 153 rows',
-'iphone11_ios17': 'iOS 17.3 | 0 rows',
-'iphone12_ios18': 'iOS 18.7 | 18716 rows',
-'iphone14plus_ios18': 'iOS 18.0 | 9 rows',
-'otto_ios17': 'iOS 17.5.1 | 0 rows',
-'abe_ios16': 'iOS 16.5 | 0 rows',
-'felix23_ios16': 'iOS 16.5 | 0 rows',
-'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-'hickman_ios14': 'iOS 14.3 | 0 rows',
-'jess_ios15': 'iOS 15.0.2 | 0 rows',
-'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-}
-},
-'Ph098_2iOS18RefforAssetAnalysisSyndPL': {
-'name': 'Ph098.2-iOS18_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
-'version': '5.0',
-'date': '2025-01-05',
-'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
-'category': 'Photos.sqlite-Z-TableJoinReference-iOS18-SyndicationPL-Psql',
-'notes': '',
-'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
-"output_types": ["standard", "tsv", "none"],
-"artifact_icon": "database",
-'sample_data': {
-'dexter_ios18': 'iOS 18.3.2 | 68 rows',
-'felix_ios17': 'iOS 17.6.1 | 0 rows',
-'fsfull002_ios17': 'iOS 17.1 | 0 rows',
-'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
-'iphone11_ios17': 'iOS 17.3 | 0 rows',
-'iphone12_ios18': 'iOS 18.7 | 4 rows',
-'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
-'otto_ios17': 'iOS 17.5.1 | 0 rows',
-'abe_ios16': 'iOS 16.5 | 0 rows',
-'felix23_ios16': 'iOS 16.5 | 0 rows',
-'jess_ios15': 'iOS 15.0.2 | 0 rows',
-'magnet_ios16': 'iOS 16.1.1 | 0 rows',
-}
-},
-'Ph098_3iOS18RefforAssetAnalysisGenPlayPsql': {
-'name': 'Ph098.3-iOS18_Ref_for_Asset_Analysis-GenPlayPsql',
-'description': 'Parses asset records from GenPlay-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
-'version': '1.0',
-'date': '2025-02-05',
-'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
-'category': 'Photos.sqlite-Z-TableJoinReference-iOS18-GenPlaygrndPL-Psql',
-'notes': '',
-'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
-"output_types": ["standard", "tsv", "none"],
-"artifact_icon": "database",
-'sample_data': {
-'dexter_ios18': 'iOS 18.3.2 | 81 rows',
-}
-}
+    "Ph098_1iOS18RefforAssetAnalysisPhDaPsql": {
+        "name": "Ph098.1-iOS18_Ref_for_Asset_Analysis-PhDaPsql",
+        "description": "Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest"
+            " set of decoded data based on testing and research conducted by Scott Koenig"
+            " https://theforensicscooter.com/. I recommend opening the TSV generated reports"
+            " with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer"
+            " to view, search and filter the results."
+            " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "author": "Scott Koenig",
+        "created_date": "2025-01-05",
+        "last_update_date": "2026-08-06",
+        "requirements": "Acquisition that contains PhotoData-Photos.sqlite",
+        "category": "Photos.sqlite",
+        "notes": "",
+        "paths": ("*/PhotoData/Photos.sqlite*",),
+        "output_types": ["html", "lava", "tsv"],
+        "artifact_icon": "database",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 31445 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 153 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 18716 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 9 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
+    },
+    "Ph098_2iOS18RefforAssetAnalysisSyndPL": {
+        "name": "Ph098.2-iOS18_Ref_for_Asset_Analysis-SyndPL",
+        "description": "Parses asset records from Syndication.photoslibrary-database-Photos.sqlite."
+            " This parser includes the largest set of decoded data based on testing and research"
+            " conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the"
+            " TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md"
+            " TimelineExplorer to view, search and filter the results."
+            " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "author": "Scott Koenig",
+        "created_date": "2025-01-05",
+        "last_update_date": "2026-08-06",
+        "requirements": "Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite",
+        "category": "Photos.sqlite",
+        "notes": "",
+        "paths": ("*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*",),
+        "output_types": ["html", "lava", "tsv"],
+        "artifact_icon": "database",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 68 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 4 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
+    },
+    "Ph098_3iOS18RefforAssetAnalysisGenPlayPsql": {
+        "name": "Ph098.3-iOS18_Ref_for_Asset_Analysis-GenPlayPsql",
+        "description": "Parses asset records from GenPlay-Photos.sqlite. This parser includes the largest"
+            " set of decoded data based on testing and research conducted by Scott Koenig"
+            " https://theforensicscooter.com/. I recommend opening the TSV generated reports"
+            " with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer"
+            " to view, search and filter the results."
+            " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "author": "Scott Koenig",
+        "created_date": "2025-02-05",
+        "last_update_date": "2026-08-06",
+        "requirements": "Acquisition that contains Library GenPlay Photos.sqlite",
+        "category": "Photos.sqlite",
+        "notes": "",
+        "paths": ("*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*",),
+        "output_types": ["html", "lava", "tsv"],
+        "artifact_icon": "database",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 81 rows",
+        }
+    }
 }
 
 import os

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "description": "Apple Notes including decoded note body text and embedded attachments",
         "author": "",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
         "notes": "Note body text is decompressed and parsed from the protobuf blob. "
@@ -32,6 +32,22 @@ __artifacts_v2__ = {
             "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 2 rows",
             "magnet_ios16": "iOS 16.1.1 | group.com.apple.notes | 0 rows",
         }
+    },
+    "notesParticipants": {
+        "name": "Notes - Shared Note Participants",
+        "description": "People a note is shared with, decoded from the CloudKit share record held against each invitation",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
+        "requirements": "none",
+        "category": "Notes",
+        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA. Reference: Apple CloudKit, CKShareParticipant (role/permission/acceptance enums; raw values per the CloudKit.framework SDK header), https://developer.apple.com/documentation/cloudkit/ckshare/participantrole",
+        "paths": ('*/NoteStore.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users",
+        "sample_data": {
+            "josh_ios17_ffs": "iOS 17.3 | 4 rows across 2 shared notes",
+        }
     }
 }
 
@@ -41,8 +57,12 @@ import re
 import zlib
 from os.path import dirname, join
 
+import nska_deserialize as nd
+
 from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media,
-                               get_sqlite_db_records, logfunc)
+                               convert_cocoa_core_data_ts_to_utc,
+                               does_table_exist_in_db, get_sqlite_db_records,
+                               logfunc)
 
 
 def _build_query(creation_col, account_col):
@@ -183,7 +203,7 @@ def notes(context):
         ('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents', 'Folder',
         'Storage Place', ('Last Modified', 'datetime'), 'Password Protected', 'Password Hint',
         'Marked for Deletion', 'Pinned', ('Attachment', 'media'), 'Attachment Original Filename',
-        'Attachment Storage Folder', 'Attachment Size in KB', 'Attachment Type',
+        'Attachment Storage Folder', 'Attachment Size (as stored)', 'Attachment Type',
         ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'))
     data_list = []
     sources = []
@@ -231,3 +251,103 @@ def notes(context):
         sources.append(context.get_relative_path(file_found))
 
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+
+
+# CloudKit share enumerations, as they appear in ZICINVITATION.ZSERVERSHAREDATA.
+_PARTICIPANT_TYPE = {0: 'Unknown', 1: 'Owner', 2: 'Administrator', 3: 'Private User', 4: 'Public User'}
+_PARTICIPANT_PERMISSION = {1: 'None', 2: 'Read Only', 3: 'Read/Write'}
+_PARTICIPANT_ACCEPTANCE = {1: 'Pending', 2: 'Accepted', 3: 'Removed'}
+
+
+def _flatten_share_blob(decoded):
+    """The share record deserializes as a list of single-key dicts; merge them."""
+    if isinstance(decoded, dict):
+        return decoded
+    merged = {}
+    if isinstance(decoded, list):
+        for entry in decoded:
+            if isinstance(entry, dict):
+                merged.update(entry)
+    return merged
+
+
+def _participant_name(user_identity):
+    """Join the given/family name components of a share participant."""
+    components = user_identity.get('NameComponents')
+    if not isinstance(components, dict):
+        return ''
+    private = components.get('NS.nameComponentsPrivate')
+    if not isinstance(private, dict):
+        return ''
+    parts = [private.get('NS.givenName'), private.get('NS.familyName')]
+    return ' '.join(part for part in parts if part)
+
+
+@artifact_processor
+def notesParticipants(context):
+    data_headers = (
+        ('Invitation Created', 'datetime'), ('Invitation Received', 'datetime'),
+        ('Last Modified', 'datetime'), 'Note Title', 'Note Snippet', 'Participant Name',
+        'Email Address', ('Phone Number', 'phonenumber'), 'Role', 'Permission',
+        'Acceptance Status', 'Participant ID', 'Share URL', 'Source File')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('.sqlite'):
+            continue
+        if not does_table_exist_in_db(file_found, 'ZICINVITATION'):
+            continue
+
+        query = '''
+        SELECT ZCREATIONDATE, ZRECEIVEDDATE, ZMODIFICATIONDATE, ZTITLE, ZSNIPPET,
+               ZSHAREURL, ZSERVERSHAREDATA
+        FROM ZICINVITATION
+        WHERE ZSERVERSHAREDATA IS NOT NULL
+        '''
+
+        found_any = False
+        for record in get_sqlite_db_records(file_found, query):
+            try:
+                share = _flatten_share_blob(
+                    nd.deserialize_plist_from_string(record['ZSERVERSHAREDATA']))
+            except (nd.DeserializeError, ValueError, TypeError) as ex:
+                logfunc(f'Could not decode Notes share record: {ex}')
+                continue
+
+            for participant in share.get('LastFetchedParticipants') or []:
+                if not isinstance(participant, dict):
+                    continue
+                identity = participant.get('UserIdentity')
+                identity = identity if isinstance(identity, dict) else {}
+                lookup = identity.get('LookupInfo')
+                lookup = lookup if isinstance(lookup, dict) else {}
+
+                found_any = True
+                data_list.append((
+                    convert_cocoa_core_data_ts_to_utc(record['ZCREATIONDATE'])
+                    if record['ZCREATIONDATE'] else '',
+                    convert_cocoa_core_data_ts_to_utc(record['ZRECEIVEDDATE'])
+                    if record['ZRECEIVEDDATE'] else '',
+                    convert_cocoa_core_data_ts_to_utc(record['ZMODIFICATIONDATE'])
+                    if record['ZMODIFICATIONDATE'] else '',
+                    record['ZTITLE'],
+                    record['ZSNIPPET'],
+                    _participant_name(identity),
+                    lookup.get('EmailAddress', ''),
+                    lookup.get('PhoneNumber', ''),
+                    _PARTICIPANT_TYPE.get(participant.get('Type'), participant.get('Type')),
+                    _PARTICIPANT_PERMISSION.get(participant.get('Permission'),
+                                                participant.get('Permission')),
+                    _PARTICIPANT_ACCEPTANCE.get(participant.get('AcceptanceStatus'),
+                                                participant.get('AcceptanceStatus')),
+                    participant.get('ParticipantID'),
+                    record['ZSHAREURL'],
+                    context.get_relative_path(file_found),
+                ))
+
+        if found_any:
+            sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, ', '.join(sources)

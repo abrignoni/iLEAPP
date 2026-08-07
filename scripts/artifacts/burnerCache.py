@@ -100,6 +100,7 @@ import sqlite3
 from pathlib import Path
 from scripts.ilapfuncs import get_file_path, open_sqlite_db_readonly, lava_get_full_media_info, \
     convert_unix_ts_to_utc, check_in_media, check_in_embedded_media, artifact_processor, logfunc
+from scripts.html_safe import esc, safe_join, safe_url
 
 
 # <id, phone number (display name)> shared across the artifacts below.
@@ -205,7 +206,10 @@ def unordered_list(values, html_format=False):
     if not bool(values):
         return None
 
-    return HTML_LINE_BREAK.join(values) if html_format else LINE_BREAK.join(values)
+    # HTML path: escape each evidence value; plain/TSV path left unescaped by design.
+    if html_format:
+        return safe_join(values, HTML_LINE_BREAK)
+    return LINE_BREAK.join(values)
 
 
 # generic url
@@ -219,7 +223,10 @@ def generic_url(value, html_format=False):
         if not bool(u.scheme) and u.path.startswith('www'):
             u = u._replace(scheme='http')
         url = urlunparse(u)
-        result =  f'<a href="{url}" target="_blank">{value}</a>' if html_format else url
+        # HTML path: build a scheme-checked, escaped anchor so a crafted media
+        # URL cannot inject markup/script or a javascript:/data: link; plain path
+        # returns the raw URL.
+        result = safe_url(url, value) if html_format else url
 
     return result
 
@@ -314,7 +321,7 @@ def burnerCache_accounts(context):
                 location = COMMA_SEP.join(location)
 
                 # html row
-                data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, location))
+                data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, esc(location)))
                 # lava row
                 data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
         # account
@@ -332,7 +339,7 @@ def burnerCache_accounts(context):
             location = COMMA_SEP.join(location)
 
             # html row
-            data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, location))
+            data_list_html.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name_html, esc(location)))
             # lava row
             data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
 
@@ -434,7 +441,7 @@ def burnerCache_contacts(context):
                 location = COMMA_SEP.join(location)
 
                 # html row
-                data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, location))
+                data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, esc(location)))
                 # lava row
                 data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
 
@@ -452,7 +459,7 @@ def burnerCache_contacts(context):
             location = COMMA_SEP.join(location)
 
             # html row
-            data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, location))
+            data_list_html.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name_html, esc(location)))
             # lava row
             data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
 
@@ -607,7 +614,7 @@ def burnerCache_numbers(context):
 
                 # html row
                 data_list_html.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
-                                       rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, location))
+                                       rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, esc(location)))
                 # lava row
                 data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
                                   rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
@@ -628,7 +635,7 @@ def burnerCache_numbers(context):
 
             # html row
             data_list_html.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
-                                   rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, location))
+                                   rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name_html, esc(location)))
             # lava row
             data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
                               rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
@@ -876,7 +883,7 @@ def burnerCache_messages(context):
 
                 # html row
                 data_list_html.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url_html,
-                                       message_id, source_file_name_html, location))
+                                       message_id, source_file_name_html, esc(location)))
                 # lava row
                 data_list.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url,
                                   message_id, source_file_name, location))
@@ -905,7 +912,7 @@ def burnerCache_messages(context):
 
             # html row
             data_list_html.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url_html,
-                                   message_id, source_file_name_html, location))
+                                   message_id, source_file_name_html, esc(location)))
             # lava row
             data_list.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url,
                               message_id, source_file_name, location))

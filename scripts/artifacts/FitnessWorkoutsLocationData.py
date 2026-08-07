@@ -5,13 +5,15 @@ __artifacts_v2__ = {
                        "(point counts vs expected, capture timespan/average, workout type and times)",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
                  "Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
                  "(https://tinyurl.com/4zyd6z9n). Timestamps are UTC. Elapsed/Workout/Timespan columns are "
-                 "HH:MM:SS durations, not absolute times.",
+                 "HH:MM:SS durations, not absolute times. The 'Duration x Avg Interval (computed)' column "
+                 "is the product of the workout duration and the average location capture interval as "
+                 "computed by the query.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -169,7 +171,7 @@ def fitnessWorkoutsAnalysis(context):
     data_headers = (
         ('Workout Start Time', 'datetime'), ('Min Location Timestamp', 'datetime'),
         ('Workout End Time', 'datetime'), ('Max Location Timestamp', 'datetime'),
-        'Number of Location Points', 'Expected Number of Location Points', 'Workout Type',
+        'Number of Location Points', 'Duration x Avg Interval (computed)', 'Workout Type',
         'Elapsed Time', 'Workout Time', 'Location Data Capture Timespan',
         'Location Data Capture Average (in Seconds)')
     data_list = []

@@ -3,13 +3,13 @@ __artifacts_v2__ = {
         "name": "Device Data",
         "description": "Device identifiers and phone number information",
         "author": "",
-        "version": "1.0",
-        "date": "2024-10-29",
+        "creation_date": "2024-10-29",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Device Information",
-        "notes": "",
+        "notes": "Timestamp epoch choices (days-since-Unix-epoch for kCKUploadDate, Apple epoch for others) were established through testing; raw values are preserved inline.",
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist',),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "device-mobile",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 35 rows",
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
 
 import ast
 import plistlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from scripts.ilapfuncs import artifact_processor, device_info, webkit_timestampsconv
 
 @artifact_processor
@@ -64,7 +64,7 @@ def deviceDatam(context):
                         # Handle the dictionary string with timestamps
                         data_dict = ast.literal_eval(str(val))
                         timestamps = data_dict.get('launchTimestamps', [])
-                        converted_times = [f"{datetime.fromtimestamp(ts)} (original: {ts})" for ts in timestamps]
+                        converted_times = [f"{datetime.fromtimestamp(ts, tz=timezone.utc)} (original: {ts})" for ts in timestamps]
                         val = str({'launchTimestamps': converted_times})
                     elif key == 'kCKUploadDate':
                         # Convert days since Unix epoch

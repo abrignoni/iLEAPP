@@ -4,9 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses storeUser.db for installed app history",
         "author": "@stark4n6",
         "creation_date": "2025-04-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "System-app status is reported only where the column exists and is populated. Reference: Kevin Pagano, 'Tracking iOS App Installs and Purchases', https://www.stark4n6.com/2025/04/tracking-ios-app-installs-and-purchase.html",
         "paths": ('*/mobile/Library/Caches/com.apple.appstored/storeUser.db*',),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "package",
@@ -76,7 +77,7 @@ def storeUser_ca(context):
     item_id,
     case is_system_app
         when 1 then 'Yes'
-        else 'No'
+        when 0 then 'No'
     end as "system_app",
     deletion_date
     from current_apps
@@ -107,7 +108,8 @@ def storeUser_ca(context):
         else:
             db_records = get_sqlite_db_records(source_path, current_app_prev_query)
             for record in db_records:
-                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], 'No', record[6], record[7]))
+                # schema has no is_system_app column, so System App is left blank
+                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], '', record[7]))
 
     return data_headers, data_list, source_path
 

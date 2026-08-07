@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         "description": "Apple ATX texture archives decoded to images when possible",
         "author": "@JamesHabben",
         "creation_date": "2026-06-25",
-        "last_update_date": "2026-06-25",
+        "last_update_date": "2026-07-21",
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "Images",
         "notes": "ATX files are AAPL texture containers wrapping ASTC image data. These files "
@@ -68,6 +68,8 @@ def _file_timestamps(context, file_found):
 def apple_atx_images(context):
     """ See artifact description """
     data_headers = (
+        ('File Created', 'datetime'),
+        ('File Modified', 'datetime'),
         ('Image', 'media'),
         'Filename',
         'Width',
@@ -82,8 +84,6 @@ def apple_atx_images(context):
         'Declared Payload Bytes',
         'Chunks',
         'Status',
-        ('File Created', 'datetime'),
-        ('File Modified', 'datetime'),
         'Source Path',
     )
     data_list = []
@@ -99,9 +99,9 @@ def apple_atx_images(context):
             result = decode_atx_file(file_found)
         except OSError as ex:
             logfunc(f'Failed to read ATX image {file_found}: {ex}')
-            data_list.append((
+            data_list.append((created_at, modified_at, 
                 None, filename, '', '', '', '', '', '', '', '', '', '',
-                '', f'Failed to read ATX file: {ex}', created_at, modified_at, source_path
+                '', f'Failed to read ATX file: {ex}', source_path
             ))
             continue
 
@@ -126,6 +126,8 @@ def apple_atx_images(context):
             status = 'Parsed ATX metadata with warnings'
 
         data_list.append((
+            created_at,
+            modified_at,
             media_ref,
             filename,
             header.width if header else '',
@@ -140,8 +142,6 @@ def apple_atx_images(context):
             payload.declared_size if payload else '',
             chunks,
             f'{status}: {warnings}' if warnings else status,
-            created_at,
-            modified_at,
             source_path,
         ))
 

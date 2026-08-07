@@ -1,0 +1,42 @@
+name: Python Runtime Contract
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/python_runtime_contract.yml'
+      - 'README.md'
+      - 'requirements.txt'
+      # The job runs the whole admin/test/scripts suite, so trigger on all of it
+      - 'admin/test/scripts/**'
+      # The suite imports every artifact module, which is the only check that a
+      # change parses on the oldest supported Python. Lint runs on one, newer
+      # version and cannot see this class of break.
+      - 'scripts/**'
+      # The entry points are covered by the same suite and are equally able to
+      # break on an older Python
+      - 'ileapp.py'
+      - 'ileappGUI.py'
+
+jobs:
+  runtime-contract:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The versions README.md tells users to run
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install runtime dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run admin compatibility tests
+        run: python -m unittest discover -s admin/test/scripts -p 'test_*.py'

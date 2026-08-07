@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Cash App transactions and account data from the CCEntitySync SQLite stores.",
         "author": "@gforce4n6",
         "creation_date": "2021-10-06",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Banking",
         "notes": "",
@@ -33,14 +33,19 @@ def get_cashApp(context):
             cursor.execute('''SELECT
 
 -- Description of the role of the user account signed into the CashApp application of the device.
-CASE WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"RECIPIENT"%' THEN 'RECIPIENT' ELSE 'SENDER' END AS "Account Owner Role",
+-- Unrecognized role values are reported as stored in the record.
+-- ZSYNCPAYMENT is a BLOB, so SUBSTR over it also returns a BLOB. The result is CAST to TEXT so
+-- that extracted values render as text and an empty extraction renders as a blank cell.
+CASE WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"RECIPIENT"%' THEN 'RECIPIENT'
+WHEN INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') > 0 THEN CAST(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') + 8,
+INSTR(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"role":"') + 8), '"') - 1) AS TEXT) END AS "Account Owner Role",
 
---Full name of the customer as entered into the "First Name" and "Last Name" fields upon application setup.
+--Full name from the name fields of the customer record.
 LTRIM(SUBSTR(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), INSTR(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), CAST(',"full_name":' AS BLOB)),
 instr(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), CAST('","is_cash' AS BLOB)) - 
 instr(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), CAST(',"full_name":' AS BLOB))), ',"full_name":"') AS 'CUSTOMER FULL DISPLAY NAME', 
 
---Customer's username created upon application setup.
+--Customer's cashtag username from the customer record.
 CASE WHEN INSTR(ZSYNCCUSTOMER, '"cashtag":null') THEN '***NO CASH TAG***' WHEN ZSYNCCUSTOMER LIKE '%C_INCOMING_TRANSFER%' THEN '***NO CASH TAG***' ELSE
 LTRIM(SUBSTR(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), INSTR(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), CAST(',"cashtag":' AS BLOB)),
 instr(CAST(ZCUSTOMER.ZSYNCCUSTOMER AS BLOB), CAST('","is_verification' AS BLOB)) - 
@@ -57,7 +62,12 @@ instr(CAST(ZPAYMENT.ZSYNCPAYMENT AS BLOB), CAST(',"sent' AS BLOB)) -
 instr(CAST(ZPAYMENT.ZSYNCPAYMENT AS BLOB), CAST('"note":' AS BLOB))), ',"note":') ELSE '***NO NOTE PRESENT***' END NOTE, 
 
 --State of the transaction. Certain times the user may have to accept or decline a payment or payment request from the sender.
-CASE WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"COMPLETED"%' THEN 'COMPLETED' WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"CANCELED"%' THEN 'CANCELED' ELSE 'WAITING ON RECIPIENT' END AS 'Transaction State',
+-- Unrecognized state values are reported as stored in the record.
+-- ZSYNCPAYMENT is a BLOB, so SUBSTR over it also returns a BLOB. The result is CAST to TEXT so
+-- that extracted values render as text and an empty extraction renders as a blank cell.
+CASE WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"COMPLETED"%' THEN 'COMPLETED' WHEN ZPAYMENT.ZSYNCPAYMENT LIKE '%"CANCELED"%' THEN 'CANCELED'
+WHEN INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') > 0 THEN CAST(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') + 9,
+INSTR(SUBSTR(ZPAYMENT.ZSYNCPAYMENT, INSTR(ZPAYMENT.ZSYNCPAYMENT, '"state":"') + 9), '"') - 1) AS TEXT) END AS 'Transaction State',
 
 --Unix Epoch timestamp for the transaction display time.
 ZPAYMENT.ZDISPLAYDATE as "TRANSACTION DISPLAY DATE"

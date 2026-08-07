@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts the user defaults plist file for each application",
         "author": "@jfhyla",
         "creation_date": "2024-12-16",
-        "last_update_date": "2026-06-08",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "https://developer.apple.com/documentation/foundation/userdefaults",
@@ -12,7 +12,7 @@ __artifacts_v2__ = {
             "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/Containers/Data/Application/*/Library/Preferences/*.plist",
         ),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "adjustments-alt",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 4280 rows",

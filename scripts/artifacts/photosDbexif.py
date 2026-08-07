@@ -6,18 +6,22 @@ __artifacts_v2__ = {
                        "and the media file.",
         "author": "",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-08",
+        "last_update_date": "2026-08-06",
         "requirements": "none",
         "category": "Photos",
         "notes": "Photos only (ZKIND=0 when available). Only assets with a matching on-disk image "
                  "file and readable EXIF are output. Search patterns cover DCIM and "
                  "PhotoCloudSharingData image extensions. DB Created and DB Modified are UTC "
                  "(datetime). File and Cache DateTime columns are local wall time without timezone "
-                 "(strings). DB Modify Lag under 5 minutes is commonly normal ingest delay. DB "
+                 "(strings). In the test corpus, DB Modify Lag under 5 minutes was typical ingest "
+                 "delay. DB "
                  "Latitude/Longitude of -180 means no location stored. Latitude/Longitude are file "
                  "EXIF GPS for KML output. File vs DB Delta compares local file EXIF to UTC DB "
                  "Created; sub-minute skew within 2 seconds is tolerated. Mismatch flags are "
-                 "investigative leads, not conclusions.",
+                 "investigative leads, not conclusions. The -180 latitude/longitude no-location "
+                 "sentinel follows the treatment in Scott Koenig's published Photos.sqlite queries. "
+                 "Reference: Scott Koenig, iOS_Local_PL_Photos.sqlite_Queries, "
+                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries",
         "paths": (
             '*Media/PhotoData/Photos.sqlite*',
             '*Media/DCIM/*/*.HEIC',
@@ -356,12 +360,12 @@ def _primary_file_datetime(file_datetime, file_datetime_original):
 @artifact_processor
 def photosDbexif(context):
     data_headers = (
+        ('DB Created', 'datetime'),
+        ('DB Modified', 'datetime'),
         ('Media', 'media'),
         'Directory',
         'Filename',
         'Bundle Creator',
-        ('DB Created', 'datetime'),
-        ('DB Modified', 'datetime'),
         'DB Modify Lag',
         'DB Modify Drift',
         'File DateTime (local)',
@@ -459,12 +463,12 @@ def photosDbexif(context):
             coord_mismatch = _coordinate_mismatch(zlatitude, zlongitude, file_lat, file_lon)
 
             data_list.append((
+                zdatecreated,
+                zmodificationdate,
                 thumb,
                 zdirectory,
                 zfilename,
                 zbundlecreator or '',
-                zdatecreated,
-                zmodificationdate,
                 db_modify_lag,
                 db_modify_drift,
                 file_datetime,

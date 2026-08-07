@@ -4,10 +4,12 @@ __artifacts_v2__ = {
         'description': 'Extracts messages and transaction details from Vipps.',
         'author': '@AlexisBrignoni',
         'creation_date': '2022-06-22',
-        'last_update_date': '2025-11-28',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Vipps',
-        'notes': '',
+        'notes': 'The telephone value is extracted from the feed model key using an '
+                 'observed key format; where the contact-table lookup finds no match '
+                 'the value is unverified.',
         'paths': ('*/Vipps.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'message'

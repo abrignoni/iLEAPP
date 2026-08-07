@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Extract trail details from AllTrails App",
         "author": "@stark4n6",
         "creation_date": "2022-04-28",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health & Fitness",
-        "notes": "",
+        "notes": "Difficulty value mapping observed in testing; unrecognized values are reported as stored.",
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map",
@@ -51,6 +51,7 @@ def allTrailsTrailDetails(context):
             WHEN 1 THEN 'Easy'
             WHEN 3 THEN 'Moderate'
             WHEN 5 THEN 'Hard'
+            ELSE ZACTIVITYSTATS.ZDIFFICULTY
         END,
         ZTRAIL.ZRATING,
         ZTRAIL.ZREVIEWCOUNT,
@@ -87,7 +88,7 @@ def allTrailsTrailDetails(context):
         'Zip Code', 
         'Country', 
         'Country Name', 
-        'Parking Area Name'
+        'Park Area Name'
         )
     
     data_list = list( get_sqlite_db_records(source_path, query) )

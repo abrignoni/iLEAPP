@@ -1,0 +1,216 @@
+{
+  "metadata": {
+    "module_name": "mastodon",
+    "artifact_name": "Mastodon - Notifications",
+    "function_name": "mastodonNotifications",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 8,
+    "number_of_rows": 18,
+    "total_data_size_bytes": 2497,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/mastodon/testdata.mastodon.mastodonNotifications.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:19.555370+00:00",
+    "end_time": "2026-07-25T22:03:19.637917+00:00",
+    "run_time_seconds": 0.0021791458129882812,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:19.631069",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Type",
+    "From User",
+    "From Handle",
+    "Related Status",
+    "Domain",
+    "Notification ID",
+    "Recipient User ID"
+  ],
+  "data": [
+    [
+      1670073810,
+      "follow",
+      "Josh Hickman (@joshua_hickman1)",
+      "joshua_hickman1",
+      "",
+      "infosec.exchange",
+      "3118726",
+      "109449926490356798"
+    ],
+    [
+      1670074223,
+      "follow",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "",
+      "infosec.exchange",
+      "3118844",
+      "109449926490356798"
+    ],
+    [
+      1670076628,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Got it. This is very interesting. DMs are private posts.",
+      "infosec.exchange",
+      "3119799",
+      "109449926490356798"
+    ],
+    [
+      1670077023,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Want to send over a picture?",
+      "infosec.exchange",
+      "3119955",
+      "109449926490356798"
+    ],
+    [
+      1670077293,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Got it. Here's one for you.",
+      "infosec.exchange",
+      "3120065",
+      "109449926490356798"
+    ],
+    [
+      1670077612,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Sounds good.",
+      "infosec.exchange",
+      "3120207",
+      "109449926490356798"
+    ],
+    [
+      1670496652,
+      "follow",
+      "AtomicIR (@AtomicIR)",
+      "AtomicIR",
+      "",
+      "infosec.exchange",
+      "3305795",
+      "109449926490356798"
+    ],
+    [
+      1683323571,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir you here?",
+      "infosec.exchange",
+      "8266110",
+      "109449926490356798"
+    ],
+    [
+      1683323797,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Do you mean you couldn\u2019t get out of it?",
+      "infosec.exchange",
+      "8266143",
+      "109449926490356798"
+    ],
+    [
+      1683323922,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir No worries. I think this might be it for the day. Want to send me a picture?",
+      "infosec.exchange",
+      "8266175",
+      "109449926490356798"
+    ],
+    [
+      1683324111,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Ha!!  I\u2019ll send one. Hang on.",
+      "infosec.exchange",
+      "8266270",
+      "109449926490356798"
+    ],
+    [
+      1683324213,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir",
+      "infosec.exchange",
+      "8266314",
+      "109449926490356798"
+    ],
+    [
+      1683324335,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Hey, here is your bad message. Make sure you delete it.",
+      "infosec.exchange",
+      "8266346",
+      "109449926490356798"
+    ],
+    [
+      1704722675,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir what\u2019s up?  Long time no see.",
+      "infosec.exchange",
+      "14390496",
+      "109449926490356798"
+    ],
+    [
+      1704729372,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Not really. People seem to be scattered all over the place now.  Some holdouts are still on X, though.",
+      "infosec.exchange",
+      "14392752",
+      "109449926490356798"
+    ],
+    [
+      1704729745,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir True. Here comes a picture.",
+      "infosec.exchange",
+      "14392980",
+      "109449926490356798"
+    ],
+    [
+      1704729915,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir",
+      "infosec.exchange",
+      "14393052",
+      "109449926490356798"
+    ],
+    [
+      1704730807,
+      "mention",
+      "thisisdfirtwo (@thisisdfirtwo)",
+      "thisisdfirtwo",
+      "@thisisdfir Ok. Sounds good.",
+      "infosec.exchange",
+      "14393424",
+      "109449926490356798"
+    ]
+  ]
+}

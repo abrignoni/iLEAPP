@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         'description': 'Extract call history from WhatsApp',
         'author': '@Vinceckert',
         'creation_date': '2024-05-31',
-        'last_update_date': '2025-11-20',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'WhatsApp',
-        'notes': '',
+        'notes': 'Call outcome value mapping observed in testing; unrecognized values reported as stored.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -34,10 +34,10 @@ __artifacts_v2__ = {
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
-        'last_update_date': '2026-07-03',
+        'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'WhatsApp',
-        'notes': '',
+        'notes': 'Metadata protobuf field meanings established through testing. Coordinates are emitted only for message type 5, the type observed to carry locations in testing.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -101,7 +101,7 @@ __artifacts_v2__ = {
 }
 
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 
 from pathlib import Path
 from scripts.ilapfuncs import (
@@ -138,7 +138,9 @@ def whatsAppCallHistory(context):
         time(ZWACDCALLEVENT.ZDURATION, 'unixepoch') AS 'Duration',
         CASE
             WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming'
-            ELSE 'Outgoing'
+            WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING IS NOT NULL
+                AND ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING IS NOT NULL THEN 'Outgoing'
+            ELSE ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING
         END Direction,
         CASE ZWACDCALLEVENT.ZOUTCOME
             WHEN 0 THEN 'Ended'
@@ -266,8 +268,8 @@ def whatsAppMessages(context):
         ('Attachment File', 'media'),
         ('Thumb', 'media'),
         'Starred?',
-        'Number of Forwardings',
-        'Forwarded from',
+        'Metadata Field 17 (forward count, observed)',
+        'Metadata Field 21 (forwarder, observed)',
         'Latitude',
         'Longitude',
         'Direction',
