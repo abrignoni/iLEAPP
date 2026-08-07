@@ -137,6 +137,15 @@ def _parse_shared_location(text):
     return match.group(1), match.group(2)
 
 
+def _column_exists(source_path, table, column):
+    """Whether a column is present, so the account query survives MeWe schema versions
+    that drop version-specific columns such as the DSNP (web3) fields."""
+    rows = get_sqlite_db_records(
+        source_path,
+        f"SELECT 1 FROM pragma_table_info('{table}') WHERE name = '{column}'")
+    return any(True for _ in rows)
+
+
 @artifact_processor
 def meWeMessages(context):
     source_path = get_file_path(context.get_files_found(), 'sgrouplesdb.sqlite')
@@ -498,6 +507,14 @@ def meWeAccount(context):
     source_path = get_file_path(context.get_files_found(), 'sgrouplesdb.sqlite')
     data_list = []
 
+    # The DSNP (web3) columns are not present in every MeWe version, so they are
+    # selected only when the schema still carries them.
+    dsnp_registered = ('cu.ZISDSNPREGISTERED'
+                       if _column_exists(source_path, 'ZCURRENTUSER', 'ZISDSNPREGISTERED')
+                       else 'NULL')
+    dsnp_handle = ('u.ZDSNPHANDLE'
+                   if _column_exists(source_path, 'ZUSER', 'ZDSNPHANDLE') else 'NULL')
+
     query = f'''
     SELECT
         {USER_NAME_SQL} AS name,
@@ -506,12 +523,12 @@ def meWeAccount(context):
         u.ZFIRSTNAME AS firstName,
         u.ZLASTNAME AS lastName,
         u.ZFINGERPRINT AS fingerprint,
-        u.ZDSNPHANDLE AS dsnpHandle,
+        {dsnp_handle} AS dsnpHandle,
         cu.ZPRIMARYEMAIL AS primaryEmail,
         cu.ZPRIMARYPHONE AS primaryPhone,
         cu.ZCONTACTINVITEID AS contactInviteId,
         cu.ZREGISTERED AS registered,
-        cu.ZISDSNPREGISTERED AS dsnpRegistered,
+        {dsnp_registered} AS dsnpRegistered,
         cu.ZJAILSENTENCE AS jailSentence,
         cu.ZJAILDATE AS jailDate
     FROM ZCURRENTUSER cu
