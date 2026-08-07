@@ -162,6 +162,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | voicemail |
 | waze |
 | whatsApp |
+| wickr |
 | wifiAnalytics |
 | wire |
 <!-- GET_RECORDS_END -->
