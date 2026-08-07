@@ -699,7 +699,7 @@ def bereal_contacts(context):
                 organization_name = contact.get('organizationName')
                 # phone numbers
                 phone_numbers = '\n'.join(contact.get('phoneNumbers'))
-                phone_numbers_html = '<br />'.join(contact.get('phoneNumbers'))
+                phone_numbers_html = safe_join(contact.get('phoneNumbers'), '<br />')
 
                 # location
                 location = f"[object][{i}]"
