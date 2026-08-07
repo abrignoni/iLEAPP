@@ -502,9 +502,13 @@ def main():
                         help='print every finding, including baselined and allowlisted')
     parser.add_argument('--verbose', action='store_true',
                         help='also report coverage and list counts')
+    parser.add_argument('--root', default=None,
+                        help='scan this repository instead of the one this script '
+                             'lives in; BASELINE/ALLOWLIST still apply, so a sibling '
+                             'core reports its own findings as violations')
     args = parser.parse_args()
 
-    root = repo_root()
+    root = args.root or repo_root()
     paths = scan_paths(root)
     if not paths:
         print(f'No modules found under {os.path.join(root, "scripts")}', file=sys.stderr)
