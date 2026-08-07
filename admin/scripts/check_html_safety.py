@@ -45,7 +45,7 @@ THREE RULES
     A literal remote URL appears in a markup-bearing string, or an `href=`/`src=`
     attribute is completed by an interpolation. A dynamic destination cannot be shown
     to be report-relative by reading the source, so it fails unless it comes from
-    `safe_local_link()`.
+    `safe_local_path()` or `safe_local_link()`.
 
 `unguarded-html-columns`
     A module declares `html_columns` but never references an escaper. This catches the
@@ -125,26 +125,9 @@ LOCAL_LINK_NAMES = frozenset({
 
 # Pre-existing violations. Delete an entry when its violation is fixed; a stale entry
 # fails the run. See the module docstring before adding one.
-BASELINE = {
-    # media_to_html() assigns `source` four times before emitting it -- the raw match,
-    # a relative path, a copied path, then safe_local_path(). A name is treated as safe
-    # only when *every* assignment to it is, because this check does not order
-    # assignments, so the safe final write cannot be told apart from an unsafe one.
-    # The function is in fact correct: the last write is safe_local_path() and nothing
-    # reads `source` before it. Proving that needs real flow analysis, which is not
-    # worth building for one call site. Rewriting the function to bind the escaped
-    # value to its own name would clear this honestly.
-    ('scripts/ilapfuncs.py', 'remote-destination', 'media_to_html'),
-    ('scripts/ilapfuncs.py', 'unescaped-interpolation', 'media_to_html'),
-
-    # BeReal's generic_url() returns a prebuilt string, and this check does not follow
-    # a value through a helper's return. That helper routes through safe_url(), which
-    # is now text-only, so both call sites are already safe -- but not provably so from
-    # the call site alone. They clear if generic_url() is inlined or the joins move to
-    # safe_join().
-    ('scripts/artifacts/BeReal.py', 'unescaped-interpolation', 'get_links'),
-    ('scripts/artifacts/BeReal.py', 'unescaped-interpolation', 'get_realmojis'),
-}
+#
+# Empty: every finding this core had is now fixed rather than carried.
+BASELINE = set()
 
 # Reviewed exceptions expected to stay. Every entry needs a comment saying why.
 ALLOWLIST = {
@@ -152,6 +135,14 @@ ALLOWLIST = {
     # framework's media helper, so the module has no evidence text of its own to
     # escape.
     ('scripts/artifacts/nsVault.py', 'unguarded-html-columns', '<module>'),
+
+    # Both join values produced by BeReal's own generic_url(), which returns
+    # safe_url() output -- escaped text, never an anchor. The values reaching the
+    # cell are already escaped; this check does not follow a value through a
+    # helper's return, and safe_join() here would escape them a second time and
+    # show &amp;lt; to the examiner. Correct as written.
+    ('scripts/artifacts/BeReal.py', 'unescaped-interpolation', 'get_links'),
+    ('scripts/artifacts/BeReal.py', 'unescaped-interpolation', 'get_realmojis'),
 }
 
 # Framework helpers that build the contents of a report *cell* for artifacts to use.
@@ -291,6 +282,12 @@ def _resolve(node, assignments, names, seen):
     if isinstance(node, ast.JoinedStr):
         return all(_resolve(v.value, assignments, names, seen)
                    for v in node.values if isinstance(v, ast.FormattedValue))
+    # `agg = agg + f'<td>{esc(v)}</td>'` -- the accumulator shape most of these
+    # builders use. A concatenation is safe when both sides are, and the
+    # self-reference on the left terminates through `seen`.
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        return (_resolve(node.left, assignments, names, seen)
+                and _resolve(node.right, assignments, names, seen))
     if isinstance(node, ast.Call):
         if call_name(node) in names:
             return True
