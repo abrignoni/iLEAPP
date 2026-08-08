@@ -24,6 +24,10 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "headphones",
+        "sample_data": {
+            "dexter_ios18": "73 rows",
+            "otto_ios17": "1 row",
+        },
     }
 }
 

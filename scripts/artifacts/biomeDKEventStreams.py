@@ -151,6 +151,15 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Siri.Ui/local/*',),
         "output_types": "standard",
         "artifact_icon": "mic",
+        "sample_data": {
+            "abe_ios16": "274 rows",
+            "dexter_ios18": "11 rows",
+            "felix23_ios16": "18 rows",
+            "felix_ios17": "6 rows",
+            "hc_ios26": "26.5.2 | 2 rows",
+            "iphone11_ios17": "26 rows",
+            "otto_ios17": "107 rows",
+        },
     },
     "get_biomeDKSettingsDoNotDisturb": {
         "name": "Biome - Do Not Disturb DKEvent",

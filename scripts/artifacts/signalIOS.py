@@ -28,6 +28,12 @@ __artifacts_v2__ = {
             }
         },
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "abe_ios16": "151 rows",
+            "felix23_ios16": "16 rows",
+            "iphone11_ios17": "52 rows",
+            "otto_ios17": "32 rows",
+        },
     },
     "get_signalIOSContacts": {
         "name": "Signal - Contacts",
@@ -44,6 +50,14 @@ __artifacts_v2__ = {
                   '*/keychain-backup.plist'),
         "output_types": "standard",
         "artifact_icon": "users",
+        "sample_data": {
+            "abe_ios16": "582 rows",
+            "dexter_ios18": "5 rows",
+            "felix23_ios16": "7 rows",
+            "felix_ios17": "6 rows",
+            "iphone11_ios17": "7 rows",
+            "otto_ios17": "39 rows",
+        },
     },
     "get_signalIOSThreads": {
         "name": "Signal - Conversations",
@@ -60,6 +74,14 @@ __artifacts_v2__ = {
                   '*/keychain-backup.plist'),
         "output_types": "standard",
         "artifact_icon": "message-square",
+        "sample_data": {
+            "abe_ios16": "17 rows",
+            "dexter_ios18": "3 rows",
+            "felix23_ios16": "4 rows",
+            "felix_ios17": "2 rows",
+            "iphone11_ios17": "6 rows",
+            "otto_ios17": "32 rows",
+        },
     },
 }
 

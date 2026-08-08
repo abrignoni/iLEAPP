@@ -17,6 +17,9 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/App.Installation/local/*',),
         "output_types": "standard",
         "artifact_icon": "download",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 232 rows",
+        },
     }
 }
 

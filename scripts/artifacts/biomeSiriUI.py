@@ -20,6 +20,13 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Siri.UI/local/*',),
         "output_types": "standard",
         "artifact_icon": "mic",
+        "sample_data": {
+            "dexter_ios18": "11 rows",
+            "felix_ios17": "6 rows",
+            "hc_ios26": "26.5.2 | 2 rows",
+            "iphone11_ios17": "30 rows",
+            "otto_ios17": "111 rows",
+        },
     }
 }
 

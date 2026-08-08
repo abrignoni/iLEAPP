@@ -17,6 +17,9 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/MLSE.ShareSheet.ConversationUserInteraction/local/*',),
         "output_types": "standard",
         "artifact_icon": "share-2",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 12 rows",
+        },
     }
 }
 
