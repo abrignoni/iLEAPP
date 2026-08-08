@@ -3,6 +3,8 @@ __artifacts_v2__ = {
         "name": "SKG Archive",
         "description": "Parses SKG Archive Records",
         "author": "@JFHyla",
+        "creation_date": "2024-12-03",
+        "last_update_date": "2026-07-13",
         "version": "0.2",
         "date": "2025-04-11",
         "requirements": "mdplistlib",

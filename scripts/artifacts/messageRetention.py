@@ -4,6 +4,7 @@ __artifacts_v2__ = {
         "name": "iOS Message Retention",
         "description": "Extract how long messages are kept on the device",
         "author": "@AlexisBrignoni",
+        "creation_date": "2023-10-03",
         "version": "0.4",
         "date": "2023-10-04",
         "last_update_date": "2026-07-31",

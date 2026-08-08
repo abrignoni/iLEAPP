@@ -8,6 +8,7 @@ __artifacts_v2__ = {
             " to view, search and filter the results."
             " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
+        "creation_date": "2026-05-28",
         "created_date": "2025-01-05",
         "last_update_date": "2026-08-06",
         "requirements": "Acquisition that contains PhotoData-Photos.sqlite",
@@ -43,6 +44,7 @@ __artifacts_v2__ = {
             " TimelineExplorer to view, search and filter the results."
             " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
+        "creation_date": "2026-05-28",
         "created_date": "2025-01-05",
         "last_update_date": "2026-08-06",
         "requirements": "Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite",
@@ -75,6 +77,7 @@ __artifacts_v2__ = {
             " to view, search and filter the results."
             " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
+        "creation_date": "2026-05-28",
         "created_date": "2025-02-05",
         "last_update_date": "2026-08-06",
         "requirements": "Acquisition that contains Library GenPlay Photos.sqlite",

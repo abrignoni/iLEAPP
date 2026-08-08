@@ -3,6 +3,7 @@ __artifacts_v2__ = {
         "name": "React Native Async Storage Manifest",
         "description": "Parses React Native AsyncStorage manifest files",
         "author": "@Gear-I",
+        "last_update_date": "2026-08-06",
         "creation_date": "2026-06-19",
         "last_updated": "2026-08-06",
         "requirements": "none",

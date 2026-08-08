@@ -7,6 +7,8 @@ __artifacts_v2__ = {
 ' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
 ' to view, search and filter the results.',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '1.0',
 'date': '2026-05-25',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -24,6 +26,8 @@ __artifacts_v2__ = {
 ' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
 ' TimelineExplorer to view, search and filter the results.',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '1.0',
 'date': '2026-05-25',
 'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
@@ -41,6 +45,8 @@ __artifacts_v2__ = {
 ' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
 ' to view, search and filter the results.',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '1.0',
 'date': '2026-05-25',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
