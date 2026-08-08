@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "tileAppDb": {
         "name": "Tile App DB Info & Geolocation",
         "description": "Tile device information and most recent stored coordinates (via the TILESTATE join) from the Tile network database",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",

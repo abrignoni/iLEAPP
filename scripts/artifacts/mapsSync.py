@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Maps Sync",
         "description": "Apple Maps history — searches, displayed locations and navigation journeys "
                        "from MapsSync_0.0.1",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",

@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "safariWebsearch": {
         "name": "Safari Browser - Search Terms",
         "description": "Search-engine queries extracted from Safari History.db (search?q= URLs)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",

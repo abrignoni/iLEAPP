@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "locServicesConfigClients": {
         "name": "LSC - clients.plist",
         "description": "Location Services configuration for the Routine bundle from clients.plist",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
     "locServicesConfigLocationd": {
         "name": "LSC - com.apple.locationd.plist",
         "description": "Location Services configuration key/values from com.apple.locationd.plist",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-21",
         "requirements": "none",
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
     "locServicesConfigRoutined": {
         "name": "LSC - com.apple.routined.plist",
         "description": "Location Services configuration key/values from com.apple.routined.plist",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-21",
         "requirements": "none",

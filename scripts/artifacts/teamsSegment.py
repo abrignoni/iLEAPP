@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "teamsSegmentLocations": {
         "name": "Microsoft Teams - Locations",
         "description": "Location segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",
         "requirements": "none",
@@ -18,7 +18,7 @@ __artifacts_v2__ = {
     "teamsSegmentMotion": {
         "name": "Microsoft Teams - Motion",
         "description": "Motion/activity segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",
         "requirements": "none",
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
     "teamsSegmentTimezone": {
         "name": "Microsoft Teams - Timezone",
         "description": "Timezone check segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",
         "requirements": "none",
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
     "teamsSegmentPower": {
         "name": "Microsoft Teams - Power Log",
         "description": "Power/battery segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",
         "requirements": "none",
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
     "teamsSegmentStateChange": {
         "name": "Microsoft Teams - State Change",
         "description": "State change segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",
         "requirements": "none",

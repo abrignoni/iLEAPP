@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "reminders": {
         "name": "Reminders",
         "description": "iOS Reminders with creation and last-modified timestamps",
-        "author": "",
+        "author": "@any333",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",

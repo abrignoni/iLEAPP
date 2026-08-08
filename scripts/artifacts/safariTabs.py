@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "safariTabsBrowserState": {
         "name": "Safari Browser - Tabs (BrowserState)",
         "description": "Open Safari tabs from BrowserState.db",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/BrowserState.db*',),
         "output_types": "standard", "artifact_icon": "layout",
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
     "safariTabsiCloud": {
         "name": "Safari Browser - iCloud Tabs",
         "description": "Safari iCloud (cloud) tabs synced across devices",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/CloudTabs.db*',),
         "output_types": "standard", "artifact_icon": "cloud",

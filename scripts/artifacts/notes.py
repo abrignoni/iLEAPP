@@ -5,7 +5,7 @@ __artifacts_v2__ = {
     "notes": {
         "name": "Notes",
         "description": "Apple Notes including decoded note body text and embedded attachments",
-        "author": "",
+        "author": "@any333",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",
         "requirements": "none",

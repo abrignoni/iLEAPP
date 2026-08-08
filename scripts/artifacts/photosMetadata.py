@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "timestamps, location/reverse-geocode, faces, moments, fingerprints and more. "
                        "Supported schemas: iOS 12-14 queries; on newer iOS versions this artifact "
                        "returns no rows (see the Ph* artifact series for current schemas).",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",
         "requirements": "none",

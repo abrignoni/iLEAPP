@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "teamsMessages": {
         "name": "Teams Messages",
         "description": "Microsoft Teams messages and shared media",
-        "author": "",
+        "author": "@abrignoni",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
     "teamsContacts": {
         "name": "Teams Contacts",
         "description": "Microsoft Teams contact list",
-        "author": "",
+        "author": "@abrignoni",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
     "teamsUser": {
         "name": "Teams User Information",
         "description": "Microsoft Teams user profile and sync data",
-        "author": "",
+        "author": "@abrignoni",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
     "teamsCalls": {
         "name": "Teams Call Logs",
         "description": "Microsoft Teams call history",
-        "author": "",
+        "author": "@abrignoni",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
     "teamsLocations": {
         "name": "Teams Shared Locations",
         "description": "Microsoft Teams shared location data",
-        "author": "",
+        "author": "@abrignoni",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
