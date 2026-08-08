@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "DuckDuckGo - Browsing History",
         "description": "Browsing history entries from the DuckDuckGo browser, with the page title, "
                        "the last visit time and the number of trackers the browser blocked on the page",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         "name": "DuckDuckGo - Page Visits",
         "description": "Individual page visits from the DuckDuckGo browser, each joined to its "
                        "history entry URL and, where present, the tab the visit belonged to",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",

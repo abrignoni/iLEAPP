@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Onion Browser - Open Tabs",
         "description": "URLs of the tabs that were open in Onion Browser, from the archived open "
                        "and private tab lists in the app preferences",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         "name": "Onion Browser - Settings",
         "description": "Connection, privacy and clean-up settings from Onion Browser, including the "
                        "Tor connection mode and any custom bridge the user configured",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -34,14 +34,14 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "settings",
         "sample_data": {
-            "hc_ios26": "iOS 26.5.2 | Onion Browser | settings reported",
+            "hc_ios26": "iOS 26.5.2 | Onion Browser | 21 rows",
         },
     },
     "onion_browser_bookmarks": {
         "name": "Onion Browser - Bookmarks",
         "description": "Bookmarks saved in Onion Browser, with the page title, the URL and the site "
                        "icon",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         "name": "Onion Browser - Favourites",
         "description": "Favourite sites shown on the Onion Browser start page, with the title, the "
                        "URL and the site icon",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "name": "Onion Browser - Browsing History",
         "description": "Pages recorded in Onion Browser browsing history, with the title, the URL, "
                        "the site icon and the date and time shown to the user",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",

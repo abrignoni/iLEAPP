@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Chat messages from the MEGA (karere) chat store, with the sender resolved to "
                        "an email where possible, the message text, and shared locations with their "
                        "map thumbnail",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "name": "MEGA - Chats",
         "description": "Chats listed in the MEGA karere store, with the peer resolved to an email "
                        "and the creation time",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "name": "MEGA - Contacts",
         "description": "Contacts stored in the MEGA karere store, with the email and the time the "
                        "contact relationship was recorded",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
