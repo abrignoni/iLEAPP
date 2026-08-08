@@ -80,6 +80,7 @@ from __future__ import annotations
 
 import decimal
 import math
+import os
 import re
 import struct
 import uuid as _uuid_mod
@@ -2263,6 +2264,10 @@ def realm_rows(path, class_name, section="active"):
     is 'active' (live objects) or 'inactive' (the other top-ref: older/removed
     schema state). Missing table or file yields nothing.
     """
+    if not path or not os.path.isfile(path):
+        # Artifacts pass '' when the app's Realm is not in the extraction. The
+        # docstring above promises nothing rather than an exception, so honour it.
+        return
     table = parse_realm_file(path).get(section, {}).get(class_name)
     if not table:
         return
