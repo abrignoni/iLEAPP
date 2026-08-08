@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "SMS & iMessage",
         "notes": "",
-        "paths": ('**/query_predictions.db',),
+        "paths": ('**/query_predictions.db*',),
         "output_types": "standard",
         "artifact_icon": "message",
         "data_views": {
