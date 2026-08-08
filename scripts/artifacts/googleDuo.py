@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "googleDuoContacts": {
         "name": "Google Duo - Contacts",
         "description": "Google Duo contacts",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*',),
         "output_types": "standard", "artifact_icon": "users",
@@ -15,7 +15,7 @@ __artifacts_v2__ = {
     "googleDuoCallHistory": {
         "name": "Google Duo - Call History",
         "description": "Google Duo call history",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*',),
         "output_types": "standard", "artifact_icon": "phone",
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
     "googleDuoClips": {
         "name": "Google Duo - Clips",
         "description": "Google Duo media clips (with thumbnails from ClipsCache)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
         "category": "Google Duo",
         "notes": "The media_clip_source value's direction semantics are not documented in published research; the value is reported as stored.",
         "paths": ('*/Application Support/DataStore*', '*/Application Support/ClipsCache/*.png'),

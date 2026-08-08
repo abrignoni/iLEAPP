@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "imoHDChatMessages": {
         "name": "IMO HD Chat - Messages",
         "description": "IMO HD chat messages and attachments",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
         "category": "IMO HD Chat", "notes": "URLs are constructed by the parser from object IDs using an observed IMO CDN pattern; they are not stored in the data.",
         "paths": ('*/IMODb2.sqlite*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
@@ -16,7 +16,7 @@ __artifacts_v2__ = {
     "imoHDChatContacts": {
         "name": "IMO HD Chat - Contacts",
         "description": "IMO HD chat contacts",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
         "category": "IMO HD Chat", "notes": "URLs are constructed by the parser from object IDs using an observed IMO CDN pattern; they are not stored in the data.",
         "paths": ('*/IMODb2.sqlite*',),
         "output_types": "standard", "artifact_icon": "users",

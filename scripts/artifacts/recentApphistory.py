@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "recentApphistory": {
         "name": "CarPlay Recent App History",
         "description": "CarPlay recent app history from com.apple.CarPlayApp.plist",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",

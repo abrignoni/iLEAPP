@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "safariFavicons": {
         "name": "Safari Browser - Favicons",
         "description": "Safari favicon cache entries (page URL, icon URL, dimensions)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",

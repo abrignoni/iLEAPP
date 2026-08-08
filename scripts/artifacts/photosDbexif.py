@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Correlates Photos.sqlite asset records with on-disk file EXIF to surface "
                        "timestamp and coordinate mismatches between the library database, cached EXIF, "
                        "and the media file.",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-06",
         "requirements": "none",

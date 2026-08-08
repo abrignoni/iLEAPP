@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "notificationsXI": {
         "name": "Notifications (iOS 11 PushStore)",
         "description": "Delivered notifications parsed from iOS <= 11 SpringBoard PushStore files",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
