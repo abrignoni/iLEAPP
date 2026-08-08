@@ -173,7 +173,7 @@ def onion_browser_tabs(context):
 
     data_headers = (
         'Tab Type',
-        ('URL', 'url'),
+        'URL',
     )
     return data_headers, data_list, source_path
 
@@ -252,7 +252,7 @@ def onion_browser_bookmarks(context):
 
     data_headers = (
         'Title',
-        ('URL', 'url'),
+        'URL',
         ('Icon', 'media'),
     )
     return data_headers, data_list, source_path
@@ -269,7 +269,7 @@ def onion_browser_favourites(context):
 
     data_headers = (
         'Title',
-        ('URL', 'url'),
+        'URL',
         ('Icon', 'media'),
     )
     return data_headers, data_list, source_path
@@ -294,7 +294,7 @@ def onion_browser_history(context):
         'Date (device local)',
         'Time (device local)',
         'Title',
-        ('URL', 'url'),
+        'URL',
         ('Icon', 'media'),
     )
     return data_headers, data_list, source_path
