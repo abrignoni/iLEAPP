@@ -993,87 +993,64 @@ def null_absent_columns(path, query):
     Apps add columns between releases, so a query written against a newer store
     names columns an older one does not have and the whole statement fails with
     "no such column", returning nothing. Substituting NULL keeps every column in
-    place, which matters because artifacts consume rows positionally.
+    place, which matters because artifacts consume rows positionally, and keeps
+    the column's name, because they also read rows by name.
 
-    Only references the query itself qualifies or that resolve to exactly one
-    table in the FROM/JOIN list are touched, so an ambiguous name is left alone
-    rather than guessed at. Returns the query unchanged if the schema cannot be
-    read.
+    SQLite itself names the missing column, so the query is compiled with EXPLAIN
+    and whatever it objects to is replaced, repeatedly, until it compiles. That
+    avoids guessing which bare words in a statement are column references, which
+    no amount of regex gets reliably right. EXPLAIN compiles without running, so
+    this costs nothing on a large table.
+
+    Returns the query unchanged if the database cannot be read or the error is
+    anything other than a missing column.
     '''
     db = open_sqlite_db_readonly(path)
     if not db:
         return query
-    try:
-        tables = [row[0] for row in db.execute(
-            "SELECT name FROM sqlite_master WHERE type IN ('table','view')")]
-        columns = {name.upper(): {row[1].upper() for row in
-                                  db.execute(f'PRAGMA table_info("{name}")')}
-                   for name in tables}
-    except sqlite3.Error as ex:
-        logfunc(f'Could not read schema of {path}: {ex}')
-        return query
 
-    # alias (and bare table name) -> table, taken from the FROM and JOIN clauses
-    aliases = {}
-    used = []
-    for match in re.finditer(
-            r'\b(?:FROM|JOIN)\s+([A-Za-z_][A-Za-z_0-9]*)(?:\s+(?:AS\s+)?([A-Za-z_][A-Za-z_0-9]*))?',
-            query, re.IGNORECASE):
-        table, alias = match.group(1), match.group(2)
-        if table.upper() not in columns:
-            continue
-        used.append(table.upper())
-        aliases[table.upper()] = table.upper()
-        if alias and alias.upper() not in ('ON', 'WHERE', 'GROUP', 'ORDER', 'LEFT',
-                                           'INNER', 'OUTER', 'CROSS', 'JOIN', 'USING'):
-            aliases[alias.upper()] = table.upper()
+    replaced = []
+    for _ in range(50):                      # a query cannot need more than this
+        try:
+            db.execute('EXPLAIN ' + query)
+            break
+        except sqlite3.OperationalError as ex:
+            match = re.match(r'no such column:\s*(\S+)', str(ex))
+            if not match:
+                break
+            reference = match.group(1)
+            if reference in replaced:
+                break                        # not making progress, leave it alone
+            replaced.append(reference)
+            query = _null_out_column(query, reference)
+        except sqlite3.Error:
+            break
 
-    absent = set()
-    for match in re.finditer(r'\b([A-Za-z_][A-Za-z_0-9]*)\.([A-Za-z_][A-Za-z_0-9]*)\b', query):
-        table = aliases.get(match.group(1).upper())
-        if table and match.group(2).upper() not in columns[table]:
-            absent.add(match.group(0))
-
-    # Bare column names: only safe when exactly one table in play defines the name.
-    if len(set(used)) >= 1:
-        qualified = {reference.split('.', 1)[1].upper() for reference in absent}
-        for match in re.finditer(r'(?<![.\w])([A-Za-z_][A-Za-z_0-9]*)(?![\w.(])', query):
-            name = match.group(1).upper()
-            if (name in qualified or name in aliases or name in columns
-                    or not name.startswith('Z')):
-                continue
-            holders = [table for table in set(used) if name in columns[table]]
-            if not holders and any(name not in columns[table] for table in set(used)):
-                absent.add(match.group(1))
-
-    # A bare NULL also drops the output column's name, and artifacts read rows by
-    # name, so keep the name with an alias wherever the reference is a select item
-    # in its own right. Inside an expression the enclosing alias already names the
-    # column, so a plain NULL is correct there.
-    # One pass, so an alias inserted for one reference cannot be rewritten while
-    # handling the next. A bare NULL also drops the output column's name and
-    # artifacts read rows by name, so keep the name wherever the reference is a
-    # select item in its own right; inside an expression the enclosing alias
-    # already names the column and a plain NULL is right.
-    if absent:
-        pattern = re.compile(
-            r'(?<![\w.])(' + '|'.join(re.escape(reference) for reference in
-                                      sorted(absent, key=len, reverse=True)) + r')\b'
-            r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
-
-        def _replace(match):
-            tail = match.group('tail')
-            if tail is None:
-                return 'NULL'
-            name = match.group(1).split('.', 1)[-1]
-            return f'NULL AS {name}{tail}'
-
-        query = pattern.sub(_replace, query)
-    if absent:
+    if replaced:
         logfunc(f'{os.path.basename(path)}: column(s) absent from this version are reported '
-                f'empty: {", ".join(sorted(absent))}')
+                f'empty: {", ".join(sorted(replaced))}')
     return query
 
+
+def _null_out_column(query, reference):
+    '''Replace one column reference with NULL, keeping the output column name.
+
+    A bare NULL renames the output column, and artifacts read rows by name, so
+    where the reference is a select item in its own right it becomes
+    "NULL AS <name>". Inside an expression the enclosing alias already names the
+    column and a plain NULL is correct.
+    '''
+    name = reference.split('.')[-1].strip('"[]`')
+    pattern = re.compile(r'(?<![\w.])' + re.escape(reference) + r'\b'
+                         r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
+
+    def replace(match):
+        tail = match.group('tail')
+        if tail is None:
+            return 'NULL'
+        return f'NULL AS {name}{tail}'
+
+    return pattern.sub(replace, query)
 
 def does_view_exist_in_db(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
