@@ -836,14 +836,13 @@ def _read_binary_plist_tolerantly(file_path):
                     skipped.append(ref)
                     return None
 
-        try:
-            # aware_datetime is 3.12 and later; without this the fallback would
-            # silently do nothing on the Python versions CI actually runs.
-            parser = _Tolerant(dict_type=dict, aware_datetime=False)
-        except TypeError:
-            parser = _Tolerant(dict_type=dict)
+        # aware_datetime is 3.12 and later. Pass it only where it exists, so this
+        # neither breaks nor silently no-ops on the older Python versions CI runs.
+        arguments = {'dict_type': dict}
+        if 'aware_datetime' in inspect.signature(parser_class.__init__).parameters:
+            arguments['aware_datetime'] = False
         with open(file_path, 'rb') as file:
-            content = parser.parse(file)
+            content = _Tolerant(**arguments).parse(file)
     except Exception:  # pylint: disable=broad-exception-caught
         return None
     if skipped:
