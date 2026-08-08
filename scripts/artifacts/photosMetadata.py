@@ -49,6 +49,7 @@ import nska_deserialize as nd
 from packaging import version
 
 from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, get_sqlite_db_records,
+                               null_absent_columns,
                                iOS, logfunc, thumbnail_root)
 
 _QUERY_IOS12 = """
@@ -923,37 +924,6 @@ def _retarget_album_join(query, source_file):
 
 
 
-def _null_absent_columns(query, source_file):
-    """Replace references to columns this library does not have with NULL.
-
-    Photos.sqlite gains columns between releases, so a query written against a
-    newer library names columns an older one lacks and the whole statement fails.
-    Substituting NULL keeps every column in place, which matters because the rows
-    are consumed positionally.
-    """
-    try:
-        tables = {record[0] for record in get_sqlite_db_records(
-            source_file, "SELECT name FROM sqlite_master WHERE type='table'")}
-        columns = {}
-        for table in tables:
-            columns[table.upper()] = {column[1].upper() for column in
-                                      get_sqlite_db_records(source_file, f'PRAGMA table_info("{table}")')}
-    except sqlite3.Error:
-        return query
-
-    absent = set()
-    for match in re.finditer(r'\b([A-Za-z_0-9]+)\.([A-Za-z_0-9]+)\b', query):
-        table, column = match.group(1).upper(), match.group(2).upper()
-        if table in columns and column not in columns[table]:
-            absent.add(match.group(0))
-    for reference in absent:
-        query = re.sub(rf'\b{re.escape(reference)}\b', 'NULL', query)
-    if absent:
-        logfunc(f'Photos.sqlite: {len(absent)} column(s) absent from this library are '
-                f'reported empty: {", ".join(sorted(absent))}')
-    return query
-
-
 def _postal(blob, report_folder, counter):
     """Write a reverse-location bplist and return (formatted, subadmin, sublocality)."""
     if blob is None:
@@ -1011,7 +981,7 @@ def photosMetadata(context):
         return _HEADERS_IOS14, data_list, context.get_relative_path(source_file)
 
     query = _retarget_album_join(query, source_file)
-    query = _null_absent_columns(query, source_file)
+    query = null_absent_columns(source_file, query)
 
     try:
         rows = get_sqlite_db_records(source_file, query)
