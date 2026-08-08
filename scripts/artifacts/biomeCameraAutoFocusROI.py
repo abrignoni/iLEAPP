@@ -16,6 +16,11 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/CameraCapture.AutoFocusROI/local/*',),
         "output_types": "standard",
         "artifact_icon": "camera",
+        "sample_data": {
+            "dexter_ios18": "313 rows",
+            "hc_ios18_7": "12 rows",
+            "iphone12_ios18": "146 rows",
+        },
     }
 }
 

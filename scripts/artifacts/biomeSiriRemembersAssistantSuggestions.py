@@ -21,6 +21,10 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "zap",
+        "sample_data": {
+            "felix_ios17": "1 row",
+            "otto_ios17": "2 rows",
+        },
     }
 }
 

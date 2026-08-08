@@ -27,6 +27,11 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/App.LocationActivity/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "402 rows",
+            "hc_ios18_7": "19 rows",
+            "iphone12_ios18": "44 rows",
+        },
     }
 }
 

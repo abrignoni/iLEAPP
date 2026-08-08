@@ -143,6 +143,9 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "activity",
+        "sample_data": {
+            "abe_ios16": "2 rows",
+        },
     },
     "united_boarding_status_log": {
         "name": "United - Boarding Status Log",
