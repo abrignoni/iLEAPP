@@ -159,7 +159,7 @@ def dubox_messages(context):
         'File Path',
         'File Size',
         'File MD5',
-        ('Link', 'url'),
+        'Link',
     )
     return data_headers, data_list, source_path
 

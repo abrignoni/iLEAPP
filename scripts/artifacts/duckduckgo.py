@@ -73,7 +73,7 @@ def duckduckgo_history(context):
 
     data_headers = (
         ('Last Visit', 'datetime'),
-        ('URL', 'url'),
+        'URL',
         'Title',
         'Total Visits',
         'Trackers Blocked',
@@ -107,7 +107,7 @@ def duckduckgo_page_visits(context):
 
     data_headers = (
         ('Visit Time', 'datetime'),
-        ('URL', 'url'),
+        'URL',
         'Title',
         'Tab ID',
     )

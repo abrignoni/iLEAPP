@@ -207,7 +207,7 @@ def mega_chat_messages(context):
         ('Location Map', 'media'),
         'Latitude',
         'Longitude',
-        ('Maps URL', 'url'),
+        'Maps URL',
         'Chat ID',
         'Message Type Value',
         'Was Encrypted',
