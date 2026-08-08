@@ -23,12 +23,14 @@ __artifacts_v2__ = {
                  "messages carrying a linked file and the set with ZFULLTYPE 6000 are identical "
                  "and no other value appears among file-linked messages, and the same value is "
                  "reported independently by Josh Hickman, 'Wickr - Alright, We'll Call It A "
-                 "Draw', thebinaryhick.blog, 2019-08-23. The other observed values (1000, 4001, "
-                 "4006, 4007, 7000, 8000, 9000) have no such support and are reported as stored. "
-                 "Timestamps are "
-                 "Cocoa Core Data epoch. On the tested image the ZMSGID values and Cocoa "
-                 "timestamps match the messageId and arrival time independently recorded in the "
-                 "app's own plaintext logs, which cross-validates both readings.",
+                 "Draw', thebinaryhick.blog, 2019-08-23. The other values present in this table "
+                 "on the tested image (1000, 4001, 4007, 7000, 8000) have no such support and "
+                 "are reported as stored. The app's logs carry two further type values, 4006 and "
+                 "9000, which do not appear in this table at all; see the Wickr - App Log "
+                 "Message Events artifact.\n"
+                 "Timestamps are Cocoa Core Data epoch. Where a ZMSGID here also appears in the "
+                 "app's own plaintext logs, the Cocoa timestamp and the independently logged "
+                 "arrival time agree to within a second, which cross-validates both readings.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-square",
@@ -231,9 +233,19 @@ __artifacts_v2__ = {
                  "'Payload: {\"messageId\"...}' and the 'Download Message with Type' lines, both "
                  "of which carry identifiers in the clear. These logs are rolling files, so the "
                  "events present depend on what had not yet been rotated away. Log line "
-                 "timestamps are recorded by the app without a zone and are reported as written. "
-                 "On the tested image these identifiers match rows in ZWICKR_MESSAGE, which is "
-                 "what cross-validates the database timestamp reading.",
+                 "timestamps are recorded by the app without a zone and are reported as written.\n"
+                 "Where an identifier here also appears in ZWICKR_MESSAGE, the log arrival time "
+                 "and the database timestamp agree to within a second, which is what "
+                 "cross-validates the database timestamp reading.\n"
+                 "Most of them do not appear there. On the tested image the logs name 69 distinct "
+                 "message identifiers and 48 of those have no row in ZWICKR_MESSAGE, so this "
+                 "artifact reports the arrival of messages the message store no longer holds, "
+                 "together with the conversation, the sending user hash and the stored type for "
+                 "each. Those 48 include the only occurrences of type values 4006 and 9000 "
+                 "anywhere in the data. Why a logged message has no row is not established here: "
+                 "a rolling log covering a longer period than the store retains would produce "
+                 "this, and so would removal of the rows, and the records do not distinguish "
+                 "them.",
         "paths": ('*/Logs/com.wickr*.log', '*/Logs/com.mywickr*.log'),
         "output_types": "standard",
         "artifact_icon": "file-text",
