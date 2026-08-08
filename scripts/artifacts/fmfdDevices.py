@@ -3,6 +3,7 @@ __artifacts_v2__ = {
         "name": "Find My - Devices",
         "description": "Parses Find My registered devices (name, identifier and capabilities) from the fmfd notbackedup preferences plist.",
         "author": "@ghmihkel",
+        "creation_date": "2026-04-01",
         "version": "1.0",
         "date": "2026-03-31",
         "last_update_date": "2026-07-31",

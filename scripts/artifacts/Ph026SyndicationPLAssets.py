@@ -15,6 +15,7 @@ __artifacts_v2__ = {
 ' ZASSET ZSAVEDASSETTYPE: 12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
 'last_update_date': '2026-07-31',
@@ -58,6 +59,7 @@ __artifacts_v2__ = {
 ' ZASSET ZSAVEDASSETTYPE: 12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
 'last_update_date': '2026-07-31',

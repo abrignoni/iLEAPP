@@ -5,6 +5,7 @@ __artifacts_v2__ = {
 ' Parses limited asset data with full shared album data.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
 'last_update_date': '2026-07-31',

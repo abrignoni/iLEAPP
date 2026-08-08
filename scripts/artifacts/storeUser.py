@@ -32,6 +32,7 @@ __artifacts_v2__ = {
         "name": "Purchased Apps History (storeUser)",
         "description": "Parses storeUser.db for App Store purchased app history",
         "author": "@stark4n6",
+        "last_update_date": "2026-07-31",
         "creation_date": "2025-04-11",
         "requirements": "none",
         "category": "Installed Apps",

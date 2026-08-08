@@ -5,6 +5,8 @@ __artifacts_v2__ = {
 ' The results may contain multiple records per ZASSET table Z_PK value and supports iOS.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -38,6 +40,8 @@ __artifacts_v2__ = {
 ' per ZASSET table Z_PK value and supports iOS.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
