@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         'artifact_icon': 'message',
         'sample_data': {
             'josh_ios17_ffs': 'iOS 17.3 | 40 rows',
-            'magnet_ios16': 'iOS 14.7.1 | Mastodon present',
+            'magnet_ios16': 'iOS 14.7.1 | 0 rows',
         },
         'data_views': {
             'conversation': {
