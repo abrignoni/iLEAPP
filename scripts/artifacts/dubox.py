@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Dubox - Messages",
         "description": "Messages from the Dubox (Terabox) in-app chat, with the direction, the "
                        "conversation partner, the message text and any file that was sent",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "name": "Dubox - Conversations",
         "description": "Conversation threads in the Dubox in-app chat, with the session name, the "
                        "last message and the unread count",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "name": "Dubox - Contacts",
         "description": "Contacts in the Dubox in-app chat friend list, with the user name, nickname "
                        "and any secure mobile number or email stored against them",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "name": "Dubox - Cloud Files",
         "description": "Files cached from the Dubox cloud storage listing, with the server path, "
                        "size, md5 and the favourite and shared flags",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -85,7 +85,7 @@ __artifacts_v2__ = {
         "name": "Dubox - Photos",
         "description": "Photos and videos in the Dubox media listing, with the file name, the date "
                        "taken and, where the source recorded it, the location",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",

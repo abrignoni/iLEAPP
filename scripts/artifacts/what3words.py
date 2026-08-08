@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "what3words - Saved Places",
         "description": "Places the user saved in what3words, with the three word address, the label "
                        "given to it, the nearest place and the coordinates",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -22,7 +22,7 @@ __artifacts_v2__ = {
         "name": "what3words - Search History",
         "description": "Three word address entries in the what3words search history table, with the "
                        "nearest place, coordinates and the time recorded for each entry",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "name": "what3words - Account",
         "description": "The signed-in what3words account from the app's Realm store, with the email, "
                        "name, country and the provider the account signed in with",
-        "author": "",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
