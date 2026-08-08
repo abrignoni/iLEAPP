@@ -111,7 +111,7 @@ __artifacts_v2__ = {
 import re
 
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+    get_file_path, get_sqlite_db_records, null_absent_columns, convert_cocoa_core_data_ts_to_utc
 
 # MeWe sends a shared location as an OpenStreetMap link in the message body,
 # e.g. https://www.openstreetmap.org/?mlat=35.66119068&mlon=-78.87362671
@@ -190,7 +190,7 @@ def meWeMessages(context):
     # Name each thread after its participants other than the account holder, so
     # a one-to-one chat reads as the other person's name.
     thread_labels = {}
-    records = list(get_sqlite_db_records(source_path, query))
+    records = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
     for record in records:
         thread_id = record['threadId']
         if thread_id in thread_labels:
@@ -300,7 +300,7 @@ def meWeContacts(context):
     ORDER BY name
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['contactCreated']) if record['contactCreated'] else '',
             record['name'],
@@ -366,7 +366,7 @@ def meWePosts(context):
     ORDER BY p.ZCREATIONDATE
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATIONDATE']) if record['ZCREATIONDATE'] else '',
             convert_cocoa_core_data_ts_to_utc(record['ZEDITEDDATE']) if record['ZEDITEDDATE'] else '',
@@ -425,7 +425,7 @@ def meWeGroups(context):
     ORDER BY g.ZNAME
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             record['name'],
             record['groupId'],
@@ -480,7 +480,7 @@ def meWePolls(context):
     ORDER BY p.Z_PK
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['postCreated']) if record['postCreated'] else '',
             convert_cocoa_core_data_ts_to_utc(record['endDate']) if record['endDate'] else '',
@@ -535,7 +535,7 @@ def meWeAccount(context):
     LEFT JOIN ZUSER u ON u.Z_PK = cu.ZUSER
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             record['name'],
             record['handle'],

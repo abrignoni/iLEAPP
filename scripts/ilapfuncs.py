@@ -809,6 +809,49 @@ def get_plist_content(data):
         logfunc(f"Unexpected error reading plist data: {str(e)}")
     return {}
 
+def _read_binary_plist_tolerantly(file_path):
+    """Parse a binary plist that plistlib rejects outright for one bad value.
+
+    A single CFDate outside datetime's range makes plistlib raise for the whole
+    file, so every key is lost even though the rest is well formed and Apple's
+    own plutil reads it. Overriding the per-object read means only the offending
+    value is dropped. Returns None when the file is not a binary plist or the
+    private parser is unavailable, so the caller keeps its existing behaviour.
+    """
+    parser_class = getattr(plistlib, '_BinaryPlistParser', None)
+    if parser_class is None:
+        return None
+    try:
+        with open(file_path, 'rb') as file:
+            if file.read(8) != b'bplist00':
+                return None
+
+        skipped = []
+
+        class _Tolerant(parser_class):
+            def _read_object(self, ref):
+                try:
+                    return super()._read_object(ref)
+                except OverflowError:
+                    skipped.append(ref)
+                    return None
+
+        try:
+            # aware_datetime is 3.12 and later; without this the fallback would
+            # silently do nothing on the Python versions CI actually runs.
+            parser = _Tolerant(dict_type=dict, aware_datetime=False)
+        except TypeError:
+            parser = _Tolerant(dict_type=dict)
+        with open(file_path, 'rb') as file:
+            content = parser.parse(file)
+    except Exception:  # pylint: disable=broad-exception-caught
+        return None
+    if skipped:
+        logfunc(f'{file_path}: {len(skipped)} value(s) held a date outside the representable '
+                'range and are reported empty; the rest of the plist was read')
+    return content
+
+
 def get_plist_file_content(file_path):
     try:
         with open(file_path, 'rb') as file:
@@ -821,6 +864,9 @@ def get_plist_file_content(file_path):
     except PermissionError:
         logfunc(f"Error: Permission denied when trying to read {file_path}")
     except plistlib.InvalidFileException:
+        recovered = _read_binary_plist_tolerantly(file_path)
+        if recovered is not None:
+            return recovered
         logfunc(f"Error: Invalid plist file format in {file_path}")
     except xml.parsers.expat.ExpatError:
         logfunc(f"Error: Malformed XML in plist file {file_path}")
@@ -941,6 +987,94 @@ def does_table_exist_in_db(path, table_name):
         except sqlite3.Error as ex:
             logfunc(f"Query error, query={query} Error={str(ex)}")
     return False
+
+def null_absent_columns(path, query):
+    '''Replace references to columns the database lacks with NULL.
+
+    Apps add columns between releases, so a query written against a newer store
+    names columns an older one does not have and the whole statement fails with
+    "no such column", returning nothing. Substituting NULL keeps every column in
+    place, which matters because artifacts consume rows positionally.
+
+    Only references the query itself qualifies or that resolve to exactly one
+    table in the FROM/JOIN list are touched, so an ambiguous name is left alone
+    rather than guessed at. Returns the query unchanged if the schema cannot be
+    read.
+    '''
+    db = open_sqlite_db_readonly(path)
+    if not db:
+        return query
+    try:
+        tables = [row[0] for row in db.execute(
+            "SELECT name FROM sqlite_master WHERE type IN ('table','view')")]
+        columns = {name.upper(): {row[1].upper() for row in
+                                  db.execute(f'PRAGMA table_info("{name}")')}
+                   for name in tables}
+    except sqlite3.Error as ex:
+        logfunc(f'Could not read schema of {path}: {ex}')
+        return query
+
+    # alias (and bare table name) -> table, taken from the FROM and JOIN clauses
+    aliases = {}
+    used = []
+    for match in re.finditer(
+            r'\b(?:FROM|JOIN)\s+([A-Za-z_][A-Za-z_0-9]*)(?:\s+(?:AS\s+)?([A-Za-z_][A-Za-z_0-9]*))?',
+            query, re.IGNORECASE):
+        table, alias = match.group(1), match.group(2)
+        if table.upper() not in columns:
+            continue
+        used.append(table.upper())
+        aliases[table.upper()] = table.upper()
+        if alias and alias.upper() not in ('ON', 'WHERE', 'GROUP', 'ORDER', 'LEFT',
+                                           'INNER', 'OUTER', 'CROSS', 'JOIN', 'USING'):
+            aliases[alias.upper()] = table.upper()
+
+    absent = set()
+    for match in re.finditer(r'\b([A-Za-z_][A-Za-z_0-9]*)\.([A-Za-z_][A-Za-z_0-9]*)\b', query):
+        table = aliases.get(match.group(1).upper())
+        if table and match.group(2).upper() not in columns[table]:
+            absent.add(match.group(0))
+
+    # Bare column names: only safe when exactly one table in play defines the name.
+    if len(set(used)) >= 1:
+        qualified = {reference.split('.', 1)[1].upper() for reference in absent}
+        for match in re.finditer(r'(?<![.\w])([A-Za-z_][A-Za-z_0-9]*)(?![\w.(])', query):
+            name = match.group(1).upper()
+            if (name in qualified or name in aliases or name in columns
+                    or not name.startswith('Z')):
+                continue
+            holders = [table for table in set(used) if name in columns[table]]
+            if not holders and any(name not in columns[table] for table in set(used)):
+                absent.add(match.group(1))
+
+    # A bare NULL also drops the output column's name, and artifacts read rows by
+    # name, so keep the name with an alias wherever the reference is a select item
+    # in its own right. Inside an expression the enclosing alias already names the
+    # column, so a plain NULL is correct there.
+    # One pass, so an alias inserted for one reference cannot be rewritten while
+    # handling the next. A bare NULL also drops the output column's name and
+    # artifacts read rows by name, so keep the name wherever the reference is a
+    # select item in its own right; inside an expression the enclosing alias
+    # already names the column and a plain NULL is right.
+    if absent:
+        pattern = re.compile(
+            r'(?<![\w.])(' + '|'.join(re.escape(reference) for reference in
+                                      sorted(absent, key=len, reverse=True)) + r')\b'
+            r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
+
+        def _replace(match):
+            tail = match.group('tail')
+            if tail is None:
+                return 'NULL'
+            name = match.group(1).split('.', 1)[-1]
+            return f'NULL AS {name}{tail}'
+
+        query = pattern.sub(_replace, query)
+    if absent:
+        logfunc(f'{os.path.basename(path)}: column(s) absent from this version are reported '
+                f'empty: {", ".join(sorted(absent))}')
+    return query
+
 
 def does_view_exist_in_db(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''

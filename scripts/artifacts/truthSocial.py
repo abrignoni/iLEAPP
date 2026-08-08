@@ -64,7 +64,7 @@ import html
 import re
 
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+    get_file_path, get_sqlite_db_records, null_absent_columns, convert_cocoa_core_data_ts_to_utc
 
 HTML_TAG_RE = re.compile(r'<[^>]+>')
 
@@ -137,7 +137,7 @@ def truthSocialMessages(context):
     ORDER BY e.ZCREATEDAT
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         sender_id = record['senderAccountId']
         owner_id = record['ownerAccountId']
         if sender_id and owner_id:
@@ -219,7 +219,7 @@ def truthSocialChats(context):
     ORDER BY c.ZCREATEDAT
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']) if record['ZCREATEDAT'] else '',
             convert_cocoa_core_data_ts_to_utc(record['ZLASTACTIVITYDATE']) if record['ZLASTACTIVITYDATE'] else '',
@@ -272,7 +272,7 @@ def truthSocialAccounts(context):
     ORDER BY a.ZACCT
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             record['accountId'],
             record['handle'],
@@ -296,7 +296,7 @@ def truthSocialAccounts(context):
       AND c.ZOWNEDBYACCOUNTID NOT IN (SELECT ZSERVERID FROM ZMANAGEDACCOUNT)
     '''
 
-    for record in get_sqlite_db_records(source_path, owner_query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, owner_query)):
         data_list.append((
             record['accountId'],
             '',

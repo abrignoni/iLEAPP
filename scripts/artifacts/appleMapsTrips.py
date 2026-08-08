@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Examines the ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO and ZRTLEARNEDLOCATIONOFINTERESTVISITMO tables from the routined (Significant Locations) cache, not the Apple Maps app. The Google Maps Link are constructed from the coordinates. They DO NOT exist in the evidence. For details: https://doubleblak.com/blogPost.php?k=Locations",
         "author": "ogmini",
         "creation_date": "2026-03-04",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-08",
         "requirements": "none",
         "category": "Locations",
         "notes": "Motion-activity value mapping observed in testing; raw column preserved.",
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "description": "Location data comes from the routined (Significant Locations) cache, not the Apple Maps app. The Google Maps Link are constructed from the coordinates. They DO NOT exist in the evidence.",
         "author": "ogmini",
         "creation_date": "2026-03-04",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-08",
         "requirements": "none",
         "category": "Locations",
         "notes": "",
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 242 rows",
             "abe_ios16": "iOS 16.5 | 370 rows",
             "felix23_ios16": "iOS 16.5 | 28 rows",
-            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 13 rows",
             "hickman_ios14": "iOS 14.3 | 81 rows",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 23 rows",
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "description": "Location data comes from the routined (Significant Locations) cache, not the Apple Maps app. The Google Maps Link are constructed from the coordinates. They DO NOT exist in the evidence.",
         "author": "ogmini",
         "creation_date": "2026-03-04",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-08",
         "requirements": "none",
         "category": "Locations",
         "notes": "",
@@ -87,17 +87,17 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 2 rows",
             "iphone14plus_ios18": "iOS 18.0 | 3 rows",
             "otto_ios17": "iOS 17.5.1 | 241 rows",
-            "abe_ios16": "iOS 16.5 | 191 rows",
-            "felix23_ios16": "iOS 16.5 | 11 rows",
-            "hickman_ios13": "iOS 13.3.1 | 5 rows",
-            "hickman_ios14": "iOS 14.3 | 11 rows",
+            "abe_ios16": "iOS 16.5 | 336 rows",
+            "felix23_ios16": "iOS 16.5 | 22 rows",
+            "hickman_ios13": "iOS 13.3.1 | 11 rows",
+            "hickman_ios14": "iOS 14.3 | 31 rows",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
-            "magnet_ios16": "iOS 16.1.1 | 13 rows",
+            "magnet_ios16": "iOS 16.1.1 | 26 rows",
         }
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, null_absent_columns
 from scripts.html_safe import esc
 
 def get_google_map_link(latitude_value, longitude_value):
@@ -151,7 +151,7 @@ def appleMapsTrips(context):
     for i in range(len(LocalDB_found)):
         LocalDB = LocalDB_found[i]
         
-        all_rows = get_sqlite_db_records(LocalDB, '''
+        all_rows = get_sqlite_db_records(LocalDB, null_absent_columns(LocalDB, '''
         SELECT 
         CASE 
             WHEN trip.ZSTARTDATE < 0 THEN NULL 
@@ -166,7 +166,7 @@ def appleMapsTrips(context):
         on trip.ZVISITIDENTIFIERORIGIN = orig.ZIDENTIFIER LEFT OUTER JOIN
         ZRTLEARNEDLOCATIONOFINTERESTVISITMO as dest
         on trip.ZVISITIDENTIFIERDESTINATION = dest.ZIDENTIFIER
-        ''')
+        '''))
         for row in all_rows:
             row = list(row)
 
@@ -193,24 +193,24 @@ def appleMapsSignificantLocationsVisits(context):
     for i in range(len(LocalDB_found)):
         LocalDB = LocalDB_found[i]
         
-        all_rows = get_sqlite_db_records(LocalDB, '''
+        all_rows = get_sqlite_db_records(LocalDB, null_absent_columns(LocalDB, '''
         SELECT m.ZNAME, m.ZCATEGORY, a.ZSUBTHOROUGHFARE || ' ' || a.ZTHOROUGHFARE as Address, a.ZLOCALITY, a.ZADMINISTRATIVEAREA, a.ZADMINISTRATIVEAREACODE, 
             a.ZCOUNTRY, a.ZPOSTALCODE, a.ZSUBLOCALITY, a.ZAREASOFINTEREST, m.ZLATITUDE, m.ZLONGITUDE, 
             datetime(p.ZCREATIONDATE + 978307200, 'unixepoch') as CreationDateTime
         FROM ZRTLEARNEDPLACEMO as p INNER JOIN
         ZRTADDRESSMO as a on p.ZMAPITEM = a.ZMAPITEM AND p.ZDEVICE = a.ZDEVICE INNER JOIN 
         ZRTMAPITEMMO as m on p.ZDEVICE = m.ZDEVICE AND p.ZMAPITEM = m.ZPLACE
-        ''')
+        '''))
         for row in all_rows:
             row = list(row)
 
             data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11], get_google_map_link(row[10], row[11]),row[12],context.get_relative_path(LocalDB)))
 
-        all_rows = get_sqlite_db_records(LocalDB, '''
+        all_rows = get_sqlite_db_records(LocalDB, null_absent_columns(LocalDB, '''
         SELECT NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, p.ZLOCATIONLATITUDE, p.ZLOCATIONLONGITUDE, 
             datetime(p.ZPLACECREATIONDATE + 978307200, 'unixepoch') as CreationDateTime
         FROM ZRTLEARNEDLOCATIONOFINTERESTMO as p
-        ''')
+        '''))
         for row in all_rows:
             row = list(row)
 
@@ -237,13 +237,13 @@ def appleMapsSignificantLocations(context):
     for i in range(len(LocalDB_found)):
         LocalDB = LocalDB_found[i]
         
-        all_rows = get_sqlite_db_records(LocalDB, '''
+        all_rows = get_sqlite_db_records(LocalDB, null_absent_columns(LocalDB, '''
         SELECT  datetime(ZENTRYDATE + 978307200, 'unixepoch') as VicinityEntryDate,  
                 datetime(ZEXITDATE + 978307200, 'unixepoch') as VicinityExitDate, 
                 datetime(ZCREATIONDATE + 978307200, 'unixepoch') as CreatedDateTime, 
                 ZLOCATIONLATITUDE, ZLOCATIONLONGITUDE, ZLOCATIONHORIZONTALUNCERTAINTY  
         FROM ZRTLEARNEDLOCATIONOFINTERESTVISITMO
-        ''')
+        '''))
         for row in all_rows:
             row = list(row)
 
