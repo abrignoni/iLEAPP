@@ -266,7 +266,8 @@ class FileInfo:
     """
     A class to store file metadata information.
     Attributes:
-        source_path (str): The full path to the source file.
+        source_path (str): Extraction-relative path of the source file (not a
+            local examiner filesystem path).
         creation_date (datetime): The date and time when the file was created.
         modification_date (datetime): The date and time when the file was last modified.
     """
@@ -355,7 +356,8 @@ class FileSeekerDir(FileSeekerBase):
                             self.copied[item] = data_path
                             creation_date = Path(item).stat().st_ctime
                             modification_date = Path(item).stat().st_mtime
-                            file_info = FileInfo(item, creation_date, modification_date)
+                            source_path = item_rel_path.replace('\\', '/')
+                            file_info = FileInfo(source_path, creation_date, modification_date)
                             self.file_infos[data_path] = file_info
                         else:
                             logfunc(f"INFO: Item '{item}' is neither a file nor a directory "
@@ -914,7 +916,7 @@ class FileSeekerFile(FileSeekerBase):
                     copy2(self.single_file_abs_path, dest_data_path)
                     self.copied[self.single_file_abs_path] = dest_data_path
                     s = Path(self.single_file_abs_path).stat()
-                    file_info_obj = FileInfo(self.single_file_abs_path, s.st_ctime, s.st_mtime)
+                    file_info_obj = FileInfo(self.single_file_basename, s.st_ctime, s.st_mtime)
                     self.file_infos[dest_data_path] = file_info_obj
                     found_data_paths.append(dest_data_path)
                     # logfunc(f"FileSeekerFile: Matched and copied. Dest: {dest_data_path}")

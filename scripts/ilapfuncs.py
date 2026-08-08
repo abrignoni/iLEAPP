@@ -271,11 +271,13 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
             suffix = f".{suffix}"
 
         extraction_path = Context.get_source_file_path(source_path)
-        file_info = seeker.file_infos.get(extraction_path)
-        if file_info:
-            media_item.source_path = file_info.source_path
-        else:
-            media_item.source_path = source_path
+        file_info = seeker.file_infos.get(extraction_path) if extraction_path else None
+        if not file_info and source_path:
+            file_info = seeker.file_infos.get(source_path)
+        # Prefer the seeker's recorded source path; always store extraction-
+        # relative paths, never the examiner's local filesystem.
+        candidate = file_info.source_path if file_info else source_path
+        media_item.source_path = Context.get_relative_path(candidate)
 
         if is_embedded:
             media_item.created_at = force_creation_date if force_creation_date else 0
