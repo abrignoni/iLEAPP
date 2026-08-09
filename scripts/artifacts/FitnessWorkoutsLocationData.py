@@ -71,7 +71,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, does_table_exist_in_db
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, null_absent_columns, does_table_exist_in_db
 
 _ACTIVITY_TYPE_CASE = '''CASE activity_type
     WHEN 1 THEN "American Football"
@@ -200,9 +200,9 @@ def fitnessWorkoutsAnalysis(context):
         GROUP BY location_series_data.series_identifier
         ORDER BY workout_activities.start_date
     '''
-    # for row in get_sqlite_db_records(db_path, query):
+    # for row in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
     #     data_list.append(tuple(row))
-    data_list = list( get_sqlite_db_records(db_path, query) )
+    data_list = list( get_sqlite_db_records(db_path, null_absent_columns(db_path, query)) )
 
     return data_headers, data_list, context.get_relative_path(db_path)
 
@@ -234,8 +234,8 @@ def fitnessWorkoutsLocation(context):
         LEFT OUTER JOIN associations on associations.child_id = data_series.data_id
         LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
     '''
-    # for row in get_sqlite_db_records(db_path, query):
+    # for row in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
     #     data_list.append(tuple(row))
-    data_list = list( get_sqlite_db_records(db_path, query) )
+    data_list = list( get_sqlite_db_records(db_path, null_absent_columns(db_path, query)) )
 
     return data_headers, data_list, context.get_relative_path(db_path)

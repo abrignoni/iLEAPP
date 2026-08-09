@@ -99,7 +99,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_unix_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, convert_unix_ts_to_utc
 from scripts.html_safe import esc
 
 @artifact_processor
@@ -136,7 +136,7 @@ def splitwiseUsers(context):
         'Country', 
         'Registration Status')
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -183,7 +183,7 @@ def splitwiseExpenses(context):
         'Expense ID', 
         'Expense GUID')
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -222,7 +222,7 @@ def splitwiseExpenseBalances(context):
         'Owed Share', 
         'Paid Share')
     
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -257,7 +257,7 @@ def splitwiseTotalBalances(context):
         'Balance', 
         'Currency')
     
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -308,7 +308,7 @@ def splitwiseGroups(context):
         'Avatar URL', 
         'Cover Photo URL')
     
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -351,7 +351,7 @@ def splitwiseNotifications(context):
         'Source Type', 
         'Notification ID')
     
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])

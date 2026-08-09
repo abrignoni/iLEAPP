@@ -501,10 +501,24 @@ def get_app_id(plist_file, context) -> str:
         parts = Path(source_path_str).parts
         bundle_id_candidate = ''
 
-        for part in parts:
-            # Priority 1 — file system UUID
+        # Priority 1 — the container UUID as iOS lays it out, .../Application/<UUID>/.
+        # Anchoring on the parent matters: the identifier used to be taken from the
+        # first UUID-shaped component anywhere in the path, so an output directory,
+        # case folder or export path whose name happens to look like a UUID was
+        # picked instead of the app container. Every artifact here then looked for
+        # its databases inside a directory that does not exist and reported nothing,
+        # with no error to show for it.
+        for index in range(len(parts) - 1, 0, -1):
+            if UUID_RE.match(parts[index]) and parts[index - 1] == 'Application':
+                return parts[index]
+
+        # Otherwise the UUID nearest the file, so anything ahead of the evidence
+        # in the path cannot win over the evidence itself.
+        for part in reversed(parts):
             if UUID_RE.match(part):
                 return part
+
+        for part in parts:
 
             # Priority 2 — raw backup AppDomain prefix
             m = APPDOMAIN_RE.match(part)

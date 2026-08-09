@@ -66,7 +66,7 @@ import nska_deserialize as nd
 
 from scripts.ilapfuncs import (
     artifact_processor,
-    get_sqlite_db_records,
+    get_sqlite_db_records, null_absent_columns,
     open_sqlite_db_readonly,
     convert_unix_ts_to_utc,
     convert_plist_date_to_utc
@@ -224,7 +224,7 @@ def cloudkit_files(context):
             LEFT JOIN Files ON Files.manifestID = Manifests.manifestID
         '''
 
-        db_records = get_sqlite_db_records(file_found, query)
+        db_records = get_sqlite_db_records(file_found, null_absent_columns(file_found, query))
         for record in db_records:
             modified_ts = convert_unix_ts_to_utc(record[1]) if record[1] else ""
 

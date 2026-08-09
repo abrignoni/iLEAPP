@@ -98,7 +98,7 @@ import json
 import re
 
 from scripts.ilapfuncs import artifact_processor, logfunc, \
-    get_file_path, get_sqlite_db_records, does_table_exist_in_db, \
+    get_file_path, get_sqlite_db_records, does_table_exist_in_db, null_absent_columns, \
     convert_cocoa_core_data_ts_to_utc
 
 HTML_TAG_RE = re.compile(r'<[^>]+>')
@@ -178,7 +178,7 @@ def _get_local_user_id(source_path):
         'SELECT ZUSERID FROM ZMASTODONAUTHENTICATION WHERE ZUSERID IS NOT NULL LIMIT 1',
         'SELECT ZUSERID FROM ZNOTIFICATION WHERE ZUSERID IS NOT NULL LIMIT 1',
     ):
-        records = list(get_sqlite_db_records(source_path, query))
+        records = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
         if records and records[0]['ZUSERID']:
             return records[0]['ZUSERID']
     return None
@@ -233,7 +233,7 @@ def mastodonDirectMessages(context):
     local_user_id = _get_local_user_id(source_path)
     query = STATUS_QUERY.format(where="WHERE s.ZVISIBILITYRAW = 'direct'")
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         attachment_urls, attachment_descriptions = _parse_attachments(record['attachments'])
         mentions = _parse_mentions(record['mentions'])
         author_id = record['authorId']
@@ -281,7 +281,7 @@ def mastodonStatuses(context):
     if not source_path:
         return data_headers, data_list, ''
 
-    for record in get_sqlite_db_records(source_path, STATUS_QUERY.format(where='')):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, STATUS_QUERY.format(where=''))):
         attachment_urls, attachment_descriptions = _parse_attachments(record['attachments'])
 
         data_list.append((
@@ -409,7 +409,7 @@ def mastodonNotifications(context):
     ORDER BY n.ZCREATEAT
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEAT']) if record['ZCREATEAT'] else '',
             record['notificationType'],
@@ -463,7 +463,7 @@ def mastodonAccount(context):
     WHERE u.ZID = '{local_user_id}'
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             record['displayName'],
             record['acct'],

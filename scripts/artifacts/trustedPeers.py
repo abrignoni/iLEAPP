@@ -38,7 +38,7 @@ from scripts.ilapfuncs import (
     convert_cocoa_core_data_ts_to_utc,
     does_column_exist_in_db,
     get_file_path,
-    get_sqlite_db_records,
+    get_sqlite_db_records, null_absent_columns,
     logfunc,
 )
 
@@ -151,7 +151,7 @@ def trusted_peers(context):
         client.ZESCROWMETADATA = metadata.Z_PK;
     '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
     for row in db_records:
         timestamp = convert_cocoa_core_data_ts_to_utc(row[0])

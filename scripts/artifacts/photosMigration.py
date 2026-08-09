@@ -34,7 +34,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, \
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, \
     convert_cocoa_core_data_ts_to_utc
 
 
@@ -73,7 +73,7 @@ def photos_migration(context):
         'Source Model Version', 'Model Version', 'OS Build', 'OS Version', 'Origin',
         'Store UUID')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    db_records = get_sqlite_db_records(data_source, null_absent_columns(data_source, query))
 
     for record in db_records:
         os_version = context.get_apple_os_version(record[9])

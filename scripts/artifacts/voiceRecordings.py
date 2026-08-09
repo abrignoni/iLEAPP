@@ -29,7 +29,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import (
-    artifact_processor, get_file_path, get_sqlite_db_records,
+    artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns,
     convert_cocoa_core_data_ts_to_utc, check_in_media
 )
 
@@ -67,7 +67,7 @@ def voice_memos(context):
         """
 
     if source_path:
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for record in db_records:
             timestamp = convert_cocoa_core_data_ts_to_utc(record["ZDATE"])
             if record["ZPATH"]:

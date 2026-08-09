@@ -59,7 +59,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph007_1FavoritePhDaPsql(context):
@@ -108,7 +108,7 @@ def Ph007_1FavoritePhDaPsql(context):
         ORDER BY zAsset.ZMODIFICATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10]))
@@ -124,7 +124,7 @@ def Ph007_1FavoritePhDaPsql(context):
         'zAddAssetAttr-zPK-8',
         'zAsset-UUID = store.cloudphotodb-9',
         'zAddAssetAttr-Master Fingerprint-10')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -158,7 +158,7 @@ def Ph007_1FavoritePhDaPsql(context):
         ORDER BY zAsset.ZMODIFICATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10]))
@@ -174,7 +174,7 @@ def Ph007_1FavoritePhDaPsql(context):
         'zAddAssetAttr-zPK-8',
         'zAsset-UUID = store.cloudphotodb-9',
         'zAddAssetAttr-Master Fingerprint-10')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -209,7 +209,7 @@ def Ph007_1FavoritePhDaPsql(context):
         ORDER BY zAsset.ZMODIFICATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11]))
@@ -226,7 +226,7 @@ def Ph007_1FavoritePhDaPsql(context):
         'zAddAssetAttr-zPK-9',
         'zAsset-UUID = store.cloudphotodb-10',
         'zAddAssetAttr-Master Fingerprint-11')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -262,7 +262,7 @@ def Ph007_1FavoritePhDaPsql(context):
         ORDER BY zAsset.ZMODIFICATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12]))
@@ -280,7 +280,7 @@ def Ph007_1FavoritePhDaPsql(context):
         'zAsset-UUID = store.cloudphotodb-10',
         'zAddAssetAttr-Original Stable Hash-11',
         'zAddAssetAttr.Adjusted Stable Hash-12')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -333,7 +333,7 @@ def Ph007_3FavoriteGenPlayPsql(context):
         ORDER BY zAsset.ZMODIFICATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12]))
@@ -351,6 +351,6 @@ def Ph007_3FavoriteGenPlayPsql(context):
         'zAsset-UUID = store.cloudphotodb-10',
         'zAddAssetAttr-Original Stable Hash-11',
         'zAddAssetAttr.Adjusted Stable Hash-12')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path

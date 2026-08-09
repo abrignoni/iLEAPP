@@ -42,6 +42,7 @@ from scripts.ilapfuncs import (
     utf8_in_extended_ascii,
     check_in_media,
     convert_ts_human_to_utc,
+    logfunc,
 )
 
 _FLATTEN_ERRORS = (TypeError, AttributeError, KeyError, ValueError)
@@ -66,6 +67,11 @@ class ProtectedDict(dict):
 class ProtectedSet(set):
     pass
 
+
+
+GUID_RE = re.compile(
+    r"[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}",
+    re.IGNORECASE)
 
 def aa_flatten_dict_tu(
         v,
@@ -250,10 +256,24 @@ def google_chat(context):
             continue
 
         source_path = file_found
-        result = re.findall(
-            r"([0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}+)",
-            file_found)
-        guid = result[0]
+        # The container as iOS lays it out, .../Application/<GUID>/. Taking the first
+        # match anywhere in the path meant an output directory or case folder whose
+        # name looks like a GUID could be picked instead, and the media lookup below
+        # would then search a directory that does not exist and quietly find nothing.
+        parts = os.path.normpath(file_found).split(os.sep)
+        guid = ''
+        for index in range(len(parts) - 1, 0, -1):
+            if GUID_RE.fullmatch(parts[index]) and parts[index - 1] == 'Application':
+                guid = parts[index]
+                break
+        else:
+            for part in reversed(parts):
+                if GUID_RE.fullmatch(part):
+                    guid = part
+                    break
+        if not guid:
+            logfunc(f'Google Chat: no app container GUID in {file_found}; '
+                    'attachments cannot be matched for this database')
         account_id = os.path.basename(os.path.dirname(file_found))
 
         db = open_sqlite_db_readonly(file_found)

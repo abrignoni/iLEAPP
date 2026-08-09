@@ -88,7 +88,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph026_1SyndicationIDAssetsPhDaPsql(context):
@@ -258,7 +258,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -310,7 +310,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         'SWYConverszGenAlbum-Trashed State-41',
         ('SWYConverszGenAlbum-Trash Date-42', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-43')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -477,7 +477,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -533,7 +533,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-44', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-45',
         'SWYConverszGenAlbum-Privacy State-46')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -700,7 +700,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -756,7 +756,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-44', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-45',
         'SWYConverszGenAlbum-Privacy State-46')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -924,7 +924,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -981,7 +981,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-45', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-46',
         'SWYConverszGenAlbum-Privacy State-47')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1149,7 +1149,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1206,7 +1206,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-45', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-46',
         'SWYConverszGenAlbum-Privacy State-47')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -1378,7 +1378,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1430,7 +1430,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         'SWYConverszGenAlbum-Trashed State-41',
         ('SWYConverszGenAlbum-Trash Date-42', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-43')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1597,7 +1597,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1653,7 +1653,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-44', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-45',
         'SWYConverszGenAlbum-Privacy State-46')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1820,7 +1820,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1876,7 +1876,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-44', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-45',
         'SWYConverszGenAlbum-Privacy State-46')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2044,7 +2044,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2101,7 +2101,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-45', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-46',
         'SWYConverszGenAlbum-Privacy State-47')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2269,7 +2269,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2326,6 +2326,6 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-45', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-46',
         'SWYConverszGenAlbum-Privacy State-47')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path

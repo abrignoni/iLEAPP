@@ -262,7 +262,7 @@ import re
 from scripts.ios_keychain import active_keychain_path, find_keychain_secrets
 from scripts.ilapfuncs import (artifact_processor, convert_cocoa_core_data_ts_to_utc,
                                convert_unix_ts_to_utc, does_column_exist_in_db,
-                               does_table_exist_in_db, get_sqlite_db_records, logfunc)
+                               does_table_exist_in_db, get_sqlite_db_records, null_absent_columns, logfunc)
 
 PAYLOAD_RE = re.compile(r'^(\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}):\d+\s+Payload: (\{"messageId".*\})\s*$')
 DOWNLOAD_RE = re.compile(r'^(\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}):\d+\s+Download Message with Type: (\d+), '
@@ -300,7 +300,7 @@ def _find_join(path, entities, entity_a, entity_b):
     Returns (table, column_for_entity_a, column_for_entity_b) or None."""
     query = ("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'Z\\_%' "
              "ESCAPE '\\' AND name NOT IN ('Z_PRIMARYKEY','Z_METADATA','Z_MODELCACHE')")
-    for record in get_sqlite_db_records(path, query):
+    for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
         table = record[0]
         columns = {}
         for column in get_sqlite_db_records(path, f'PRAGMA table_info("{table}")'):
@@ -380,7 +380,7 @@ def wickr_messages(context):
             for record in get_sqlite_db_records(path, 'SELECT Z_PK, ZGUID FROM ZWICKR_FILE'):
                 guids[record[0]] = record[1] or ''
             query = f'SELECT {file_column}, {message_column} FROM {table}'
-            for record in get_sqlite_db_records(path, query):
+            for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
                 files_by_message.setdefault(record[1], []).append(guids.get(record[0], ''))
 
         read_ts = _optional(path, 'ZWICKR_MESSAGE', 'ZREADTIMESTAMP')
@@ -396,7 +396,7 @@ def wickr_messages(context):
         LEFT JOIN ZSECEX_USER u ON m.ZUSERSENDER = u.Z_PK
         ORDER BY m.ZTIMESTAMP
         '''
-        for record in get_sqlite_db_records(path, query):
+        for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
             data_list.append((
                 _cocoa(record[1]),
                 _cocoa(record[2]),
@@ -460,7 +460,7 @@ def wickr_conversations(context):
         FROM ZSECEX_CONVO
         ORDER BY ZLASTTIMESTAMP
         '''
-        for record in get_sqlite_db_records(path, query):
+        for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
             data_list.append((
                 _unix(record[3]),
                 _unix(record[4]),
@@ -520,7 +520,7 @@ def wickr_users(context):
         FROM ZSECEX_USER
         ORDER BY ZLASTACTIVITYTIME
         '''
-        for record in get_sqlite_db_records(path, query):
+        for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
             data_list.append((
                 _unix(record[0]),
                 _text(record[1]),
@@ -581,7 +581,7 @@ def wickr_files(context):
             LEFT JOIN ZWICKR_MESSAGE m ON j.{message_column} = m.Z_PK
             LEFT JOIN ZSECEX_CONVO c ON m.ZCONVO = c.Z_PK
             '''
-            for record in get_sqlite_db_records(path, query):
+            for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
                 messages[record[0]] = (record[1], record[2], record[3])
 
         for record in get_sqlite_db_records(path, 'SELECT Z_PK, ZGUID, ZSTATUS FROM ZWICKR_FILE'):
@@ -630,7 +630,7 @@ def wickr_account(context):
                {censorship}, ZLASTMSGSEQUENCE, ZHIGHE, ZLASTAPID, ZIDCPCOUNT
         FROM ZSECEX_ACCOUNT
         '''
-        for record in get_sqlite_db_records(path, query):
+        for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
             data_list.append((
                 _unix(network_timestamp) if network_timestamp != 'NULL' else '',
                 record[0],
@@ -694,7 +694,7 @@ def wickr_devices(context):
         LEFT JOIN ZSECEX_USER u ON a.ZUSER = u.Z_PK
         ORDER BY a.Z_PK
         '''
-        for record in get_sqlite_db_records(path, query):
+        for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
             data_list.append((
                 _text(record[2]),
                 record[3] or (f'User {record[6]}' if record[6] else ''),
@@ -725,7 +725,7 @@ def wickr_recent_searches(context):
             continue
         source_path = path
         query = 'SELECT ZTIMESTAMP, ZSEARCHQUERY FROM ZRECENT_SEARCH ORDER BY ZTIMESTAMP'
-        for record in get_sqlite_db_records(path, query):
+        for record in get_sqlite_db_records(path, null_absent_columns(path, query)):
             data_list.append((
                 _cocoa(record[0]),
                 _text(record[1]),
