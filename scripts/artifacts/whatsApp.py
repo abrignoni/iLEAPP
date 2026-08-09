@@ -108,7 +108,7 @@ from scripts.ilapfuncs import (
     artifact_processor,
     get_file_path,
     get_sqlite_db_records, null_absent_columns,
-    attach_sqlite_db_readonly,
+    attach_sqlite_db_readonly, does_column_exist_in_db,
     check_in_media,
     convert_cocoa_core_data_ts_to_utc
 )
@@ -131,16 +131,25 @@ def whatsAppCallHistory(context):
     INNER JOIN ContactsV2.ZWAADDRESSBOOKCONTACT base2 ON ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING = base2.ZWHATSAPPID
     '''
 
+    # Older releases have no group-call creator column. The query is built here
+    # rather than passed through null_absent_columns because the contacts branch
+    # attaches a second database, which the helper's connection does not have, so
+    # it cannot compile the statement to find out what is missing.
+    creator = 'ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING'
+    if not does_column_exist_in_db(source_path, 'ZWACDCALLEVENT',
+                                   'ZGROUPCALLCREATORUSERJIDSTRING'):
+        creator = 'NULL'
+
     query = f'''
     SELECT
         ZWACDCALLEVENT.ZDATE,
         ZWACDCALLEVENT.ZDATE + ZWACDCALLEVENT.ZDURATION AS 'Datetime_end',
         time(ZWACDCALLEVENT.ZDURATION, 'unixepoch') AS 'Duration',
         CASE
-            WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming'
-            WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING IS NOT NULL
+            WHEN {creator} = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming'
+            WHEN {creator} IS NOT NULL
                 AND ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING IS NOT NULL THEN 'Outgoing'
-            ELSE ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING
+            ELSE {creator}
         END Direction,
         CASE ZWACDCALLEVENT.ZOUTCOME
             WHEN 0 THEN 'Ended'

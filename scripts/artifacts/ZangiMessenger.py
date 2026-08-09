@@ -84,7 +84,8 @@ from scripts.ilapfuncs import artifact_processor, \
 
 @artifact_processor
 def zangi_messages(context):
-    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     data_list = []
 
     query = '''
@@ -276,7 +277,8 @@ def zangi_messages(context):
 @artifact_processor
 def zangi_contacts(context):
 
-    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
 
     main_db = ''
     data_list = []
@@ -353,7 +355,8 @@ def zangi_contacts(context):
 @artifact_processor
 def zangi_accounts(context):
 
-    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
 
     main_db = ''
     data_list = []
