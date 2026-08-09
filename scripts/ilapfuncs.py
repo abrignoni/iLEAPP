@@ -1015,21 +1015,26 @@ def null_absent_columns(path, query):
         return query
 
     replaced = []
-    for _ in range(50):                      # a query cannot need more than this
-        try:
-            db.execute('EXPLAIN ' + query)
-            break
-        except sqlite3.OperationalError as ex:
-            match = re.match(r'no such column:\s*(\S+)', str(ex))
-            if not match:
+    try:
+        for _ in range(50):                  # a query cannot need more than this
+            try:
+                db.execute('EXPLAIN ' + query)
                 break
-            reference = match.group(1)
-            if reference in replaced:
-                break                        # not making progress, leave it alone
-            replaced.append(reference)
-            query = _null_out_column(query, reference)
-        except sqlite3.Error:
-            break
+            except sqlite3.OperationalError as ex:
+                match = re.match(r'no such column:\s*(\S+)', str(ex))
+                if not match:
+                    break
+                reference = match.group(1)
+                if reference in replaced:
+                    break                    # not making progress, leave it alone
+                replaced.append(reference)
+                query = _null_out_column(query, reference)
+            except sqlite3.Error:
+                break
+    finally:
+        # Artifacts call this once per query, so an unclosed handle here is one
+        # leak per query for the whole run rather than a one-off.
+        db.close()
 
     if replaced:
         logfunc(f'{os.path.basename(path)}: column(s) absent from this version are reported '
