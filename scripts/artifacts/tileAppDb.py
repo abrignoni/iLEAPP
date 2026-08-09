@@ -18,7 +18,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, null_absent_columns
 
 
 @artifact_processor
@@ -55,7 +55,7 @@ def tileAppDb(context):
     FROM ZTILENTITY_NODE
     INNER JOIN ZTILENTITY_TILESTATE ON ZTILENTITY_NODE.ZTILE_STATE = ZTILENTITY_TILESTATE.Z_PK
     '''
-    for row in get_sqlite_db_records(source_path, query):
+    for row in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append(tuple(row))
 
     return data_headers, data_list, context.get_relative_path(source_path)

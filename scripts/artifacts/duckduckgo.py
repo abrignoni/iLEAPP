@@ -43,7 +43,7 @@ from scripts.ilapfuncs import (
     artifact_processor,
     convert_cocoa_core_data_ts_to_utc,
     get_file_path,
-    get_sqlite_db_records,
+    get_sqlite_db_records, null_absent_columns,
 )
 
 
@@ -58,7 +58,7 @@ def duckduckgo_history(context):
     FROM ZBROWSINGHISTORYENTRYMANAGEDOBJECT
     ORDER BY ZLASTVISIT
     '''
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record[0]),
             record[1],
@@ -97,7 +97,7 @@ def duckduckgo_page_visits(context):
     LEFT JOIN ZTABHISTORYMANAGEDOBJECT t ON v.ZTABHISTORY = t.Z_PK
     ORDER BY v.ZDATE
     '''
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record[0]),
             record[1],
