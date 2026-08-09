@@ -698,5 +698,19 @@ def lava_finalize_output(output_path):
     with open(os.path.join(output_path, lava_json_name), 'w', encoding='utf-8') as f:
         json.dump(lava_data, f, indent=4)
 
+    # A database left in WAL mode cannot be opened from read-only media: SQLite
+    # must create a -shm file to read one, and the LAVA viewer opens the report
+    # database with OPEN_READONLY. Checkpointing and returning to the delete
+    # journal guarantees the delivered .db is complete and standalone, with no
+    # -wal/-shm sidecars to lose when the report folder is copied or zipped.
+    # This normalises whatever mode the connection ended up in; nothing here
+    # enables WAL.
+    try:
+        if lava_db.execute('PRAGMA journal_mode').fetchone()[0].lower() == 'wal':
+            lava_db.execute('PRAGMA wal_checkpoint(TRUNCATE)')
+            lava_db.execute('PRAGMA journal_mode=DELETE')
+    except sqlite3.Error:
+        pass
+
     # Close the SQLite database
     lava_db.close()
