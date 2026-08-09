@@ -99,12 +99,34 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, convert_unix_ts_to_utc
+import os
+
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
+    null_absent_columns, convert_unix_ts_to_utc, does_table_exist_in_db
 from scripts.html_safe import esc
+
+
+def _splitwise_db(files_found):
+    """Pick the Splitwise store by its schema rather than by filename.
+
+    The declared glob is */Library/Application Support/database.sqlite*, which
+    carries no app-specific component, so it matches that filename in every
+    application container. Taking the first match opened whichever app came
+    first and the queries then failed with "no such table: SWPerson", reporting
+    nothing even where Splitwise data was present.
+    """
+    for file_found in files_found:
+        path = str(file_found)
+        if os.path.basename(path) != 'database.sqlite':
+            continue
+        if does_table_exist_in_db(path, 'SWPerson'):
+            return path
+    return ''
+
 
 @artifact_processor
 def splitwiseUsers(context):
-    source_path = get_file_path(context.get_files_found(), "database.sqlite")
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
 
     query = '''
@@ -151,7 +173,7 @@ def splitwiseUsers(context):
 
 @artifact_processor
 def splitwiseExpenses(context):
-    source_path = get_file_path(context.get_files_found(), "database.sqlite")
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
 
     query = '''
@@ -198,7 +220,7 @@ def splitwiseExpenses(context):
 
 @artifact_processor
 def splitwiseExpenseBalances(context):
-    source_path = get_file_path(context.get_files_found(), "database.sqlite")
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
 
     query = '''
@@ -233,7 +255,7 @@ def splitwiseExpenseBalances(context):
 
 @artifact_processor
 def splitwiseTotalBalances(context):
-    source_path = get_file_path(context.get_files_found(), "database.sqlite")
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
 
     query = '''
@@ -270,7 +292,7 @@ def splitwiseTotalBalances(context):
 
 @artifact_processor
 def splitwiseGroups(context):
-    source_path = get_file_path(context.get_files_found(), "database.sqlite")
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
     data_list_html = []
 
@@ -332,7 +354,7 @@ def splitwiseGroups(context):
 
 @artifact_processor
 def splitwiseNotifications(context):
-    source_path = get_file_path(context.get_files_found(), "database.sqlite")
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
     data_list_html = []
 

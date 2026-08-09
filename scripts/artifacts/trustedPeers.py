@@ -34,6 +34,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import (
+    does_table_exist_in_db,
     artifact_processor,
     convert_cocoa_core_data_ts_to_utc,
     does_column_exist_in_db,
@@ -151,7 +152,14 @@ def trusted_peers(context):
         client.ZESCROWMETADATA = metadata.Z_PK;
     '''
 
-    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+    if does_table_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA'):
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
+    else:
+        # This release does not carry the table, so there is nothing to read.
+        # Absence here is not evidence the feature was unused, only that this
+        # schema does not hold it.
+        logfunc(f'Trusted peers: {source_path} has no ZESCROWCLIENTMETADATA table; no rows reported')
+        db_records = []
 
     for row in db_records:
         timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
