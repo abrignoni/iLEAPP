@@ -169,8 +169,8 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 676 rows",
             "abe_ios16": "iOS 16.5 | 1467 rows",
             "felix23_ios16": "iOS 16.5 | 116 rows",
-            "hickman_ios13": "iOS 13.3.1 | files found",
-            "hickman_ios14": "iOS 14.3 | files found",
+            "hickman_ios13": "iOS 13.3.1 | 623 rows",
+            "hickman_ios14": "iOS 14.3 | 611 rows",
             "jess_ios15": "iOS 15.0.2 | 162 rows",
             "magnet_ios16": "iOS 16.1.1 | 202 rows",
         }

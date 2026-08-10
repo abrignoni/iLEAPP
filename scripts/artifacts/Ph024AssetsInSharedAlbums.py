@@ -28,7 +28,7 @@ __artifacts_v2__ = {
 'abe_ios16': 'iOS 16.5 | 1 row',
 'felix23_ios16': 'iOS 16.5 | 0 rows',
 'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-'hickman_ios14': 'iOS 14.3 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 10 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
 }

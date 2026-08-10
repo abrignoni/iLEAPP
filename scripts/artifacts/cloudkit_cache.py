@@ -43,7 +43,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "file-text",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 7176 rows",
             "dexter_ios18": "iOS 18.3.2 | 11216 rows",
             "felix_ios17": "iOS 17.6.1 | 4537 rows",
             "fsfull002_ios17": "iOS 17.1 | 5658 rows",
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 10037 rows",
             "abe_ios16": "iOS 16.5 | 9037 rows",
             "felix23_ios16": "iOS 16.5 | 4672 rows",
-            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 6432 rows",
             "hickman_ios14": "iOS 14.3 | 9004 rows",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 1744 rows",

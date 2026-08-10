@@ -27,7 +27,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "hickman_ios13": "iOS 13.3.1 | 2 rows (classic)",
-            "hickman_ios14": "iOS 14.3 | 0 rows (no crypto columns)",
+            "hickman_ios14": "iOS 14.3 | 4 rows (no crypto columns)",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "hickman_ios15": "iOS 15 | 5 rows (classic)",
             "abe_ios16": "iOS 16.5 | 2 rows (revised)",
