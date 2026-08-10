@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple Mail messages from the Envelope Index and Protected Index databases (iOS 13+)",
         "author": "@abrignoni - @stark4n6",
         "creation_date": "2020-05-07",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Apple Mail",
         "notes": ("Supports iOS 13 and later. The recipients.type = 1 = To mapping was "
@@ -59,7 +59,8 @@ import sqlite3
 
 from scripts.ilapfuncs import (artifact_processor, attach_sqlite_db_readonly,
                                get_sqlite_db_records, logfunc,
-                               convert_unix_ts_to_utc)
+                               convert_unix_ts_to_utc,
+                               does_table_exist_in_db, does_column_exist_in_db)
 
 # Recipient rows are typed; only To recipients (type 1) are decoded here.
 # In the examined corpora no CC/BCC recipients appeared in this table; they
@@ -69,7 +70,40 @@ _RECIPIENT_TYPE_TO = 1
 # LEFT JOINs throughout on purpose. Joining subjects/addresses/summaries with
 # inner joins silently drops every message that has no summary row, which on a
 # real mailbox is the majority of them.
-_QUERY = f'''
+#
+# The attachment link table changed name and key between Envelope Index
+# generations. Current schemas carry message_attachments keyed on
+# global_message_id; the iOS 13/14 generation instead carries
+# attachments(message -> messages.ROWID, name) with no size column, and on
+# iOS 13 messages has no global_message_id column either (verified against the
+# Josh Hickman iOS 13.3.1 and 14.3 images). _build_query assembles the variant
+# the file at hand supports; the shared column list stays identical.
+def _build_query(envelope_db):
+    if does_table_exist_in_db(envelope_db, 'message_attachments'):
+        attachment_names = '''
+    (SELECT GROUP_CONCAT(ma.name, ', ')
+       FROM main.message_attachments ma
+      WHERE ma.global_message_id = main.messages.global_message_id)'''
+        attachment_sizes = '''
+    (SELECT GROUP_CONCAT(att.size, ', ')
+       FROM main.message_attachments ma
+       JOIN main.attachments att ON att.ROWID = ma.attachment
+      WHERE ma.global_message_id = main.messages.global_message_id)'''
+    else:
+        attachment_names = '''
+    (SELECT GROUP_CONCAT(a.name, ', ')
+       FROM main.attachments a
+      WHERE a.message = main.messages.ROWID)'''
+        # The old attachments table records no size.
+        attachment_sizes = 'NULL'
+
+    global_message_id = (
+        'main.messages.global_message_id'
+        if does_column_exist_in_db(envelope_db, 'messages', 'global_message_id')
+        else 'NULL'
+    )
+
+    return f'''
 SELECT
     datetime(main.messages.date_sent, 'UNIXEPOCH'),
     datetime(main.messages.date_received, 'UNIXEPOCH'),
@@ -86,14 +120,9 @@ SELECT
     main.messages.flagged,
     main.messages.deleted,
     main.mailboxes.url,
-    (SELECT GROUP_CONCAT(ma.name, ', ')
-       FROM main.message_attachments ma
-      WHERE ma.global_message_id = main.messages.global_message_id) AS attachment_names,
-    (SELECT GROUP_CONCAT(att.size, ', ')
-       FROM main.message_attachments ma
-       JOIN main.attachments att ON att.ROWID = ma.attachment
-      WHERE ma.global_message_id = main.messages.global_message_id) AS attachment_sizes,
-    main.messages.global_message_id
+    {attachment_names} AS attachment_names,
+    {attachment_sizes} AS attachment_sizes,
+    {global_message_id} AS global_message_id
 FROM main.messages
 LEFT JOIN main.mailboxes ON main.mailboxes.ROWID = main.messages.mailbox
 LEFT JOIN PI.subjects ON PI.subjects.ROWID = main.messages.subject
@@ -123,7 +152,8 @@ def mailprotect(context):
     head = os.path.split(envelope_db)[0]
     attach_query = attach_sqlite_db_readonly(os.path.join(head, 'Protected Index'), 'PI')
     try:
-        rows = get_sqlite_db_records(envelope_db, _QUERY, attach_query=attach_query)
+        rows = get_sqlite_db_records(envelope_db, _build_query(envelope_db),
+                                     attach_query=attach_query)
     except sqlite3.Error as ex:
         logfunc(f'Error reading Apple Mail (iOS 13+ schema expected): {ex}')
         return data_headers, data_list, context.get_relative_path(head)

@@ -170,7 +170,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-05",
-        "last_update_date": "2026-08-05",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Table t12 is the Postbox MessageHistoryTagsTable (tableSpec(12) in "
@@ -946,6 +946,11 @@ def telegramMessageTags(context):
             continue
         try:
             cursor = db.cursor()
+            # Older postbox layouts predate the tag table entirely (observed on
+            # the felix_ios17 image); absence means nothing to read, not an error.
+            cursor.execute("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 't12'")
+            if cursor.fetchone() is None:
+                continue
             names = _peer_names(cursor)
             cursor.execute('SELECT key FROM t12')
             for (key,) in cursor.fetchall():
