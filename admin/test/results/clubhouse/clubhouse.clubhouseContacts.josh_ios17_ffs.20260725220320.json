@@ -1,0 +1,106 @@
+{
+  "metadata": {
+    "module_name": "clubhouse",
+    "artifact_name": "Clubhouse - Suggested Invites",
+    "function_name": "clubhouseContacts",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 8,
+    "number_of_rows": 7,
+    "total_data_size_bytes": 735,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/clubhouse/testdata.clubhouse.clubhouseContacts.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:20.164391+00:00",
+    "end_time": "2026-07-25T22:03:20.237344+00:00",
+    "run_time_seconds": 0.0003170967102050781,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:20.233929",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Contacts Last Uploaded",
+    "Name",
+    "Phone Number",
+    "Already On Clubhouse",
+    "Popularity Score",
+    "Address Book Identifier",
+    "Contact Hash",
+    "Image Path"
+  ],
+  "data": [
+    [
+      1720377076,
+      "Liz Dehner",
+      "+19199282177",
+      "",
+      12,
+      "BE6D866A-24A9-4E64-90C0-E06E9C34B0DB:ABPerson",
+      "P.BCKf8oc0hFGz3yiq",
+      "6447E7DA-9B0B-414D-85E2-30FC5740AFD3.png"
+    ],
+    [
+      1720377076,
+      "This Is DFIR Two",
+      "+19198887386",
+      "Yes",
+      3,
+      "5E871B1B-858C-43D2-8068-84167B126BB8",
+      "P.SBNJEa2JDbpDcWWl",
+      null
+    ],
+    [
+      1720377076,
+      "Thom De'Fer",
+      "+19198027080",
+      "",
+      3,
+      "3C273137-6965-4F90-85E9-573EA74E03C9",
+      "P.uNlLaM0ocggYBHz9",
+      null
+    ],
+    [
+      1720377076,
+      "Liz",
+      "+19192084530",
+      "",
+      1,
+      "EB9E17FB-998E-411B-83C0-43FE3ED77B63",
+      "P.hrTDm5AhwKbtvoGv",
+      null
+    ],
+    [
+      1720377076,
+      "Josh Hickman",
+      "+19193912507",
+      "",
+      0,
+      "8103F6B3-5B14-4815-BEAB-8F1B9EBC8B4C",
+      "P.jiUGd7cAj3PV2Rs2",
+      null
+    ],
+    [
+      1720377076,
+      "Josh Hickman",
+      "+19195790479",
+      "",
+      0,
+      "8103F6B3-5B14-4815-BEAB-8F1B9EBC8B4C",
+      "P.Nttvk9Q/6CCa7J9p",
+      null
+    ],
+    [
+      1720377076,
+      "Liz Dehner",
+      "+19104773625",
+      "",
+      0,
+      "CE5C200B-EF90-4940-BB56-D50976E519A6:ABPerson",
+      "P.V/Aol35Tim3/9/wB",
+      "686925D4-930E-4A3A-8910-C7625CDCD798.png"
+    ]
+  ]
+}

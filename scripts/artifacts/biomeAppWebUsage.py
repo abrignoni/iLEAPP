@@ -3,6 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - App Web Usage",
         "description": "Parses App Web Usage entries from Biome",
         "author": "r.schramp@nfi.nl",
+        "creation_date": "2026-05-29",
+        "last_update_date": "2026-07-31",
         "version": "0.0.1",
         "date": "2026-05-29",
         "requirements": "none",
@@ -27,7 +29,7 @@ __artifacts_v2__ = {
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
@@ -83,7 +85,7 @@ def get_biomeAppWebUsage(context):
             if record.state == EntryState.Written:
                 protostuff, _types = blackboxprotobuf.decode_message(record.data, typess)
 
-                guid               = protostuff.get('bundle_id', '')
+                guid               = protostuff.get('guid', '')
                 timestamp          = webkit_timestampsconv(protostuff['timestamp'])
                 pb_int_3           = protostuff.get('pb_int_3', None)
                 url                = protostuff.get('url', '')

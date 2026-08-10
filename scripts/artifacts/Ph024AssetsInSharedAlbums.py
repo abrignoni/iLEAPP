@@ -2,13 +2,15 @@ __artifacts_v2__ = {
 'Ph024AssetinSharedAlbumsInvitesPhDaPsql': {
 'name': 'Ph024-Assets in Shared Albums & Invites-PhDaPsql',
 'description': 'Parses Assets in Shared Albums found in PhotoData-Photos.sqlite and supports iOS.'
-' Parses limited asset data with full non-shared album data.'
+' Parses limited asset data with full shared album data.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
+'last_update_date': '2026-07-31',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-Albums-SharedAssets-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -26,7 +28,7 @@ __artifacts_v2__ = {
 'abe_ios16': 'iOS 16.5 | 1 row',
 'felix23_ios16': 'iOS 16.5 | 0 rows',
 'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-'hickman_ios14': 'iOS 14.3 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 10 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
 }
@@ -35,7 +37,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
@@ -284,7 +286,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -374,7 +376,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         'zCldShareAlbumInvRec-Album GUID-75',
         'zCldShareAlbumInvRec-Cloud GUID-76',
         'zAlbumList-Needs Reordering Number-77')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -612,7 +614,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -702,7 +704,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         'zCldShareAlbumInvRec-Album GUID-75',
         'zCldShareAlbumInvRec-Cloud GUID-76',
         'zAlbumList-Needs Reordering Number-77')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -949,7 +951,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1046,7 +1048,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-81',
         'zGenAlbum-Project Render UUID-82',
         'zAlbumList-Needs Reordering Number-83')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1305,7 +1307,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1406,7 +1408,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-85',
         'zGenAlbum-Project Render UUID-86',
         'zAlbumList-Needs Reordering Number-87')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1683,7 +1685,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1787,7 +1789,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-88',
         'zGenAlbum-Project Render UUID-89',
         'zAlbumList-Needs Reordering Number-90')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2089,7 +2091,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2200,7 +2202,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-94',
         'zGenAlbum-Project Render UUID-95',
         'zAlbumList-Needs Reordering Number-96')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2502,7 +2504,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2613,7 +2615,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-94',
         'zGenAlbum-Project Render UUID-95',
         'zAlbumList-Needs Reordering Number-96')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2916,7 +2918,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -3028,7 +3030,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-95',
         'zGenAlbum-Project Render UUID-96',
         'zAlbumList-Needs Reordering Number-97')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 

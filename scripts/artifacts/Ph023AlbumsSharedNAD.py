@@ -6,10 +6,12 @@ __artifacts_v2__ = {
 ' This parser will contain shared albums, share album invites, and invite status data.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-Albums-SharedNAD-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -27,7 +29,7 @@ __artifacts_v2__ = {
 'abe_ios16': 'iOS 16.5 | 1 row',
 'felix23_ios16': 'iOS 16.5 | 0 rows',
 'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-'hickman_ios14': 'iOS 14.3 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 1 row',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
 }
@@ -36,7 +38,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
@@ -245,7 +247,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         ORDER BY zGenAlbum.ZSTARTDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -313,7 +315,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         'zCldShareAlbumInvRec-Album GUID-55',
         'zCldShareAlbumInvRec-Cloud GUID-56',
         'zAlbumList-Needs Reordering Number-57')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -511,7 +513,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         ORDER BY zGenAlbum.ZSTARTDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -579,7 +581,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         'zCldShareAlbumInvRec-Album GUID-55',
         'zCldShareAlbumInvRec-Cloud GUID-56',
         'zAlbumList-Needs Reordering Number-57')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -786,7 +788,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -860,7 +862,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-61',
         'zGenAlbum-Project Render UUID-62',
         'zAlbumList-Needs Reordering Number-63')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1073,7 +1075,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1150,7 +1152,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-63',
         'zGenAlbum-Project Render UUID-64',
         'zAlbumList-Needs Reordering Number-65')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1363,7 +1365,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1440,7 +1442,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-63',
         'zGenAlbum-Project Render UUID-64',
         'zAlbumList-Needs Reordering Number-65')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1672,7 +1674,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1753,7 +1755,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-67',
         'zGenAlbum-Project Render UUID-68',
         'zAlbumList-Needs Reordering Number-69')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1985,7 +1987,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2066,7 +2068,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-67',
         'zGenAlbum-Project Render UUID-68',
         'zAlbumList-Needs Reordering Number-69')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2298,7 +2300,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2379,7 +2381,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         'zCldShareAlbumInvRec-Cloud GUID-67',
         'zGenAlbum-Project Render UUID-68',
         'zAlbumList-Needs Reordering Number-69')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 

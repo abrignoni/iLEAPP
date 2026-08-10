@@ -4,11 +4,11 @@ __artifacts_v2__ = {
         "description": "List of calendar events",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2023-11-11",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Calendar",
-        "notes": "",
-        "paths": ('*/Calendar.sqlitedb',),
+        "notes": "Participant status is reported as stored. Apple's public EKParticipantStatus enum defines Pending=1, Accepted=2, Declined=3, Tentative=4; whether the Calendar database column follows that enum is unverified. Reference: Apple EventKit, EKParticipantStatus, https://developer.apple.com/documentation/eventkit/ekparticipantstatus",
+        "paths": ('*/Calendar.sqlitedb*',),
         "html_columns": ['Calendar Name', 'Location Coordinates', 'Invitees'],
         "output_types": "standard",
         "artifact_icon": "calendar",
@@ -18,30 +18,30 @@ __artifacts_v2__ = {
             "felix_ios17": "iOS 17.6.1 | 62 rows",
             "fsfull002_ios17": "iOS 17.1 | 136 rows",
             "hc_ios18_7": "iOS 18.7.8 | 120 rows",
-            "iphone11_ios17": "iOS 17.3 | 142 rows",
+            "iphone11_ios17": "iOS 17.3 | 144 rows",
             "iphone12_ios18": "iOS 18.7 | 134 rows",
             "iphone14plus_ios18": "iOS 18.0 | 135 rows",
             "otto_ios17": "iOS 17.5.1 | 137 rows",
-            "abe_ios16": "iOS 16.5 | 135 rows",
+            "abe_ios16": "iOS 16.5 | 142 rows",
             "felix23_ios16": "iOS 16.5 | 60 rows",
             "hickman_ios13": "iOS 13.3.1 | 119 rows",
-            "hickman_ios14": "iOS 14.3 | 105 rows",
+            "hickman_ios14": "iOS 14.3 | 106 rows",
             "jess_ios15": "iOS 15.0.2 | 149 rows",
             "magnet_ios16": "iOS 16.1.1 | 129 rows",
         }
     },
     "calendarBirthdays": {
         "name": "Calendar Birthdays",
-        "description": "List of calendar birthdays",
+        "description": "Calendar items on the gregorian birthday calendar scale (commonly Contacts birthdays)",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2024-10-30",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
-        "paths": ('*/Calendar.sqlitedb',),
+        "paths": ('*/Calendar.sqlitedb*',),
         "html_columns": ['Calendar Name'],
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "gift",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
@@ -66,13 +66,13 @@ __artifacts_v2__ = {
         "description": "List of calendars",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2023-11-11",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Calendar",
-        "notes": "",
-        "paths": ('*/Calendar.sqlitedb',),
+        "notes": "Sharing status and access level value mappings observed in testing; unrecognized values reported as stored.",
+        "paths": ('*/Calendar.sqlitedb*',),
         "html_columns": ['Calendar Name', 'Sharing Participants'],
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "list",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 15 rows",
@@ -97,6 +97,7 @@ __artifacts_v2__ = {
 from urllib.parse import unquote
 from scripts.ilapfuncs import open_sqlite_db_readonly, does_table_exist_in_db, does_column_exist_in_db,\
     convert_ts_human_to_utc, artifact_processor, get_birthdate
+from scripts.html_safe import esc
 
 
 def get_sharees(cursor):
@@ -115,6 +116,7 @@ def get_sharees(cursor):
     all_rows = cursor.fetchall()
     usageentries = len(all_rows)
     data_dict = {}
+    data_dict_csv = {}
     if usageentries > 0:
         for row in all_rows:
             key = row[0]
@@ -122,14 +124,24 @@ def get_sharees(cursor):
             name = f' ({row[2]})' if row[2] else ''
             participant = f'{address}{name}'
             sharing_participant = f'''{participant} -> {row[3]}'''
+            participant_html = f'{esc(address)}{esc(name)}'
+            sharing_participant_html = f'''{participant_html} -> {esc(row[3])}'''
+
             sharing_participants = data_dict.get(key, '')
             if sharing_participants:
-                sharing_participants += f',<br>{sharing_participant}'
+                sharing_participants += f',<br>{sharing_participant_html}'
             else:
-                sharing_participants = sharing_participant
+                sharing_participants = sharing_participant_html
             data_dict[key] = sharing_participants
 
-    return data_dict
+            sharing_participants_csv = data_dict_csv.get(key, '')
+            if sharing_participants_csv:
+                sharing_participants_csv += f', {sharing_participant}'
+            else:
+                sharing_participants_csv = sharing_participant
+            data_dict_csv[key] = sharing_participants_csv
+
+    return data_dict, data_dict_csv
 
 
 def get_invitees(cursor):
@@ -137,14 +149,7 @@ def get_invitees(cursor):
     SELECT Participant.owner_id,
     Identity.display_name,
     Participant.email,
-    CASE Participant.status
-        WHEN 0 THEN 'No response'
-        WHEN 1 THEN 'Accepted'
-        WHEN 2 THEN 'Declined'
-        WHEN 3 THEN 'Maybe'
-        WHEN 7 THEN 'No response'
-        ELSE Participant.status
-    END AS 'Status'
+    Participant.status AS 'Status'
     FROM Participant
     LEFT JOIN Identity ON Participant.identity_id = Identity.ROWID
     WHERE Participant.entity_type = 7
@@ -158,18 +163,14 @@ def get_invitees(cursor):
         for row in all_rows:
             key = row[0]
             participant = f'{row[1]} - {row[2]}' if row[1] else row[2]
+            participant_html = f'{esc(row[1])} - {esc(row[2])}' if row[1] else esc(row[2])
             status = row[3]
-            if status == 'No response':
-                html_status = '<span style="color: gray;" title="No response">&#11044;</span>'
-            elif status == 'Accepted':
-                html_status = '<span style="color: green;" title="Accepted">&#11044;</span>'
-            elif status == 'Declined':
-                html_status = '<span style="color: red;" title="Declined">&#11044;</span>'
-            elif status == 'Maybe':
-                html_status = '<span style="color: orange;" title="Maybe">&#11044;</span>'
-            else:
+            # Participant status is reported as stored (see artifact notes).
+            if status is None or status == '':
                 html_status = ''
-            sharing_participant = f'{html_status} {participant}'
+            else:
+                html_status = f'<span title="Participant status (as stored)">[{esc(str(status))}]</span>'
+            sharing_participant = f'{html_status} {participant_html}'
 
             sharing_participants = data_dict.get(key, '')
             if sharing_participants:
@@ -190,9 +191,9 @@ def get_invitees(cursor):
 
 def get_calendar_name(name, color):
     if color:
-        calendar_name = f'<span style="color: {color};">&#9673; </span>{name}'
+        calendar_name = f'<span style="color: {esc(color)};">&#9673; </span>{esc(name)}'
     else:
-        calendar_name = f'&#9711; {name}'
+        calendar_name = f'&#9711; {esc(name)}'
     return calendar_name
 
 @artifact_processor
@@ -295,11 +296,9 @@ def calendarEvents(context):
                     location_coordinates = f'{latitude}, {longitude}' if latitude and longitude else ''
 
                     if latitude and longitude:
-                        location_coordinates_tag = f'''
-                        {location_coordinates} &nbsp; 
-                        <a href="https://www.openstreetmap.org/?lat={latitude}&lon=%20{longitude}&zoom=17&layers=M" target="_blank">
-                        &#x1F5FA;</a>
-                        '''
+                        # Coordinates only. This carried an openstreetmap.org anchor;
+                        # a report links to nothing outside its own folder.
+                        location_coordinates_tag = esc(location_coordinates)
                     else:
                         location_coordinates_tag = ''
 
@@ -325,7 +324,7 @@ def calendarBirthdays(context):
 
     data_list_html = []
     data_list = []
-    data_headers = (('Date of Birth', 'datetime'), 'Person Name', 'Calendar Name', 'Account Name', 'Source File')
+    data_headers = ('Start Date', 'Event Title', 'Calendar Name', 'Account Name', 'Source File')
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -406,15 +405,15 @@ def calendarList(context):
             usageentries = len(all_rows)
             if usageentries > 0:
 
-                sharees = get_sharees(cursor)
+                sharees_html, sharees_csv = get_sharees(cursor)
                 for row in all_rows:
                     calendar_name = row[1]
                     calendar_name_tag = get_calendar_name(row[1], row[2])
                     owner_email = row[6].replace('mailto:', '') if row[6] else ''
                     owner_email = unquote(owner_email)
-                    if sharees:
-                        sharing_participants_html = sharees.get(row[0], '')
-                        sharing_participants = sharees.get(row[0], '').replace('<br>', ' ')
+                    if sharees_html:
+                        sharing_participants_html = sharees_html.get(row[0], '')
+                        sharing_participants = sharees_csv.get(row[0], '')
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7],
                                           sharing_participants_html, row[8], context.get_relative_path(file_found)))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7],

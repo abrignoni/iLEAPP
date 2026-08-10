@@ -6,10 +6,12 @@ __artifacts_v2__ = {
 ' one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'reuirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-Assets-Burst-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -39,10 +41,12 @@ __artifacts_v2__ = {
 ' one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
-'category': 'Photos.sqlite-Assets-Burst-GenPlaygrndPL-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -55,7 +59,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph009_1BurstAvalanchePhDaPsql(context):
@@ -126,7 +130,7 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED    
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12]))
@@ -144,7 +148,7 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         'zAddAssetAttr-zPK-10',
         'zAsset-UUID = store.cloudphotodb-11',
         'zAddAssetAttr-Master Fingerprint-12')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -200,7 +204,7 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED    
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12]))
@@ -218,7 +222,7 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         'zAddAssetAttr-zPK-10',
         'zAsset-UUID = store.cloudphotodb-11',
         'zAddAssetAttr-Master Fingerprint-12')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -280,7 +284,7 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED    
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14]))
@@ -300,7 +304,7 @@ def Ph009_1BurstAvalanchePhDaPsql(context):
         'zAsset-UUID = store.cloudphotodb-12',
         'zAddAssetAttr-Original Stable Hash-13',
         'zAddAssetAttr.Adjusted Stable Hash-14')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -379,7 +383,7 @@ def Ph009_3BurstAvalancheGenPlayPsql(context):
         ORDER BY zAsset.ZDATECREATED    
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14]))
@@ -399,6 +403,6 @@ def Ph009_3BurstAvalancheGenPlayPsql(context):
         'zAsset-UUID = store.cloudphotodb-12',
         'zAddAssetAttr-Original Stable Hash-13',
         'zAddAssetAttr.Adjusted Stable Hash-14')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path

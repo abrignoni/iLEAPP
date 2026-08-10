@@ -111,7 +111,7 @@ Releases are the easiest way to run iLEAPP. Use source if you are developing mod
 
 ### Requirements
 
-- Python 3.10, 3.11, or 3.12
+- Python 3.10 to 3.14
 - Git
 
 ### Setup
@@ -155,6 +155,6 @@ See [CLI Arguments](#cli-arguments) above, or run `python ileapp.py --help`.
 
 ## Acknowledgements
 
-This tool is the result of a collaborative effort of many people in the DFIR community.
+This traiging tool is the result of a collaborative effort of many people in the DFIR community.
 
 iLEAPP logo courtesy of Derek Eiri.

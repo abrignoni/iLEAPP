@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "teleguardMessages": {
         "name": "Teleguard Messages",
         "description": "TeleGuard chat messages and shared media",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-03", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-03", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',
                   '*/Library/Caches/images/*'),
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
     "teleguardPosts": {
         "name": "Teleguard Posts",
         "description": "TeleGuard channel posts",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "file-text",
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
     "teleguardContacts": {
         "name": "Teleguard Contacts",
         "description": "TeleGuard contacts (with avatar thumbnails)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "users",
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
     "teleguardChannels": {
         "name": "Teleguard Channels",
         "description": "TeleGuard channels",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "radio",

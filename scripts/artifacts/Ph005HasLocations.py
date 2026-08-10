@@ -7,10 +7,12 @@ __artifacts_v2__ = {
 ' one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-Assets-withLocations-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -41,10 +43,12 @@ __artifacts_v2__ = {
 ' one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-'category': 'Photos.sqlite-Assets-withLocations-SyndicationPL-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -72,10 +76,12 @@ __artifacts_v2__ = {
 ' one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
-'category': 'Photos.sqlite-Assets-withLocations-GenPlaygrndPL-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -90,7 +96,7 @@ import os
 import plistlib
 import nska_deserialize as nd
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
@@ -163,7 +169,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_geoplaceresult = ''
@@ -218,7 +224,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAddAssetAttr-zPK-15',
         'zAsset-UUID = store.cloudphotodb-16',
         'zAddAssetAttr-Master Fingerprint-17')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -306,7 +312,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -378,7 +384,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAddAssetAttr-zPK-21',
         'zAsset-UUID = store.cloudphotodb-22',
         'zAddAssetAttr-Master Fingerprint-23')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -474,7 +480,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -550,7 +556,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAddAssetAttr-zPK-24',
         'zAsset-UUID = store.cloudphotodb-25',
         'zAddAssetAttr-Master Fingerprint-26')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -647,7 +653,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -724,7 +730,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAddAssetAttr-zPK-25',
         'zAsset-UUID = store.cloudphotodb-26',
         'zAddAssetAttr-Master Fingerprint-27')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -822,7 +828,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -900,7 +906,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-UUID = store.cloudphotodb-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -975,7 +981,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_geoplaceresult = ''
@@ -1030,7 +1036,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAddAssetAttr-zPK-15',
         'zAsset-UUID = store.cloudphotodb-16',
         'zAddAssetAttr-Master Fingerprint-17')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1118,7 +1124,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -1190,7 +1196,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAddAssetAttr-zPK-21',
         'zAsset-UUID = store.cloudphotodb-22',
         'zAddAssetAttr-Master Fingerprint-23')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1286,7 +1292,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -1362,7 +1368,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAddAssetAttr-zPK-24',
         'zAsset-UUID = store.cloudphotodb-25',
         'zAddAssetAttr-Master Fingerprint-26')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1459,7 +1465,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -1536,7 +1542,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAddAssetAttr-zPK-25',
         'zAsset-UUID = store.cloudphotodb-26',
         'zAddAssetAttr-Master Fingerprint-27')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1634,7 +1640,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -1712,7 +1718,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-UUID = store.cloudphotodb-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1827,7 +1833,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zAddAssetAttr.ZSHIFTEDLOCATIONDATA-PLIST
             aaashiftedlocation_postal_address = ''
@@ -1905,6 +1911,6 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         'zAsset-UUID = store.cloudphotodb-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path

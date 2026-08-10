@@ -6,11 +6,11 @@ __artifacts_v2__ = {
                        "DigitalSourceType tags. Reports the claim generator, edit actions, digital "
                        "source type, author/creator, credit/copyright, ingredients (prior assets), "
                        "the stated signer certificate and signing time, and an AI-generated "
-                       "indicator. Useful for establishing whether an image was AI-generated or "
-                       "edited and by what tool.",
+                       "indicator. Can indicate, per the embedded provenance claims, whether an "
+                       "image declares AI generation or editing and by what tool.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-12",
-        "last_update_date": "2026-07-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "AI Provenance",
         "notes": "SIGNATURE CAVEAT: the signer, issuer, algorithm, and signing time are read "
@@ -23,7 +23,9 @@ __artifacts_v2__ = {
                  "signature. The 'Metadata Source' column distinguishes C2PA from XMP/IPTC "
                  "findings. JPEG (C2PA + XMP + signature) is validated against test files and real "
                  "Google/Gemini images; PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) containers are handled "
-                 "per the C2PA specification.",
+                 "per the C2PA specification. "
+                 "Reference: IPTC NewsCodes Digital Source Type controlled vocabulary, "
+                 "https://cv.iptc.org/newscodes/digitalsourcetype",
         "paths": (  # case-insensitive extensions; fnmatch '*' already spans '/', so these
                     # match media at ANY depth. Uppercase forms catch iOS defaults (.HEIC/.JPG/.MOV).
             '*.[jJ][pP][gG]', '*.[jJ][pP][eE][gG]', '*.[jJ][pP][eE]',
@@ -32,8 +34,16 @@ __artifacts_v2__ = {
             '*.[jJ][xX][lL]', '*.[tT][iI][fF]', '*.[tT][iI][fF][fF]',
             '*.[dD][nN][gG]', '*.[mM][pP]4', '*.[mM][oO][vV]', '*.[mM]4[vV]',
         ),
-        "output_types": "all",
+        "output_types": "standard",
         "artifact_icon": "certificate",
+        "sample_data": {
+            "dexter_ios18": "82 rows",
+            "felix_ios17": "1 row",
+            "hc_ios18_7": "2 rows",
+            "hc_ios26": "26.5.2 | 1 row",
+            "iphone12_ios18": "2 rows",
+            "iphone14plus_ios18": "1 row",
+        },
     }
 }
 
@@ -399,17 +409,21 @@ def _cheap_has_provenance(path):
 
 # ===========================================================================
 # Normalization: flatten manifests into forensic row fields.
-# IPTC DigitalSourceType codes -> (human label, is_ai_generated)
+# IPTC DigitalSourceType codes -> (human label, is_ai_generated), per the IPTC
+# NewsCodes Digital Source Type controlled vocabulary definitions:
+# digitalArt, algorithmicallyEnhanced and dataDrivenMedia denote human-driven
+# creation or non-generative processing (not AI); virtualRecording MAY involve
+# Generative AI, so it is flagged 'possible'.
 # ===========================================================================
 _DIGITAL_SOURCE_TYPES = {
     'trainedAlgorithmicMedia': ('AI-generated (trained algorithmic media)', True),
     'compositeWithTrainedAlgorithmicMedia': ('AI composite (with trained algorithmic media)', True),
     'algorithmicMedia': ('Algorithmically generated', True),
-    'algorithmicallyEnhanced': ('Algorithmically enhanced', True),
+    'algorithmicallyEnhanced': ('Algorithmically enhanced', False),
     'compositeSynthetic': ('Composite synthetic', True),
-    'digitalArt': ('Digital art', True),
-    'virtualRecording': ('Virtual recording', True),
-    'dataDrivenMedia': ('Data-driven media', True),
+    'digitalArt': ('Digital art', False),
+    'virtualRecording': ('Virtual recording', 'possible'),
+    'dataDrivenMedia': ('Data-driven media', False),
     'digitalCapture': ('Digital capture (camera)', False),
     'originalPhotograph': ('Original photograph', False),
     'minorHumanEdits': ('Minor human edits', False),
@@ -438,6 +452,12 @@ def _source_type_label(uri):
         return None, None
     code = uri.rstrip('/').rsplit('/', 1)[-1]
     return _DIGITAL_SOURCE_TYPES.get(code, (code, None))
+
+
+def _merge_ai(prev, new):
+    """Combine AI flags across assertions: True > 'possible' > False > None."""
+    _rank = {True: 3, 'possible': 2, False: 1, None: 0}
+    return prev if _rank.get(prev, 0) >= _rank.get(new, 0) else new
 
 
 def _content_value(node, prefer=('cbor', 'json')):
@@ -657,7 +677,7 @@ def _normalize(tree):
                             if lbl:
                                 row['digital_source'].add(lbl)
                                 if ai is not None:
-                                    row['ai'] = ai if row['ai'] is None else (row['ai'] or ai)
+                                    row['ai'] = _merge_ai(row['ai'], ai)
                             if act.get('when'):
                                 row['when'].add(str(act['when']))
                     elif abase.startswith('stds.schema-org.CreativeWork') and isinstance(val, dict):
@@ -677,6 +697,7 @@ def _fmt(items):
 @artifact_processor
 def c2paProvenance(context):
     data_headers = (
+        ('Signing Time (TSA)', 'datetime'),
         ('Media', 'media'),
         'Media State',
         'AI Generated?',
@@ -689,7 +710,6 @@ def c2paProvenance(context):
         'Credit / Copyright',
         'Title',
         'Ingredients (Prior Assets)',
-        ('Signing Time (TSA)', 'datetime'),
         'Signed By (stated)',
         'Certificate Issuer',
         'Certificate Validity',
@@ -703,6 +723,8 @@ def c2paProvenance(context):
     _media_ext = ('.jpg', '.jpeg', '.jpe', '.png')  # thumbnailable by the report
 
     def _ai_str(val):
+        if val == 'possible':
+            return 'Possible'
         return 'Yes' if val is True else 'No' if val is False else 'Unknown'
 
     for file_found in context.get_files_found():
@@ -760,6 +782,7 @@ def c2paProvenance(context):
             if n_states > 1 and i == n_states:
                 state += ' (current)'
             data_list.append((
+                sig.get('signing_time', ''),
                 thumb,
                 state,
                 _ai_str(r['ai']),
@@ -772,7 +795,6 @@ def c2paProvenance(context):
                 '',
                 r['title'],
                 _fmt(r['ingredients']),
-                sig.get('signing_time', ''),
                 sig.get('signed_by', ''),
                 sig.get('issuer', ''),
                 sig.get('validity', ''),
@@ -784,6 +806,7 @@ def c2paProvenance(context):
 
         if xmp_has_signal:
             data_list.append((
+                '',
                 thumb,
                 'IPTC tag',
                 _ai_str(xmp['ai']),
@@ -794,7 +817,6 @@ def c2paProvenance(context):
                 '',
                 _fmt(xmp['creators']),
                 _fmt([xmp['credit'], xmp['copyright']]),
-                '',
                 '',
                 '',
                 '',

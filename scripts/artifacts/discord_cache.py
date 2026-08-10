@@ -4,6 +4,7 @@ __artifacts_v2__ = {
         "name": "Discord Cache",
         "description": "Parses Discord URL cache records and files from Cache.db and fsCachedData",
         "author": "@JamesHabben",
+        "last_update_date": "2026-07-11",
         "creation_date": "2026-05-29",
         "last_updated": "2026-05-29",
         "requirements": "none",

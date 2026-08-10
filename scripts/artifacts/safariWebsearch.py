@@ -2,12 +2,12 @@ __artifacts_v2__ = {
     "safariWebsearch": {
         "name": "Safari Browser - Search Terms",
         "description": "Search-engine queries extracted from Safari History.db (search?q= URLs)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Safari Browser",
-        "notes": "",
+        "notes": "The history_visits.origin value is reported as stored. Community documentation describes 1 as a visit synced from another iCloud device, but no primary source was located.",
         "paths": ('**/Safari/History.db*',),
         "output_types": "standard",
         "artifact_icon": "search",
@@ -37,7 +37,7 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 @artifact_processor
 def safariWebsearch(context):
     data_headers = (('Visit Time', 'datetime'), 'Search Term', 'URL', 'Visit Count', 'Title',
-                    'iCloud Sync', 'Load Successful', 'Visit ID', 'Redirect Source',
+                    'Origin (as stored)', 'Load Successful', 'Visit ID', 'Redirect Source',
                     'Redirect Destination')
     data_list = []
 
@@ -50,10 +50,11 @@ def safariWebsearch(context):
     if not source_path:
         return data_headers, data_list, ''
 
-    # visit_time is Apple absolute (Cocoa) time on iOS <= 18, but iOS 26+ may
-    # store a Unix timestamp instead. Cocoa values for realistic dates stay well
-    # below the 978307200 offset (year 2032 in Cocoa time), while Unix values are
-    # always above it, so the magnitude disambiguates the two encodings.
+    # visit_time is Apple absolute (Cocoa) time on iOS <= 18. Untested
+    # expectation for iOS 26+: a Unix-epoch value would exceed this threshold.
+    # Cocoa values for realistic dates stay well below the 978307200 offset
+    # (year 2032 in Cocoa time), while Unix values are always above it, so the
+    # magnitude disambiguates the two encodings.
     query = '''
     SELECT
         CASE
@@ -64,8 +65,7 @@ def safariWebsearch(context):
         history_items.url,
         history_items.visit_count,
         history_visits.title,
-        CASE history_visits.origin WHEN 1 THEN 'iCloud Synced' WHEN 0 THEN 'Visited Local Device'
-            ELSE history_visits.origin END,
+        history_visits.origin,
         history_visits.load_successful,
         history_visits.id,
         history_visits.redirect_source,

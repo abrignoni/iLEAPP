@@ -22,6 +22,7 @@ from scripts.ilapfuncs import (
     artifact_processor,
     convert_unix_ts_to_utc
     )
+from scripts.html_safe import esc
 
 
 @artifact_processor
@@ -56,14 +57,14 @@ def torrent_resume_info(context):
                     if x_str == 'pieces':
                         pass
                     else:
-                        aggregate += f'{x_str}: {y} <br>'
+                        aggregate += f'{esc(x_str)}: {esc(y)} <br>'
             elif key_str == 'pieces':
                 pass
             elif key_str == 'creation date':
                 ts_val = convert_unix_ts_to_utc(value)
-                aggregate += f'{key_str}: {ts_val} <br>'
+                aggregate += f'{esc(key_str)}: {esc(ts_val)} <br>'
             else:
-                aggregate += f'{key_str}: {value} <br>' 
+                aggregate += f'{esc(key_str)}: {esc(value)} <br>'
         wrapped_path = textwrap.fill(context.get_relative_path(file_found), width=50)
         data_list.append((wrapped_path, infohash, aggregate.strip()))
 

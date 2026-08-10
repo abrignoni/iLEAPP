@@ -4,11 +4,11 @@ __artifacts_v2__ = {
         "description": "Parses safari entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/restricted/_DKEvent.Safari.History/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Safari.History/local/*',),
         "output_types": "standard",
         "artifact_icon": "compass",
         "sample_data": {
@@ -30,7 +30,7 @@ __artifacts_v2__ = {
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
@@ -145,7 +145,7 @@ def get_biomeSafari(context):
                 data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None, filename,
                                   record.data_start_offset))
 
-        data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Activity', 'Title',
-                        'URL', 'Detail', 'Detail 2', 'Detail 3', 'GUID', "Filename", "Offset")
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Activity', 'Title',
+                    'URL', 'Detail', 'Detail 2', 'Detail 3', 'GUID', "Filename", "Offset")
 
-        return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, 'see Filename for more info'

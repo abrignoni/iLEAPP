@@ -2,14 +2,14 @@ __artifacts_v2__ = {
     "safariBookmarks": {
         "name": "Safari Browser - Bookmarks",
         "description": "Safari bookmarks",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": "",
         "paths": ('**/Safari/Bookmarks.db*',),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "bookmark",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 11 rows",

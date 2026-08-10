@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "icloudmeta": {
         "name": "iCloud - File Metadata",
         "description": "iCloud Drive file metadata parsed from Metadata.txt (iCloud Returns)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",

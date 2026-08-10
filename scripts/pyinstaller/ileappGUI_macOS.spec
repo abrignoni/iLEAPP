@@ -1,15 +1,26 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+import sys
+
+sys.path.insert(0, SPECPATH)
+from unifiedlog_binary import unifiedlog_binaries, unifiedlog_datas
+from PyInstaller.utils.hooks import collect_submodules
+
 a = Analysis(
     ['../../ileappGUI.py'],
     pathex=['../scripts/artifacts'],
-    binaries=[],
-    datas=[('../', 'scripts'), ('../../assets', 'assets'), ('../../leapp_functions', 'leapp_functions')],
+    binaries=unifiedlog_binaries(),
+    datas=[('../', 'scripts'), ('../../assets', 'assets'), ('../../leapp_functions', 'leapp_functions')] + unifiedlog_datas(),
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
         'blackboxprotobuf',
+        # blackboxprotobuf above is the vendored copy under scripts/ (PyInstaller
+        # reports it 'not found'); what actually has to be collected is the real
+        # google.protobuf package it imports internals from.
+        *collect_submodules('google.protobuf'),
+        *collect_submodules('PIL'),
         'Crypto.Cipher.AES',
         'ijson',
         'lib2to3.refactor',
@@ -63,5 +74,5 @@ app = BUNDLE(
     name='ileappGUI.app',
     icon='../../assets/icon.icns',
     bundle_identifier='4n6.brigs.iLEAPP',
-    version='2026.1.0'
+    version='2026.3.0-dev.0'
 )

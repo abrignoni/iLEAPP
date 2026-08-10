@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses app data from netusage.sqlite",
         "author": "@stark4n6, @snoop168",
         "creation_date": "2023-02-13",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Network Usage",
-        "notes": "",
+        "notes": "ZKIND is reported as stored; its values are not documented.",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "chart-pie",
@@ -34,10 +34,10 @@ __artifacts_v2__ = {
         "description": "Parses connections from netusage.sqlite",
         "author": "@stark4n6, @snoop168",
         "creation_date": "2023-02-13",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Network Usage",
-        "notes": "",
+        "notes": "Reference: Sarah Edwards, APOLLO netusage_zliverouteperf module, https://github.com/mac4n6/APOLLO/blob/master/modules/netusage_zliverouteperf.txt",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "network",
@@ -83,7 +83,7 @@ def _find_netusage_db(context, required_tables):
 @artifact_processor
 def netusage_appdata(context):
     data_headers = (('Live Usage Timestamp', 'datetime'), ('Process First Usage Timestamp', 'datetime'), ('Process Timestamp', 'datetime'), 'Bundle Name',
-                    'Process Name', 'Type', 'Wifi In (Bytes)', 'Wifi Out (Bytes)', 'Mobile/WWAN In (Bytes)',
+                    'Process Name', 'ZKIND (as stored)', 'Wifi In (Bytes)', 'Wifi Out (Bytes)', 'Mobile/WWAN In (Bytes)',
                     'Mobile/WWAN Out (Bytes)', 'Wired In (Bytes)',
                     'Wired Out (Bytes)')
     data_list = []
@@ -97,10 +97,7 @@ def netusage_appdata(context):
                 ZPROCESS.ZTIMESTAMP,
                 ZPROCESS.ZBUNDLENAME,
                 ZPROCESS.ZPROCNAME,
-                case ZLIVEUSAGE.ZKIND
-                    when 0 then 'Process'
-                    when 1 then 'App'
-                end,
+                ZLIVEUSAGE.ZKIND,
                 ZLIVEUSAGE.ZWIFIIN,
                 ZLIVEUSAGE.ZWIFIOUT,
                 ZLIVEUSAGE.ZWWANIN,
@@ -114,7 +111,10 @@ def netusage_appdata(context):
         for row in all_rows:
             lastconnected = convert_cocoa_core_data_ts_to_utc(row[0])
             firstused = convert_cocoa_core_data_ts_to_utc(row[1])
-            lastused = convert_cocoa_core_data_ts_to_utc(row[2])
+            try:
+                lastused = convert_cocoa_core_data_ts_to_utc(row[2])
+            except (OSError):
+                lastused = None
 
             data_list.append((lastconnected,firstused,lastused,row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11]))
 
@@ -124,7 +124,7 @@ def netusage_appdata(context):
 
 @artifact_processor
 def netusage_connections(context):
-    data_headers = (('First Connection Timestamp', 'datetime'), ('Last Connection Timestamp', 'datetime'), 'Network Name', 'Cell Tower ID/Wifi MAC',
+    data_headers = (('First Connection Timestamp', 'datetime'), ('Last Connection Timestamp', 'datetime'), 'Network Name', 'Network Identifier',
                     'Network Type', 'Bytes In', 'Bytes Out', 'Connection Attempts', 'Connection Successes',
                     'Packets In',
                     'Packets Out')
@@ -140,6 +140,7 @@ def netusage_connections(context):
                 case ZNETWORKATTACHMENT.ZKIND
                     when 1 then 'Wifi'
                     when 2 then 'Cellular'
+                    else ZNETWORKATTACHMENT.ZKIND
                 end,
                 ZLIVEROUTEPERF.ZBYTESIN,
                 ZLIVEROUTEPERF.ZBYTESOUT,

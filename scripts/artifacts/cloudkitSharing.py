@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Processes CloudKit sharing data from NoteStore.sqlite",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-05-28",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Cloudkit",
         "notes": "",
@@ -65,7 +65,8 @@ __artifacts_v2__ = {
 import os
 import io
 import nska_deserialize as nd
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
+from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db, logfunc,
+                               open_sqlite_db_readonly)
 
 
 def deep_get(data, path, default=''):
@@ -93,6 +94,22 @@ def as_list(data):
     return []
 
 
+def has_cloudkit_table(file_found):
+    """Report whether a NoteStore.sqlite carries the CloudKit schema.
+
+    iOS leaves zero-byte NoteStore.sqlite placeholders under Backups/<date>/ and
+    sqlite3 opens those as empty databases, so the table has to be checked before
+    querying one. Skipping is right for a placeholder but would also hide a truncated
+    or unreadable database, so every skip names the file and its size.
+    """
+    if does_table_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT'):
+        return True
+    size = os.path.getsize(file_found) if os.path.isfile(file_found) else 0
+    logfunc(f'cloudkitSharing: skipped {file_found} ({size} bytes), '
+            'no ZICCLOUDSYNCINGOBJECT table')
+    return False
+
+
 def write_debug_bplist(report_folder, prefix, z_pk, data):
     """Writes extracted blobs to the report folder for validation."""
     filename = os.path.join(report_folder, f'{prefix}_{z_pk}.bplist')
@@ -108,6 +125,8 @@ def cloudkit_sharing(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
+            continue
+        if not has_cloudkit_table(file_found):
             continue
 
         # Dictionary to merge share and record data by Z_PK
@@ -185,17 +204,18 @@ def cloudkit_sharing(context):
         db.close()
 
         for z_pk, s in shares.items():
-            data_list.append((
+            data_list.append((s['ctime'], s['mtime'], 
                 context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'],
                 s['root_id'], s['record_type'],
-                s['ctime'], s['creator'], s['mtime'], s['modifier'], s['device'],
+                s['creator'], s['modifier'], s['device'],
                 s['container'], s['hostname'], s['permission'], s['visibility'],
                 s['anon'], s['known']
             ))
 
     data_headers = (
+        ('Creation Date', 'datetime'), ('Modified Date', 'datetime'),
         'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Record ID', 'Root Record ID', 'Record Type',
-        ('Creation Date', 'datetime'), 'Creator User Record ID', ('Modified Date', 'datetime'),
+        'Creator User Record ID', 
         'Last Modified User Record ID', 'Modified By Device', 'Container Identifier',
         'Displayed Hostname', 'Public Permission', 'Participant Visibility',
         'Allows Anonymous Access', 'Known To Server'
@@ -210,6 +230,8 @@ def cloudkit_participants(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
+            continue
+        if not has_cloudkit_table(file_found):
             continue
 
         db = open_sqlite_db_readonly(file_found)

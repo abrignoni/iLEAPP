@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Battery Percentages extracted from knowledgeC database",
         "author": "@JohannPLW",
         "creation_date": "2023-11-05",
-        "last_update_date": "2023-11-05",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "",
+        "notes": "ZHASSTRUCTUREDMETADATA indicates whether a structured-metadata row exists; the fully-charged flag lives in the structured metadata itself per APOLLO's knowledge_device_batterylevel module. Reference: Sarah Edwards, APOLLO, https://github.com/mac4n6/APOLLO/blob/master/modules/knowledge_device_batterylevel.txt",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -159,20 +159,20 @@ __artifacts_v2__ = {
         "output_types": "timeline",
         "artifact_icon": "activity",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | files found",
-            "dexter_ios18": "iOS 18.3.2 | files found",
-            "felix_ios17": "iOS 17.6.1 | files found",
-            "fsfull002_ios17": "iOS 17.1 | files found",
-            "hc_ios18_7": "iOS 18.7.8 | files found",
-            "iphone11_ios17": "iOS 17.3 | files found",
-            "iphone14plus_ios18": "iOS 18.0 | files found",
-            "otto_ios17": "iOS 17.5.1 | files found",
-            "abe_ios16": "iOS 16.5 | files found",
-            "felix23_ios16": "iOS 16.5 | files found",
-            "hickman_ios13": "iOS 13.3.1 | files found",
-            "hickman_ios14": "iOS 14.3 | files found",
-            "jess_ios15": "iOS 15.0.2 | files found",
-            "magnet_ios16": "iOS 16.1.1 | files found",
+            "ctf2020_ios12": "iOS 12.4 | 691 rows",
+            "dexter_ios18": "iOS 18.3.2 | 363 rows",
+            "felix_ios17": "iOS 17.6.1 | 152 rows",
+            "fsfull002_ios17": "iOS 17.1 | 65 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 184 rows",
+            "iphone11_ios17": "iOS 17.3 | 435 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 143 rows",
+            "otto_ios17": "iOS 17.5.1 | 676 rows",
+            "abe_ios16": "iOS 16.5 | 1467 rows",
+            "felix23_ios16": "iOS 16.5 | 116 rows",
+            "hickman_ios13": "iOS 13.3.1 | 623 rows",
+            "hickman_ios14": "iOS 14.3 | 611 rows",
+            "jess_ios15": "iOS 15.0.2 | 162 rows",
+            "magnet_ios16": "iOS 16.1.1 | 202 rows",
         }
     },
     "knowledgeC_isLocked": {
@@ -260,7 +260,7 @@ def knowledgeC_BatteryPercentage(context):
             WHEN 0 THEN 'No'
             WHEN 1 THEN 'Yes'
         ELSE ZOBJECT.ZHASSTRUCTUREDMETADATA
-        END AS 'Is Fully Charged?',
+        END AS 'Has Structured Metadata',
         datetime('2001-01-01', ZOBJECT.ZCREATIONDATE || ' seconds') AS 'Time Added'
         FROM ZOBJECT
         WHERE ZOBJECT.ZSTREAMNAME = '/device/batteryPercentage'
@@ -276,7 +276,7 @@ def knowledgeC_BatteryPercentage(context):
             data_list.append((start_time, end_time, row[2], row[3], added_time))
 
     data_headers = (
-         ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Battery Percentage', 'Is Fully Charged?',
+         ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Battery Percentage', 'Has Structured Metadata',
          ('Time Added', 'datetime'))
     return data_headers, data_list, db_file
 
