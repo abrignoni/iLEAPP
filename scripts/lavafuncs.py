@@ -43,6 +43,7 @@ lava_data = None
 lava_db = None
 lava_db_name = '_lava_artifacts.db'
 lava_json_name = '_lava_data.lava'
+LAVA_SCHEMA_VERSION = 2
 
 
 def sanitize_sql_name(name):
@@ -102,14 +103,14 @@ def get_sql_type(python_type):
     return type_map.get(python_type, 'TEXT')
 
 
-def initialize_lava(input_path, output_path, input_type):
+def initialize_lava(input_path, output_path, input_type, profile_filename=None):
     '''
     Initialize the LAVA data.
     Args:
         input_path: The path to the input file.
         output_path: The path to the output file.
         input_type: The type of input file.
-        selected_artifacts: List of selected artifacts.
+        profile_filename: The profile file used for module selection, if any.
     '''
 
     # lava_data and lava_db are module level singletons for the run; this is the one
@@ -117,6 +118,7 @@ def initialize_lava(input_path, output_path, input_type):
     global lava_data, lava_db  # pylint: disable=global-statement
 
     lava_data = {
+        "lava_schema_version": LAVA_SCHEMA_VERSION,
         "parser_info": {
             "leapp_name": leapp_name,
             "leapp_version": leapp_version,
@@ -128,6 +130,8 @@ def initialize_lava(input_path, output_path, input_type):
         "param_input": input_path,
         "param_output": output_path,
         "param_type": input_type,
+        "param_profile": profile_filename,
+        "profile_used": profile_filename is not None,
         "processing_status": "In Progress",
         "lava_db_name": lava_db_name,
         "modules": [],
@@ -249,6 +253,7 @@ def lava_process_artifact(
     module_info['artifacts'].append(artifact_meta)
 
     artifact = {
+        "artifact_key": func_name,
         "name": artifact_name,
         "tablename": sanitized_table_name,
         "module": module_name,
@@ -307,13 +312,14 @@ def lava_process_artifact(
     return sanitized_table_name, object_columns, column_map
 
 
-def lava_add_module(module_name, module_status, file_count=None):
+def lava_add_module(module_name, module_status, file_count=None, artifact_name=None):
     """
     Adds a module to the global lava_data structure.
     Parameters:
         module_name (str): The name of the module to be added.
         module_status (str): The status of the module (e.g., 'active', 'inactive').
         file_count (int, optional): The number of files associated with the module. Defaults to None.
+        artifact_name (str, optional): The selected artifact name when it differs from the module filename.
     Returns:
         None
     Global Variables:
@@ -325,6 +331,8 @@ def lava_add_module(module_name, module_status, file_count=None):
         "module_name": module_name,
         "module_status": module_status
     }
+    if artifact_name is not None:
+        module["artifact_name"] = artifact_name
     if file_count is not None:
         module["file_count"] = file_count
     lava_data["modules"].append(module)
