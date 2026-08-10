@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'message',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 53 rows across 4 threads',
+            'iphone11_ios17': 'iOS 17.3 | 53 rows across 4 threads',
         },
         'data_views': {
             'conversation': {
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'address-book',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 7 rows',
+            'iphone11_ios17': 'iOS 17.3 | 7 rows',
         },
     },
     'meWePosts': {
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'news',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 33 rows',
+            'iphone11_ios17': 'iOS 17.3 | 33 rows',
         },
     },
     'meWeGroups': {
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users-group',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
     'meWePolls': {
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'chart-bar',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 10 rows',
+            'iphone11_ios17': 'iOS 17.3 | 10 rows',
         },
     },
     'meWeAccount': {
@@ -103,7 +103,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'user',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
 }

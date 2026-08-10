@@ -20,7 +20,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'cookie',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 409 cookies across 33 container files',
+            'iphone11_ios17': 'iOS 17.3 | 409 cookies across 33 container files',
         },
     },
 }

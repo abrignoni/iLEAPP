@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'devices',
         'sample_data': {
-            'hc_ios18_ffs': 'iOS 18.7.8 | 1 row (the device itself); additional_info held an IMEI',
+            'hc_ios18_7': 'iOS 18.7.8 | 1 row (the device itself); additional_info held an IMEI',
         },
     },
     'appleAccountDeletedDeviceList': {
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'device-mobile-off',
         'sample_data': {
-            'hc_ios18_ffs': 'iOS 18.7.8 | 0 rows (table present but empty)',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows (table present but empty)',
         },
     },
 }

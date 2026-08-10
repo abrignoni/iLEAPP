@@ -17,10 +17,10 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'wifi',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 30665 rows',
-            'mvs_ios_2023': 'iOS 14.7.1 | 0 rows; table present and empty',
-            'local iOS 18.7.8 image': '90783 rows',
-            'local iOS 26.5.2 image': '142 rows; gains AlsQueryTimestamp',
+            'iphone11_ios17': 'iOS 17.3 | 30665 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows; table present and empty',
+            'hc_ios18_7': '90783 rows',
+            'hc_ios26': '142 rows; gains AlsQueryTimestamp',
         },
     },
     'locationdWifiHarvest': {
@@ -44,10 +44,10 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'router',
         'sample_data': {
-            'mvs_ios_2023': 'iOS 14.7.1 | table absent on this schema',
-            'josh_ios17_ffs': 'iOS 17.3 | 0 rows; case data not committed, see the case note',
-            'local iOS 18.7.8 image': '122 rows',
-            'local iOS 26.5.2 image': '148 rows; schema unchanged',
+            'magnet_ios16': 'iOS 16.1.1 | table absent on this schema',
+            'iphone11_ios17': 'iOS 17.3 | 0 rows; case data not committed, see the case note',
+            'hc_ios18_7': '122 rows',
+            'hc_ios26': '148 rows; schema unchanged',
         },
     },
     'locationdCellLocations': {
@@ -70,11 +70,11 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'antenna-bars-5',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 2060 rows, all LTE; case data not committed, see '
+            'iphone11_ios17': 'iOS 17.3 | 2060 rows, all LTE; case data not committed, see '
                               'the case note',
-            'mvs_ios_2023': 'iOS 14.7.1 | 0 rows across all nine tables',
-            'local iOS 18.7.8 image': '1090 rows, all LTE; the other eight tables were empty',
-            'local iOS 26.5.2 image': '450 rows, all LTE; schema unchanged',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows across all nine tables',
+            'hc_ios18_7': '1090 rows, all LTE; the other eight tables were empty',
+            'hc_ios26': '450 rows, all LTE; schema unchanged',
         },
     },
     'locationdWifiTiles': {
@@ -94,10 +94,10 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'grid-dots',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 89 rows; case data not committed, see the case note',
-            'mvs_ios_2023': 'iOS 14.7.1 | 0 rows',
-            'local iOS 18.7.8 image': '180 rows',
-            'local iOS 26.5.2 image': '74 rows; schema unchanged',
+            'iphone11_ios17': 'iOS 17.3 | 89 rows; case data not committed, see the case note',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+            'hc_ios18_7': '180 rows',
+            'hc_ios26': '74 rows; schema unchanged',
         },
     },
 }

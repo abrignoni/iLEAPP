@@ -32,7 +32,7 @@
         "description": "iPhone 11 extraction with sample data for testing; successor to the iOS 15 public image and carries the same third-party app set",
         "local_image_paths": [
             "~/Documents/phone-images/Josh/iOS_17_Public_Image.zip",
-            "/Volumes/data/iOS Extractions/iOS_17/Cellebrite_Extraction/UFED Apple iPhone 11 (N104AP) 2024_07_28 (001)/EXTRACTION_FFS 01/EXTRACTION_FFS.zip"
+            "/Volumes/Corpus/iOS Extractions/iOS_17/Cellebrite_Extraction/UFED Apple iPhone 11 (N104AP) 2024_07_28 (001)/EXTRACTION_FFS 01/EXTRACTION_FFS.zip"
         ],
         "file_path_list": "admin/data/filepath-lists/josh-hickman-ios17.csv.zip",
         "download_url": "https://digitalcorpora.org/corpora/mobile/ios_17/",
@@ -59,7 +59,7 @@
         "local_image_paths": [
             "~/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
             "/home/user/images/magnet_mvs_2023_ios.zip",
-            "/Volumes/data/iOS Extractions/00008101-0010541A1130001E_files_full-001.zip"
+            "/Volumes/Corpus/iOS Extractions/00008101-0010541A1130001E_files_full-001.zip"
         ],
         "file_path_list": "admin/data/filepath-lists/magnet-mvs-2023-ios.csv.zip",
         "download_url": "https://cfreds.nist.gov/all/MagnetForensics/MagnetVirtualSummit2023",
@@ -70,7 +70,7 @@
         "image_info": {
           "creation_date": "2023-01-01",
           "os_name": "iPhone OS",
-          "os_version": "14.7.1",
+          "os_version": "16.1.1",
           "device_model": "Unknown",
           "extraction_method": "Full Filesystem",
           "extraction_tool": "Magnet"

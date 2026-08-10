@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'user',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
     'clubhouseContacts': {
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'address-book',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 7 rows',
+            'iphone11_ios17': 'iOS 17.3 | 7 rows',
         },
     },
     'clubhouseConversations': {
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'messages',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
     'clubhouseNotifications': {
@@ -60,7 +60,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'bell',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
 }

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'message',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 13 message rows, 5 chat events',
+            'iphone11_ios17': 'iOS 17.3 | 13 message rows, 5 chat events',
         },
         'data_views': {
             'conversation': {
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'messages',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 2 rows (1 direct chat, 1 channel)',
+            'iphone11_ios17': 'iOS 17.3 | 2 rows (1 direct chat, 1 channel)',
         },
     },
     'truthSocialAccounts': {
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'user',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 3 rows',
+            'iphone11_ios17': 'iOS 17.3 | 3 rows',
         },
     },
 }

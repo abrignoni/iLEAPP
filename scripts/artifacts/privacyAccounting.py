@@ -31,9 +31,6 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'shield-lock',
         'sample_data': {
-            'mattia_private_sample': '23682 rows: 10758 written (about one week) plus 12924 '
-                                     'deleted-state timestamp-only rows reaching back to 2024 '
-                                     'in the oop stream; not committed, private data',
             'hc_ios18_7': 'iOS 18.7.8 | stream folders present, no records',
             'hc_ios26': 'iOS 26 | stream folders present, no records',
         },
@@ -62,9 +59,6 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'trash',
         'sample_data': {
-            'mattia_private_sample': '155013 rows; earliest entry January 2024 against '
-                                     'surviving stream data of about one week; not committed, '
-                                     'private data',
             'hc_ios18_7': 'iOS 18.7.8 | no tombstone files',
             'hc_ios26': 'iOS 26 | no tombstone files',
         },

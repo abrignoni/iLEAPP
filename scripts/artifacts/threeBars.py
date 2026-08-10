@@ -20,9 +20,9 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'wifi',
         'sample_data': {
-            'mvs_ios_2023': 'iOS 14.7.1 | 430 rows',
-            'josh_ios17_ffs': 'iOS 17.3 | 195 rows',
-            'local iOS 18.7.8 image': '2092 rows spanning about six weeks; ZNAME empty on '
+            'magnet_ios16': 'iOS 16.1.1 | 430 rows',
+            'iphone11_ios17': 'iOS 17.3 | 195 rows',
+            'hc_ios18_7': '2092 rows spanning about six weeks; ZNAME empty on '
                                       'every row in all three images tested',
         },
     },
@@ -44,9 +44,9 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'router',
         'sample_data': {
-            'mvs_ios_2023': 'iOS 14.7.1 | 16713 rows',
-            'josh_ios17_ffs': 'iOS 17.3 | 8927 rows',
-            'local iOS 18.7.8 image': '52096 rows across 2092 networks',
+            'magnet_ios16': 'iOS 16.1.1 | 16713 rows',
+            'iphone11_ios17': 'iOS 17.3 | 8927 rows',
+            'hc_ios18_7': '52096 rows across 2092 networks',
         },
     },
     'threeBarsTiles': {
@@ -66,9 +66,9 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'grid-dots',
         'sample_data': {
-            'mvs_ios_2023': 'iOS 14.7.1 | 168 rows',
-            'josh_ios17_ffs': 'iOS 17.3 | 5 rows',
-            'local iOS 18.7.8 image': '51 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 168 rows',
+            'iphone11_ios17': 'iOS 17.3 | 5 rows',
+            'hc_ios18_7': '51 rows',
         },
     },
 }

@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'search',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 27 rows (24 suggestions endpoint, 3 search endpoint)',
+            'iphone11_ios17': 'iOS 17.3 | 27 rows (24 suggestions endpoint, 3 search endpoint)',
         },
     },
     'appStoreCachedRequests': {
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'brand-appstore',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 977 rows',
+            'iphone11_ios17': 'iOS 17.3 | 977 rows',
         },
     },
 }
