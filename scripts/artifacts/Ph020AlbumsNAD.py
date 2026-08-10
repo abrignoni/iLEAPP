@@ -32,7 +32,7 @@ __artifacts_v2__ = {
 'abe_ios16': 'iOS 16.5 | 56 rows',
 'felix23_ios16': 'iOS 16.5 | 46 rows',
 'hickman_ios13': 'iOS 13.3.1 | 40 rows',
-'hickman_ios14': 'iOS 14.3 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 48 rows',
 'jess_ios15': 'iOS 15.0.2 | 41 rows',
 'magnet_ios16': 'iOS 16.1.1 | 45 rows',
 }

@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         },
         "artifact_icon": "message",
         "sample_data": {
-            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 13 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 19 rows",
         }
     },
     "zangi_contacts": {

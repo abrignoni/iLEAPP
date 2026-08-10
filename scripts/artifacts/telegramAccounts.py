@@ -91,7 +91,7 @@ __artifacts_v2__ = {
         "artifact_icon": "messages",
         "sample_data": {
             "otto_ios17": "iOS 17.5.1 | Telegram Messenger 11.0 | 13 rows",
-            "hc_ios18_7": "iOS 18.7.8 | Telegram Messenger 12.6.3 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Telegram Messenger 12.6.3 | 5 rows",
         },
     },
     "telegramDeviceContacts": {

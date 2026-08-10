@@ -22,7 +22,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 3273 rows (no notificationBodyLength column)",
             "dexter_ios18": "iOS 18.3.2 | 3109 rows",
             "hc_ios18_7": "iOS 18.7.8 | 171 rows",
-            "felix23_ios16": "iOS 16.5 | 120 rows",
+            "felix23_ios16": "iOS 16.5 | 543 rows",
             "fsfull002_ios17": "iOS 17.1 | 27 rows (no notificationBodyLength column)",
         },
     },
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 100 rows",
             "dexter_ios18": "iOS 18.3.2 | 14 rows",
             "iphone11_ios17": "iOS 17.3 | 11 rows",
-            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 5 rows",
         },
     }
 }
