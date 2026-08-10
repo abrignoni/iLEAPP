@@ -311,7 +311,7 @@ def icloud_application_list(context):
         '''
         data_headers = (
             'Application Bundle ID', 'Number of folders', 'Number of files',
-            ('Total size in bytes', 'bytes')
+            'Total size in bytes'
             )
     else:
         query = '''
