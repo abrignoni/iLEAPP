@@ -13,16 +13,21 @@ __artifacts_v2__ = {
                  "the keychain field in the GUI. The database is SQLCipher with a 32 byte "
                  "plaintext header (the file still identifies as SQLite) and the salt held in "
                  "the keychain entry, decrypted here with the shared pure-python reader.\n"
-                 "Direction is taken from the interaction variant: 0 is an outgoing message and "
-                 "1 an incoming one, which the data bears out (variant 0 rows are authored by "
-                 "the local account and variant 1 rows by the remote party). Other variants are "
-                 "Session's info and control messages, which carry no user body and are reported "
-                 "with the variant shown. The author and conversation names are the display "
-                 "name or nickname from the profile table, falling back to the Session ID "
-                 "(the account's public key) where no profile is stored.\n"
-                 "Reference: Session-iOS, 'Interaction.Variant (standardOutgoing = 0, "
-                 "standardIncoming = 1)', "
-                 "https://github.com/oxen-io/session-ios. "
+                 "Message Type and Direction are taken from the interaction variant, per the "
+                 "Session-iOS Interaction.Variant definition: 0 is an incoming standard message "
+                 "and 1 an outgoing one, which the data bears out (variant 1 rows are authored "
+                 "by one constant account, the local user, and variant 0 rows by the remote "
+                 "party). The remaining variants are Session's info and control messages, "
+                 "reported with their type: a call (with its direction taken from the call "
+                 "state and the sender), a screenshot or media-saved notification, a message "
+                 "request acceptance, a disappearing-messages change, a group event, or a "
+                 "tombstone the app keeps for a deleted message. The author and conversation "
+                 "names are the display name or nickname from the profile table, falling back "
+                 "to the Session ID (the account's public key) where no profile is stored.\n"
+                 "Reference: Session-iOS, 'Interaction.Variant (standardIncoming = 0, "
+                 "standardOutgoing = 1, infoCall = 5000, ...)', "
+                 "https://github.com/session-foundation/session-ios/blob/master/"
+                 "SessionMessagingKit/Database/Models/Interaction.swift. "
                  "Reference: SQLCipher documentation, 'cipher_plaintext_header_size', "
                  "https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/database/Session.sqlite*',
@@ -108,13 +113,61 @@ KEY_SPEC_LENGTH = 48
 PLAINTEXT_HEADER_SIZE = 32
 SESSION_HMAC = 'sha512'
 
-# interaction.variant values that carry a user message. Everything else is an
-# info / control message with no body.
-VARIANT_OUTGOING = 0
-VARIANT_INCOMING = 1
-MESSAGE_DIRECTIONS = {VARIANT_OUTGOING: 'Outgoing', VARIANT_INCOMING: 'Incoming'}
+# interaction.variant values. The two standard message variants carry a user
+# body; everything else is an info / control message the app records for an
+# event. Values and names are from Session-iOS Interaction.Variant.
+VARIANT_INCOMING = 0
+VARIANT_OUTGOING = 1
+VARIANT_CALL = 5000
+
+# The message type reported per variant, from Session-iOS Interaction.Variant.
+# The deleted-message variants are the app's own tombstones for a message that
+# was removed; the row remains with no body.
+_VARIANT_TYPES = {
+    0: 'Message',
+    1: 'Message',
+    2: 'Deleted message',
+    3: 'Deleted message',
+    4: 'Deleted message (locally)',
+    5: 'Deleted message',
+    6: 'Deleted message (locally)',
+    1000: 'Group created',
+    1001: 'Group updated',
+    1002: 'You left the group',
+    1003: 'Group leave error',
+    1004: 'Leaving the group',
+    1005: 'Invited to group',
+    1006: 'Group info updated',
+    1007: 'Group members updated',
+    2000: 'Disappearing messages updated',
+    3000: 'Screenshot taken',
+    3001: 'Media saved',
+    4000: 'Message request accepted',
+    5000: 'Call',
+}
 
 _decrypted_cache = {}
+
+
+def _direction(variant, body, author, local_account):
+    """Report the direction of a standard message or a call.
+
+    Standard messages take it from the variant. A call (infoCall) records its
+    direction in the body as {"state":{"outgoing"|"incoming":{}}}, confirmed by
+    whether the local account authored the row; other info messages are not
+    directional.
+    """
+    if variant == VARIANT_INCOMING:
+        return 'Incoming'
+    if variant == VARIANT_OUTGOING:
+        return 'Outgoing'
+    if variant == VARIANT_CALL:
+        if body and '"outgoing"' in body:
+            return 'Outgoing'
+        if body and '"incoming"' in body:
+            return 'Incoming'
+        return 'Outgoing' if author == local_account else 'Incoming'
+    return ''
 
 
 def _decrypted_database(database_path):
@@ -236,6 +289,7 @@ def session_messages(context):
             i.threadId,
             COALESCE(cp.nickname, cp.name, t.id) AS conversation,
             i.variant,
+            i.authorId,
             COALESCE(ap.nickname, ap.name, i.authorId) AS author,
             i.body,
             i.timestampMs,
@@ -251,6 +305,15 @@ def session_messages(context):
     for connection, file_found in _open_session_databases(context):
         source_path = file_found
         attachments_by_message = _attachments_by_message(context, connection)
+        # The local account is the author of the outgoing (standard) messages;
+        # it identifies which side sent each row.
+        try:
+            local_row = connection.execute(
+                f'SELECT authorId FROM interaction WHERE variant = {VARIANT_OUTGOING} '
+                'LIMIT 1').fetchone()
+        except sqlite3.Error:
+            local_row = None
+        local_account = local_row[0] if local_row else None
         try:
             cursor = connection.cursor()
             cursor.execute(query)
@@ -261,16 +324,20 @@ def session_messages(context):
         finally:
             connection.close()
 
-        for (interaction_id, thread_id, conversation, variant, author, body,
-             timestamp_ms, received_ms, was_read, server_hash) in rows:
-            direction = MESSAGE_DIRECTIONS.get(variant, f'Info / Control ({variant})')
-            # On an outgoing message authorId is the recipient, not the sender,
-            # so the author is only reported on incoming messages.
-            reported_author = author if variant == VARIANT_INCOMING else ''
+        for (interaction_id, thread_id, conversation, variant, author_id, author,
+             body, timestamp_ms, received_ms, was_read, server_hash) in rows:
+            message_type = _VARIANT_TYPES.get(variant, f'Unknown ({variant})')
+            direction = _direction(variant, body, author_id, local_account)
+            # authorId is the account that sent the row: on an incoming message
+            # the remote sender, on an outgoing message the local account. The
+            # remote party is the more useful column, so the local account is
+            # not repeated as the author on outgoing rows.
+            reported_author = '' if author_id == local_account else author
             media = ''.join(attachments_by_message.get(interaction_id, []))
             data_list.append((
                 convert_unix_ts_to_utc(timestamp_ms / 1000) if timestamp_ms else '',
                 convert_unix_ts_to_utc(received_ms / 1000) if received_ms else '',
+                message_type,
                 direction,
                 reported_author,
                 conversation,
@@ -284,6 +351,7 @@ def session_messages(context):
     data_headers = (
         ('Timestamp', 'datetime'),
         ('Received Timestamp', 'datetime'),
+        'Message Type',
         'Direction',
         'Author',
         'Conversation With',
