@@ -18,11 +18,11 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'device-mobile-down',
         'sample_data': {
-            'mvs_ios_2023': 'iOS 14.7.1 | 16 rows; no install_finished_timestamp column, '
+            'magnet_ios16': 'iOS 16.1.1 | 16 rows; no install_finished_timestamp column, '
                             'store metadata carries no storefrontCountryCode',
-            'josh_ios17_ffs': 'iOS 17.3 | 0 rows; table present and empty',
-            'local iOS 18.7.8 image': '26 rows; install_finished_timestamp empty on every row',
-            'local iOS 26.5.2 image': '12 rows; gains bundle_directory_name (empty on every '
+            'iphone11_ios17': 'iOS 17.3 | 0 rows; table present and empty',
+            'hc_ios18_7': '26 rows; install_finished_timestamp empty on every row',
+            'hc_ios26': '12 rows; gains bundle_directory_name (empty on every '
                                       'row), one_shot_bootstrap, switch_distributor and '
                                       'optimal_download_duration, and drops download_volume',
         },
@@ -44,10 +44,10 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'refresh',
         'sample_data': {
-            'mvs_ios_2023': 'iOS 14.7.1 | 0 rows; no package_type column on this schema',
-            'josh_ios17_ffs': 'iOS 17.3 | 0 rows; table present and empty',
-            'local iOS 18.7.8 image': '28 rows; install_date populated on 2 of 28',
-            'local iOS 26.5.2 image': '15 rows; gains installer_packaging_type, populated on '
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows; no package_type column on this schema',
+            'iphone11_ios17': 'iOS 17.3 | 0 rows; table present and empty',
+            'hc_ios18_7': '28 rows; install_date populated on 2 of 28',
+            'hc_ios26': '15 rows; gains installer_packaging_type, populated on '
                                       '11 of 15',
         },
     },
@@ -66,11 +66,11 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'package',
         'sample_data': {
-            'mvs_ios_2023': 'iOS 14.7.1 | 32 rows; no delta_algorithm or '
+            'magnet_ios16': 'iOS 16.1.1 | 32 rows; no delta_algorithm or '
                             'extracted_content_size columns on this schema',
-            'josh_ios17_ffs': 'iOS 17.3 | 0 rows; table present and empty',
-            'local iOS 18.7.8 image': '49 rows across 26 installs',
-            'local iOS 26.5.2 image': '24 rows; schema unchanged',
+            'iphone11_ios17': 'iOS 17.3 | 0 rows; table present and empty',
+            'hc_ios18_7': '49 rows across 26 installs',
+            'hc_ios26': '24 rows; schema unchanged',
         },
     },
 }

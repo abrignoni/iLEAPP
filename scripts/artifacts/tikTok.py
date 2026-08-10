@@ -33,8 +33,7 @@ __artifacts_v2__ = {
             }
         },
         "sample_data": {
-            "josh_ios_15": "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, and TIMMessageNewPropertyORM present",
-            "josh_ios_17": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
+            "hickman_ios15": "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, and TIMMessageNewPropertyORM present",
             "mvs_2026": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
             "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 63 rows",
@@ -61,8 +60,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "users",
         "sample_data": {
-            "josh_ios_15": "4 contact rows from AwemeContactsV5",
-            "josh_ios_17": "No TikTok AwemeIM.db found",
+            "hickman_ios15": "4 contact rows from AwemeContactsV5",
             "mvs_2026": "No TikTok AwemeIM.db found",
             "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 1 row",
             "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 44 rows",

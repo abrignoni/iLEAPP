@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'message',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 72 rows across 4 conversations',
+            'iphone11_ios17': 'iOS 17.3 | 72 rows across 4 conversations',
         },
         'data_views': {
             'conversation': {
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 5 rows',
+            'iphone11_ios17': 'iOS 17.3 | 5 rows',
         },
     },
     'twitterTweets': {
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'brand-twitter',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 523 rows',
+            'iphone11_ios17': 'iOS 17.3 | 523 rows',
         },
     },
     'twitterCachedUsers': {
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 340 rows',
+            'iphone11_ios17': 'iOS 17.3 | 340 rows',
         },
     },
     'twitterNotifications': {
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'bell',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 119 rows',
+            'iphone11_ios17': 'iOS 17.3 | 119 rows',
         },
     },
 }

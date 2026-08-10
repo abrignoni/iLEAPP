@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "circle-check",
         "sample_data": {
-            "josh_ios_15": "23 rows",
+            "hickman_ios15": "23 rows",
             "mvs_2026": "6 rows but ZPEERINFO is empty",
             "dexter_ios18": "iOS 18.3.2 | 5 rows",
             "felix_ios17": "iOS 17.6.1 | 13 rows",

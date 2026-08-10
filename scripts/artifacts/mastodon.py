@@ -12,8 +12,8 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'message',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 40 rows',
-            'magnet_ios16': 'iOS 14.7.1 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | 40 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
         },
         'data_views': {
             'conversation': {
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'news',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 114 rows (74 public, 40 direct)',
+            'iphone11_ios17': 'iOS 17.3 | 114 rows (74 public, 40 direct)',
         },
     },
     'mastodonUsers': {
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 255 rows',
+            'iphone11_ios17': 'iOS 17.3 | 255 rows',
         },
     },
     'mastodonNotifications': {
@@ -72,7 +72,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'bell',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 18 rows (15 mention, 3 follow)',
+            'iphone11_ios17': 'iOS 17.3 | 18 rows (15 mention, 3 follow)',
         },
     },
     'mastodonAccount': {
@@ -88,7 +88,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'user',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row; ZMASTODONAUTHENTICATION empty, holder resolved from notifications',
+            'iphone11_ios17': 'iOS 17.3 | 1 row; ZMASTODONAUTHENTICATION empty, holder resolved from notifications',
         },
     },
 }

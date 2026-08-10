@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'message',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 146 rows across 3 conversations; 1 hidden message',
+            'iphone11_ios17': 'iOS 17.3 | 146 rows across 3 conversations; 1 hidden message',
         },
         'data_views': {
             'conversation': {
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users-group',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 15 rows (13 direct message, 2 group)',
+            'iphone11_ios17': 'iOS 17.3 | 15 rows (13 direct message, 2 group)',
         },
     },
     'groupMeGroupMembers': {
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 5 rows',
+            'iphone11_ios17': 'iOS 17.3 | 5 rows',
         },
     },
     'groupMeContacts': {
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'address-book',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 14 rows',
+            'iphone11_ios17': 'iOS 17.3 | 14 rows',
         },
     },
     'groupMeAccount': {
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'user',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
 }

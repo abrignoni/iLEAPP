@@ -18,10 +18,10 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'browser',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 6 rows; all six live in the WAL, the database file '
+            'iphone11_ios17': 'iOS 17.3 | 6 rows; all six live in the WAL, the database file '
                               'alone parses as empty',
-            'mvs_ios_2023': 'iOS 14.7.1 | 1 row; payload on the filesystem',
-            'local iOS 18.7.8 image': '6 rows; 2 payloads on the filesystem, 4 inline',
+            'magnet_ios16': 'iOS 16.1.1 | 1 row; payload on the filesystem',
+            'hc_ios18_7': '6 rows; 2 payloads on the filesystem, 4 inline',
         },
     },
 }

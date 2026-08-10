@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "mail-opened",
         "sample_data": {
-            "josh_ios17_ffs": "iOS 17.3 | 2010 rows; From/To/Subject/Message-ID on all, 0 with CC or BCC",
+            "iphone11_ios17": "iOS 17.3 | 2010 rows; From/To/Subject/Message-ID on all, 0 with CC or BCC",
         }
     }
 }

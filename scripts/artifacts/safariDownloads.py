@@ -15,7 +15,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'download',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | plist present, DownloadHistory empty (0 rows)',
+            'iphone11_ios17': 'iOS 17.3 | plist present, DownloadHistory empty (0 rows)',
             'felix_ios17': 'iOS 17.6.1 | plist present, DownloadHistory empty (0 rows)',
             'felix23_ios16': 'iOS 16.5 | plist present, DownloadHistory empty (0 rows)',
         },
