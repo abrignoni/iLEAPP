@@ -26,6 +26,8 @@ __artifacts_v2__ = {
                  "Reference: SQLCipher documentation, 'cipher_plaintext_header_size', "
                  "https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/database/Session.sqlite*',
+                  # Session stores its attachments in the clear, so they only need locating.
+                  '*/AppGroup/*/Attachments/*',
                   # The keychain is captured separately from the file system, so a keychain
                   # the extraction carries is available to decrypt with.
                   '*/extra/KeychainDump/backup_keychain_v2.plist',
@@ -40,6 +42,7 @@ __artifacts_v2__ = {
                 "directionSentValue": "Outgoing",
                 "timeColumn": "Timestamp",
                 "senderColumn": "Author",
+                "mediaColumn": "Attachments",
             }
         },
         "artifact_icon": "message-circle",
@@ -90,7 +93,8 @@ import tempfile
 
 from scripts.ios_keychain import get_app_secret, active_keychain_path
 from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
-from scripts.ilapfuncs import artifact_processor, logfunc, convert_unix_ts_to_utc
+from scripts.ilapfuncs import (artifact_processor, logfunc, convert_unix_ts_to_utc,
+                               check_in_media)
 
 # Session (Oxen) stores its GRDB database key under its own keychain access
 # group; the entry is a 32 byte key followed by a 16 byte salt, the same shape
@@ -167,6 +171,57 @@ def _open_session_databases(context):
         yield sqlite3.connect(decrypted), file_found
 
 
+def _attachment_files(context):
+    """Paths of the Session attachment files present in the extraction."""
+    try:
+        seeker = context.get_seeker()
+    except Exception:  # pylint: disable=broad-except
+        return []
+    return [str(path) for path in seeker.search('*/AppGroup/*/Attachments/*')
+            if os.path.isfile(str(path))]
+
+
+def _attachments_by_message(context, connection):
+    """Check in each attachment and group the media references by message id.
+
+    Session stores attachments in the clear under the app group's Attachments
+    folder, named by the attachment id with the content type's extension, so
+    each row's file is located by matching that id in the file name.
+    """
+    files = _attachment_files(context)
+    by_id = {}
+    for path in files:
+        by_id.setdefault(os.path.basename(path).split('.')[0], path)
+
+    attachments = {}
+    checked_in = 0
+    try:
+        cursor = connection.cursor()
+        cursor.execute('''
+            SELECT ia.interactionId, a.id, a.sourceFilename
+            FROM interactionAttachment ia
+            LEFT JOIN attachment a ON a.id = ia.attachmentId
+            ORDER BY ia.interactionId, ia.albumIndex
+        ''')
+        rows = cursor.fetchall()
+    except sqlite3.Error:
+        return attachments
+
+    for interaction_id, attachment_id, source_name in rows:
+        path = by_id.get(attachment_id)
+        if not path:
+            continue
+        reference = check_in_media(path, name=source_name or os.path.basename(path))
+        if reference:
+            attachments.setdefault(interaction_id, []).append(reference)
+            checked_in += 1
+
+    if checked_in:
+        logfunc(f'Session: linked {checked_in} attachment'
+                f'{"" if checked_in == 1 else "s"} to messages')
+    return attachments
+
+
 @artifact_processor
 def session_messages(context):
     data_list = []
@@ -177,6 +232,7 @@ def session_messages(context):
     # is only meaningful on incoming rows and is left blank on outgoing ones.
     query = '''
         SELECT
+            i.id,
             i.threadId,
             COALESCE(cp.nickname, cp.name, t.id) AS conversation,
             i.variant,
@@ -194,6 +250,7 @@ def session_messages(context):
     '''
     for connection, file_found in _open_session_databases(context):
         source_path = file_found
+        attachments_by_message = _attachments_by_message(context, connection)
         try:
             cursor = connection.cursor()
             cursor.execute(query)
@@ -204,12 +261,13 @@ def session_messages(context):
         finally:
             connection.close()
 
-        for (thread_id, conversation, variant, author, body,
+        for (interaction_id, thread_id, conversation, variant, author, body,
              timestamp_ms, received_ms, was_read, server_hash) in rows:
             direction = MESSAGE_DIRECTIONS.get(variant, f'Info / Control ({variant})')
             # On an outgoing message authorId is the recipient, not the sender,
             # so the author is only reported on incoming messages.
             reported_author = author if variant == VARIANT_INCOMING else ''
+            media = ''.join(attachments_by_message.get(interaction_id, []))
             data_list.append((
                 convert_unix_ts_to_utc(timestamp_ms / 1000) if timestamp_ms else '',
                 convert_unix_ts_to_utc(received_ms / 1000) if received_ms else '',
@@ -217,6 +275,7 @@ def session_messages(context):
                 reported_author,
                 conversation,
                 body,
+                media,
                 was_read,
                 thread_id,
                 server_hash,
@@ -229,6 +288,7 @@ def session_messages(context):
         'Author',
         'Conversation With',
         'Message',
+        ('Attachments', 'media'),
         'Was Read',
         'Thread ID',
         'Server Hash',
