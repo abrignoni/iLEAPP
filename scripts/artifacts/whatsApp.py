@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         'description': 'Extract call history from WhatsApp',
         'author': '@Vinceckert',
         'creation_date': '2024-05-31',
-        'last_update_date': '2025-11-20',
+        'last_update_date': '2026-08-09',
         'requirements': 'none',
         'category': 'WhatsApp',
-        'notes': '',
+        'notes': 'Call outcome value mapping observed in testing; unrecognized values reported as stored.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -21,11 +21,11 @@ __artifacts_v2__ = {
             'fsfull002_ios17': 'iOS 17.1 | WhatsApp Messenger 23.8.78 | 2 rows',
             'hc_ios18_7': 'iOS 18.7.8 | WhatsApp Messenger 26.14.76 | 0 rows',
             'iphone11_ios17': 'iOS 17.3 | WhatsApp Messenger 24.15.1 | 8 rows',
-            'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 3 rows',
+            'otto_ios17': 'iOS 17.5.1 | WhatsApp Messenger 24.13.79 | 5 rows',
             'abe_ios16': 'iOS 16.5 | WhatsApp Messenger 23.11.80 | 0 rows',
             'felix23_ios16': 'iOS 16.5 | WhatsApp Messenger 23.12.76 | 0 rows',
             'hickman_ios13': 'iOS 13.3.1 | WhatsApp Messenger 2.20.31 | 0 rows',
-            'hickman_ios14': 'iOS 14.3 | WhatsApp Messenger 2.21.20 | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | WhatsApp Messenger 2.21.20 | 4 rows',
             'magnet_ios16': 'iOS 16.1.1 | WhatsApp Messenger 22.23.77 | 0 rows',
         },
     },
@@ -34,10 +34,10 @@ __artifacts_v2__ = {
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
-        'last_update_date': '2026-07-03',
+        'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'WhatsApp',
-        'notes': '',
+        'notes': 'Metadata protobuf field meanings established through testing. Coordinates are emitted only for message type 5, the type observed to carry locations in testing.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -107,8 +107,8 @@ from pathlib import Path
 from scripts.ilapfuncs import (
     artifact_processor,
     get_file_path,
-    get_sqlite_db_records,
-    attach_sqlite_db_readonly,
+    get_sqlite_db_records, null_absent_columns,
+    attach_sqlite_db_readonly, does_column_exist_in_db,
     check_in_media,
     convert_cocoa_core_data_ts_to_utc
 )
@@ -127,9 +127,22 @@ def whatsAppCallHistory(context):
         base2.ZPHONENUMBER
     '''
 
+    # LEFT JOIN on purpose: the address book is an enrichment, not a filter.
+    # With INNER JOIN a call whose participant is not in ZWAADDRESSBOOKCONTACT
+    # disappeared entirely (on the hickman_ios14 image all 4 calls were dropped
+    # because the caller was not among the 5 stored contacts).
     tables_join = '''
-    INNER JOIN ContactsV2.ZWAADDRESSBOOKCONTACT base2 ON ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING = base2.ZWHATSAPPID
+    LEFT JOIN ContactsV2.ZWAADDRESSBOOKCONTACT base2 ON ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING = base2.ZWHATSAPPID
     '''
+
+    # Older releases have no group-call creator column. The query is built here
+    # rather than passed through null_absent_columns because the contacts branch
+    # attaches a second database, which the helper's connection does not have, so
+    # it cannot compile the statement to find out what is missing.
+    creator = 'ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING'
+    if not does_column_exist_in_db(source_path, 'ZWACDCALLEVENT',
+                                   'ZGROUPCALLCREATORUSERJIDSTRING'):
+        creator = 'NULL'
 
     query = f'''
     SELECT
@@ -137,8 +150,10 @@ def whatsAppCallHistory(context):
         ZWACDCALLEVENT.ZDATE + ZWACDCALLEVENT.ZDURATION AS 'Datetime_end',
         time(ZWACDCALLEVENT.ZDURATION, 'unixepoch') AS 'Duration',
         CASE
-            WHEN ZWACDCALLEVENT.ZGROUPCALLCREATORUSERJIDSTRING = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming'
-            ELSE 'Outgoing'
+            WHEN {creator} = ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING then 'Incoming'
+            WHEN {creator} IS NOT NULL
+                AND ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING IS NOT NULL THEN 'Outgoing'
+            ELSE {creator}
         END Direction,
         CASE ZWACDCALLEVENT.ZOUTCOME
             WHEN 0 THEN 'Ended'
@@ -166,7 +181,7 @@ def whatsAppCallHistory(context):
         data_headers.extend(
             ['Contact Fullname', ('Phone Number', 'phonenumber')])
     else:
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
     for record in db_records:
         start_time = convert_cocoa_core_data_ts_to_utc(record[0])
@@ -210,7 +225,7 @@ def whatsAppContacts(context):
         'Whatsapp ID',
         'Identifier')
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
     for record in db_records:
 
@@ -266,8 +281,8 @@ def whatsAppMessages(context):
         ('Attachment File', 'media'),
         ('Thumb', 'media'),
         'Starred?',
-        'Number of Forwardings',
-        'Forwarded from',
+        'Metadata Field 17 (forward count, observed)',
+        'Metadata Field 21 (forwarder, observed)',
         'Latitude',
         'Longitude',
         'Direction',
@@ -275,7 +290,7 @@ def whatsAppMessages(context):
         'Chat Name',
         )
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
     for record in db_records:
         message_date = convert_cocoa_core_data_ts_to_utc(

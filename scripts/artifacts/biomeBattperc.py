@@ -4,11 +4,11 @@ __artifacts_v2__ = {
         "description": "Parses battery percentage entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery",
         "sample_data": {

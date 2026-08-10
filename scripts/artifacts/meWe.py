@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         'description': 'Chat messages, attachments and shared locations from the MeWe application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'MeWe',
-        'notes': 'Shared locations are sent as OpenStreetMap links; coordinates are parsed out of the message text.',
+        'notes': 'In examined data shared locations appeared as OpenStreetMap links; coordinates are parsed out of the message text.',
         'paths': ('*/mobile/Containers/Data/Application/*/Documents/sgrouplesdb.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'message',
@@ -76,10 +76,10 @@ __artifacts_v2__ = {
     },
     'meWePolls': {
         'name': 'MeWe - Polls',
-        'description': 'Polls seen in the MeWe application, with their options and vote counts',
+        'description': 'Polls cached by the MeWe application, with their options and vote counts',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'MeWe',
         'notes': '',
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
 import re
 
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+    get_file_path, get_sqlite_db_records, null_absent_columns, convert_cocoa_core_data_ts_to_utc
 
 # MeWe sends a shared location as an OpenStreetMap link in the message body,
 # e.g. https://www.openstreetmap.org/?mlat=35.66119068&mlon=-78.87362671
@@ -135,6 +135,15 @@ def _parse_shared_location(text):
     if not match:
         return '', ''
     return match.group(1), match.group(2)
+
+
+def _column_exists(source_path, table, column):
+    """Whether a column is present, so the account query survives MeWe schema versions
+    that drop version-specific columns such as the DSNP (web3) fields."""
+    rows = get_sqlite_db_records(
+        source_path,
+        f"SELECT 1 FROM pragma_table_info('{table}') WHERE name = '{column}'")
+    return any(True for _ in rows)
 
 
 @artifact_processor
@@ -181,7 +190,7 @@ def meWeMessages(context):
     # Name each thread after its participants other than the account holder, so
     # a one-to-one chat reads as the other person's name.
     thread_labels = {}
-    records = list(get_sqlite_db_records(source_path, query))
+    records = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
     for record in records:
         thread_id = record['threadId']
         if thread_id in thread_labels:
@@ -291,7 +300,7 @@ def meWeContacts(context):
     ORDER BY name
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['contactCreated']) if record['contactCreated'] else '',
             record['name'],
@@ -357,7 +366,7 @@ def meWePosts(context):
     ORDER BY p.ZCREATIONDATE
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATIONDATE']) if record['ZCREATIONDATE'] else '',
             convert_cocoa_core_data_ts_to_utc(record['ZEDITEDDATE']) if record['ZEDITEDDATE'] else '',
@@ -416,7 +425,7 @@ def meWeGroups(context):
     ORDER BY g.ZNAME
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             record['name'],
             record['groupId'],
@@ -471,7 +480,7 @@ def meWePolls(context):
     ORDER BY p.Z_PK
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['postCreated']) if record['postCreated'] else '',
             convert_cocoa_core_data_ts_to_utc(record['endDate']) if record['endDate'] else '',
@@ -487,7 +496,7 @@ def meWePolls(context):
 
     data_headers = (
         ('Post Created', 'datetime'), ('End Date', 'datetime'), 'Question',
-        'Options', 'Option Votes', 'Selected By User', 'Option Count', 'Closed',
+        'Options', 'Option Votes', 'Selected Option (client state)', 'Option Count', 'Closed',
         'Posted By User ID', 'Post ID')
 
     return data_headers, data_list, source_path
@@ -498,6 +507,14 @@ def meWeAccount(context):
     source_path = get_file_path(context.get_files_found(), 'sgrouplesdb.sqlite')
     data_list = []
 
+    # The DSNP (web3) columns are not present in every MeWe version, so they are
+    # selected only when the schema still carries them.
+    dsnp_registered = ('cu.ZISDSNPREGISTERED'
+                       if _column_exists(source_path, 'ZCURRENTUSER', 'ZISDSNPREGISTERED')
+                       else 'NULL')
+    dsnp_handle = ('u.ZDSNPHANDLE'
+                   if _column_exists(source_path, 'ZUSER', 'ZDSNPHANDLE') else 'NULL')
+
     query = f'''
     SELECT
         {USER_NAME_SQL} AS name,
@@ -506,19 +523,19 @@ def meWeAccount(context):
         u.ZFIRSTNAME AS firstName,
         u.ZLASTNAME AS lastName,
         u.ZFINGERPRINT AS fingerprint,
-        u.ZDSNPHANDLE AS dsnpHandle,
+        {dsnp_handle} AS dsnpHandle,
         cu.ZPRIMARYEMAIL AS primaryEmail,
         cu.ZPRIMARYPHONE AS primaryPhone,
         cu.ZCONTACTINVITEID AS contactInviteId,
         cu.ZREGISTERED AS registered,
-        cu.ZISDSNPREGISTERED AS dsnpRegistered,
+        {dsnp_registered} AS dsnpRegistered,
         cu.ZJAILSENTENCE AS jailSentence,
         cu.ZJAILDATE AS jailDate
     FROM ZCURRENTUSER cu
     LEFT JOIN ZUSER u ON u.Z_PK = cu.ZUSER
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             record['name'],
             record['handle'],

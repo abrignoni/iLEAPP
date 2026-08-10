@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "AshHistory": {
-        "name": "Alpine Linux Bash History",
-        "description": "Extracts command history from Alpine Linux bash",
+        "name": "Ash Shell History",
+        "description": "Extracts command history from an ash shell history file (.ash_history)",
         "author": "James Habben",
         "creation_date": "2023-05-24",
-        "last_update_date": "2025-10-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Linux",
         "notes": "",

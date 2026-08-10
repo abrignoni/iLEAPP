@@ -25,10 +25,10 @@ __artifacts_v2__ = {
         "description": "Parses web visits from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "Reference: Chromium source, ui/base/page_transition_types.h, https://chromium.googlesource.com/chromium/src (LINK=0, TYPED=1 confirmed).",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -67,10 +67,10 @@ __artifacts_v2__ = {
         "description": "Parses downloads from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "Reference: Chromium source, components/download/public/common/download_danger_type.h and download_interrupt_reason_values.h, https://chromium.googlesource.com/chromium/src",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -1644,7 +1644,6 @@ def chromeMediaHistoryPlaybacks(context):
 
     lava_data_headers = data_headers.copy()
     lava_data_headers[0] = (lava_data_headers[0], 'datetime')
-    lava_data_headers[4] = (lava_data_headers[4], 'datetime')
 
     all_data_headers = lava_data_headers + ['Browser Name', 'Source']
 
@@ -1693,8 +1692,7 @@ def chromeMediaHistoryPlaybacks(context):
             data_list = []
             for row in all_rows:
                 last_update_dt = convert_ts_human_to_utc(row[0])
-                watch_dt = convert_ts_human_to_utc(row[4])
-                data_list.append((last_update_dt, row[1], row[2], row[3], watch_dt, row[5], row[6]))
+                data_list.append((last_update_dt, row[1], row[2], row[3], row[4], row[5], row[6]))
 
             report.write_artifact_data_table(data_headers, data_list, file_found)
             report.end_artifact_report()

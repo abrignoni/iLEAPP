@@ -48,16 +48,18 @@ __artifacts_v2__ = {
     "get_biomeDKClockAlarm": {
         "name": "Biome - Clock Alarm DKEvent",
         "description": "Parses alarm state changes from the _DKEvent.Clock.Alarm biome stream. "
-                       "Metadata carries the alarm identifier, which can be correlated with the "
-                       "Clock app alarm list.",
+                       "Metadata carries the alarm identifier, which also appears in the "
+                       "Clock.Alarm stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Raw state values observed: 0, 1, 2 and 4. Apple's plist describes this stream "
-                 "as capturing alarm states such as firing and snoozed; exact value semantics "
-                 "are not confirmed, so the raw value is reported.",
+        "notes": "Raw state values observed: 0, 1, 2 and 4. Published research states this "
+                 "stream captures alarm states such as firing and snoozed; exact value "
+                 "semantics are not confirmed, so the raw value is reported. Reference: Mattia "
+                 "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/_DKEvent.Clock.Alarm/local/*',),
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -72,11 +74,12 @@ __artifacts_v2__ = {
                        "_DKEvent.Device.IsLockedImputed biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "This is the imputed variant of the screen lock stream: iOS fills in lock "
-                 "state transitions it did not observe directly.",
+        "notes": "This is the imputed variant of the screen lock stream: the stream name "
+                 "suggests iOS imputes (fills in) lock states rather than only recording "
+                 "observed transitions; the mechanism is not documented.",
         "paths": ('*/streams/*/_DKEvent.Device.IsLockedImputed/local/*',),
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -135,12 +138,12 @@ __artifacts_v2__ = {
     "get_biomeDKSiriUi": {
         "name": "Biome - Siri UI DKEvent",
         "description": "Parses Siri interface events from the _DKEvent.Siri.Ui biome stream. "
-                       "Runs alongside the Siri.UI stream and carries the same activity in the "
-                       "DuetKnowledge wrapper, with start and end timestamps that bound each "
-                       "appearance of the Siri interface.",
+                       "In test data this stream carried activity matching the Siri.UI stream "
+                       "in the DuetKnowledge wrapper, with start and end timestamps recorded "
+                       "for each Siri interface session.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "The event detail is carried in the metadata entries rather than the value "
@@ -148,6 +151,15 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/_DKEvent.Siri.Ui/local/*',),
         "output_types": "standard",
         "artifact_icon": "mic",
+        "sample_data": {
+            "abe_ios16": "274 rows",
+            "dexter_ios18": "11 rows",
+            "felix23_ios16": "18 rows",
+            "felix_ios17": "6 rows",
+            "hc_ios26": "26.5.2 | 2 rows",
+            "iphone11_ios17": "26 rows",
+            "otto_ios17": "107 rows",
+        },
     },
     "get_biomeDKSettingsDoNotDisturb": {
         "name": "Biome - Do Not Disturb DKEvent",

@@ -6,6 +6,8 @@ __artifacts_v2__ = {
 ' and supports iOS.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -27,7 +29,7 @@ __artifacts_v2__ = {
 'abe_ios16': 'iOS 16.5 | 708 rows',
 'felix23_ios16': 'iOS 16.5 | 5 rows',
 'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-'hickman_ios14': 'iOS 14.3 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 46 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
 }
@@ -39,6 +41,8 @@ __artifacts_v2__ = {
 ' per ZASSET table Z_PK value and supports iOS.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -67,7 +71,7 @@ __artifacts_v2__ = {
 import os
 import nska_deserialize as nd
 from packaging import version
-from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
@@ -412,7 +416,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -578,7 +582,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zAddAssetAttr-zPK-114',
         'zAsset-UUID = store.cloudphotodb-115',
         'zAddAssetAttr-Master Fingerprint-116')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -999,7 +1003,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -1187,7 +1191,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zAddAssetAttr-zPK-133',
         'zAsset-UUID = store.cloudphotodb-134',
         'zAddAssetAttr-Master Fingerprint-135')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1611,7 +1615,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -1801,7 +1805,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zAddAssetAttr-zPK-136',
         'zAsset-UUID = store.cloudphotodb-137',
         'zAddAssetAttr-Master Fingerprint-138')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2229,7 +2233,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -2424,7 +2428,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zAddAssetAttr-zPK-140',
         'zAsset-UUID = store.cloudphotodb-141',
         'zAddAssetAttr-Master Fingerprint-142')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2859,7 +2863,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -3056,7 +3060,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zAsset-UUID = store.cloudphotodb-143',
         'zAddAssetAttr-Original Stable Hash-144',
         'zAddAssetAttr.Adjusted Stable Hash-145')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -3403,7 +3407,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -3569,7 +3573,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zAddAssetAttr-zPK-114',
         'zAsset-UUID = store.cloudphotodb-115',
         'zAddAssetAttr-Master Fingerprint-116')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -3990,7 +3994,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -4178,7 +4182,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zAddAssetAttr-zPK-133',
         'zAsset-UUID = store.cloudphotodb-134',
         'zAddAssetAttr-Master Fingerprint-135')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -4602,7 +4606,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -4792,7 +4796,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zAddAssetAttr-zPK-136',
         'zAsset-UUID = store.cloudphotodb-137',
         'zAddAssetAttr-Master Fingerprint-138')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -5220,7 +5224,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -5415,7 +5419,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zAddAssetAttr-zPK-140',
         'zAsset-UUID = store.cloudphotodb-141',
         'zAddAssetAttr-Master Fingerprint-142')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -5850,7 +5854,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -6047,6 +6051,6 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zAsset-UUID = store.cloudphotodb-143',
         'zAddAssetAttr-Original Stable Hash-144',
         'zAddAssetAttr.Adjusted Stable Hash-145')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path

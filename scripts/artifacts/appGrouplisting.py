@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "appGrouplisting": {
         "name": "Bundle ID by AppGroup & PluginKit IDs",
-        "description": "List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist",
+        "description": "In tested images the listing retained entries for apps no longer present. Each file is named .com.apple.mobile_container_manager.metadata.plist",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-09-22",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",

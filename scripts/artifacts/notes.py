@@ -5,9 +5,9 @@ __artifacts_v2__ = {
     "notes": {
         "name": "Notes",
         "description": "Apple Notes including decoded note body text and embedded attachments",
-        "author": "",
+        "author": "@any333",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
         "notes": "Note body text is decompressed and parsed from the protobuf blob. "
@@ -17,16 +17,16 @@ __artifacts_v2__ = {
         "artifact_icon": "file-text",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 5 rows",
-            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 0 rows",
-            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 0 rows",
-            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 0 rows",
-            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 0 rows",
-            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 14 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 18 rows",
             "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 0 rows",
-            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 0 rows",
-            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 4 rows",
+            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 12 rows",
+            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 3 rows",
             "hickman_ios13": "iOS 13.3.1 | group.com.apple.notes | 3 rows",
             "hickman_ios14": "iOS 14.3 | group.com.apple.notes | 7 rows",
             "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 2 rows",
@@ -38,10 +38,10 @@ __artifacts_v2__ = {
         "description": "People a note is shared with, decoded from the CloudKit share record held against each invitation",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
-        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA.",
+        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA. Reference: Apple CloudKit, CKShareParticipant (role/permission/acceptance enums; raw values per the CloudKit.framework SDK header), https://developer.apple.com/documentation/cloudkit/ckshare/participantrole",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -203,7 +203,7 @@ def notes(context):
         ('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents', 'Folder',
         'Storage Place', ('Last Modified', 'datetime'), 'Password Protected', 'Password Hint',
         'Marked for Deletion', 'Pinned', ('Attachment', 'media'), 'Attachment Original Filename',
-        'Attachment Storage Folder', 'Attachment Size in KB', 'Attachment Type',
+        'Attachment Storage Folder', 'Attachment Size (as stored)', 'Attachment Type',
         ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'))
     data_list = []
     sources = []
@@ -254,7 +254,7 @@ def notes(context):
 
 
 # CloudKit share enumerations, as they appear in ZICINVITATION.ZSERVERSHAREDATA.
-_PARTICIPANT_TYPE = {1: 'Owner', 2: 'Private User', 3: 'Public User'}
+_PARTICIPANT_TYPE = {0: 'Unknown', 1: 'Owner', 2: 'Administrator', 3: 'Private User', 4: 'Public User'}
 _PARTICIPANT_PERMISSION = {1: 'None', 2: 'Read Only', 3: 'Read/Write'}
 _PARTICIPANT_ACCEPTANCE = {1: 'Pending', 2: 'Accepted', 3: 'Removed'}
 

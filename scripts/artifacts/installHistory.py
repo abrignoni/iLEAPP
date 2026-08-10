@@ -19,7 +19,7 @@ __artifacts_v2__ = {
             "SoftwareUpdateServices/SUSHistoryInstalls.mm"
         ),
         "paths": (
-            "*/private/var/containers/Data/System/*/history/installHistory.db",
+            "*/private/var/containers/Data/System/*/history/installHistory.db*",
             "*/private/var/containers/Data/System/*/history/installHistory.db-*",
         ),
         "output_types": ["html", "tsv", "lava"],

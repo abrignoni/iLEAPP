@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses keychain to extract stored Wi-Fi credentials",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
-        "last_update_date": "2027-07-22",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Keychain",
         "notes": "",

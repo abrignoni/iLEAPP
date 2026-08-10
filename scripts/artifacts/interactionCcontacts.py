@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "interactionCContacts": {
         "name": "InteractionC - Contacts",
         "description": "Contact interactions recorded in interactionC.db",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
     "interactionCAttachments": {
         "name": "InteractionC - Attachments",
         "description": "Attachment interactions recorded in interactionC.db",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",

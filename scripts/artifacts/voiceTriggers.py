@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts Voice Trigger audio recordings and metadata.",
         "author": "@Anna-Mariya Mateyna",
         "creation_date": "2020-12-21",
-        "last_update_date": "2025-11-20",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Audio",
         "notes": "",
@@ -75,7 +75,7 @@ def voiceTriggers(context):
             logfunc(f"Error processing {info_file}: {e}")
 
     data_headers = (
-        ('Creation Date', 'datetime'),
+        ('Date (grainedDate)', 'datetime'),
         'Device',
         'Internal Path Info',
         ('Audio File', 'media'),

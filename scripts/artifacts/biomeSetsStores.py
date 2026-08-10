@@ -5,11 +5,13 @@ __artifacts_v2__ = {
                        "Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
-                 "Modified timestamps come from the store's instance table.",
+                 "Modified timestamps come from the store's instance table; stores without one "
+                 "(observed on iOS 26) carry metacontent_provenance.written_date instead, "
+                 "reported in the same column.",
         "paths": ('*/Biome/sets/Default/App.InstalledApp/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -24,11 +26,12 @@ __artifacts_v2__ = {
         "description": "Contact name records from the Contacts.Contact Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
-                 "Unmapped protobuf fields are preserved in the Other Fields column.",
+                 "Unmapped protobuf fields are preserved in the Other Fields column."
+                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
         "paths": ('*/Biome/sets/Default/Contacts.Contact/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -44,10 +47,11 @@ __artifacts_v2__ = {
                        "Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go.",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
+                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
         "paths": ('*/Biome/sets/Default/FindMy.Device/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -63,10 +67,11 @@ __artifacts_v2__ = {
                        "Location.SignificantLocation Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go.",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
+                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
         "paths": ('*/Biome/sets/Default/Location.SignificantLocation/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -82,11 +87,12 @@ __artifacts_v2__ = {
                        "(one store per source application).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
-                 "Documents which intent phrases installed apps registered with the system.",
+                 "Documents which intent phrases installed apps registered with the system."
+                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
         "paths": ('*/Biome/sets/Default/App.Shortcut.Phrase/*/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -102,10 +108,11 @@ __artifacts_v2__ = {
                        "Biome Set.db stores (can include user content names such as note titles and board names).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go.",
+        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
+                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
         "paths": ('*/Biome/sets/Default/App.Shortcut.Entity/*/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "database",
@@ -130,34 +137,55 @@ SOURCE_APP_RE = re.compile(r'sourceIdentifier=([^/\\]+)')
 
 
 def _set_records(file_found):
-    """Yields (modified_utc, protobuf_dict) for every content record of a
+    """Yields (timestamp_utc, protobuf_dict) for every content record of a
     Set.db store. Records that fail protobuf decoding are logged and skipped."""
     if not does_table_exist_in_db(file_found, 'content'):
         logfunc(f'No content table in {file_found} (unsupported Set.db layout?)')
         return
-    db = open_sqlite_db_readonly(file_found)
-    cursor = db.cursor()
-    try:
-        cursor.execute('''
+
+    # Two store layouts observed. Through iOS 18 the timestamp is
+    # instance.modified reached via the provenance table. On the iOS 26 image
+    # (hc_ios26) the instance/provenance pair is gone and
+    # metacontent_provenance links content_hash directly, carrying
+    # written_date in the same epoch-microsecond scale. The protobuf content
+    # blob is identical in both layouts.
+    if does_table_exist_in_db(file_found, 'instance'):
+        query = '''
             SELECT i.modified, c.content
             FROM content c
             JOIN provenance p ON p.content_hash = c.content_hash
             JOIN instance i ON i.provenance_row_id = p.provenance_row_id
-        ''')
+        '''
+    elif does_table_exist_in_db(file_found, 'metacontent_provenance'):
+        query = '''
+            SELECT mp.written_date, c.content
+            FROM content c
+            JOIN metacontent_provenance mp ON mp.content_hash = c.content_hash
+        '''
+    else:
+        logfunc(f'No instance or metacontent_provenance table in {file_found} '
+                '(unsupported Set.db layout?)')
+        return
+
+    db = open_sqlite_db_readonly(file_found)
+    cursor = db.cursor()
+    try:
+        cursor.execute(query)
         rows = cursor.fetchall()
     except Exception as ex:  # pylint: disable=broad-exception-caught
         logfunc(f'Unable to query Set.db {file_found}: {ex}')
         rows = []
     db.close()
 
-    for modified, blob in rows:
+    for timestamp, blob in rows:
         try:
             message, _ = blackboxprotobuf.decode_message(blob)
         except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
             logfunc(f'Skipping Set.db record in {file_found} due to protobuf decode error: {ex}')
             continue
-        # instance.modified is Unix epoch microseconds
-        yield convert_unix_ts_to_utc(modified), message
+        # instance.modified / metacontent_provenance.written_date are Unix
+        # epoch microseconds
+        yield convert_unix_ts_to_utc(timestamp), message
 
 
 def _text(message, key):

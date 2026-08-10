@@ -32,6 +32,10 @@ from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceLi
     appleAccountDeviceList
 from scripts.artifacts.locationdCacheEncryptedB import locationdCellLocations, \
     locationdWifiHarvest, locationdWifiLocations, locationdWifiTiles
+from scripts.artifacts.powerlog import powerlogApplicationRuntime, powerlogAppState, \
+    powerlogAudioRouting, powerlogBatteryLevel, powerlogDeviceLock, \
+    powerlogDevicePowerState, powerlogDisplayState, powerTelemetryBatteryDataDaily, \
+    powerTelemetrySmartCharging
 from scripts.artifacts.safariCache import safariCache
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
@@ -383,6 +387,286 @@ class LocationdCacheLocalTest(LocalCorpusTestCase):
         for row in rows:
             self.assert_plausible_timestamp(row[0])
             self.assert_plausible_timestamp(row[1])
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class PowerlogLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/BatteryLife/CurrentPowerlog.PLSQL'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+
+    def run_artifact(self, func):
+        headers, rows, _ = func.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            # Corrected timestamp first, applied offset second-to-last.
+            self.assert_plausible_timestamp(row[0])
+            if row[-2] is not None:
+                self.assertIsInstance(row[-2], int)
+        return rows
+
+    def test_application_runtime_structure(self):
+        for row in self.run_artifact(powerlogApplicationRuntime):
+            if row[2] is not None:
+                self.assertGreaterEqual(row[2], 0)   # Background Time
+            if row[3] is not None:
+                self.assertGreaterEqual(row[3], 0)   # Screen-on Time
+
+    def test_battery_level_structure(self):
+        for row in self.run_artifact(powerlogBatteryLevel):
+            if row[1] is not None:
+                self.assertTrue(0 <= row[1] <= 100,
+                                f'battery level shape {_redact(row[1])}')
+            self.assert_matches(row[2], r'^(Yes|No|\d+)$', 'Is Charging')
+
+    def test_device_power_state_structure(self):
+        self.run_artifact(powerlogDevicePowerState)
+
+    def test_app_state_structure(self):
+        for row in self.run_artifact(powerlogAppState):
+            if row[3] is not None:
+                self.assertIsInstance(row[3], int)   # State code as stored
+
+    def test_device_lock_structure(self):
+        for row in self.run_artifact(powerlogDeviceLock):
+            self.assert_matches(row[1], r'^(Yes|No|\d+)$', 'Locked')
+
+    def test_display_state_structure(self):
+        for row in self.run_artifact(powerlogDisplayState):
+            if row[1] is not None:
+                self.assertTrue(0 <= row[1] <= 100,
+                                f'brightness shape {_redact(row[1])}')
+
+    def test_audio_routing_structure(self):
+        for row in self.run_artifact(powerlogAudioRouting):
+            self.assert_matches(row[1], r'^(Yes|No|\d+)$', 'Active')
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class PowerTelemetryLocalTest(LocalCorpusTestCase):
+    SUFFIX = 'Library/PerfPowerTelemetry/ExtendedPersistence/CurrentLog.EPSQL'
+
+    def setUp(self):
+        super().setUp()
+        self.path = self.fetch(self.SUFFIX)
+        if not self.path:
+            self.skipTest(f'{self.SUFFIX} not present in {LOCAL_IMAGE}')
+
+    def run_artifact(self, func):
+        headers, rows, _ = func.__wrapped__(_Context(self.path))
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            if row[-2] is not None:
+                self.assertIsInstance(row[-2], int)   # applied offset
+        return rows
+
+    def test_battery_data_daily_structure(self):
+        for row in self.run_artifact(powerTelemetryBatteryDataDaily):
+            if row[1] is not None:
+                self.assertGreaterEqual(row[1], 0)    # Cycle Count
+            if row[2] is not None:
+                self.assertTrue(0 <= row[2] <= 120,
+                                f'max capacity shape {_redact(row[2])}')
+
+    def test_smart_charging_structure(self):
+        self.run_artifact(powerTelemetrySmartCharging)
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class TelegramLocalTest(LocalCorpusTestCase):
+    """Structural checks for the Telegram accounts/contacts/settings artifacts.
+
+    These artifacts route files by their path tails (account-<id>/postbox vs
+    accounts-metadata), so fetched files keep their trailing directories
+    instead of being flattened into the temp directory.
+    """
+
+    # Tail patterns to mirror out of the image, with -wal/-shm companions so
+    # recent rows are not lost for databases mid-checkpoint.
+    TAILS = (
+        re.compile(r'telegram-data/account-\d+/postbox/db/db_sqlite(-wal|-shm)?$'),
+        re.compile(r'telegram-data/accounts-metadata/db/db_sqlite(-wal|-shm)?$'),
+        re.compile(r'telegram-data/accounts-metadata/atomic-state$'),
+    )
+    TAIL_ANCHOR = 'telegram-data/'
+
+    def setUp(self):
+        super().setUp()
+        self.paths = self.fetch_tree()
+        if not any(p.replace(os.sep, '/').endswith('/postbox/db/db_sqlite')
+                   for p in self.paths):
+            self.skipTest(f'no Telegram postbox database in {LOCAL_IMAGE}')
+
+    def fetch_tree(self):
+        """Copy matching files out of the image, keeping the telegram-data tail."""
+        found = []
+        source = Path(LOCAL_IMAGE)
+
+        def keep(name):
+            normalized = name.replace(os.sep, '/')
+            return any(tail.search(normalized) for tail in self.TAILS)
+
+        def destination_for(name):
+            normalized = name.replace(os.sep, '/')
+            tail = normalized[normalized.rindex(self.TAIL_ANCHOR):]
+            destination = Path(self.temp_dir.name) / tail
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            return destination
+
+        if source.is_dir():
+            for candidate in source.rglob('*'):
+                name = str(candidate)
+                if candidate.is_file() and self.TAIL_ANCHOR in name.replace(os.sep, '/') \
+                        and keep(name):
+                    destination = destination_for(name)
+                    shutil.copy2(candidate, destination)
+                    found.append(str(destination))
+        else:
+            with zipfile.ZipFile(source) as archive:
+                for name in archive.namelist():
+                    if self.TAIL_ANCHOR in name and keep(name):
+                        destination = destination_for(name)
+                        with archive.open(name) as member, \
+                                open(destination, 'wb') as out:
+                            shutil.copyfileobj(member, out)
+                        found.append(str(destination))
+        return found
+
+    def test_accounts_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramAccounts
+        headers, rows, _ = telegramAccounts.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramAccounts parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_matches(row[1], r'^\d+$', 'Account ID')
+            self.assert_matches(row[2], r'^(Yes|)$', 'Active Account')
+            if row[3]:
+                self.assert_matches(row[3], r'^\d+$', 'User ID')
+            if row[4]:
+                self.assert_matches(row[4], r'^(Production|Test)$', 'Environment')
+
+    def test_contacts_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramContacts
+        headers, rows, _ = telegramContacts.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramContacts parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_matches(row[0], r'^\d+$', 'Account ID')
+            self.assert_matches(row[1], r'^-?\d+$', 'Peer ID')
+            self.assert_matches(
+                row[2], r'^(User|Group|Channel|Secret Chat|Unknown)$', 'Type')
+            self.assertIsInstance(row[8], int)      # Messages In Chat
+            self.assertGreaterEqual(row[8], 0)
+            self.assert_matches(row[9], r'^(Yes|)$', 'In Contact List')
+            self.assert_matches(row[10], r'^(Yes|)$', 'In Spotlight Cache')
+
+    def test_chats_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramChats
+        headers, rows, _ = telegramChats.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramChats parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_matches(row[1], r'^\d+$', 'Account ID')
+            self.assert_matches(row[2], r'^-?\d+$', 'Chat ID')
+            self.assert_matches(row[5], r'^(Main|Archived)$', 'Folder')
+            self.assert_matches(row[6], r'^(Yes|)$', 'Pinned')
+            self.assertIsInstance(row[7], int)      # Messages Stored
+            self.assertIsInstance(row[8], int)      # Unread Count
+            self.assertGreaterEqual(row[8], 0)
+            self.assert_matches(row[9], r'^(Yes|)$', 'Marked Unread')
+
+    def test_peer_presence_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramPeerPresence
+        headers, rows, _ = telegramPeerPresence.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramPeerPresence parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_plausible_timestamp(row[5])
+            self.assert_matches(row[2], r'^-?\d+$', 'Peer ID')
+            self.assert_matches(
+                row[4], r'^(None|Online until|Recently|Within last week|'
+                        r'Within last month|Unrecognised .*)$', 'Status')
+            self.assert_matches(row[6], r'^(Yes|)$', 'Hides Last Seen')
+
+    def test_message_tags_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramMessageTags
+        headers, rows, _ = telegramMessageTags.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramMessageTags parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_plausible_timestamp(row[0])
+            self.assert_matches(row[2], r'^-?\d+$', 'Chat ID')
+            self.assertIsInstance(row[5], int)          # Message ID
+
+    def test_device_contacts_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramDeviceContacts
+        headers, rows, _ = telegramDeviceContacts.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramDeviceContacts parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assertTrue(row[1], 'device contact row has no phone number')
+            self.assert_matches(row[4], r'^(Imported|Retry later|)$', 'Import State')
+
+    def test_cached_peer_data_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramCachedPeerData
+        headers, rows, _ = telegramCachedPeerData.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramCachedPeerData parsed no rows')
+        self.assert_row_shape(headers, rows)
+        for row in rows:
+            self.assert_matches(row[0], r'^\d+$', 'Account ID')
+            self.assert_matches(row[1], r'^-?\d+$', 'Peer ID')
+            self.assert_matches(
+                row[3], r'^(User|Group|Channel|Secret Chat|Unknown)$', 'Record Type')
+            if row[5]:                                  # Birthday, year optional
+                self.assert_matches(row[5], r'^(\d{4}|--)-\d{2}-\d{2}$', 'Birthday')
+            self.assert_matches(row[6], r'^(Yes|No|)$', 'Blocked')
+            if row[7] != '':                            # Common Group Count
+                self.assertIsInstance(row[7], int)
+                self.assertGreaterEqual(row[7], 0)
+            self.assert_matches(row[8], r'^(Yes|No|)$', 'Has Scheduled Messages')
+            self.assert_matches(
+                row[9], r'^(None set|\d+ seconds|)$', 'Auto-Delete Timer')
+        # Blocked and common-group counts are user-only fields; channel records
+        # encode 'b' as botInfos and must not be reported as a blocked state.
+        for row in rows:
+            if row[3] == 'Channel':
+                self.assertEqual(row[6], '', 'channel record reported a Blocked value')
+
+    def test_settings_structure(self):
+        from scripts.artifacts.telegramAccounts import telegramSettings
+        headers, rows, _ = telegramSettings.__wrapped__(_ListContext(self.paths))
+        self.assertTrue(rows, 'telegramSettings parsed no rows')
+        self.assert_row_shape(headers, rows)
+        settings_seen = set()
+        for row in rows:
+            self.assert_matches(row[0], r'^(Shared|Account \d+)$', 'Scope')
+            self.assertIsInstance(row[3], int)      # Key ID
+            self.assertTrue(row[2], 'empty settings value')
+            settings_seen.add(row[3])
+        # The headline settings are reported even when the user never changed
+        # them, so their key IDs are always present for each store that exists.
+        self.assertIn(1020, settings_seen)          # save to Photos (per account)
+        if any(p.replace(os.sep, '/').endswith('/accounts-metadata/db/db_sqlite')
+               for p in self.paths):
+            self.assertIn(1002, settings_seen)      # media auto-download (shared)
+
+
+class _ListContext(_Context):
+    """A context over several found files, as multi-path artifacts receive."""
+
+    def __init__(self, paths):     # pylint: disable=super-init-not-called
+        self.paths = [str(p) for p in paths]
+
+    def get_files_found(self):
+        return self.paths
 
 
 if __name__ == '__main__':

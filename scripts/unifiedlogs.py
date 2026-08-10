@@ -48,6 +48,12 @@ BINARY_ENV_VAR = 'ILEAPP_UNIFIEDLOG_ITERATOR'
 DIAGNOSTICS_DIR = 'diagnostics'
 UUIDTEXT_DIR = 'uuidtext'
 
+# Subdirectories the log store keeps its tracev3 streams in, and the timesync directory
+# that sits beside them. These identify bundle *contents* when no path component names
+# the bundle itself; see _bundle_content_candidates.
+TRACEV3_SUBDIRS = ('Persist', 'Special', 'Signpost', 'HighVolume')
+TIMESYNC_DIR = 'timesync'
+
 # How many parser errors to surface before going quiet. The parser logs one line per
 # record it cannot decode; a handful is normal and thousands would drown the iLEAPP log.
 MAX_REPORTED_ERRORS = 20
@@ -96,21 +102,69 @@ def _path_components(path):
     return os.path.normpath(path).replace('\\', '/').split('/')
 
 
+def _bundle_content_candidates(files_found):
+    """Roots recognized by bundle-content layout rather than by directory name.
+
+    When the examiner selects a bare .logarchive package as the input root - which is
+    exactly what UFADE's "Collect Unified Logs" hands them - the seeker matches the
+    original absolute paths but returns data-folder copies with the input root stripped,
+    and with it the only '.logarchive' component. Nothing is left for find_archive_roots
+    to match by name, so every file was found and copied yet the artifact reported
+    "No data found".
+
+    The layout still gives the bundle away: tracev3 streams live in
+    Persist/Special/Signpost/HighVolume, next to a timesync directory. Each such
+    component's parent becomes a candidate root, scored by the store files under it the
+    same way the name-based candidates are. Only populated evidence registers - a stray
+    'Special' folder full of plists must not turn into an archive root.
+    """
+    candidates = {}
+    for path in files_found:
+        components = _path_components(path)
+        is_file = bool(components) and not str(path).replace('\\', '/').endswith('/')
+        if not is_file:
+            continue
+        for index in range(1, len(components) - 1):
+            component = components[index]
+            if component in TRACEV3_SUBDIRS:
+                if not components[-1].lower().endswith('.tracev3'):
+                    continue
+            elif component != TIMESYNC_DIR:
+                continue
+            root = '/'.join(components[:index])
+            if root:
+                candidates[root] = candidates.get(root, 0) + 1
+    return candidates
+
+
 def find_archive_roots(files_found):
     """Work out what to hand the parser from the paths the seeker returned.
 
     Returns (logarchive_dir, diagnostics_dir, uuidtext_dir), where either the first item
-    is set (the examiner supplied a ready-made .logarchive) or the other two are.
+    is set (a usable .logarchive package) or the other two are.
 
-    An extraction can hold the same directory name on more than one partition. A UFED
-    zip of an iPhone carries filesystem1 (system) and filesystem2 (data), and
-    filesystem1 has an *empty* private/var/db/diagnostics; the populated one lives at
-    filesystem2/db/diagnostics. Taking the first name match handed the parser the empty
-    directory and a real image reported zero records with no error anywhere. So roots
-    are chosen by how many found files sit beneath them, judged from the seeker's list
-    alone - the paths may describe files that only exist inside an archive.
+    Roots are chosen by how many found files sit beneath them, judged from the seeker's
+    list alone - the paths may describe files that only exist inside an archive. Two
+    real-world traps drove that:
+
+    - A UFED zip carries filesystem1 (system) with an *empty* private/var/db/diagnostics
+      next to the populated one on filesystem2; taking the first name match handed the
+      parser the empty directory.
+    - iPhones carry their own .logarchive leftovers: an interrupted sysdiagnose leaves
+      .../DiagnosticLogs/sysdiagnose/IN_PROGRESS_.../system_logs.logarchive in the
+      extraction. Giving any .logarchive absolute priority handed the parser a stale,
+      near-empty 2022 snapshot while 556 MB of live tracev3 sat in var/db - zero records,
+      no error. A .logarchive only wins when the device store has no tracev3 content;
+      when the examiner's input IS a .logarchive package, there is no diagnostics
+      directory in sight and it wins by default.
+
+    A third trap has no name to match at all: an examiner who selects a bare .logarchive
+    bundle as the input root (UFADE's "Collect Unified Logs" output) gets seeker paths
+    with the input root - and with it the '.logarchive' component - stripped. When
+    nothing matches by name, roots are recognized from the bundle-content layout instead;
+    see _bundle_content_candidates.
     """
-    logarchive = None
+    logarchive_candidates = {}
     diagnostics_candidates = {}
     uuidtext_candidates = {}
 
@@ -119,9 +173,8 @@ def find_archive_roots(files_found):
         is_file = bool(components) and not str(path).replace('\\', '/').endswith('/')
         for index, component in enumerate(components):
             if component.lower().endswith('.logarchive'):
-                logarchive = logarchive or '/'.join(components[:index + 1])
-                continue
-            if component == DIAGNOSTICS_DIR:
+                candidates = logarchive_candidates
+            elif component == DIAGNOSTICS_DIR:
                 candidates = diagnostics_candidates
             elif component == UUIDTEXT_DIR:
                 candidates = uuidtext_candidates
@@ -131,6 +184,12 @@ def find_archive_roots(files_found):
             below = index + 1 < len(components) and is_file
             candidates[root] = candidates.get(root, 0) + (1 if below else 0)
 
+    if not logarchive_candidates and not diagnostics_candidates:
+        # Bare-bundle fallback: nothing to match by name, so let the content layout
+        # identify the archive. Structural candidates only ever register populated,
+        # so a recognized bundle wins below just like a named one would.
+        logarchive_candidates = _bundle_content_candidates(files_found)
+
     def best(candidates):
         if not candidates:
             return None
@@ -138,7 +197,18 @@ def find_archive_roots(files_found):
         # directory still resolves when it is all there is.
         return max(candidates, key=lambda root: candidates[root])
 
-    return logarchive, best(diagnostics_candidates), best(uuidtext_candidates)
+    best_diagnostics = best(diagnostics_candidates)
+    best_logarchive = best(logarchive_candidates)
+
+    if best_diagnostics and diagnostics_candidates[best_diagnostics] > 0:
+        return None, best_diagnostics, best(uuidtext_candidates)
+    if best_logarchive and logarchive_candidates[best_logarchive] > 0:
+        return best_logarchive, None, None
+    # Nothing populated: keep the old preference order so an empty input still
+    # resolves to something and the artifact reports absence of data honestly.
+    if best_logarchive:
+        return best_logarchive, None, None
+    return None, best_diagnostics, best(uuidtext_candidates)
 
 
 def _link_file(source, destination):

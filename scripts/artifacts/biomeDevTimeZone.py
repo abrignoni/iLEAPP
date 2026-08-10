@@ -1,11 +1,11 @@
 __artifacts_v2__ = {
     "get_biomeDevTimeZone": {
         "name": "Biome - Device TimeZone",
-        "description": "Parses historical device time zone changes from the Device.TimeZone biome "
+        "description": "Parses historical device time zone records from the Device.TimeZone biome "
                        "stream",
         "author": "Cynthia van Dorp, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-09",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",

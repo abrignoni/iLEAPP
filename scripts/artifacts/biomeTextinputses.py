@@ -4,10 +4,12 @@ __artifacts_v2__ = {
         "description": "Parses Text Input Session entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Field meanings follow published research. Reference: Mattia Epifani, "
+                 "'84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths":
             ('*/Biome/streams/public/TextInputSession/local/*',
              '*/Biome/streams/restricted/Text.InputSession/local/*'),

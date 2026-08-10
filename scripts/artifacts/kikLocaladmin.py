@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "kikLocaladmin": {
         "name": "Kik Local Account",
-        "description": "Kik local account users from kik.sqlite",
+        "description": "Kik user rows with populated name fields; in testing this includes the account holder. Published research identifies the account-holder row via ZKIKUSER.ZFLAGS = 258.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Kik",
-        "notes": "",
+        "notes": "Reference: K. Ovens & G. Morison, 'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, 2016), https://researchonline.gcu.ac.uk/ws/files/24282895/K.Ovens_revisedKMOvensManuscript3_2.pdf",
         "paths": ('*/kik.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",

@@ -162,12 +162,104 @@ class TestArchiveRootDiscovery(unittest.TestCase):
         self.assertEqual(diagnostics, '/out/data/filesystem2/db/diagnostics')
         self.assertEqual(uuidtext, '/out/data/filesystem2/db/uuidtext')
 
+    def test_stale_sysdiagnose_logarchive_does_not_outrank_device_store(self):
+        """The Jess trap: iPhones carry their own .logarchive leftovers. An interrupted
+        sysdiagnose left IN_PROGRESS_.../system_logs.logarchive in the extraction, the
+        old absolute .logarchive priority handed the parser that stale 2022 snapshot,
+        and 556 MB of live tracev3 produced zero records with no error anywhere."""
+        found = [
+            '/o/data/private/var/mobile/Library/Logs/CrashReporter/DiagnosticLogs/'
+            'sysdiagnose/IN_PROGRESS_sysdiagnose_2022.02.14_12-57-34-0500/'
+            'system_logs.logarchive/Persist',
+            '/o/data/private/var/db/diagnostics/Persist/0000000000000001.tracev3',
+            '/o/data/private/var/db/diagnostics/timesync/0000000000000002.timesync',
+            '/o/data/private/var/db/uuidtext/00/AABBCCDD',
+        ]
+        archive, diagnostics, uuidtext = unifiedlogs.find_archive_roots(found)
+        self.assertIsNone(archive, 'stale sysdiagnose leftovers won over the device store')
+        self.assertEqual(diagnostics, '/o/data/private/var/db/diagnostics')
+        self.assertEqual(uuidtext, '/o/data/private/var/db/uuidtext')
+
+    def test_populated_logarchive_wins_when_no_device_store(self):
+        # A completed sysdiagnose (or examiner-collected archive) with real content is
+        # the right choice when there is no populated diagnostics directory at all.
+        found = ['/case/sysdiagnose/system_logs.logarchive/Persist/0000000000000001.tracev3',
+                 '/case/sysdiagnose/system_logs.logarchive/dsc/ABCDEF']
+        archive, diagnostics, _ = unifiedlogs.find_archive_roots(found)
+        self.assertEqual(archive, '/case/sysdiagnose/system_logs.logarchive')
+        self.assertIsNone(diagnostics)
+
     def test_lone_empty_directory_still_resolves(self):
         # With nothing better on offer, an empty directory is still the right answer;
         # the artifact reports the absence of tracev3 data rather than "no files found".
         found = ['/out/data/private/var/db/diagnostics/']
         _, diagnostics, _ = unifiedlogs.find_archive_roots(found)
         self.assertEqual(diagnostics, '/out/data/private/var/db/diagnostics')
+
+    def test_bare_logarchive_input_root_is_recognized_by_structure(self):
+        """The UFADE trap: "Collect Unified Logs" produces a bare .logarchive bundle,
+        and selecting it as the fs input root strips the input root - the only
+        '.logarchive' component - from every path the seeker returns. Every file
+        matched and was copied, yet the artifact reported "No data found". The
+        bundle-content layout has to carry the identification instead."""
+        found = [
+            '/out/data/Info.plist',
+            '/out/data/Persist/0000000000000ab6.tracev3',
+            '/out/data/Special/0000000000000d40.tracev3',
+            '/out/data/Signpost/0000000000000153.tracev3',
+            '/out/data/HighVolume/0000000000000073.tracev3',
+            '/out/data/timesync/0000000000000002.timesync',
+            '/out/data/dsc/1A2B3C4D556677',
+            '/out/data/00/AABBCCDD',
+        ]
+        archive, diagnostics, uuidtext = unifiedlogs.find_archive_roots(found)
+        self.assertEqual(archive, '/out/data')
+        self.assertIsNone(diagnostics)
+        self.assertIsNone(uuidtext)
+
+    def test_bare_bundle_recognition_tolerates_appledouble_files(self):
+        # The validation image lives on exFAT, so AppleDouble ._* siblings appear
+        # beside every real file. They must neither block nor skew the detection.
+        found = [
+            '/out/data/._Persist',
+            '/out/data/Persist/._0000000000000ab6.tracev3',
+            '/out/data/Persist/0000000000000ab6.tracev3',
+            '/out/data/timesync/._0000000000000002.timesync',
+            '/out/data/timesync/0000000000000002.timesync',
+        ]
+        archive, _, _ = unifiedlogs.find_archive_roots(found)
+        self.assertEqual(archive, '/out/data')
+
+    def test_bare_bundle_with_only_timesync_still_resolves(self):
+        # timesync alone is enough to name the root; the artifact then honestly
+        # reports that no tracev3 records came out of it.
+        found = ['/out/data/timesync/0000000000000002.timesync']
+        archive, _, _ = unifiedlogs.find_archive_roots(found)
+        self.assertEqual(archive, '/out/data')
+
+    def test_structure_recognition_defers_to_named_roots(self):
+        # A device store's own Persist directory must not spawn a competing structural
+        # root: the name-based diagnostics discovery (and with it the populated-store
+        # priority rules) keeps precedence whenever a name is there to match.
+        found = [
+            '/o/data/private/var/db/diagnostics/Persist/0000000000000001.tracev3',
+            '/o/data/private/var/db/diagnostics/timesync/0000000000000002.timesync',
+            '/o/data/private/var/db/uuidtext/00/AABBCCDD',
+        ]
+        archive, diagnostics, uuidtext = unifiedlogs.find_archive_roots(found)
+        self.assertIsNone(archive)
+        self.assertEqual(diagnostics, '/o/data/private/var/db/diagnostics')
+        self.assertEqual(uuidtext, '/o/data/private/var/db/uuidtext')
+
+    def test_unrelated_directories_do_not_masquerade_as_bundles(self):
+        # 'Special' and 'Persist' are ordinary words; without tracev3 files beneath
+        # them they must not conjure an archive root out of application data.
+        found = ['/out/data/App/Special/config.plist',
+                 '/out/data/App/Persist/cache.db']
+        archive, diagnostics, uuidtext = unifiedlogs.find_archive_roots(found)
+        self.assertIsNone(archive)
+        self.assertIsNone(diagnostics)
+        self.assertIsNone(uuidtext)
 
 
 class TestArchiveAssembly(unittest.TestCase):

@@ -5,11 +5,11 @@ __artifacts_v2__ = {
                        'centroid coordinates the location service reported for each one',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-07-30',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('ThreeBars caches tiles of Wi-Fi location data that the device downloaded '
-                  'for areas around it. A row records what the location service reported '
+        'notes': ('ThreeBars caches tiles of Wi-Fi location data that the device downloaded. '
+                  'A row records what the location service reported '
                   'about a network, not that this device connected to it or observed it, and '
                   'the coordinates are the network position rather than a device position. '
                   'The venue, type, authentication mask and score columns are integer codes '
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, does_table_exist_in_db, \
+    get_file_path, get_sqlite_db_records, null_absent_columns, does_table_exist_in_db, \
     convert_cocoa_core_data_ts_to_utc
 
 
@@ -120,7 +120,7 @@ def threeBarsNetworks(context):
     ORDER BY ZCREATED
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         latitude, longitude = _coordinates(record['ZCENTROIDLAT'], record['ZCENTROIDLNG'])
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATED']),
@@ -174,7 +174,7 @@ def threeBarsAccessPoints(context):
     ORDER BY ZACCESSPOINT.ZCREATED
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         keys = record.keys()
         latitude, longitude = _coordinates(record['ZLAT'], record['ZLNG'])
         data_list.append((
@@ -209,7 +209,7 @@ def threeBarsTiles(context):
     ORDER BY ZCREATED
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATED']),
             record['ZKEY'],

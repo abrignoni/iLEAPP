@@ -4,20 +4,24 @@ __artifacts_v2__ = {
         "description": "Correlates Photos.sqlite asset records with on-disk file EXIF to surface "
                        "timestamp and coordinate mismatches between the library database, cached EXIF, "
                        "and the media file.",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-08",
+        "last_update_date": "2026-08-06",
         "requirements": "none",
         "category": "Photos",
         "notes": "Photos only (ZKIND=0 when available). Only assets with a matching on-disk image "
                  "file and readable EXIF are output. Search patterns cover DCIM and "
                  "PhotoCloudSharingData image extensions. DB Created and DB Modified are UTC "
                  "(datetime). File and Cache DateTime columns are local wall time without timezone "
-                 "(strings). DB Modify Lag under 5 minutes is commonly normal ingest delay. DB "
+                 "(strings). In the test corpus, DB Modify Lag under 5 minutes was typical ingest "
+                 "delay. DB "
                  "Latitude/Longitude of -180 means no location stored. Latitude/Longitude are file "
                  "EXIF GPS for KML output. File vs DB Delta compares local file EXIF to UTC DB "
                  "Created; sub-minute skew within 2 seconds is tolerated. Mismatch flags are "
-                 "investigative leads, not conclusions.",
+                 "investigative leads, not conclusions. The -180 latitude/longitude no-location "
+                 "sentinel follows the treatment in Scott Koenig's published Photos.sqlite queries. "
+                 "Reference: Scott Koenig, iOS_Local_PL_Photos.sqlite_Queries, "
+                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries",
         "paths": (
             '*Media/PhotoData/Photos.sqlite*',
             '*Media/DCIM/*/*.HEIC',
@@ -34,19 +38,19 @@ __artifacts_v2__ = {
         "output_types": "all",
         "artifact_icon": "photo",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | co.visualsupply.cam | 350 rows",
+            "ctf2020_ios12": "iOS 12.4 | co.visualsupply.cam | 348 rows",
             "dexter_ios18": "iOS 18.3.2 | 337 rows",
             "felix_ios17": "iOS 17.6.1 | 3 rows",
             "fsfull002_ios17": "iOS 17.1 | 5 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 27 rows",
-            "iphone11_ios17": "iOS 17.3 | 289 rows",
-            "iphone12_ios18": "iOS 18.7 | 4088 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 25 rows",
+            "iphone11_ios17": "iOS 17.3 | 271 rows",
+            "iphone12_ios18": "iOS 18.7 | 4086 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 451 rows",
+            "otto_ios17": "iOS 17.5.1 | 450 rows",
             "abe_ios16": "iOS 16.5 | 1683 rows",
             "felix23_ios16": "iOS 16.5 | 33 rows",
-            "hickman_ios13": "iOS 13.3.1 | 112 rows",
-            "hickman_ios14": "iOS 14.3 | 116 rows",
+            "hickman_ios13": "iOS 13.3.1 | 49 rows",
+            "hickman_ios14": "iOS 14.3 | 62 rows",
             "jess_ios15": "iOS 15.0.2 | 12 rows",
             "magnet_ios16": "iOS 16.1.1 | 74 rows",
         }
@@ -356,12 +360,12 @@ def _primary_file_datetime(file_datetime, file_datetime_original):
 @artifact_processor
 def photosDbexif(context):
     data_headers = (
+        ('DB Created', 'datetime'),
+        ('DB Modified', 'datetime'),
         ('Media', 'media'),
         'Directory',
         'Filename',
         'Bundle Creator',
-        ('DB Created', 'datetime'),
-        ('DB Modified', 'datetime'),
         'DB Modify Lag',
         'DB Modify Drift',
         'File DateTime (local)',
@@ -459,12 +463,12 @@ def photosDbexif(context):
             coord_mismatch = _coordinate_mismatch(zlatitude, zlongitude, file_lat, file_lon)
 
             data_list.append((
+                zdatecreated,
+                zmodificationdate,
                 thumb,
                 zdirectory,
                 zfilename,
                 zbundlecreator or '',
-                zdatecreated,
-                zmodificationdate,
                 db_modify_lag,
                 db_modify_drift,
                 file_datetime,

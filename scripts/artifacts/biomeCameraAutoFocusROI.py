@@ -2,12 +2,11 @@ __artifacts_v2__ = {
     "get_biomeCameraAutoFocusROI": {
         "name": "Biome - Camera Auto Focus ROI",
         "description": "Parses camera autofocus region of interest events from the "
-                       "CameraCapture.AutoFocusROI biome stream. Each record marks the camera "
-                       "being used and which lens it was using, so the stream evidences camera "
-                       "activity even where no resulting photo or video survives.",
+                       "CameraCapture.AutoFocusROI biome stream. Each record marks camera "
+                       "use and which camera port was in use.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Only the camera port (for example PortTypeBack) is self describing. The "
@@ -17,6 +16,11 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/CameraCapture.AutoFocusROI/local/*',),
         "output_types": "standard",
         "artifact_icon": "camera",
+        "sample_data": {
+            "dexter_ios18": "313 rows",
+            "hc_ios18_7": "12 rows",
+            "iphone12_ios18": "146 rows",
+        },
     }
 }
 

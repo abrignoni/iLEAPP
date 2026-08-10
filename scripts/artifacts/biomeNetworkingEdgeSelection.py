@@ -1,19 +1,19 @@
 __artifacts_v2__ = {
     "get_biomeNetworkingEdgeSelection": {
         "name": "Biome - Networking Edge Selection",
-        "description": "Parses the public-facing network prefix (a truncated IP address), interface "
-                       "type, radio technology, country and device time zone recorded by the "
-                       "Device.Networking.EdgeSelection biome stream",
+        "description": "Parses the apparent public-facing network prefix (a truncated IP address), "
+                       "interface type, radio technology, country and device time zone recorded by "
+                       "the Device.Networking.EdgeSelection biome stream",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Each record is a network-edge observation: the address is the public endpoint the "
-                 "device saw for itself, so it places the device on a carrier or Wi-Fi network at "
-                 "that moment. IMPORTANT: the address is TRUNCATED to the accompanying prefix "
-                 "length, not the device's full public IP - every observed value has its host bits "
-                 "zeroed (an IPv4 seen as 69.143.130.0 is the /24 network, an IPv6 as "
+        "notes": "Each record is a network-edge observation: the values are consistent with a "
+                 "device-side public network prefix; this interpretation is inferred from observed "
+                 "values and is unverified. IMPORTANT: the address is TRUNCATED to the accompanying "
+                 "prefix length, not the device's full public IP - every observed value has its host "
+                 "bits zeroed (an IPv4 seen as 69.143.130.0 is the /24 network, an IPv6 as "
                  "2600:380:1871:6d00:: is the /56). Report it as a network, not as an endpoint "
                  "address. The stream is protobuf, which carries field numbers but no field names, "
                  "so the column names other than the timestamp are inferred from the observed "
