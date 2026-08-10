@@ -1,0 +1,38 @@
+name: Validate Sample Data
+
+# The structural half of admin/scripts/validate_sample_data.py needs no test
+# corpora, so it can run here. The registry and row-count checks need the
+# private sample images and are run locally:
+#
+#   python3 admin/scripts/validate_sample_data.py \
+#       --registry "<path>/samples.json" --run <corpus key>
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/artifacts/**'
+      - 'admin/scripts/validate_sample_data.py'
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/artifacts/**'
+      - 'admin/scripts/validate_sample_data.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-sample-data:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Validate sample_data blocks
+      run: python3 admin/scripts/validate_sample_data.py
