@@ -96,14 +96,18 @@ class TestSwissmeteoMissingFiles(unittest.TestCase):
         _headers, data_list, _source = plz_interaction.__wrapped__(Context)
         self.assertEqual(len(data_list), 1)
         self.assertEqual(data_list[0][1], 'Lausanne')
-        self.assertIn('openstreetmap.org', data_list[0][2])
+        # Coordinates as text, not a map URL: a report links to nothing outside
+        # its own folder, so no openstreetmap.org destination is emitted.
+        self.assertNotIn('openstreetmap.org', data_list[0][2])
+        self.assertRegex(data_list[0][2], r'^-?\d+\.\d+, -?\d+\.\d+$')
 
     def test_swissmeteo_plz_parses_app_open_rows(self):
         Context.set_files_found([self._make_prediction_db()])
         _headers, data_list, _source = swissmeteo_plz.__wrapped__(Context)
         self.assertEqual(len(data_list), 1)
         self.assertEqual(data_list[0][1], 46.5)
-        self.assertIn('openstreetmap.org', data_list[0][3])
+        self.assertNotIn('openstreetmap.org', data_list[0][3])
+        self.assertEqual(data_list[0][3], '46.5, 6.6')
 
 
 if __name__ == '__main__':

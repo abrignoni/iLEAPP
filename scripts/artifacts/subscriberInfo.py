@@ -4,6 +4,7 @@ __artifacts_v2__ = {
         "name": "Subscriber Info",
         "description": "Information about inserted SIM Cards",
         "author": "@Johann-PLW",
+        "creation_date": "2024-11-20",
         "version": "0.1",
         "date": "2024-11-19",
         "last_update_date": "2026-07-31",

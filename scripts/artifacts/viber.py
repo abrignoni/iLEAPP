@@ -112,7 +112,7 @@ __artifacts_v2__ = {
 import json
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc, \
     convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, get_birthdate_from_unix_ts, \
-    check_in_media, check_in_embedded_media
+    check_in_media, check_in_embedded_media, does_table_exist_in_db
 
 
 @artifact_processor
@@ -303,7 +303,7 @@ def viber_call_remnants(context):
     my_user_name = ''
     my_phone_number = ''
 
-    if db_records:
+    if db_records and does_table_exist_in_db(data_source, 'Data'):
         user_query = '''
         SELECT Data.key, value
         FROM Data
@@ -482,7 +482,7 @@ def viber_chats(context):
     my_user_name = ''
     my_phone_number = ''
 
-    if db_records:
+    if db_records and does_table_exist_in_db(data_source, 'Data'):
         user_query = '''
         SELECT Data.key, value
         FROM Data

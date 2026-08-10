@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Calendar",
         "notes": "Participant status is reported as stored. Apple's public EKParticipantStatus enum defines Pending=1, Accepted=2, Declined=3, Tentative=4; whether the Calendar database column follows that enum is unverified. Reference: Apple EventKit, EKParticipantStatus, https://developer.apple.com/documentation/eventkit/ekparticipantstatus",
-        "paths": ('*/Calendar.sqlitedb',),
+        "paths": ('*/Calendar.sqlitedb*',),
         "html_columns": ['Calendar Name', 'Location Coordinates', 'Invitees'],
         "output_types": "standard",
         "artifact_icon": "calendar",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
-        "paths": ('*/Calendar.sqlitedb',),
+        "paths": ('*/Calendar.sqlitedb*',),
         "html_columns": ['Calendar Name'],
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "gift",
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Calendar",
         "notes": "Sharing status and access level value mappings observed in testing; unrecognized values reported as stored.",
-        "paths": ('*/Calendar.sqlitedb',),
+        "paths": ('*/Calendar.sqlitedb*',),
         "html_columns": ['Calendar Name', 'Sharing Participants'],
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "list",
@@ -296,11 +296,9 @@ def calendarEvents(context):
                     location_coordinates = f'{latitude}, {longitude}' if latitude and longitude else ''
 
                     if latitude and longitude:
-                        location_coordinates_tag = f'''
-                        {esc(location_coordinates)} &nbsp;
-                        <a href="https://www.openstreetmap.org/?lat={esc(latitude)}&lon=%20{esc(longitude)}&zoom=17&layers=M" target="_blank">
-                        &#x1F5FA;</a>
-                        '''
+                        # Coordinates only. This carried an openstreetmap.org anchor;
+                        # a report links to nothing outside its own folder.
+                        location_coordinates_tag = esc(location_coordinates)
                     else:
                         location_coordinates_tag = ''
 

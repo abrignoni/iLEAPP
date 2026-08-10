@@ -3,6 +3,7 @@ __artifacts_v2__ = {
         "name": "Wipe Indicators",
         "description": "Reports the last-modified time of /root/.obliterated and /root/.bootstrapped, files created when the device is wiped; the timestamp reflects the first boot after reset.",
         "author": "@JohnHyla",
+        "creation_date": "2026-08-06",
         "version": "0.0.2",
         "date": "2024-10-17",
         "last_update_date": "2026-08-06",

@@ -445,19 +445,11 @@ def format_url(str_url: str | None, html_format: bool = False, label: str | None
     # Visible text: label or raw URL
     visible = label if label else s
 
-    # HTML rendering
+    # HTML rendering: escaped text, never an anchor. The host in a Waze URL comes
+    # from the evidence, and a report must not reach a destination outside its own
+    # folder. The URL is preserved verbatim for the examiner to read and copy.
     if html_format:
-        safe_text = html.escape(visible, quote=False)
-
-        if is_clickable:
-            safe_href = html.escape(s, quote=True)
-            return (
-                f'<a href="{safe_href}" target="_blank" '
-                f'rel="noopener noreferrer">{safe_text}</a>'
-            )
-
-        # Non-clickable: return escaped plain text — evidence preserved
-        return safe_text
+        return html.escape(visible, quote=False)
 
     # Plain text rendering
     if is_clickable and label:
@@ -509,10 +501,24 @@ def get_app_id(plist_file, context) -> str:
         parts = Path(source_path_str).parts
         bundle_id_candidate = ''
 
-        for part in parts:
-            # Priority 1 — file system UUID
+        # Priority 1 — the container UUID as iOS lays it out, .../Application/<UUID>/.
+        # Anchoring on the parent matters: the identifier used to be taken from the
+        # first UUID-shaped component anywhere in the path, so an output directory,
+        # case folder or export path whose name happens to look like a UUID was
+        # picked instead of the app container. Every artifact here then looked for
+        # its databases inside a directory that does not exist and reported nothing,
+        # with no error to show for it.
+        for index in range(len(parts) - 1, 0, -1):
+            if UUID_RE.match(parts[index]) and parts[index - 1] == 'Application':
+                return parts[index]
+
+        # Otherwise the UUID nearest the file, so anything ahead of the evidence
+        # in the path cannot win over the evidence itself.
+        for part in reversed(parts):
             if UUID_RE.match(part):
                 return part
+
+        for part in parts:
 
             # Priority 2 — raw backup AppDomain prefix
             m = APPDOMAIN_RE.match(part)

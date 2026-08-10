@@ -9,6 +9,8 @@ __artifacts_v2__ = {
 ' Shared with You Conversation Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -46,6 +48,8 @@ __artifacts_v2__ = {
 ' Shared with You Conversation Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -79,6 +83,8 @@ __artifacts_v2__ = {
 ' Shared with You Conversation Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
@@ -95,7 +101,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
@@ -262,7 +268,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -319,7 +325,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-zPK-45',
         'zAsset-UUID = store.cloudphotodb-46',
         'zAddAssetAttr-Master Fingerprint-47')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -471,7 +477,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -528,7 +534,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-zPK-45',
         'zAsset-UUID = store.cloudphotodb-46',
         'zAddAssetAttr-Master Fingerprint-47')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -744,7 +750,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -821,7 +827,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-zPK-63',
         'zAsset-UUID = store.cloudphotodb-64',
         'zAddAssetAttr-Master Fingerprint-65')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1051,7 +1057,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1135,7 +1141,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-zPK-70',
         'zAsset-UUID = store.cloudphotodb-71',
         'zAddAssetAttr-Master Fingerprint-72')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1386,7 +1392,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1476,7 +1482,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-zPK-75',
         'zAsset-UUID = store.cloudphotodb-76',
         'zAddAssetAttr-Master Fingerprint-77')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1733,7 +1739,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1825,7 +1831,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-zPK-77',
         'zAsset-UUID = store.cloudphotodb-78',
         'zAddAssetAttr-Master Fingerprint-79')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2083,7 +2089,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2176,7 +2182,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-zPK-78',
         'zAsset-UUID = store.cloudphotodb-79',
         'zAddAssetAttr-Master Fingerprint-80')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2434,7 +2440,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2527,7 +2533,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAddAssetAttr-zPK-78',
         'zAsset-UUID = store.cloudphotodb-79',
         'zAddAssetAttr-Master Fingerprint-80')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2792,7 +2798,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2889,7 +2895,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAsset-UUID = store.cloudphotodb-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -3154,7 +3160,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -3251,7 +3257,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
         'zAsset-UUID = store.cloudphotodb-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -3421,7 +3427,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -3478,7 +3484,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-zPK-45',
         'zAsset-UUID = store.cloudphotodb-46',
         'zAddAssetAttr-Master Fingerprint-47')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -3631,7 +3637,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -3688,7 +3694,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-zPK-45',
         'zAsset-UUID = store.cloudphotodb-46',
         'zAddAssetAttr-Master Fingerprint-47')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -3905,7 +3911,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -3982,7 +3988,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-zPK-63',
         'zAsset-UUID = store.cloudphotodb-64',
         'zAddAssetAttr-Master Fingerprint-65')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -4212,7 +4218,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
             LEFT JOIN ZGENERICALBUM zGenAlbum ON zGenAlbum.Z_PK = z26Assets.Z_26ALBUMS
         ORDER BY zAsset.ZDATECREATED
         '''
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -4296,7 +4302,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-zPK-70',
         'zAsset-UUID = store.cloudphotodb-71',
         'zAddAssetAttr-Master Fingerprint-72')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -4548,7 +4554,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -4638,7 +4644,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-zPK-75',
         'zAsset-UUID = store.cloudphotodb-76',
         'zAddAssetAttr-Master Fingerprint-77')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -4896,7 +4902,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -4988,7 +4994,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-zPK-77',
         'zAsset-UUID = store.cloudphotodb-78',
         'zAddAssetAttr-Master Fingerprint-79')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -5246,7 +5252,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -5339,7 +5345,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-zPK-78',
         'zAsset-UUID = store.cloudphotodb-79',
         'zAddAssetAttr-Master Fingerprint-80')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -5597,7 +5603,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -5690,7 +5696,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAddAssetAttr-zPK-78',
         'zAsset-UUID = store.cloudphotodb-79',
         'zAddAssetAttr-Master Fingerprint-80')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -5955,7 +5961,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -6052,7 +6058,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAsset-UUID = store.cloudphotodb-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -6317,7 +6323,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -6414,7 +6420,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
         'zAsset-UUID = store.cloudphotodb-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -6696,7 +6702,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -6793,7 +6799,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         'zAsset-UUID = store.cloudphotodb-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -7058,7 +7064,7 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -7155,6 +7161,6 @@ def Ph002_3AssetBasicGenAlbumGenPlayPsql(context):
         'zAsset-UUID = store.cloudphotodb-81',
         'zAddAssetAttr-Original Stable Hash-82',
         'zAddAssetAttr.Adjusted Stable Hash-83')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path

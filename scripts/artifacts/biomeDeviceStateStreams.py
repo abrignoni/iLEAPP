@@ -239,6 +239,14 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Device.Power.EnergyMode/local/*',),
         "output_types": "standard",
         "artifact_icon": "zap",
+        "sample_data": {
+            "abe_ios16": "13 rows",
+            "fsfull002_ios17": "2 rows",
+            "hc_ios18_7": "11 rows",
+            "iphone12_ios18": "13 rows",
+            "magnet_ios16": "5 rows",
+            "otto_ios17": "7 rows",
+        },
     },
     "get_biomeSilentMode": {
         "name": "Biome - Silent Mode",

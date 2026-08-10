@@ -10,7 +10,6 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/ch.sbb.coredata.searchhistory.sqlite*'),
         "output_types": "standard",
-        "html_columns": ['Result Coordinates (link)'],
         "artifact_icon": "search"
     },
     "sbb_easyride_trips": {
@@ -74,16 +73,16 @@ def sbb_searchhistory(context):
         'Departure type', 
         'Target', 
         'Target type', 
-        'Result Coordinates (link)',
+        'Result Coordinates (lat/lon)',
     )
 
     db_records = get_sqlite_db_records(source_path, query)
 
     for record in db_records:
 
-        # Create map link
+        # Coordinates as text
         if record[5] and record[6]:
-            map_link = coordinate_to_osm(record[5]/1_000_000, record[6]/1_000_000)
+            map_link = coordinate_to_text(record[5]/1_000_000, record[6]/1_000_000)
         else:
             map_link = ""
 
@@ -244,5 +243,10 @@ def parse_ticket_html(html):
     return data
 
 
-def coordinate_to_osm(lat, lon): 
-    return f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
+def coordinate_to_text(lat, lon):
+    """Return the coordinates as text.
+
+    This built an openstreetmap.org URL. A report links to nothing outside its own
+    folder, so the coordinates are reported as the data they are.
+    """
+    return f"{lat}, {lon}"

@@ -76,6 +76,8 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | cloudkit_cache |
 | discordChats |
 | discord_a |
+| dubox |
+| duckduckgo |
 | duetNotificationSuggestions |
 | facebookMessenger |
 | filesApp |
@@ -103,6 +105,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | mastodon |
 | meWe |
 | mediaLibrary |
+| mega |
 | netusage |
 | notes |
 | notesPasswordProtected |
@@ -159,6 +162,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | voicemail |
 | waze |
 | whatsApp |
+| wickr |
 | wifiAnalytics |
 | wire |
 <!-- GET_RECORDS_END -->

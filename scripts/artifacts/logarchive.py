@@ -21,6 +21,18 @@ __artifacts_v2__ = {
                   '*.logarchive/*'),
         "output_types": "lava_only",
         "artifact_icon": "database",
+        "sample_data": {
+            "abe_ios16": "31206006 rows",
+            "ctf2020_ios12": "17985646 rows",
+            "dexter_ios18": "16823810 rows",
+            "felix23_ios16": "19419414 rows",
+            "fsfull002_ios17": "30362747 rows",
+            "hc_ios18_7": "726120 rows",
+            "hc_ios26": "26.5.2 | 15146256 rows",
+            "iphone12_ios18": "20491691 rows",
+            "jess_ios15": "16558937 rows",
+            "rodeo_ios17_sysdiag": "17.3 | 3647611 rows",
+        },
     },
     "logarchive_artifacts": {
         "name": "logarchive artifacts",

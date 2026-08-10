@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "tileApp": {
         "name": "Tile App Geolocation Logs",
         "description": "Latitude/longitude coordinates recorded in Tile app logs",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",

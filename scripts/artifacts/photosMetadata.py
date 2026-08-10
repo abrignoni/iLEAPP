@@ -5,9 +5,9 @@ __artifacts_v2__ = {
                        "timestamps, location/reverse-geocode, faces, moments, fingerprints and more. "
                        "Supported schemas: iOS 12-14 queries; on newer iOS versions this artifact "
                        "returns no rows (see the Ph* artifact series for current schemas).",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-08",
         "requirements": "none",
         "category": "Photos",
         "notes": "Supported schemas: iOS 12-14 queries; on newer iOS versions this artifact returns "
@@ -23,31 +23,33 @@ __artifacts_v2__ = {
         "artifact_icon": "photo",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 381 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
-            "felix_ios17": "iOS 17.6.1 | 0 rows",
-            "fsfull002_ios17": "iOS 17.1 | 0 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 0 rows",
-            "iphone12_ios18": "iOS 18.7 | 0 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 0 rows",
-            "abe_ios16": "iOS 16.5 | 0 rows",
-            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1,178 rows",
+            "felix_ios17": "iOS 17.6.1 | 51 rows",
+            "fsfull002_ios17": "iOS 17.1 | 89 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 36 rows",
+            "iphone11_ios17": "iOS 17.3 | 585 rows",
+            "iphone12_ios18": "iOS 18.7 | 7,644 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 522 rows",
+            "abe_ios16": "iOS 16.5 | 2,280 rows",
+            "felix23_ios16": "iOS 16.5 | 35 rows",
             "hickman_ios13": "iOS 13.3.1 | 70 rows",
             "hickman_ios14": "iOS 14.3 | 153 rows",
-            "jess_ios15": "iOS 15.0.2 | 0 rows",
-            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 13 rows",
+            "magnet_ios16": "iOS 16.1.1 | 101 rows",
         }
     }
 }
 
 import os
+import re
 import sqlite3
 
 import nska_deserialize as nd
 from packaging import version
 
 from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, get_sqlite_db_records,
+                               null_absent_columns,
                                iOS, logfunc, thumbnail_root)
 
 _QUERY_IOS12 = """
@@ -863,6 +865,65 @@ _HEADERS_IOS14 = (
     'Adjusted Fingerprint')
 
 
+
+def _album_join(source_file):
+    """Locate the album-to-asset join table for this library.
+
+    Core Data names the join table and its two columns after entity numbers, and
+    the numbering shifts between releases: Album is entity 26 on some libraries
+    and 27 on others, because entities inserted ahead of it push it along. Read
+    it from Z_PRIMARYKEY rather than assuming a number.
+
+    Returns (table, album_column, asset_column) or None.
+    """
+    entities = {}
+    try:
+        for record in get_sqlite_db_records(source_file, 'SELECT Z_ENT, Z_NAME FROM Z_PRIMARYKEY'):
+            entities[record[0]] = record[1]
+        tables = get_sqlite_db_records(
+            source_file,
+            "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'Z\\_%ASSETS' ESCAPE '\\'")
+    except sqlite3.Error:
+        return None
+
+    for record in tables:
+        table = record[0]
+        columns = {}
+        for column in get_sqlite_db_records(source_file, f'PRAGMA table_info("{table}")'):
+            match = re.fullmatch(r'Z_(\d+)(ALBUMS|ASSETS)', column[1])
+            if match:
+                columns[(entities.get(int(match.group(1))), match.group(2))] = column[1]
+        album = next((columns[key] for key in (('Album', 'ALBUMS'), ('GenericAlbum', 'ALBUMS'))
+                      if key in columns), None)
+        asset = next((columns[key] for key in (('Asset', 'ASSETS'), ('GenericAsset', 'ASSETS'))
+                      if key in columns), None)
+        if album and asset:
+            return table, album, asset
+    return None
+
+
+def _retarget_album_join(query, source_file):
+    """Point the query's hardcoded Z_<n>ASSETS join at the names this file uses.
+
+    Leaves the query untouched when the join cannot be resolved, so a library
+    this does not recognise behaves exactly as before.
+    """
+    resolved = _album_join(source_file)
+    if not resolved:
+        return query
+    table, album_column, asset_column = resolved
+    match = re.search(r'JOIN (Z_\d+ASSETS) ON', query)
+    if not match:
+        return query
+    current = match.group(1)
+    if current == table:
+        return query
+    query = re.sub(rf'{current}\.Z_\d+ALBUMS', f'{table}.{album_column}', query)
+    query = re.sub(rf'{current}\.Z_\d+ASSETS', f'{table}.{asset_column}', query)
+    return query.replace(current, table)
+
+
+
 def _postal(blob, report_folder, counter):
     """Write a reverse-location bplist and return (formatted, subadmin, sublocality)."""
     if blob is None:
@@ -918,6 +979,9 @@ def photosMetadata(context):
     else:
         logfunc(f"Unsupported iOS version for Photos.sqlite metadata: {ios_version}")
         return _HEADERS_IOS14, data_list, context.get_relative_path(source_file)
+
+    query = _retarget_album_join(query, source_file)
+    query = null_absent_columns(source_file, query)
 
     try:
         rows = get_sqlite_db_records(source_file, query)

@@ -4,9 +4,9 @@ __artifacts_v2__ = {
         "description": "Correlates Photos.sqlite asset records with on-disk file EXIF to surface "
                        "timestamp and coordinate mismatches between the library database, cached EXIF, "
                        "and the media file.",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-06",
         "requirements": "none",
         "category": "Photos",
         "notes": "Photos only (ZKIND=0 when available). Only assets with a matching on-disk image "
@@ -360,12 +360,12 @@ def _primary_file_datetime(file_datetime, file_datetime_original):
 @artifact_processor
 def photosDbexif(context):
     data_headers = (
+        ('DB Created', 'datetime'),
+        ('DB Modified', 'datetime'),
         ('Media', 'media'),
         'Directory',
         'Filename',
         'Bundle Creator',
-        ('DB Created', 'datetime'),
-        ('DB Modified', 'datetime'),
         'DB Modify Lag',
         'DB Modify Drift',
         'File DateTime (local)',
@@ -463,12 +463,12 @@ def photosDbexif(context):
             coord_mismatch = _coordinate_mismatch(zlatitude, zlongitude, file_lat, file_lon)
 
             data_list.append((
+                zdatecreated,
+                zmodificationdate,
                 thumb,
                 zdirectory,
                 zfilename,
                 zbundlecreator or '',
-                zdatecreated,
-                zmodificationdate,
                 db_modify_lag,
                 db_modify_drift,
                 file_datetime,

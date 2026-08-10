@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "iCloudWifi": {
         "name": "iCloud Wifi Networks",
         "description": "Wi-Fi networks synced via iCloud (com.apple.wifid.plist)",
-        "author": "",
+        "author": "@ydkhatri",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",

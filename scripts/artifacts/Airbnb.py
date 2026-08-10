@@ -39,10 +39,15 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert
 
 @artifact_processor
 def airbnb_messages(context):
-    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
-    
+    files_found = [x for x in context.get_files_found() if x.endswith('.sqlite3')]
+
+    # The account id is embedded in the database filename as _<digits>_. A build
+    # that names it differently is not a reason to lose the messages, so the id
+    # is reported empty rather than raising out of the artifact: the exception
+    # would be an AttributeError, which no except sqlite3.Error here would catch.
     stem = Path(files_found[0]).stem
-    user_account_id = int(re.search(r'(?<=_)\d+(?=_)', stem).group())
+    account_match = re.search(r'(?<=_)\d+(?=_)', stem)
+    user_account_id = int(account_match.group()) if account_match else ''
 
     query = ('''
         SELECT

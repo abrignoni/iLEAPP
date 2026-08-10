@@ -11,8 +11,8 @@ __artifacts_v2__ = {
         "notes": "Message type mappings were established through testing and are not vendor-documented; unrecognized types are reported as Unknown with the raw Type ID column.",
         "paths": (  
             '*/mobile/Containers/Data/Application/*/Documents/chat_dbs/*/*',
-            '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite',
-            '*/mobile/Containers/Data/Application/*/Documents/chatgroup.sqlite',
+            '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite*',
+            '*/mobile/Containers/Data/Application/*/Documents/chatgroup.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/Files/*/*',
             '*/mobile/Containers/Data/Application/*/Documents/Sticker/Snapshot/*/*/*',
             '*/mobile/Containers/Data/Application/*/Documents/[0-9]*[0-9]/[0-9]*[0-9]/*/*.*',
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "category": "Zalo",
         "notes": "",
         "paths": (  
-            '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite'
+            '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite*'
         ),
         "output_types": "standard",
         "artifact_icon": "users"

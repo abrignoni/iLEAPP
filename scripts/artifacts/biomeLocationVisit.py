@@ -33,6 +33,12 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Location.Visit/local/*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "378 rows",
+            "hc_ios18_7": "43 rows",
+            "hc_ios26": "26.5.2 | 35 rows",
+            "iphone14plus_ios18": "3 rows",
+        },
     }
 }
 

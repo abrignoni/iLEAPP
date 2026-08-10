@@ -395,6 +395,8 @@ def get_dmss_created_media(context):
     data_headers = ('File Name', ('File Content', 'media'), 'Source File') 
     for file_found in files_found:
         file_found = str(file_found)
+        if file_found.endswith(('-wal', '-shm', '-journal')):
+            continue
         file_name = os.path.basename(file_found)
         #Dahua CCTV - User Created Media: - Collecting Files
         if file_name.endswith(".jpg") or file_name.endswith(".mp4") or file_name.endswith(".dav"):

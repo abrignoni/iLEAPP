@@ -84,6 +84,6 @@ This document outlines the various device information collected by LEAPP modules
 <!-- LOGDEVINFO_START -->
 | Key | Source Modules |
 |-----|----------------|
-| Obliterated Timestamp: {utc_modified_date} | obliterated |
+| {source_name_log} Timestamp: {utc_modified_date} | wipe_indicators |
 <!-- LOGDEVINFO_END -->
 

@@ -36,6 +36,14 @@ __artifacts_v2__ = {
         ),
         "output_types": "standard",
         "artifact_icon": "certificate",
+        "sample_data": {
+            "dexter_ios18": "82 rows",
+            "felix_ios17": "1 row",
+            "hc_ios18_7": "2 rows",
+            "hc_ios26": "26.5.2 | 1 row",
+            "iphone12_ios18": "2 rows",
+            "iphone14plus_ios18": "1 row",
+        },
     }
 }
 

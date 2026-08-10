@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "conDev": {
         "name": "Connected Devices",
         "description": "Extracts computer and user names recorded in iTunesPrefs (FRPD)",
-        "author": "",
+        "author": "@JamesHabben",
         "creation_date": "2024-10-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",

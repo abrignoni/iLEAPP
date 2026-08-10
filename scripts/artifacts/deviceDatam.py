@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "deviceDatam": {
         "name": "Device Data",
         "description": "Device identifiers and phone number information",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2024-10-29",
         "last_update_date": "2026-07-31",
         "requirements": "none",

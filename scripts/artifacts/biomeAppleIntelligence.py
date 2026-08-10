@@ -21,6 +21,11 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/AppleIntelligence.Availability/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios18_7": "478 rows",
+            "hc_ios26": "26.5.2 | 41 rows",
+            "iphone12_ios18": "64 rows",
+        },
     },
     "get_biomeAIAssetAvailability": {
         "name": "Biome - Apple Intelligence Asset Availability",
@@ -37,6 +42,9 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.Availability/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 96 rows",
+        },
     },
     "get_biomeAIModelCatalog": {
         "name": "Biome - Apple Intelligence Model Catalog",
@@ -56,6 +64,9 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.ModelCatalog/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 206 rows",
+        },
     },
     "get_biomeAISoftwareUpdate": {
         "name": "Biome - Apple Intelligence Software Update",
@@ -71,6 +82,9 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.SoftwareUpdateController/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 9 rows",
+        },
     },
     "get_biomeAISafetyOverrides": {
         "name": "Biome - Apple Intelligence Safety Overrides",
@@ -110,6 +124,9 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.UnifiedAssetFramework/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 14 rows",
+        },
     },
 }
 

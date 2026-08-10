@@ -3,6 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Notification Usage",
         "description": "Parses the Notification Usage biome",
         "author": "Thijs van Meurs",
+        "creation_date": "2026-07-01",
+        "last_update_date": "2026-07-22",
         "version": "0.0.1",
         "date": "2026-06-29",
         "requirements": "none",

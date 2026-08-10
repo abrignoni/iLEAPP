@@ -74,7 +74,7 @@ __artifacts_v2__ = {
 }
 
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, does_table_exist_in_db, \
+    get_file_path, get_sqlite_db_records, null_absent_columns, does_table_exist_in_db, \
     convert_cocoa_core_data_ts_to_utc
 
 
@@ -120,7 +120,7 @@ def threeBarsNetworks(context):
     ORDER BY ZCREATED
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         latitude, longitude = _coordinates(record['ZCENTROIDLAT'], record['ZCENTROIDLNG'])
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATED']),
@@ -174,7 +174,7 @@ def threeBarsAccessPoints(context):
     ORDER BY ZACCESSPOINT.ZCREATED
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         keys = record.keys()
         latitude, longitude = _coordinates(record['ZLAT'], record['ZLNG'])
         data_list.append((
@@ -209,7 +209,7 @@ def threeBarsTiles(context):
     ORDER BY ZCREATED
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATED']),
             record['ZKEY'],

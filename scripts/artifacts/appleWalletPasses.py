@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
     "get_appleWalletPKPasses": {
-        "name": "PK Passes",
+        "name": "Apple Wallet - PK Passes",
         "description": "Apple wallet passes PK",
         "author": "@any333",
         "creation_date": "2021-02-17",
-        "last_update_date": "2025-10-22",
+        "last_update_date": "2026-08-06",
         "requirements": "none",
         "category": "Apple Wallet",
         "notes": "",
         "paths": ('*/Cards/*.pkpass/pass.json'),
-        "output_types": "standard",
+        "output_types": ["html", "lava", "tsv"],
         "artifact_icon": "credit-card",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 107 rows",
@@ -29,11 +29,11 @@ __artifacts_v2__ = {
         }
     },
     "get_appleWalletNanoPasses": {
-        "name": "Nano Passes",
+        "name": "Apple Wallet - Nano Passes",
         "description": "Apple wallet Nano passes",
         "author": "@any333",
         "creation_date": "2021-02-17",
-        "last_update_date": "2025-10-22",
+        "last_update_date": "2026-08-06",
         "requirements": "none",
         "category": "Apple Wallet",
         "notes": "",
