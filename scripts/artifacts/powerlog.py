@@ -1228,6 +1228,11 @@ def _powerlog_sources(context, extension=".PLSQL"):
     """
     sources = []
     for path in dict.fromkeys(str(p) for p in context.get_files_found()):
+        if os.path.basename(path).startswith('._'):
+            # AppleDouble metadata written when an extraction is handled on macOS.
+            # ._CurrentPowerlog.PLSQL sits beside the real database and matches the
+            # same glob, and opening it raises "file is not a database".
+            continue
         if path.endswith(extension):
             sources.append((path, path))
         elif extension == ".PLSQL" and path.endswith(".PLSQL.gz"):
