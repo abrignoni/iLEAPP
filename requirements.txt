@@ -18,7 +18,7 @@ numpy>=2.1; python_version >= "3.13"
 packaging==24.1
 pandas
 pathlib2==2.3.5
-PGPy
+PGPy>=0.6.0  # the newest PGPy wheel is 0.5.4, which breaks on cryptography>=38; only the 0.6.0 sdist works, so keep wheel-preferring installs off 0.5.4
 standard-imghdr; python_version >= "3.13"  # PGPy imports stdlib imghdr, removed in Python 3.13 (PEP 594)
 pillow
 pillow_heif
