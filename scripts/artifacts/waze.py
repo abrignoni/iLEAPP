@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts account information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-19",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -67,10 +67,10 @@ __artifacts_v2__ = {
     },
     "waze_search_history": {
         "name": "Waze - Search History",
-        "description": "Parses and extracts searched locations information",
+        "description": "Parses and extracts location entries from the PLACES table",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -89,7 +89,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts recent locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-07-19",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
         "description": "Parses and extracts favorite locations information",
         "author": "@djangofaiola",
         "creation_date": "2024-02-02",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -143,10 +143,10 @@ __artifacts_v2__ = {
     },
     "waze_planned_events": {
         "name": "Waze - Planned Events",
-        "description": "Parses and extracts synchronized calendar events and planned trips.",
+        "description": "Parses and extracts the EVENTS_PLACES table and its linked place records.",
         "author": "@djangofaiola",
         "creation_date": "2026-06-13",
-        "last_update_date": "2026-06-22",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Waze",
         "notes": "https://djangofaiola.blogspot.com",
@@ -445,19 +445,11 @@ def format_url(str_url: str | None, html_format: bool = False, label: str | None
     # Visible text: label or raw URL
     visible = label if label else s
 
-    # HTML rendering
+    # HTML rendering: escaped text, never an anchor. The host in a Waze URL comes
+    # from the evidence, and a report must not reach a destination outside its own
+    # folder. The URL is preserved verbatim for the examiner to read and copy.
     if html_format:
-        safe_text = html.escape(visible, quote=False)
-
-        if is_clickable:
-            safe_href = html.escape(s, quote=True)
-            return (
-                f'<a href="{safe_href}" target="_blank" '
-                f'rel="noopener noreferrer">{safe_text}</a>'
-            )
-
-        # Non-clickable: return escaped plain text — evidence preserved
-        return safe_text
+        return html.escape(visible, quote=False)
 
     # Plain text rendering
     if is_clickable and label:
@@ -509,10 +501,24 @@ def get_app_id(plist_file, context) -> str:
         parts = Path(source_path_str).parts
         bundle_id_candidate = ''
 
-        for part in parts:
-            # Priority 1 — file system UUID
+        # Priority 1 — the container UUID as iOS lays it out, .../Application/<UUID>/.
+        # Anchoring on the parent matters: the identifier used to be taken from the
+        # first UUID-shaped component anywhere in the path, so an output directory,
+        # case folder or export path whose name happens to look like a UUID was
+        # picked instead of the app container. Every artifact here then looked for
+        # its databases inside a directory that does not exist and reported nothing,
+        # with no error to show for it.
+        for index in range(len(parts) - 1, 0, -1):
+            if UUID_RE.match(parts[index]) and parts[index - 1] == 'Application':
+                return parts[index]
+
+        # Otherwise the UUID nearest the file, so anything ahead of the evidence
+        # in the path cannot win over the evidence itself.
+        for part in reversed(parts):
             if UUID_RE.match(part):
                 return part
+
+        for part in parts:
 
             # Priority 2 — raw backup AppDomain prefix
             m = APPDOMAIN_RE.match(part)
@@ -1033,7 +1039,7 @@ def waze_account(context):
         'Email',
         'Waze User ID',
         'Invisible Mode',
-        ('Last App Launch', 'datetime'),
+        ('Dynamic Splash Screen Last Shown', 'datetime'),
         'Provider First Name',
         'Provider Last Name',
         'Provider Name',
@@ -1487,7 +1493,7 @@ def waze_track_gps_quality(context):
 @artifact_processor
 def waze_search_history(context):
     """
-    Extracts all locations manually searched by the user from the PLACES table.
+    Extracts location entries from the PLACES table (includes searched and referenced places).
     """
 
     data_headers = (
@@ -1649,7 +1655,7 @@ def waze_search_history(context):
 @artifact_processor
 def waze_recent_locations(context):
     """
-    Extracts the history of recently visited or selected locations, 
+    Extracts the history of recently accessed location entries,
     joining RECENTS with the PLACES table for full coordinates.
     """
 
@@ -2126,7 +2132,7 @@ def waze_favorite_locations(context):
         'Latitude',
         'Longitude',
         ('Created', 'datetime'),
-        ('Modified', 'datetime'),
+        ('Possible Timestamp (field 10)', 'datetime'),
         ('Last Waypoint Access', 'datetime'),
         'Rank',
         'Server ID',
@@ -2313,10 +2319,8 @@ def waze_shared_locations(context):
 @artifact_processor
 def waze_planned_events(context):
     """
-    Extracts locations and scheduled destinations synchronized from calendar
-    events.  Waze reads the device calendar, resolves each event address
-    against the PLACES table and stores the result in EVENTS_PLACES inside
-    user.db.
+    Extracts calendar-derived events stored in EVENTS_PLACES with resolved
+    places, inside user.db.
     """
 
     data_headers = (

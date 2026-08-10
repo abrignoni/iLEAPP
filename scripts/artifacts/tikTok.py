@@ -5,12 +5,16 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok message data from the ChatFiles databases",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-07-03",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
             "Messages are extracted from TIMMessageORM. Contact details are joined from "
-            "AwemeContacts tables when available."
+            "AwemeContacts tables when available. The Account ID column is the ChatFiles "
+            "folder name (the local account uid, which also appears in AwemeIM.db); messages "
+            "whose sender matches the Account ID are marked Outgoing. "
+            "Reference: G. Horsman & L. Shou, 'Case Study: Forensic Analysis of TikTok on iOS', "
+            "DFIR Review 2022, https://dfir.pubpub.org/pub/h6vyh33u"
         ),
         "paths": (
             "*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*",
@@ -317,8 +321,8 @@ def tiktok_messages(context):
         "Nickname",
         "Message",
         "Local Response",
-        "Link GIF Name",
-        "Link GIF URL",
+        "Content Display Name",
+        "Content URL",
         ("Server Created Timestamp", "datetime"),
         "Profile Pic URL",
         "Contact Table",

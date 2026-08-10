@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "module_name": "threeBars",
+    "artifact_name": "Wi-Fi ThreeBars - Downloaded Tiles",
+    "function_name": "threeBarsTiles",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 5,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 137,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/threeBars/testdata.threeBars.threeBarsTiles.josh_ios17_ffs.zip",
+    "start_time": "2026-07-30T03:35:09.216469+00:00",
+    "end_time": "2026-07-30T03:35:09.313730+00:00",
+    "run_time_seconds": 0.0015642642974853516,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-29T22:35:09.307273",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Created",
+    "Tile Key",
+    "Network Count",
+    "ETag",
+    "Record ID"
+  ],
+  "data": [
+    [
+      1721487277,
+      81843365,
+      1,
+      null,
+      2006
+    ],
+    [
+      1721757592,
+      81863686,
+      9,
+      null,
+      2007
+    ],
+    [
+      1721820231,
+      81858214,
+      38,
+      null,
+      2008
+    ],
+    [
+      1721850827,
+      81858216,
+      13,
+      null,
+      2009
+    ],
+    [
+      1722027579,
+      81863683,
+      2,
+      null,
+      2010
+    ]
+  ]
+}

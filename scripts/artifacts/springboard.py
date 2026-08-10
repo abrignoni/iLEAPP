@@ -3,7 +3,7 @@ __artifacts_v2__ = {
     "icons_screen": {
         "name": "iOS Home Screen Layout",
         "description": "Home screen layout: apps, folders, widgets and the dock, per screen page",
-        "author": "",
+        "author": "@JamesHabben",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-21",
         "requirements": "none",
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
     "icons_screen_visual": {
         "name": "iOS Home Screen Layout - Visual",
         "description": "Rendered image of each home screen page (apps, folders, widgets, dock)",
-        "author": "",
+        "author": "@JamesHabben",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-21",
         "requirements": "none",

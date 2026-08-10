@@ -2,13 +2,13 @@ __artifacts_v2__ = {
     "get_biomeSafariNavigations": {
         "name": "Biome - Safari Navigations",
         "description": "Parses Safari navigation events from the Safari.Navigations biome stream: "
-                       "host, full URL (observed on iOS 18+; earlier versions record the host only) "
-                       "and country code. Complements App.WebUsage and _DKEvent.Safari.History, and "
-                       "records were observed to remain after the matching History.db visits were "
-                       "gone.",
+                       "host, full URL (the URL was not present in the iOS 17 sample tested; "
+                       "observed on iOS 18+) and country code. Complements App.WebUsage and "
+                       "_DKEvent.Safari.History, and records were observed to remain after the "
+                       "matching History.db visits were gone.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "The rounded timestamp is the record timestamp rounded up to the next 30 minute "

@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Extract Call History",
         "author": "@SQLMcGee",
         "creation_date": "2025-02-05",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Call History",
-        "notes": "",
+        "notes": "Call type and disconnected-cause value mappings are community-established decodes reported as observed; unrecognized values are reported as stored.",
         "paths": ('*/mobile/Library/CallHistoryDB/CallHistory*'),
         "output_types": "standard",
         "artifact_icon": "phone-call",
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
         "description": "Extract Call History",
         "author": "@SQLMcGee",
         "creation_date": "2025-02-05",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
@@ -262,6 +262,6 @@ def callHistoryInteractionC(context):
                 (start_timestamp, end_timestamp, row[2], row[3], row[4], row[5], row[6], row[7]))
         
     data_headers = (
-        ('Call Date/Time', 'datetime'), ('Call End Date/Time', 'datetime'), 'Service Provider', 
+        ('Call Date/Time', 'datetime'), ('Call End Date/Time', 'datetime'), 'Application Bundle ID',
         'Call Direction', 'Display Name', ('Phone Number', 'phonenumber'), 'Call Description', 'Interaction Duration')
     return data_headers, data_list, interactionC

@@ -148,10 +148,10 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_photos": {
         "name": "Foursquare Swarm - Photos",
-        "description": "Parses and extracts Foursquare Swarm photos from all artifacts",
+        "description": "Parses and extracts Foursquare Swarm photos",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -169,11 +169,11 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_comments": {
         "name": "Foursquare Swarm - Comments",
-        "description": "Parses and extracts all Foursquare Swarm comments from "
+        "description": "Parses and extracts Foursquare Swarm comments from "
                        "check-ins, plans, tips, lists, and stickers",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
         "notes": "https://djangofaiola.blogspot.com",
@@ -464,19 +464,11 @@ def format_url(str_url: str | None, html_format: bool = False, label: str | None
     # Visible text: label or raw URL
     visible = label if label else s
 
-    # HTML rendering
+    # HTML rendering: escaped text, never an anchor. The host in a Foursquare URL
+    # comes from the evidence, and a report must not reach a destination outside its
+    # own folder. The URL is preserved verbatim for the examiner to read and copy.
     if html_format:
-        safe_text = html.escape(visible, quote=False)
-
-        if is_clickable:
-            safe_href = html.escape(s, quote=True)
-            return (
-                f'<a href="{safe_href}" target="_blank" '
-                f'rel="noopener noreferrer">{safe_text}</a>'
-            )
-
-        # Non-clickable: return escaped plain text — evidence preserved
-        return safe_text
+        return html.escape(visible, quote=False)
 
     # Plain text rendering
     if is_clickable and label:

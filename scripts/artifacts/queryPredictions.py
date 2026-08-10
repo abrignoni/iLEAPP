@@ -2,13 +2,13 @@ __artifacts_v2__ = {
     "queryPredictions": {
         "name": "Query Predictions",
         "description": "Message query predictions from query_predictions.db",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "SMS & iMessage",
         "notes": "",
-        "paths": ('**/query_predictions.db',),
+        "paths": ('**/query_predictions.db*',),
         "output_types": "standard",
         "artifact_icon": "message",
         "data_views": {

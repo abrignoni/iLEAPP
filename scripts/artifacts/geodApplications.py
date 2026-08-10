@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "geodapplications": {
         "name": "Geolocation - Applications",
         "description": "Per-application location count entries from the geod AP.db (mkcount/dailycounts)",
-        "author": "",
+        "author": "@flamusdiu",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-10",
         "requirements": "none",

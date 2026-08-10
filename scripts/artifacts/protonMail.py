@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Proton Mail - Decrypted Emails",
         "description": "Decrypted Proton Mail emails and attachments (requires the device keychain "
                        "in scripts/keychain/)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "pgpy, pycryptodome, ccl_bplist; a keychain plist placed in scripts/keychain/",

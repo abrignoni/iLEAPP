@@ -3,11 +3,11 @@ __artifacts_v2__ = {
     "atx_datastore": {
         "name": "iOS ATXDatastore",
         "description": (
-            "Parses ATXDataStore and matches actions with Frequent "
-            "locations, when available."),
+            "Parses ATXDataStore and matches actions with learned locations "
+            "of interest (routined Local.sqlite), when available."),
         "author": "@magpol",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-10-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Location",
         "notes": "",

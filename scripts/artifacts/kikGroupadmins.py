@@ -4,10 +4,12 @@ __artifacts_v2__ = {
         "description": "Kik users that are administrators of a group (kik.sqlite)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Kik",
-        "notes": "",
+        "notes": "Protobuf field positions for username/description/interests strings "
+                 "were established through observation of decoded content; labels are "
+                 "best-effort.",
         "paths": ('*/kik.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",

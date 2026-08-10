@@ -1,0 +1,107 @@
+{
+  "mvs_ios_2023": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Volumes/data/iOS Extractions/00008101-0010541A1130001E_files_full-001.zip",
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-07-29T22:50:06.978906",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-07-29T22:50:06.972438",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "locationdWifiLocations": {
+        "search_patterns": [
+          "*/root/Library/Caches/locationd/cache_encryptedB.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "locationdWifiHarvest": {
+        "search_patterns": [
+          "*/root/Library/Caches/locationd/cache_encryptedB.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "locationdCellLocations": {
+        "search_patterns": [
+          "*/root/Library/Caches/locationd/cache_encryptedB.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "locationdWifiTiles": {
+        "search_patterns": [
+          "*/root/Library/Caches/locationd/cache_encryptedB.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "mvs_ios_2023",
+    "image_info": {
+      "creation_date": "2023-01-01",
+      "os_name": "iPhone OS",
+      "os_version": "14.7.1",
+      "device_model": "Unknown",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Magnet"
+    }
+  },
+  "josh_ios17_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Volumes/data/iOS Extractions/iOS_17/Cellebrite_Extraction/UFED Apple iPhone 11 (N104AP) 2024_07_28 (001)/EXTRACTION_FFS 01/EXTRACTION_FFS.zip",
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-07-29T22:51:39.615621",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-07-29T22:51:39.608402",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "locationdWifiLocations": {
+        "search_patterns": [
+          "*/root/Library/Caches/locationd/cache_encryptedB.db*"
+        ],
+        "file_count": 3,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios17_ffs",
+    "image_info": {
+      "creation_date": "2024-07-28",
+      "os_name": "iPhone OS",
+      "os_version": "17.3",
+      "device_model": "iPhone 11",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    },
+    "note": "Only the Wi-Fi Locations case data is committed for this image. The database is 34 MB and the harness stores a copy per artifact, so the other three cases were dropped to keep the repository size sane. Regenerate them with make_test_data.py; the image is public and in the manifest."
+  }
+}

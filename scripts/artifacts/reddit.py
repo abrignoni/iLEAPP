@@ -4,9 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses chat messages from Reddit",
         "author": "@stark4n6",
         "creation_date": "2026-04-28",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Reddit",
-        "notes": "",
+        "notes": "An m.room.message event whose content carries no msgtype is reported as MESSAGE DELETED, matching the Matrix redaction algorithm, which strips the content keys of redacted m.room.message events. Reference: Matrix Specification v1.11, 'Room Version 11 - Redactions', https://spec.matrix.org/v1.11/rooms/v11/#redactions",
         "paths": (
             '*/Library/Caches/MatrixChat/roomsAccount/*/Account-*/Account.db*',
             '*/Library/Caches/MatrixChat/roomsAccount/*/Downloads-*/ContentService.db*',

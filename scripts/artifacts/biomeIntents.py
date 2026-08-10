@@ -4,14 +4,16 @@ __artifacts_v2__ = {
         "description": "Parses app intent entries from biomes",
         "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record is parsed independently: a record that cannot be decoded is "
                  "logged with its file and offset and skipped, so one malformed entry no "
                  "longer discards the rest of the stream. Intent payloads are app-authored "
                  "and their inner shape varies by app and iOS version, so an app branch that "
-                 "cannot read its own payload still emits the record metadata.",
+                 "cannot read its own payload still emits the record metadata. Labels inside "
+                 "the Data column (thread, sender, number) are inferred from observed record "
+                 "content; the underlying protobuf fields are not documented.",
         "paths": (
             '*/AppIntent/local/*',
             '*/streams/*/App.Intent/local/*',

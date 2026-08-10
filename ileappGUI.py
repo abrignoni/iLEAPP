@@ -127,11 +127,32 @@ def filter_modules(*args):
 
     for artifact_name, module_infos in mlist.items():
         if module_matches_filter(module_infos, filter_term):
-            cb = tk.Checkbutton(mlist_text, name=f'mcb_{artifact_name}',
-                                text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
-                                variable=module_infos[-1], onvalue=True, offvalue=False, command=get_selected_modules)
-            cb.config(background=theme_bgcolor, fg=theme_fgcolor, selectcolor=theme_inputcolor,
-                    highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor)
+            if is_platform_macos():
+                cb = ttk.Checkbutton(
+                    mlist_text,
+                    name=f'mcb_{artifact_name}',
+                    text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                    variable=module_infos[-1],
+                    onvalue=True,
+                    offvalue=False,
+                    command=get_selected_modules,
+                    style='Module.TCheckbutton')
+            else:
+                cb = tk.Checkbutton(
+                    mlist_text,
+                    name=f'mcb_{artifact_name}',
+                    text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                    variable=module_infos[-1],
+                    onvalue=True,
+                    offvalue=False,
+                    command=get_selected_modules)
+                cb.config(
+                    background=theme_bgcolor,
+                    fg=theme_fgcolor,
+                    selectcolor=theme_inputcolor,
+                    highlightthickness=0,
+                    activebackground=theme_bgcolor,
+                    activeforeground=theme_fgcolor)
             mlist_text.window_create('insert', window=cb)
             mlist_text.insert('end', '\n')
     mlist_text.config(state='disabled')
@@ -880,6 +901,14 @@ style.map('TCombobox',
           )
 style.configure('TScrollbar', background=theme_fgcolor, arrowcolor='black', troughcolor=theme_inputcolor)
 style.configure('TProgressbar', thickness=4, background='DarkGreen')
+style.configure(
+    'Module.TCheckbutton',
+    background=theme_bgcolor,
+    foreground=theme_fgcolor)
+style.map(
+    'Module.TCheckbutton',
+    background=[('active', theme_bgcolor)],
+    foreground=[('active', theme_fgcolor)])
 
 ## Main Window Layout
 ### Top part of the window
@@ -985,6 +1014,9 @@ mlist_text.config(state='disabled')
 main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
 main_window.bind_class('Checkbutton', '<Button-4>', scroll)
 main_window.bind_class('Checkbutton', '<Button-5>', scroll)
+main_window.bind_class('TCheckbutton', '<MouseWheel>', scroll)
+main_window.bind_class('TCheckbutton', '<Button-4>', scroll)
+main_window.bind_class('TCheckbutton', '<Button-5>', scroll)
 main_window.bind("<Control-f>", lambda event: modules_filter_entry.focus_set()) # Focus on The Filter Field
 main_window.bind("<Control-i>", lambda event: input_entry.focus_set()) # Focus on the Input Field
 main_window.bind("<Control-o>", lambda event: output_entry.focus_set()) # Focus on the Output Field

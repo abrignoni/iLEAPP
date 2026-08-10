@@ -504,16 +504,19 @@ def crunch_artifacts(
                     if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':
                         src = os.path.join(os.path.dirname(input_path), "logarchive.json")
                         dst = os.path.join(out_params.data_folder, "logarchive.json")
-                        if os.path.exists(src):
+                        # The artifact declares several search patterns, so this branch is
+                        # reached once per pattern that misses; only pick the export up once.
+                        if os.path.exists(src) and dst not in files_found:
                             copy2(src, dst)
                             files_found.append(dst)
                     log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
                 else:
                     log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
                     for pathh in found:
-                        if pathh.startswith('\\\\?\\'):
-                            pathh = pathh[4:]
-                        log.write(f'<ul><li>{pathh}</li></ul>')
+                        # Strip \\?\ only for log display; file_infos is keyed with the
+                        # original long-path form on Windows.
+                        display_path = pathh[4:] if pathh.startswith('\\\\?\\') else pathh
+                        log.write(f'<ul><li>{display_path}</li></ul>')
                         if seeker.file_infos.get(pathh):
                             file_path_id = id(seeker.file_infos.get(pathh))
                             if not pattern_already_searched and file_path_id not in file_path_ids:

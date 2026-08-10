@@ -35,15 +35,15 @@ __artifacts_v2__ = {
         "description": "Parses file listings from CloudKit cache snapshots",
         "author": "@JamesHabben",
         "creation_date": "2023-04-11",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "CloudKit",
-        "notes": "",
+        "notes": "File-type value mapping observed in testing; unrecognized values reported as stored.",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
         "artifact_icon": "file-text",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 7176 rows",
             "dexter_ios18": "iOS 18.3.2 | 11216 rows",
             "felix_ios17": "iOS 17.6.1 | 4537 rows",
             "fsfull002_ios17": "iOS 17.1 | 5658 rows",
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | 10037 rows",
             "abe_ios16": "iOS 16.5 | 9037 rows",
             "felix23_ios16": "iOS 16.5 | 4672 rows",
-            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 6432 rows",
             "hickman_ios14": "iOS 14.3 | 9004 rows",
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 1744 rows",
@@ -66,7 +66,7 @@ import nska_deserialize as nd
 
 from scripts.ilapfuncs import (
     artifact_processor,
-    get_sqlite_db_records,
+    get_sqlite_db_records, null_absent_columns,
     open_sqlite_db_readonly,
     convert_unix_ts_to_utc,
     convert_plist_date_to_utc
@@ -215,7 +215,8 @@ def cloudkit_files(context):
                 CASE
                     WHEN Files.fileType = 0 THEN 'File'
                     WHEN Files.fileType = 1 THEN 'Folder'
-                END AS file_type,  
+                    ELSE Files.fileType
+                END AS file_type,
                 Files.size,
                 Files.protectionClass,
                 Manifests.manifestID
@@ -223,7 +224,7 @@ def cloudkit_files(context):
             LEFT JOIN Files ON Files.manifestID = Manifests.manifestID
         '''
 
-        db_records = get_sqlite_db_records(file_found, query)
+        db_records = get_sqlite_db_records(file_found, null_absent_columns(file_found, query))
         for record in db_records:
             modified_ts = convert_unix_ts_to_utc(record[1]) if record[1] else ""
 

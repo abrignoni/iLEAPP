@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct and group messages, attachments and shared locations from GroupMe',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': '',
@@ -237,7 +237,7 @@ def groupMeMessages(context):
         ('Timestamp', 'datetime'), 'Conversation', 'Chat ID', 'Chat Type',
         'Sender', 'Sender ID', 'Message', 'Attachment Type', 'Attachment',
         'Venue Name', 'Latitude', 'Longitude', 'System Message', 'Hidden',
-        'Liked', 'Reply To Message ID', 'Message ID', 'Source GUID', 'From Me')
+        'Favorited By', 'Reply To Message ID', 'Message ID', 'Source GUID', 'From Me')
 
     return data_headers, data_list, source_path
 

@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "get_biomeBluetooth": {
         "name": "Biome - Bluetooth",
-        "description": "Parses bluetooth connection entries from biomes",
+        "description": "Parses Bluetooth device entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-07-27",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Use caution when interpreting this artifact. Lists of Bluetooth devices have been "

@@ -4,12 +4,12 @@ __artifacts_v2__ = {
         'description': 'Files downloaded through Safari, from the browser download history plist',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Safari Browser',
         'notes': ('Every Downloads.plist in the available test corpora has an empty DownloadHistory '
-                  'array, so the columns are mapped from the documented key names but no row of real '
-                  'download data has been observed. Unrecognised keys are reported in Other Fields '
+                  'array, so the columns are mapped from the expected DownloadEntry* key names; no '
+                  'populated sample was available to verify them. Unrecognised keys are reported in Other Fields '
                   'rather than dropped.'),
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Safari/Downloads/Downloads.plist',),
         'output_types': 'standard',

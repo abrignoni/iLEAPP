@@ -4,11 +4,11 @@ __artifacts_v2__ = {
         "description": "Parses location activity entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/restricted/_DKEvent.App.LocationActivity/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.App.LocationActivity/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
         "sample_data": {
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 32 rows",
             "iphone12_ios18": "iOS 18.7 | 92 rows",
-            "abe_ios16": "iOS 16.5 | 73 rows",
+            "abe_ios16": "iOS 16.5 | 79 rows",
             "felix23_ios16": "iOS 16.5 | 44 rows",
             "magnet_ios16": "iOS 16.1.1 | 8 rows",
         }

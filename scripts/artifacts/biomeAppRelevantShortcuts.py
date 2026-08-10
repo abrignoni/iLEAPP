@@ -16,6 +16,9 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/App.RelevantShortcuts/local/*',),
         "output_types": "standard",
         "artifact_icon": "zap",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 23 rows",
+        },
     }
 }
 

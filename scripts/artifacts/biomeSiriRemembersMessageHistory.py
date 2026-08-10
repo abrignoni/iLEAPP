@@ -3,11 +3,11 @@ __artifacts_v2__ = {
         "name": "Biome - Siri Remembers Message History",
         "description": "Parses message exchange records (timestamps, participants, chat and message "
                        "identifiers) from the Siri.Remembers.MessageHistory biome stream. The stream "
-                       "records message activity for Messages and third party messaging apps but does "
-                       "not store message body content.",
+                       "records message activity for Messages and third party messaging apps; no "
+                       "message body content was present in the records examined.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Direction values and message timestamps validated against sms.db (is_from_me, date) "

@@ -8,16 +8,26 @@ HTML/JavaScript injection sink: malicious content in a parsed return renders liv
 the examiner's report (stored XSS, CWE-79).
 
 Route every evidence-derived value in an ``html_columns`` cell through these helpers so
-the dynamic parts are escaped while the tool's own structural markup (``<a>``, ``<br>``,
+the dynamic parts are escaped while the tool's own structural markup (``<br>``,
 ``<table>``) is preserved.
+
+**A report links to nothing outside its own folder.** A remote destination in a
+report is a disclosure channel: an ``<img src="https://...">`` is fetched the moment
+the report is opened, with no click, which tells whoever controls that host that the
+account is under examination, when, and from which IP address. An ``<a href>`` needs a
+click but reaches the same place. Reports are read on analyst workstations and mailed
+to counsel, so no ``href`` or ``src`` may leave the report folder -- not ``http``,
+``https``, ``ftp``, and not ``mailto``/``tel``, which hand the subject's own address or
+number to a mail client or dialer.
+
+Evidence URLs are still *evidence*, so nothing is dropped: they are rendered as escaped
+text the examiner can read and copy. Only the anchor goes away. Report-relative
+destinations -- ``media/<file>`` thumbnails, files an artifact writes beside the report
+-- stay clickable through ``safe_local_link()``; they resolve offline and reach nothing.
 """
 
 import html
-from urllib.parse import urlparse
-
-# Schemes we are willing to turn into a live <a href>. Anything else (notably
-# javascript: and data:) is rendered as escaped text, never as a clickable link.
-ALLOWED_URL_SCHEMES = ('http', 'https', 'mailto', 'tel', 'ftp', 'ftps')
+from urllib.parse import urlparse, quote
 
 
 def esc(value):
@@ -31,25 +41,74 @@ def esc(value):
     return html.escape(str(value), quote=True)
 
 
-def safe_url(url, text=None, target='_blank'):
-    """Build an ``<a href>`` anchor with an escaped, scheme-checked href.
+def safe_url(url, text=None, target=None):      # pylint: disable=unused-argument
+    """Render an evidence URL as escaped text. **Never returns a link.**
 
-    Returns the escaped visible text with **no** anchor when the URL is empty or its
-    scheme is not allowlisted, so ``javascript:``/``data:`` URLs never become live
-    links. ``text`` (the visible label) defaults to the URL itself.
+    A URL read out of an extraction names a host chosen by whoever wrote the data, so
+    it is exactly the destination a report must not reach; see the module docstring.
+    The URL itself is evidence and is preserved verbatim as escaped text, so an
+    examiner can read it, copy it, and open it deliberately elsewhere.
+
+    ``text`` overrides the visible string when the caller has a better label than the
+    raw URL. ``target`` is accepted and ignored: it exists so the call sites that
+    passed it before this became text-only keep working.
     """
     url = '' if url is None else str(url).strip()
-    label = esc(text if text is not None else url)
-    if not url:
-        return label
+    return esc(text if text is not None else url)
+
+
+def _is_report_relative(path, allow_parent=False):
+    """True when ``path`` names something reachable from the report folder.
+
+    Rejects a URL scheme, a protocol-relative ``//host`` and an absolute path, so a
+    crafted media name cannot turn a report cell into a remote fetch. ``..`` is
+    rejected too unless ``allow_parent`` is set: media_to_html() genuinely emits
+    ``../data/...`` to reach the extraction folder next to the report, and that is a
+    deliberate part of the report layout rather than an escape.
+    """
+    if path.startswith(('/', '\\')):
+        return False
+    normalized = path.replace('\\', '/')
+    if normalized.startswith('//'):
+        return False
+    if not allow_parent and '..' in normalized.split('/'):
+        return False
     try:
-        scheme = urlparse(url).scheme.lower()
+        if urlparse(path).scheme:
+            return False
     except ValueError:
+        return False
+    return True
+
+
+def safe_local_path(path, allow_parent=False):
+    """Percent-encode a report-relative path for use in an ``href``/``src`` attribute.
+
+    Returns ``''`` when the path is not report-relative, so a crafted media filename
+    can neither point the report at a remote host nor reach outside the report folder.
+    The encoded result is HTML-escaped as well, so it is safe inside a quoted
+    attribute. Use this for the attribute value; use safe_local_link() when you want
+    the whole anchor.
+    """
+    path = '' if path is None else str(path).strip()
+    if not path or not _is_report_relative(path, allow_parent):
+        return ''
+    return esc(quote(path, safe='/.'))
+
+
+def safe_local_link(path, text=None):
+    """Build an ``<a href>`` to a file inside the report folder.
+
+    This is the only helper that still emits an anchor. The destination must be
+    report-relative -- no scheme, no protocol-relative ``//host``, no absolute path,
+    and no ``..`` escaping the folder -- so following it can never leave the report.
+    Anything else is returned as escaped text with no anchor.
+    """
+    path = '' if path is None else str(path).strip()
+    label = esc(text if text is not None else path)
+    if not path or not _is_report_relative(path):
         return label
-    if scheme not in ALLOWED_URL_SCHEMES:
-        return label
-    rel = ' rel="noopener noreferrer"' if target == '_blank' else ''
-    return f'<a href="{esc(url)}" target="{esc(target)}"{rel}>{label}</a>'
+    return f'<a href="{esc(path)}" target="_blank">{label}</a>'
 
 
 def safe_join(values, sep='<br>'):

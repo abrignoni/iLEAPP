@@ -5,6 +5,7 @@ import csv
 import hashlib
 import inspect
 import io
+import itertools
 import json
 import math
 import nska_deserialize
@@ -58,9 +59,10 @@ from functools import wraps
 import binascii
 from PIL import Image
 
+from scripts.html_safe import esc, safe_local_path
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_get_media_item, \
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
-    lava_get_full_media_info
+    lava_get_full_media_info, lava_update_record_count
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -387,20 +389,25 @@ def html_media_tag(media_path, mimetype, style, title=''):
         filename = Path(source).name
         return f"media/{filename}"
 
-    filename = Path(media_path).name
-    media_path = quote(relative_paths(media_path))
+    # The media name comes from the evidence, so every place it is emitted is
+    # escaped: percent-encoded in src/href by safe_local_path(), which also refuses a
+    # target that would leave the report folder, and HTML-escaped in title= and in the
+    # fallback link text. Before this, a crafted attachment filename broke out of the
+    # title attribute and ran in the examiner's report (CWE-79).
+    filename = esc(Path(media_path).name)
+    media_path = safe_local_path(relative_paths(media_path))
 
-    if mimetype == None:
+    if mimetype is None:
         mimetype = ''
     if 'video' in mimetype:
         thumb = f'<video width="320" height="240" controls="controls"><source src="{media_path}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
     elif 'image' in mimetype:
-        image_style = style if style else "max-height:300px; max-width:400px;"
-        thumb = f'<a href="{media_path}" target="_blank"><img title="{title}"  src="{media_path}" style="{image_style}"></img></a>'
+        image_style = esc(style) if style else "max-height:300px; max-width:400px;"
+        thumb = f'<a href="{media_path}" target="_blank"><img title="{esc(title)}"  src="{media_path}" style="{image_style}"></img></a>'
     elif 'audio' in mimetype:
         thumb = f'<audio controls><source src="{media_path}" type="audio/ogg"><source src="{media_path}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
     else:
-        thumb = f'<a href="{media_path}" target="_blank"> Link to {filename} file</>'
+        thumb = f'<a href="{media_path}" target="_blank"> Link to {filename} file</a>'
     return thumb
 
 def get_data_list_with_media(media_header_info, data_list):
@@ -535,11 +542,11 @@ def artifact_processor(func):
             source_path = '\n'.join(
                 Context.get_relative_path(p) for p in str(source_path).split('\n'))
 
+        if isinstance(data_list, tuple):
+            data_list, html_data_list = data_list
+        else:
+            html_data_list = data_list
         if len(data_list):
-            if isinstance(data_list, tuple):
-                data_list, html_data_list = data_list
-            else:
-                html_data_list = data_list
             logfunc(f"Found {len(data_list):,} {'records' if len(data_list)>1 else 'record'} for {artifact_name}")
             # Path separators would break (or misplace) the report files, so the HTML, TSV
             # and KML outputs are written under a path safe name. The sidebar keys off the
@@ -594,6 +601,111 @@ def artifact_processor(func):
                     lava_only_info(category, artifact_name, artifact_name, 0)
 
         return data_headers, data_list, source_path
+    return wrapper
+
+
+# Rows written per INSERT batch by artifact_processor_streaming. Large enough that the
+# per-statement overhead disappears, small enough that the batch itself stays small.
+STREAMING_BATCH_SIZE = 50000
+
+
+def _batched(iterable, size):
+    """Yield lists of up to `size` items. itertools.batched is 3.12+, iLEAPP supports 3.10."""
+    batch = []
+    for item in iterable:
+        batch.append(item)
+        if len(batch) >= size:
+            yield batch
+            batch = []
+    if batch:
+        yield batch
+
+
+def artifact_processor_streaming(func):
+    """LAVA-only artifact_processor for artifacts too large to hold in memory.
+
+    artifact_processor() needs a materialized data_list: it takes len() of it, hands it to
+    the HTML/TSV/timeline writers, and lava_insert_sqlite_data() then builds a second full
+    list of converted rows before executemany(). At roughly 617 bytes per row that is
+    ~19 GB for a 31M row Unified Log import, and ~39 GB at peak with both lists live.
+
+    A function decorated here returns an *iterator* of rows instead of a list, and the
+    rows are written to SQLite in batches as they arrive; peak memory stays flat at the
+    batch size regardless of how many records the artifact produces.
+
+    The trade-off is that nothing which needs the whole result set is available, so this
+    is restricted to lava_only artifacts: no HTML, TSV, timeline or KML output, and the
+    record count is known only once the stream ends.
+    """
+    @wraps(func)
+    def wrapper(files_found, report_folder, seeker, wrap_text, timezone_offset):
+        module_name = func.__module__.split('.')[-1]
+        func_name = func.__name__
+        module_file_path = inspect.getfile(func)
+
+        all_artifacts_info = func.__globals__.get('__artifacts_v2__', {})
+        artifact_info = all_artifacts_info.get(func_name, {})
+
+        artifact_name = artifact_info.get('name', func_name)
+        category = artifact_info.get('category', '')
+        icon = artifact_info.get('artifact_icon', '')
+        output_types = artifact_info.get('output_types', [])
+
+        if 'lava_only' not in output_types:
+            logfunc(f"{artifact_name} uses artifact_processor_streaming but is not declared "
+                    f"lava_only; no output will be produced")
+            return None, iter(()), None
+
+        Context.clear()
+        Context.set_report_folder(report_folder)
+        Context.set_seeker(seeker)
+        Context.set_files_found(files_found)
+        Context.set_artifact_info(artifact_info)
+        Context.set_module_name(module_name)
+        Context.set_module_file_path(module_file_path)
+        Context.set_artifact_name(artifact_name)
+
+        sig = inspect.signature(func)
+        if len(sig.parameters) == 1:
+            data_headers, row_iterator, source_path = func(Context)
+        else:
+            data_headers, row_iterator, source_path = func(
+                files_found, report_folder, seeker, wrap_text, timezone_offset)
+
+        rows = iter(row_iterator)
+        # Registering the artifact creates its table, so only do it once a row proves
+        # there is something to store. Otherwise an empty table would be left behind and
+        # would read as "parsed, found nothing" rather than "did not run".
+        first_batch = next(_batched(rows, STREAMING_BATCH_SIZE), None)
+        if not first_batch:
+            logfunc(f"No data found for {artifact_name}")
+            lava_only_info(category, artifact_name, artifact_name, 0)
+            return data_headers, iter(()), source_path
+
+        if source_path:
+            source_path = '\n'.join(
+                Context.get_relative_path(p) for p in str(source_path).split('\n'))
+
+        safe_artifact_name = sanitize_report_name(artifact_name)
+        safe_category = sanitize_report_name(category, 'category')
+        icons.setdefault(safe_category, {safe_artifact_name: icon}).update({safe_artifact_name: icon})
+
+        table_name, object_columns, column_map = lava_process_artifact(
+            category, module_name, artifact_name, data_headers,
+            record_count=0, func_name=func_name,
+            data_views=artifact_info.get("data_views"),
+            artifact_icon=icon, source_path=source_path)
+
+        record_count = 0
+        for batch in itertools.chain([first_batch], _batched(rows, STREAMING_BATCH_SIZE)):
+            lava_insert_sqlite_data(table_name, batch, object_columns, data_headers, column_map)
+            record_count += len(batch)
+
+        lava_update_record_count(category, table_name, record_count)
+        lava_only_info(category, artifact_name, table_name, record_count)
+        logfunc(f"Found {record_count:,} {'records' if record_count > 1 else 'record'} for {artifact_name}")
+
+        return data_headers, iter(()), source_path
     return wrapper
 
 
@@ -697,6 +809,48 @@ def get_plist_content(data):
         logfunc(f"Unexpected error reading plist data: {str(e)}")
     return {}
 
+def _read_binary_plist_tolerantly(file_path):
+    """Parse a binary plist that plistlib rejects outright for one bad value.
+
+    A single CFDate outside datetime's range makes plistlib raise for the whole
+    file, so every key is lost even though the rest is well formed and Apple's
+    own plutil reads it. Overriding the per-object read means only the offending
+    value is dropped. Returns None when the file is not a binary plist or the
+    private parser is unavailable, so the caller keeps its existing behaviour.
+    """
+    parser_class = getattr(plistlib, '_BinaryPlistParser', None)
+    if parser_class is None:
+        return None
+    try:
+        with open(file_path, 'rb') as file:
+            if file.read(8) != b'bplist00':
+                return None
+
+        skipped = []
+
+        class _Tolerant(parser_class):
+            def _read_object(self, ref):
+                try:
+                    return super()._read_object(ref)
+                except OverflowError:
+                    skipped.append(ref)
+                    return None
+
+        # aware_datetime is 3.12 and later. Pass it only where it exists, so this
+        # neither breaks nor silently no-ops on the older Python versions CI runs.
+        arguments = {'dict_type': dict}
+        if 'aware_datetime' in inspect.signature(parser_class.__init__).parameters:
+            arguments['aware_datetime'] = False
+        with open(file_path, 'rb') as file:
+            content = _Tolerant(**arguments).parse(file)
+    except Exception:  # pylint: disable=broad-exception-caught
+        return None
+    if skipped:
+        logfunc(f'{file_path}: {len(skipped)} value(s) held a date outside the representable '
+                'range and are reported empty; the rest of the plist was read')
+    return content
+
+
 def get_plist_file_content(file_path):
     try:
         with open(file_path, 'rb') as file:
@@ -709,6 +863,9 @@ def get_plist_file_content(file_path):
     except PermissionError:
         logfunc(f"Error: Permission denied when trying to read {file_path}")
     except plistlib.InvalidFileException:
+        recovered = _read_binary_plist_tolerantly(file_path)
+        if recovered is not None:
+            return recovered
         logfunc(f"Error: Invalid plist file format in {file_path}")
     except xml.parsers.expat.ExpatError:
         logfunc(f"Error: Malformed XML in plist file {file_path}")
@@ -804,17 +961,20 @@ def does_column_exist_in_db(path, table_name, col_name):
     '''Checks if a specific col exists'''
     db = open_sqlite_db_readonly(path)
     col_name = col_name.lower()
-    try:
-        db.row_factory = sqlite3.Row # For fetching columns by name
+    if db:
         query = f"pragma table_info('{table_name}');"
-        cursor = db.cursor()
-        cursor.execute(query)
-        all_rows = cursor.fetchall()
-        for row in all_rows:
-            if row['name'].lower() == col_name:
-                return True
-    except sqlite3.Error as ex:
-        logfunc(f"Query error, query={query} Error={str(ex)}")
+        try:
+            db.row_factory = sqlite3.Row # For fetching columns by name
+            cursor = db.cursor()
+            cursor.execute(query)
+            all_rows = cursor.fetchall()
+            for row in all_rows:
+                if row['name'].lower() == col_name:
+                    return True
+        except sqlite3.Error as ex:
+            logfunc(f"Query error, query={query} Error={str(ex)}")
+        finally:
+            db.close()
     return False
 
 def does_table_exist_in_db(path, table_name):
@@ -828,7 +988,79 @@ def does_table_exist_in_db(path, table_name):
                 return True
         except sqlite3.Error as ex:
             logfunc(f"Query error, query={query} Error={str(ex)}")
+        finally:
+            db.close()
     return False
+
+def null_absent_columns(path, query):
+    '''Replace references to columns the database lacks with NULL.
+
+    Apps add columns between releases, so a query written against a newer store
+    names columns an older one does not have and the whole statement fails with
+    "no such column", returning nothing. Substituting NULL keeps every column in
+    place, which matters because artifacts consume rows positionally, and keeps
+    the column's name, because they also read rows by name.
+
+    SQLite itself names the missing column, so the query is compiled with EXPLAIN
+    and whatever it objects to is replaced, repeatedly, until it compiles. That
+    avoids guessing which bare words in a statement are column references, which
+    no amount of regex gets reliably right. EXPLAIN compiles without running, so
+    this costs nothing on a large table.
+
+    Returns the query unchanged if the database cannot be read or the error is
+    anything other than a missing column.
+    '''
+    db = open_sqlite_db_readonly(path)
+    if not db:
+        return query
+
+    replaced = []
+    try:
+        for _ in range(50):                  # a query cannot need more than this
+            try:
+                db.execute('EXPLAIN ' + query)
+                break
+            except sqlite3.OperationalError as ex:
+                match = re.match(r'no such column:\s*(\S+)', str(ex))
+                if not match:
+                    break
+                reference = match.group(1)
+                if reference in replaced:
+                    break                    # not making progress, leave it alone
+                replaced.append(reference)
+                query = _null_out_column(query, reference)
+            except sqlite3.Error:
+                break
+    finally:
+        # Artifacts call this once per query, so an unclosed handle here is one
+        # leak per query for the whole run rather than a one-off.
+        db.close()
+
+    if replaced:
+        logfunc(f'{os.path.basename(path)}: column(s) absent from this version are reported '
+                f'empty: {", ".join(sorted(replaced))}')
+    return query
+
+
+def _null_out_column(query, reference):
+    '''Replace one column reference with NULL, keeping the output column name.
+
+    A bare NULL renames the output column, and artifacts read rows by name, so
+    where the reference is a select item in its own right it becomes
+    "NULL AS <name>". Inside an expression the enclosing alias already names the
+    column and a plain NULL is correct.
+    '''
+    name = reference.split('.')[-1].strip('"[]`')
+    pattern = re.compile(r'(?<![\w.])' + re.escape(reference) + r'\b'
+                         r'(?P<tail>\s*(?:,|$)|\s+(?i:FROM)\b)?')
+
+    def replace(match):
+        tail = match.group('tail')
+        if tail is None:
+            return 'NULL'
+        return f'NULL AS {name}{tail}'
+
+    return pattern.sub(replace, query)
 
 def does_view_exist_in_db(path, table_name):
     '''Checks if a table with specified name exists in an sqlite db'''
@@ -841,6 +1073,8 @@ def does_view_exist_in_db(path, table_name):
                 return True
         except sqlite3.Error as ex:
             logfunc(f"Query error, query={query} Error={str(ex)}")
+        finally:
+            db.close()
     return False
 
 
@@ -1005,17 +1239,27 @@ def media_to_html(media_path, files_found, report_folder):
             source = relative_paths(str(source), splitter)
 
         mimetype = guess_mime(match)
-        if mimetype == None:
+        if mimetype is None:
             mimetype = ''
 
+        # allow_parent: relative_paths() above deliberately emits ../data/... to reach
+        # the extraction folder beside the report. The evidence filename in the
+        # fallback link text is escaped -- it used to be interpolated raw.
+        # Bind the escaped values to their own names rather than writing back over
+        # `source`, which is assigned several times above. Reading a name that only
+        # ever holds a checked value makes the safety local and obvious, to a reader
+        # and to admin/scripts/check_html_safety.py alike.
+        safe_source = safe_local_path(source, allow_parent=True)
+        safe_filename = esc(filename)
+
         if 'video' in mimetype:
-            thumb = f'<video width="320" height="240" controls="controls"><source src="{source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
+            thumb = f'<video width="320" height="240" controls="controls"><source src="{safe_source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
         elif 'image' in mimetype:
-            thumb = f'<a href="{source}" target="_blank"><img src="{source}"width="300"></img></a>'
+            thumb = f'<a href="{safe_source}" target="_blank"><img src="{safe_source}" width="300"></img></a>'
         elif 'audio' in mimetype:
-            thumb = f'<audio controls><source src="{source}" type="audio/ogg"><source src="{source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
+            thumb = f'<audio controls><source src="{safe_source}" type="audio/ogg"><source src="{safe_source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
         else:
-            thumb = f'<a href="{source}" target="_blank"> Link to {filename} file</>'
+            thumb = f'<a href="{safe_source}" target="_blank"> Link to {safe_filename} file</a>'
     return thumb
 
 

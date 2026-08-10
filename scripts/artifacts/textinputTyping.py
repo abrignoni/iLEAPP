@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "textinputTyping": {
         "name": "Text Input Messages",
         "description": "Typed text captured by the TextInput TypingDESPlugin (.desdata)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",

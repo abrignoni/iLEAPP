@@ -97,7 +97,7 @@ __artifacts_v2__ = {
 Developed by Evangelos Dragonas (@theAtropos4n6)
 
 Research for this artifact was conducted by Evangelos Dragonas, Costas Lambrinoudakis and Michael Kotsis. 
-For more information read their research paper here: Link_to_be_uploaded
+For more information read their research paper here: E. Dragonas, C. Lambrinoudakis, M. Kotsis, 'IoT Forensics: Investigating the Mobile App of Dahua Technology', 2023 IEEE International Conference on Cyber Security and Resilience (CSR), https://ieeexplore.ieee.org/document/10224982
 
 Updated:18-04-2023
 
@@ -395,6 +395,8 @@ def get_dmss_created_media(context):
     data_headers = ('File Name', ('File Content', 'media'), 'Source File') 
     for file_found in files_found:
         file_found = str(file_found)
+        if file_found.endswith(('-wal', '-shm', '-journal')):
+            continue
         file_name = os.path.basename(file_found)
         #Dahua CCTV - User Created Media: - Collecting Files
         if file_name.endswith(".jpg") or file_name.endswith(".mp4") or file_name.endswith(".dav"):

@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Apple Wallet Cards",
         "author": "@any333",
         "creation_date": "2021-02-05",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Apple Wallet",
-        "notes": "",
+        "notes": "Card values are pattern-matched from cached API responses and the type heuristic uses only the first digit; values require verification. Cache timestamps reflect response caching, not card enrollment.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
         "output_types": "standard",
         "artifact_icon": "credit-card",
@@ -81,10 +81,10 @@ def applewalletcards(context):
     '''
 
     data_headers = (
-        ('Timestamp (Card Added)', 'datetime'), 
-        'Card Number', 
-        'Expiration Date', 
-        'Type')
+        ('Cache Entry Timestamp', 'datetime'),
+        'Possible Card Number (pattern match)',
+        'Possible Expiration (pattern match)',
+        'Possible Card Type (first-digit heuristic)')
     
     db_records = get_sqlite_db_records(source_path, query)
 

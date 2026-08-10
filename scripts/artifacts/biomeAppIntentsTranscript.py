@@ -3,11 +3,11 @@ __artifacts_v2__ = {
         "name": "Biome - App Intents Transcript",
         "description": "Parses donated App Intents from the App.Intents.Transcript biome "
                        "stream: the donating app, the intent class, the intent parameter and "
-                       "the human readable entity title shown to the user (for example a "
-                       "Settings destination or a Focus filter target).",
+                       "the human readable entity title associated with the intent (for "
+                       "example a Settings destination or a Focus filter target).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record also embeds an NSKeyedArchiver plist holding the full entity "

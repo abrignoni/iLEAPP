@@ -16,7 +16,7 @@ __artifacts_v2__ = {
         'artifact_icon': 'message',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | group.ch.threema | 45 rows',
-            'hickman_ios14': 'iOS 14.3 | group.ch.threema | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | group.ch.threema | 11 rows',
         },
         'data_views': {
             'conversation': {
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
 import datetime
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, \
+    get_file_path, get_sqlite_db_records, null_absent_columns, \
     check_in_media, check_in_embedded_media
 
 @artifact_processor
@@ -167,7 +167,7 @@ def threema_chats(context):
                 ON conv.ZCONTACT = cont.Z_PK;
         '''
 
-    db_records = get_sqlite_db_records(source_path, chat_query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, chat_query))
 
     for record in db_records:
         m_type = record['MTYPE']
@@ -248,7 +248,7 @@ def threema_users(context):
             ZCONTACT;
     '''
 
-    db_records = get_sqlite_db_records(source_path, user_query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, user_query))
     for record in db_records:
         c_id = record['CID']
         identity = record['IDENTITY']

@@ -5,6 +5,8 @@ __artifacts_v2__ = {
 ' supports iOS. Parses limited assets data with full non-shared album data.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -26,7 +28,7 @@ __artifacts_v2__ = {
 'abe_ios16': 'iOS 16.5 | 50 rows',
 'felix23_ios16': 'iOS 16.5 | 2 rows',
 'hickman_ios13': 'iOS 13.3.1 | 5 rows',
-'hickman_ios14': 'iOS 14.3 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 25 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
 }
@@ -35,7 +37,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
@@ -242,7 +244,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -308,7 +310,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Custom Query Type-53',
         'zGenAlbum-Trashed State-54',
         ('zGenAlbum-Trash Date-55', 'datetime'))
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -510,7 +512,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -578,7 +580,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Trashed State-55',
         ('zGenAlbum-Trash Date-56', 'datetime'),
         'zGenAlbum-Cloud Delete State-57')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -790,7 +792,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -861,7 +863,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Trashed State-58',
         ('zGenAlbum-Trash Date-59', 'datetime'),
         'zGenAlbum-Cloud Delete State-60')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1090,7 +1092,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1168,7 +1170,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Trashed State-64',
         ('zGenAlbum-Trash Date-65', 'datetime'),
         'zGenAlbum-Cloud Delete State-66')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1416,7 +1418,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1497,7 +1499,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Trashed State-67',
         ('zGenAlbum-Trash Date-68', 'datetime'),
         'zGenAlbum-Cloud Delete State-69')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1768,7 +1770,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1855,7 +1857,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Search Index Rebuild State-72',
         'zGenAlbum-Duplicate Type-73',
         'zGenAlbum-Privacy State-74')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2126,7 +2128,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2213,7 +2215,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Search Index Rebuild State-72',
         'zGenAlbum-Duplicate Type-73',
         'zGenAlbum-Privacy State-74')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2490,7 +2492,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2579,7 +2581,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Search Index Rebuild State-74',
         'zGenAlbum-Duplicate Type-75',
         'zGenAlbum-Privacy State-76')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2856,7 +2858,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2945,7 +2947,7 @@ def Ph022AssetsinNonSharedAlbumsPhDaPsql(context):
         'zGenAlbum-Search Index Rebuild State-74',
         'zGenAlbum-Duplicate Type-75',
         'zGenAlbum-Privacy State-76')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 

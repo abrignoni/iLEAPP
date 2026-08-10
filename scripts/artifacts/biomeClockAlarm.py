@@ -2,16 +2,18 @@ __artifacts_v2__ = {
     "get_biomeClockAlarm": {
         "name": "Biome - Clock Alarm",
         "description": "Parses alarm state changes from the Clock.Alarm biome stream, including "
-                       "the alarm identifier, which can be correlated with the Clock app alarm "
-                       "list and with the _DKEvent.Clock.Alarm stream.",
+                       "the alarm identifier, which also appears in the _DKEvent.Clock.Alarm "
+                       "stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Raw state values observed: 0, 1, 2 and 4. Apple describes this stream as "
-                 "capturing alarm states such as firing and snoozed; exact value semantics are "
-                 "not confirmed, so the raw value is reported.",
+        "notes": "Raw state values observed: 0, 1, 2 and 4. Published research states this "
+                 "stream captures alarm states such as firing and snoozed; exact value "
+                 "semantics are not confirmed, so the raw value is reported. Reference: Mattia "
+                 "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/Clock.Alarm/local/*',),
         "output_types": "standard",
         "artifact_icon": "clock",

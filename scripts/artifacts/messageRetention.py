@@ -1,14 +1,16 @@
-# pylint: disable=E0601,W0611,W0613
+# pylint: disable=W0611,W0613
 __artifacts_v2__ = {
     "messageRetention": {
         "name": "iOS Message Retention",
         "description": "Extract how long messages are kept on the device",
         "author": "@AlexisBrignoni",
+        "creation_date": "2023-10-03",
         "version": "0.4",
         "date": "2023-10-04",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "",
+        "notes": "iOS <=16 / iOS 17+ key naming per tested corpora. Reference: Apple Support, 'Delete messages and attachments', https://support.apple.com/guide/iphone/delete-messages-and-attachments-iph2c9c4bfcb/ios",
         "paths": ('*/mobile/Library/Preferences/com.apple.MobileSMS.plist', '*/mobile/Library/Preferences/com.apple.mobileSMS.plist'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "message-circle",
@@ -55,6 +57,8 @@ def messageRetention(context):
                     keep_val = '1 Year'
                 elif val == 30:
                     keep_val = '30 Days'
+                else:
+                    keep_val = f'Unrecognized value: {val}'
                 
                 data_list.append(('com.apple.MobileSMS.plist - Keep Messages for Days (iOS <=16)', keep_val, source_path_one))
                 device_info('Messages Settings', 'com.apple.MobileSMS.plist - Keep Messages for Days (iOS <=16)', keep_val, source_path_one)
@@ -67,6 +71,8 @@ def messageRetention(context):
                     keep_val = '1 Year'
                 elif val == 30:
                     keep_val = '30 Days'
+                else:
+                    keep_val = f'Unrecognized value: {val}'
                 
                 data_list.append(('com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+)', keep_val, source_path_one))
                 device_info('Messages Settings', 'com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+)', keep_val, source_path_one)
@@ -89,7 +95,9 @@ def messageRetention(context):
                 elif val == 365:
                     keep_val = '1 Year'
                 elif val == 30:
-                    keep_val = '30 Days'                            
+                    keep_val = '30 Days'
+                else:
+                    keep_val = f'Unrecognized value: {val}'
                 
                 data_list.append(('com.apple.mobileSMS.plist - Keep Messages for Days (iOS <=16)', keep_val, source_path_two))
                 device_info('Messages Settings', 'com.apple.mobileSMS.plist - Keep Messages for Days (iOS <=16)', keep_val, source_path_two)
@@ -102,6 +110,8 @@ def messageRetention(context):
                     keep_val = '1 Year'
                 elif val == 30:
                     keep_val = '30 Days'
+                else:
+                    keep_val = f'Unrecognized value: {val}'
                     
                 data_list.append(('com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+)', keep_val, source_path_two))
                 device_info('Messages Settings', 'com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+)', keep_val, source_path_two)

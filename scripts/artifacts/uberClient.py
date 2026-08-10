@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Uber user account information (Client, City, Status).",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
@@ -37,11 +37,11 @@ __artifacts_v2__ = {
         }
     },
     "uber_user_address": {
-        "name": "Uber - User Address",
-        "description": "Parses user reverse geocode address from Eyeball cache.",
+        "name": "Uber - Reverse Geocode Address",
+        "description": "Parses reverse-geocoded address from the client cache.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
@@ -74,11 +74,11 @@ __artifacts_v2__ = {
         }
     },
     "uber_searched_rides": {
-        "name": "Uber - Searched Rides",
+        "name": "Uber - Place Search Hits",
         "description": "Parses searched rides history from database.db.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
@@ -96,10 +96,10 @@ __artifacts_v2__ = {
         "description": "Parses cached locations from database.db.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
-        "notes": "",
+        "notes": "Column labels for the place-search cache follow observed schema naming.",
         "paths": ('*/Documents/database.db*',),
         "output_types": "all",
         "artifact_icon": "map",
@@ -110,11 +110,11 @@ __artifacts_v2__ = {
         }
     },
     "uber_ur_locations": {
-        "name": "Uber - Unified Reporter Locations",
+        "name": "Uber - UR Message Locations (ur_message.db)",
         "description": "Parses location data from ur_message.db.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
@@ -281,7 +281,7 @@ def uber_account(context):
         'Profile picture url', 'Profile type',
         'Country code', 'City ID', 'City',
         'Currency code', 'Timezone',
-        ('Last used', 'datetime'),
+        ('Client Status Last Modified', 'datetime'),
         'Latitude', 'Longitude',
         'Last payment profile ID', 'User ID'
     )

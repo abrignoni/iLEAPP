@@ -19,6 +19,13 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/Discoverability.Signals/local/*',),
         "output_types": "standard",
         "artifact_icon": "radio",
+        "sample_data": {
+            "dexter_ios18": "8951 rows",
+            "hc_ios18_7": "319 rows",
+            "hc_ios26": "26.5.2 | 142 rows",
+            "iphone12_ios18": "168 rows",
+            "iphone14plus_ios18": "31 rows",
+        },
     }
 }
 

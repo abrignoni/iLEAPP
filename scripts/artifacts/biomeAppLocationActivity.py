@@ -5,25 +5,33 @@ __artifacts_v2__ = {
                        "App.LocationActivity biome stream: the donating app, the activity type "
                        "and payload, the web page or item involved, and the associated street "
                        "address, city and postal code. TIMESTAMP CAUTION: the place details in "
-                       "this stream are reliable but the timestamps are not. Records are "
+                       "this stream parse consistently, but the timestamps require caution. "
+                       "Records are "
                        "written in batches, so the SEGB record time is a write time rather than "
                        "the moment of the activity, and the other timestamp on the record is an "
                        "expiry roughly 30 days ahead. Corroborate any time here against another "
                        "source before relying on it.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "Same NSUserActivity record shape as the App.Activity stream, extended with "
                  "place fields. In the sample data the SEGB write times were identical across "
                  "records and fell on an exact minute boundary, which is a further sign they "
                  "are batch write times and not activity times. The expiration timestamp sits "
-                 "about 30 days after the SEGB write, matching the NSUserActivity default seen "
-                 "in App.Activity. Payload strings are URL-decoded for display.",
+                 "about 30 days after the SEGB write, matching the interval seen in "
+                 "App.Activity. Payload strings are URL-decoded for display. Reference: Mattia "
+                 "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/App.LocationActivity/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "402 rows",
+            "hc_ios18_7": "19 rows",
+            "iphone12_ios18": "44 rows",
+        },
     }
 }
 

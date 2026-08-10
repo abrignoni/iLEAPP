@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "duetlocations": {
         "name": "Duet Locations",
         "description": "Location records from the DuetExpertCenter location stream (SEGB)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",

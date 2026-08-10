@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "get_biomeShareSheetConversation": {
         "name": "Biome - Share Sheet Conversation",
-        "description": "Parses share sheet conversation targets from the "
-                       "MLSE.ShareSheet.ConversationUserInteraction biome stream: the app the "
-                       "share was directed to and the conversation identifier, which carries "
-                       "the recipient handle for Messages shares.",
+        "description": "Parses share sheet conversation records from the "
+                       "MLSE.ShareSheet.ConversationUserInteraction biome stream: the app "
+                       "associated with the share and the conversation identifier, which "
+                       "carries a contact handle for Messages shares.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "The conversation identifier follows the service;-;handle form used elsewhere "
@@ -17,6 +17,9 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/MLSE.ShareSheet.ConversationUserInteraction/local/*',),
         "output_types": "standard",
         "artifact_icon": "share-2",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 12 rows",
+        },
     }
 }
 
@@ -102,7 +105,7 @@ def get_biomeShareSheetConversation(context):
                                   filename, record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Interaction Timestamp', 'datetime'),
-                    'SEGB State', 'Bundle ID', 'Recipient Handle', 'Conversation ID',
+                    'SEGB State', 'Bundle ID', 'Contact Handle', 'Conversation ID',
                     'Field 10 (raw)', 'Filename', 'Offset')
 
     return data_headers, data_list, 'see Filename for more info'

@@ -2,8 +2,9 @@ __artifacts_v2__ = {
     "get_discordAcct": {  # This should match the function name exactly
         "name": "Discord - Account",
         "description": "Parses Discord accounts",
-        "author": "",
-        "creation_date": "",
+        "author": "@abrignoni",
+        "last_update_date": "2026-07-11",
+        "creation_date": "2020-09-15",
         "last_updated": "2025-11-25",
         "requirements": "none",
         "category": "Discord",

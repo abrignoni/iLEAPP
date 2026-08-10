@@ -383,14 +383,10 @@ def format_url(str_url : str | None, html_format : bool = False) -> str:
         return s
 
     if html_format:
-        # Escape both the href and the visible text to prevent XSS
-        safe_href = html.escape(normalized, quote=True)
-        safe_text = html.escape(normalized, quote=False)
-        # Add rel="noopener noreferrer" with target="_blank" to prevent tabnabbing
-        return (
-            f'<a href="{safe_href}" target="_blank" '
-            f'rel="noopener noreferrer">{safe_text}</a>'
-        )
+        # Escaped text, never an anchor: the host in a Booking URL comes from the
+        # evidence, and a report must not reach a destination outside its own
+        # folder. The URL is preserved verbatim for the examiner to read and copy.
+        return html.escape(normalized, quote=False)
 
     return normalized
 
