@@ -8,14 +8,19 @@ __artifacts_v2__ = {
             "and macOS reports."
         ),
         "author": "@malwr4n6",
-        "version": "1.1.1",
-        "date": "2026-07-19",
+        "creation_date": "2026-07-19",
+        "last_update_date": "2026-08-10",
         "requirements": "none",
         "category": "Apple Intelligence",
         "notes": (
-            "Apple Intelligence Reports can be exported via Settings > Privacy & Security > "
-            "Apple Intelligence Report on iOS 18.4+ / macOS 15.4+. "
-            "Detects on-device (Model Request) vs Private Cloud Compute (PCC) requests."
+            "Parses the report a user exports via Settings > Privacy & Security > Apple "
+            "Intelligence Report on iOS 18.4+ / macOS 15.4+; the file does not exist on a "
+            "device image unless the user exported it, so the examiner supplies it. "
+            "Distinguishes on-device Model Requests from Private Cloud Compute (PCC) requests. "
+            "The User Trigger and Source App columns are convenience labels derived from the "
+            "use-case and client identifiers; the raw values are reported beside them. "
+            "Developed against the author's exported reports; no registered corpus image "
+            "carries one."
         ),
         "paths": ('*/Apple_Intelligence_Report*.json',),
         "output_types": "all",
@@ -25,7 +30,7 @@ __artifacts_v2__ = {
 
 import json
 import re
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor
 
@@ -66,15 +71,7 @@ CLIENT_APP_MAP = {
 
 def _epoch_to_utc(ts):
     try:
-        return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-    except (OSError, ValueError, TypeError):
-        return str(ts)
-
-
-def _epoch_to_local(ts, tz_offset):
-    try:
-        local_tz = timezone(timedelta(minutes=tz_offset))
-        return datetime.fromtimestamp(ts, tz=local_tz).strftime("%Y-%m-%d %H:%M:%S")
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
     except (OSError, ValueError, TypeError):
         return str(ts)
 
@@ -126,11 +123,11 @@ def _extract_from_template(text):
         for k in ["userPrompt", "prompt", "userContent", "doc", "freeformStoryPromptQuery"]:
             if k in parts and parts[k]:
                 val = parts[k]
-                return val[:200] + "..." if len(val) > 200 else val
+                return val
     matches = re.findall(r'string:\s*"((?:[^"\\]|\\.){10,})"', text)
     if matches:
         best = max(matches, key=len)
-        return (best[:200] + "...").replace("<n>", " ") if len(best) > 200 else best.replace("<n>", " ")
+        return best.replace("<n>", " ")
     return "(template-based prompt)"
 
 
@@ -150,7 +147,7 @@ def _extract_request(prompt_text):
             orig = obj.get("originalText", "")
             r = base
             if orig:
-                r += f" [on: {orig[:80]}...]" if len(orig) > 80 else f" [on: {orig}]"
+                r += f" [on: {orig}]"
             if len(parts) > 1:
                 r += f" >> {parts[1]}"
             return r
@@ -178,14 +175,14 @@ def _extract_response(response_text):
         try:
             obj = json.loads(s)
             c = obj.get("content", "") or obj.get("body", "") or obj.get("summary", "")
-            return c[:500] + "..." if len(c) > 500 else c
+            return c
         except json.JSONDecodeError:
             pass
-    return s[:500] + "..." if len(s) > 500 else s
+    return s
 
 
 @artifact_processor
-def appleIntelligenceReport(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def appleIntelligenceReport(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
     """
     Parses Apple Intelligence Report JSON files.
     Author: Bhargav Rathod (@malwr4n6) - https://malwr4n6.com
@@ -213,7 +210,6 @@ def appleIntelligenceReport(files_found, report_folder, seeker, wrap_text, timez
 
             data_list.append((
                 _epoch_to_utc(ts),
-                _epoch_to_local(ts, timezone_offset),
                 e.get("identifier", ""),
                 _extract_user_trigger(use_case, prompt, model),
                 use_case,
@@ -240,7 +236,6 @@ def appleIntelligenceReport(files_found, report_folder, seeker, wrap_text, timez
 
             data_list.append((
                 _epoch_to_utc(ts),
-                _epoch_to_local(ts, timezone_offset),
                 e.get("requestId", ""),
                 _extract_user_trigger("", "", adapter),
                 pipeline,
@@ -253,7 +248,6 @@ def appleIntelligenceReport(files_found, report_folder, seeker, wrap_text, timez
 
     data_headers = (
         ("Timestamp (UTC)", "datetime"),
-        "Timestamp (Local)",
         "Event ID",
         "User Trigger",
         "Use Case (Raw)",
