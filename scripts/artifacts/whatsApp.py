@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Extract call history from WhatsApp',
         'author': '@Vinceckert',
         'creation_date': '2024-05-31',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-09',
         'requirements': 'none',
         'category': 'WhatsApp',
         'notes': 'Call outcome value mapping observed in testing; unrecognized values reported as stored.',
@@ -127,8 +127,12 @@ def whatsAppCallHistory(context):
         base2.ZPHONENUMBER
     '''
 
+    # LEFT JOIN on purpose: the address book is an enrichment, not a filter.
+    # With INNER JOIN a call whose participant is not in ZWAADDRESSBOOKCONTACT
+    # disappeared entirely (on the hickman_ios14 image all 4 calls were dropped
+    # because the caller was not among the 5 stored contacts).
     tables_join = '''
-    INNER JOIN ContactsV2.ZWAADDRESSBOOKCONTACT base2 ON ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING = base2.ZWHATSAPPID
+    LEFT JOIN ContactsV2.ZWAADDRESSBOOKCONTACT base2 ON ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING = base2.ZWHATSAPPID
     '''
 
     # Older releases have no group-call creator column. The query is built here

@@ -24,7 +24,7 @@ __artifacts_v2__ = {
                        "history entry URL and, where present, the tab the visit belonged to",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "DuckDuckGo",
         "notes": "ZPAGEVISITMANAGEDOBJECT records one row per visit and links to a history entry and "
@@ -44,6 +44,7 @@ from scripts.ilapfuncs import (
     convert_cocoa_core_data_ts_to_utc,
     get_file_path,
     get_sqlite_db_records, null_absent_columns,
+    does_table_exist_in_db,
 )
 
 
@@ -90,11 +91,22 @@ def duckduckgo_page_visits(context):
     source_path = get_file_path(context.get_files_found(), 'History.sqlite')
     data_list = []
 
-    query = '''
-    SELECT v.ZDATE, h.ZURL, h.ZTITLE, t.ZTABID
+    # Some app versions have no ZTABHISTORYMANAGEDOBJECT table at all
+    # (verified on the felix_ios17 image, which still holds page visits), and
+    # even a LEFT JOIN against a missing table fails the whole query. Join it
+    # only when the file carries it; the Tab ID column stays empty otherwise.
+    if does_table_exist_in_db(source_path, 'ZTABHISTORYMANAGEDOBJECT'):
+        tab_id = 't.ZTABID'
+        tab_join = 'LEFT JOIN ZTABHISTORYMANAGEDOBJECT t ON v.ZTABHISTORY = t.Z_PK'
+    else:
+        tab_id = 'NULL'
+        tab_join = ''
+
+    query = f'''
+    SELECT v.ZDATE, h.ZURL, h.ZTITLE, {tab_id} AS ZTABID
     FROM ZPAGEVISITMANAGEDOBJECT v
     LEFT JOIN ZBROWSINGHISTORYENTRYMANAGEDOBJECT h ON v.ZHISTORYENTRY = h.Z_PK
-    LEFT JOIN ZTABHISTORYMANAGEDOBJECT t ON v.ZTABHISTORY = t.Z_PK
+    {tab_join}
     ORDER BY v.ZDATE
     '''
     for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):

@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         'description': 'Mastodon accounts cached by the application, with follow relationships',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-09',
         'requirements': 'none',
         'category': 'Mastodon',
         'notes': '',
@@ -328,7 +328,36 @@ def mastodonUsers(context):
 
     local_user_id = _get_local_user_id(source_path)
 
-    query = '''
+    # Core Data names the many-to-many following table and its columns after
+    # the MastodonUser entity number, and that number shifts between app
+    # versions as entities are added (7 on the magnet_ios16 image, 8 on the
+    # images this artifact was built against). Resolve it from the file's own
+    # Z_PRIMARYKEY table instead of hardcoding it.
+    following_table = ''
+    for row in get_sqlite_db_records(
+            source_path,
+            "SELECT Z_ENT FROM Z_PRIMARYKEY WHERE Z_NAME = 'MastodonUser'"):
+        candidate = f'Z_{row[0]}FOLLOWING'
+        if does_table_exist_in_db(source_path, candidate):
+            following_table = candidate
+        break
+
+    if following_table:
+        followed_by_holder = f'''
+        EXISTS(SELECT 1 FROM {following_table} f
+                JOIN ZMASTODONUSER me ON me.Z_PK = f.{following_table}BY
+               WHERE f.{following_table} = u.Z_PK AND me.ZID = :localUserId)'''
+        follows_holder = f'''
+        EXISTS(SELECT 1 FROM {following_table} f
+                JOIN ZMASTODONUSER me ON me.Z_PK = f.{following_table}
+               WHERE f.{following_table}BY = u.Z_PK AND me.ZID = :localUserId)'''
+    else:
+        # No following join table in this file; the relationship columns stay
+        # empty rather than guessed.
+        followed_by_holder = 'NULL'
+        follows_holder = 'NULL'
+
+    query = f'''
     SELECT
         u.ZCREATEDAT,
         u.ZUPDATEDAT,
@@ -346,12 +375,8 @@ def mastodonUsers(context):
         u.ZSUSPENDED AS suspended,
         u.ZURL AS url,
         u.ZAVATARSTATIC AS avatarUrl,
-        EXISTS(SELECT 1 FROM Z_8FOLLOWING f
-                JOIN ZMASTODONUSER me ON me.Z_PK = f.Z_8FOLLOWINGBY
-               WHERE f.Z_8FOLLOWING = u.Z_PK AND me.ZID = :localUserId) AS followedByHolder,
-        EXISTS(SELECT 1 FROM Z_8FOLLOWING f
-                JOIN ZMASTODONUSER me ON me.Z_PK = f.Z_8FOLLOWING
-               WHERE f.Z_8FOLLOWINGBY = u.Z_PK AND me.ZID = :localUserId) AS followsHolder
+        {followed_by_holder} AS followedByHolder,
+        {follows_holder} AS followsHolder
     FROM ZMASTODONUSER u
     ORDER BY u.ZACCT
     '''
