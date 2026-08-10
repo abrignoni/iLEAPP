@@ -10,12 +10,12 @@ __artifacts_v2__ = {
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
-        "last_update_date": "2026-03-03",
+        "last_update_date": "2026-07-31",
         "requirements": "pathlib",
         "category": "Chats",
-        "notes": "",
+        "notes": "Message type mappings observed in testing (app version 5.6.7); not vendor-documented.",
         "paths": (  
-            '*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite',
+            '*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/*/image/*/msgId*',
             '*/mobile/Containers/Shared/AppGroup/*/*/video/*/msgId*',
             '*/mobile/Containers/Shared/AppGroup/*/*/file/*/*',
@@ -35,7 +35,10 @@ __artifacts_v2__ = {
                 'mediaColumn': 'Attachment File'
                 }
         },
-        "artifact_icon": "message"
+        "artifact_icon": "message",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 19 rows",
+        }
     },
     "zangi_contacts": {
         "name": "Zangi Messenger - Contacts",
@@ -47,9 +50,12 @@ __artifacts_v2__ = {
         "requirements": "",
         "category": "Contacts",
         "notes": "",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite'),
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 0 rows",
+        }
     },
     "zangi_accounts": {
         "name": "Zangi Messenger - Accounts",
@@ -61,9 +67,12 @@ __artifacts_v2__ = {
         "requirements": "",
         "category": "Accounts",
         "notes": "",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite'),
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*'),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 1 row",
+        }
     }
 }
 
@@ -74,8 +83,9 @@ from scripts.ilapfuncs import artifact_processor, \
     convert_cocoa_core_data_ts_to_utc, check_in_media
 
 @artifact_processor
-def zangi_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+def zangi_messages(context):
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     data_list = []
 
     query = '''
@@ -265,9 +275,10 @@ def zangi_messages(files_found, _report_folder, _seeker, _wrap_text, _timezone_o
 
 
 @artifact_processor
-def zangi_contacts(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def zangi_contacts(context):
 
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
 
     main_db = ''
     data_list = []
@@ -342,9 +353,10 @@ def zangi_contacts(files_found, _report_folder, _seeker, _wrap_text, _timezone_o
 
 
 @artifact_processor
-def zangi_accounts(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def zangi_accounts(context):
 
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
 
     main_db = ''
     data_list = []

@@ -25,6 +25,16 @@ __artifacts_v2__ = {
             "josh_ios_15": "2 replied-message rows; TIMMessageKVORM and TIMMessageNewPropertyORM both present",
             "josh_ios_17": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
             "mvs_2026": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
+            "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 0 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     }
 }
@@ -96,7 +106,7 @@ def _table_exists(db_path, table_name):
         WHERE type = 'table'
             AND name = {_quote_literal(table_name)}
     """
-    return bool(get_sqlite_db_records(db_path, query))
+    return bool( list( get_sqlite_db_records(db_path, query) ) )
 
 
 def _table_columns(db_path, table_name, attach_query):

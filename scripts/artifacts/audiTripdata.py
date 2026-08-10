@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_audiTripdata": {
         "name": "Audi Trip Data",
-        "description": "",
+        "description": "Parses trip data cached by the Audi myAudi mobile assistant app.",
         "author": "@abrignoni",
         "creation_date": "2024-06-01",
         "last_update_date": "2025-10-28",

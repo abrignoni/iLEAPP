@@ -1,15 +1,26 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+import sys
+
+sys.path.insert(0, SPECPATH)
+from unifiedlog_binary import unifiedlog_binaries, unifiedlog_datas
+from PyInstaller.utils.hooks import collect_submodules
+
 a = Analysis(
     ['../../ileappGUI.py'],
     pathex=['../scripts/artifacts'],
-    binaries=[],
-    datas=[('../', 'scripts'), ('../../assets', 'assets')],
+    binaries=unifiedlog_binaries(),
+    datas=[('../', 'scripts'), ('../../assets', 'assets'), ('../../leapp_functions', 'leapp_functions')] + unifiedlog_datas(),
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
         'blackboxprotobuf',
+        # blackboxprotobuf above is the vendored copy under scripts/ (PyInstaller
+        # reports it 'not found'); what actually has to be collected is the real
+        # google.protobuf package it imports internals from.
+        *collect_submodules('google.protobuf'),
+        *collect_submodules('PIL'),
         'Crypto.Cipher.AES',
         'ijson',
         'lib2to3.refactor',
@@ -20,6 +31,7 @@ a = Analysis(
         'pandas',
         'pgpy',
         'PIL._tkinter_finder',
+        'PIL.ImageDraw',
         'pillow_heif',
         'typedstream',
         'xml.etree.ElementTree',

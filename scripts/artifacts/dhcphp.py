@@ -1,16 +1,22 @@
 __artifacts_v2__ = {
     "dhcpHotspotClients": {
-        "name": "DHCP Hotspot Clients",
-        "description": "Information about devices that connected to the hotspot",
+        "name": "DHCP Hotspot Leases",
+        "description": "DHCP leases issued by the device (Personal Hotspot clients)",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-29",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "DHCP",
         "notes": "",
         "paths": ('*/db/dhcpd_leases*',),
         "output_types": "standard",
-        "artifact_icon": "wifi"
+        "artifact_icon": "wifi",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 15 rows",
+            "otto_ios17": "iOS 17.5.1 | 10 rows",
+            "abe_ios16": "iOS 16.5 | 23 rows",
+            "felix23_ios16": "iOS 16.5 | 23 rows",
+        }
     }
 }
 

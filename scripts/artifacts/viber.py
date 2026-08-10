@@ -7,13 +7,20 @@ __artifacts_v2__ = {
                        "information regarding Viber settings.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
-        'last_update_date': '2025-10-10',
+        'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'Viber',
-        'notes': '',
+        'notes': 'Negative values are reported as stored.',
         'paths': ('*/com.viber/settings/Settings.data',),
         'output_types': ['html', 'tsv', 'lava'],
-        'artifact_icon': 'settings'
+        'artifact_icon': 'settings',
+        'sample_data': {
+            'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 14 rows',
+            'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 16 rows',
+            'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 17 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 14 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 15 rows',
+        }
     },
     'viber_contacts': {
         'name': 'Viber - Contacts',
@@ -29,22 +36,36 @@ __artifacts_v2__ = {
         'notes': '',
         'paths': ('**/com.viber/database/Contacts.data*',),
         'output_types': ['html', 'tsv', 'lava'],
-        'artifact_icon': 'users'
+        'artifact_icon': 'users',
+        'sample_data': {
+            'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 2 rows',
+            'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 12 rows',
+            'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 1016 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 3 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 5 rows',
+        }
     },
     'viber_call_remnants': {
         'name': 'Viber - Call Remnants',
         'description': "Parses contacts db, extracts and reports on user's "
-                       "recent calls that have no corresponding message (ZVIBERMESSAGE) "
-                       "entry, indicating these messages have been deleted.",
+                       "recent calls that have no corresponding ZVIBERMESSAGE "
+                       "entry, which may indicate deletion.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
-        'last_update_date': '2025-10-11',
+        'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'Viber',
         'notes': '',
         'paths': ('**/com.viber/database/Contacts.data*',),
         'output_types': "standard",
-        'artifact_icon': 'phone-call'
+        'artifact_icon': 'phone-call',
+        'sample_data': {
+            'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | group.viber.share.container | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | group.viber.share.container | 0 rows',
+            'hickman_ios13': 'iOS 13.3.1 | group.viber.share.container | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | group.viber.share.container | 0 rows',
+        }
     },
     'viber_chats': {
         'name': 'Viber - Chats',
@@ -53,16 +74,24 @@ __artifacts_v2__ = {
                        "and phone numbers.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
-        'last_update_date': '2026-07-03',
+        'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'Viber',
-        'notes': '',
+        'notes': 'Column-to-meaning alignment for ZDATE/ZSTATEDATE follows the '
+                 "column names; the app's exact semantics are not vendor-documented.",
         'paths': (
             '**/com.viber/database/Contacts.data*',
             '**/Containers/Data/Application/*/Documents/Attachments/*.*',
             '**/com.viber/ViberIcons/*.*'),
         'output_types': "all",
         'artifact_icon': 'message',
+        'sample_data': {
+            'hc_ios18_7': 'iOS 18.7.8 | group.viber.share.container | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | Rakuten Viber Messenger 23.1.3, group.viber.share.container | 66 rows',
+            'otto_ios17': 'iOS 17.5.1 | Rakuten Viber Messenger 23.3.1, group.viber.share.container | 3393 rows',
+            'hickman_ios13': 'iOS 13.3.1 | Viber Messenger: Chats & Calls 12.6.0, group.viber.share.container | 10 rows',
+            'hickman_ios14': 'iOS 14.3 | Viber Messenger: Chats & Calls 14.6.1, group.viber.share.container | 16 rows',
+        },
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat Participant(s)',
@@ -83,7 +112,7 @@ __artifacts_v2__ = {
 import json
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc, \
     convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, get_birthdate_from_unix_ts, \
-    check_in_media, check_in_embedded_media
+    check_in_media, check_in_embedded_media, does_table_exist_in_db
 
 
 @artifact_processor
@@ -184,13 +213,13 @@ def viber_settings(context):
             setting = 'Auto Backup Last Run Time - UTC'
             x = str(record[1])
             if x.startswith("-"):
-                value = 'Not Applied'
+                value = record[1]
             else:
                 value = convert_unix_ts_to_utc(record[1])
         elif record[0] == '_lastBackupStartDate':
             x = str(record[1])
             if x.startswith("-"):
-                value = 'Not Applied'
+                value = record[1]
             else:
                 value = convert_unix_ts_to_utc(record[1])
         elif record[0] == '_hiddenChatsPINData':
@@ -267,12 +296,14 @@ def viber_call_remnants(context):
     data_headers = (
         ('Timestamp - UTC', 'datetime'), 'Caller', 'Call Type', 'Duration')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    db_records = list( get_sqlite_db_records(data_source, query) )
+    # NOTE: list-ing here becaose of line 277 after, but we should think if
+    #   we can improve it to just consume the generator once
 
     my_user_name = ''
     my_phone_number = ''
 
-    if db_records:
+    if db_records and does_table_exist_in_db(data_source, 'Data'):
         user_query = '''
         SELECT Data.key, value
         FROM Data
@@ -307,8 +338,8 @@ def viber_chats(context):
         CHATS.Chat_Name AS 'Chat Name',
         CHATS.CHAT_MEMBERS AS 'Chat Participant(s)',
         CHATS.CHAT_PHONES 'Chat Phone(s)',
-        ZVIBERMESSAGE.ZSTATEDATE AS 'Message Creation Date - UTC',
-        ZVIBERMESSAGE.ZDATE AS 'Message Change State Date - UTC',
+        ZVIBERMESSAGE.ZDATE AS 'Message Date - UTC',
+        ZVIBERMESSAGE.ZSTATEDATE AS 'Message State Date - UTC',
         RECENT.ZRECENTDATE AS 'Call Date - UTC',
         CASE
             WHEN ZCALLTYPE = 'missed' THEN 'Missed Audio Call'
@@ -337,12 +368,12 @@ def viber_chats(context):
             WHEN CHATS.Chat_Deleted = 1 THEN 'True'
             WHEN CHATS.Chat_Deleted = 0 THEN 'False'
             ELSE CHATS.Chat_Deleted
-        END AS 'Conversation Deleted',
+        END AS 'Conversation Being Deleted',
         CASE
             WHEN ZVIBERMESSAGE.ZBEINGDELETED = 1 THEN 'True'
             WHEN ZVIBERMESSAGE.ZBEINGDELETED = 0 THEN 'False'
             ELSE ZVIBERMESSAGE.ZBEINGDELETED
-        END AS 'Message Deleted',
+        END AS 'Message Being Deleted',
         CHATS.ZTIMEBOMBDURATION AS 'Conversation Time Bomb Duration',
         ZVIBERMESSAGE.ZTIMEBOMBDURATION AS 'Message Time Bomb Duration',
         ZVIBERMESSAGE.ZTIMEBOMBTIMESTAMP AS 'Message Time Bomb Timestamp',
@@ -436,20 +467,22 @@ def viber_chats(context):
     data_headers = (
         ('Timestamp', 'datetime'), 'Sender (Display Full Name)', 'Sender (Display Short Name)',
         'Sender (Phone)', 'Chat Name', 'Chat Participant(s)', 'Chat Phone(s)',
-        'Message Creation Date - UTC', 'Message Change State Date - UTC',
+        'Message Date - UTC', 'Message State Date - UTC',
         'Message Content', 'Attachment Name', ('Attachment', 'media'), 'Call Date - UTC',
-        'Call Type', 'State', 'Duration (Seconds)', 'System Type Description',
-        'Attachment Type', 'Attachment Size', 'Latitude', 'Longitude', 'Conversation Deleted',
-        'Message Deleted', 'Conversation Time Bomb Duration', 'Message Time Bomb Duration',
+        'Call Type', 'State', 'Duration (as stored)', 'System Type Description',
+        'Attachment Type', 'Attachment Size', 'Latitude', 'Longitude', 'Conversation Being Deleted',
+        'Message Being Deleted', 'Conversation Time Bomb Duration', 'Message Time Bomb Duration',
         'Message Time Bomb Timestamp - UTC', 'Conversation Marked Favorite', 'Likes Count',
         'Message Metadata Fragments')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    db_records = list( get_sqlite_db_records(data_source, query) )
+    # NOTE: same as before, should think of a way to avoid bool() testing
+    #   db_records and we can keep it a generator
 
     my_user_name = ''
     my_phone_number = ''
 
-    if db_records:
+    if db_records and does_table_exist_in_db(data_source, 'Data'):
         user_query = '''
         SELECT Data.key, value
         FROM Data
@@ -748,13 +781,13 @@ def viber_chats(context):
         else:
             thumb = ''
 
-        creation_ts = convert_cocoa_core_data_ts_to_utc(record[6])
-        change_ts = convert_cocoa_core_data_ts_to_utc(record[7])
+        message_ts = convert_cocoa_core_data_ts_to_utc(record[6])
+        state_ts = convert_cocoa_core_data_ts_to_utc(record[7])
         call_ts = convert_cocoa_core_data_ts_to_utc(record[8])
         msg_time_bomb_ts = convert_unix_ts_to_utc(record[24])
         record = tuple(temp_list)
-        data_list.append((creation_ts, record[0], record[1], record[2], record[3],
-                          record[4], record[5], creation_ts, change_ts, record[14],
+        data_list.append((message_ts, record[0], record[1], record[2], record[3],
+                          record[4], record[5], message_ts, state_ts, record[14],
                           record[15], thumb, call_ts, record[9], record[10],
                           record[11], record[12], record[16], record[17], record[18],
                           record[19], record[20], record[21], record[22], record[23],

@@ -1,68 +1,83 @@
 __artifacts_v2__ = {
     "teamsSegmentLocations": {
         "name": "Microsoft Teams - Locations",
-        "description": "Location segments logged by Microsoft Teams (DriveIQ)",
-        "author": "",
+        "description": "Location segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 53 rows",
+        }
     },
     "teamsSegmentMotion": {
         "name": "Microsoft Teams - Motion",
-        "description": "Motion/activity segments logged by Microsoft Teams (DriveIQ)",
-        "author": "",
+        "description": "Motion/activity segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 9 rows",
+        }
     },
     "teamsSegmentTimezone": {
         "name": "Microsoft Teams - Timezone",
-        "description": "Timezone check segments logged by Microsoft Teams (DriveIQ)",
-        "author": "",
+        "description": "Timezone check segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": "standard",
-        "artifact_icon": "clock"
+        "artifact_icon": "clock",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 2 rows",
+        }
     },
     "teamsSegmentPower": {
         "name": "Microsoft Teams - Power Log",
-        "description": "Power/battery segments logged by Microsoft Teams (DriveIQ)",
-        "author": "",
+        "description": "Power/battery segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": "standard",
-        "artifact_icon": "battery-charging"
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 36 rows",
+        }
     },
     "teamsSegmentStateChange": {
         "name": "Microsoft Teams - State Change",
-        "description": "State change segments logged by Microsoft Teams (DriveIQ)",
-        "author": "",
+        "description": "State change segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
         "output_types": "standard",
-        "artifact_icon": "repeat"
+        "artifact_icon": "repeat",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 8 rows",
+        }
     }
 }
 

@@ -2,12 +2,12 @@ __artifacts_v2__ = {
     "mediaLibrary": {
         "name": "Media Library",
         "description": "Media items (music, video, podcasts, e-books) from Medialibrary.sqlitedb",
-        "author": "",
+        "author": "@ydkhatri",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Media Library",
-        "notes": "",
+        "notes": "Media-kind value mapping observed in testing; not documented by a published source; unrecognized values are reported as stored.",
         "paths": ('**/Medialibrary.sqlitedb*',),
         "output_types": "standard",
         "artifact_icon": "music"
@@ -15,7 +15,7 @@ __artifacts_v2__ = {
     "mediaLibraryInfo": {
         "name": "Media Library - Database Properties",
         "description": "iCloud/account properties from the Medialibrary.sqlitedb _MLDATABASEPROPERTIES table",
-        "author": "",
+        "author": "@ydkhatri",
         "creation_date": "2023-11-21",
         "last_update_date": "2026-06-24",
         "requirements": "none",

@@ -1,16 +1,20 @@
 __artifacts_v2__ = {
     "quickLook": {
         "name": "iCloud Quick Look",
-        "description": "Listing of iCloud files accessed by the Quick Look function",
-        "author": "",
+        "description": "Entries from the Quick Look cloudthumbnails.db cache: paths of iCloud files with last-hit dates. A cache entry does not establish that a user viewed the file.",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "iCloud Quick Look",
         "notes": "Check -wal files for possible data remnants if the DB is missing.",
         "paths": ('*/Quick Look/cloudthumbnails.db*',),
         "output_types": "standard",
-        "artifact_icon": "eye"
+        "artifact_icon": "eye",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+        }
     }
 }
 

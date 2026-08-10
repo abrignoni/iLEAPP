@@ -4,27 +4,61 @@ __artifacts_v2__ = {
         "description": "Extract Call History",
         "author": "@SQLMcGee",
         "creation_date": "2025-02-05",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Call History",
-        "notes": "",
+        "notes": "Call type and disconnected-cause value mappings are community-established decodes reported as observed; unrecognized values are reported as stored.",
         "paths": ('*/mobile/Library/CallHistoryDB/CallHistory*'),
         "output_types": "standard",
-        "artifact_icon": "phone-call"
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 16 rows",
+            "dexter_ios18": "iOS 18.3.2 | 11 rows",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 14 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1003 rows",
+            "iphone11_ios17": "iOS 17.3 | 36 rows",
+            "iphone12_ios18": "iOS 18.7 | 28 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 41 rows",
+            "abe_ios16": "iOS 16.5 | 41 rows",
+            "felix23_ios16": "iOS 16.5 | 12 rows",
+            "hickman_ios13": "iOS 13.3.1 | 32 rows",
+            "hickman_ios14": "iOS 14.3 | 25 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "callHistoryInteractionC": {
         "name": "interactionC Call History - Group Call",
         "description": "Extract Call History",
         "author": "@SQLMcGee",
         "creation_date": "2025-02-05",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
         "paths": (
             '*/mobile/Library/CoreDuet/People/interactionC.db*'),
         "output_types": "standard",
-        "artifact_icon": "phone-call"
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 458 rows",
+            "iphone11_ios17": "iOS 17.3 | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | 25 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 13 rows",
+            "abe_ios16": "iOS 16.5 | 24 rows",
+            "felix23_ios16": "iOS 16.5 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 32 rows",
+            "hickman_ios14": "iOS 14.3 | 16 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
@@ -228,6 +262,6 @@ def callHistoryInteractionC(context):
                 (start_timestamp, end_timestamp, row[2], row[3], row[4], row[5], row[6], row[7]))
         
     data_headers = (
-        ('Call Date/Time', 'datetime'), ('Call End Date/Time', 'datetime'), 'Service Provider', 
+        ('Call Date/Time', 'datetime'), ('Call End Date/Time', 'datetime'), 'Application Bundle ID',
         'Call Direction', 'Display Name', ('Phone Number', 'phonenumber'), 'Call Description', 'Interaction Duration')
     return data_headers, data_list, interactionC

@@ -4,20 +4,33 @@ __artifacts_v2__ = {
         "description": "Parses safari entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/biome/streams/restricted/_DKEvent.Safari.History/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Safari.History/local/*',),
         "output_types": "standard",
-        "artifact_icon": "compass"
+        "artifact_icon": "compass",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 8 rows",
+            "iphone11_ios17": "iOS 17.3 | 12 rows",
+            "iphone12_ios18": "iOS 18.7 | 18 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 17 rows",
+            "otto_ios17": "iOS 17.5.1 | 108 rows",
+            "abe_ios16": "iOS 16.5 | 100 rows",
+            "felix23_ios16": "iOS 16.5 | 7 rows",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
+        }
     }
 }
 
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
@@ -132,7 +145,7 @@ def get_biomeSafari(context):
                 data_list.append((ts, None, record.state.name, None, None, None, None, None, None, None, filename,
                                   record.data_start_offset))
 
-        data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Activity', 'Title',
-                        'URL', 'Detail', 'Detail 2', 'Detail 3', 'GUID', "Filename", "Offset")
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), 'SEGB State', 'Activity', 'Title',
+                    'URL', 'Detail', 'Detail 2', 'Detail 3', 'GUID', "Filename", "Offset")
 
-        return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, 'see Filename for more info'

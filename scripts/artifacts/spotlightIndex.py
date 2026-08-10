@@ -10,7 +10,12 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt'),
         "output_types": "standard",
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 468 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 13 rows",
+            "iphone12_ios18": "iOS 18.7 | 126 rows",
+        }
     }
 }
 

@@ -2,11 +2,14 @@ __artifacts_v2__ = {
     "teleguardMessages": {
         "name": "Teleguard Messages",
         "description": "TeleGuard chat messages and shared media",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-03", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-03", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',
                   '*/Library/Caches/images/*'),
         "output_types": "standard", "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1, Truth Social 1.11.0 | 70 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Chat ID",
@@ -22,26 +25,35 @@ __artifacts_v2__ = {
     "teleguardPosts": {
         "name": "Teleguard Posts",
         "description": "TeleGuard channel posts",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
-        "output_types": "standard", "artifact_icon": "file-text"
+        "output_types": "standard", "artifact_icon": "file-text",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 0 rows",
+        }
     },
     "teleguardContacts": {
         "name": "Teleguard Contacts",
         "description": "TeleGuard contacts (with avatar thumbnails)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 5 rows",
+        }
     },
     "teleguardChannels": {
         "name": "Teleguard Channels",
         "description": "TeleGuard channels",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
-        "output_types": "standard", "artifact_icon": "radio"
+        "output_types": "standard", "artifact_icon": "radio",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 0 rows",
+        }
     }
 }
 

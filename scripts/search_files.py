@@ -610,7 +610,8 @@ class FileSeekerItunes(FileSeekerBase):
                     else:
                         copy2(original_location, data_path)
 
-                    file_info = FileInfo(original_location, creation_date, modification_date)
+                    source_path = relative_path.replace('\\', '/')
+                    file_info = FileInfo(source_path, creation_date, modification_date)
                     self.file_infos[data_path] = file_info
                     self.copied[original_location] = data_path
                 except OSError as ex:
@@ -773,8 +774,7 @@ class FileSeekerZip(FileSeekerBase):
             if pat(root + normcase(member)) is not None:
                 if member not in self.copied or force:
                     try:
-                        # already replaces illegal chars with _ when exporting
-                        extracted_path = self.zip_file.extract(member, path=self.data_folder)
+                        extracted_path = self._extract_member(member)
                         f = self.zip_file.getinfo(member)
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
                         file_info = FileInfo(member, creation_date, modification_date)
@@ -785,6 +785,7 @@ class FileSeekerZip(FileSeekerBase):
                         self.copied[member] = extracted_path
                     except OSError as ex:
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
+                        continue
                 else:
                     extracted_path = self.copied[member]
                 pathlist.append(extracted_path)
@@ -793,6 +794,29 @@ class FileSeekerZip(FileSeekerBase):
                     return extracted_path
         self.searched[filepattern] = pathlist
         return pathlist
+
+    def _extract_member(self, member):
+        """Extract one member, sanitizing names ZipFile.extract() cannot write.
+
+        ZipFile.extract() only replaces a fixed set of printable characters
+        (:<>|"?*) and only on Windows; ASCII control characters in the stored
+        name (present in real iOS extractions, e.g. chronod icon files) reach
+        the OS untouched and Windows rejects them with EINVAL. Members whose
+        names need sanitizing are written out manually to a cleaned path.
+        """
+        clean_member = sanitize_file_path(member)
+        if clean_member == member:
+            return self.zip_file.extract(member, path=self.data_folder)
+        parts = [part for part in clean_member.split('/')
+                 if part not in ('', '.', '..')]
+        extracted_path = os.path.join(self.data_folder, *parts)
+        if member.endswith('/'):
+            os.makedirs(extracted_path, exist_ok=True)
+        else:
+            os.makedirs(os.path.dirname(extracted_path), exist_ok=True)
+            with self.zip_file.open(member) as fin, open(extracted_path, 'wb') as fout:
+                fout.write(fin.read())
+        return extracted_path
 
     def cleanup(self):
         self.zip_file.close()

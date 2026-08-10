@@ -5,30 +5,71 @@ __artifacts_v2__ = {
     "notes": {
         "name": "Notes",
         "description": "Apple Notes including decoded note body text and embedded attachments",
-        "author": "",
+        "author": "@any333",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
         "notes": "Note body text is decompressed and parsed from the protobuf blob. "
                  "Password-protected note contents are not decoded.",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "file-text"
+        "artifact_icon": "file-text",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 5 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 14 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 18 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 4 rows",
+            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 12 rows",
+            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 3 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.apple.notes | 3 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.apple.notes | 7 rows",
+            "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | group.com.apple.notes | 0 rows",
+        }
+    },
+    "notesParticipants": {
+        "name": "Notes - Shared Note Participants",
+        "description": "People a note is shared with, decoded from the CloudKit share record held against each invitation",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-07-25",
+        "last_update_date": "2026-07-31",
+        "requirements": "none",
+        "category": "Notes",
+        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA. Reference: Apple CloudKit, CKShareParticipant (role/permission/acceptance enums; raw values per the CloudKit.framework SDK header), https://developer.apple.com/documentation/cloudkit/ckshare/participantrole",
+        "paths": ('*/NoteStore.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users",
+        "sample_data": {
+            "josh_ios17_ffs": "iOS 17.3 | 4 rows across 2 shared notes",
+        }
     }
 }
 
 import binascii
 import os
+import re
 import zlib
 from os.path import dirname, join
 
+import nska_deserialize as nd
+
 from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media,
-                               does_column_exist_in_db, get_sqlite_db_records, logfunc)
+                               convert_cocoa_core_data_ts_to_utc,
+                               does_table_exist_in_db, get_sqlite_db_records,
+                               logfunc)
 
 
 def _build_query(creation_col, account_col):
-    """Notes schema varies by iOS version; only the creation-date and account columns differ."""
+    """Notes schema varies by iOS version; only the creation-date and account
+    columns differ (chosen per-db by _query_for_db). Folder and account are
+    LEFT-joined and ZICNOTEDATA is the INNER "is a note" anchor, so a note is
+    never dropped when its folder or account reference can't be resolved."""
     return f'''
     SELECT
         DATETIME(TabA.{creation_col}+978307200,'UNIXEPOCH'),
@@ -49,20 +90,49 @@ def _build_query(creation_col, account_col):
         DATETIME(TabD.ZMODIFICATIONDATE+978307200,'UNIXEPOCH'),
         TabF.ZDATA
     FROM ZICCLOUDSYNCINGOBJECT TabA
-    INNER JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
-    INNER JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.{account_col} = TabC.Z_PK
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabB on TabA.ZFOLDER = TabB.Z_PK
+    LEFT JOIN ZICCLOUDSYNCINGOBJECT TabC on TabA.{account_col} = TabC.Z_PK
     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabD on TabA.Z_PK = TabD.ZNOTE
     LEFT JOIN ZICCLOUDSYNCINGOBJECT TabE on TabD.Z_PK = TabE.ZATTACHMENT1
-    LEFT JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
+    INNER JOIN ZICNOTEDATA TabF on TabF.ZNOTE = TabA.Z_PK
     '''
 
 
+def _pick_note_column(file_found, prefix, default):
+    """Pick the ZICCLOUDSYNCINGOBJECT ``<prefix>N`` column populated on note rows.
+
+    The note->account foreign key and the note creation date have drifted across
+    iOS versions (account: ZACCOUNT2 on iOS 12-13, ZACCOUNT4 on iOS 14-15,
+    ZACCOUNT7 on iOS 16+). Several same-prefixed columns coexist in one schema
+    and all but one are NULL for notes -- iOS 18 also carries an unrelated
+    ZACCOUNT8 -- so selecting the first column that merely *exists* returned zero
+    notes on iOS 16+. Probe which candidate is non-null on rows that have note
+    data instead, preferring the newest (highest-suffixed) on a tie; this
+    self-adjusts to future schema changes.
+    """
+    candidates = [row[0] for row in get_sqlite_db_records(
+        file_found,
+        "SELECT name FROM pragma_table_info('ZICCLOUDSYNCINGOBJECT') "
+        f"WHERE name LIKE '{prefix}%'")
+        if re.fullmatch(re.escape(prefix) + r'\d*', row[0])]
+    best, best_count, best_suffix = default, 0, -1
+    for col in candidates:
+        records = list(get_sqlite_db_records(
+            file_found,
+            'SELECT COUNT(*) FROM ZICCLOUDSYNCINGOBJECT TabA '
+            'INNER JOIN ZICNOTEDATA TabF ON TabF.ZNOTE = TabA.Z_PK '
+            f'WHERE TabA.{col} IS NOT NULL'))
+        count = records[0][0] if records else 0
+        suffix = int(re.sub(r'\D', '', col) or -1)
+        if count > best_count or (count == best_count > 0 and suffix > best_suffix):
+            best, best_count, best_suffix = col, count, suffix
+    return best
+
+
 def _query_for_db(file_found):
-    if does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT', 'ZACCOUNT4'):
-        if does_column_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT', 'ZCREATIONDATE3'):
-            return _build_query('ZCREATIONDATE3', 'ZACCOUNT4')
-        return _build_query('ZCREATIONDATE1', 'ZACCOUNT3')
-    return _build_query('ZCREATIONDATE1', 'ZACCOUNT2')
+    creation_col = _pick_note_column(file_found, 'ZCREATIONDATE', 'ZCREATIONDATE1')
+    account_col = _pick_note_column(file_found, 'ZACCOUNT', 'ZACCOUNT2')
+    return _build_query(creation_col, account_col)
 
 
 def get_uncompressed_data(compressed):
@@ -133,7 +203,7 @@ def notes(context):
         ('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents', 'Folder',
         'Storage Place', ('Last Modified', 'datetime'), 'Password Protected', 'Password Hint',
         'Marked for Deletion', 'Pinned', ('Attachment', 'media'), 'Attachment Original Filename',
-        'Attachment Storage Folder', 'Attachment Size in KB', 'Attachment Type',
+        'Attachment Storage Folder', 'Attachment Size (as stored)', 'Attachment Type',
         ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'))
     data_list = []
     sources = []
@@ -144,8 +214,10 @@ def notes(context):
             continue
 
         rows = get_sqlite_db_records(file_found, _query_for_db(file_found))
-        if not rows:
-            continue
+        # if not rows:
+        #     continue
+        # NOTE: if the generator is empty, it won't loop, so we don't have to
+        #   skip it here
 
         for row in rows:
             if row[6] == 'No' and row[16] is not None:
@@ -179,3 +251,103 @@ def notes(context):
         sources.append(context.get_relative_path(file_found))
 
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))
+
+
+# CloudKit share enumerations, as they appear in ZICINVITATION.ZSERVERSHAREDATA.
+_PARTICIPANT_TYPE = {0: 'Unknown', 1: 'Owner', 2: 'Administrator', 3: 'Private User', 4: 'Public User'}
+_PARTICIPANT_PERMISSION = {1: 'None', 2: 'Read Only', 3: 'Read/Write'}
+_PARTICIPANT_ACCEPTANCE = {1: 'Pending', 2: 'Accepted', 3: 'Removed'}
+
+
+def _flatten_share_blob(decoded):
+    """The share record deserializes as a list of single-key dicts; merge them."""
+    if isinstance(decoded, dict):
+        return decoded
+    merged = {}
+    if isinstance(decoded, list):
+        for entry in decoded:
+            if isinstance(entry, dict):
+                merged.update(entry)
+    return merged
+
+
+def _participant_name(user_identity):
+    """Join the given/family name components of a share participant."""
+    components = user_identity.get('NameComponents')
+    if not isinstance(components, dict):
+        return ''
+    private = components.get('NS.nameComponentsPrivate')
+    if not isinstance(private, dict):
+        return ''
+    parts = [private.get('NS.givenName'), private.get('NS.familyName')]
+    return ' '.join(part for part in parts if part)
+
+
+@artifact_processor
+def notesParticipants(context):
+    data_headers = (
+        ('Invitation Created', 'datetime'), ('Invitation Received', 'datetime'),
+        ('Last Modified', 'datetime'), 'Note Title', 'Note Snippet', 'Participant Name',
+        'Email Address', ('Phone Number', 'phonenumber'), 'Role', 'Permission',
+        'Acceptance Status', 'Participant ID', 'Share URL', 'Source File')
+    data_list = []
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if not file_found.endswith('.sqlite'):
+            continue
+        if not does_table_exist_in_db(file_found, 'ZICINVITATION'):
+            continue
+
+        query = '''
+        SELECT ZCREATIONDATE, ZRECEIVEDDATE, ZMODIFICATIONDATE, ZTITLE, ZSNIPPET,
+               ZSHAREURL, ZSERVERSHAREDATA
+        FROM ZICINVITATION
+        WHERE ZSERVERSHAREDATA IS NOT NULL
+        '''
+
+        found_any = False
+        for record in get_sqlite_db_records(file_found, query):
+            try:
+                share = _flatten_share_blob(
+                    nd.deserialize_plist_from_string(record['ZSERVERSHAREDATA']))
+            except (nd.DeserializeError, ValueError, TypeError) as ex:
+                logfunc(f'Could not decode Notes share record: {ex}')
+                continue
+
+            for participant in share.get('LastFetchedParticipants') or []:
+                if not isinstance(participant, dict):
+                    continue
+                identity = participant.get('UserIdentity')
+                identity = identity if isinstance(identity, dict) else {}
+                lookup = identity.get('LookupInfo')
+                lookup = lookup if isinstance(lookup, dict) else {}
+
+                found_any = True
+                data_list.append((
+                    convert_cocoa_core_data_ts_to_utc(record['ZCREATIONDATE'])
+                    if record['ZCREATIONDATE'] else '',
+                    convert_cocoa_core_data_ts_to_utc(record['ZRECEIVEDDATE'])
+                    if record['ZRECEIVEDDATE'] else '',
+                    convert_cocoa_core_data_ts_to_utc(record['ZMODIFICATIONDATE'])
+                    if record['ZMODIFICATIONDATE'] else '',
+                    record['ZTITLE'],
+                    record['ZSNIPPET'],
+                    _participant_name(identity),
+                    lookup.get('EmailAddress', ''),
+                    lookup.get('PhoneNumber', ''),
+                    _PARTICIPANT_TYPE.get(participant.get('Type'), participant.get('Type')),
+                    _PARTICIPANT_PERMISSION.get(participant.get('Permission'),
+                                                participant.get('Permission')),
+                    _PARTICIPANT_ACCEPTANCE.get(participant.get('AcceptanceStatus'),
+                                                participant.get('AcceptanceStatus')),
+                    participant.get('ParticipantID'),
+                    record['ZSHAREURL'],
+                    context.get_relative_path(file_found),
+                ))
+
+        if found_any:
+            sources.append(context.get_relative_path(file_found))
+
+    return data_headers, data_list, ', '.join(sources)

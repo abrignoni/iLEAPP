@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "module_name": "storeSystem",
+    "artifact_name": "Installed Apps - App Store Update Records",
+    "function_name": "storeSystemAppUpdates",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 17,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/storeSystem/testdata.storeSystem.storeSystemAppUpdates.josh_ios17_ffs.zip",
+    "start_time": "2026-07-30T05:07:25.441333+00:00",
+    "end_time": "2026-07-30T05:07:25.463877+00:00",
+    "run_time_seconds": 0.0015997886657714844,
+    "last_commit": {
+      "hash": "ac54a35d9b06f76a444950ebac7583642765b2aa",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-29T22:12:22-05:00",
+      "message": "feat: parse installed app records from storeSystem.db"
+    }
+  },
+  "headers": [
+    "Record Timestamp",
+    "Install Date",
+    "Latest Version Released",
+    "App First Released",
+    "App Name",
+    "Bundle ID",
+    "Developer",
+    "Genre",
+    "Latest Version",
+    "Release Notes",
+    "Item ID",
+    "Store Software Version ID",
+    "External Version ID",
+    "Update State",
+    "Package Type",
+    "Installer Packaging Type",
+    "App Store URL"
+  ],
+  "data": []
+}

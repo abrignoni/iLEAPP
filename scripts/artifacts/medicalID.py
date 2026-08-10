@@ -1,16 +1,21 @@
 __artifacts_v2__ = {
     "medicalID": {
         "name": "Medical ID",
-        "description": "User entered Medical ID information about self (MedicalIDData.archive)",
+        "description": "Medical ID information from MedicalIDData.archive. Apple documents Medical ID as entered by the user in the Health app; the contents are not verified as describing the device owner.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "Reference: Apple Support, 'Set up and view your Medical ID', https://support.apple.com/guide/iphone/set-up-and-view-your-medical-id-iph08022b192/ios",
         "paths": ('*/mobile/Library/MedicalID/MedicalIDData.archive',),
         "output_types": "standard",
-        "artifact_icon": "heart"
+        "artifact_icon": "heart",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 16 rows",
+            "otto_ios17": "iOS 17.5.1 | 36 rows",
+            "abe_ios16": "iOS 16.5 | 36 rows",
+        }
     }
 }
 
@@ -29,12 +34,12 @@ def get_name(name_with_prefix):
 
 
 @artifact_processor
-def medicalID(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
+def medicalID(context):
     data_headers = ('Key', 'Value')
     data_list = []
 
     source_path = ''
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('MedicalIDData.archive'):
             source_path = file_found

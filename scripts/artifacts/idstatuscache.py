@@ -11,16 +11,39 @@ __artifacts_v2__ = {
         "description": "Extracts iCloud sync, Email, FaceTime, more.",
         "author": "@djangofaiola",
         "creation_date": "2024-07-16",
-        "last_update_date": "2026-03-31",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identity Lookup Service",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "https://djangofaiola.blogspot.com "
+                 "The Application column's identifier-to-name labels are best-effort: "
+                 "where the extraction contains Apple's IdentityServices "
+                 "ServiceDefinitions plists their DisplayName is used; hardcoded "
+                 "labels for private alloy identifiers are descriptive guesses. "
+                 "URI-prefix type labels (token, uuid, pseudonym, mailto-alias) are "
+                 "descriptive interpretations of the prefix text, not vendor-documented.",
         "paths": (
             "*/mobile/Library/Preferences/com.apple.identityservices.idstatuscache.plist",
             "*/mobile/Library/IdentityServices/idstatuscache.plist"
         ),
         "output_types": [ "standard" ],
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 83 rows",
+            "dexter_ios18": "iOS 18.3.2 | 334 rows",
+            "felix_ios17": "iOS 17.6.1 | 45 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 20 rows",
+            "iphone11_ios17": "iOS 17.3 | 101 rows",
+            "iphone12_ios18": "iOS 18.7 | 103 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | 256 rows",
+            "abe_ios16": "iOS 16.5 | 277 rows",
+            "felix23_ios16": "iOS 16.5 | 58 rows",
+            "hickman_ios13": "iOS 13.3.1 | 59 rows",
+            "hickman_ios14": "iOS 14.3 | 40 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+        }
     }
 }
 
@@ -322,13 +345,6 @@ DEFAULT_MAP_IDS = {
 }
 
 
-# Map to resolve IDStatus into human-readable device types
-DEVICE_TYPE_MAP = {
-    1: 'iDevice',
-    2: 'Not iDevice'
-}
-
-
 def get_service_type_and_partner(value: str) -> tuple[str, str]:
     """
     Extracts the service type and partner from a complex string.
@@ -424,12 +440,8 @@ def _parse_identity_services(file_found, identifiers, context) -> list:
                     else:
                         recently_searched = None
 
-                    # Extract IDStatus and safely map it to a device type
+                    # Report IDStatus as stored in the plist
                     status_id = cat_value.get('IDStatus')
-                    if status_id is not None:
-                        device_type = DEVICE_TYPE_MAP.get(status_id, f"N/D: {status_id}")
-                    else:
-                        device_type = None
 
                     # Resolve application display name
                     application = identifiers.get(key, key)
@@ -441,7 +453,7 @@ def _parse_identity_services(file_found, identifiers, context) -> list:
                     data_list.append((
                         recently_searched,
                         service_type, partner,
-                        device_type,
+                        status_id,
                         application,
                         key,    # identifier
                         location
@@ -469,10 +481,10 @@ def idstatuscache(context):
     """
 
     data_headers = (
-        ('Recently searched', 'datetime'),
+        ('Lookup Date', 'datetime'),
         'Service Type',
         'Partner',
-        'Device Type',
+        'ID Status (as stored)',
         'Application',
         'Identifier',
         'Location'

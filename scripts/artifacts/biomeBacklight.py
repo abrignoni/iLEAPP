@@ -2,22 +2,33 @@ __artifacts_v2__ = {
     "get_biomeBacklight": {
         "name": "Biome - Backlight",
         "description": "Parses backlight entries from biomes",
-        "author": "@JohnHyla",
+        "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-25",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/public/Backlight/local/*'),
+        "paths": (
+            '*/Biome/streams/public/Backlight/local/*',
+            '*/streams/*/Device.Display.Backlight/local/*',
+        ),
         "output_types": "standard",
-        "artifact_icon": "sun"
+        "artifact_icon": "sun",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 14254 rows",
+            "felix23_ios16": "iOS 16.5 | 3738 rows",
+            "jess_ios15": "iOS 15.0.2 | 607 rows",
+            "magnet_ios16": "iOS 16.1.1 | 659 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3455 rows",
+            "iphone11_ios17": "iOS 17.3 | 8107 rows",
+        }
     }
 }
 
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv

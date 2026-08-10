@@ -13,13 +13,20 @@ __artifacts_v2__ = {
             database found in CoreAccessories",
         "author": "John Hyla",
         "creation_date": "2023-08-01",
-        "last_update_date": "2025-10-01",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Core Accessories",
-        "notes": "",
+        "notes": "Lightning accessory ID labels are drawn from published reverse-engineering research; unmapped IDs are reported as stored. Reference: nyansatan, 'Lightning connector reverse engineering', https://nyansatan.github.io/lightning/",
         "paths": ('*/mobile/Library/CoreAccessories/Analytics/acc_analytics_UserEventAgent_v3.db*',),
         "output_types": "standard",
         "artifact_icon": "activity",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | 156 rows",
+            "abe_ios16": "iOS 16.5 | 999 rows",
+            "hickman_ios13": "iOS 13.3.1 | 25 rows",
+            "hickman_ios14": "iOS 14.3 | 45 rows",
+            "jess_ios15": "iOS 15.0.2 | 13 rows",
+        },
     }
 }
 
@@ -80,8 +87,6 @@ def get_coreAccessoriesUserEvent(context):
                     value = value + ' (Audio Cable)'
                 elif value.upper() == "0BF000000000":
                     value = value + ' (Official to HDMI Cable)'
-                elif value.upper() == "100100000000":
-                    value = value + ' (Research, non official maybe?)'
                 row_values.append(value)
             else:
                 row_values.append(row.get(key, None))

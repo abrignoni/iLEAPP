@@ -2,10 +2,13 @@ __artifacts_v2__ = {
     "slackModelMessages": {
         "name": "Slack - Messages (ModelDatabase)",
         "description": "Slack chat messages from the newer ModelDatabase (ZCOREDATA*) schema",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-07-03", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Slack 24.07.40 | 61 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Conversation ID",
@@ -21,58 +24,84 @@ __artifacts_v2__ = {
     "slackModelUsers": {
         "name": "Slack - User Data (ModelDatabase)",
         "description": "Slack users from the newer ModelDatabase (ZCOREDATAUSER) schema",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Slack 24.07.40 | 5 rows",
+        }
     },
     "slackModelChannels": {
         "name": "Slack - Channel Data (ModelDatabase)",
         "description": "Slack channels/DMs from the newer ModelDatabase schema",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "category": "Slack", "notes": "Channel-type value mapping observed in testing; unrecognized values reported as stored.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
-        "output_types": "standard", "artifact_icon": "hash"
+        "output_types": "standard", "artifact_icon": "hash",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Slack 24.07.40 | 8 rows",
+        }
     },
     "slackMessages": {
         "name": "Slack - Messages",
         "description": "Slack chat messages from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "message-circle"
+        "output_types": "standard", "artifact_icon": "message-circle",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 27 rows",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     },
     "slackUsers": {
         "name": "Slack - User Data",
         "description": "Slack users from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 3 rows",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     },
     "slackAttachments": {
         "name": "Slack - Attachments",
         "description": "Slack messages with shared file attachments (main_db)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "paperclip"
+        "output_types": "standard", "artifact_icon": "paperclip",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     },
     "slackChannels": {
         "name": "Slack - Channel Data",
         "description": "Slack channels from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "hash"
+        "output_types": "standard", "artifact_icon": "hash",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 6 rows",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     },
     "slackTeams": {
         "name": "Slack - Team Data",
         "description": "Slack workspaces/teams from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
         "category": "Slack", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
-        "output_types": "standard", "artifact_icon": "briefcase"
+        "output_types": "standard", "artifact_icon": "briefcase",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | Slack 21.02.10 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | Slack 22.12.21 | 0 rows",
+        }
     }
 }
 
@@ -125,7 +154,7 @@ def slackModelMessages(context):
         ZCOREDATAMESSAGE.ZTEXT,
         ZCOREDATAMESSAGE.ZCONVERSATIONID,
         ZCOREDATACONVERSATION.ZCONTEXTTEAMID,
-        CASE ZCOREDATAUSER.ZISME WHEN 1 THEN 'Sent' ELSE 'Received' END
+        CASE ZCOREDATAUSER.ZISME WHEN 1 THEN 'Sent' WHEN 0 THEN 'Received' ELSE ZCOREDATAUSER.ZISME END
     FROM ZCOREDATAMESSAGE
     LEFT OUTER JOIN ZCOREDATAUSER ON ZCOREDATAMESSAGE.ZUSERID = ZCOREDATAUSER.ZTSID
     LEFT OUTER JOIN ZCOREDATACONVERSATION ON ZCOREDATAMESSAGE.ZCONVERSATIONID = ZCOREDATACONVERSATION.ZTSID
@@ -137,7 +166,7 @@ def slackModelMessages(context):
 
 @artifact_processor
 def slackModelUsers(context):
-    data_headers = (('User Sync Timestamp', 'datetime'), 'Real Name', 'First Name', 'Last Name',
+    data_headers = ('Server Version (as stored)', 'Real Name', 'First Name', 'Last Name',
                     'User Name', 'Email', 'Phone', 'Team ID', 'Workspace ID', 'User ID',
                     'Local User', 'Owner', 'Admin', 'Bot', 'Timezone', 'Timezone Title',
                     'Timezone Offset (Hours)', 'Avatar Hash', 'Color String')
@@ -148,7 +177,7 @@ def slackModelUsers(context):
 
     query = '''
     SELECT
-        datetime(ZSERVERVERSION, 'unixepoch'),
+        ZSERVERVERSION,
         ZREALNAME, ZFIRSTNAME, ZLASTNAME, ZNAME, ZEMAIL, ZPHONE, ZTEAMID,
         ZWORKSPACEORENTERPRISEID, ZTSID,
         CASE ZISME WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
@@ -183,7 +212,7 @@ def slackModelChannels(context):
         ZCOREDATACONVERSATION.ZTSID,
         ZCOREDATACONVERSATION.ZIMUSERID,
         ZCOREDATACONVERSATION.ZPURPOSETEXT,
-        CASE ZCOREDATACONVERSATION.ZTYPE WHEN 0 THEN 'Channel' WHEN 2 THEN 'Direct Message' END
+        CASE ZCOREDATACONVERSATION.ZTYPE WHEN 0 THEN 'Channel' WHEN 2 THEN 'Direct Message' ELSE ZCOREDATACONVERSATION.ZTYPE END
     FROM ZCOREDATACONVERSATION
     LEFT OUTER JOIN ZCOREDATAUSER ON ZCOREDATACONVERSATION.ZCREATORID = ZCOREDATAUSER.ZTSID
     '''
@@ -336,7 +365,7 @@ def slackChannels(context):
 
 @artifact_processor
 def slackTeams(context):
-    data_headers = ('Name', 'Domain Name', 'Author User ID', 'SID')
+    data_headers = ('Name', 'Domain Name', 'Auth User ID', 'SID')
     data_list = []
     db_path = _find_main_db(context)
     if not db_path:

@@ -2,14 +2,17 @@ __artifacts_v2__ = {
     "deviceActivator": {
         "name": "iOS Device Activator Data",
         "description": "Extracts device information from activation data",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2024-10-29",
         "last_update_date": "2025-11-21",
         "requirements": "none",
         "category": "Device Information",
         "paths": ('*/mobile/Library/Logs/mobileactivationd/ucrt_oob_request.txt',),
         "output_types": "standard",
-        "artifact_icon": "circle-check"
+        "artifact_icon": "circle-check",
+        "sample_data": {
+            "hickman_ios14": "iOS 14.3 | 39 rows",
+        }
     }
 }
 

@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "module_name": "groupMe",
+    "artifact_name": "GroupMe - Account Information",
+    "function_name": "groupMeAccount",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 2,
+    "number_of_rows": 13,
+    "total_data_size_bytes": 484,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/groupMe/testdata.groupMe.groupMeAccount.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:18.015034+00:00",
+    "end_time": "2026-07-25T22:03:18.093484+00:00",
+    "run_time_seconds": 0.0004799365997314453,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:18.089444",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Key",
+    "Value"
+  ],
+  "data": [
+    [
+      "User ID",
+      "91071677"
+    ],
+    [
+      "App Version",
+      "6.102.4.1"
+    ],
+    [
+      "Last Chat Viewed",
+      "user-120533877"
+    ],
+    [
+      "Last Full Refresh",
+      "2024-07-26 16:05:21.860984"
+    ],
+    [
+      "Address Book Last Scanned",
+      "2024-07-26 16:03:07.776069"
+    ],
+    [
+      "Relationships Last Fetched",
+      "2024-07-26 16:03:08.508488"
+    ],
+    [
+      "Profile Last Refreshed",
+      "2024-07-26 16:03:18.080189"
+    ],
+    [
+      "Sync Contacts To Server",
+      "True"
+    ],
+    [
+      "APNS ID",
+      "17506bbe124844e098a24d8a4160e3d34601bfade62d39f110b9088814236d4e"
+    ],
+    [
+      "Profile Name",
+      "This Is DFIR"
+    ],
+    [
+      "Profile Email",
+      "thisisdfir@gmail.com"
+    ],
+    [
+      "Profile Phone Number",
+      "+1 9195794674"
+    ],
+    [
+      "Profile Created At",
+      "2021-02-03 13:31:16"
+    ]
+  ]
+}

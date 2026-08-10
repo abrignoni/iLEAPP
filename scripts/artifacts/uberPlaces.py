@@ -11,7 +11,12 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/database.db*',), # shorter path for itunes backups also
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Uber - Request a ride 3.688.10004 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | Uber - Request a ride 3.627.10000 | 1 row",
+        }
     }
 }
 

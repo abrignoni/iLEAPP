@@ -6,18 +6,15 @@ bundleIdentifier, bundlePath and sandboxPath. This new version includes a
 refactored version of the original plugin and adds support for
 XBApplicationSnapshotManifest BLOBs in applicationState.db records.
 
-Initial experiments on an iPhone 8 with iOS version 16.7.7 indicate that the
-timestamps in these BLOBs are only stored or updated at a moment when a user
-interacts with a device, for example when switching between apps using the app
-selector. Note that the timestamps do not necessarily reflect the moment at
-which the corresponding app was actively used in the foreground, so be careful
-with the interpretation of these records.
-
-When the device in our experiment was left untouched for a period of hours or
-days, the timestamps were not updated. This indicates that the timestamps can
-be used to investigate hypothesis concerning user-activity at the specific time
-periods. A write-up of our experiments will be published online at which point
-a link will be added to this plugin.
+SplashBoard names the two persisted timestamp properties creationDate and
+lastUsedDate. Runtime-derived SplashBoard headers expose both properties but do
+not document their forensic meaning. Where source file timestamps were available
+in the tested iOS 18 and iOS 26 extractions, creationDate agreed with the
+corresponding snapshot file's UTC modified time to the precision available in
+the extraction ZIP. In contrast, lastUsedDate is sparse and may be updated well
+after creationDate. Neither field by itself proves that the application was
+active in the foreground or that the user viewed the image contents at that
+time.
 
 The XBApplicationSnapshotManifest BLOBs in applicationState.db are
 related to .ktx files, for which support is also already available in iLEAPP in
@@ -29,6 +26,8 @@ Related work:
 
     https://abrignoni.blogspot.com/2019/09/ios-snapshots-triage-parser-working.html
     https://gforce4n6.blogspot.com/2019/09/a-quick-look-into-ios-snapshots.html
+    https://github.com/nst/iOS-Runtime-Headers/blob/master/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h
+    https://developer.apple.com/documentation/uikit/preparing-your-ui-to-run-in-the-background
 '''
 
 
@@ -44,42 +43,96 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": ["html","tsv","lava"],
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 109 rows",
+            "dexter_ios18": "iOS 18.3.2 | 190 rows",
+            "felix_ios17": "iOS 17.6.1 | 158 rows",
+            "fsfull002_ios17": "iOS 17.1 | 78 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 145 rows",
+            "iphone11_ios17": "iOS 17.3 | 144 rows",
+            "iphone12_ios18": "iOS 18.7 | 187 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 156 rows",
+            "otto_ios17": "iOS 17.5.1 | 168 rows",
+            "abe_ios16": "iOS 16.5 | 99 rows",
+            "felix23_ios16": "iOS 16.5 | 92 rows",
+            "hickman_ios13": "iOS 13.3.1 | 87 rows",
+            "hickman_ios14": "iOS 14.3 | 102 rows",
+            "jess_ios15": "iOS 15.0.2 | 84 rows",
+            "magnet_ios16": "iOS 16.1.1 | 120 rows",
+        }
     },
     "get_snapshot_creationDate": {
         "name": "Application Snapshot",
-        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. " +\
-                       "NOTE: these timestamps do not always indicate application usage " +\
-                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these " +\
-                       "timestamps do indicate user-interaction with the " +\
-                       "device, such as switching between apps.",
-        "author": "@mxkrt",
+        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db, using the stored "
+                       "creationDate as the primary timestamp. The value records snapshot-object creation; it does "
+                       "not by itself prove foreground application use or that the user viewed the image contents.",
+        "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2025-10-24",
+        "last_update_date": "2026-08-06",
         "requirements": "none",
         "category": "Device Usage",
-        "notes": "",
+        "notes": "SplashBoard runtime headers expose creationDate and lastUsedDate properties on "
+                 "XBApplicationSnapshot. Apple documents that UIKit creates app-switcher snapshots after a scene "
+                 "enters the background and that applications may hide sensitive content before capture. Sources: "
+                 "https://github.com/nst/iOS-Runtime-Headers/blob/master/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h ; "
+                 "https://developer.apple.com/documentation/uikit/preparing-your-ui-to-run-in-the-background",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 257 rows",
+            "dexter_ios18": "iOS 18.3.2 | 733 rows",
+            "felix_ios17": "iOS 17.6.1 | 323 rows",
+            "fsfull002_ios17": "iOS 17.1 | 240 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 362 rows",
+            "iphone11_ios17": "iOS 17.3 | 658 rows",
+            "iphone12_ios18": "iOS 18.7 | 621 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 536 rows",
+            "otto_ios17": "iOS 17.5.1 | 747 rows",
+            "abe_ios16": "iOS 16.5 | 625 rows",
+            "felix23_ios16": "iOS 16.5 | 484 rows",
+            "hickman_ios13": "iOS 13.3.1 | 353 rows",
+            "hickman_ios14": "iOS 14.3 | 497 rows",
+            "jess_ios15": "iOS 15.0.2 | 290 rows",
+            "magnet_ios16": "iOS 16.1.1 | 487 rows",
+        }
     },
     "get_snapshot_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
-        "description": "Extract XBApplicationSnapshotManifest records with a " +\
-                       "lastUsedDate from applicationState.db. " +\
-                       "NOTE: these timestamps do not always indicate application usage " +\
-                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these " +\
-                       "timestamps do indicate user-interaction with the " +\
-                       "device, such as switching between apps.",
-        "author": "@mxkrt",
+        "description": "Extract XBApplicationSnapshotManifest records with a "
+                       "lastUsedDate from applicationState.db. The property belongs to SplashBoard's snapshot object, "
+                       "but its update event is not publicly documented. It is sparse and must not be treated as "
+                       "proof that the application was in the foreground or that the user viewed the image contents "
+                       "at that time.",
+        "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2025-10-24",
+        "last_update_date": "2026-08-06",
         "requirements": "none",
         "category": "Device Usage",
-        "notes": "",
+        "notes": "The property name is sourced from the runtime-derived SplashBoard header. Its forensic meaning is "
+                 "not documented by Apple. Corroborate with independent device-usage artifacts and report the field "
+                 "as stored. Source: https://github.com/nst/iOS-Runtime-Headers/blob/master/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 64 rows",
+            "dexter_ios18": "iOS 18.3.2 | 76 rows",
+            "felix_ios17": "iOS 17.6.1 | 19 rows",
+            "fsfull002_ios17": "iOS 17.1 | 23 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 31 rows",
+            "iphone11_ios17": "iOS 17.3 | 120 rows",
+            "iphone12_ios18": "iOS 18.7 | 85 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 24 rows",
+            "otto_ios17": "iOS 17.5.1 | 78 rows",
+            "abe_ios16": "iOS 16.5 | 61 rows",
+            "felix23_ios16": "iOS 16.5 | 20 rows",
+            "hickman_ios13": "iOS 13.3.1 | 59 rows",
+            "hickman_ios14": "iOS 14.3 | 87 rows",
+            "jess_ios15": "iOS 15.0.2 | 28 rows",
+            "magnet_ios16": "iOS 16.1.1 | 58 rows",
+        }
     }
 }
 

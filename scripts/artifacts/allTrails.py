@@ -4,13 +4,17 @@ __artifacts_v2__ = {
         "description": "Extract trail details from AllTrails App",
         "author": "@stark4n6",
         "creation_date": "2022-04-28",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health & Fitness",
-        "notes": "",
+        "notes": "Difficulty value mapping observed in testing; unrecognized values are reported as stored.",
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
-        "artifact_icon": "map"
+        "artifact_icon": "map",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | AllTrails: Hike, Bike & Run 18.8.0 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | AllTrails: Hike, Bike & Run 14.3.1 | 50 rows",
+        }
     },
     "allTrailsUserInfo": {
         "name": "AllTrails - User Info",
@@ -23,7 +27,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": "all",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | AllTrails: Hike, Bike & Run 18.8.0 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | AllTrails: Hike, Bike & Run 14.3.1 | 1 row",
+        }
     }
 }
 
@@ -43,6 +51,7 @@ def allTrailsTrailDetails(context):
             WHEN 1 THEN 'Easy'
             WHEN 3 THEN 'Moderate'
             WHEN 5 THEN 'Hard'
+            ELSE ZACTIVITYSTATS.ZDIFFICULTY
         END,
         ZTRAIL.ZRATING,
         ZTRAIL.ZREVIEWCOUNT,
@@ -79,10 +88,10 @@ def allTrailsTrailDetails(context):
         'Zip Code', 
         'Country', 
         'Country Name', 
-        'Parking Area Name'
+        'Park Area Name'
         )
     
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
 
     return data_headers, data_list, source_path
 
@@ -137,6 +146,7 @@ def allTrailsUserInfo(context):
         creation_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         data_list.append(
             (creation_timestamp, record[1], record[2], record[3], record[4], record[5], record[6], 
-             record[7], record[8], record[9], record[10], record[11], record[12], record[13]))
+             record[7], record[8], record[9], record[10], record[11], record[12], record[13])
+        )
 
     return data_headers, data_list, source_path

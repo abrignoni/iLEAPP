@@ -1,16 +1,22 @@
 __artifacts_v2__ = {
     "get_cacheRoutesGmap": {
         "name": "Google Maps Cache Routes",
-        "description": "",
+        "description": "Parses cached Google Maps route data and timestamps from the app CachedRoutes plists.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Locations",
-        "notes": "",
+        "notes": "The plist filename is interpreted as a millisecond Unix timestamp based on observed values; app attribution rests on tested extractions.",
         "paths": ('*/Library/Application Support/CachedRoutes/*.plist',),
         "output_types": "all",
         "artifact_icon": "route",
+        "sample_data": {
+            "hc_ios18_7": "iOS 18.7.8 | Google Maps 26.24.1 | 77 rows",
+            "iphone11_ios17": "iOS 17.3 | Google Maps 6.125.1 | 35 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Maps 6.127.2 | 433 rows",
+            "abe_ios16": "iOS 16.5 | Google Maps 6.51.0 | 249 rows",
+        },
     }
 }
 
@@ -54,6 +60,6 @@ def get_cacheRoutesGmap(context):
             except (KeyError, TypeError):
                 pass
 
-    data_headers = (('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Source File')
+    data_headers = (('Timestamp (from filename)', 'datetime'), 'Latitude', 'Longitude', 'Source File')
 
     return data_headers, data_list, 'see Source File for more info'

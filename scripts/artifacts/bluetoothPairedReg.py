@@ -1,16 +1,27 @@
 __artifacts_v2__ = {
     "get_bluetoothPairedReg": {
         "name": "Bluetooth Paired",
-        "description": "",
+        "description": "Parses known Bluetooth devices recorded in com.apple.MobileBluetooth.devices.plist and their last-seen times.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-21",
-        "last_update_date": "2025-11-03",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
         "paths": ('*/com.apple.MobileBluetooth.devices.plist'),
         "output_types": "standard",
-        "artifact_icon": "bluetooth-connected"
+        "artifact_icon": "bluetooth-connected",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 12 rows",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | 8 rows",
+            "abe_ios16": "iOS 16.5 | 8 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 4 rows",
+            "hickman_ios14": "iOS 14.3 | 4 rows",
+        }
     }
 }
 

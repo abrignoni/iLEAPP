@@ -52,22 +52,24 @@ def vippsContacts(context):
     '''
     all_rows = get_sqlite_db_records(source_path, query)
 
-    if all_rows:
-        for row in all_rows:
-            name = row[0]
-            phonenumbers = row[1]
-            image_blob = row[2]
-            contact_id = row[3]
+    # if all_rows:
+    # NOTE: no need to test for truthiness, a for loop skips if the iterable
+    #   is empty
+    for row in all_rows:
+        name = row[0]
+        phonenumbers = row[1]
+        image_blob = row[2]
+        contact_id = row[3]
 
-            thumb_id = None
-            if image_blob:
-                thumb_id = check_in_embedded_media(
-                    source_file=source_path,
-                    data=image_blob,
-                    name=f"{contact_id}_profile"
-                )
+        thumb_id = None
+        if image_blob:
+            thumb_id = check_in_embedded_media(
+                source_file=source_path,
+                data=image_blob,
+                name=f"{contact_id}_profile"
+            )
 
-            data_list.append((thumb_id, name, phonenumbers, context.get_relative_path(source_path)))
+        data_list.append((thumb_id, name, phonenumbers, context.get_relative_path(source_path)))
 
     data_headers = (
         ('Profile Image', 'media'),

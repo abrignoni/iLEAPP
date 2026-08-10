@@ -5,13 +5,30 @@ __artifacts_v2__ = {
         "description": "Processes CloudKit sharing data from NoteStore.sqlite",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-05-28",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "Cloudkit",
         "notes": "",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "share-2"
+        "artifact_icon": "share-2",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 3 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 9 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 12 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 10 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 35 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 40 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 11 rows",
+            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 24 rows",
+            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 7 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.apple.notes | 8 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.apple.notes | 12 rows",
+            "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | group.com.apple.notes | 0 rows",
+        }
     },
     "cloudkit_participants": {
         "name": "CloudKit Share Participants",
@@ -24,14 +41,32 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*NoteStore.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | group.com.apple.notes | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | group.com.apple.notes | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | group.com.apple.notes | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | group.com.apple.notes | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | group.com.apple.notes | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | group.com.apple.notes | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | group.com.apple.notes | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | group.com.apple.notes | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | group.com.apple.notes | 0 rows",
+            "abe_ios16": "iOS 16.5 | group.com.apple.notes | 0 rows",
+            "felix23_ios16": "iOS 16.5 | group.com.apple.notes | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.apple.notes | 0 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.apple.notes | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | group.com.apple.notes | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | group.com.apple.notes | 0 rows",
+        }
     }
 }
 
 import os
 import io
 import nska_deserialize as nd
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
+from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db, logfunc,
+                               open_sqlite_db_readonly)
 
 
 def deep_get(data, path, default=''):
@@ -43,6 +78,36 @@ def deep_get(data, path, default=''):
         if data is None:
             return default
     return data
+
+
+def as_dict(data):
+    """Return a dictionary only when the plist value has that shape."""
+    return data if isinstance(data, dict) else {}
+
+
+def as_list(data):
+    """Normalize plist values that may be a single dict, list, or scalar."""
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        return [data]
+    return []
+
+
+def has_cloudkit_table(file_found):
+    """Report whether a NoteStore.sqlite carries the CloudKit schema.
+
+    iOS leaves zero-byte NoteStore.sqlite placeholders under Backups/<date>/ and
+    sqlite3 opens those as empty databases, so the table has to be checked before
+    querying one. Skipping is right for a placeholder but would also hide a truncated
+    or unreadable database, so every skip names the file and its size.
+    """
+    if does_table_exist_in_db(file_found, 'ZICCLOUDSYNCINGOBJECT'):
+        return True
+    size = os.path.getsize(file_found) if os.path.isfile(file_found) else 0
+    logfunc(f'cloudkitSharing: skipped {file_found} ({size} bytes), '
+            'no ZICCLOUDSYNCINGOBJECT table')
+    return False
 
 
 def write_debug_bplist(report_folder, prefix, z_pk, data):
@@ -61,6 +126,8 @@ def cloudkit_sharing(context):
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
             continue
+        if not has_cloudkit_table(file_found):
+            continue
 
         # Dictionary to merge share and record data by Z_PK
         shares = {}
@@ -69,18 +136,15 @@ def cloudkit_sharing(context):
         cursor = db.cursor()
 
         # 1. Process Server Record Data
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERRECORDDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERRECORDDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERRECORDDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERRECORDDATA IS NOT NULL')
         for row in cursor:
             z_pk, z_id, blob = row
             write_debug_bplist(context.get_report_folder(), 'zserverrecorddata', z_pk, blob)
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
-            
-            record_items = []
-            if isinstance(deserialized, list):
-                record_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
-            elif isinstance(deserialized, dict) and 'RecordID' in deserialized:
-                record_items = [deserialized]
+
+            record_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'RecordID' in x]
 
             for item in record_items:
                 shares[z_pk] = {
@@ -103,18 +167,15 @@ def cloudkit_sharing(context):
                 break # Only take the first matching record item per Z_PK
 
         # 2. Process Server Share Data
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
         for row in cursor:
             z_pk, z_id, blob = row
             write_debug_bplist(context.get_report_folder(), 'zserversharedata', z_pk, blob)
 
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            share_items = []
-            if isinstance(deserialized, list):
-                share_items = [x for x in deserialized if isinstance(x, dict) and 'RecordID' in x]
-            elif isinstance(deserialized, dict) and 'RecordID' in deserialized:
-                share_items = [deserialized]
+            share_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'RecordID' in x]
 
             for item in share_items:
                 if z_pk not in shares:
@@ -143,16 +204,18 @@ def cloudkit_sharing(context):
         db.close()
 
         for z_pk, s in shares.items():
-            data_list.append((
-                context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'], s['root_id'], s['record_type'],
-                s['ctime'], s['creator'], s['mtime'], s['modifier'], s['device'],
+            data_list.append((s['ctime'], s['mtime'], 
+                context.get_relative_path(file_found), z_pk, s['z_id'], s['record_id'],
+                s['root_id'], s['record_type'],
+                s['creator'], s['modifier'], s['device'],
                 s['container'], s['hostname'], s['permission'], s['visibility'],
                 s['anon'], s['known']
             ))
 
     data_headers = (
+        ('Creation Date', 'datetime'), ('Modified Date', 'datetime'),
         'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Record ID', 'Root Record ID', 'Record Type',
-        ('Creation Date', 'datetime'), 'Creator User Record ID', ('Modified Date', 'datetime'),
+        'Creator User Record ID', 
         'Last Modified User Record ID', 'Modified By Device', 'Container Identifier',
         'Displayed Hostname', 'Public Permission', 'Participant Visibility',
         'Allows Anonymous Access', 'Known To Server'
@@ -168,34 +231,39 @@ def cloudkit_participants(context):
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
             continue
+        if not has_cloudkit_table(file_found):
+            continue
 
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
-        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
+        cursor.execute('SELECT Z_PK, ZIDENTIFIER, ZSERVERSHAREDATA '
+                       'FROM ZICCLOUDSYNCINGOBJECT WHERE ZSERVERSHAREDATA IS NOT NULL')
 
         for row in cursor:
             z_pk, z_id, blob = row
             deserialized = nd.deserialize_plist(io.BytesIO(blob))
 
-            share_items = []
-            if isinstance(deserialized, list):
-                share_items = [x for x in deserialized if isinstance(x, dict) and 'Participants' in x]
-            elif isinstance(deserialized, dict) and 'Participants' in deserialized:
-                share_items = [deserialized]
+            share_items = [x for x in as_list(deserialized) if isinstance(x, dict) and 'Participants' in x]
 
             for item in share_items:
                 share_record_id = deep_get(item, ['RecordID', 'RecordName'])
                 root_record_id = deep_get(item, ['RootRecordID', 'RecordName'])
 
-                participants = item.get('Participants') or []
+                participants = as_list(item.get('Participants'))
                 for p in participants:
-                    if not isinstance(p, dict):
+                    p = as_dict(p)
+                    if not p:
                         continue
-                    ui = p.get('UserIdentity') or {}
+                    ui = as_dict(p.get('UserIdentity'))
                     name_priv = deep_get(ui, ['NameComponents', 'NS.nameComponentsPrivate'], {})
+                    name_priv = as_dict(name_priv)
 
                     data_list.append((
-                        context.get_relative_path(file_found), z_pk, z_id, share_record_id, root_record_id,
+                        context.get_relative_path(file_found),
+                        z_pk,
+                        z_id,
+                        share_record_id,
+                        root_record_id,
                         p.get('ParticipantID', ''),
                         deep_get(ui, ['UserRecordID', 'RecordName']),
                         deep_get(ui, ['LookupInfo', 'EmailAddress']),
@@ -225,7 +293,8 @@ def cloudkit_participants(context):
 
     data_headers = (
         'Source File', 'Source Z_PK', 'ZIDENTIFIER', 'Share Record ID', 'Root Record ID',
-        'Participant ID', 'Participant User Record ID', 'Email Address', ('Phone Number', 'phonenumber'),
+        'Participant ID', 'Participant User Record ID', 'Email Address',
+        ('Phone Number', 'phonenumber'),
         'Participant Type', 'Acceptance Status', 'Permission', 'Original Participant Type',
         'Original Acceptance Status', 'Original Permission', 'Is Current User', 'Inviter ID',
         'Has iCloud Account', 'Invitation Token Status', 'Wants New Invitation Token',

@@ -11,7 +11,21 @@ __artifacts_v2__ = {
         "notes": "Most code copied from appSnapshots.py",
         "paths": ('*/Library/Caches/com.apple.chrono/snapshot-cache/*/*/*.snapshot',),
         "output_types": "standard",
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 24 rows",
+            "felix_ios17": "iOS 17.6.1 | 6 rows",
+            "fsfull002_ios17": "iOS 17.1 | 6 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 11 rows",
+            "iphone11_ios17": "iOS 17.3 | 7 rows",
+            "iphone12_ios18": "iOS 18.7 | 10 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | 12 rows",
+            "abe_ios16": "iOS 16.5 | 16 rows",
+            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "jess_ios15": "iOS 15.0.2 | 10 rows",
+            "magnet_ios16": "iOS 16.1.1 | 10 rows",
+        }
     },
 }
 
@@ -59,7 +73,6 @@ def widgets(context):
         png_path = media_path.with_suffix((".png"))
         if save_ktx_to_png_if_valid(media_path, png_path):
             media_item = check_in_media(file_found, app_name, png_path)
-            print(f"file_found = [{file_found}], media_item = [{media_item}]")
         else:
             continue
 

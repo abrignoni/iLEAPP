@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "offlinePages": {
         "name": "Offline Pages (MHTML)",
         "description": "Saved offline web pages (MHTML/MHT) with their captured source URL and date",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",

@@ -5,13 +5,35 @@ __artifacts_v2__ = {
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
         "author": "@stark4n6",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-05-27",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Battery",
-        "notes": "",
+        "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
+                 "100). Validated against 275 rows across BDC_SBC version 2.9 and 3.0 files "
+                 "from two test images: dividing by 100 yields 21.7-37.2 C, consistent with "
+                 "an operating device and rising while IsCharging is set, while a x1000 scale "
+                 "would imply near-freezing temperatures. The reference below states Celsius "
+                 "x 1000, which this testing indicates is a typo. The CSV header row in the "
+                 "files matches the column positions parsed here. "
+                 "Reference: Kevin Pagano, 'BDC - More Battery Temps & Charging Stats', "
+                 "https://www.stark4n6.com/2026/03/bdc-more-battery-temps-charging-stats.html",
         "paths": ('*/Battery/BDC/BDC_SBC_*.csv'),
         "output_types": "standard",
-        "artifact_icon": "battery-charging"
+        "artifact_icon": "battery-charging",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 2942 rows",
+            "felix_ios17": "iOS 17.6.1 | 1479 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1744 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3069 rows",
+            "iphone11_ios17": "iOS 17.3 | 7599 rows",
+            "iphone12_ios18": "iOS 18.7 | 688 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 393 rows",
+            "otto_ios17": "iOS 17.5.1 | 3121 rows",
+            "abe_ios16": "iOS 16.5 | 5221 rows",
+            "felix23_ios16": "iOS 16.5 | 2154 rows",
+            "jess_ios15": "iOS 15.0.2 | 550 rows",
+            "magnet_ios16": "iOS 16.1.1 | 807 rows",
+        }
     }
 }
 

@@ -2,7 +2,8 @@ __artifacts_v2__ = {
     "teamsMessages": {
         "name": "Teams Messages",
         "description": "Microsoft Teams messages and shared media",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -24,55 +25,79 @@ __artifacts_v2__ = {
                 #"sentMessageStaticLabel": "This Device" 
             }
         },
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 125 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 20 rows",
+        }
     },
     "teamsContacts": {
         "name": "Teams Contacts",
         "description": "Microsoft Teams contact list",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "address-book"
+        "artifact_icon": "address-book",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 13 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 5 rows",
+        }
     },
     "teamsUser": {
         "name": "Teams User Information",
         "description": "Microsoft Teams user profile and sync data",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 2 rows",
+        }
     },
     "teamsCalls": {
         "name": "Teams Call Logs",
         "description": "Microsoft Teams call history",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "phone-call"
+        "artifact_icon": "phone-call",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 9 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 4 rows",
+        }
     },
     "teamsLocations": {
         "name": "Teams Shared Locations",
         "description": "Microsoft Teams shared location data",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
         "notes": "",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SkypeSpacesDogfood/*/Skype*.sqlite*',),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Microsoft Teams 6.13.1 | 13 rows",
+            "hickman_ios14": "iOS 14.3 | Microsoft Teams 2.3.1 | 4 rows",
+        }
     }
 }
 

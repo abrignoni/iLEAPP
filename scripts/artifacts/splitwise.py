@@ -10,20 +10,26 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseExpenses": {
         "name": "Splitwise - Expenses",
         "description": "Parses expenses information from Splitwise app",
         "author": "@KevinPagano3",
         "creation_date": "2024-04-09",
-        "last_update_date": "2025-01-07",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Finance",
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseExpenseBalances": {
         "name": "Splitwise - Expense Balances",
@@ -36,7 +42,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseTotalBalances": {
         "name": "Splitwise - Total Balances",
@@ -49,7 +58,10 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        }
     },
     "splitwiseGroups": {
         "name": "Splitwise - Groups",
@@ -63,6 +75,9 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        },
         "html_columns": ['Members']
     },
     "splitwiseNotifications": {
@@ -77,15 +92,41 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "bell",
+        "sample_data": {
+            "iphone12_ios18": "iOS 18.7 | Proton VPN: Fast & Secure 6.6.5 | 0 rows",
+        },
         "html_columns": ['Notification']
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, convert_unix_ts_to_utc
+import os
+
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
+    null_absent_columns, convert_unix_ts_to_utc, does_table_exist_in_db
+from scripts.html_safe import esc
+
+
+def _splitwise_db(files_found):
+    """Pick the Splitwise store by its schema rather than by filename.
+
+    The declared glob is */Library/Application Support/database.sqlite*, which
+    carries no app-specific component, so it matches that filename in every
+    application container. Taking the first match opened whichever app came
+    first and the queries then failed with "no such table: SWPerson", reporting
+    nothing even where Splitwise data was present.
+    """
+    for file_found in files_found:
+        path = str(file_found)
+        if os.path.basename(path) != 'database.sqlite':
+            continue
+        if does_table_exist_in_db(path, 'SWPerson'):
+            return path
+    return ''
+
 
 @artifact_processor
-def splitwiseUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseUsers(context):
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
 
     query = '''
@@ -117,7 +158,7 @@ def splitwiseUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_o
         'Country', 
         'Registration Status')
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -131,8 +172,8 @@ def splitwiseUsers(files_found, _report_folder, _seeker, _wrap_text, _timezone_o
 
 
 @artifact_processor
-def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseExpenses(context):
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
 
     query = '''
@@ -155,7 +196,7 @@ def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezon
     data_headers = (
         ('Created Timestamp', 'datetime'), 
         ('Updated Timestamp', 'datetime'), 
-        'Payer', 
+        'Created By',
         'Expense Description', 
         'Cost', 
         'Currency', 
@@ -164,7 +205,7 @@ def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezon
         'Expense ID', 
         'Expense GUID')
 
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -178,8 +219,8 @@ def splitwiseExpenses(files_found, _report_folder, _seeker, _wrap_text, _timezon
 
 
 @artifact_processor
-def splitwiseExpenseBalances(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseExpenseBalances(context):
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
 
     query = '''
@@ -203,7 +244,7 @@ def splitwiseExpenseBalances(files_found, _report_folder, _seeker, _wrap_text, _
         'Owed Share', 
         'Paid Share')
     
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -213,8 +254,8 @@ def splitwiseExpenseBalances(files_found, _report_folder, _seeker, _wrap_text, _
 
 
 @artifact_processor
-def splitwiseTotalBalances(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseTotalBalances(context):
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
 
     query = '''
@@ -238,7 +279,7 @@ def splitwiseTotalBalances(files_found, _report_folder, _seeker, _wrap_text, _ti
         'Balance', 
         'Currency')
     
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
     
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -250,8 +291,8 @@ def splitwiseTotalBalances(files_found, _report_folder, _seeker, _wrap_text, _ti
 
 
 @artifact_processor
-def splitwiseGroups(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseGroups(context):
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
     data_list_html = []
 
@@ -289,7 +330,7 @@ def splitwiseGroups(files_found, _report_folder, _seeker, _wrap_text, _timezone_
         'Avatar URL', 
         'Cover Photo URL')
     
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
@@ -305,15 +346,15 @@ def splitwiseGroups(files_found, _report_folder, _seeker, _wrap_text, _timezone_
             (created_ts, updated_ts, record[2], members, record[4], group_title, record[6], 
              record[7], record[8], record[9]))
         data_list_html.append(
-            (created_ts, updated_ts, record[2], members.replace(chr(13), '<br>')[:-2], record[4], 
+            (created_ts, updated_ts, record[2], esc(members).replace(chr(13), '<br>')[:-2], record[4],
              group_title, record[6], record[7], record[8], record[9]))
 
     return data_headers, (data_list, data_list_html), source_path
 
 
 @artifact_processor
-def splitwiseNotifications(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, "database.sqlite")
+def splitwiseNotifications(context):
+    source_path = _splitwise_db(context.get_files_found())
     data_list = []
     data_list_html = []
 
@@ -332,11 +373,11 @@ def splitwiseNotifications(files_found, _report_folder, _seeker, _wrap_text, _ti
         'Source Type', 
         'Notification ID')
     
-    db_records = get_sqlite_db_records(source_path, query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
     for record in db_records:
         created_ts = convert_unix_ts_to_utc(record[0])
-        data_list_html.append((created_ts, record[1], record[2], record[3]))
+        data_list_html.append((created_ts, esc(record[1]), record[2], record[3]))
         remove_html = record[1].replace('<strong>', '').replace('</strong>', '')
         data_list.append((created_ts, remove_html, record[2], record[3]))
 

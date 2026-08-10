@@ -2,15 +2,18 @@ __artifacts_v2__ = {
     "tileApp": {
         "name": "Tile App Geolocation Logs",
         "description": "Latitude/longitude coordinates recorded in Tile app logs",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Locations",
-        "notes": "Log timestamps stored as UTC.",
+        "notes": "Log timestamps observed as UTC in tested samples.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/log/com.thetileapp.tile*',),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | Tile - Find lost keys & phone 2.115.0 | 0 rows",
+        }
     }
 }
 

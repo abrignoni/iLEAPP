@@ -16,7 +16,21 @@ __artifacts_v2__ = {
                  "siris-memory-lane-exploring-the-siriremembers-database/",
         "paths": ('*/mobile/Library/com.apple.siri.inference/siriremembers*',),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 251 rows",
+            "felix_ios17": "iOS 17.6.1 | 7 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 70 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 703 rows",
+            "abe_ios16": "iOS 16.5 | 393 rows",
+            "felix23_ios16": "iOS 16.5 | 20 rows",
+            "hickman_ios14": "iOS 14.3 | 65 rows",
+            "jess_ios15": "iOS 15.0.2 | 11 rows",
+        }
     },
     "siriRemembersCalls": {
         "name": "Siri Remembers - Calls",
@@ -30,7 +44,21 @@ __artifacts_v2__ = {
                  "siris-memory-lane-exploring-the-siriremembers-database/",
         "paths": ('*/mobile/Library/com.apple.siri.inference/siriremembers*',),
         "output_types": "standard",
-        "artifact_icon": "phone"
+        "artifact_icon": "phone",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 8 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 8 rows",
+            "abe_ios16": "iOS 16.5 | 18 rows",
+            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 7 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+        }
     },
     "siriRemembersMedia": {
         "name": "Siri Remembers - Media",
@@ -44,7 +72,21 @@ __artifacts_v2__ = {
                  "siris-memory-lane-exploring-the-siriremembers-database/",
         "paths": ('*/mobile/Library/com.apple.siri.inference/siriremembers*',),
         "output_types": "standard",
-        "artifact_icon": "music"
+        "artifact_icon": "music",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+        }
     }
 }
 

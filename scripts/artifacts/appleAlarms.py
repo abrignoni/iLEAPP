@@ -4,13 +4,30 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2025-12-16",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Clock",
-        "notes": "",
+        "notes": "Repeat-schedule bitmask mapping observed in testing; not vendor-documented.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
-        "artifact_icon": "clock"
+        "artifact_icon": "clock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 6 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
@@ -21,6 +38,20 @@ from datetime import datetime as _dt
 def _safe_plist_date(value):
     """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
     return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
+
+def decode_alarm_sound(alarm_dict):
+    """Describe the alarm sound.
+
+    A tone carries MTSoundToneID, a song from the media library carries
+    MTSoundMediaItemID instead, so neither key is guaranteed to be present.
+    """
+    sound = alarm_dict.get('MTAlarmSound', {}).get('$MTSound', {})
+    if 'MTSoundToneID' in sound:
+        return sound['MTSoundToneID']
+    if 'MTSoundMediaItemID' in sound:
+        return f"media item: {sound['MTSoundMediaItemID']}"
+    return ''
 
 
 def decode_repeat_schedule(repeat_schedule_value):
@@ -87,7 +118,7 @@ def alarms(context):
                     dismiss_date,
                     last_modified_date, 
                     ', '.join(repeat_schedule),
-                    alarms_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'],
+                    decode_alarm_sound(alarms_dict),
                     alarms_dict['MTAlarmIsSleep'], 
                     alarms_dict['MTAlarmBedtimeDoNotDisturb'],
                     '')
@@ -115,7 +146,7 @@ def alarms(context):
                     dismiss_date, 
                     last_modified_date, 
                     ', '.join(repeat_schedule), 
-                    sleep_alarm_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'], 
+                    decode_alarm_sound(sleep_alarm_dict),
                     sleep_alarm_dict['MTAlarmIsSleep'], 
                     sleep_alarm_dict['MTAlarmBedtimeDoNotDisturb'], 
                     sleep_alarm_dict['MTAlarmBedtimeFireDate'])
@@ -131,7 +162,7 @@ def alarms(context):
         'Repeat Schedule', 
         'Alarm Sound', 
         'Is Sleep Alarm', 
-        'Bedtime Not Disturbed', 
+        'Bedtime Do Not Disturb',
         'Bedtime Fire Date'
         )
     return data_headers, data_list, source_path

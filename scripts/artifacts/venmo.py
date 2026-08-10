@@ -10,7 +10,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*PrivateFeed','*PublicFeed','*FriendsFeed'),
         "output_types": "standard",
-        "artifact_icon": "currency-dollar"
+        "artifact_icon": "currency-dollar",
+        "sample_data": {
+            "hickman_ios13": "iOS 13.3.1 | Venmo 7.47.1 | 30 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 39 rows",
+        }
     },
     "venmo_users": {
         "name": "Venmo - Users",
@@ -23,7 +27,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*PrivateFeed', '*PublicFeed', '*FriendsFeed'),
         "output_types": "standard",
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "hickman_ios13": "iOS 13.3.1 | Venmo 7.47.1 | 42 rows",
+            "hickman_ios14": "iOS 14.3 | Venmo 8.14.1 | 3 rows",
+        }
     }
 }
 

@@ -10,7 +10,7 @@ following information can be interpreted:
 - Hikvision - CCTV Info: information about the CCTV system.
 - Hikvision - CCTV Activity: user interaction with the app. User actions are not easy
   to attribute but can indirectly indicate remote live view/play back of CCTV footage.
-- Hikvision - User Created Media: media files the user created while viewing CCTV footage.
+- Hikvision - CCTV Media: media files stored under Documents/YYYY/MM/DD in the app container.
 """
 __artifacts_v2__ = {
     "hikvisionChannels": {
@@ -53,17 +53,25 @@ __artifacts_v2__ = {
         "artifact_icon": "activity"
     },
     "hikvisionMedia": {
-        "name": "Hikvision - User Created Media",
-        "description": "Media files the user created while viewing CCTV footage",
+        "name": "Hikvision - CCTV Media",
+        "description": "Media files stored under Documents/YYYY/MM/DD in the Hikvision app container",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Hikvision",
         "notes": "Media are stored under Documents/YYYY/MM/DD within the app container.",
         "paths": ('*/Documents/*/*/*/*.jpg', '*/Documents/*/*/*/*.mov', '*/Documents/*/*/*/*.mp4'),
         "output_types": "standard",
-        "artifact_icon": "movie"
+        "artifact_icon": "movie",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | com.disney.playdisneyparks, com.zhiliaoapp.musically | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | BeReal. Your friends for real. 2.24.0, Gmail - Email by Google 6.0.231127, Zoom Workplace 6.1.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0, ZOOM Cloud Meetings 4.6.9 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | TikTok 18.4.5, ZOOM Cloud Meetings 5.4.10 | 0 rows",
+        }
     }
 }
 

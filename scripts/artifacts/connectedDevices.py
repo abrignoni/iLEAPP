@@ -1,16 +1,24 @@
 __artifacts_v2__ = {
     "conDev": {
         "name": "Connected Devices",
-        "description": "Extracts information about connected devices from iTunes preferences",
-        "author": "",
+        "description": "Extracts computer and user names recorded in iTunesPrefs (FRPD)",
+        "author": "@JamesHabben",
         "creation_date": "2024-10-23",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Connected Devices",
-        "notes": "",
+        "notes": "Reference: Jack Farley, 'Forensic Analysis of iTunes Backups', https://farleyforensics.com/2019/04/14/forensic-analysis-of-itunes-backups/ (FRPD records hold the computers and computer user names the device paired/backed up with).",
         "paths": ('*/iTunes_Control/iTunes/iTunesPrefs',),
-        "output_types": "standard",
-        "artifact_icon": "devices"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "devices",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 3 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 2 rows",
+        }
     }
 }
 

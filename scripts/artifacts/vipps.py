@@ -4,10 +4,12 @@ __artifacts_v2__ = {
         'description': 'Extracts messages and transaction details from Vipps.',
         'author': '@AlexisBrignoni',
         'creation_date': '2022-06-22',
-        'last_update_date': '2025-11-28',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Vipps',
-        'notes': '',
+        'notes': 'The telephone value is extracted from the feed model key using an '
+                 'observed key format; where the contact-table lookup finds no match '
+                 'the value is unverified.',
         'paths': ('*/Vipps.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'message'
@@ -37,7 +39,7 @@ def _get_contact_name(source_path, telephone, phone_columns):
         FROM ZCONTACTMODEL
         WHERE {phone_column} LIKE '%{escaped_telephone}%'
         '''
-        contact_rows = get_sqlite_db_records(source_path, query)
+        contact_rows = list( get_sqlite_db_records(source_path, query) )
         if contact_rows:
             return contact_rows[0][0]
     return ''

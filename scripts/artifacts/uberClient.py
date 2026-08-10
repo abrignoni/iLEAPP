@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Uber user account information (Client, City, Status).",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
@@ -12,7 +12,11 @@ __artifacts_v2__ = {
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/client',
         ),
         "output_types": "all",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Uber - Request a ride 3.688.10004 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 1 row",
+        }
     },
     "uber_vehicles": {
         "name": "Uber - Nearby Vehicles",
@@ -27,14 +31,17 @@ __artifacts_v2__ = {
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/eyeball',
         ),
         "output_types": "all",
-        "artifact_icon": "truck"
+        "artifact_icon": "truck",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 0 rows",
+        }
     },
     "uber_user_address": {
-        "name": "Uber - User Address",
-        "description": "Parses user reverse geocode address from Eyeball cache.",
+        "name": "Uber - Reverse Geocode Address",
+        "description": "Parses reverse-geocoded address from the client cache.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
@@ -42,7 +49,10 @@ __artifacts_v2__ = {
             '*/Library/Application Support/PersistentStorage/BootstrapStore/RealtimeRider.StreamModelKey/eyeball',
         ),
         "output_types": "all",
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 1 row",
+        }
     },
     "uber_payment_profiles": {
         "name": "Uber - Payment Profiles",
@@ -57,46 +67,64 @@ __artifacts_v2__ = {
             '*/Library/Application Support/PersistentStorage/Store/PaymentFoundation.PaymentStreamModelKey/profiles',
         ),
         "output_types": "standard",
-        "artifact_icon": "credit-card"
+        "artifact_icon": "credit-card",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Uber - Request a ride 3.688.10004 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 4 rows",
+        }
     },
     "uber_searched_rides": {
-        "name": "Uber - Searched Rides",
+        "name": "Uber - Place Search Hits",
         "description": "Parses searched rides history from database.db.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
         "paths": ('*/Documents/database.db*',),
         "output_types": "all",
-        "artifact_icon": "search"
+        "artifact_icon": "search",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Uber - Request a ride 3.688.10004 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | Uber - Request a ride 3.627.10000 | 0 rows",
+        }
     },
     "uber_cached_locations": {
         "name": "Uber - Cached Locations",
         "description": "Parses cached locations from database.db.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
-        "notes": "",
+        "notes": "Column labels for the place-search cache follow observed schema naming.",
         "paths": ('*/Documents/database.db*',),
         "output_types": "all",
-        "artifact_icon": "map"
+        "artifact_icon": "map",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Uber - Request a ride 3.688.10004 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | Uber - Request a ride 3.627.10000 | 1 row",
+        }
     },
     "uber_ur_locations": {
-        "name": "Uber - Unified Reporter Locations",
+        "name": "Uber - UR Message Locations (ur_message.db)",
         "description": "Parses location data from ur_message.db.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
         "paths": ('*/Documents/ur_message.db*',),
         "output_types": "all",
-        "artifact_icon": "navigation"
+        "artifact_icon": "navigation",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Uber - Request a ride 3.688.10004 | 301 rows",
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 643 rows",
+        }
     },
     "uber_metadata_leveldb": {
         "name": "Uber - Metadata LevelDB",
@@ -109,7 +137,11 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ('*/Library/Application Support/com.ubercab.UberClient/__METADATA/*.ldb',),
         "output_types": "all",
-        "artifact_icon": "database"
+        "artifact_icon": "database",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | Uber - Request a ride 3.688.10004 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | Uber - Request a ride 3.629.10000 | 0 rows",
+        }
     }
 }
 
@@ -249,7 +281,7 @@ def uber_account(context):
         'Profile picture url', 'Profile type',
         'Country code', 'City ID', 'City',
         'Currency code', 'Timezone',
-        ('Last used', 'datetime'),
+        ('Client Status Last Modified', 'datetime'),
         'Latitude', 'Longitude',
         'Last payment profile ID', 'User ID'
     )

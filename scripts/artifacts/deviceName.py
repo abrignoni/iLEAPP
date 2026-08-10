@@ -3,6 +3,8 @@ __artifacts_v2__ = {
         "name": "Device Name",
         "description": "Extracts the device name from data_ark.plist",
         "author": "@AlexisBrignoni",
+        "creation_date": "2023-10-02",
+        "last_update_date": "2026-07-13",
         "version": "1.0",
         "date": "2024-10-29",
         "requirements": "none",
@@ -17,8 +19,8 @@ import plistlib
 from scripts.ilapfuncs import device_info, artifact_processor
 
 @artifact_processor
-def deviceName(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    file_found = str(files_found[0])
+def deviceName(context):
+    file_found = str(context.get_files_found()[0])
     with open(file_found, "rb") as fp:
         pl = plistlib.load(fp)
         for key, val in pl.items():

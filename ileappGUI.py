@@ -8,11 +8,11 @@ import webbrowser
 import base64
 
 import scripts.plugin_loader as plugin_loader
-import leapps.functions.history as history
+import leapp_functions.app.history as history
 
 from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
-from scripts.version_info import leapp_name, leapp_version
+from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
 from scripts.search_files import *
 from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
@@ -24,8 +24,14 @@ from leapp_functions.lava_launcher import (
     open_lava_project,
     open_output_folder,
 )
+from leapp_functions.app.platform import sanitize_file_name
+from leapp_functions.app.output import default_output_folder_name, validate_output_folder_available
 from scripts.context import Context
 from scripts.lavafuncs import lava_json_name
+
+
+def allow_output_folder_name_chars(proposed):
+    return sanitize_file_name(proposed) == proposed
 
 
 def show_history_menu(button, path_type):
@@ -87,18 +93,28 @@ def get_selected_modules():
     return selected_modules
 
 
+def module_matches_filter(module_infos, filter_term=None):
+    '''Return True when a module matches the active filter, meaning it is one of the modules
+    currently shown in the list. An empty filter matches every module.'''
+    if filter_term is None:
+        filter_term = modules_filter_var.get().lower()
+    return filter_term in f"{module_infos[0]} {module_infos[1]}".lower()
+
+
 def select_all():
-    '''Select all modules in the list of available modules and execute get_selected_modules'''
+    '''Select the modules currently shown in the list and execute get_selected_modules'''
     for module_infos in mlist.values():
-        module_infos[-1].set(True)
+        if module_matches_filter(module_infos):
+            module_infos[-1].set(True)
 
     get_selected_modules()
 
 
 def deselect_all():
-    '''Unselect all modules in the list of available modules and execute get_selected_modules'''
+    '''Unselect the modules currently shown in the list and execute get_selected_modules'''
     for module_infos in mlist.values():
-        module_infos[-1].set(False)
+        if module_matches_filter(module_infos):
+            module_infos[-1].set(False)
 
     get_selected_modules()
 
@@ -110,13 +126,33 @@ def filter_modules(*args):
     mlist_text.delete('0.0', tk.END)
 
     for artifact_name, module_infos in mlist.items():
-        filter_modules_info = f"{module_infos[0]} {module_infos[1]}".lower()
-        if filter_term in filter_modules_info:
-            cb = tk.Checkbutton(mlist_text, name=f'mcb_{artifact_name}',
-                                text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
-                                variable=module_infos[-1], onvalue=True, offvalue=False, command=get_selected_modules)
-            cb.config(background=theme_bgcolor, fg=theme_fgcolor, selectcolor=theme_inputcolor,
-                    highlightthickness=0, activebackground=theme_bgcolor, activeforeground=theme_fgcolor)
+        if module_matches_filter(module_infos, filter_term):
+            if is_platform_macos():
+                cb = ttk.Checkbutton(
+                    mlist_text,
+                    name=f'mcb_{artifact_name}',
+                    text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                    variable=module_infos[-1],
+                    onvalue=True,
+                    offvalue=False,
+                    command=get_selected_modules,
+                    style='Module.TCheckbutton')
+            else:
+                cb = tk.Checkbutton(
+                    mlist_text,
+                    name=f'mcb_{artifact_name}',
+                    text=f'{module_infos[0]} [{module_infos[1]} | {module_infos[2]}.py]',
+                    variable=module_infos[-1],
+                    onvalue=True,
+                    offvalue=False,
+                    command=get_selected_modules)
+                cb.config(
+                    background=theme_bgcolor,
+                    fg=theme_fgcolor,
+                    selectcolor=theme_inputcolor,
+                    highlightthickness=0,
+                    activebackground=theme_bgcolor,
+                    activeforeground=theme_fgcolor)
             mlist_text.window_create('insert', window=cb)
             mlist_text.insert('end', '\n')
     mlist_text.config(state='disabled')
@@ -223,8 +259,17 @@ def ValidateInput():
         ext_type = Path(i_path).suffix[1:].lower()
 
     # check output now
-    if len(o_path) == 0:  # output folder
-        tk_msgbox.showerror(title='Error', message='No OUTPUT folder selected!', parent=main_window)
+    if len(o_path) == 0:  # output path
+        tk_msgbox.showerror(title='Error', message='No output path provided!', parent=main_window)
+        return False, ext_type, None
+
+    folder_name = output_folder_name_entry.get().strip()
+    if not folder_name:
+        tk_msgbox.showerror(title='Error', message='Output folder name cannot be empty!', parent=main_window)
+        return False, ext_type, None
+    folder_name_valid, folder_name_error = validate_output_folder_available(o_path, folder_name)
+    if not folder_name_valid:
+        tk_msgbox.showerror(title='Error', message=folder_name_error, parent=main_window)
         return False, ext_type, None
 
     # check if at least one module is selected
@@ -476,8 +521,15 @@ def process(casedata):
         selected_modules = [loader[module] for module in selected_modules]
         progress_bar.config(maximum=len(selected_modules))
         casedata = {key: value.get() for key, value in casedata.items()}
-        out_params = OutputParameters(output_folder)
+        out_params = OutputParameters(output_folder, output_folder_name_entry.get().strip())
         Context.set_output_params(out_params)
+        keychain_path = keychain_entry.get().strip()
+        if keychain_path and not os.path.isfile(keychain_path):
+            tk_msgbox.showerror(title='Error',
+                                message=f'Keychain file not found:\n{keychain_path}',
+                                parent=main_window)
+            return
+        Context.set_keychain_path(keychain_path or None)
         wrap_text = True
         time_offset = timezone_set.get()
         if time_offset == '':
@@ -487,6 +539,7 @@ def process(casedata):
         mlist_frame.pack_forget()
         output_frame.pack_forget()
         input_frame.pack_forget()
+        keychain_frame.pack_forget()
         logtext_frame.pack(padx=8, pady=4, expand=True, fill='both')
         progress_bar_frame.pack(padx=2, pady=2, ipady=2, fill='x')
 
@@ -577,6 +630,22 @@ def select_input(button_type):
     input_entry.insert(0, input_filename)
     if input_filename:
         history.record_input_path(input_filename)
+
+
+def select_keychain():
+    '''Select a keychain file and insert its path into the keychain field'''
+    keychain_filename = tk_filedialog.askopenfilename(
+        parent=main_window,
+        title='Select a keychain file',
+        filetypes=(('Keychain files', '*.plist *.xml'), ('All files', '*.*')))
+    if keychain_filename:
+        keychain_entry.delete(0, 'end')
+        keychain_entry.insert(0, keychain_filename)
+
+
+def clear_keychain():
+    '''Forget the selected keychain so it is not reused on the next case'''
+    keychain_entry.delete(0, 'end')
 
 
 def select_output():
@@ -775,6 +844,8 @@ def case_data():
         case_window.grab_set()
 
 
+check_runtime_dependencies()
+
 ## Main window creation
 main_window = tk.Tk()
 icon = resource_path('icon.png')
@@ -800,7 +871,9 @@ theme_inputcolor = '#705e52'
 theme_fgcolor = '#fdcb52'
 
 ## Main window properties
-main_window.minsize(890, 690)
+# Height allows for the optional keychain row (about 58px) added alongside
+# the input and output rows
+main_window.minsize(890, 750)
 main_window.title(f'iLEAPP version {leapp_version}')
 main_window.configure(bg=theme_bgcolor)
 logo_icon = tk.PhotoImage(file=icon)
@@ -828,6 +901,14 @@ style.map('TCombobox',
           )
 style.configure('TScrollbar', background=theme_fgcolor, arrowcolor='black', troughcolor=theme_inputcolor)
 style.configure('TProgressbar', thickness=4, background='DarkGreen')
+style.configure(
+    'Module.TCheckbutton',
+    background=theme_bgcolor,
+    foreground=theme_fgcolor)
+style.map(
+    'Module.TCheckbutton',
+    background=[('active', theme_bgcolor)],
+    foreground=[('active', theme_fgcolor)])
 
 ## Main Window Layout
 ### Top part of the window
@@ -862,15 +943,40 @@ input_file_button.pack(side='left', padx=5, pady=4)
 input_folder_button = ttk.Button(input_frame, text='Browse Folder', command=lambda: select_input('folder'))
 input_folder_button.pack(side='left', padx=5, pady=4)
 
-output_frame = ttk.LabelFrame(main_window, text=' Select Output Folder: ')
+### Keychain (optional)
+# iOS keychains are captured separately from the file system extraction, so apps
+# that keep their database key in the keychain need it supplied here
+keychain_frame = ttk.LabelFrame(
+    main_window,
+    text=' Optional: keychain file captured from the device, used to decrypt apps such as Signal. Leave blank to use one the extraction carries: ')
+keychain_frame.pack(padx=14, pady=2, fill='x')
+keychain_entry = ttk.Entry(keychain_frame)
+keychain_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
+keychain_clear_button = ttk.Button(keychain_frame, text='Clear', width=6, command=clear_keychain)
+keychain_clear_button.pack(side='left', padx=2, pady=4)
+keychain_file_button = ttk.Button(keychain_frame, text='Browse File', command=select_keychain)
+keychain_file_button.pack(side='left', padx=5, pady=4)
+
+output_frame = ttk.LabelFrame(main_window, text=' Select Output Path ')
 output_frame.pack(padx=14, pady=5, fill='x')
-output_entry = ttk.Entry(output_frame)
+output_path_row = ttk.Frame(output_frame)
+output_path_row.pack(fill='x')
+output_entry = ttk.Entry(output_path_row)
 output_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)
-output_history_button = ttk.Button(output_frame, text='▼', width=3,
+output_history_button = ttk.Button(output_path_row, text='▼', width=3,
                                  command=lambda: show_history_menu(output_history_button, 'output'))
 output_history_button.pack(side='left', padx=2, pady=4)
-output_folder_button = ttk.Button(output_frame, text='Browse Folder', command=select_output)
+output_folder_button = ttk.Button(output_path_row, text='Browse Folder', command=select_output)
 output_folder_button.pack(side='left', padx=5, pady=4)
+output_folder_name_row = ttk.Frame(output_frame)
+output_folder_name_row.pack(fill='x', padx=5, pady=(0, 4))
+ttk.Label(output_folder_name_row, text='Folder name:').pack(side='left', padx=(0, 5))
+output_folder_name_entry = ttk.Entry(output_folder_name_row)
+output_folder_name_entry.insert(0, default_output_folder_name())
+output_folder_name_entry.configure(
+    validate='key',
+    validatecommand=(main_window.register(allow_output_folder_name_chars), '%P'))
+output_folder_name_entry.pack(side='left', fill='x', expand=True)
 
 mlist_frame = ttk.LabelFrame(main_window, text=' Available Modules: ', name='f_list')
 mlist_frame.pack(padx=14, pady=5, expand=True, fill='both')
@@ -908,6 +1014,9 @@ mlist_text.config(state='disabled')
 main_window.bind_class('Checkbutton', '<MouseWheel>', scroll)
 main_window.bind_class('Checkbutton', '<Button-4>', scroll)
 main_window.bind_class('Checkbutton', '<Button-5>', scroll)
+main_window.bind_class('TCheckbutton', '<MouseWheel>', scroll)
+main_window.bind_class('TCheckbutton', '<Button-4>', scroll)
+main_window.bind_class('TCheckbutton', '<Button-5>', scroll)
 main_window.bind("<Control-f>", lambda event: modules_filter_entry.focus_set()) # Focus on The Filter Field
 main_window.bind("<Control-i>", lambda event: input_entry.focus_set()) # Focus on the Input Field
 main_window.bind("<Control-o>", lambda event: output_entry.focus_set()) # Focus on the Output Field

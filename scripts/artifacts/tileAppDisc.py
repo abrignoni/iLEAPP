@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     'tileAppDisc': {
         'name': 'Tile App Discovered Tiles',
-        'description': 'Tile IDs seen from other users',
+        'description': 'Tile UUIDs discovered by the app (ZTILENTITY_DISCOVEREDTILE); ownership by other users is not established',
         'author': '@AlexisBrignoni',
         'creation_date': '2020-09-03',
-        'last_update_date': '2025-04-05',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Tile App',
         'notes': '',
@@ -22,9 +22,9 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 @artifact_processor
-def tileAppDisc(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def tileAppDisc(context):
     source_path = get_file_path(
-        files_found, 'com.thetileapp.tile-DiscoveredTileDB.sqlite')
+        context.get_files_found(), 'com.thetileapp.tile-DiscoveredTileDB.sqlite')
     data_list = []
 
     query = '''

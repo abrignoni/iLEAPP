@@ -9039,9 +9039,9 @@ table.table a.btn.btn-black {
   }
 }
 .pagination .page-item.active .page-link {
-  color: #e30613;
+  color: #d02e26;
   background-color: #fff;
-  border: 1px solid #e30613;
+  border: 1px solid #d02e26;
   border-radius: 0.5rem;
   -webkit-box-shadow:
     0 2px 5px 0 rgba(0, 0, 0, 0.16),

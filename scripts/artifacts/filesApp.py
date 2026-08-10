@@ -3,10 +3,10 @@
 __artifacts_v2__ = {
     "icloud_sync_device_names": {
         "name": "Files App - iCloud Sync Device Names",
-        "description": "Device names that are able to sync to iCloud Drive",
+        "description": "Device names recorded in the CloudDocs server.db devices table",
         "author": "@JohannPLW",
         "creation_date": "2024-02-05",
-        "last_update_date": "2025-09-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
         "notes": "",
@@ -14,14 +14,31 @@ __artifacts_v2__ = {
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
             ),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+            "felix_ios17": "iOS 17.6.1 | 6 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 4 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
     },
     "icloud_application_list": {
         "name": "Files App - iCloud Application List",
-        "description": "List of applications that sync data in iCloud",
+        "description": "Applications with app libraries in the CloudDocs client.db",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
-        "last_update_date": "2025-09-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
         "notes": "",
@@ -29,7 +46,24 @@ __artifacts_v2__ = {
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             ),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 12 rows",
+            "dexter_ios18": "iOS 18.3.2 | 34 rows",
+            "felix_ios17": "iOS 17.6.1 | 36 rows",
+            "fsfull002_ios17": "iOS 17.1 | 35 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 31 rows",
+            "iphone11_ios17": "iOS 17.3 | 43 rows",
+            "iphone12_ios18": "iOS 18.7 | 44 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 28 rows",
+            "otto_ios17": "iOS 17.5.1 | 32 rows",
+            "abe_ios16": "iOS 16.5 | 28 rows",
+            "felix23_ios16": "iOS 16.5 | 24 rows",
+            "hickman_ios13": "iOS 13.3.1 | 23 rows",
+            "hickman_ios14": "iOS 14.3 | 30 rows",
+            "jess_ios15": "iOS 15.0.2 | 15 rows",
+            "magnet_ios16": "iOS 16.1.1 | 21 rows",
+        }
     },
     "icloud_drive_stored_files": {
         "name": "Files App - Files stored in iCloud Drive",
@@ -45,23 +79,57 @@ __artifacts_v2__ = {
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
             ),
         "output_types": "standard",
-        "artifact_icon": "cloud"
+        "artifact_icon": "cloud",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 30 rows",
+            "dexter_ios18": "iOS 18.3.2 | 55 rows",
+            "felix_ios17": "iOS 17.6.1 | 63 rows",
+            "fsfull002_ios17": "iOS 17.1 | 40 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 31 rows",
+            "iphone11_ios17": "iOS 17.3 | 99 rows",
+            "iphone12_ios18": "iOS 18.7 | 54 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 39 rows",
+            "otto_ios17": "iOS 17.5.1 | 56 rows",
+            "abe_ios16": "iOS 16.5 | 67 rows",
+            "felix23_ios16": "iOS 16.5 | 50 rows",
+            "hickman_ios13": "iOS 13.3.1 | 38 rows",
+            "hickman_ios14": "iOS 14.3 | 74 rows",
+            "jess_ios15": "iOS 15.0.2 | 15 rows",
+            "magnet_ios16": "iOS 16.1.1 | 27 rows",
+        }
     },
     "icloud_drive_shared_files": {
         "name": "Files App - Shared files stored in iCloud Drive",
         "description": "Shared files stored in iCloud Drive with their metadata",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
-        "last_update_date": "2025-09-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
-        "notes": "",
+        "notes": "Sharing-option value mappings observed in testing; unrecognized values reported as stored",
         "paths": (
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
             ),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "share"
+        "artifact_icon": "share",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "icloud_drive_tagged_files": {
         "name": "Files App - Tagged files",
@@ -77,7 +145,24 @@ __artifacts_v2__ = {
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
             ),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "tag"
+        "artifact_icon": "tag",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "icloud_drive_favourite_files": {
         "name": "Files App - Favourite files",
@@ -93,14 +178,31 @@ __artifacts_v2__ = {
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
             ),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "star"
+        "artifact_icon": "star",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 1 row",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "files_ios_updates": {
-        "name": "Files App - Operating System Updates",
-        "description": "iOS Updates",
+        "name": "Files App - OS Build History (boot_history)",
+        "description": "OS builds and dates recorded in the CloudDocs client.db boot_history table",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
-        "last_update_date": "2025-09-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
         "notes": "",
@@ -108,7 +210,24 @@ __artifacts_v2__ = {
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             ),
         "output_types": "standard",
-        "artifact_icon": "refresh"
+        "artifact_icon": "refresh",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 6 rows",
+            "abe_ios16": "iOS 16.5 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 2 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 1 row",
+        }
     }
 }
 
@@ -168,7 +287,7 @@ def icloud_sync_device_names(context):
 
     data_headers = ('Device Number', 'Device Name')
 
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
 
     return data_headers, data_list, source_path
 
@@ -192,7 +311,7 @@ def icloud_application_list(context):
         '''
         data_headers = (
             'Application Bundle ID', 'Number of folders', 'Number of files',
-            ('Total size in bytes', 'bytes')
+            'Total size in bytes'
             )
     else:
         query = '''
@@ -202,7 +321,7 @@ def icloud_application_list(context):
         '''
         data_headers = ('Application Bundle ID', )
 
-    data_list = get_sqlite_db_records(source_path, query)
+    data_list = list( get_sqlite_db_records(source_path, query) )
 
     return data_headers, data_list, source_path
 
@@ -353,7 +472,7 @@ def icloud_drive_shared_files(context):
         elif sharing_options in (64, 68):
             sharing_permissions = "Only invited people"
         else:
-            sharing_permissions = ''
+            sharing_permissions = sharing_options
 
         user_full_name = ''
         if user_plist:
@@ -365,7 +484,7 @@ def icloud_drive_shared_files(context):
                 user_full_name = f"{user_given_name + ' ' if user_given_name else ''}" +\
                     f"{user_family_name}"
         creator_name = user_full_name if user_full_name else 'an unknown user'
-        shared_by = creator_name if creator_id else 'me'
+        shared_by = creator_name if creator_id else 'local account (no creator ID)'
 
         recently_deleted = 'Yes' if trash_back_path else 'No'
 

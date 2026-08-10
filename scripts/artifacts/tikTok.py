@@ -5,12 +5,16 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok message data from the ChatFiles databases",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-07-03",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
             "Messages are extracted from TIMMessageORM. Contact details are joined from "
-            "AwemeContacts tables when available."
+            "AwemeContacts tables when available. The Account ID column is the ChatFiles "
+            "folder name (the local account uid, which also appears in AwemeIM.db); messages "
+            "whose sender matches the Account ID are marked Outgoing. "
+            "Reference: G. Horsman & L. Shou, 'Case Study: Forensic Analysis of TikTok on iOS', "
+            "DFIR Review 2022, https://dfir.pubpub.org/pub/h6vyh33u"
         ),
         "paths": (
             "*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*",
@@ -29,12 +33,19 @@ __artifacts_v2__ = {
             }
         },
         "sample_data": {
-            "josh_ios_15": (
-                "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, "
-                "and TIMMessageNewPropertyORM present"
-            ),
+            "josh_ios_15": "32 message rows; AwemeContactsV5, TIMMessageORM, TIMMessageKVORM, and TIMMessageNewPropertyORM present",
             "josh_ios_17": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
             "mvs_2026": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
+            "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 63 rows",
+            "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 15 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 50 rows",
+            "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 5 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 44 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 9 rows",
+            "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 12 rows",
+            "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     },
     "tiktok_contacts": {
@@ -53,6 +64,16 @@ __artifacts_v2__ = {
             "josh_ios_15": "4 contact rows from AwemeContactsV5",
             "josh_ios_17": "No TikTok AwemeIM.db found",
             "mvs_2026": "No TikTok AwemeIM.db found",
+            "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 44 rows",
+            "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 15 rows",
+            "iphone12_ios18": "iOS 18.7 | TikTok - Videos, Shop & LIVE 42.7.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 88 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 54 rows",
+            "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 4 rows",
+            "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     },
 }
@@ -224,7 +245,7 @@ def tiktok_messages(context):
         aweme_im_db = _aweme_for_chat_db(chat_db, aweme_dbs)
         account_id = basename(dirname(chat_db))
         attach_query = attach_sqlite_db_readonly(aweme_im_db, "AwemeIM")
-        message_table = get_sqlite_db_records(
+        message_table = list( get_sqlite_db_records(
             chat_db,
             """
                 SELECT name
@@ -232,7 +253,7 @@ def tiktok_messages(context):
                 WHERE type = 'table'
                     AND name = 'TIMMessageORM'
             """,
-        )
+        ) )
 
         if not message_table:
             logfunc(f"Table TIMMessageORM not found in {chat_db}")
@@ -300,8 +321,8 @@ def tiktok_messages(context):
         "Nickname",
         "Message",
         "Local Response",
-        "Link GIF Name",
-        "Link GIF URL",
+        "Content Display Name",
+        "Content URL",
         ("Server Created Timestamp", "datetime"),
         "Profile Pic URL",
         "Contact Table",

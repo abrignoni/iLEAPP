@@ -16,105 +16,208 @@ __artifacts_v2__ = {
                        "https://dfir.pubpub.org/pub/xqvcn3hj/release/1",
         "author": "@KevinPagano3 - @Johann-PLW - @SQLMcGee",
         "creation_date": "2022-08-15",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "The Fahrenheit assumption for HKWeatherTemperature is inherited "
+                 "from community queries and unverified.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "all",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 29 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 12 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "health_provenances": {
         "name": "Health - Provenances",
         "description": "Devices and Apps collecting Health data."
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2022-08-15",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": ["html", "tsv", "lava"],
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 55 rows",
+            "felix_ios17": "iOS 17.6.1 | 80 rows",
+            "fsfull002_ios17": "iOS 17.1 | 17 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 8 rows",
+            "iphone11_ios17": "iOS 17.3 | 100 rows",
+            "iphone12_ios18": "iOS 18.7 | 9 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 3 rows",
+            "otto_ios17": "iOS 17.5.1 | 144 rows",
+            "abe_ios16": "iOS 16.5 | 79 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows",
+            "hickman_ios13": "iOS 13.3.1 | 31 rows",
+            "hickman_ios14": "iOS 14.3 | 54 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 5 rows",
+        }
     },
     "health_headphone_audio_levels": {
         "name": "Health - Headphone Audio Levels",
         "description": "Headphone audio levels"
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
-        "artifact_icon": "headphones"
+        "artifact_icon": "headphones",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 183 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 27 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 23 rows",
+            "abe_ios16": "iOS 16.5 | 17 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 8 rows",
+            "hickman_ios14": "iOS 14.3 | 13 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "health_heart_rate": {
         "name": "Health - Heart Rate",
-        "description": "Heart Rate"
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+        "description": "Heart Rate. "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2023-03-06",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate "
                  "and adding Heart Rate Context and Provenance",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 39140 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3651 rows",
+            "hickman_ios14": "iOS 14.3 | 21152 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "health_resting_heart_rate": {
         "name": "Health - Resting Heart Rate",
-        "description": "Resting Heart Rate"
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+        "description": "Resting Heart Rate. "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2023-03-06",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate "
                  "and adding Heart Rate Context and Provenance",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 107 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 14 rows",
+            "hickman_ios14": "iOS 14.3 | 71 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "health_achievements": {
         "name": "Health - Achievements",
         "description": "Health achievements"
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Health",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "star"
+        "artifact_icon": "star",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 38 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 22 rows",
+            "abe_ios16": "iOS 16.5 | 19 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 8 rows",
+            "hickman_ios14": "iOS 14.3 | 30 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "health_steps": {
         "name": "Health - Steps",
@@ -127,42 +230,92 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1860 rows",
+            "felix_ios17": "iOS 17.6.1 | 318 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1028 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 218 rows",
+            "iphone11_ios17": "iOS 17.3 | 16996 rows",
+            "iphone12_ios18": "iOS 18.7 | 369 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 49 rows",
+            "otto_ios17": "iOS 17.5.1 | 3265 rows",
+            "abe_ios16": "iOS 16.5 | 3337 rows",
+            "felix23_ios16": "iOS 16.5 | 81 rows",
+            "hickman_ios13": "iOS 13.3.1 | 5544 rows",
+            "hickman_ios14": "iOS 14.3 | 14275 rows",
+            "jess_ios15": "iOS 15.0.2 | 131 rows",
+            "magnet_ios16": "iOS 16.1.1 | 183 rows",
+        }
     },
     "health_height": {
-        "name": "Health - User Entered Data - Height",
-        "description": "Height entered by the user in Health"
-                       "This change parses data entered by the user of the device "
-                       "through the Fitness Application (Personalize Fitness and Health) "
-                       "for height. Once parsed height is displayed with the timestamp "
-                       "the data was entered followed by height in meters, centimeters, "
-                       "feet and inches.",
+        "name": "Health - Height Samples",
+        "description": "Height samples recorded in Health; samples may be "
+                       "user-entered or written by apps and connected devices "
+                       "(check the source columns). Height is displayed with the "
+                       "timestamp the sample was recorded followed by height in "
+                       "meters, centimeters, feet and inches.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "health_weight": {
-        "name": "Health - User Entered Data - Weight",
-        "description": "Weight entered by the user in Health"
-                       "This change parses data entered by the user of the device through "
-                       "the Fitness Application (Personalize Fitness and Health) for weight. """
-                       "Once parsed weight is displayed with the timestamp the data was entered "
-                       "followed by weight in kilograms, stones, and pounds.",
+        "name": "Health - Weight Samples",
+        "description": "Weight samples recorded in Health; samples may be "
+                       "user-entered or written by apps and connected devices "
+                       "(check the source columns). Weight is displayed with the "
+                       "timestamp the sample was recorded followed by weight in "
+                       "kilograms, stones, and pounds.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "user"
+        "artifact_icon": "user",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 1113 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "abe_ios16": "iOS 16.5 | 2 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1105 rows",
+            "hickman_ios14": "iOS 14.3 | 1113 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "health_watch_worn_data": {
         "name": "Health - Device - Watch Worn Data",
@@ -182,7 +335,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "device-watch"
+        "artifact_icon": "device-watch",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 52 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 15 rows",
+            "hickman_ios14": "iOS 14.3 | 37 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     'health_all_watch_sleep_data': {
         'name': 'Health - Sleep - All Watch Sleep Data',
@@ -200,7 +370,24 @@ __artifacts_v2__ = {
             forensic-dive-into-apple-watch-sleep-tracking/",
         'paths': ('*Health/healthdb_secure.sqlite*',),
         'output_types': 'standard',
-        'artifact_icon': 'moon'
+        'artifact_icon': 'moon',
+        'sample_data': {
+            'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+            'dexter_ios18': 'iOS 18.3.2 | 0 rows',
+            'felix_ios17': 'iOS 17.6.1 | 0 rows',
+            'fsfull002_ios17': 'iOS 17.1 | 0 rows',
+            'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+            'iphone11_ios17': 'iOS 17.3 | 93 rows',
+            'iphone12_ios18': 'iOS 18.7 | 0 rows',
+            'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+            'otto_ios17': 'iOS 17.5.1 | 0 rows',
+            'abe_ios16': 'iOS 16.5 | 0 rows',
+            'felix23_ios16': 'iOS 16.5 | 0 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+            'hickman_ios14': 'iOS 14.3 | 0 rows',
+            'jess_ios15': 'iOS 15.0.2 | 0 rows',
+            'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+        }
     },
     "health_watch_by_sleep_period": {
         "name": "Health - Sleep - Watch By Sleep Period",
@@ -219,7 +406,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "moon"
+        "artifact_icon": "moon",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     },
     "health_source_devices": {
         "name": "Health - Source Devices",
@@ -233,7 +437,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*Health/healthdb.sqlite*",),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1 row",
+            "dexter_ios18": "iOS 18.3.2 | 15 rows",
+            "felix_ios17": "iOS 17.6.1 | 15 rows",
+            "fsfull002_ios17": "iOS 17.1 | 9 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 25 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 9 rows",
+            "abe_ios16": "iOS 16.5 | 9 rows",
+            "felix23_ios16": "iOS 16.5 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 4 rows",
+            "hickman_ios14": "iOS 14.3 | 13 rows",
+            "jess_ios15": "iOS 15.0.2 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
+        }
     },
     "health_wrist_temperature": {
         "name": "Health - Wrist Temperature",
@@ -248,7 +469,24 @@ __artifacts_v2__ = {
         "notes": "",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
-        "artifact_icon": "thermometer"
+        "artifact_icon": "thermometer",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        }
     }
 }
 
@@ -398,7 +636,7 @@ def health_workouts(context):
                 THEN round(metadata_values.numerical_value, 2)
                 ELSE NULL
             END)
-        AS 'Temperature (°F)',
+        AS 'Weather Temperature (assumed °F)',
         MAX(
             CASE
                 WHEN "metadata_keys"."key" = 'HKWeatherHumidity'
@@ -523,7 +761,8 @@ def health_workouts(context):
         'Distance (in KM)', 'Distance (in Miles)', 'Goal Type', 'Goal',
         'Total Active Energy (kcal)', 'Total Resting Energy (kcal)', 'Average METs',
         'Min. Heart Rate (BPM)', 'Max. Heart Rate (BPM)', 'Average Heart Rate (BPM)',
-        'Temperature (°C)', 'Temperature (°F)', 'Humidity (%)', 'Latitude', 'Longitude',
+        'Weather Temperature (assumed °F, converted to °C)',
+        'Weather Temperature (assumed °F)', 'Humidity (%)', 'Latitude', 'Longitude',
         'Min. ground elevation (in Meters)', 'Max. ground elevation (in Meters)',
         'Device ID', 'Device Model', 'Source', 'Software Version', 'Timezone',
         ('Timestamp added to Health', 'datetime'))
@@ -827,7 +1066,15 @@ def health_achievements(context):
     db_records = get_sqlite_db_records(data_source, query)
 
     for record in db_records:
-        created_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        # created_date is REAL (Core Data seconds) in older schemas but TEXT in
+        # newer ones (seen on iOS 26); a str value made the converter's
+        # arithmetic raise and abort the artifact. Convert numeric values
+        # (including numeric strings) and pass other text through as-is.
+        created_date = record[0]
+        try:
+            created_timestamp = convert_cocoa_core_data_ts_to_utc(float(created_date))
+        except (TypeError, ValueError):
+            created_timestamp = created_date
         data_list.append((created_timestamp, record[1], record[2], record[3],
                           record[4], record[5]))
 

@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Text Free (Pinger) messages",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-11-18",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Pinger",
-        "notes": "",
+        "notes": "App attribution is based on tested extractions; the Messaging_*.sqlite glob is not bundle-specific.",
         "paths": ('*/Messaging_*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message"

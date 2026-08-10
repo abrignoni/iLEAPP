@@ -4,17 +4,35 @@ __artifacts_v2__ = {
         "description": "Parses storeUser.db for installed app history",
         "author": "@stark4n6",
         "creation_date": "2025-04-11",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "System-app status is reported only where the column exists and is populated. Reference: Kevin Pagano, 'Tracking iOS App Installs and Purchases', https://www.stark4n6.com/2025/04/tracking-ios-app-installs-and-purchase.html",
         "paths": ('*/mobile/Library/Caches/com.apple.appstored/storeUser.db*',),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "package",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 50 rows",
+            "felix_ios17": "iOS 17.6.1 | 71 rows",
+            "fsfull002_ios17": "iOS 17.1 | 62 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 30 rows",
+            "iphone11_ios17": "iOS 17.3 | 96 rows",
+            "iphone12_ios18": "iOS 18.7 | 84 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 51 rows",
+            "otto_ios17": "iOS 17.5.1 | 84 rows",
+            "abe_ios16": "iOS 16.5 | 161 rows",
+            "felix23_ios16": "iOS 16.5 | 87 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 13 rows",
+            "magnet_ios16": "iOS 16.1.1 | 75 rows",
+        },
     },
     "storeUser_pha": {  # This should match the function name exactly
         "name": "Purchased Apps History (storeUser)",
         "description": "Parses storeUser.db for App Store purchased app history",
         "author": "@stark4n6",
+        "last_update_date": "2026-07-31",
         "creation_date": "2025-04-11",
         "requirements": "none",
         "category": "Installed Apps",
@@ -22,6 +40,22 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Library/Caches/com.apple.appstored/storeUser.db*',),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "shopping-cart",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 53 rows",
+            "felix_ios17": "iOS 17.6.1 | 35 rows",
+            "fsfull002_ios17": "iOS 17.1 | 25 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 31 rows",
+            "iphone11_ios17": "iOS 17.3 | 73 rows",
+            "iphone12_ios18": "iOS 18.7 | 49 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 18 rows",
+            "otto_ios17": "iOS 17.5.1 | 52 rows",
+            "abe_ios16": "iOS 16.5 | 57 rows",
+            "felix23_ios16": "iOS 16.5 | 26 rows",
+            "hickman_ios13": "iOS 13.3.1 | 39 rows",
+            "hickman_ios14": "iOS 14.3 | 49 rows",
+            "jess_ios15": "iOS 15.0.2 | 13 rows",
+            "magnet_ios16": "iOS 16.1.1 | 33 rows",
+        },
     }
 }
 
@@ -44,7 +78,7 @@ def storeUser_ca(context):
     item_id,
     case is_system_app
         when 1 then 'Yes'
-        else 'No'
+        when 0 then 'No'
     end as "system_app",
     deletion_date
     from current_apps
@@ -65,18 +99,20 @@ def storeUser_ca(context):
 
     data_headers = (('Install Timestamp', 'datetime'),'Bundle ID','App Name','Developer Name','App Version','App Bundle Version','App Store ID','System App','Deletion Date')
 
+    # current_apps is absent on older iOS App Store cache schemas
     if does_table_exist_in_db(source_path, "current_apps"):
         if does_column_exist_in_db(source_path, "current_apps", "is_system_app"):
             db_records = get_sqlite_db_records(source_path, current_app_query)
             for record in db_records:
                 data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8]))
-                                
+
         else:
             db_records = get_sqlite_db_records(source_path, current_app_prev_query)
             for record in db_records:
-                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], 'No', record[6], record[7]))
+                # schema has no is_system_app column, so System App is left blank
+                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], '', record[7]))
 
-        return data_headers, data_list, source_path
+    return data_headers, data_list, source_path
 
 @artifact_processor  
 def storeUser_pha(context):

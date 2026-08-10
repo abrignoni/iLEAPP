@@ -1,0 +1,104 @@
+{
+  "metadata": {
+    "module_name": "twitterX",
+    "artifact_name": "Twitter X - Direct Message Users",
+    "function_name": "twitterDMUsers",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 11,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 605,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/twitterX/testdata.twitterX.twitterDMUsers.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:35.523177+00:00",
+    "end_time": "2026-07-25T22:03:35.639688+00:00",
+    "run_time_seconds": 0.03619813919067383,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:35.600137",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Updated",
+    "Full Name",
+    "Username",
+    "User ID",
+    "Account Holder",
+    "Bio",
+    "Verified",
+    "Blue Verified",
+    "Protected",
+    "Blocking",
+    "Profile Image URL"
+  ],
+  "data": [
+    [
+      "",
+      "ThisIs DFIRTwo",
+      "dfirtwo",
+      "1307420811221966848",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png"
+    ],
+    [
+      "",
+      "ThisIsDFIRTwo",
+      "DfirToo",
+      "1451357781068587011",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "https://pbs.twimg.com/profile_images/1594141032731607043/PlO73UEn_normal.jpg"
+    ],
+    [
+      "",
+      "ldehner505",
+      "ldehner505",
+      "1809677946439000064",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "https://pbs.twimg.com/profile_images/1809678410504949760/5BUHNDTf_normal.jpg"
+    ],
+    [
+      "",
+      "ThisIsDFIR",
+      "TDfir",
+      "1068228364824178689",
+      "Yes",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "https://pbs.twimg.com/profile_images/1307835241134989314/LFVuy2uF_normal.jpg"
+    ],
+    [
+      "",
+      "Josh Hickman",
+      "josh_hickman1",
+      "2978888609",
+      "",
+      "@joshua_hickman1@infosec.exchange",
+      "",
+      "",
+      "",
+      "",
+      "https://pbs.twimg.com/profile_images/1212205620406956038/QBHVCq_C_normal.jpg"
+    ]
+  ]
+}

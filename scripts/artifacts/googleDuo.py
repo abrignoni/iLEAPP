@@ -2,26 +2,42 @@ __artifacts_v2__ = {
     "googleDuoContacts": {
         "name": "Google Duo - Contacts",
         "description": "Google Duo contacts",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 1016 rows",
+            "hickman_ios14": "iOS 14.3 | Google Duo 116.0 | 5 rows",
+        }
     },
     "googleDuoCallHistory": {
         "name": "Google Duo - Call History",
         "description": "Google Duo call history",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Google Duo", "notes": "",
         "paths": ('*/Application Support/DataStore*',),
-        "output_types": "standard", "artifact_icon": "phone"
+        "output_types": "standard", "artifact_icon": "phone",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 10 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | Google Duo 116.0 | 11 rows",
+        }
     },
     "googleDuoClips": {
         "name": "Google Duo - Clips",
         "description": "Google Duo media clips (with thumbnails from ClipsCache)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Google Duo", "notes": "",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "category": "Google Duo",
+        "notes": "The media_clip_source value's direction semantics are not documented in published research; the value is reported as stored.",
         "paths": ('*/Application Support/DataStore*', '*/Application Support/ClipsCache/*.png'),
-        "output_types": "standard", "artifact_icon": "movie"
+        "output_types": "standard", "artifact_icon": "movie",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Google Meet 225.0 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Google Meet 257.0 | 1 row",
+            "hickman_ios14": "iOS 14.3 | Google Duo 116.0 | 2 rows",
+        }
     }
 }
 
@@ -88,7 +104,7 @@ def googleDuoCallHistory(context):
 @artifact_processor
 def googleDuoClips(context):
     data_headers = (('Creation Date', 'datetime'), ('Message Date', 'datetime'),
-                    ('Viewed Date', 'datetime'), 'Local User ID', 'Clip Direction',
+                    ('Viewed Date', 'datetime'), 'Local User ID', 'Media Clip Source (as stored)',
                     'Text Representation', 'Message ID', 'MD5 Checksum', 'Content Size',
                     'Transferred Size', ('Clip', 'media'))
     data_list = []
@@ -103,7 +119,7 @@ def googleDuoClips(context):
         datetime(media_clip_message_date/1000000, 'unixepoch'),
         datetime(media_clip_viewed_date/1000000, 'unixepoch'),
         media_clip_local_id,
-        CASE media_clip_source WHEN 0 THEN 'Received' WHEN 1 THEN 'Sent' END,
+        media_clip_source,
         media_clip_text_representation,
         media_clip_message_id,
         media_clip_md5_checksum,

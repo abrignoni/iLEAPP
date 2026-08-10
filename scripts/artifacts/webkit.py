@@ -4,17 +4,34 @@ __artifacts_v2__ = {
         "description": "Extracts detailed information from WebKit Network Cache record files",
         "author": "@JamesHabben",
         "creation_date": "2024-10-24",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Browser",
-        "notes": "",
+        "notes": "The cache record layout (timestamp, hash, response-code positions) was established through reverse engineering and is unverified against WebKit source; undeciphered fields are reported as U1-U8.",
         "paths": (
             '*/Library/Caches/WebKit/NetworkCache/Version*/salt',
             '*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*',
         ),
         "output_types": "standard",
         "research_mode": False,
-        "artifact_icon": "archive" # Set to True to include all fields
+        "artifact_icon": "archive",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 12634 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4608 rows",
+            "felix_ios17": "iOS 17.6.1 | 968 rows",
+            "fsfull002_ios17": "iOS 17.1 | com.apple.mobilesafari, Instagram 282.0, Text Me - Phone Call + Texting 3.35.9 | 310 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 3286 rows",
+            "iphone11_ios17": "iOS 17.3 | 4382 rows",
+            "iphone12_ios18": "iOS 18.7 | 1563 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 615 rows",
+            "otto_ios17": "iOS 17.5.1 | 4631 rows",
+            "abe_ios16": "iOS 16.5 | 10059 rows",
+            "felix23_ios16": "iOS 16.5 | 822 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1647 rows",
+            "hickman_ios14": "iOS 14.3 | 1026 rows",
+            "jess_ios15": "iOS 15.0.2 | 2114 rows",
+            "magnet_ios16": "iOS 16.1.1 | 1189 rows",
+        } # Set to True to include all fields
     }
 }
 
@@ -24,6 +41,20 @@ import json
 from datetime import datetime, timezone
 from collections import OrderedDict
 from scripts.ilapfuncs import logfunc, artifact_processor, check_in_media, check_in_embedded_media
+
+def cache_record_timestamp(timestamp):
+    """Convert a cache record's double timestamp, tolerating garbage values.
+
+    Corrupt or overwritten records carry doubles far outside the platform's
+    time_t range; fromtimestamp() then raises (OverflowError/OSError/ValueError
+    depending on platform) and a single bad record used to abort the whole
+    artifact. Out-of-range values are reported as no timestamp instead.
+    """
+    try:
+        return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+    except (OverflowError, OSError, ValueError):
+        return None
+
 
 def read_vf(file):
     """Read a variable-length field from a file"""
@@ -117,7 +148,7 @@ def webkit_cache_records(context):
                 file_data['Filename'] = f.read(20).hex()
                 file_data['Foldername'] = f.read(20).hex()
                 timestamp = struct.unpack('<d', f.read(8))[0]
-                file_data['Timestamp'] = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+                file_data['Timestamp'] = cache_record_timestamp(timestamp)
                 file_data['Meta SHA1'] = f.read(20).hex()
                 file_data['Meta Size'] = struct.unpack('<Q', f.read(8))[0]
                 file_data['Body SHA1'] = f.read(20).hex()

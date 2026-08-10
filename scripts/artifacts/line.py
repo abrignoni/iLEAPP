@@ -1,16 +1,21 @@
 __artifacts_v2__ = {
     "line": {
         "name": "Line Artifacts",
-        "description": "Line messages including message direction and associated usernames",
+        "description": "Line messages including message direction (inferred from the absence of a sender reference) and associated usernames",
         "author": "Elliot Glendye",
         "creation_date": "2023-11-22",
-        "last_update_date": "2026-07-03",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Line",
-        "notes": "",
+        "notes": "Direction is inferred: rows without a sender reference are treated as outgoing; established through testing.",
         "paths": ('**/Line.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | group.com.linecorp.line | 62 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.com.linecorp.line | 15 rows",
+            "hickman_ios14": "iOS 14.3 | group.com.linecorp.line | 16 rows",
+        },
         "data_views": {
             "conversation": {
                 "conversationDiscriminatorColumn": "Username",

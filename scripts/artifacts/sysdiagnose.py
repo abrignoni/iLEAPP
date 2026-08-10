@@ -4,18 +4,23 @@ __artifacts_v2__ = {
     "get_sysdiag_account_devices": {
         "name": "Sysdiagnose - Account Devices",
         "description": "Parses the otctl_status.txt file from Sysdiagnose logs, \
-            to get informations about other devices connected to the same Apple-ID.",
+            to get informations about peers in the account's Octagon trust circle (iCloud Keychain syncing).",
         "author": "@C_Peter",
         "creation_date": "2025-05-22",
-        "last_update_date": "2025-10-01",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "OCTL refers to the Octagon Account (iCloud Keychain)",
+        "notes": "OCTL refers to the Octagon Account (iCloud Keychain). Reference: Apple Security open source (OctagonTrust; otctl man page: 'diagnostic information for iCloud Keychain syncing'), https://github.com/apple-oss-distributions/Security",
         "paths": (
             '*/otctl_status.txt',
             '*/mobile/Library/Logs/CrashReporter/DiagnosticLogs/sysdiagnose/sysdiagnose_*.tar.gz'),
         "output_types": "standard",
-        "artifact_icon": "device-mobile"
+        "artifact_icon": "device-mobile",
+        "sample_data": {
+            "felix23_ios16": "iOS 16.5 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 5 rows",
+        }
     }
 }
 
@@ -53,15 +58,19 @@ def get_sysdiag_account_devices(context):
         else:
             continue
         sources.append(source_path)
-        opush = f["lastOctagonPush"]
+        # Older iOS otctl_status.txt may omit these keys entirely
+        opush = f.get("lastOctagonPush", '')
 
-        for elem in f["contextDump"]["peers"]:
-            model = elem["permanentInfo"]["model_id"]
-            m_name = context.lookup_metadata('apple_device_id_to_model', model)
-            os_bnum = elem["stableInfo"]["os_version"]
-            os_build = os_bnum.split('(')[1].split(')')[0]
-            os_ver = context.get_apple_os_version(os_build, model)
-            serial = elem["stableInfo"]["serial_number"]
+        for elem in f.get("contextDump", {}).get("peers", []):
+            try:
+                model = elem["permanentInfo"]["model_id"]
+                m_name = context.lookup_metadata('apple_device_id_to_model', model)
+                os_bnum = elem["stableInfo"]["os_version"]
+                os_build = os_bnum.split('(')[1].split(')')[0]
+                os_ver = context.get_apple_os_version(os_build, model)
+                serial = elem["stableInfo"]["serial_number"]
+            except (KeyError, IndexError):
+                continue
             if not any(serial in subliste for subliste in data_list):
                 data_list.append((opush, model, m_name, os_bnum, os_ver, serial))
     source_list = "; ".join(s for s in sources)

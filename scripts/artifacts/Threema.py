@@ -14,6 +14,10 @@ __artifacts_v2__ = {
         ),
         'output_types': 'all',
         'artifact_icon': 'message',
+        'sample_data': {
+            'iphone11_ios17': 'iOS 17.3 | group.ch.threema | 45 rows',
+            'hickman_ios14': 'iOS 14.3 | group.ch.threema | 11 rows',
+        },
         'data_views': {
             'conversation': {
                 'conversationDiscriminatorColumn': 'Chat-ID',
@@ -41,18 +45,22 @@ __artifacts_v2__ = {
         ),
         'output_types': 'standard',
         'artifact_icon': 'users',
+        'sample_data': {
+            'iphone11_ios17': 'iOS 17.3 | group.ch.threema | 2 rows',
+            'hickman_ios14': 'iOS 14.3 | group.ch.threema | 2 rows',
+        },
     }
 }
 
 import datetime
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, \
+    get_file_path, get_sqlite_db_records, null_absent_columns, \
     check_in_media, check_in_embedded_media
 
 @artifact_processor
-def threema_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'ThreemaData.sqlite')
+def threema_chats(context):
+    source_path = get_file_path(context.get_files_found(), 'ThreemaData.sqlite')
     data_list = []
 
     chat_query = '''
@@ -159,7 +167,7 @@ def threema_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_of
                 ON conv.ZCONTACT = cont.Z_PK;
         '''
 
-    db_records = get_sqlite_db_records(source_path, chat_query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, chat_query))
 
     for record in db_records:
         m_type = record['MTYPE']
@@ -225,8 +233,8 @@ def threema_chats(files_found, _report_folder, _seeker, _wrap_text, _timezone_of
     return data_headers, data_list, source_path
 
 @artifact_processor
-def threema_users(files_found, _report_folder, _seeker, _wrap_text, _timezone_offset):
-    source_path = get_file_path(files_found, 'ThreemaData.sqlite')
+def threema_users(context):
+    source_path = get_file_path(context.get_files_found(), 'ThreemaData.sqlite')
     data_list = []
 
     user_query = '''
@@ -240,7 +248,7 @@ def threema_users(files_found, _report_folder, _seeker, _wrap_text, _timezone_of
             ZCONTACT;
     '''
 
-    db_records = get_sqlite_db_records(source_path, user_query)
+    db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, user_query))
     for record in db_records:
         c_id = record['CID']
         identity = record['IDENTITY']

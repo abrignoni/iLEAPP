@@ -4,14 +4,31 @@ __artifacts_v2__ = {
         "description": "Extracts cellular wireless information from device preferences",
         "author": "@abrignoni",
         "creation_date": "2024-10-22",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-21",
         "requirements": "none",
         "category": "Cellular",
         "notes": "",
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.plist', 
                   '*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist'),
-        "output_types": "standard",
-        "artifact_icon": "antenna"
+        "output_types": ["html","lava","tsv"],
+        "artifact_icon": "antenna",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 53 rows",
+            "dexter_ios18": "iOS 18.3.2 | 65 rows",
+            "felix_ios17": "iOS 17.6.1 | 60 rows",
+            "fsfull002_ios17": "iOS 17.1 | 120 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 48 rows",
+            "iphone11_ios17": "iOS 17.3 | 62 rows",
+            "iphone12_ios18": "iOS 18.7 | 56 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 63 rows",
+            "otto_ios17": "iOS 17.5.1 | 62 rows",
+            "abe_ios16": "iOS 16.5 | 53 rows",
+            "felix23_ios16": "iOS 16.5 | 52 rows",
+            "hickman_ios13": "iOS 13.3.1 | 52 rows",
+            "hickman_ios14": "iOS 14.3 | 58 rows",
+            "jess_ios15": "iOS 15.0.2 | 58 rows",
+            "magnet_ios16": "iOS 16.1.1 | 55 rows",
+        }
     }
 }
 

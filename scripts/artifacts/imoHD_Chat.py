@@ -2,19 +2,29 @@ __artifacts_v2__ = {
     "imoHDChatMessages": {
         "name": "IMO HD Chat - Messages",
         "description": "IMO HD chat messages and attachments",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "IMO HD Chat", "notes": "",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "category": "IMO HD Chat", "notes": "URLs are constructed by the parser from object IDs using an observed IMO CDN pattern; they are not stored in the data.",
         "paths": ('*/IMODb2.sqlite*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
-        "output_types": "standard", "artifact_icon": "message-circle"
+        "output_types": "standard", "artifact_icon": "message-circle",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 38 rows",
+            "hickman_ios13": "iOS 13.3.1 | imo video calls and chat HD 7.1.88, group.co.babypenguin | 5 rows",
+            "hickman_ios14": "iOS 14.3 | imo video calls and chat HD 7.2.8, group.co.babypenguin | 9 rows",
+        }
     },
     "imoHDChatContacts": {
         "name": "IMO HD Chat - Contacts",
         "description": "IMO HD chat contacts",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "IMO HD Chat", "notes": "",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
+        "category": "IMO HD Chat", "notes": "URLs are constructed by the parser from object IDs using an observed IMO CDN pattern; they are not stored in the data.",
         "paths": ('*/IMODb2.sqlite*',),
-        "output_types": "standard", "artifact_icon": "users"
+        "output_types": "standard", "artifact_icon": "users",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 5 rows",
+            "hickman_ios13": "iOS 13.3.1 | group.co.babypenguin | 2 rows",
+            "hickman_ios14": "iOS 14.3 | group.co.babypenguin | 3 rows",
+        }
     }
 }
 
@@ -58,7 +68,7 @@ def _find_db(context):
 @artifact_processor
 def imoHDChatMessages(context):
     data_headers = (('Timestamp', 'datetime'), 'Sender Name', 'Sender Alias', 'Sender Phone',
-                    'Message', 'Message Status', 'Item Action', 'Attachment URL',
+                    'Message', 'Message Status', 'Item Action', 'Constructed CDN URL (unverified)',
                     ('Attachment', 'media'))
     data_list = []
     db_path = _find_db(context)
@@ -102,7 +112,8 @@ def imoHDChatMessages(context):
 
 @artifact_processor
 def imoHDChatContacts(context):
-    data_headers = ('Contact Name', 'Contact Alias', 'Contact Phone', 'Profile Pic URL', 'User ID')
+    data_headers = ('Contact Name', 'Contact Alias', 'Contact Phone',
+                    'Constructed Profile CDN URL (unverified)', 'User ID')
     data_list = []
     db_path = _find_db(context)
     if not db_path:

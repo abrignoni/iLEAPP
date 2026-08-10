@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Extract users and vehicules infos",
         "author": "@flashesc, @thibgav, @borelmo",
         "creation_date": "2024-11-20",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Parking",
-        "notes": "Vehicule Picture is the on-device picture filename for the vehicle.",
+        "notes": "The picture filename is constructed from the vehicle ID using an observed naming convention; not verified against files on disk.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/PayByPhone.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users"
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "description": "List of parking sessions",
         "author": "@flashesc, @thibgav, @borelmo",
         "creation_date": "2024-11-20",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Parking",
         "notes": "",
@@ -76,12 +76,12 @@ def userPayByPhone(context):
 
     data_headers = ('Email',
                     'Membre ID',
-                    ('Phone Number', 'phonenumber'),
+                    'Username',
                     'Country',
                     'License Plate',
                     'Vehicule Description',
                     'Vehicule Type',
-                    'Vehicule Picture')
+                    'Presumed Picture Filename (VehicleID.png)')
 
     for record in get_sqlite_db_records(source_path, query):
         data_list.append(
@@ -128,7 +128,7 @@ def sessionPayByPhone(context):
         'Longitude',
         'Location Number',
         'Parking Name',
-        'City',
+        'Vendor Name',
         'Country',
         'Info')
 
