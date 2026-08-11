@@ -276,18 +276,21 @@ class ImportProgress:
     Percent is by BYTES of source consumed, not records, because the total record
     count is unknowable without a second pass. The callers know their bytes:
     the tracev3 path advances on evidence-file transitions (each record names its
-    source file), the json path uses the file read position. The estimate is
-    labelled "about" because parse rate varies between log streams; it converges
-    as the import runs.
+    source file), the json path uses the file read position. The remaining time
+    carries a "~" because parse rate varies between log streams; it converges as
+    the import runs.
 
     The per-record cost has to survive 30M calls, so add_record() is a counter
     increment plus one modulo check; the clock is consulted at most once per 8192
     records.
+
+    The line is kept short enough to fit the GUI log pane at the window's minimum
+    width (roughly 120 fixed-width characters) without anyone having to widen it.
     """
 
     CHECK_EVERY = 8192
 
-    def __init__(self, total_bytes, label='Unified Logs import', interval=20.0,
+    def __init__(self, total_bytes, label='Unified Logs', interval=20.0,
                  clock=time.monotonic, log=logfunc):
         self.total_bytes = max(0, int(total_bytes or 0))
         self.label = label
@@ -318,16 +321,16 @@ class ImportProgress:
             percent = 100.0 * self.bytes_done / self.total_bytes
             parts.append(f'{percent:.0f}% of source data')
         if elapsed > 0:
-            parts.append(f'{self.records / elapsed:,.0f} records/s')
+            parts.append(f'{self.records / elapsed:,.0f} rec/s')
         parts.append(f'elapsed {_format_duration(elapsed)}')
         if self.total_bytes and 0 < self.bytes_done < self.total_bytes and elapsed > 0:
             remaining = (self.total_bytes - self.bytes_done) / (self.bytes_done / elapsed)
-            parts.append(f'about {_format_duration(remaining)} left')
+            parts.append(f'~{_format_duration(remaining)} left')
         self.log(' | '.join(parts))
 
     def finish(self):
         elapsed = self.clock() - self.started
-        rate = f', {self.records / elapsed:,.0f} records/s' if elapsed > 0 else ''
+        rate = f', {self.records / elapsed:,.0f} rec/s' if elapsed > 0 else ''
         self.log(f'{self.label} finished: {self.records:,} records '
                  f'in {_format_duration(elapsed)}{rate}')
 

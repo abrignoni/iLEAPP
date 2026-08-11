@@ -330,10 +330,10 @@ class TestImportProgress(unittest.TestCase):
         line = self.lines[0]
         self.assertIn('8,192 records', line)
         self.assertIn('40% of source data', line)
-        self.assertIn('records/s', line)
+        self.assertIn('rec/s', line)
         self.assertIn('elapsed 0:25', line)
         # 400 bytes in 25s -> 600 remaining at 16 B/s = 37.5s
-        self.assertIn('about 0:37 left', line)
+        self.assertIn('~0:37 left', line)
 
     def test_no_percent_or_eta_when_total_unknown(self):
         progress = self._make(total_bytes=0)
@@ -352,7 +352,23 @@ class TestImportProgress(unittest.TestCase):
         progress.finish()
         self.assertIn('finished: 100 records', self.lines[-1])
         self.assertIn('0:10', self.lines[-1])
-        self.assertIn('10 records/s', self.lines[-1])
+        self.assertIn('10 rec/s', self.lines[-1])
+
+    def test_report_line_fits_the_gui_log_pane(self):
+        # The GUI log pane holds roughly 120 fixed-width characters at the window's
+        # 890px minimum width (TkFixedFont, minus frame padding and the scrollbar).
+        # A worst-case line - 100M records, hour-scale elapsed and estimate - has to
+        # fit inside that with margin, so nobody has to widen the window to read it.
+        progress = self._make(total_bytes=10 ** 12)
+        progress.records = 100_000_000 - unifiedlogs.ImportProgress.CHECK_EVERY
+        progress.set_bytes_done(3 * 10 ** 11)
+        self.now[0] = 4289.0
+        for _ in range(unifiedlogs.ImportProgress.CHECK_EVERY):
+            progress.add_record()
+        line = self.lines[-1]
+        self.assertIn('1:11:29', line)  # elapsed rendered at hour scale
+        self.assertIn('left', line)
+        self.assertLessEqual(len(line), 110, f'progress line too wide for the GUI: {line}')
 
     def test_bytes_done_clamped_to_total(self):
         # A stale size map must never produce 130% progress in a report.
