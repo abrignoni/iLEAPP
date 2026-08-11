@@ -1,5 +1,6 @@
 # pylint: skip-file
-# Vendored third-party code (blackboxprotobuf 1.0.1) - kept as released.
+# Vendored third-party code (blackboxprotobuf 1.0.1) - kept as released,
+# except for the speculation bound below (see LEAPP note above decode_guess).
 """Module for encoding and decoding length delimited fields"""
 import copy
 import sys
@@ -9,13 +10,50 @@ from google.protobuf.internal import wire_format, encoder, decoder
 import scripts.blackboxprotobuf.lib.types
 from scripts.blackboxprotobuf.lib.types import varint
 
+# LEAPP addition: bound on speculative "is this bytes field a nested message?"
+# decoding. decode_guess tries the message interpretation first and falls back
+# to bytes on failure. A blob whose bytes re-parse as valid messages at many
+# offsets makes that speculation combinatorial: a 7.7 KB Google Maps cache blob
+# was observed running 3.4 million decode_message calls in 15 seconds (healthy
+# blobs of the same file type need a few hundred to a few thousand) and hanging
+# an entire run for 90+ minutes. Upstream (bbpb master, checked 2026-08-11)
+# threads a depth parameter through these functions but never enforces it.
+#
+# The counters reset at every public entry (interface.decode_message). When the
+# budget or depth limit is hit, decode_guess stops speculating and returns the
+# bytes fallback - the same result a failed guess already produces - so the
+# decode completes and typedef-driven fields are unaffected. budget_exceeded
+# is left set for callers that want to log the degradation.
+GUESS_WORK_BUDGET = 250000  # decode_message calls allowed per top-level decode
+GUESS_DEPTH_LIMIT = 100     # nested speculative decodes allowed
+
+_work_count = 0
+_guess_depth = 0
+budget_exceeded = False
+
+
+def reset_guess_budget():
+    """Reset the speculation counters. Called at each public decode entry."""
+    global _work_count, _guess_depth, budget_exceeded
+    _work_count = 0
+    _guess_depth = 0
+    budget_exceeded = False
+
+
 def decode_guess(buf, pos):
     """Try to decode as an empty message first, then just do as bytes
        Returns the value + the type"""
+    global _guess_depth, budget_exceeded
+    if _work_count > GUESS_WORK_BUDGET or _guess_depth >= GUESS_DEPTH_LIMIT:
+        budget_exceeded = True
+        return decode_bytes(buf, pos), 'bytes'
+    _guess_depth += 1
     try:
         return decode_lendelim_message(buf, {}, pos), 'message'
     except Exception as exc:
         return decode_bytes(buf, pos), 'bytes'
+    finally:
+        _guess_depth -= 1
 
 
 def encode_bytes(value):
@@ -135,6 +173,11 @@ def encode_message(data, typedef, group=False):
 
 def decode_message(buf, typedef=None, pos=0, end=None, group=False):
     """Decode a protobuf message with no length delimiter"""
+    # LEAPP addition: count decoding work so decode_guess can stop speculating
+    # on pathological self-similar blobs (see note above decode_guess).
+    global _work_count
+    _work_count += 1
+
     if end is None:
         end = len(buf)
 

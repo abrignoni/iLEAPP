@@ -61,6 +61,10 @@ def decode_message(buf, message_type=None):
         else:
             message_type = known_messages[message_type]
 
+    # LEAPP addition: fresh speculation budget for each top-level decode
+    # (see the note above decode_guess in types/length_delim.py).
+    scripts.blackboxprotobuf.lib.types.length_delim.reset_guess_budget()
+
     value, typedef, _ = scripts.blackboxprotobuf.lib.types.length_delim.decode_message(buf, message_type)
     return value, typedef
 
