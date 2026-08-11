@@ -1168,10 +1168,13 @@ __artifacts_v2__ = {
     },
 }
 
+import atexit
+import glob
 import gzip
 import os
 import shutil
 import tempfile
+import time
 from bisect import bisect_right
 from datetime import timedelta
 
@@ -1191,6 +1194,46 @@ TIME_OFFSET_TABLE = "PLStorageOperator_EventForward_TimeOffset"
 _GZ_CACHE = {}
 # 'dir' -> session temp directory for the decompressed copies, first use only.
 _GZ_TEMP = {}
+_GZ_TEMP_PREFIX = "ileapp_powerlog_gz_"
+
+# How long an abandoned directory must have gone untouched before another run reclaims it.
+# Generous on purpose: the cost of waiting is disk space, the cost of being wrong is
+# deleting decompressed databases out from under an iLEAPP that is still reading them.
+_STALE_TEMP_AGE_SECONDS = 24 * 60 * 60
+
+
+def _remove_gz_temp():
+    """Delete this run's decompressed copies.
+
+    The rotated archives expand to their full uncompressed size, so a run over an
+    extraction with a long PowerLog history leaves hundreds of megabytes behind. Nothing
+    used to remove them: 135 directories totalling 12 GB were found in the system temp
+    directory of one machine, from two days of ordinary runs that all completed normally.
+    """
+    temp_dir = _GZ_TEMP.pop("dir", None)
+    _GZ_CACHE.clear()
+    if temp_dir:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+
+atexit.register(_remove_gz_temp)
+
+
+def _remove_stale_gz_temps():
+    """Reclaim directories left by a run that was killed before atexit could fire.
+
+    Only directories untouched for _STALE_TEMP_AGE_SECONDS are removed, so a concurrent
+    iLEAPP keeps its own. ignore_errors leaves anything held open by another process in
+    place rather than half-deleting it.
+    """
+    pattern = os.path.join(tempfile.gettempdir(), f"{_GZ_TEMP_PREFIX}*")
+    cutoff = time.time() - _STALE_TEMP_AGE_SECONDS
+    for path in glob.glob(pattern):
+        try:
+            if os.path.isdir(path) and os.path.getmtime(path) < cutoff:
+                shutil.rmtree(path, ignore_errors=True)
+        except OSError:
+            continue
 
 
 def _materialize_gz(gz_path):
@@ -1204,7 +1247,8 @@ def _materialize_gz(gz_path):
         return cached
     temp_dir = _GZ_TEMP.get("dir")
     if not temp_dir:
-        temp_dir = tempfile.mkdtemp(prefix="ileapp_powerlog_gz_")
+        _remove_stale_gz_temps()
+        temp_dir = tempfile.mkdtemp(prefix=_GZ_TEMP_PREFIX)
         _GZ_TEMP["dir"] = temp_dir
     out_name = f"{len(_GZ_CACHE):04d}_{os.path.basename(gz_path)[:-3]}"
     out_path = os.path.join(temp_dir, out_name)
