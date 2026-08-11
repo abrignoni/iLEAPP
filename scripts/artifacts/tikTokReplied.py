@@ -23,7 +23,7 @@ __artifacts_v2__ = {
         "artifact_icon": "corner-up-left",
         "sample_data": {
             "hickman_ios15": "2 replied-message rows; TIMMessageKVORM and TIMMessageNewPropertyORM both present",
-            "mvs_2026": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
+            "iphone14plus_ios18": "No TikTok AwemeIM.db or ChatFiles db.sqlite found",
             "ctf2020_ios12": "iOS 12.4 | com.zhiliaoapp.musically | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | TikTok - Videos, Shop & LIVE 41.8.0 | 3 rows",
             "fsfull002_ios17": "iOS 17.1 | TikTok 28.4.1 | 0 rows",
