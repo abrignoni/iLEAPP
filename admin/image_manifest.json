@@ -9,7 +9,7 @@
             "/home/user/images/iphone_001.zip"
         ],
         "file_path_list": "admin/data/filepath-lists/josh-hickman-ios15.csv.zip",
-        "download_url": "https://example.com/downloads/iphone_11_pro_001.zip",
+        "download_url": "https://digitalcorpora.org/corpora/cell-phones/",
         "author": {
           "name": "Josh Hickman"
         },
@@ -35,7 +35,7 @@
             "/Volumes/Corpus/iOS Extractions/iOS_17/Cellebrite_Extraction/UFED Apple iPhone 11 (N104AP) 2024_07_28 (001)/EXTRACTION_FFS 01/EXTRACTION_FFS.zip"
         ],
         "file_path_list": "admin/data/filepath-lists/josh-hickman-ios17.csv.zip",
-        "download_url": "https://digitalcorpora.org/corpora/mobile/ios_17/",
+        "download_url": "https://digitalcorpora.org/corpora/cell-phones/",
         "author": {
           "name": "Josh Hickman"
         },
