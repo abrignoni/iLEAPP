@@ -317,10 +317,12 @@ __artifacts_v2__ = {
 }
 
 import atexit
+import glob
 import os
 import sqlite3
 import struct
 import tempfile
+import time
 import zlib
 
 from scripts.ilapfuncs import artifact_processor, logfunc
@@ -381,6 +383,12 @@ _REPORT_HEADERS = (
     "Source File",
 )
 _CACHE = {"key": None, "path": None}
+_CACHE_PREFIX = "ileapp_fsevents_"
+
+# How long a cache file must have gone untouched before another run treats it as abandoned.
+# Generous on purpose: the cost of waiting is disk space, the cost of being wrong is making
+# a concurrent run rebuild a cache that took minutes to write.
+_STALE_CACHE_AGE_SECONDS = 24 * 60 * 60
 
 
 def _path_has_component(path, names):
@@ -459,6 +467,30 @@ def _remove_cache():
 
 
 atexit.register(_remove_cache)
+
+
+def _remove_stale_caches():
+    """Delete cache files abandoned by a previous run that could not clean up after itself.
+
+    atexit does not run when the interpreter is killed, so a run ended with SIGKILL or
+    SIGTERM leaves its cache behind under a random mkstemp name that no later run can
+    recognise. Observed on this machine as three orphans totalling 2.7 GB, the largest
+    1.72 GB, from runs that were killed during a multi-corpus sweep.
+
+    Only files untouched for _STALE_CACHE_AGE_SECONDS are removed, so a cache belonging to
+    another iLEAPP running right now is never taken out from under it. Its own cache was
+    written when its run started, which is far inside that window.
+    """
+    pattern = os.path.join(tempfile.gettempdir(), f"{_CACHE_PREFIX}*.sqlite")
+    cutoff = time.time() - _STALE_CACHE_AGE_SECONDS
+    for path in glob.glob(pattern):
+        try:
+            if os.path.getmtime(path) < cutoff:
+                os.unlink(path)
+        except OSError:
+            # Gone already, or held open by a process that still wants it (Windows
+            # refuses the unlink). Either way it is not this run's problem.
+            continue
 
 
 def _decode_flags(flags):
@@ -566,8 +598,18 @@ def _build_cache(context):
         return _CACHE["path"]
 
     _remove_cache()
-    descriptor, cache_path = tempfile.mkstemp(prefix="ileapp_fsevents_", suffix=".sqlite")
+    _remove_stale_caches()
+    descriptor, cache_path = tempfile.mkstemp(prefix=_CACHE_PREFIX, suffix=".sqlite")
     os.close(descriptor)
+
+    # Register the path before the parse rather than after it. _remove_cache() deletes
+    # whatever _CACHE["path"] holds, so for as long as this slot stays empty the only
+    # reference to the file is the local variable above: any exit from here that is not a
+    # successful build - an exception type the handler below does not catch, Ctrl-C,
+    # sys.exit - would unwind to atexit with nothing recorded and leave the file behind.
+    # The key stays None until the build succeeds, so the hit test above can never return a
+    # half-written cache.
+    _CACHE["path"] = cache_path
 
     database = sqlite3.connect(cache_path)
     try:
@@ -624,15 +666,11 @@ def _build_cache(context):
         database.commit()
     except (OSError, sqlite3.Error):
         database.close()
-        try:
-            os.unlink(cache_path)
-        except FileNotFoundError:
-            pass
+        _remove_cache()
         raise
     database.close()
 
     _CACHE["key"] = key
-    _CACHE["path"] = cache_path
     return cache_path
 
 
