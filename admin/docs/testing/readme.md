@@ -37,6 +37,10 @@ This documentation provides an overview of the testing processes and components 
    - Overview of the file path search process
    - Explanation of [filepath_results.csv](../filepath_results.csv) and [filepath_search_summary.md](../filepath_search_summary.md)
 
+9. [Public Images Behind `sample_data`](public_corpus_images.md)
+   - Which downloadable image each `sample_data` corpus key names, with the publisher's MD5
+   - Which keys name images that are not distributed, and how strong each identification is
+
 ## Getting Started
 
 To begin working with LEAPP testing:
