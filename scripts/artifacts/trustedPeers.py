@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Peer records from TrustedPeersHelper.db (Apple trust-circle data)",
         "author": "Heather Charpentier",
         "creation_date": "2024-12-13",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-10",
         "requirements": "none",
         "category": "Trusted Peers",
         "notes": "",
@@ -14,14 +14,14 @@ __artifacts_v2__ = {
         "artifact_icon": "circle-check",
         "sample_data": {
             "hickman_ios15": "23 rows",
-            "mvs_2026": "6 rows but ZPEERINFO is empty",
             "dexter_ios18": "iOS 18.3.2 | 5 rows",
             "felix_ios17": "iOS 17.6.1 | 13 rows",
             "fsfull002_ios17": "iOS 17.1 | 5 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 24 rows",
             "iphone12_ios18": "iOS 18.7 | 3 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows, all in the WAL of the defaultContext "
+                                  "database; ZPEERINFO empty on every row",
             "otto_ios17": "iOS 17.5.1 | 3 rows",
             "abe_ios16": "iOS 16.5 | 6 rows",
             "felix23_ios16": "iOS 16.5 | 2 rows",
@@ -33,12 +33,13 @@ __artifacts_v2__ = {
     }
 }
 
+from pathlib import PurePath
+
 from scripts.ilapfuncs import (
     does_table_exist_in_db,
     artifact_processor,
     convert_cocoa_core_data_ts_to_utc,
     does_column_exist_in_db,
-    get_file_path,
     get_sqlite_db_records, null_absent_columns,
     logfunc,
 )
@@ -112,73 +113,81 @@ def trusted_peers(context):
     """ see artifact description """
     files_found = context.get_files_found()
     data_list = []
-    source_path = get_file_path(files_found, '*TrustedPeersHelper.db')
-    if not source_path:
+    # One database exists per trust-circle context (for example
+    # com.apple.security.keychain-defaultContext.TrustedPeersHelper.db beside
+    # com.apple.security.keychain-.TrustedPeersHelper.db), so every match is
+    # read rather than the first: the first can be an empty context while the
+    # populated one sits beside it.
+    db_paths = [f for f in files_found if PurePath(f).match('*TrustedPeersHelper.db')]
+    if not db_paths:
         logfunc('TrustedPeersHelper.db not found')
         return (), [], ''
 
-    device_color = (
-        'client.ZDEVICECOLOR'
-        if does_column_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA', 'ZDEVICECOLOR')
-        else 'NULL'
-    )
-    device_enclosure_color = (
-        'client.ZDEVICEENCLOSURECOLOR'
-        if does_column_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA', 'ZDEVICEENCLOSURECOLOR')
-        else 'NULL'
-    )
-    peer_info = (
-        'metadata.ZPEERINFO'
-        if does_column_exist_in_db(source_path, 'ZESCROWMETADATA', 'ZPEERINFO')
-        else 'NULL'
-    )
+    for source_path in db_paths:
+        if not does_table_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA'):
+            # This release does not carry the table, so there is nothing to read.
+            # Absence here is not evidence the feature was unused, only that this
+            # schema does not hold it.
+            logfunc(f'Trusted peers: {source_path} has no ZESCROWCLIENTMETADATA table; no rows reported')
+            continue
 
-    query = f'''
-    SELECT DISTINCT
-        client.ZSECUREBACKUPMETADATATIMESTAMP,
-        client.ZDEVICEMODEL,
-        client.ZDEVICEMODELVERSION,
-        client.ZDEVICENAME,
-        metadata.ZSERIAL,
-        client.ZSECUREBACKUPNUMERICPASSPHRASELENGTH,
-        {device_color} AS ZDEVICECOLOR,
-        {device_enclosure_color} AS ZDEVICEENCLOSURECOLOR,
-        {peer_info} AS ZPEERINFO
-    FROM
-        ZESCROWCLIENTMETADATA AS client
-    LEFT JOIN
-        ZESCROWMETADATA AS metadata
-    ON
-        client.ZESCROWMETADATA = metadata.Z_PK;
-    '''
+        device_color = (
+            'client.ZDEVICECOLOR'
+            if does_column_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA', 'ZDEVICECOLOR')
+            else 'NULL'
+        )
+        device_enclosure_color = (
+            'client.ZDEVICEENCLOSURECOLOR'
+            if does_column_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA', 'ZDEVICEENCLOSURECOLOR')
+            else 'NULL'
+        )
+        peer_info = (
+            'metadata.ZPEERINFO'
+            if does_column_exist_in_db(source_path, 'ZESCROWMETADATA', 'ZPEERINFO')
+            else 'NULL'
+        )
 
-    if does_table_exist_in_db(source_path, 'ZESCROWCLIENTMETADATA'):
+        query = f'''
+        SELECT DISTINCT
+            client.ZSECUREBACKUPMETADATATIMESTAMP,
+            client.ZDEVICEMODEL,
+            client.ZDEVICEMODELVERSION,
+            client.ZDEVICENAME,
+            metadata.ZSERIAL,
+            client.ZSECUREBACKUPNUMERICPASSPHRASELENGTH,
+            {device_color} AS ZDEVICECOLOR,
+            {device_enclosure_color} AS ZDEVICEENCLOSURECOLOR,
+            {peer_info} AS ZPEERINFO
+        FROM
+            ZESCROWCLIENTMETADATA AS client
+        LEFT JOIN
+            ZESCROWMETADATA AS metadata
+        ON
+            client.ZESCROWMETADATA = metadata.Z_PK;
+        '''
+
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
-    else:
-        # This release does not carry the table, so there is nothing to read.
-        # Absence here is not evidence the feature was unused, only that this
-        # schema does not hold it.
-        logfunc(f'Trusted peers: {source_path} has no ZESCROWCLIENTMETADATA table; no rows reported')
-        db_records = []
 
-    for row in db_records:
-        timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
-        peer_values = _peer_info_values(row[8])
+        relative_path = context.get_relative_path(source_path)
+        for row in db_records:
+            timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
+            peer_values = _peer_info_values(row[8])
 
-        data_list.append((
-            timestamp,
-            row[1],
-            row[2],
-            row[3],
-            row[4],
-            row[5],
-            row[6],
-            row[7],
-            peer_values['OSVersion'],
-            peer_values['ModelName'],
-            peer_values['ComputerName'],
-            peer_values['SerialNumber'],
-        ))
+            data_list.append((
+                timestamp,
+                row[1],
+                row[2],
+                row[3],
+                row[4],
+                row[5],
+                row[6],
+                row[7],
+                peer_values['OSVersion'],
+                peer_values['ModelName'],
+                peer_values['ComputerName'],
+                peer_values['SerialNumber'],
+                relative_path,
+            ))
 
     data_headers = (
         ('Timestamp', 'datetime'),
@@ -193,6 +202,7 @@ def trusted_peers(context):
         'Peer Model Name',
         'Peer Computer Name',
         'Peer Serial Number',
+        'Source File',
     )
 
-    return data_headers, data_list, context.get_relative_path(source_path)
+    return data_headers, data_list, context.get_relative_path(db_paths[0])
