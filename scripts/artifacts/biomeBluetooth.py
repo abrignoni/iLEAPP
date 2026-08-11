@@ -1,13 +1,17 @@
 __artifacts_v2__ = {
     "get_biomeBluetooth": {
         "name": "Biome - Bluetooth",
-        "description": "Parses bluetooth connection entries from biomes",
+        "description": "Parses Bluetooth device entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Use caution when interpreting this artifact. Lists of Bluetooth devices have been "
+                 "observed sharing a single SEGB timestamp, so the presence of a device in this "
+                 "stream does not establish that the device was connected to the iOS device at "
+                 "that time. Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
+                 "Biome', https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*'),
         "output_types": "standard",
         "artifact_icon": "bluetooth",
@@ -28,7 +32,7 @@ __artifacts_v2__ = {
 
 
 import os
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from datetime import timezone
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState

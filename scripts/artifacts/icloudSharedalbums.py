@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "icloudSharedOwnerInfo": {
         "name": "iCloud Shared Albums - Owner Info",
         "description": "iCloud shared album owner info (Info.plist)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "users",
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
     "icloudSharedAlbumData": {
         "name": "iCloud Shared Albums - Album Data",
         "description": "iCloud shared album DCIM counters (DCIM_CLOUD.plist)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "photo",
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
     "icloudSharedPersonInfo": {
         "name": "iCloud Shared Albums - Person Info",
         "description": "iCloud shared album participants (cloudSharedPersonInfos.plist)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "user",
@@ -77,7 +77,7 @@ __artifacts_v2__ = {
     "icloudSharedEmails": {
         "name": "iCloud Shared Albums - Emails",
         "description": "iCloud shared album emails (cloudSharedEmails.plist)",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),
         "output_types": "standard", "artifact_icon": "mail",
@@ -134,7 +134,7 @@ def icloudSharedOwnerInfo(context):
 
 @artifact_processor
 def icloudSharedAlbumData(context):
-    data_headers = ('Album Name', 'DCIM Last Directory Number', 'DCIM Last File Number',
+    data_headers = ('Album ID', 'DCIM Last Directory Number', 'DCIM Last File Number',
                     'File Location')
     data_list = []
     sources = []

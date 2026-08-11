@@ -2,14 +2,14 @@ __artifacts_v2__ = {
     "keyboardLexicon": {
         "name": "Keyboard Dynamic Lexicon",
         "description": "Extracts dynamic lexicon data from the keyboard",
-        "author": "@your_username",
+        "author": "@any333",
         "creation_date": "2023-05-24",
-        "last_update_date": "2023-05-24",
+        "last_update_date": "2026-07-22",
         "requirements": "none",
         "category": "User Activity",
         "notes": "",
         "paths": ('*/mobile/Library/Keyboard/*-dynamic.lm/dynamic-lexicon.dat',),
-        "output_types": ["html", "tsv", "lava", "timeline"],
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "vocabulary",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 2 rows",
@@ -27,12 +27,13 @@ __artifacts_v2__ = {
     "keyboardAppUsage": {
         "name": "Keyboard Application Usage",
         "description": "Extracts keyboard application usage data",
-        "author": "@your_username",
+        "author": "@yany333",
         "creation_date": "2023-05-24",
-        "last_update_date": "2023-05-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "User Activity",
-        "notes": "",
+        "notes": "Field units and semantics for app_usage_database.plist are not "
+                 "documented; values are reported as stored.",
         "paths": ('*/mobile/Library/Keyboard/app_usage_database.plist',),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "keyboard",
@@ -47,7 +48,7 @@ __artifacts_v2__ = {
     "keyboardUsageStats": {
         "name": "Keyboard Usage Stats",
         "description": "Extracts keyboard usage statistics",
-        "author": "@your_username",
+        "author": "@any333",
         "creation_date": "2023-05-24",
         "last_update_date": "2023-05-24",
         "requirements": "none",
@@ -72,6 +73,25 @@ __artifacts_v2__ = {
             "jess_ios15": "iOS 15.0.2 | 3 rows",
             "magnet_ios16": "iOS 16.1.1 | 4 rows",
         }
+    },
+    "keyboardVulgarWordUsage": {
+        "name": "Keyboard Vulgar Word Usage",
+        "description": "Words and usage values stored in VulgarWordUsage.db",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-07-28",
+        "last_update_date": "2026-07-31",
+        "requirements": "none",
+        "category": "User Activity",
+        "notes": "The last-use timestamp is interpreted as Apple Cocoa epoch; "
+                 "no populated sample was available to verify.",
+        "paths": ("*/mobile/Library/Keyboard/VulgarWordUsage.db*",),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "message-2",
+        "sample_data": {
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
+        },
     }
 }
 
@@ -80,7 +100,10 @@ import string
 from os.path import dirname
 from datetime import datetime
 
-from scripts.ilapfuncs import open_sqlite_db_readonly, convert_ts_human_to_utc, artifact_processor
+from scripts.ilapfuncs import (
+    open_sqlite_db_readonly, convert_ts_human_to_utc, artifact_processor,
+    does_table_exist_in_db, get_sqlite_db_records,
+)
 
 @artifact_processor
 def keyboardLexicon(context):
@@ -128,7 +151,7 @@ def keyboardAppUsage(context):
 
                         data_list.append((start_date, app, entry['appTime'], ', '.join(map(str, entry['keyboardTimes']))))  
                                                  
-    data_headers = (('Date', 'datetime'), 'Application Name', 'Application Time Used in Seconds', 'Keyboard Times Used in Seconds')
+    data_headers = (('Date', 'datetime'), 'Application Name', 'appTime (as stored)', 'keyboardTimes (as stored)')
     return data_headers, data_list, files_found[0]
 
 @artifact_processor
@@ -155,3 +178,30 @@ def keyboardUsageStats(context):
     
     data_headers = (('Creation Date', 'datetime'), ('Last Update Date', 'datetime'), 'Key', 'Data Value', 'Source File')
     return data_headers, data_list, 'See source paths in data'
+
+
+@artifact_processor
+def keyboardVulgarWordUsage(context):
+    data_headers = (
+        ("Last Used", "datetime"), "Record ID", "Application", "Recipient", "Vulgar Word",
+        "Word Reading", "Usage Count", "Journaled",
+    )
+    data_list = []
+    source_path = next(
+        (str(path) for path in context.get_files_found()
+         if str(path).endswith("VulgarWordUsage.db")),
+        "",
+    )
+    if not source_path or not does_table_exist_in_db(source_path, "vword_usage"):
+        return data_headers, data_list, ""
+
+    query = """
+        SELECT CASE WHEN last_use_timestamp > 0
+                    THEN datetime(last_use_timestamp + 978307200, 'unixepoch') END,
+               ROWID, app, recipient, vword, word_reading, usage_count,
+               journaled
+        FROM vword_usage
+        ORDER BY last_use_timestamp
+    """
+    data_list.extend(tuple(row) for row in get_sqlite_db_records(source_path, query))
+    return data_headers, data_list, context.get_relative_path(source_path)

@@ -3,11 +3,11 @@ __artifacts_v2__ = {
         "name": "Discord - Chats",
         "description": "Parses Discord chat messages from fsCachedData and the local KV storage database",
         "author": "Original Unknown, John Hyla & @stark4n6",
-        "creation_date": "",
-        "last_update_date": "2026-06-18",
+        "creation_date": "2025-06-23",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Discord",
-        "notes": "",
+        "notes": "Reference: Discord Developer Documentation, 'Message Resource', https://docs.discord.com/developers/resources/message",
         "paths": (
             "*/activation_record.plist",
             "*/com.hammerandchisel.discord/fsCachedData/*",
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
             }
         },
         "sample_data": {
-            "josh_ios_15": "204 rows from fsCachedData and KV storage; 30 attachment rows; 11 cached media matches",
+            "hickman_ios15": "204 rows from fsCachedData and KV storage; 30 attachment rows; 11 cached media matches",
             "ctf2020_ios12": "iOS 12.4 | com.disney.MyDisneyExperience, com.nordstrom.shopping, com.plainvanillacorp.quizup | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 127 rows",
             "felix_ios17": "iOS 17.6.1 | AppLock - photo lock 1.2.6 | 0 rows",

@@ -6,10 +6,12 @@ __artifacts_v2__ = {
 ' enabled. Based on research and published blogs written by Scott Koenig'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains accountsd cloudServiceEnableLog.plist',
-'category': 'Photos.sqlite-Y-Settings-Plist-CPL-Service-Enabled',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/com.apple.accountsd/cloudServiceEnableLog.plist',),
 "output_types": ["standard", "tsv", "none"],

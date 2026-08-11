@@ -6,10 +6,12 @@ __artifacts_v2__ = {
 ' records only, no asset data being parsed.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-SWY-ChatThreadsOnly-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -39,10 +41,12 @@ __artifacts_v2__ = {
 ' Parses Share with You Conversation Album records only, no asset data being parsed.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '5.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-'category': 'Photos.sqlite-SWY-ChatThreadsOnly-SyndicationPL-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -66,7 +70,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
@@ -178,7 +182,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]))
@@ -202,7 +206,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         'SWYConverszGenAlbum-Trashed State',
         ('SWYConverszGenAlbum-Trash Date', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -305,7 +309,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -331,7 +335,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-18',
         'SWYConverszGenAlbum-Privacy State-19')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -434,7 +438,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -460,7 +464,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-18',
         'SWYConverszGenAlbum-Privacy State-19')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -563,7 +567,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -589,7 +593,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-18',
         'SWYConverszGenAlbum-Privacy State-19')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -692,7 +696,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -718,7 +722,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-18',
         'SWYConverszGenAlbum-Privacy State-19')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -832,7 +836,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18]))
@@ -856,7 +860,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         'SWYConverszGenAlbum-Trashed State',
         ('SWYConverszGenAlbum-Trash Date', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -959,7 +963,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -985,7 +989,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-18',
         'SWYConverszGenAlbum-Privacy State-19')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1088,7 +1092,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1114,7 +1118,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-18',
         'SWYConverszGenAlbum-Privacy State-19')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1217,7 +1221,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1243,7 +1247,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-18',
         'SWYConverszGenAlbum-Privacy State-19')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1346,7 +1350,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1372,6 +1376,6 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
         ('SWYConverszGenAlbum-Trash Date-17', 'datetime'),
         'SWYConverszGenAlbum-Cloud Delete State-18',
         'SWYConverszGenAlbum-Privacy State-19')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path

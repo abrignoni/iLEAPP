@@ -3,10 +3,10 @@
 __artifacts_v2__ = {
     "icloud_sync_device_names": {
         "name": "Files App - iCloud Sync Device Names",
-        "description": "Device names that are able to sync to iCloud Drive",
+        "description": "Device names recorded in the CloudDocs server.db devices table",
         "author": "@JohannPLW",
         "creation_date": "2024-02-05",
-        "last_update_date": "2025-09-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
         "notes": "",
@@ -35,10 +35,10 @@ __artifacts_v2__ = {
     },
     "icloud_application_list": {
         "name": "Files App - iCloud Application List",
-        "description": "List of applications that sync data in iCloud",
+        "description": "Applications with app libraries in the CloudDocs client.db",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
-        "last_update_date": "2025-09-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
         "notes": "",
@@ -103,10 +103,10 @@ __artifacts_v2__ = {
         "description": "Shared files stored in iCloud Drive with their metadata",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
-        "last_update_date": "2025-09-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
-        "notes": "",
+        "notes": "Sharing-option value mappings observed in testing; unrecognized values reported as stored",
         "paths": (
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
@@ -198,11 +198,11 @@ __artifacts_v2__ = {
         }
     },
     "files_ios_updates": {
-        "name": "Files App - Operating System Updates",
-        "description": "iOS Updates",
+        "name": "Files App - OS Build History (boot_history)",
+        "description": "OS builds and dates recorded in the CloudDocs client.db boot_history table",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
-        "last_update_date": "2025-09-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
         "notes": "",
@@ -311,7 +311,7 @@ def icloud_application_list(context):
         '''
         data_headers = (
             'Application Bundle ID', 'Number of folders', 'Number of files',
-            ('Total size in bytes', 'bytes')
+            'Total size in bytes'
             )
     else:
         query = '''
@@ -472,7 +472,7 @@ def icloud_drive_shared_files(context):
         elif sharing_options in (64, 68):
             sharing_permissions = "Only invited people"
         else:
-            sharing_permissions = ''
+            sharing_permissions = sharing_options
 
         user_full_name = ''
         if user_plist:
@@ -484,7 +484,7 @@ def icloud_drive_shared_files(context):
                 user_full_name = f"{user_given_name + ' ' if user_given_name else ''}" +\
                     f"{user_family_name}"
         creator_name = user_full_name if user_full_name else 'an unknown user'
-        shared_by = creator_name if creator_id else 'me'
+        shared_by = creator_name if creator_id else 'local account (no creator ID)'
 
         recently_deleted = 'Yes' if trash_back_path else 'No'
 

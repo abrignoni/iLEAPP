@@ -69,18 +69,22 @@ __artifacts_v2__ = {
     },
     "chatgptMediaUploads": {
         "name": "ChatGPT - Media Uploads",
-        "description": "Images uploaded to ChatGPT.",
+        "description": "Images from application tmp directories collected alongside ChatGPT research; "
+                       "container attribution is best-effort and media from other apps can appear (see notes)",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "ChatGPT",
-        "notes": "",
+        "notes": "Rows are limited to the ChatGPT app container only when a ChatGPT marker file "
+                 "(a conversations-* store or com.openai.chat plist) identifies that container; "
+                 "without a marker, tmp media from other apps matching the path patterns is included, "
+                 "and media from non-ChatGPT apps appeared in test data.",
         "paths": ('**/Containers/Data/Application/*/tmp/photo-*.png',
                   '**/Containers/Data/Application/*/tmp/*/*.png',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
                   '**/Containers/Data/Application/*/Library/Preferences/com.openai.chat.StatsigService.plist'),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "photo",
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
@@ -96,13 +100,17 @@ __artifacts_v2__ = {
     },
     "chatgptVoicePrompts": {
         "name": "ChatGPT - Voice Prompts",
-        "description": "Voice prompts that were transcribed and uploaded to ChatGPT.",
+        "description": "Audio recordings from application tmp directories associated with the ChatGPT app "
+                       "where identifiable",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "ChatGPT",
-        "notes": "",
+        "notes": "Rows are limited to the ChatGPT app container only when a ChatGPT marker file "
+                 "(a conversations-* store or com.openai.chat plist) identifies that container; "
+                 "without a marker, tmp media from other apps matching the path patterns is included, "
+                 "and media from non-ChatGPT apps appeared in test data.",
         "paths": ('**/Containers/Data/Application/*/tmp/recordings/*.m4a',
                   '**/Containers/Data/Application/*/tmp/*/*.m4a',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',

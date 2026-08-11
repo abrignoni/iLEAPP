@@ -5,10 +5,12 @@ __artifacts_v2__ = {
 ' The results may contain multiple records per ZASSET table Z_PK value and supports iOS.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
-'category': 'Photos.sqlite-PeopleFaces-NAD-PhotoData-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -38,10 +40,12 @@ __artifacts_v2__ = {
 ' per ZASSET table Z_PK value and supports iOS.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
-'category': 'Photos.sqlite-PeopleFaces-NAD-SyndicationPL-Psql',
+'category': 'Photos.sqlite',
 'notes': '',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
@@ -66,7 +70,7 @@ __artifacts_v2__ = {
 import os
 import nska_deserialize as nd
 from packaging import version
-from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph015_1PeopleFacesNADPhDaPsql(context):
@@ -362,7 +366,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -500,7 +504,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Person UUID-89',
         'zPerson-Person URI-90',
         'zDetFaceGroup-UUID-91')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -869,7 +873,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -1024,7 +1028,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Person UUID-105',
         'zPerson-Person URI-106',
         'zDetFaceGroup-UUID-107')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1395,7 +1399,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -1553,7 +1557,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Person UUID-107',
         'zPerson-Person URI-108',
         'zDetFaceGroup-UUID-109')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -1928,7 +1932,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -2090,7 +2094,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Person UUID-111',
         'zPerson-Person URI-112',
         'zDetFaceGroup-UUID-113')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2466,7 +2470,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -2629,7 +2633,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Person UUID-112',
         'zPerson-Person URI-113',
         'zDetFaceGroup-UUID-114')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -2927,7 +2931,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -3065,7 +3069,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Person UUID-89',
         'zPerson-Person URI-90',
         'zDetFaceGroup-UUID-91')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -3434,7 +3438,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -3589,7 +3593,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Person UUID-105',
         'zPerson-Person URI-106',
         'zDetFaceGroup-UUID-107')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -3960,7 +3964,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -4118,7 +4122,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Person UUID-107',
         'zPerson-Person URI-108',
         'zDetFaceGroup-UUID-109')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -4493,7 +4497,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -4655,7 +4659,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Person UUID-111',
         'zPerson-Person URI-112',
         'zDetFaceGroup-UUID-113')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -5031,7 +5035,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         ORDER BY zDetFace.Z_PK
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             # zPerson.ZCONTACTMATCHINGDICTIONARY-PLIST
             personcontactmatchingdictionary = ''
@@ -5195,7 +5199,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Person UUID-112',
         'zPerson-Person URI-113',
         'zDetFaceGroup-UUID-114')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 

@@ -10,12 +10,12 @@ __artifacts_v2__ = {
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
-        "last_update_date": "2026-03-03",
+        "last_update_date": "2026-07-31",
         "requirements": "pathlib",
         "category": "Chats",
-        "notes": "",
+        "notes": "Message type mappings observed in testing (app version 5.6.7); not vendor-documented.",
         "paths": (  
-            '*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite',
+            '*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/*/image/*/msgId*',
             '*/mobile/Containers/Shared/AppGroup/*/*/video/*/msgId*',
             '*/mobile/Containers/Shared/AppGroup/*/*/file/*/*',
@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         },
         "artifact_icon": "message",
         "sample_data": {
-            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 13 rows",
+            "iphone14plus_ios18": "iOS 18.0 | Zangi Private Messenger 5.6.7 | 19 rows",
         }
     },
     "zangi_contacts": {
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "requirements": "",
         "category": "Contacts",
         "notes": "",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite'),
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "users",
         "sample_data": {
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "requirements": "",
         "category": "Accounts",
         "notes": "",
-        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite'),
+        "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "user",
         "sample_data": {
@@ -84,7 +84,8 @@ from scripts.ilapfuncs import artifact_processor, \
 
 @artifact_processor
 def zangi_messages(context):
-    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     data_list = []
 
     query = '''
@@ -276,7 +277,8 @@ def zangi_messages(context):
 @artifact_processor
 def zangi_contacts(context):
 
-    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
 
     main_db = ''
     data_list = []
@@ -353,7 +355,8 @@ def zangi_contacts(context):
 @artifact_processor
 def zangi_accounts(context):
 
-    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in context.get_files_found() if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
 
     main_db = ''
     data_list = []

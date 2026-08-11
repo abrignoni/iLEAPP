@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2025-12-16",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Clock",
-        "notes": "",
+        "notes": "Repeat-schedule bitmask mapping observed in testing; not vendor-documented.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -38,6 +38,20 @@ from datetime import datetime as _dt
 def _safe_plist_date(value):
     """Convert plist <date> objects to UTC; pass strings/None through unchanged."""
     return convert_plist_date_to_utc(value) if isinstance(value, _dt) else value
+
+
+def decode_alarm_sound(alarm_dict):
+    """Describe the alarm sound.
+
+    A tone carries MTSoundToneID, a song from the media library carries
+    MTSoundMediaItemID instead, so neither key is guaranteed to be present.
+    """
+    sound = alarm_dict.get('MTAlarmSound', {}).get('$MTSound', {})
+    if 'MTSoundToneID' in sound:
+        return sound['MTSoundToneID']
+    if 'MTSoundMediaItemID' in sound:
+        return f"media item: {sound['MTSoundMediaItemID']}"
+    return ''
 
 
 def decode_repeat_schedule(repeat_schedule_value):
@@ -104,7 +118,7 @@ def alarms(context):
                     dismiss_date,
                     last_modified_date, 
                     ', '.join(repeat_schedule),
-                    alarms_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'],
+                    decode_alarm_sound(alarms_dict),
                     alarms_dict['MTAlarmIsSleep'], 
                     alarms_dict['MTAlarmBedtimeDoNotDisturb'],
                     '')
@@ -132,7 +146,7 @@ def alarms(context):
                     dismiss_date, 
                     last_modified_date, 
                     ', '.join(repeat_schedule), 
-                    sleep_alarm_dict['MTAlarmSound']['$MTSound']['MTSoundToneID'], 
+                    decode_alarm_sound(sleep_alarm_dict),
                     sleep_alarm_dict['MTAlarmIsSleep'], 
                     sleep_alarm_dict['MTAlarmBedtimeDoNotDisturb'], 
                     sleep_alarm_dict['MTAlarmBedtimeFireDate'])
@@ -148,7 +162,7 @@ def alarms(context):
         'Repeat Schedule', 
         'Alarm Sound', 
         'Is Sleep Alarm', 
-        'Bedtime Not Disturbed', 
+        'Bedtime Do Not Disturb',
         'Bedtime Fire Date'
         )
     return data_headers, data_list, source_path

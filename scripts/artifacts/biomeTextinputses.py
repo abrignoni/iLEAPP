@@ -4,10 +4,12 @@ __artifacts_v2__ = {
         "description": "Parses Text Input Session entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Field meanings follow published research. Reference: Mattia Epifani, "
+                 "'84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths":
             ('*/Biome/streams/public/TextInputSession/local/*',
              '*/Biome/streams/restricted/Text.InputSession/local/*'),
@@ -33,7 +35,7 @@ __artifacts_v2__ = {
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, convert_ts_int_to_utc

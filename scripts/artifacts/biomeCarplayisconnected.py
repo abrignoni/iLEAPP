@@ -29,7 +29,7 @@ __artifacts_v2__ = {
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
@@ -112,6 +112,6 @@ def get_biomeCarplayisconnected(context):
                                   record.data_start_offset))
 
     data_headers = (('SEGB Timestamp', 'datetime'), ('Time Start', 'datetime'), ('Time End', 'datetime'),
-                    ('Time Write', 'datetime'), 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
+                    ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Status', 'Action GUID', 'Filename', 'Offset')
 
     return data_headers, data_list, 'see Filename for more info'

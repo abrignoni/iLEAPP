@@ -153,7 +153,8 @@ def get_healthmate_accounts(context):
 @artifact_processor
 def get_healthmate_sleep_tracking(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         ZDEVICEID,
@@ -236,7 +237,8 @@ def get_healthmate_sleep_tracking(context):
 @artifact_processor
 def get_healthmate_daily_summary(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         ZSTARTDATE,
@@ -303,7 +305,8 @@ def get_healthmate_daily_summary(context):
 @artifact_processor
 def get_healthmate_tracked_activities(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         t.ZDEVICEID,
@@ -459,7 +462,8 @@ def get_healthmate_tracked_activities(context):
 @artifact_processor
 def get_healthmate_messages(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
 
     query = ('''
         SELECT
@@ -524,7 +528,8 @@ def get_healthmate_messages(context):
 @artifact_processor
 def get_healthmate_measurements(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         ZCATEGORY [CATEGORYID],
@@ -622,7 +627,8 @@ def get_healthmate_measurements(context):
 @artifact_processor
 def get_healthmate_devices(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         ZDEVICE_ID,

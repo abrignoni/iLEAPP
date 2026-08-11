@@ -34,7 +34,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, \
+from scripts.ilapfuncs import artifact_processor, get_file_path, does_table_exist_in_db, logfunc, get_sqlite_db_records, null_absent_columns, \
     convert_cocoa_core_data_ts_to_utc
 
 
@@ -73,7 +73,14 @@ def photos_migration(context):
         'Source Model Version', 'Model Version', 'OS Build', 'OS Version', 'Origin',
         'Store UUID')
 
-    db_records = get_sqlite_db_records(data_source, query)
+    if does_table_exist_in_db(data_source, 'ZMIGRATIONHISTORY'):
+        db_records = get_sqlite_db_records(data_source, null_absent_columns(data_source, query))
+    else:
+        # This release does not carry the table, so there is nothing to read.
+        # Absence here is not evidence the feature was unused, only that this
+        # schema does not hold it.
+        logfunc(f'Photos migration: {data_source} has no ZMIGRATIONHISTORY table; no rows reported')
+        db_records = []
 
     for record in db_records:
         os_version = context.get_apple_os_version(record[9])

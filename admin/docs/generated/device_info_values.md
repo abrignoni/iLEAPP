@@ -14,8 +14,8 @@ This document outlines the various device information collected by LEAPP modules
 | AirDrop | AirDrop ID | airdropId |
 | AirDrop | Discoverable Mode | airdropId |
 | Backup Settings | Cloud Backup Enabled | backupSettings |
-| Backup Settings | Last Cloud iTunes Backup Date | backupSettings |
-| Backup Settings | Last Cloud iTunes Backup TZ | backupSettings |
+| Backup Settings | Last Cloud Backup Date | backupSettings |
+| Backup Settings | Last Cloud Backup TZ | backupSettings |
 | Backup Settings | Last iTunes Backup Date | backupSettings |
 | Backup Settings | Last iTunes Backup TZ | backupSettings |
 | Cellular | CDMA Network Phone Number ICCID | celWireless |
@@ -84,6 +84,6 @@ This document outlines the various device information collected by LEAPP modules
 <!-- LOGDEVINFO_START -->
 | Key | Source Modules |
 |-----|----------------|
-| Obliterated Timestamp: {utc_modified_date} | obliterated |
+| {source_name_log} Timestamp: {utc_modified_date} | wipe_indicators |
 <!-- LOGDEVINFO_END -->
 

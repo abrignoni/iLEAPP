@@ -6,17 +6,21 @@ __artifacts_v2__ = {
             "Parses Telegram messages, including text, media, and forwarding information "
             "from the local cache database. The Chat/Chat ID columns identify the conversation; "
             "the Author/Author ID columns identify the sender of each individual message. On "
-            "Outgoing messages the Author ID is the account owner's user id, so the device "
-            "owner's Telegram id can be identified from any Outgoing message."
+            "messages without the Incoming flag, the Author ID field, when present, reflects "
+            "the signed-in account's user id."
         ),
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
-        "last_update_date": "2026-06-25",
+        "last_update_date": "2026-07-31",
         "requirements": "Python packages: mmh3",
         "category": "Telegram",
         "notes": "Original Gist: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713. "
                  "This module processes the db_sqlite file from Telegram's local cache (postbox/db). "
-                 "Media files are linked from the postbox/media directory.",
+                 "Media files are linked from the postbox/media directory. "
+                 "Some media sub-field labels (live-location period, venue fields) are best-effort interpretations of observed keys. "
+                 "A photo is stored on the device once per size the client downloaded, each under its own file name, so every "
+                 "representation of an image is offered to the file search rather than the largest alone. When only a _partial "
+                 "file is present the media was referenced by the message but never fully downloaded, and the row says so.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'
@@ -60,7 +64,7 @@ import struct
 import enum
 import mmh3
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media, logfunc
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media
 
 # Code courtesy of Stek29 / Victor Oreshkin
 # Github: https://gist.github.com/stek29
@@ -91,6 +95,7 @@ def telegramMessages(context):
     # These caches will be passed to helper functions
     peer_cache_global = {}
     media_cache_global = {}
+    media_index_global = {}   # media file basename -> full path, built once
 
     # Inner classes and enums (byteutil, MessageDataFlags, FwdInfoFlags, etc.)
     # These are self-contained and should not need modification for this refactor.
@@ -364,15 +369,18 @@ def telegramMessages(context):
                 key=lambda x: getattr(x, 'height', 0) * getattr(x, 'width', 0),
                 reverse=True
             )
-            if (
-                reps
-                and hasattr(reps[0], 'resource')
-                and isinstance(reps[0].resource, CloudPhotoSizeMediaResource)
-            ):
-                res = reps[0].resource
-                unique_id_attr = getattr(res, 'uniqueId', 'N/A')
-                text_for_report = f"Image: ID {unique_id_attr}"
-                searchable_filename = unique_id_attr
+            candidates = [
+                getattr(rep.resource, 'uniqueId', None) for rep in reps
+                if isinstance(rep.resource, CloudPhotoSizeMediaResource)
+            ]
+            candidates = [c for c in candidates if c]
+            if candidates:
+                # Each representation is a different stored size of the same
+                # photo and each has its own file name. The device keeps only
+                # the sizes it downloaded, so every size is offered to the file
+                # search, largest first, rather than the largest alone.
+                text_for_report = f"Image: ID {candidates[0]}"
+                searchable_filename = candidates
             else:
                 text_for_report = "Image: Malformed representation or resource"
 
@@ -431,10 +439,16 @@ def telegramMessages(context):
         else:
             text_for_report = f"Media: Type {type(m).__name__}, content {str(m)[:100]}"
 
-        return {'text_for_report': text_for_report, 'identifier_for_file_search': searchable_filename}
+        if searchable_filename is None:
+            identifiers = []
+        elif isinstance(searchable_filename, list):
+            identifiers = searchable_filename
+        else:
+            identifiers = [searchable_filename]
+        return {'text_for_report': text_for_report, 'identifiers_for_file_search': identifiers}
 
     def process_message_for_report(idx, msg_data, con_param, peer_cache_param, media_cache_param,
-                                   files_found_param_main):
+                                   files_found_param_main, media_index_param):
         direction = 'Incoming' if MessageFlags.Incoming in msg_data['flags'] else 'Outgoing'
         ts = datetime.datetime.fromtimestamp(idx.timestamp, tz=datetime.timezone.utc)
         # idx.peerId is the chat/conversation the message belongs to (distinct from the sender).
@@ -460,53 +474,63 @@ def telegramMessages(context):
             )
 
         action_data_parts = []
-        primary_media_search_id = None
+        media_search_ids = []
 
         for m_emb in msg_data.get('embeddedMedia', []):
             details = print_media_info(m_emb)
             action_data_parts.append(details['text_for_report'])
-            if details['identifier_for_file_search'] and not primary_media_search_id:
-                primary_media_search_id = details['identifier_for_file_search']
+            media_search_ids.extend(details['identifiers_for_file_search'])
 
         for mref_id_tuple in msg_data.get("referencedMediaIds", []):
             m_ref = get_ref_media(mref_id_tuple[0], mref_id_tuple[1], con_param, media_cache_param, idx)
             if m_ref:
                 details = print_media_info(m_ref)
                 action_data_parts.append(details['text_for_report'])
-                if details['identifier_for_file_search'] and not primary_media_search_id:
-                    primary_media_search_id = details['identifier_for_file_search']
+                media_search_ids.extend(details['identifiers_for_file_search'])
             else:
                 action_data_parts.append(
                     f"Referenced media not found: ns={mref_id_tuple[0]}, "
                     f"id={mref_id_tuple[1]}"
                 )
 
-        final_action_data_text = '; '.join(filter(None, action_data_parts))
         media_item_ref_id = ''
 
-        if primary_media_search_id:
-            found_media_file_path = None
-            for f_path_item in files_found_param_main:
-                current_f_path_str = str(f_path_item)
-                normalized_f_path = current_f_path_str.replace('\\', '/')
-                basename_matches = normalized_f_path.rsplit('/', 1)[-1] == primary_media_search_id
-                is_in_media_path = "/postbox/media/" in normalized_f_path
+        if media_search_ids:
+            # Index the media directory once per run instead of walking the
+            # whole file list for every message.
+            if not media_index_param:
+                for f_path_item in files_found_param_main:
+                    current_f_path_str = str(f_path_item)
+                    normalized_f_path = current_f_path_str.replace('\\', '/')
+                    if "/postbox/media/" not in normalized_f_path:
+                        continue
+                    media_index_param[normalized_f_path.rsplit('/', 1)[-1]] = \
+                        current_f_path_str
 
-                if is_in_media_path and basename_matches:
-                    is_file = os.path.isfile(current_f_path_str)
-                    if is_file:
-                        found_media_file_path = current_f_path_str
+            found_media_file_path = None
+            partial_only = False
+            for candidate in media_search_ids:
+                path = media_index_param.get(candidate)
+                if path and os.path.isfile(path):
+                    found_media_file_path = path
+                    break
+            if not found_media_file_path:
+                # A _partial file is a download the device started and never
+                # finished. The message referenced the media; the bytes on disk
+                # are incomplete. That is reported rather than dropped.
+                for candidate in media_search_ids:
+                    path = media_index_param.get(f'{candidate}_partial')
+                    if path and os.path.isfile(path):
+                        found_media_file_path = path
+                        partial_only = True
                         break
 
             if found_media_file_path:
                 media_item_ref_id = check_in_media(file_path=found_media_file_path)
-            else:
-                logfunc(
-                    "INFO: No valid media file found for "
-                    f"primary_media_search_id = '{primary_media_search_id}' "
-                    "after checking all files_found."
-                )
+                if partial_only:
+                    action_data_parts.append('Media file on device is an incomplete download')
 
+        final_action_data_text = '; '.join(filter(None, action_data_parts))
         text_content = msg_data.get('text', '')
 
         return (
@@ -929,6 +953,13 @@ def telegramMessages(context):
             setChatWallpaper = 33; setSameChatWallpaper = 34; botAppAccessGranted = 35
             giftCode = 36; giveawayLaunched = 37; joinedChannel = 38; giveawayResults = 39
             boostsApplied = 40; paymentRefunded = 41; giftStars = 42; prizeStars = 43; starGift = 44
+            starGiftUnique = 45; paidMessagesRefunded = 46; paidMessagesPriceEdited = 47
+            conferenceCall = 48; todoCompletions = 49; todoAppendTasks = 50
+            suggestedPostApprovalStatus = 51; giftTon = 52; suggestedPostSuccess = 53
+            suggestedPostRefund = 54; suggestedBirthday = 55; starGiftPurchaseOffer = 56
+            starGiftPurchaseOfferDeclined = 57; groupCreatorChange = 59
+            copyProtectionToggle = 60; copyProtectionRequest = 61; managedBotCreated = 62
+            pollOptionAppended = 63; pollOptionDeleted = 64; communityChanged = 65
 
         def __init__(self, dec):
             raw = {k: v for k, t, v in dec._iter_kv()} # Get all key-value pairs
@@ -943,8 +974,52 @@ def telegramMessages(context):
                 del raw['_rawValue']
             self.payload = raw # Store the rest of the decoded fields as payload
 
+        # Payload field names as stored, mapped to what the client calls them.
+        FIELD_LABELS = {
+            'i': 'id', 'd': 'duration (seconds)', 'dr': 'discard reason',
+            'vc': 'video call', 't': 'timeout (seconds)', 'src': 'set by',
+            's': 'score', 'dst': 'distance (metres)', 'fromId': 'from',
+            'toId': 'to', 'cid': 'call id', 'dur': 'duration (seconds)',
+            'part': 'other participants', 'ta': 'total amount',
+            'callId': 'call id', 'duration': 'duration (seconds)',
+            'peerIds': 'members', 'inviter': 'inviter', 'title': 'title',
+            'text': 'text', 'currency': 'currency', 'amount': 'amount',
+            'botId': 'bot id', 'newValue': 'new value',
+            'previousValue': 'previous value', 'birthday': 'birthday',
+        }
+        # PhoneCallDiscardReason, as an Int32 in the 'dr' field.
+        DISCARD_REASONS = {0: 'missed', 1: 'disconnected', 2: 'hung up', 3: 'busy'}
+
+        @staticmethod
+        def _format_value(value):
+            """Keep the column readable: summarise nested objects and blobs."""
+            if isinstance(value, bytes):
+                return f'<{len(value)} bytes>'
+            if isinstance(value, list):
+                if value and all(isinstance(item, int) for item in value):
+                    return ', '.join(str(item) for item in value)
+                return '<present>'
+            if not isinstance(value, (str, int, float, bool)):
+                # A decoded media object or similar; its full dump is not
+                # useful in this column and the media columns carry the detail.
+                return '<present>'
+            text = str(value)
+            return text if len(text) <= 120 else text[:120] + '…'
+
         def __repr__(self):
-            payload_repr = ', '.join([f"{k}={v}" for k,v in self.payload.items()])
+            parts = []
+            for key, value in self.payload.items():
+                if value is None or value == '' or value == [] or value == {}:
+                    continue
+                if key == 'dr':
+                    value = self.DISCARD_REASONS.get(value, value)
+                elif key == 'vc':
+                    if not value:
+                        continue
+                    value = 'yes'
+                label = self.FIELD_LABELS.get(key, key)
+                parts.append(f"{label}={self._format_value(value)}")
+            payload_repr = ', '.join(parts)
             return f"<{self.type.name} ({payload_repr if payload_repr else 'No payload'})>"
 
 
@@ -952,7 +1027,12 @@ def telegramMessages(context):
     for file_found_single_path in context.get_files_found():
         file_found_single_path = str(file_found_single_path)
 
-        if (file_found_single_path.endswith('db_sqlite')) and ('media' not in file_found_single_path):
+        # Anchor on the media directory itself. A bare 'media' substring test
+        # also excluded the account database whenever the case or output path
+        # happened to contain the word, which silently produced no messages.
+        normalized_db_path = file_found_single_path.replace('\\', '/')
+        if (normalized_db_path.endswith('db_sqlite')
+                and '/postbox/media/' not in normalized_db_path):
             report_file_path = file_found_single_path # This is the source_path for the report
 
             db_connection = None
@@ -965,7 +1045,7 @@ def telegramMessages(context):
                         processed_row = process_message_for_report(
                             idx, msg_content, db_connection,
                             peer_cache_global, media_cache_global,
-                            context.get_files_found() # Pass main files_found
+                            context.get_files_found(), media_index_global
                         )
                         data_list.append(processed_row)
 

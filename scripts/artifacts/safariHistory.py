@@ -4,18 +4,25 @@ __artifacts_v2__ = {
         "description": "Safari web history visits",
         "author": "@KevinPagano3",
         "creation_date": "2023-02-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "Safari Browser",
-        "notes": "",
-        "paths": ('**/Safari/History.db*',),
+        "notes": (
+            "Starting with iOS 17 Safari supports multiple profiles, each with its own "
+            "History.db under Safari/Profiles/. The Profile column carries the profile "
+            "directory name for those records and Default for the main history database."
+        ),
+        "paths": (
+            '**/Safari/History.db*',
+            '**/Safari/Profiles/*/History.db*',
+        ),
         "output_types": "standard",
         "artifact_icon": "globe",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | com.apple.mobilesafari | 208 rows",
             "dexter_ios18": "iOS 18.3.2 | 10 rows",
             "felix_ios17": "iOS 17.6.1 | 32 rows",
-            "fsfull002_ios17": "iOS 17.1 | 13 rows",
+            "fsfull002_ios17": "iOS 17.1 | 26 rows",
             "hc_ios18_7": "iOS 18.7.8 | 7 rows",
             "iphone11_ios17": "iOS 17.3 | 1 row",
             "iphone12_ios18": "iOS 18.7 | 151 rows",
@@ -31,31 +38,32 @@ __artifacts_v2__ = {
     }
 }
 
+from pathlib import PurePath
+
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+
+
+def _profile_name(source_path):
+    parts = PurePath(source_path).parts
+    if len(parts) >= 3 and parts[-3] == 'Profiles':
+        return parts[-2]
+    return 'Default'
 
 
 @artifact_processor
 def safariHistory(context):
     data_headers = (('Visit Timestamp', 'datetime'), 'Title', 'URL', 'Visit Count',
-                    'Redirect Source', 'Redirect Destination', 'Visit ID', 'Origin')
+                    'Redirect Source', 'Redirect Destination', 'Visit ID', 'Origin',
+                    'Profile')
     data_list = []
 
-    source_path = ''
+    source_paths = []
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('History.db'):
-            source_path = file_found
-            break
-    if not source_path:
+            source_paths.append(file_found)
+    if not source_paths:
         return data_headers, data_list, ''
-
-    # Map visit id -> url so redirect source/destination ids can be resolved to URLs
-    id_url = {}
-    for row in get_sqlite_db_records(source_path, '''
-        SELECT history_visits.id, history_items.url
-        FROM history_visits
-        LEFT JOIN history_items ON history_items.id = history_visits.history_item'''):
-        id_url[str(row[0])] = row[1]
 
     # visit_time is Apple absolute (Cocoa) time on iOS <= 18, but iOS 26+ may
     # store a Unix timestamp instead. Cocoa values for realistic dates stay well
@@ -78,10 +86,23 @@ def safariHistory(context):
     FROM history_visits
     LEFT JOIN history_items ON history_visits.history_item = history_items.id
     '''
-    for row in get_sqlite_db_records(source_path, query):
-        redirect_source = id_url.get(str(row[4]), '') if row[4] is not None else ''
-        redirect_destination = id_url.get(str(row[5]), '') if row[5] is not None else ''
-        data_list.append((row[0], row[1], row[2], row[3], redirect_source, redirect_destination,
-                          row[6], row[7]))
+    for source_path in source_paths:
+        profile = _profile_name(source_path)
 
-    return data_headers, data_list, context.get_relative_path(source_path)
+        # Map visit id -> url so redirect source/destination ids can be resolved to
+        # URLs. Visit ids are only unique within one database, so the map is per file.
+        id_url = {}
+        for row in get_sqlite_db_records(source_path, '''
+            SELECT history_visits.id, history_items.url
+            FROM history_visits
+            LEFT JOIN history_items ON history_items.id = history_visits.history_item'''):
+            id_url[str(row[0])] = row[1]
+
+        for row in get_sqlite_db_records(source_path, query):
+            redirect_source = id_url.get(str(row[4]), '') if row[4] is not None else ''
+            redirect_destination = id_url.get(str(row[5]), '') if row[5] is not None else ''
+            data_list.append((row[0], row[1], row[2], row[3], redirect_source,
+                              redirect_destination, row[6], row[7], profile))
+
+    sources = '\n'.join(context.get_relative_path(path) for path in source_paths)
+    return data_headers, data_list, sources

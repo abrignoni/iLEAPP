@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "module_name": "clubhouse",
+    "artifact_name": "Clubhouse - Account Information",
+    "function_name": "clubhouseAccount",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 15,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 240,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/clubhouse/testdata.clubhouse.clubhouseAccount.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:20.089855+00:00",
+    "end_time": "2026-07-25T22:03:20.164135+00:00",
+    "run_time_seconds": 0.00034809112548828125,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:20.160491",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Name",
+    "Username",
+    "User Server ID",
+    "Phone Number",
+    "Photo URL",
+    "Device ID",
+    "Is Admin",
+    "Invites Remaining",
+    "Co-follows",
+    "Blind Invite User",
+    "Upgraded From V1",
+    "Has Seen Onboarding",
+    "Last Sync",
+    "Following User IDs",
+    "Blocked User IDs"
+  ],
+  "data": [
+    [
+      "ThisIs Deefer",
+      "thisisdeefer",
+      981982138,
+      "+19195794674",
+      "https://d14u0p1qkech25.cloudfront.net/981982138_c8ec94d7-ed0f-405c-9ec4-bfeedb87d8c8_thumbnail_250x250",
+      "6EC457A6-FD70-410A-AA46-DC0F65E9CBAB",
+      false,
+      10,
+      1,
+      false,
+      true,
+      true,
+      "2024-07-07 18:31:16.576084",
+      "660948054",
+      ""
+    ]
+  ]
+}

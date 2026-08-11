@@ -4,13 +4,13 @@ __artifacts_v2__ = {
     "get_sysdiag_account_devices": {
         "name": "Sysdiagnose - Account Devices",
         "description": "Parses the otctl_status.txt file from Sysdiagnose logs, \
-            to get informations about other devices connected to the same Apple-ID.",
+            to get informations about peers in the account's Octagon trust circle (iCloud Keychain syncing).",
         "author": "@C_Peter",
         "creation_date": "2025-05-22",
-        "last_update_date": "2025-10-01",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "OCTL refers to the Octagon Account (iCloud Keychain)",
+        "notes": "OCTL refers to the Octagon Account (iCloud Keychain). Reference: Apple Security open source (OctagonTrust; otctl man page: 'diagnostic information for iCloud Keychain syncing'), https://github.com/apple-oss-distributions/Security",
         "paths": (
             '*/otctl_status.txt',
             '*/mobile/Library/Logs/CrashReporter/DiagnosticLogs/sysdiagnose/sysdiagnose_*.tar.gz'),

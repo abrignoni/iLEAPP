@@ -1,14 +1,17 @@
 __artifacts_v2__ = {
     "get_biomeUseractmeta": {
         "name": "Biome - User Activity Metadata",
-        "description": "Parses battery percentage entries from biomes",
-        "author": "@JohnHyla",
+        "description": "Parses user activity metadata entries from biomes",
+        "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-07-25",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/restricted/UserActivityMetadata/local*'),
+        "paths": (
+            '*/Biome/streams/restricted/UserActivityMetadata/local*',
+            '*/streams/*/UniversalRecents.UserActivity.Metadata/local/*',
+        ),
         "output_types": "standard",
         "artifact_icon": "activity",
         "sample_data": {
@@ -16,6 +19,8 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 166 rows",
             "jess_ios15": "iOS 15.0.2 | 72 rows",
             "magnet_ios16": "iOS 16.1.1 | 131 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 101 rows",
+            "iphone11_ios17": "iOS 17.3 | 450 rows",
         }
     }
 }
@@ -23,7 +28,7 @@ __artifacts_v2__ = {
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, get_plist_content

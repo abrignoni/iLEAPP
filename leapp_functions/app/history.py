@@ -129,7 +129,10 @@ def _atomic_write_json(path, data):
     """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = path.with_suffix(".tmp")
+    # Unique per process: concurrent runs sharing one temp path interleave their
+    # writes into it, which lands a concatenated document in the real file and
+    # makes the second os.replace fail because the first already moved it.
+    temp_path = path.with_suffix(f".tmp.{os.getpid()}")
 
     try:
         with open(temp_path, "w", encoding="utf-8") as f:
@@ -162,6 +165,15 @@ def _read_json(path, default=None):
             return json.load(f)
     except OSError as e:
         logger.error("Failed to read history/settings file at %s: %s", path, e)
+        return default
+    except ValueError as e:
+        # Unreadable JSON here is a damaged convenience file, not a reason to stop
+        # parsing evidence. Keep a copy so the damage can be looked at later.
+        logger.error("History/settings file at %s is not valid JSON (%s); ignoring it", path, e)
+        try:
+            os.replace(path, f"{path}.corrupt.bak")
+        except OSError:
+            pass
         return default
 
 

@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "deviceActivator": {
         "name": "iOS Device Activator Data",
         "description": "Extracts device information from activation data",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2024-10-29",
         "last_update_date": "2025-11-21",
         "requirements": "none",

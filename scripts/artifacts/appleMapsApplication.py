@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses the last Apple Maps camera/map location (latitude and longitude) from com.apple.Maps.plist.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Locations",
-        "notes": "",
+        "notes": "Protobuf field positions interpreted as latitude/longitude based on observed coordinate-range values in testing.",
         "paths": ('*/Data/Application/*/Library/Preferences/com.apple.Maps.plist'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map-pin",
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
 }
 
 
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
 
 @artifact_processor

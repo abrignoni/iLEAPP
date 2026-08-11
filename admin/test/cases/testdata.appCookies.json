@@ -1,0 +1,42 @@
+{
+  "josh_ios17_ffs": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "/Volumes/data/iOS Extractions/iOS_17/Cellebrite_Extraction/UFED Apple iPhone 11 (N104AP) 2024_07_28 (001)/EXTRACTION_FFS 01/EXTRACTION_FFS.zip",
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-07-25T17:23:57.115894",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-07-25T17:23:57.107210",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "appCookies": {
+        "search_patterns": [
+          "*/mobile/Library/Cookies/Cookies.binarycookies",
+          "*/mobile/Containers/Data/Application/*/Library/Cookies/Cookies.binarycookies",
+          "*/mobile/Containers/Data/PluginKitPlugin/*/Library/Cookies/Cookies.binarycookies",
+          "*/SystemData/com.apple.SafariViewService/Library/Cookies/Cookies.binarycookies"
+        ],
+        "file_count": 33,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "josh_ios17_ffs",
+    "image_info": {
+      "creation_date": "2024-07-28",
+      "os_name": "iPhone OS",
+      "os_version": "17.3",
+      "device_model": "iPhone 11",
+      "extraction_method": "Full Filesystem",
+      "extraction_tool": "Cellebrite"
+    }
+  }
+}

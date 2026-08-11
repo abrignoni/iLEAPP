@@ -16,10 +16,11 @@ __artifacts_v2__ = {
                        "https://dfir.pubpub.org/pub/xqvcn3hj/release/1",
         "author": "@KevinPagano3 - @Johann-PLW - @SQLMcGee",
         "creation_date": "2022-08-15",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "The Fahrenheit assumption for HKWeatherTemperature is inherited "
+                 "from community queries and unverified.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "all",
         "artifact_icon": "activity",
@@ -44,14 +45,14 @@ __artifacts_v2__ = {
     "health_provenances": {
         "name": "Health - Provenances",
         "description": "Devices and Apps collecting Health data."
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2022-08-15",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -79,14 +80,14 @@ __artifacts_v2__ = {
     "health_headphone_audio_levels": {
         "name": "Health - Headphone Audio Levels",
         "description": "Headphone audio levels"
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -113,15 +114,15 @@ __artifacts_v2__ = {
     },
     "health_heart_rate": {
         "name": "Health - Heart Rate",
-        "description": "Heart Rate"
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+        "description": "Heart Rate. "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2023-03-06",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate "
@@ -149,15 +150,15 @@ __artifacts_v2__ = {
     },
     "health_resting_heart_rate": {
         "name": "Health - Resting Heart Rate",
-        "description": "Resting Heart Rate"
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+        "description": "Resting Heart Rate. "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2023-03-06",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate "
@@ -186,14 +187,14 @@ __artifacts_v2__ = {
     "health_achievements": {
         "name": "Health - Achievements",
         "description": "Health achievements"
-                       "Queries are a derivitive of research provided by Heather Mahalik "
+                       "Queries are a derivative of research provided by Heather Mahalik "
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -249,16 +250,15 @@ __artifacts_v2__ = {
         }
     },
     "health_height": {
-        "name": "Health - User Entered Data - Height",
-        "description": "Height entered by the user in Health"
-                       "This change parses data entered by the user of the device "
-                       "through the Fitness Application (Personalize Fitness and Health) "
-                       "for height. Once parsed height is displayed with the timestamp "
-                       "the data was entered followed by height in meters, centimeters, "
-                       "feet and inches.",
+        "name": "Health - Height Samples",
+        "description": "Height samples recorded in Health; samples may be "
+                       "user-entered or written by apps and connected devices "
+                       "(check the source columns). Height is displayed with the "
+                       "timestamp the sample was recorded followed by height in "
+                       "meters, centimeters, feet and inches.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -284,15 +284,15 @@ __artifacts_v2__ = {
         }
     },
     "health_weight": {
-        "name": "Health - User Entered Data - Weight",
-        "description": "Weight entered by the user in Health"
-                       "This change parses data entered by the user of the device through "
-                       "the Fitness Application (Personalize Fitness and Health) for weight. """
-                       "Once parsed weight is displayed with the timestamp the data was entered "
-                       "followed by weight in kilograms, stones, and pounds.",
+        "name": "Health - Weight Samples",
+        "description": "Weight samples recorded in Health; samples may be "
+                       "user-entered or written by apps and connected devices "
+                       "(check the source columns). Weight is displayed with the "
+                       "timestamp the sample was recorded followed by weight in "
+                       "kilograms, stones, and pounds.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -496,6 +496,10 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
     does_column_exist_in_db
 
 
+def _record_value(record, index, default=None):
+    return record[index] if index < len(record) else default
+
+
 @artifact_processor
 def health_workouts(context):
     """ See artifact description """
@@ -636,7 +640,7 @@ def health_workouts(context):
                 THEN round(metadata_values.numerical_value, 2)
                 ELSE NULL
             END)
-        AS 'Temperature (°F)',
+        AS 'Weather Temperature (assumed °F)',
         MAX(
             CASE
                 WHEN "metadata_keys"."key" = 'HKWeatherHumidity'
@@ -761,7 +765,8 @@ def health_workouts(context):
         'Distance (in KM)', 'Distance (in Miles)', 'Goal Type', 'Goal',
         'Total Active Energy (kcal)', 'Total Resting Energy (kcal)', 'Average METs',
         'Min. Heart Rate (BPM)', 'Max. Heart Rate (BPM)', 'Average Heart Rate (BPM)',
-        'Temperature (°C)', 'Temperature (°F)', 'Humidity (%)', 'Latitude', 'Longitude',
+        'Weather Temperature (assumed °F, converted to °C)',
+        'Weather Temperature (assumed °F)', 'Humidity (%)', 'Latitude', 'Longitude',
         'Min. ground elevation (in Meters)', 'Max. ground elevation (in Meters)',
         'Device ID', 'Device Model', 'Source', 'Software Version', 'Timezone',
         ('Timestamp added to Health', 'datetime'))
@@ -769,22 +774,27 @@ def health_workouts(context):
     db_records = get_sqlite_db_records(data_source, query, attach_query)
 
     for record in db_records:
-        celcius_temp = None
-        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
-        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
-        added_timestamp = convert_cocoa_core_data_ts_to_utc(record[26])
-        device_model = context.lookup_metadata('apple_device_id_to_model', record[22])
+        def value(index, default=None):
+            return _record_value(record, index, default)
 
-        if record[16]:
-            celcius_temp = round(((record[16] - 32) * (5 / 9)), 2)
+        celcius_temp = None
+        start_timestamp = convert_cocoa_core_data_ts_to_utc(value(0))
+        end_timestamp = convert_cocoa_core_data_ts_to_utc(value(1))
+        added_timestamp = convert_cocoa_core_data_ts_to_utc(value(26))
+        device_id = value(22)
+        device_model = context.lookup_metadata('apple_device_id_to_model', device_id)
+
+        fahrenheit_temp = value(16)
+        if fahrenheit_temp:
+            celcius_temp = round(((fahrenheit_temp - 32) * (5 / 9)), 2)
 
         data_list.append(
-            (start_timestamp, end_timestamp, str(record[2]).title(), record[3],
-             record[4], record[5], record[6], record[7], record[8], record[9],
-             record[10], record[11], record[12], record[13], record[14],
-             record[15], celcius_temp, record[16], record[17], record[18],
-             record[19], record[20], record[21], record[22], device_model,
-             record[23], record[24], record[25], added_timestamp)
+            (start_timestamp, end_timestamp, str(value(2)).title(), value(3),
+             value(4), value(5), value(6), value(7), value(8), value(9),
+             value(10), value(11), value(12), value(13), value(14), value(15),
+             celcius_temp, fahrenheit_temp, value(17), value(18), value(19),
+             value(20), value(21), device_id, device_model, value(23),
+             value(24), value(25), added_timestamp)
             )
 
     return data_headers, data_list, data_source
@@ -1065,7 +1075,15 @@ def health_achievements(context):
     db_records = get_sqlite_db_records(data_source, query)
 
     for record in db_records:
-        created_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        # created_date is REAL (Core Data seconds) in older schemas but TEXT in
+        # newer ones (seen on iOS 26); a str value made the converter's
+        # arithmetic raise and abort the artifact. Convert numeric values
+        # (including numeric strings) and pass other text through as-is.
+        created_date = record[0]
+        try:
+            created_timestamp = convert_cocoa_core_data_ts_to_utc(float(created_date))
+        except (TypeError, ValueError):
+            created_timestamp = created_date
         data_list.append((created_timestamp, record[1], record[2], record[3],
                           record[4], record[5]))
 

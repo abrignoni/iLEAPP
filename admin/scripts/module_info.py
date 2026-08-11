@@ -24,6 +24,7 @@ project, which is kept up-to-date by running this script.
 import os
 import re
 import ast
+from pathlib import Path
 
 # Get the root directory of the repository (2 directories above the script)
 REPO_ROOT = os.path.abspath(
@@ -31,11 +32,89 @@ REPO_ROOT = os.path.abspath(
 
 # Define key paths and constants
 ARTIFACTS_DIR = os.path.join(REPO_ROOT, 'scripts', 'artifacts')
+VERSION_INFO_PATH = os.path.join(REPO_ROOT, 'scripts', 'version_info.py')
 MD_FILE_PATH = os.path.join(
     REPO_ROOT, 'admin', 'docs', 'generated', 'module_info.md')
 GITHUB_MODULE_URL = "/scripts/artifacts/"
 START_MARKER = "<!-- MODULE_INFO_START -->"
 END_MARKER = "<!-- MODULE_INFO_END -->"
+
+
+def get_tool_name():
+    """Get the LEAPP tool name from project metadata."""
+    try:
+        with open(VERSION_INFO_PATH, 'r', encoding='utf-8') as f:
+            tree = ast.parse(f.read())
+    except (OSError, SyntaxError):
+        return ""
+
+    for item in tree.body:
+        if not isinstance(item, ast.Assign):
+            continue
+        if not any(
+            isinstance(target, ast.Name) and target.id == 'leapp_name'
+            for target in item.targets
+        ):
+            continue
+        try:
+            leapp_name = ast.literal_eval(item.value)
+        except (ValueError, TypeError, SyntaxError):
+            return ""
+        if isinstance(leapp_name, str) and leapp_name:
+            return leapp_name
+    return ""
+
+
+TOOL_NAME = get_tool_name()
+
+
+def section_title(title):
+    """Add the tool name to generated section titles when available."""
+    if TOOL_NAME:
+        return f"{TOOL_NAME} {title}"
+    return title
+
+
+def decorator_name(decorator):
+    """Return the simple decorator name from an AST decorator node."""
+    if isinstance(decorator, ast.Name):
+        return decorator.id
+    if isinstance(decorator, ast.Call):
+        return decorator_name(decorator.func)
+    if isinstance(decorator, ast.Attribute):
+        return decorator.attr
+    return ""
+
+
+def format_paths(paths):
+    """Format artifact paths for markdown."""
+    if isinstance(paths, (list, tuple)):
+        return ', '.join(f'`{path}`' for path in paths)
+    if paths:
+        return f'`{paths}`'
+    return ""
+
+
+def normalize_output_types(output_types):
+    """Return output types as a list for stats and rendering."""
+    if isinstance(output_types, (list, tuple, set)):
+        return [str(output_type) for output_type in output_types]
+    if output_types:
+        return [str(output_types)]
+    return []
+
+
+def format_output_types(output_types):
+    """Format artifact output types for markdown."""
+    return ', '.join(normalize_output_types(output_types))
+
+
+def has_lava_output(output_types):
+    """Match the runtime output group behavior for LAVA availability."""
+    output_type_set = set(normalize_output_types(output_types))
+    return bool(output_type_set.intersection(
+        {'all', 'standard', 'lava', 'lava_only'}
+    ))
 
 
 def clean_string(s):
@@ -74,8 +153,14 @@ def extract_v2_info(module_content):
     results = []
     artifacts_dict = {}
     parameters_dict = {}
+    artifact_functions = set()
+    warnings = []
 
-    tree = ast.parse(module_content)
+    try:
+        tree = ast.parse(module_content)
+    except SyntaxError as e:
+        return "error", [f"Syntax error: {clean_string(str(e))}"], []
+
     for item in tree.body:
         if (
             isinstance(item, ast.Assign) and
@@ -87,27 +172,50 @@ def extract_v2_info(module_content):
             if isinstance(item.value, ast.Dict):
                 try:
                     artifacts_dict = ast.literal_eval(item.value)
-                except ValueError:
-                    return "error", ["Error evaluating __artifacts_v2__"]
+                except (ValueError, TypeError, SyntaxError) as e:
+                    return "error", [
+                        f"Error evaluating __artifacts_v2__: "
+                        f"{clean_string(str(e))}"
+                    ], []
+            else:
+                return "error", [
+                    "__artifacts_v2__ must be a literal dictionary"
+                ], []
         if isinstance(item, ast.FunctionDef):
             parameters_len = len([arg.arg for arg in item.args.args])
             parameters_dict[item.name] = parameters_len
+            if any(
+                decorator_name(decorator) == 'artifact_processor'
+                for decorator in item.decorator_list
+            ):
+                artifact_functions.add(item.name)
+
+    artifact_function_names = {
+        details.get('function', artifact_name)
+        for artifact_name, details in artifacts_dict.items()
+    }
+    missing_functions = sorted(
+        artifact_function_name
+        for artifact_function_name in artifact_function_names
+        if artifact_function_name not in parameters_dict
+    )
+    missing_metadata = sorted(artifact_functions - artifact_function_names)
+    if missing_functions:
+        warnings.append(
+            "Artifact metadata without matching function: "
+            + ', '.join(missing_functions)
+        )
+    if missing_metadata:
+        warnings.append(
+            "@artifact_processor function without matching artifact metadata: "
+            + ', '.join(missing_metadata)
+        )
+
     for artifact_name, details in artifacts_dict.items():
         paths = details.get("paths", "")
-        if isinstance(paths, (list, tuple)):
-            paths = [f'`{path}`' for path in paths]
-        else:
-            paths = f'`{paths}`'
-
         output_types = details.get("output_types", "")
-        if output_types:
-            if isinstance(output_types, (list, tuple)):
-                output_types = ', '.join(output_types)
-            else:
-                output_types = str(output_types)
-        else:
-            output_types = ""
-
+        uses_function_key = "function" in details
+        function_name = details.get("function", artifact_name)
         version = details.get("version", "")
         last_update_date = details.get("last_update_date", "")
         artifact_icon = details.get("artifact_icon", "")
@@ -121,9 +229,10 @@ def extract_v2_info(module_content):
             "version": version,
             "last_update_date": last_update_date,
             "artifact_icon": artifact_icon,
-            "parameters_len": parameters_dict.get(artifact_name, 0)
+            "parameters_len": parameters_dict.get(function_name, 0),
+            "uses_function_key": uses_function_key
         })
-    return "v2", results
+    return "v2", results, warnings
 
 
 def extract_v1_info(module_content):
@@ -165,12 +274,12 @@ def parse_module_file(module_path):
         if "__artifacts_v2__" in content:
             return extract_v2_info(content)
         if "__artifacts__" in content:
-            return "v1", extract_v1_info(content)
-        return "error", ["No recognized artifacts found"]
+            return "v1", extract_v1_info(content), []
+        return "error", ["No recognized artifacts found"], []
     except OSError as e:
-        return "error", [f"Error reading file: {clean_string(str(e))}"]
+        return "error", [f"Error reading file: {clean_string(str(e))}"], []
     except UnicodeDecodeError as e:
-        return "error", [f"Encoding error: {clean_string(str(e))}"]
+        return "error", [f"Encoding error: {clean_string(str(e))}"], []
 
 
 def generate_v2_markdown_table(artifact_data):
@@ -194,12 +303,10 @@ def generate_v2_markdown_table(artifact_data):
             name = clean_string(artifact.get('name', ''))
             description = clean_string(artifact.get('description', ''))
             category = artifact.get('category', '')
-            paths = artifact.get('paths', '')
-            if isinstance(paths, (list, tuple)):
-                paths = ', '.join(f'`{path}`' for path in paths)
-            else:
-                paths = f'`{paths}`'
-            output_types = artifact.get('output_types', '-')
+            paths = format_paths(artifact.get('paths', ''))
+            output_types = format_output_types(
+                artifact.get('output_types', '-')
+            )
             context = "Yes" if artifact.get('parameters_len') == 1 else "No"
             artifact_icon = artifact.get('artifact_icon', '')
             version = artifact.get('version', '')
@@ -250,7 +357,7 @@ def generate_error_markdown_table(error_data):
     return table
 
 
-def update_markdown_file(v1_data, v2_data, error_data):
+def update_markdown_file(v1_data, v2_data, error_data, issue_data):
     """
     Update the markdown file with the parsed artifact data and summary.
 
@@ -262,18 +369,20 @@ def update_markdown_file(v1_data, v2_data, error_data):
         v1_data (dict): Data for v1 artifacts.
         v2_data (dict): Data for v2 artifacts.
         error_data (dict): Data for modules with errors.
+        issue_data (dict): Data for modules with metadata issues.
     """
     total_modules = len(v1_data) + len(v2_data) + len(error_data)
     v1_count = sum(len(artifacts) for artifacts in v1_data.values())
     v2_count = sum(len(artifacts) for artifacts in v2_data.values())
     total_artifacts = v1_count + v2_count
     error_count = len(error_data)
+    issue_count = len(issue_data)
 
     # Count modules with 'lava output'
     lava_output_count = sum(
         1 for artifacts in v2_data.values()
         for artifact in artifacts
-        if artifact.get('output_types')
+        if has_lava_output(artifact.get('output_types'))
     )
 
     # Count modules using 'artifact_icon'
@@ -304,6 +413,13 @@ def update_markdown_file(v1_data, v2_data, error_data):
         if artifact.get('parameters_len') == 1
     )
 
+    # Count modules using deprecated 'function' key
+    function_key_count = sum(
+        1 for artifacts in v2_data.values()
+        for artifact in artifacts
+        if artifact.get('uses_function_key')
+    )
+
     with open(MD_FILE_PATH, 'r', encoding='utf-8') as md_file:
         content = md_file.read()
 
@@ -312,7 +428,7 @@ def update_markdown_file(v1_data, v2_data, error_data):
     _, _, after_info_marker = after_marker.partition(END_MARKER)
 
     # Generate new markdown content
-    new_module_info = "## Summary\n\n"
+    new_module_info = f"## {section_title('Summary')}\n\n"
     new_module_info += f"Total number of modules: {total_modules}  \n"
     new_module_info += f"Total number of artifacts: {total_artifacts}  \n"
     new_module_info += f"Number of v1 artifacts: {v1_count}  \n"
@@ -321,29 +437,44 @@ def update_markdown_file(v1_data, v2_data, error_data):
         f"{lava_output_count}  \n"
     new_module_info += "Number of artifacts using 'artifact_icon': " + \
         f"{artifact_icon_count}  \n"
-    new_module_info += "Number of artifacts using 'version': " + \
-        f"{version_count}  \n"
     new_module_info += "Number of artifacts using 'last_update_date': " + \
         f"{last_update_date_count}  \n"
     new_module_info += "Number of artifacts using context parameter: " + \
         f"{context_count}  \n"
     new_module_info += "Number of artifacts with errors or no recognized " + \
-        f"artifacts: {error_count}  \n\n"
+        f"artifacts: {error_count}  \n"
+    new_module_info += "Number of modules with artifact metadata issues: " + \
+        f"{issue_count}  \n"
+    new_module_info += "Number of artifacts using **deprecated** 'version' " + \
+        f"key: {version_count}  \n"
+    new_module_info += "Number of artifacts using **deprecated** 'function' " + \
+        f"key: {function_key_count}  \n\n"
 
     if v2_data:
-        new_module_info += "## V2 Artifacts Table\n\n"
+        new_module_info += \
+            f"## {section_title('V2 Artifacts Table')}\n\n"
         new_module_info += generate_v2_markdown_table(v2_data)
         new_module_info += "\n"
 
     if v1_data:
-        new_module_info += "## V1 Artifacts Table\n\n"
+        new_module_info += \
+            f"## {section_title('V1 Artifacts Table')}\n\n"
         new_module_info += generate_v1_markdown_table(v1_data)
         new_module_info += "\n"
 
     if error_data:
         new_module_info += \
-            "## Modules with Errors or No Recognized Artifacts\n\n"
+            "## " + section_title(
+                'Modules with Errors or No Recognized Artifacts'
+            ) + "\n\n"
         new_module_info += generate_error_markdown_table(error_data)
+
+    if issue_data:
+        new_module_info += \
+            "\n## " + section_title(
+                'Modules with Artifact Metadata Issues'
+            ) + "\n\n"
+        new_module_info += generate_error_markdown_table(issue_data)
 
     # Rebuild the file content with the updated section
     new_content = f"{before_marker}{START_MARKER}\n\n{new_module_info}\n" + \
@@ -365,33 +496,32 @@ def main():
     v1_data = {}
     v2_data = {}
     error_data = {}
+    issue_data = {}
 
     print(f"Scanning directory: {ARTIFACTS_DIR}")
     # Scan the artifacts directory for module files
-    for module_file in os.listdir(ARTIFACTS_DIR):
-        module_path = os.path.join(ARTIFACTS_DIR, module_file)
-        if os.path.isfile(module_path):
-            module_name = os.path.basename(module_path)
+    for module_path in sorted(Path(ARTIFACTS_DIR).iterdir()):
+        if module_path.is_file():
+            module_name = module_path.name
             print(f"Processing module: {module_name}")
-            version, artifacts = parse_module_file(module_path)
+            version, artifacts, issues = parse_module_file(str(module_path))
             if version == "v1":
                 v1_data[module_name] = artifacts
             elif version == "v2":
                 v2_data[module_name] = artifacts
             else:
                 error_data[module_name] = artifacts
+            if issues:
+                issue_data[module_name] = issues
 
     # Sort the artifact_data dictionaries by keys (module filenames)
     v1_data = dict(sorted(v1_data.items()))
     v2_data = dict(sorted(v2_data.items()))
     error_data = dict(sorted(error_data.items()))
-
-    print("Debug: v1_data =", v1_data)
-    print("Debug: v2_data =", v2_data)
-    print("Debug: error_data =", error_data)
+    issue_data = dict(sorted(issue_data.items()))
 
     # Update the markdown file with the sorted artifact data
-    update_markdown_file(v1_data, v2_data, error_data)
+    update_markdown_file(v1_data, v2_data, error_data, issue_data)
     print(f"\nMarkdown file updated: {MD_FILE_PATH}")
 
 

@@ -11,6 +11,7 @@ Global Variables:
 
 Functions:
     sanitize_sql_name: Sanitizes strings for use as SQL identifiers.
+    quote_sql_name: Quotes an identifier so reserved words are safe in SQL.
     get_sql_type: Maps Python types to SQL types.
     initialize_lava: Initializes the LAVA data structure and database.
     lava_process_artifact: Processes and stores artifact data.
@@ -42,6 +43,7 @@ lava_data = None
 lava_db = None
 lava_db_name = '_lava_artifacts.db'
 lava_json_name = '_lava_data.lava'
+LAVA_SCHEMA_VERSION = 2
 
 
 def sanitize_sql_name(name):
@@ -66,6 +68,24 @@ def sanitize_sql_name(name):
     return sanitized.lower()
 
 
+def quote_sql_name(name):
+    """
+    Wraps an identifier in double quotes so it is safe to interpolate into SQL.
+
+    sanitize_sql_name() removes the characters SQLite cannot parse, but it cannot stop a
+    header from sanitizing down to a reserved word. A 'From', 'To' or 'Order' column used
+    to emit `CREATE TABLE ... (from TEXT, ...)`, a syntax error that killed the artifact at
+    report time even though the parser itself ran fine. Quoting makes reserved words legal.
+    Any embedded double quote is doubled, per the SQL standard, so the quoting holds.
+    Args:
+        name (str): The identifier to quote.
+    Returns:
+        str: The identifier wrapped in double quotes.
+    """
+
+    return '"' + str(name).replace('"', '""') + '"'
+
+
 def get_sql_type(python_type):
     """
     Convert Python type names to SQL type names for database schema creation.
@@ -78,24 +98,27 @@ def get_sql_type(python_type):
 
     type_map = {
         'datetime': 'INTEGER',
-        'date': 'INTEGER',
+        'date': 'TEXT',
     }
     return type_map.get(python_type, 'TEXT')
 
 
-def initialize_lava(input_path, output_path, input_type):
+def initialize_lava(input_path, output_path, input_type, profile_filename=None):
     '''
     Initialize the LAVA data.
     Args:
         input_path: The path to the input file.
         output_path: The path to the output file.
         input_type: The type of input file.
-        selected_artifacts: List of selected artifacts.
+        profile_filename: The profile file used for module selection, if any.
     '''
 
-    global lava_data, lava_db
+    # lava_data and lava_db are module level singletons for the run; this is the one
+    # function that creates them, so the global statement is deliberate.
+    global lava_data, lava_db  # pylint: disable=global-statement
 
     lava_data = {
+        "lava_schema_version": LAVA_SCHEMA_VERSION,
         "parser_info": {
             "leapp_name": leapp_name,
             "leapp_version": leapp_version,
@@ -107,6 +130,8 @@ def initialize_lava(input_path, output_path, input_type):
         "param_input": input_path,
         "param_output": output_path,
         "param_type": input_type,
+        "param_profile": profile_filename,
+        "profile_used": profile_filename is not None,
         "processing_status": "In Progress",
         "lava_db_name": lava_db_name,
         "modules": [],
@@ -192,7 +217,6 @@ def lava_process_artifact(
         artifact_icon: The icon of the artifact.
         source_path: The source path of the artifact.
     '''
-    global lava_data
 
     if category not in lava_data["artifacts"]:
         lava_data["artifacts"][category] = []
@@ -229,6 +253,7 @@ def lava_process_artifact(
     module_info['artifacts'].append(artifact_meta)
 
     artifact = {
+        "artifact_key": func_name,
         "name": artifact_name,
         "tablename": sanitized_table_name,
         "module": module_name,
@@ -287,25 +312,27 @@ def lava_process_artifact(
     return sanitized_table_name, object_columns, column_map
 
 
-def lava_add_module(module_name, module_status, file_count=None):
+def lava_add_module(module_name, module_status, file_count=None, artifact_name=None):
     """
     Adds a module to the global lava_data structure.
     Parameters:
         module_name (str): The name of the module to be added.
         module_status (str): The status of the module (e.g., 'active', 'inactive').
         file_count (int, optional): The number of files associated with the module. Defaults to None.
+        artifact_name (str, optional): The selected artifact name when it differs from the module filename.
     Returns:
         None
     Global Variables:
         lava_data (dict): A global dictionary that contains a list of modules under the key 'modules'.
     """
 
-    global lava_data
 
     module = {
         "module_name": module_name,
         "module_status": module_status
     }
+    if artifact_name is not None:
+        module["artifact_name"] = artifact_name
     if file_count is not None:
         module["file_count"] = file_count
     lava_data["modules"].append(module)
@@ -327,7 +354,6 @@ def lava_create_sqlite_table(table_name, data):
     Raises:
         Exception: If there is an error during the table creation process.
     """
-    global lava_db
 
     if not data:
         return None, None, None
@@ -344,23 +370,26 @@ def lava_create_sqlite_table(table_name, data):
             original_name, data_type = item[:2]  # Only take the first two elements as media item can have more
             sanitized_name = sanitize_sql_name(original_name)
             sql_type = get_sql_type(data_type)
-            columns.append(f"{sanitized_name} {sql_type}")
+            columns.append(f"{quote_sql_name(sanitized_name)} {sql_type}")
             object_columns[sanitized_name] = data_type
         else:
             original_name = item
             sanitized_name = sanitize_sql_name(original_name)
-            columns.append(f"{sanitized_name} TEXT")
+            columns.append(f"{quote_sql_name(sanitized_name)} TEXT")
 
         column_map[sanitized_name] = original_name
 
     columns_sql = ', '.join(columns)
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS {sanitized_table_name} ({columns_sql})")
+    cursor.execute(f"CREATE TABLE IF NOT EXISTS {quote_sql_name(sanitized_table_name)} ({columns_sql})")
     lava_db.commit()
 
     return sanitized_table_name, column_map, object_columns
 
 
-def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_map):
+# column_map is unused here but is part of the established call signature: every caller
+# receives it from lava_create_sqlite_table and passes it straight through, so dropping
+# the parameter would mean touching every artifact that writes to LAVA.
+def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_map):  # pylint: disable=unused-argument
     """
     Insert data into a SQLite database table with automatic column sanitization and type conversion.
     This function handles the insertion of multiple rows of data into a specified SQLite table,
@@ -370,7 +399,8 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
         data (list): A list of rows to insert, where each row is a sequence of values
                      corresponding to the headers.
         object_columns (dict): A dictionary mapping column names to their data types.
-                              Supports 'datetime' type for automatic timestamp conversion.
+                              'datetime' values are stored as Unix timestamps (UTC).
+                              'date' values are stored as YYYY-MM-DD strings (no time / TZ).
         headers (list): A list of column headers. Each header can be a string or a tuple
                        where the first element is the column name.
         column_map (dict): Column mapping configuration (currently unused in the function).
@@ -378,7 +408,6 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
         None
     """
 
-    global lava_db
 
     if not data:
         return
@@ -390,7 +419,8 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
 
     # Prepare the SQL query
     placeholders = ', '.join(['?' for _ in sanitized_columns])
-    query = f"INSERT INTO {table_name} ({', '.join(sanitized_columns)}) VALUES ({placeholders})"
+    quoted_columns = ', '.join(quote_sql_name(column) for column in sanitized_columns)
+    query = f"INSERT INTO {quote_sql_name(table_name)} ({quoted_columns}) VALUES ({placeholders})"
 
     # Prepare the data for insertion
     rows_to_insert = []
@@ -420,12 +450,53 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
                     # Need to do it this way due to dates that could be before Epoch
                     epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
                     value = (value - epoch).total_seconds()
+            elif sanitized_column in object_columns and object_columns[sanitized_column] == 'date':
+                # Store calendar dates as YYYY-MM-DD only — never midnight timestamps.
+                # Timestamps invite timezone day-shifts for date-only fields.
+                d = None
+                if isinstance(value, datetime.datetime):
+                    d = value.date()
+                elif isinstance(value, datetime.date):
+                    d = value
+                elif isinstance(value, str):
+                    text = value.strip()
+                    if text:
+                        try:
+                            d = datetime.date.fromisoformat(text[:10])
+                        except ValueError:
+                            try:
+                                d = datetime.datetime.fromisoformat(text).date()
+                            except ValueError:
+                                d = None
+                if d is not None:
+                    value = d.isoformat()
             processed_row.append(value)
         rows_to_insert.append(tuple(processed_row))
 
     # Execute the insert
     cursor.executemany(query, rows_to_insert)
     lava_db.commit()
+
+
+def lava_update_record_count(category, tablename, record_count):
+    """
+    Set an artifact's record count after its rows have been written.
+
+    lava_process_artifact() records the count up front, which assumes the caller counted
+    the rows before inserting them. Artifacts streamed straight into SQLite only know the
+    total once the stream is exhausted, so they register the artifact first and correct
+    the count here.
+
+    Args:
+        category (str): The category the artifact was registered under.
+        tablename (str): The sanitized table name returned by lava_process_artifact.
+        record_count (int): The number of rows actually written.
+    """
+
+    for artifact in lava_data["artifacts"].get(category, []):
+        if artifact.get("tablename") == tablename:
+            artifact["record_count"] = record_count
+            return
 
 
 def lava_get_media_item(media_id):
@@ -437,7 +508,6 @@ def lava_get_media_item(media_id):
         sqlite3.Row or None: A row object containing all columns from the _lava_media_items table
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     query = "SELECT * FROM _lava_media_items WHERE id = ?"
     return cursor.execute(query, (media_id,)).fetchone()
@@ -460,7 +530,6 @@ def lava_insert_sqlite_media_item(media_item):
         None
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _lava_media_items
                 ("id", "source_path", "extraction_path", "type", "metadata", "created_at", "updated_at", "is_embedded")
@@ -493,7 +562,6 @@ def lava_get_media_references(media_ref):
         tuple or None: A tuple containing the row data if found, None otherwise.
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     query = "SELECT * FROM _lava_media_references WHERE id = ?"
     return cursor.execute(query, (media_ref,)).fetchone()
@@ -514,7 +582,6 @@ def lava_insert_sqlite_media_references(media_references):
         None
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _lava_media_references
                 ("id", "media_item_id", "module_name", "artifact_name", "name")
@@ -544,7 +611,6 @@ def lava_get_full_media_info(media_ref_id):
                             None if no matching media_ref_id exists in the database.
     """
 
-    global lava_db
     lava_db.row_factory = sqlite3.Row
     cursor = lava_db.cursor()
     query = '''
@@ -565,7 +631,6 @@ def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, a
         regex (str): The regular expression for the artifact search pattern.
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _artifact_search_patterns
                 ("id", "module_name", "artifact_name", "regex")
@@ -588,7 +653,6 @@ def lava_insert_sqlite_file_path(file_id, file_path):
         file_path (str): Relative file path to store.
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _file_path_list
                 ("id", "file_path")
@@ -611,7 +675,6 @@ def lava_insert_sqlite_artifact_link_pattern_to_file(artifact_regex_id, file_id)
         file_id (int): ID of the related file path entry.
     """
 
-    global lava_db
     cursor = lava_db.cursor()
     sql = '''INSERT INTO _artifact_pattern_to_file
                 ("artifact_search_pattern_id", "file_path_id")
@@ -645,7 +708,6 @@ def lava_finalize_output(output_path):
         lava_json_name (str): The filename for the LAVA JSON output file
     """
 
-    global lava_data, lava_db
 
     lava_data["processing_status"] = "Complete"
 

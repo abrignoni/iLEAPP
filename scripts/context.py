@@ -27,6 +27,9 @@ class Context:
     _data_folder = None
     _metadata = {}
     _installed_os_version = ""
+    # Run-level, like the output parameters: set once from the CLI or GUI and
+    # deliberately not reset by clear() between artifacts
+    _keychain_path = None
 
     @staticmethod
     def set_output_params(output_params):
@@ -185,6 +188,27 @@ class Context:
         """
         if not Context._installed_os_version:
             Context._installed_os_version = os_version
+
+    @staticmethod
+    def set_keychain_path(keychain_path):
+        """
+        Records the path to a keychain file supplied by the examiner.
+
+        iOS keychains are captured separately from the file system extraction,
+        so apps that keep their database key in the keychain cannot find it in
+        the extraction itself.
+        """
+        Context._keychain_path = keychain_path
+
+    @staticmethod
+    def get_keychain_path():
+        """
+        Returns the examiner-supplied keychain path, or None when none was given.
+
+        Artifacts must treat None as "no keychain available" and degrade rather
+        than fail, since supplying one is optional.
+        """
+        return Context._keychain_path
 
     @staticmethod
     def _build_lookup_map():
@@ -431,9 +455,14 @@ class Context:
         if not full_path or not Context._data_folder:
             return full_path
 
-        if full_path.startswith(Context._data_folder):
-            # Strip the base path and any leading separators
-            return full_path[len(Context._data_folder):].lstrip('/\\')
+        if Context._data_folder in full_path:
+            # Strip the base path everywhere it appears, including inside path
+            # strings concatenated with arbitrary separators (', ', '; ', ...)
+            base = Context._data_folder
+            return (full_path.replace(base + '/', '')
+                             .replace(base + '\\', '')
+                             .replace(base, '')
+                             .lstrip('/\\'))
 
         return full_path
 

@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
     "wifiIdentifiers": {
-        "name": "WIFI Identifiers",
-        "description": "Extracts Wi-Fi MAC addresses",
+        "name": "Network Interface Identifiers",
+        "description": "Extracts MAC addresses of all interfaces listed in NetworkInterfaces.plist (Wi-Fi, Bluetooth, cellular and others)",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-30",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
         "paths": ('*/preferences/SystemConfiguration/NetworkInterfaces.plist',),
-        "output_types": "standard",
+        "output_types": ["html","lava","tsv"],
         "artifact_icon": "wifi",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 3 rows",

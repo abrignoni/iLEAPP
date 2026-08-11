@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "truthSocial",
+    "artifact_name": "Truth Social - Accounts",
+    "function_name": "truthSocialAccounts",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 7,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 370,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/truthSocial/testdata.truthSocial.truthSocialAccounts.josh_ios17_ffs.zip",
+    "start_time": "2026-07-25T22:03:19.140882+00:00",
+    "end_time": "2026-07-25T22:03:19.229379+00:00",
+    "run_time_seconds": 0.0022101402282714844,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-25T17:03:19.222242",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Account ID",
+    "Handle",
+    "Display Name",
+    "Verified",
+    "Account Holder",
+    "Event Count",
+    "Avatar URL"
+  ],
+  "data": [
+    [
+      "108809937055864312",
+      "lizdehner",
+      "lizdehner05",
+      "",
+      "",
+      7,
+      "https://static-assets-1.truthsocial.com/tmtg:prime-ts-assets/accounts/avatars/108/809/937/055/864/312/original/3a1004f695f5cd51.jpeg"
+    ],
+    [
+      "107759501782461327",
+      "truthsocial",
+      "Truth Social",
+      "Yes",
+      "",
+      0,
+      "https://static-assets-1.truthsocial.com/tmtg:prime-ts-assets/accounts/avatars/107/759/501/782/461/327/original/4bea7f408ea74952.jpeg"
+    ],
+    [
+      "107848900006371409",
+      "",
+      "",
+      "",
+      "Yes",
+      8,
+      ""
+    ]
+  ]
+}

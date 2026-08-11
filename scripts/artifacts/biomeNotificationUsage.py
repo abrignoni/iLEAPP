@@ -3,6 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Notification Usage",
         "description": "Parses the Notification Usage biome",
         "author": "Thijs van Meurs",
+        "creation_date": "2026-07-01",
+        "last_update_date": "2026-07-22",
         "version": "0.0.1",
         "date": "2026-06-29",
         "requirements": "none",
@@ -26,7 +28,7 @@ __artifacts_v2__ = {
 
 import os
 from datetime import timezone
-import blackboxprotobuf
+from scripts import blackboxprotobuf
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
