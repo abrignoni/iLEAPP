@@ -229,7 +229,7 @@ __artifacts_v2__ = {
             "Application Support/SelfScanning/selfScanning.sqlite*",
         ),
         "output_types": ["standard"],
-        "artifact_icon": "clock"
+        "artifact_icon": "align-justify"
     },
     "lidl_selfscan_removed": {
         "name": "Lidl Plus - Removed Self Scanning Items",
