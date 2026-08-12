@@ -3,13 +3,33 @@ Parses Apple iOS Lidl Plus application artifacts.
 """
 # pylint: disable=too-many-lines
 
+import os
+import json
+from json import JSONDecodeError
+import re
+import sqlite3
+import base64
+from hashlib import sha256, md5
+from urllib.parse import urlparse, unquote_plus
+from datetime import timezone, datetime
+from scripts.artifacts.keychain import parse_keychain
+from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
+from scripts.html_safe import esc, safe_join
+from scripts.ilapfuncs import (
+    open_sqlite_db_readonly, does_column_exist_in_db, convert_unix_ts_to_utc,
+    convert_cocoa_core_data_ts_to_utc, get_plist_file_content, get_plist_content,
+    check_in_media, artifact_processor, logfunc
+)
+
+SOURCE_FILE_NAME = 'Source File Name'
+
 __artifacts_v2__ = {
     "lidl_shopping_list": {
         "name": "Lidl Plus - Shopping List",
         "description": "Extracts shopping lists and item details.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -17,7 +37,6 @@ __artifacts_v2__ = {
                   "Application Support/databases/ShoppingListDatabase.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
         "output_types": [ "standard" ],
-        "html_columns": [ "Image URL" ],
         "artifact_icon": "clipboard"
     },
     "lidl_tickets": {
@@ -25,7 +44,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached ticket and transaction metadata.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -39,7 +58,7 @@ __artifacts_v2__ = {
         "description": "Extracts purchased items from cached receipt details.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -54,7 +73,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached payment methods and Lidl Pay profile status.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -68,7 +87,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached payment QR data and the derived loyalty card number.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -82,7 +101,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached coupon and promotion details.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -90,7 +109,6 @@ __artifacts_v2__ = {
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
         "output_types": [ "standard" ],
-        "html_columns": [ "Image URL" ],
         "artifact_icon": "tag"
     },
     "lidl_product_details": {
@@ -98,7 +116,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached product details.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -106,7 +124,6 @@ __artifacts_v2__ = {
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
         "output_types": [ "standard" ],
-        "html_columns": [ "Image URL" ],
         "artifact_icon": "package"
     },
     "lidl_searched_terms": {
@@ -114,13 +131,14 @@ __artifacts_v2__ = {
         "description": "Extracts cached product-search requests and sequence metadata.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
         "output_types": [ "standard" ],
+        "html_columns": [ "Returned Products" ],        
         "artifact_icon": "search"
     },
     "lidl_store_searches": {
@@ -128,13 +146,13 @@ __artifacts_v2__ = {
         "description": "Extracts cached store-search requests, request coordinates, and returned stores.",  # pylint: disable=line-too-long
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
-        "output_types": [ "all" ],
+        "output_types": [ "standard" ],
         "artifact_icon": "search"
     },
     "lidl_offers": {
@@ -142,7 +160,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached promotional offer data.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -150,7 +168,6 @@ __artifacts_v2__ = {
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
         "output_types": [ "standard" ],
-        "html_columns": [ "Image URL" ],
         "artifact_icon": "tag"
     },
     "lidl_mypoints": {
@@ -158,7 +175,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached loyalty-points marketplace rewards and account points metadata.",   # pylint: disable=line-too-long
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -166,7 +183,6 @@ __artifacts_v2__ = {
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
         "output_types": [ "standard" ],
-        "html_columns": [ "Image URL" ],
         "artifact_icon": "gift"
     },
     "lidl_last_known_location": {
@@ -174,7 +190,7 @@ __artifacts_v2__ = {
         "description": "Extracts the last known location stored by the application.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -188,7 +204,7 @@ __artifacts_v2__ = {
         "description": "Extracts self-scanning basket items.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -204,7 +220,7 @@ __artifacts_v2__ = {
         "description": "Extracts self-scanning barcode events.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -213,14 +229,14 @@ __artifacts_v2__ = {
             "Application Support/SelfScanning/selfScanning.sqlite*",
         ),
         "output_types": ["standard"],
-        "artifact_icon": "scan-line"
+        "artifact_icon": "clock"
     },
     "lidl_selfscan_removed": {
         "name": "Lidl Plus - Removed Self Scanning Items",
         "description": "Extracts removed self-scanning basket items.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -236,7 +252,7 @@ __artifacts_v2__ = {
         "description": "Extracts Click&Collect grocery pickup cart contents.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -248,7 +264,7 @@ __artifacts_v2__ = {
             "*/Keychains/keychain-2.db*"
         ),
         "output_types": [ "standard" ],
-        "html_columns": [ "Image URL" ],
+        "html_columns": [ "Validations" ],
         "artifact_icon": "shopping-bag"
     },
     "lidl_account": {
@@ -256,7 +272,7 @@ __artifacts_v2__ = {
         "description": "Extracts user account information stored in the iOS Keychain",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-11",
+        "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
         "notes": "https://djangofaiola.blogspot.com",
@@ -270,43 +286,11 @@ __artifacts_v2__ = {
     },
 }
 
-
-import os
-import json
-from json import JSONDecodeError
-import re
-import html
-import sqlite3
-import base64
-from hashlib import sha256, md5
-from urllib.parse import urlparse, unquote_plus
-from datetime import timezone, datetime
-from scripts.artifacts.keychain import parse_keychain
-from scripts.sqlcipher_decrypt import decrypt_sqlcipher_db
-from scripts.ilapfuncs import (
-    open_sqlite_db_readonly, does_column_exist_in_db, convert_unix_ts_to_utc,
-    convert_cocoa_core_data_ts_to_utc, get_plist_file_content, get_plist_content,
-    check_in_media, artifact_processor, logfunc
-)
-
 # Constants
 COMMA_SEP = ', '
 LIST_SEP = '|'
-SOURCE_FILE_NAME = 'Source File Name'
 SOURCE_PATH_NOTE = f"Refer to the '{SOURCE_FILE_NAME}' column to identify the exact " \
                    "device location of the origin file."
-MAX_URL_LENGTH = 4096
-ALLOWED_URL_SCHEMES = (
-    'http',
-    'https',
-    'mailto',
-    'tel'
-)
-
-# Candidate decryption keys (ordered from newest to oldest)
-SELFSCAN_DB_KEYS = [
-    "20Lidl26",
-]
 
 # Lidl Bundle ID
 LIDL_BUNDLE_ID = 'com.lidl.eci.lidl.plus'
@@ -560,102 +544,6 @@ def get_device_file_path(file_path: str, context) -> str:
     return norm_file_path
 
 
-def format_url(str_url: str | None, html_format: bool = False, label: str | None = None) -> str:
-    # pylint: disable=too-many-return-statements
-    """
-    Safely renders a raw URL extracted from forensic evidence.
-    Supports an optional label for display purposes.
-    Version 1.1
-
-    Forensic principles:
-    - The original URL value is NEVER altered (only whitespace stripping)
-    - No normalization, no scheme injection, no correction
-    - Clickability is determined strictly from the raw URL
-
-    Behavior:
-    - Return empty string when the URL is None, empty, or null-like
-    - When a label is provided and the URL is missing, return the label as-is
-    - Strip surrounding whitespace only (preserves internal structure)
-    - Log unusually long inputs without altering the original value
-    - Determine clickability by parsing the scheme as-is
-    - Allow clickable links only for schemes in ALLOWED_URL_SCHEMES
-    - HTTP/HTTPS links require a hostname to be considered clickable
-    - Unsupported or malformed URLs are rendered as plain text (evidence preserved)
-
-    HTML rendering (html_format=True):
-    - Escape all output to prevent XSS
-    - Add rel="noopener noreferrer" to prevent tabnabbing
-    - Render clickable URLs as <a href="...">label-or-url</a>
-    - Render non-clickable URLs as escaped plain text
-    - When a label is provided, it replaces the visible text but NEVER alters the URL
-
-    Plain-text rendering:
-    - When clickable and a label is provided: "label (url)"
-    - When clickable and no label is provided: "url"
-    - When non-clickable: return label or raw URL as plain text
-    """
-
-    # Missing URL: return label or empty
-    if not str_url:
-        if not label:
-            return ''
-        return html.escape(label, quote=False) if html_format else label
-
-    # Strip surrounding whitespace only — no other alteration
-    s = str(str_url).strip()
-
-    # Treat literal null-like values as missing
-    if s.lower() in ('null', 'none'):
-        return label or ''
-
-    # Log unusually long URLs without altering the evidence value
-    if len(s) > MAX_URL_LENGTH:
-        logfunc(
-            f"Warning - format_url URL exceeds {MAX_URL_LENGTH} characters: "
-            f"{s[:80]}..."
-        )
-
-    # Determine clickability by parsing the URL as-is (no modification)
-    is_clickable = False
-    try:
-        parsed = urlparse(s)
-        scheme = parsed.scheme.lower()
-
-        if scheme in ALLOWED_URL_SCHEMES:
-            # HTTP/HTTPS must have a hostname to be safely clickable
-            if scheme in ('http', 'https') and not parsed.netloc:
-                is_clickable = False
-            else:
-                is_clickable = True
-
-    except (AttributeError, ValueError, TypeError) as ex:
-        logfunc(f"Error - format_url parse failed for {str_url!r}: {ex}")
-
-    # Visible text: label or raw URL
-    visible = label if label else s
-
-    # HTML rendering
-    if html_format:
-        safe_text = html.escape(visible, quote=False)
-
-        if is_clickable:
-            safe_href = html.escape(s, quote=True)
-            return (
-                f'<a href="{safe_href}" target="_blank" '
-                f'rel="noopener noreferrer">{safe_text}</a>'
-            )
-
-        # Non-clickable: return escaped plain text — evidence preserved
-        return safe_text
-
-    # Plain text rendering
-    if is_clickable and label:
-        return f"{visible} ({s})"
-
-    # Plain text: return stripped original
-    return s
-
-
 def convert_bool_to_str(value, true_value='Yes', false_value='No', none_value='N/A'):
     """
     Converts a boolean value into a human-readable string.
@@ -802,8 +690,9 @@ def _decrypt_database(encrypted_path, context, db_config=None):
     decryption integrity metadata for verified, partial, and failed cases.
     """
 
-    report_folder = context.get_report_folder()
-    cache_key = (report_folder, encrypted_path)
+    output_params = context.get_output_params()
+    output_root = output_params.output_folder_base
+    cache_key = (output_root, encrypted_path)
 
     # Return cached result, including cached failures.
     if cache_key in _decrypted_cache:
@@ -907,7 +796,7 @@ def _decrypt_database(encrypted_path, context, db_config=None):
     base_name, ext = os.path.splitext(os.path.basename(relative_path))
 
     output_path = os.path.join(
-        report_folder,
+        output_root,
         'Decrypted Databases',
         rel_dir,
         f"{base_name}_decrypted{ext}"
@@ -1115,8 +1004,8 @@ def get_json_file_content(file_path):
     """
     Read and parse JSON content from a file.
 
-    UTF-8 decoding is attempted strictly first. Invalid byte sequences
-    fall back to replacement-character decoding before JSON parsing.
+    Returns the decoded JSON value on success, including empty containers,
+    or None if the file cannot be read or parsed.
     """
 
     try:
@@ -1127,24 +1016,23 @@ def get_json_file_content(file_path):
         logfunc(
             f"Error - get_json_file_content: file not found: {file_path}"
         )
-        return {}
+        return None
 
     except PermissionError:
         logfunc(
             f"Error - get_json_file_content: permission denied: {file_path}"
         )
-        return {}
+        return None
 
     except OSError as ex:
         logfunc(
             f"Error - get_json_file_content: failed reading "
             f"{file_path}: {ex}"
         )
-        return {}
+        return None
 
     try:
         data = raw_data.decode('utf-8')
-
     except UnicodeDecodeError:
         data = raw_data.decode('utf-8', errors='replace')
 
@@ -1156,16 +1044,19 @@ def get_json_file_content(file_path):
             f"Error - get_json_file_content: invalid JSON in "
             f"{file_path}: {ex}"
         )
-        return {}
+        return None
 
 
 def get_json_content(data):
     """
-    Parse JSON content from string or bytes and return a dict.
+    Parse JSON content from a string or bytes.
+
+    Returns the decoded JSON value on success, including empty containers,
+    or None if the input cannot be parsed.
     """
 
-    if not data:
-        return {}
+    if data is None:
+        return None
 
     if isinstance(data, bytes):
         try:
@@ -1178,7 +1069,10 @@ def get_json_content(data):
             "Error - get_json_content: unsupported input type "
             f"{type(data).__name__}"
         )
-        return {}
+        return None
+
+    if not data.strip():
+        return None
 
     try:
         return json.loads(data)
@@ -1187,7 +1081,7 @@ def get_json_content(data):
         logfunc(
             f"Error - get_json_content: invalid JSON data: {ex}"
         )
-        return {}
+        return None
 
 
 def _build_kingfisher_photo_map(context):
@@ -1227,17 +1121,22 @@ def _build_kingfisher_photo_map(context):
     lookup_map = context.get_filename_lookup_map()
 
     for filename, paths in lookup_map.items():
-        filename = filename.strip()
+        if not isinstance(filename, str):
+            continue
+
+        filename = filename.strip().lower()
 
         # Filter out unrelated configuration files or iOS system clutter
         if not hash_pattern.match(filename):
+            continue
+
+        if not paths:
             continue
 
         full_path = paths[0]
 
         # Directly map the hash string to its physical location on disk
         cache[filename] = full_path
-
 
         if len(filename) == 32:
             _build_kingfisher_photo_map.has_md5 = True
@@ -1294,11 +1193,17 @@ def _check_kingfisher_cache(images, image_map):
     # Extract valid candidates flattening nested conditions to reduce complexity
     candidates = []
     for img in images:
-        if isinstance(img, dict) and img.get('url'):
-            url = img['url']
-            res_match = re.search(r'Resize=\(?(\d+)\)?', url, re.IGNORECASE)
-            resolution = int(res_match.group(1)) if res_match else 0
-            candidates.append({'url': url, 'res': resolution})
+        if not isinstance(img, dict):
+            continue
+
+        url = img.get('url')
+        if not isinstance(url, str) or not url:
+            continue
+
+        res_match = re.search(r'Resize=\(?(\d+)\)?', url, re.IGNORECASE)
+        resolution = int(res_match.group(1)) if res_match else 0
+
+        candidates.append({'url': url, 'res': resolution})
 
     if not candidates:
         return None
@@ -1336,20 +1241,20 @@ def _check_kingfisher_cache(images, image_map):
     return None
 
 
-def _build_cache_location(entry_id, *extra_locations):
+def _build_cache_location_parts(entry_id, *extra_locations):
     """
-    Builds the forensic location string for a Cache.db record.
+    Builds the individual forensic provenance components for a Cache.db record.
 
     Args:
         entry_id (int):
             Cache.db entry identifier.
 
         *extra_locations (str):
-            Optional additional evidence locations.
+            Optional additional evidence locations within the cached payload.
 
     Returns:
-        str:
-            Comma-separated evidence location string.
+        list[str]:
+            Ordered provenance components for the Cache.db record.
     """
 
     locations = [
@@ -1357,11 +1262,11 @@ def _build_cache_location(entry_id, *extra_locations):
         f'cfurl_cache_receiver_data (entry_ID: {entry_id})'
     ]
 
-    for location in extra_locations:
-        if location:
-            locations.append(location)
+    locations.extend(
+        location for location in extra_locations if location
+    )
 
-    return COMMA_SEP.join(locations)
+    return locations
 
 
 def _parse_html_attributes(attr_text):
@@ -1415,16 +1320,15 @@ def lidl_shopping_list(context):
     )
 
     data_list = []
-    data_list_html = []
 
     # Search for the ShoppingList database
     source_path = context.get_source_file_path('ShoppingListDatabase.db')
     if not source_path:
-        return data_headers, (data_list, data_list_html), source_path
+        return data_headers, data_list, source_path
 
     db = open_sqlite_db_readonly(source_path)
     if not db:
-        return data_headers, (data_list, data_list_html), source_path
+        return data_headers, data_list, source_path
 
     # Build the Kingfisher photo map to resolve local cached images
     image_map = _build_kingfisher_photo_map(context)
@@ -1454,7 +1358,7 @@ def lidl_shopping_list(context):
         SELECT
             L.ROWID AS "L_id",
             I.ROWID AS "I_id",
-            unixepoch(I.lastUpdate, 'unixepoch', 'subsec') AS "item_last_update",
+            unixepoch(I.lastUpdate, 'subsec') AS "item_last_update",
             I.type AS "item_type",
             I.title AS "product_name",
             coalesce(I.imageOriginal, I.imageBig, I.imageMedium, I.imageThumbnail) AS "image_url",
@@ -1480,7 +1384,7 @@ def lidl_shopping_list(context):
             I.id AS "item_uuid",
             {has_list_type} AS "list_type",
             L.name,
-            unixepoch(L.lastUpdate, 'unixepoch', 'subsec') AS "list_last_update",
+            unixepoch(L.lastUpdate, 'subsec') AS "list_last_update",
             L.id AS "list_uuid",
             (
                 SELECT json_group_array(json_object('url', url))
@@ -1547,32 +1451,26 @@ def lidl_shopping_list(context):
                 device_path = COMMA_SEP.join(device_file_paths)
 
                 # Precise location within the source database table for validation
-                location_list = [ f"ListEntity (ROWID: {l_rowid})" ]
+                location_parts = [ f"ListEntity (ROWID: {l_rowid})" ]
                 if i_rowid is not None:
-                    location_list.append(f"ListItemEntity (ROWID: {i_rowid})")
-                location = COMMA_SEP.join(location_list)
+                    location_parts.append(f"ListItemEntity (ROWID: {i_rowid})")
+                location = COMMA_SEP.join(location_parts)
 
-                # Base row for both lists
+                # Base row
                 base_data = (
                     i_updated, i_type, prod_id, prod_name, brand,
                     packing, quantity, price, price_discount,
                     currency, purchased, media_ref_id,
-                    format_url(img_url),                                    # 12 Image URL (Plain)
+                    img_url,                                            # 12 Image URL
                     image_cache_match,
                     prod_source, sort_pos, offer_id, coupon_id,
                     pend_action, i_uuid, l_type, l_name, l_updated,
-                    l_uuid, device_path, location
+                    l_uuid,
+                    device_path,                                        # 24 SOURCE_FILE_NAME
+                    location                                            # 25 Location
                 )
 
-                # LAVA row
                 data_list.append(base_data)
-
-                # HTML row
-                data_list_html.append((
-                    *base_data[:12],
-                    format_url(img_url, html_format=True),                  # Replaces index 12
-                    *base_data[13:]
-                ))
 
             except (AttributeError, ValueError, IndexError, TypeError) as ex:
                 _id = record[0] if record and len(record) > 0 else 'UNKNOWN'
@@ -1588,7 +1486,7 @@ def lidl_shopping_list(context):
         # Ensure the database connection is closed safely
         db.close()
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, data_list, SOURCE_PATH_NOTE
 
 
 def _get_cache_record(record, context, cache_id):
@@ -1625,7 +1523,7 @@ def _get_cache_record(record, context, cache_id):
             entry_id          Cache.db entry identifier.
             cache_time        UTC datetime object.
             request_url       Original request URL.
-            json_data         Parsed JSON object or None.
+            json_data         Parsed JSON value or None.
             device_file_paths List of evidence file paths.
     """
 
@@ -1669,7 +1567,7 @@ def _get_cache_record(record, context, cache_id):
         else:
             json_data = get_json_content(receiver_data)
 
-        if not json_data:
+        if json_data is None:
             return (entry_id, cache_time, request_url, None, device_file_paths)
 
         return (entry_id, cache_time, request_url, json_data, device_file_paths)
@@ -1682,6 +1580,7 @@ def _get_cache_record(record, context, cache_id):
             f"{type(ex).__name__}: {ex}"
         )
         return (None, None, None, None, device_file_paths)
+
 
 @artifact_processor
 def lidl_tickets(context):
@@ -1729,7 +1628,7 @@ def lidl_tickets(context):
             if not json_data:
                 continue
 
-            # Device Paths
+            # Device Path
             device_path = COMMA_SEP.join(device_file_paths)
 
             # Process tickets list if present
@@ -1769,10 +1668,11 @@ def lidl_tickets(context):
                 )
 
                 # Precise location within the source database table for validation
-                location = _build_cache_location(
+                location_parts = _build_cache_location_parts(
                     entry_id,
                     f"{tickets_location}[{t}]"
                 )
+                location = COMMA_SEP.join(location_parts)
 
                 # Base row
                 base_data = (
@@ -1789,11 +1689,10 @@ def lidl_tickets(context):
                     convert_bool_to_str(has_html),
                     ticket_id,
                     request_url,
-                    device_path,
-                    location
+                    device_path,                                        # 13 SOURCE_FILE_NAME
+                    location                                            # 14 Location
                 )
 
-                # LAVA row
                 data_list.append(base_data)
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
@@ -1806,7 +1705,6 @@ def lidl_tickets(context):
     # Sort by Timestamp (index 0) in descending order (newest first)
     # We check if index 0 is valid (not None) to prevent errors
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
-
     return data_headers, data_list, SOURCE_PATH_NOTE
 
 
@@ -1847,12 +1745,13 @@ def lidl_receipt_items(context):
     )
 
     data_list = []
+    data_list_html = []
 
     # Search for the Cache database.
     source_path, records = get_cache_db_records(context, RE_CACHE_DB_TICKET_DETAIL)
 
     if not records:
-        return data_headers, data_list, source_path
+        return data_headers, (data_list, data_list_html), source_path
 
     for record in records:
         try:
@@ -1909,6 +1808,14 @@ def lidl_receipt_items(context):
                 elif 'discount' in classes:
                     discounts.append(span_data)
 
+
+            # Precise location within the cached receipt
+            location_parts = _build_cache_location_parts(
+                entry_id,
+                'receiver_data.htmlPrintedReceipt'
+            )
+            location = COMMA_SEP.join(location_parts)
+
             discount_index = 0
 
             for index, article in enumerate(article_matches):
@@ -1948,8 +1855,6 @@ def lidl_receipt_items(context):
 
                         discount_index += 1
 
-                location = _build_cache_location(entry_id, 'receiver_data.htmlPrintedReceipt')
-
                 # Base row
                 base_data = (
                     ticket_date,
@@ -1960,7 +1865,7 @@ def lidl_receipt_items(context):
                     attrs.get('data-tax-type'),
                     promotion_description,
                     promotion_discount,
-                    article['content'],
+                    article['content'],                                 # 8 Line Item
                     store_info.get('id'),
                     store_info.get('name'),
                     store_info.get('address'),
@@ -1976,12 +1881,17 @@ def lidl_receipt_items(context):
                     attrs.get('data-art-id'),
                     promotion_id,
                     request_url,
-                    device_path,
-                    location
+                    device_path,                                        # 24 SOURCE_FILE_NAME
+                    location                                            # 25 Location
                 )
 
                 # LAVA row
                 data_list.append(base_data)
+
+                # HTML row
+                html_data = list(base_data)
+                html_data[8] = esc(article['content'])
+                data_list_html.append(tuple(html_data))
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
             logfunc(
@@ -1994,8 +1904,12 @@ def lidl_receipt_items(context):
         key=lambda row: row[0] if row[0] else '',
         reverse=True
     )
+    data_list_html.sort(
+        key=lambda row: row[0] if row[0] else '',
+        reverse=True
+    )
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
 
 
 def _extract_last4(number_field):
@@ -2160,7 +2074,7 @@ def lidl_payment_methods(context):
             if not json_data or not isinstance(json_data, dict):
                 continue
 
-            # Device Paths
+            # Device Path
             device_path = COMMA_SEP.join(device_file_paths)
 
             lidl_pay_active = json_data.get('hasLidlPayActive')
@@ -2173,10 +2087,11 @@ def lidl_payment_methods(context):
 
                 for index, payment in enumerate(items):
                     # Precise location of this item within the cached payload.
-                    location = _build_cache_location(
+                    location_parts = _build_cache_location_parts(
                         entry_id,
                         f"receiver_data.{source_key}[{index}]"
                     )
+                    location = COMMA_SEP.join(location_parts)
 
                     # Base row
                     base_data = _build_payment_row(
@@ -2186,12 +2101,13 @@ def lidl_payment_methods(context):
                         cache_time,
                         lidl_pay_active,
                         profile_status,
-                        request_url,
-                        device_path,
-                        location
+                        request_url,                                    # 15 Request URL
+                        device_path,                                    # 16 SOURCE_FILE_NAME
+                        location                                        # 17 Location
                     )
+                    if base_data is None:
+                        continue
 
-                    # LAVA row
                     data_list.append(base_data)
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
@@ -2248,17 +2164,20 @@ def lidl_loyalty_card(context):
             if isinstance(payment_qr, str) and len(payment_qr) >= 17:
                 card_number = payment_qr[:17]
 
-            location = _build_cache_location(entry_id)
+            location_parts = _build_cache_location_parts(entry_id)
+            location = COMMA_SEP.join(location_parts)
 
-            # LAVA row
-            data_list.append((
+            # Base row
+            base_data = (
                 cache_time,
                 payment_qr,
                 card_number,
-                request_url,
-                device_path,
-                location
-            ))
+                request_url,                                    # 3 Request URL
+                device_path,                                    # 4 SOURCE_FILE_NAME
+                location                                        # 5 Location
+            )
+
+            data_list.append(base_data)
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
             logfunc(
@@ -2305,7 +2224,6 @@ def lidl_promotion_details(context):
     )
 
     data_list = []
-    data_list_html = []
 
     # Search for the Cache database
     source_path, records = get_cache_db_records(context, RE_CACHE_DB_PROMOTION_DETAILS)
@@ -2398,7 +2316,7 @@ def lidl_promotion_details(context):
 
             media_ref_id = check_in_media(physical_path) if physical_path else None
 
-            # Merge all evidence source paths
+            # Device Path
             device_path = COMMA_SEP.join(device_file_paths)
 
             # Safely parse special-promotion metadata
@@ -2429,9 +2347,10 @@ def lidl_promotion_details(context):
             is_redeemed = convert_bool_to_str(redeemed)
 
             # Precise location within the source cache record
-            location = _build_cache_location(entry_id)
+            location_parts = _build_cache_location_parts(entry_id)
+            location = COMMA_SEP.join(location_parts)
 
-            # Base plain-text row
+            # Base row
             base_data = (
                 start_date,
                 cache_time,
@@ -2441,7 +2360,7 @@ def lidl_promotion_details(context):
                 json_data.get('brand'),
                 product_info,
                 media_ref_id,
-                format_url(image_url),
+                image_url,                                              # 8 Image URL
                 image_cache_match,
                 channel,
                 start_date,
@@ -2454,20 +2373,12 @@ def lidl_promotion_details(context):
                 tag,
                 promotion_id,
                 json_data.get('id'),
-                request_url,
-                device_path,
-                location
+                request_url,                                            # 21 Request URL
+                device_path,                                            # 22 SOURCE_FILE_NAME
+                location                                                # 23 Location
             )
 
-            # LAVA row
             data_list.append(base_data)
-
-            # HTML row
-            data_list_html.append((
-                *base_data[:8],
-                format_url(image_url, html_format=True),
-                *base_data[9:]
-            ))
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
             logfunc(
@@ -2477,17 +2388,9 @@ def lidl_promotion_details(context):
             continue
 
     # Sort the forensic timeline by Cache Time descending
-    data_list.sort(
-        key=lambda row: row[1] if row[1] else '',
-        reverse=True
-    )
+    data_list.sort(key=lambda row: row[1] if row[1] else '', reverse=True)
 
-    data_list_html.sort(
-        key=lambda row: row[1] if row[1] else '',
-        reverse=True
-    )
-
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, data_list, SOURCE_PATH_NOTE
 
 
 @artifact_processor
@@ -2516,14 +2419,13 @@ def lidl_product_details(context):
     )
 
     data_list = []
-    data_list_html = []
 
     # Search for the Cache database
     source_path, records = get_cache_db_records(context, RE_CACHE_DB_PRODUCT_SHOWCASE)
     if not records:
         return data_headers, data_list, source_path
 
-    # This maps all files in the cache image kingfisher
+    # Build the Kingfisher image cache map
     image_map = _build_kingfisher_photo_map(context)
 
     for record in records:
@@ -2595,11 +2497,15 @@ def lidl_product_details(context):
                 else None
             )
 
-            # Standardize and join all collected device evidence file paths
+            # Device Path
             device_path = COMMA_SEP.join(device_file_paths)
 
             # Precise location within the source database table for validation
-            location = _build_cache_location(entry_id, 'receiver_data.result')
+            location_parts = _build_cache_location_parts(
+                entry_id,
+                'receiver_data.result'
+            )
+            location = COMMA_SEP.join(location_parts)
 
             # Base row
             base_data = (
@@ -2612,24 +2518,15 @@ def lidl_product_details(context):
                 currency,
                 price_per_unit,
                 media_ref_id,
-                format_url(image_url),                          # 9 Image URL (Plain)
+                image_url,                                      # 9 Image URL
                 image_cache_match,
                 product_id,
-                request_url,
-                device_path,
-                location
+                request_url,                                    # 12 Request URL
+                device_path,                                    # 13 SOURCE_FILE_NAME
+                location                                        # 14 Location
             )
 
-            # Lava row
             data_list.append(base_data)
-
-            # HTML row
-            html_row = (
-                *base_data[:9],
-                format_url(image_url, html_format=True),        # Replaces index 9
-                *base_data[10:]
-            )
-            data_list_html.append(html_row)
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
             logfunc(f"[{context.get_artifact_name()}] Error parsing record: {ex}")
@@ -2637,9 +2534,8 @@ def lidl_product_details(context):
 
     # Sort by Cache Time descending
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
-    data_list_html.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, data_list, SOURCE_PATH_NOTE
 
 
 @artifact_processor
@@ -2670,13 +2566,14 @@ def lidl_searched_terms(context):
     )
 
     data_list = []
+    data_list_html = []
 
     source_path, records = get_cache_db_records(
         context,
         RE_CACHE_DB_SEARCHED_TERMS
     )
     if not records:
-        return data_headers, data_list, source_path
+        return data_headers, (data_list, data_list_html), source_path
 
     pattern = re.compile(RE_CACHE_DB_SEARCHED_TERMS)
     max_gap_seconds = 6.0
@@ -2686,7 +2583,6 @@ def lidl_searched_terms(context):
     for record in records:
         try:
             raw_timestamp = record[1]
-
             (
                 entry_id,
                 cache_time,
@@ -2734,6 +2630,13 @@ def lidl_searched_terms(context):
                     if name:
                         products.append(name)
 
+            # Device Path
+            device_path = COMMA_SEP.join(device_file_paths)
+
+            # Precise location within the source cache record
+            location_parts = _build_cache_location_parts(entry_id)
+            location = COMMA_SEP.join(location_parts)
+
             search_records.append({
                 'raw_ts': raw_timestamp,
                 'timestamp': cache_time,
@@ -2742,9 +2645,10 @@ def lidl_searched_terms(context):
                 'store_id': store_id,
                 'results_count': len(results) if results is not None else None,
                 'products': LIST_SEP.join(products),
+                'product_parts': products,
                 'url': request_url,
-                'source': COMMA_SEP.join(device_file_paths),
-                'location': _build_cache_location(entry_id),
+                'source': device_path,
+                'location': location,
                 'sequence_id': None,
                 'sequence_position': None,
                 'sequence_final': False
@@ -2759,7 +2663,7 @@ def lidl_searched_terms(context):
             )
 
     if not search_records:
-        return data_headers, data_list, SOURCE_PATH_NOTE
+        return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
 
     # Chronological order for derived sequence grouping.
     search_records.sort(
@@ -2832,28 +2736,33 @@ def lidl_searched_terms(context):
 
     # One cached request remains one report row.
     for item in search_records:
-        # LAVA row
-        data_list.append((
+        base_data = (
             item['timestamp'],
             item['raw_term'],
             item['decoded_term'],
             item['store_id'],
             item['results_count'],
-            item['products'],
+            item['products'],                                   # 5 Products
             item['sequence_id'],
             item['sequence_position'],
             convert_bool_to_str(item['sequence_final']),
-            item['url'],
-            item['source'],
-            item['location']
-        ))
+            item['url'],                                        # 9 Request URL
+            item['source'],                                     # 10 SOURCE_FILE_NAME
+            item['location']                                    # 11 Location
+        )
 
-    data_list.sort(
-        key=lambda row: row[0] or '',
-        reverse=True
-    )
+        # LAVA row
+        data_list.append(base_data)
 
-    return data_headers, data_list, SOURCE_PATH_NOTE
+        # HTML row
+        html_data = list(base_data)
+        html_data[5] = safe_join(item['product_parts'])
+        data_list_html.append(tuple(html_data))
+
+    data_list.sort(key=lambda row: row[0] or '', reverse=True)
+    data_list_html.sort(key=lambda row: row[0] or '', reverse=True)
+
+    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
 
 
 @artifact_processor
@@ -2959,10 +2868,14 @@ def lidl_store_searches(context):
                     if not isinstance(store_location, dict):
                         store_location = {}
 
-                    location = _build_cache_location(entry_id, f'receiver_data[{position - 1}]')
+                    location_parts = _build_cache_location_parts(
+                        entry_id,
+                        f'receiver_data[{position - 1}]'
+                    )
+                    location = COMMA_SEP.join(location_parts)
 
-                    # LAVA row
-                    data_list.append((
+                    # Base row
+                    base_data = (
                         cache_time,
                         raw_term,
                         decoded_term,
@@ -2979,17 +2892,23 @@ def lidl_store_searches(context):
                         store_location.get('latitude'),
                         store_location.get('longitude'),
                         store.get('distance'),
-                        request_url,
-                        device_path,
-                        location
-                    ))
+                        request_url,                                    # 16 Request URL
+                        device_path,                                    # 17 SOURCE_FILE_NAME
+                        location                                        # 18 Location
+                    )
+
+                    data_list.append(base_data)
 
                     emitted_store = True
 
             # Preserve the request even when the response body is unavailable,
             # empty, or contains no dictionary-shaped store records.
             if not emitted_store:
-                data_list.append((
+                location_parts = _build_cache_location_parts(entry_id)
+                location = COMMA_SEP.join(location_parts)
+
+                # Base row
+                base_data = (
                     cache_time,
                     raw_term,
                     decoded_term,
@@ -3006,10 +2925,12 @@ def lidl_store_searches(context):
                     None,
                     None,
                     None,
-                    request_url,
-                    device_path,
-                    _build_cache_location(entry_id)
-                ))
+                    request_url,                                    # 16 Request URL
+                    device_path,                                    # 17 SOURCE_FILE_NAME
+                    location                                        # 18 Location
+                )
+
+                data_list.append(base_data)
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
             record_id = record[0] if record else 'UNKNOWN'
@@ -3055,12 +2976,11 @@ def lidl_offers(context):
     )
 
     data_list = []
-    data_list_html = []
 
     # Query the Cache.db database for matching URL endpoints
     source_path, records = get_cache_db_records(context, RE_CACHE_DB_OFFERS)
     if not records:
-        return data_headers, (data_list, data_list_html), source_path
+        return data_headers, data_list, source_path
 
     # Map all image assets available in the Kingfisher image cache directory
     image_map = _build_kingfisher_photo_map(context)
@@ -3150,9 +3070,16 @@ def lidl_offers(context):
 
                 # Reconstruct precise location indexing within the original cached array
                 if offers_location == 'receiver_data':
-                    location = _build_cache_location(entry_id, 'receiver_data')
+                    location_parts = _build_cache_location_parts(
+                        entry_id,
+                        'receiver_data'
+                    )
                 else:
-                    location = _build_cache_location(entry_id, f"{offers_location}[{o}]")
+                    location_parts = _build_cache_location_parts(
+                        entry_id,
+                        f"{offers_location}[{o}]"
+                    )
+                location = COMMA_SEP.join(location_parts)
 
                 # Base row
                 base_data = (
@@ -3168,36 +3095,26 @@ def lidl_offers(context):
                     offer.get('pricePerUnit'),
                     offer.get('redemptionChannel'),
                     media_ref_id,
-                    format_url(image_url),                          # 12 Image URL (Plain)
+                    image_url,                                      # 12 Image URL
                     image_cache_match,
                     start_date,
                     end_date,
                     offer_id,
-                    request_url,
-                    device_path,
-                    location
+                    request_url,                                    # 17 Request URL
+                    device_path,                                    # 18 SOURCE_FILE_NAME
+                    location                                        # 19 Location
                 )
 
-                # LAVA row
                 data_list.append(base_data)
-
-                # HTML row
-                html_row = (
-                    *base_data[:12],
-                    format_url(image_url, html_format=True),        # Replaces index 12
-                    *base_data[13:]
-                )
-                data_list_html.append(html_row)
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
             logfunc(f"[{context.get_artifact_name()}] Error parsing record: {ex}")
             continue
 
-    # Sort final timelines by Cache Time descending (newest updates first)
+    # Sort final timeline by Cache Time descending (newest updates first)
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
-    data_list_html.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, data_list, SOURCE_PATH_NOTE
 
 
 @artifact_processor
@@ -3240,12 +3157,11 @@ def lidl_mypoints(context):
     )
 
     data_list = []
-    data_list_html = []
 
     # Query the Cache.db database for matching URL endpoints
     source_path, records = get_cache_db_records(context, RE_CACHE_DB_MYPOINTS)
     if not records:
-        return data_headers, (data_list, data_list_html), source_path
+        return data_headers, data_list, source_path
 
     # Map all image assets available in the Kingfisher image cache directory
     image_map = _build_kingfisher_photo_map(context)
@@ -3328,11 +3244,18 @@ def lidl_mypoints(context):
 
                 # Reconstruct precise location indexing within the original cached array
                 if rewards_location == 'receiver_data':
-                    location = _build_cache_location(entry_id, 'receiver_data')
+                    location_parts = _build_cache_location_parts(
+                        entry_id,
+                        'receiver_data'
+                    )
                 else:
-                    location = _build_cache_location(entry_id, f"{rewards_location}[{r}]")
+                    location_parts = _build_cache_location_parts(
+                        entry_id,
+                        f"{rewards_location}[{r}]"
+                    )
+                location = COMMA_SEP.join(location_parts)
 
-                # Base structured row data tuple alignment
+                # Base row
                 base_data = (
                     cache_time,
                     reward.get('type'),
@@ -3352,7 +3275,7 @@ def lidl_mypoints(context):
                     reward.get('availablePromotions'),
                     reward.get('relatedOnlineArticleNumber'),
                     media_ref_id,
-                    format_url(image_url),                          # 18 Image URL (Plain)
+                    image_url,                                      # 18 Image URL
                     image_cache_match,
                     available_on,
                     reward_id,
@@ -3360,31 +3283,21 @@ def lidl_mypoints(context):
                     points_to_expire,
                     next_expiration,
                     catalog_total,
-                    request_url,
-                    device_path,
-                    location
+                    request_url,                                    # 26 Request URL
+                    device_path,                                    # 27 SOURCE_FILE_NAME
+                    location                                        # 28 Location
                 )
 
-                # LAVA row
                 data_list.append(base_data)
-
-                # HTML row
-                html_row = (
-                    *base_data[:18],
-                    format_url(image_url, html_format=True),        # Replaces index 18
-                    *base_data[19:]
-                )
-                data_list_html.append(html_row)
 
         except (AttributeError, ValueError, IndexError, TypeError) as ex:
             logfunc(f"[{context.get_artifact_name()}] Error parsing record: {ex}")
             continue
 
-    # Sort final timelines by Cache Time descending (newest updates first)
+    # Sort final timeline by Cache Time descending (newest updates first)
     data_list.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
-    data_list_html.sort(key=lambda x: x[0] if x[0] else '', reverse=True)
 
-    return data_headers, (data_list, data_list_html), SOURCE_PATH_NOTE
+    return data_headers, data_list, SOURCE_PATH_NOTE
 
 
 @artifact_processor
@@ -3538,9 +3451,9 @@ def lidl_selfscan_basket(context):
         SELECT
             B.rowid,
             M.rowId,
-            unixepoch(B.scannedAt, 'unixepoch', 'subsec') AS "scanned_at",
-            unixepoch(B.createdAt, 'unixepoch', 'subsec') AS "created_at",
-            unixepoch(B.updatedAt, 'unixepoch', 'subsec') AS "updated_at",
+            unixepoch(B.scannedAt, 'auto', 'subsec') AS "scanned_at",
+            unixepoch(B.createdAt, 'auto', 'subsec') AS "created_at",
+            unixepoch(B.updatedAt, 'auto', 'subsec') AS "updated_at",
             B.status,
             B.scanId,
             B.productId,
@@ -3572,22 +3485,31 @@ def lidl_selfscan_basket(context):
                 updated = convert_unix_ts_to_utc(raw_updated)
 
                 # Precise location within the source database table for validation
-                location_list = [ f"BasketItemRows (rowId: {b_row_id})" ]
+                location_parts = [ f"BasketItemRows (rowId: {b_row_id})" ]
                 if m_row_id is not None:
-                    location_list.append(f"MasterDataItemRows (rowId: {m_row_id})")
-                location = COMMA_SEP.join(location_list)
+                    location_parts.append(f"MasterDataItemRows (rowId: {m_row_id})")
+                location = COMMA_SEP.join(location_parts)
 
                 # Base row
                 base_data = (
-                    scanned_at, created, updated,
-                    status, scan_id, product_id,
-                    barcode, product_name, quantity,
-                    unit_price, subtotal, tot_discount,
-                    currency, deposit, restrictions,
-                    location
+                    scanned_at,
+                    created,
+                    updated,
+                    status,
+                    scan_id,
+                    product_id,
+                    barcode,
+                    product_name,
+                    quantity,
+                    unit_price,
+                    subtotal,
+                    tot_discount,
+                    currency,
+                    deposit,
+                    restrictions,
+                    location                                        # 15 Location
                 )
 
-                # LAVA row
                 data_list.append(base_data)
 
             except (AttributeError, ValueError, IndexError, TypeError) as ex:
@@ -3650,7 +3572,7 @@ def lidl_selfscan_journey(context):
         SELECT
             S.rowId,
             M.rowId,
-            unixepoch(S.scannedAt, 'unixepoch', 'subsec') AS "scanned_at",
+            unixepoch(S.scannedAt, 'auto', 'subsec') AS "scanned_at",
             M.id,
             coalesce(S.barcode, M.barcode) AS "barcode",
             M.name,
@@ -3672,10 +3594,10 @@ def lidl_selfscan_journey(context):
                 scanned_at = convert_unix_ts_to_utc(raw_scanned_at)
 
                 # Precise location within the source database table for validation
-                location_list = [ f"ScanningJourneyRows (rowId: {s_row_id})" ]
+                location_parts = [ f"ScanningJourneyRows (rowId: {s_row_id})" ]
                 if m_row_id is not None:
-                    location_list.append(f"MasterDataItemRows (rowId: {m_row_id})")
-                location = COMMA_SEP.join(location_list)
+                    location_parts.append(f"MasterDataItemRows (rowId: {m_row_id})")
+                location = COMMA_SEP.join(location_parts)
 
                 # Base row
                 base_data = (
@@ -3686,10 +3608,9 @@ def lidl_selfscan_journey(context):
                     quantity,
                     unit_price,
                     deposit,
-                    location
+                    location                                        # 7 Location
                 )
 
-                # LAVA row
                 data_list.append(base_data)
 
             except (AttributeError, ValueError, IndexError, TypeError) as ex:
@@ -3756,7 +3677,7 @@ def lidl_selfscan_removed(context):
         SELECT
             R.rowId,
             M.rowId,
-            unixepoch(R.removedAt, 'unixepoch', 'subsec') AS "removed_at",
+            unixepoch(R.removedAt, 'auto', 'subsec') AS "removed_at",
             M.id,
             coalesce(R.barcode, M.barcode) AS "barcode",
             M.name,
@@ -3783,10 +3704,10 @@ def lidl_selfscan_removed(context):
                 removed_at = convert_unix_ts_to_utc(raw_removed_at)
 
                 # Precise location within the source database table for validation
-                location_list = [ f"RemovedItemRows (rowId: {r_row_id})" ]
+                location_parts = [ f"RemovedItemRows (rowId: {r_row_id})" ]
                 if m_row_id is not None:
-                    location_list.append(f"MasterDataItemRows (rowId: {m_row_id})")
-                location = COMMA_SEP.join(location_list)
+                    location_parts.append(f"MasterDataItemRows (rowId: {m_row_id})")
+                location = COMMA_SEP.join(location_parts)
 
                 # Base row
                 base_data = (
@@ -3801,10 +3722,9 @@ def lidl_selfscan_removed(context):
                     vat,
                     weight,
                     item_nr,
-                    location
+                    location                                        # 11 Location
                 )
 
-                # LAVA row
                 data_list.append(base_data)
 
             except (AttributeError, ValueError, IndexError, TypeError) as ex:
@@ -3904,11 +3824,11 @@ def lidl_grocery_pickup_cart(context):
             C.weightUnit,
             C.weightUnitaryValue,
             C.weightUnitaryPrice,
-            unixepoch(C.createdAt, 'unixepoch', 'subsec') AS "created_at",
-            unixepoch(C.updatedAt, 'unixepoch', 'subsec') AS "updated_at",
+            unixepoch(C.createdAt, 'auto', 'subsec') AS "created_at",
+            unixepoch(C.updatedAt, 'auto', 'subsec') AS "updated_at",
             R.isAvailable AS "restr_is_available",
             R.maxQuantity AS "restr_max_quantity",
-            unixepoch(R.updatedAt, 'unixepoch', 'subsec') AS "restr_updated_at"
+            unixepoch(R.updatedAt, 'auto', 'subsec') AS "restr_updated_at"
         FROM cart AS "C"
         LEFT JOIN productRestrictions AS "R" ON (C.productId = R.productId)
         ORDER BY C.updatedAt DESC
@@ -3933,42 +3853,54 @@ def lidl_grocery_pickup_cart(context):
                     if raw_restr_updated is not None else None
                 )
 
-                # Preserve the 'validations' TEXT column.
-                # If it contains a JSON array, flatten only its observed values for display.
+                # Preserve the observed validation values.
+                # If the TEXT column contains a JSON array, flatten its values for reporting.
                 validation_values = validations_raw
+                validation_parts = None
 
                 if validations_raw:
                     try:
                         parsed = json.loads(validations_raw)
                         if isinstance(parsed, list):
-                            validation_values = LIST_SEP.join(
-                                str(value) for value in parsed
-                            )
+                            validation_parts = [ str(value) for value in parsed ]
+                            validation_values = LIST_SEP.join(validation_parts)
+
                     except (JSONDecodeError, TypeError):
                         pass
 
                 # Precise location within the source database for validation
-                location_list = [ f"cart (rowId: {c_row_id})" ]
+                location_parts = [ f"cart (rowId: {c_row_id})" ]
                 if r_row_id is not None:
-                    location_list.append(
-                        f"productRestrictions (rowId: {r_row_id})"
-                    )
-                location = COMMA_SEP.join(location_list)
+                    location_parts.append(f"productRestrictions (rowId: {r_row_id})")
+                location = COMMA_SEP.join(location_parts)
 
-                # Base (plain-text) row
+                # Base row
                 base_data = (
-                    updated, created,
-                    product_id, name, subtitle,
-                    format_url(image_url, html_format=False),
-                    quantity, max_qty_cart,
-                    unit_price, deposit_amt, deposit_name,
-                    discount_amt, original_amt, total_amt, currency,
-                    weight_unit, weight_value, weight_unit_price,
+                    updated,
+                    created,
+                    product_id,
+                    name,
+                    subtitle,
+                    image_url,                                      # 5 Image URL
+                    quantity,
+                    max_qty_cart,
+                    unit_price,
+                    deposit_amt,
+                    deposit_name,
+                    discount_amt,
+                    original_amt,
+                    total_amt,
+                    currency,
+                    weight_unit,
+                    weight_value,
+                    weight_unit_price,
                     convert_sqlite_bool_to_str(has_subs),
                     convert_sqlite_bool_to_str(is_avail_cart),
                     convert_sqlite_bool_to_str(restr_is_avail),
-                    restr_max_qty, restr_updated,
-                    validation_values, location
+                    restr_max_qty,
+                    restr_updated,
+                    validation_values,                              # 23 Validation
+                    location                                        # 24 Location
                 )
 
                 # LAVA row
@@ -3976,7 +3908,12 @@ def lidl_grocery_pickup_cart(context):
 
                 # HTML row
                 html_data = list(base_data)
-                html_data[5] = format_url(image_url, html_format=True)
+
+                if validation_parts is not None:
+                    html_data[23] = safe_join(validation_parts)
+                else:
+                    html_data[23] = esc(validation_values)
+
                 data_list_html.append(tuple(html_data))
 
             except (AttributeError, ValueError, IndexError, TypeError) as ex:
@@ -4009,7 +3946,7 @@ def lidl_account(context):
         'Email',
         ('Phone Number', 'phonenumber'),
         'Phone Prefix Number',
-        ('Birthdate (Stored UTC)', 'datetime'),
+        ('Birthdate', 'date'),
         'Authentication (AMR)',
         'Location'
     )
