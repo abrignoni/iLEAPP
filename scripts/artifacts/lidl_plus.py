@@ -152,7 +152,7 @@ __artifacts_v2__ = {
         "notes": "https://djangofaiola.blogspot.com",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
-        "output_types": [ "standard" ],
+        "output_types": [ "all" ],
         "artifact_icon": "search"
     },
     "lidl_offers": {
