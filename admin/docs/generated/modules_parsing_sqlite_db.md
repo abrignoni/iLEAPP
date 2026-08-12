@@ -204,6 +204,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | kikMessages |
 | kikUsersgroups |
 | knowledgeC |
+| lidl_plus |
 | mapsSync |
 | serialNumber |
 | swissmeteo |
