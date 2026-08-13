@@ -46,12 +46,6 @@ This document outlines the various device information collected by LEAPP modules
 | Device Information | System Image ID | systemVersionPlist |
 | Device Information | iOS Version | systemVersionPlist |
 | Device Information | iOS version | lastBuild |
-| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days | messageRetention |
-| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days (iOS 17+) | messageRetention |
-| Messages Settings | com.apple.MobileSMS.plist - Keep Messages for Days (iOS <=16) | messageRetention |
-| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days | messageRetention |
-| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days (iOS 17+) | messageRetention |
-| Messages Settings | com.apple.mobileSMS.plist - Keep Messages for Days (iOS <=16) | messageRetention |
 | Network | Bluetooth Address | deviceActivator, keychain |
 | Network | Bluetooth IRK | keychain |
 | Network | Ethernet MAC Address | deviceActivator |
