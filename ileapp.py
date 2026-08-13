@@ -577,10 +577,10 @@ def crunch_artifacts(
     end_wall = perf_counter()
     run_time_secs =  end - start
     run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
-    logfunc("Processing time = {}".format(run_time_HMS))
+    logfunc("Processing time (CPU) = {}".format(run_time_HMS))
     run_time_secs =  end_wall - start_wall
     run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
-    logfunc("Processing time (wall)= {}".format(run_time_HMS))
+    logfunc("Run time (wall clock) = {}".format(run_time_HMS))
 
     logfunc('')
     logfunc('Report generation started.')
