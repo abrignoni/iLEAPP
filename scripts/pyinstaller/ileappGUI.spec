@@ -8,54 +8,63 @@ from PyInstaller.utils.hooks import collect_submodules
 
 block_cipher = None
 
-a = Analysis(['..\\..\\ileappGUI.py'],
-             pathex=['..\\scripts\\artifacts'],
-             binaries=unifiedlog_binaries(windows=True),
-             datas=[('..\\', '.\\scripts'), ('..\\..\\assets', '.\\assets'), ('..\\..\\leapp_functions', '.\\leapp_functions')] + unifiedlog_datas(windows=True),
-             hiddenimports=[
-                'astc_decomp_faster',
-                'bencoding',
-                'blackboxprotobuf',
-                # blackboxprotobuf above is the vendored copy under scripts/ (PyInstaller
-                # reports it 'not found'); what actually has to be collected is the real
-                # google.protobuf package it imports internals from.
-                *collect_submodules('google.protobuf'),
-                *collect_submodules('PIL'),
-                'Crypto.Cipher.AES',
-                'ijson',
-                'lib2to3.refactor',
-                'liblzfse',
-                'mdplist',
-                'mmh3',
-                'nska_deserialize',
-                'pandas',
-                'pgpy',
-                'pillow_heif',
-                'typedstream',
-                'xml.etree.ElementTree',
-                ],
-             runtime_hooks=[],
-             excludes=[],
-             win_no_prefer_redirects=False,
-             win_private_assemblies=False,
-             cipher=block_cipher,
-             noarchive=False)
-pyz = PYZ(a.pure, a.zipped_data,
-             cipher=block_cipher)
-exe = EXE(pyz,
-          a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
-          [],
-          name='ileappGUI',
-          debug=False,
-          bootloader_ignore_signals=False,
-          strip=False,
-          upx=True,
-          console=True,
-	       hide_console='hide-early',
-	       disable_windowed_traceback=False,
-          upx_exclude=[],
-          version='ileappGUI-file_version_info.txt',
-          runtime_tmpdir=None )
+a = Analysis(
+   ['..\\..\\ileappGUI.py'],
+   pathex=['..\\scripts\\artifacts'],
+   binaries=unifiedlog_binaries(windows=True),
+   datas=[
+      ('..\\', '.\\scripts'),
+      ('..\\..\\assets', '.\\assets'),
+      ('..\\..\\leapp_functions', '.\\leapp_functions')] + unifiedlog_datas(windows=True),
+   hiddenimports=[
+      'astc_decomp_faster',
+      'bencoding',
+      'blackboxprotobuf',
+      # blackboxprotobuf above is the vendored copy under scripts/ (PyInstaller
+      # reports it 'not found'); what actually has to be collected is the real
+      # google.protobuf package it imports internals from.
+      *collect_submodules('google.protobuf'),
+      *collect_submodules('PIL'),
+      'Crypto.Cipher.AES',
+      'ijson',
+      'lib2to3.refactor',
+      'liblzfse',
+      'mdplist',
+      'mmh3',
+      'nska_deserialize',
+      'pandas',
+      'pgpy',
+      'pillow_heif',
+      'typedstream',
+      'xml.etree.ElementTree',
+      ],
+   runtime_hooks=[],
+   excludes=[],
+   win_no_prefer_redirects=False,
+   win_private_assemblies=False,
+   cipher=block_cipher,
+   noarchive=False)
+
+pyz = PYZ(
+   a.pure,
+   a.zipped_data,
+   cipher=block_cipher)
+
+exe = EXE(
+   pyz,
+   a.scripts,
+   a.binaries,
+   a.zipfiles,
+   a.datas,
+   [],
+   name='ileappGUI',
+   debug=False,
+   bootloader_ignore_signals=False,
+   strip=False,
+   upx=True,
+   console=True,
+   hide_console='hide-early',
+   disable_windowed_traceback=False,
+   upx_exclude=[],
+   version='ileappGUI-file_version_info.txt',
+   runtime_tmpdir=None )
