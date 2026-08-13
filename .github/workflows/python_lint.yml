@@ -46,6 +46,13 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_claim_language.py
 
+      # os.path.normcase folds case on Windows, so two paths patterns differing only in
+      # case are one pattern there: the artifact reports one file twice and can leave the
+      # other file unread entirely. Use a single bracket class. See the script's docstring.
+      - name: Guard against colliding artifact paths patterns
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_artifact_paths.py
+
       # html_columns cells are written to the report without html.escape, so evidence
       # placed there can inject markup, and any remote href/src makes opening a report
       # beacon to a third party. Pre-existing findings are carried in the script's
