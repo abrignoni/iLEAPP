@@ -1,6 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 import sys
 
 sys.path.insert(0, SPECPATH)
@@ -11,7 +10,10 @@ a = Analysis(
     ['../../ileapp.py'],
     pathex=['../scripts/artifacts'],
     binaries=unifiedlog_binaries(),
-    datas=[('../', 'scripts'), ('../../leapp_functions', 'leapp_functions'), ('../../assets', 'assets')] + unifiedlog_datas(),
+    datas=[
+        ('../', 'scripts'),
+        ('../../leapp_functions', 'leapp_functions'),
+        ('../../assets', 'assets')] + unifiedlog_datas(),
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',

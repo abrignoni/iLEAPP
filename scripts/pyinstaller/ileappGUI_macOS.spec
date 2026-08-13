@@ -1,6 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-
 import sys
 
 sys.path.insert(0, SPECPATH)
@@ -11,7 +10,10 @@ a = Analysis(
     ['../../ileappGUI.py'],
     pathex=['../scripts/artifacts'],
     binaries=unifiedlog_binaries(),
-    datas=[('../', 'scripts'), ('../../assets', 'assets'), ('../../leapp_functions', 'leapp_functions')] + unifiedlog_datas(),
+    datas=[
+        ('../', 'scripts'),
+        ('../../assets', 'assets'),
+        ('../../leapp_functions', 'leapp_functions')] + unifiedlog_datas(),
     hiddenimports=[
         'astc_decomp_faster',
         'bencoding',
@@ -40,6 +42,7 @@ a = Analysis(
     excludes=[],
     noarchive=False,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(
@@ -59,6 +62,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
+
 coll = COLLECT(
     exe,
     a.binaries,
@@ -68,6 +72,7 @@ coll = COLLECT(
     upx_exclude=[],
     name='ileappGUI',
 )
+
 app = BUNDLE(
     coll,
     name='ileappGUI.app',
