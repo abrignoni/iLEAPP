@@ -30,8 +30,6 @@ a = Analysis(
         'nska_deserialize',
         'pandas',
         'pgpy',
-        'PIL._tkinter_finder',
-        'PIL.ImageDraw',
         'pillow_heif',
         'typedstream',
         'xml.etree.ElementTree',
