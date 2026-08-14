@@ -130,10 +130,23 @@ __artifacts_v2__ = {
         "description": "Parses Autofill Profiles from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "Chromium stores address profiles in several layouts and all observed ones are read. "
+                 "Web Data version 104-111 stores use autofill_profiles joined (LEFT) to "
+                 "autofill_profile_names, _emails and _phones. Version 120-128 stores use "
+                 "contact_info and local_addresses, and version 149+ stores use addresses; in all "
+                 "three the field values live in a companion *_type_tokens table keyed by "
+                 "Chromium's FieldType enum (3 NAME_FIRST, 4 NAME_MIDDLE, 5 NAME_LAST, "
+                 "9 EMAIL_ADDRESS, 14 PHONE_HOME_WHOLE_NUMBER, 33 ADDRESS_HOME_CITY, "
+                 "34 ADDRESS_HOME_STATE, 35 ADDRESS_HOME_ZIP, 60 COMPANY_NAME, "
+                 "77 ADDRESS_HOME_STREET_ADDRESS). Types outside that set are not reported rather "
+                 "than labelled. The token-table layouts are source-verified against Chromium and "
+                 "validated with populated Android stores in ALEAPP; every iOS test store is empty, "
+                 "so they are corpus-unexercised here. Reference: Chromium, "
+                 "'components/autofill/core/browser/field_types.h', "
+                 "https://github.com/chromium/chromium/blob/e90fec8693b4bd68806f3a5addec6722c0bc3939/components/autofill/core/browser/field_types.h",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -144,6 +157,8 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | Google Chrome (com.google.chrome.ios) | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | Brave (com.brave.ios.browser) | 0 rows",
         },
     },
     "chromeBookmarks": {
@@ -1010,6 +1025,52 @@ def chromeAutofillEntries(context):
     return all_data_headers, all_data, report_file
 
 
+# Chromium retired the autofill_profiles / autofill_profile_* join. Web Data v120-128
+# stores keep profiles in contact_info and local_addresses, v149+ in addresses; all
+# three use a companion *_type_tokens table (guid, type, value) keyed by Chromium's
+# FieldType enum. Type numbers are Chromium's own, checked against the pinned blob.
+# Reference: Chromium, 'components/autofill/core/browser/field_types.h',
+# https://github.com/chromium/chromium/blob/e90fec8693b4bd68806f3a5addec6722c0bc3939/components/autofill/core/browser/field_types.h
+CHROME_FIELD_TYPES = {
+    'first_name': 3,     # NAME_FIRST
+    'middle_name': 4,    # NAME_MIDDLE
+    'last_name': 5,      # NAME_LAST
+    'email': 9,          # EMAIL_ADDRESS
+    'phone': 14,         # PHONE_HOME_WHOLE_NUMBER
+    'city': 33,          # ADDRESS_HOME_CITY
+    'state': 34,         # ADDRESS_HOME_STATE
+    'zip': 35,           # ADDRESS_HOME_ZIP
+    'company': 60,       # COMPANY_NAME
+    'street': 77,        # ADDRESS_HOME_STREET_ADDRESS
+}
+
+# (profile table, its type-tokens table), in the order the layouts appeared
+CHROME_TOKEN_LAYOUTS = (
+    ('contact_info', 'contact_info_type_tokens'),
+    ('local_addresses', 'local_addresses_type_tokens'),
+    ('addresses', 'address_type_tokens'),
+)
+
+
+def _chrome_token_profiles(cursor, table, tokens_table):
+    """Rows from one token-layout profile table, shaped like the legacy query output."""
+    tokens = {}
+    cursor.execute(f'SELECT guid, type, value FROM {tokens_table}')
+    for guid, field_type, value in cursor.fetchall():
+        tokens.setdefault(guid, {})[field_type] = value
+
+    cursor.execute(f"""SELECT datetime(date_modified, 'unixepoch'), guid,
+                       datetime(use_date, 'unixepoch'), use_count FROM {table}""")
+    rows = []
+    for date_modified, guid, use_date, use_count in cursor.fetchall():
+        field = tokens.get(guid, {})
+        picked = [field.get(CHROME_FIELD_TYPES[name], '') for name in
+                  ('first_name', 'middle_name', 'last_name', 'email', 'phone',
+                   'company', 'street', 'city', 'state', 'zip')]
+        rows.append(tuple([date_modified, guid] + picked + [use_date, use_count]))
+    return rows
+
+
 @artifact_processor
 def chromeAutofillProfiles(context):
     # all_data will be a consolidated list of all browsers with an extra column to discriminate the browser
@@ -1036,10 +1097,12 @@ def chromeAutofillProfiles(context):
         report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
         
         db = open_sqlite_db_readonly(file_found)
-        
-        if does_table_exist_in_db(file_found, 'autofill_profiles'):
-            cursor = db.cursor()
+        cursor = db.cursor()
+        all_rows = []
 
+        if does_table_exist_in_db(file_found, 'autofill_profiles'):
+            # Web Data v104-111 layout. LEFT JOINs: a profile without a stored email
+            # or phone row is still a profile and must not be dropped.
             cursor.execute('''
             select
                 datetime(date_modified, 'unixepoch'),
@@ -1057,52 +1120,53 @@ def chromeAutofillProfiles(context):
                 datetime(use_date, 'unixepoch'),
                 autofill_profiles.use_count
             from autofill_profiles
-            inner join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
-            inner join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
-            inner join autofill_profile_names ON autofill_profile_phones.guid = autofill_profile_names.guid
+            left join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
+            left join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
+            left join autofill_profile_names ON autofill_profiles.guid = autofill_profile_names.guid
             ''')
+            all_rows.extend(cursor.fetchall())
 
+        for profile_table, tokens_table in CHROME_TOKEN_LAYOUTS:
+            if does_table_exist_in_db(file_found, profile_table):
+                all_rows.extend(_chrome_token_profiles(cursor, profile_table, tokens_table))
 
-            all_rows = cursor.fetchall()
-            if len(all_rows) > 0:
-                report_name = f'{browser_name} - Autofill - Profiles'
-                report = ArtifactHtmlReport(report_name)
-                # check for existing and get next name for report file, so report from another file does not get overwritten
-                report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
-                report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-                report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
-                report.add_script()
+        if len(all_rows) > 0:
+            report_name = f'{browser_name} - Autofill - Profiles'
+            report = ArtifactHtmlReport(report_name)
+            # check for existing and get next name for report file, so report from another file does not get overwritten
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
+            report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
+            report.add_script()
 
-                data_list = []
-                for row in all_rows:
-                    modified_dt = convert_ts_human_to_utc(row[0])
-                    last_used_dt = convert_ts_human_to_utc(row[12])
+            data_list = []
+            for row in all_rows:
+                modified_dt = convert_ts_human_to_utc(row[0])
+                last_used_dt = convert_ts_human_to_utc(row[12])
 
-                    data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                      row[10], row[11], last_used_dt, row[13]))
+                data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                  row[10], row[11], last_used_dt, row[13]))
 
-                report.write_artifact_data_table(data_headers, data_list, file_found)
-                report.end_artifact_report()
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
 
-                # Generate LAVA output
+            # Generate LAVA output
 
-                category = "Chromium"
-                module_name = "chromeAutofillProfiles"
+            category = "Chromium"
+            module_name = "chromeAutofillProfiles"
 
-                table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list),
-                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
+            table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
-                lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+            lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
-                # Add browser name column to the data
-                data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
+            # Add browser name column to the data
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
-                # Add current list to the combined list
-                all_data.extend(data_list)
+            # Add current list to the combined list
+            all_data.extend(data_list)
 
-            else:
-                logfunc(f'No {browser_name} - Autofill - Profiles data available')
         else:
             logfunc(f'No {browser_name} - Autofill - Profiles data available')
         db.close()
