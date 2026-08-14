@@ -122,6 +122,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | potatoChat |
 | powerlog |
 | protonMail |
+| protonMailInbox |
 | queryPredictions |
 | quickLook |
 | recents |
