@@ -8,29 +8,26 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "pgpy, pycryptodome, ccl_bplist; a keychain plist placed in scripts/keychain/",
         "category": "Proton Mail",
-        "notes": "Decryption requires the device keychain plist in scripts/keychain/. Email bodies and "
+        "notes": "Decryption requires the device keychain plist in scripts/keychain/; without one the "
+                 "artifact reports no rows regardless of the data present. Columns absent from a "
+                 "store's schema generation (ZISENCRYPTED is missing from the 2021-era and newer "
+                 "stores tested) are read as empty instead of failing the whole query. Current "
+                 "Proton Mail versions observed on iOS 18.7 and 26 test images no longer use "
+                 "group.ch.protonmail.protonmail or ProtonMail.sqlite; they store mail under the "
+                 "group.me.proton.mail app group, which this artifact does not parse yet. Email bodies and "
                  "attachments are decrypted with the account's PGP key. Message timestamps are Cocoa "
                  "(Mac absolute) time, stored as UTC.",
         "paths": ('*/group.ch.protonmail.protonmail.plist', '*/ProtonMail.sqlite*',
-                  '*/Containers/Data/Application/*/tmp/*'),
+                  '*/Containers/Data/Application/*/tmp/attachments/*'),
         "output_types": "standard",
         "artifact_icon": "mail",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 0 rows",
-            "dexter_ios18": "iOS 18.3.2 | 0 rows",
-            "felix_ios17": "iOS 17.6.1 | 0 rows",
-            "fsfull002_ios17": "iOS 17.1 | 0 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | 0 rows",
-            "iphone12_ios18": "iOS 18.7 | 0 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | 0 rows",
-            "abe_ios16": "iOS 16.5 | 0 rows",
-            "felix23_ios16": "iOS 16.5 | 0 rows",
-            "hickman_ios13": "iOS 13.3.1 | 0 rows",
-            "hickman_ios14": "iOS 14.3 | 0 rows",
-            "jess_ios15": "iOS 15.0.2 | 0 rows",
-            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows (store holds 7 messages, reachable only with the WAL; no decrypted keychain available)",
+            "hickman_ios14": "iOS 14.3 | 0 rows (store present; no decrypted keychain available)",
+            "abe_ios16": "iOS 16.5 | 0 rows (store holds 2 messages, reachable only with the WAL; no decrypted keychain available)",
+            "felix23_ios16": "iOS 16.5 | 0 rows (store present; no decrypted keychain available)",
+            "iphone11_ios17": "iOS 17.3 | 0 rows (store holds 16 messages; no decrypted keychain available)",
+            "felix_ios17": "iOS 17.6.1 | 0 rows (store present and empty)",
         }
     }
 }
@@ -48,7 +45,8 @@ import pgpy
 from Crypto.Cipher import AES
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records,
-                               check_in_embedded_media, convert_cocoa_core_data_ts_to_utc, logfunc)
+                               check_in_embedded_media, convert_cocoa_core_data_ts_to_utc, logfunc,
+                               null_absent_columns)
 
 _DECODE_ERRORS = (KeyError, ValueError, TypeError, IndexError, plistlib.InvalidFileException)
 _IV_SIZE = 16
@@ -159,7 +157,7 @@ def protonMail(context):
                 buf = b64decode(key_packet) + attfh.read()
                 return key.decrypt(pgpy.PGPMessage.from_blob(buf)).message
 
-    for row in get_sqlite_db_records(db_name, _QUERY):
+    for row in get_sqlite_db_records(db_name, null_absent_columns(db_name, _QUERY)):
         aggregatorto = aggregatorfor = ''
         decryptedtime = convert_cocoa_core_data_ts_to_utc(row[0])
         decryptedbody = decrypt_message(row[1])
