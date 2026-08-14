@@ -28,11 +28,27 @@ __artifacts_v2__ = {
         "notes": "Reads the group.me.proton.mail cache used by Proton Mail 7.x (Inbox). In the tested "
                  "image the cached subject, body, sender and recipient values are stored in clear "
                  "text; the body is the HTML the app rendered. Folder is resolved from the app's own "
-                 "labels table. A cached row reflects what the app had synced and decrypted locally, "
-                 "not necessarily the full mailbox.",
-        "paths": ('*/Shared/AppGroup/*/support/*.db*',),
+                 "labels table. From Me is derived by comparing the message sender to the account's "
+                 "own addresses. The Attachment column shows the first cached attachment file for the "
+                 "message when it is present in the extraction; the Inbox Attachments artifact lists "
+                 "every attachment. A cached row reflects what the app had synced and decrypted "
+                 "locally, not necessarily the full mailbox.",
+        "paths": ('*/Shared/AppGroup/*/support/*.db*',
+                  '*/Shared/AppGroup/*/cache/mail-cache/attachments/*'),
         "output_types": "standard",
         "artifact_icon": "mail",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Conversation ID",
+                "conversationLabelColumn": "Conversation Subject",
+                "textColumn": "Body",
+                "senderColumn": "From",
+                "directionColumn": "From Me",
+                "directionSentValue": "Yes",
+                "timeColumn": "Time",
+                "mediaColumn": "Attachment"
+            }
+        },
         "sample_data": {
             "hc_ios18_7": "iOS 18.7.8 | Proton Mail 7.9.2 | 2 rows",
             "hc_ios26": "iOS 26.5.2 | Proton Mail 7.x (installed, no mail cache) | 0 rows",
@@ -95,15 +111,35 @@ __artifacts_v2__ = {
 }
 
 import json
+import re
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records,
                                does_table_exist_in_db, convert_unix_ts_to_utc,
                                check_in_media)
 
+_ATTACHMENT_ID_RE = re.compile(r'/mail-cache/attachments/(\d+)/')
+
 
 def _is_mail_cache(file_found):
     return does_table_exist_in_db(file_found, 'messages') and \
         does_table_exist_in_db(file_found, 'labels')
+
+
+def _first_address(raw):
+    """The first address in a Proton address JSON value, lowercased, or ''."""
+    if not raw:
+        return ''
+    try:
+        data = json.loads(raw)
+    except (ValueError, TypeError):
+        return ''
+    if isinstance(data, dict):
+        data = [data]
+    if isinstance(data, list):
+        for item in data:
+            if isinstance(item, dict) and item.get('address'):
+                return item['address'].lower()
+    return ''
 
 
 def _is_account_db(file_found):
@@ -154,12 +190,16 @@ def protonMailInboxMessages(context):
     data_headers = (
         ('Time', 'datetime'),
         'Folder',
+        'Conversation ID',
+        'Conversation Subject',
         'Subject',
         'From',
+        'From Me',
         'To',
         'CC',
         'BCC',
         'Body',
+        ('Attachment', 'media'),
         'Read',
         'Replied',
         'Forwarded',
@@ -172,10 +212,20 @@ def protonMailInboxMessages(context):
 
     query = '''
         SELECT m.local_id, m.time, m.subject, m.sender, m.to_list, m.cc_list, m.bcc_list,
-               b.body, m.unread, m.is_replied, m.is_forwarded, m.num_attachments, m.size, m.deleted
+               b.body, m.unread, m.is_replied, m.is_forwarded, m.num_attachments, m.size,
+               m.deleted, m.remote_conversation_id, c.subject
         FROM messages m
         LEFT JOIN message_body b ON b.message_id = m.local_id
+        LEFT JOIN conversations c ON c.local_id = m.local_conversation_id
     '''
+
+    # attachment files matched by the id embedded in their cache path
+    found_by_id = {}
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        match = _ATTACHMENT_ID_RE.search(file_found.replace('\\', '/'))
+        if match:
+            found_by_id[int(match.group(1))] = file_found
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -183,17 +233,41 @@ def protonMailInboxMessages(context):
             continue
         rel_path = context.get_relative_path(file_found)
         folders = _labels_by_message(file_found)
+
+        owner_addresses = {row[0].lower() for row in
+                           get_sqlite_db_records(file_found, 'SELECT email FROM addresses')
+                           if row[0]}
+
+        # first cached attachment file per message, for inline display
+        first_attachment = {}
+        if does_table_exist_in_db(file_found, 'attachments'):
+            for att_id, message_id, filename in get_sqlite_db_records(
+                    file_found,
+                    'SELECT local_id, local_message_id, filename FROM attachments ORDER BY local_id'):
+                if message_id not in first_attachment and att_id in found_by_id:
+                    first_attachment[message_id] = (found_by_id[att_id], filename)
+
         rows_seen = False
         for row in get_sqlite_db_records(file_found, query):
+            sender_address = _first_address(row[3])
+            from_me = 'Yes' if sender_address and sender_address in owner_addresses else 'No'
+            media_ref = ''
+            attachment = first_attachment.get(row[0])
+            if attachment:
+                media_ref = check_in_media(attachment[0], attachment[1]) or ''
             data_list.append((
                 convert_unix_ts_to_utc(row[1]),
                 folders.get(row[0], ''),
+                row[14],
+                row[15],
                 row[2],
                 _format_addresses(row[3]),
+                from_me,
                 _format_addresses(row[4]),
                 _format_addresses(row[5]),
                 _format_addresses(row[6]),
                 row[7],
+                media_ref,
                 'No' if row[8] else 'Yes',   # unread flag inverted to Read
                 'Yes' if row[9] else 'No',
                 'Yes' if row[10] else 'No',
