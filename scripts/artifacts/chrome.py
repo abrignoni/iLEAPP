@@ -204,19 +204,22 @@ __artifacts_v2__ = {
         "description": "Parses Top Sites from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "The redirects column is absent from the version-5 Top Sites schema observed "
+                 "on every corpus store checked (iOS 16.1.1-26.5.2); it is reported blank there.",
         "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
         "artifact_icon": "star",
         "sample_data": {
-            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | Google Chrome 120.6099.119 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Google Chrome 120.6099.119 | 1 row",
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | Google Chrome (com.google.chrome.ios) | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | Brave (com.brave.ios.browser) | 7 rows",
         },
     },
     "chromeOfflinePages": {
@@ -1415,13 +1418,20 @@ def chromeTopSites(context):
 
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
+        # The redirects column is absent from the version-5 Top Sites schema seen on
+        # iOS 16-26 stores; selecting it unconditionally fails there and the error was
+        # swallowed below, silently dropping every row.
+        if does_column_exist_in_db(file_found, 'top_sites', 'redirects'):
+            redirects_col = 'redirects'
+        else:
+            redirects_col = "'' as redirects"
         try:
-            cursor.execute('''
+            cursor.execute(f'''
             select
             url,
             url_rank,
             title,
-            redirects
+            {redirects_col}
             FROM
             top_sites ORDER by url_rank asc
             ''')
