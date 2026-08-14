@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Locations",
-        "notes": "Search terms have been documented in GeoHistory.mapsdata by published research; the specific protobuf field positions used here were established through testing. Reference: Heather Mahalik, 'How the Grinch Stole Apple Maps Artifacts (Or Did He Just Hide Them?)', https://smarterforensics.com/2016/12/how-the-grinch-stole-apple-maps-artifacts-or-did-he-just-hide-them/",
+        "notes": "GeoHistory.mapsdata is present only on the iOS 12.4 and 13.3.1 test images; it is absent from every newer registered corpus image and public path listing checked and from all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current extractions is expected (Maps history there is parsed by the Apple Maps Sync artifacts). Search terms have been documented in GeoHistory.mapsdata by published research; the specific protobuf field positions used here were established through testing. Reference: Heather Mahalik, 'How the Grinch Stole Apple Maps Artifacts (Or Did He Just Hide Them?)', https://smarterforensics.com/2016/12/how-the-grinch-stole-apple-maps-artifacts-or-did-he-just-hide-them/",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata',
             '*/GeoHistory.mapsdata',
