@@ -29,3 +29,6 @@ jobs:
 
       - name: Import all artifact modules on Windows
         run: python admin/test/scripts/test_artifact_imports.py
+
+      - name: Open SQLite on a path longer than 260 characters
+        run: python admin/test/scripts/test_sqlite_longpath_uri.py
