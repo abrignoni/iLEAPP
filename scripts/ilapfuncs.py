@@ -883,7 +883,14 @@ def get_plist_file_content(file_path):
 
 def get_sqlite_db_path(path):
     if is_platform_windows():
-        path_str = str(path)
+        # An upstream caller may hand us a path normalised to forward slashes,
+        # including any extended-length prefix (\\?\ becomes //?/). Windows
+        # extended paths require backslashes, and '/' is never a valid filename
+        # character on Windows, so restore backslashes before inspecting the
+        # prefix. Without this a forward-slashed extended path matches none of
+        # the checks below, falls through to the normal-path branch, and gets a
+        # second \\?\ prepended (\\?\//?/D:/...), which SQLite cannot open.
+        path_str = str(path).replace('/', '\\')
         if path_str.startswith('\\\\?\\UNC\\'): # UNC long path
             remainder = path_str[4:]
         elif path_str.startswith('\\\\?\\'):    # normal long path
@@ -893,8 +900,8 @@ def get_sqlite_db_path(path):
         else:                                   # normal path
             remainder = path_str
         # Encode special URI characters (e.g. '#', space) so SQLite doesn't
-        # treat them as fragment delimiters or query separators. Keep ':'
-        # and '/' safe so the drive letter and forward slashes are preserved.
+        # treat them as fragment delimiters or query separators. Keep ':' safe
+        # so the drive letter is preserved; separators are now all backslashes.
         return "%5C%5C%3F%5C" + quote(remainder, safe=':/')
     else:
         return quote(str(path), safe='/')
