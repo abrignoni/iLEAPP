@@ -5,12 +5,14 @@ __artifacts_v2__ = {
                        "the last visit time and the number of trackers the browser blocked on the page",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "DuckDuckGo",
         "notes": "Read from the Core Data store History.sqlite. ZBROWSINGHISTORYENTRYMANAGEDOBJECT "
                  "holds one row per visited page with an aggregate visit count and blocked-tracker "
-                 "count; the timestamps are Core Data (Cocoa) seconds.",
+                 "count; the timestamps are Core Data (Cocoa) seconds. A store lacking the "
+                 "ZCOOKIEPOPUPBLOCKED column and the tab history table has been observed in a "
+                 "private sample; columns absent from a store are reported empty, not as No.",
         "paths": ('*/Library/Application Support/History.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "globe",
@@ -48,6 +50,18 @@ from scripts.ilapfuncs import (
 )
 
 
+def _yes_no(value):
+    '''Render a stored boolean, keeping absence empty.
+
+    A NULL here usually means the store predates the column (null_absent_columns
+    substituted it), so the file records nothing either way. Rendering that as
+    "No" would turn absence into a negative finding.
+    '''
+    if value is None:
+        return ''
+    return 'Yes' if value else 'No'
+
+
 @artifact_processor
 def duckduckgo_history(context):
     source_path = get_file_path(context.get_files_found(), 'History.sqlite')
@@ -68,8 +82,8 @@ def duckduckgo_history(context):
             record[4],
             record[5],
             record[6],
-            'Yes' if record[7] else 'No',
-            'Yes' if record[8] else 'No',
+            _yes_no(record[7]),
+            _yes_no(record[8]),
         ))
 
     data_headers = (
