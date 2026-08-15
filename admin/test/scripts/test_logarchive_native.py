@@ -16,6 +16,7 @@ json export or from tracev3 data read natively, the column order and meaning hav
 identical or those artifacts silently return nothing.
 """
 import datetime
+import inspect
 import os
 import pathlib
 import shutil
@@ -23,6 +24,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+import unittest.mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -579,6 +581,80 @@ class TestColumnContract(unittest.TestCase):
         self.assertEqual(row[6], 'Airplane Mode is now On')  # Event Message
         self.assertEqual(row[7], '')                        # Trace ID, not emitted by the parser
         self.assertEqual(row[1], 1)                         # Row Number starts at 1
+
+
+class TestDialedNumbersPredicates(unittest.TestCase):
+    """The dialed numbers query runs against a fixture shaped like logarchive_artifacts.
+
+    Every clause in that artifact pairs a category with a message pattern, and the reason
+    is a false positive that only shows up at corpus scale: locationd logs
+    'kPhoneNumberStatusNotification' under category Emergency, which carries no number at
+    all. A bare '%kPhoneNumber%' predicate collected 7 of those on an iOS 16.5 image and 44
+    on an iOS 17.1 image, against 3 genuine CommCenter setup blocks in the whole sweep. The
+    rows below are the shapes that mattered, so a later loosening of the query fails here
+    rather than in someone's report.
+    """
+
+    COMMCENTER = '/System/Library/Frameworks/CoreTelephony.framework/Support/CommCenter'
+
+    ROWS = [
+        # (subsystem, category, process, event_message, should_match)
+        ('com.apple.CommCenter', 'call.provider', COMMCENTER,
+         '#I {\n\t"kActionType": 0,\n\t"kUuid": "U1",\n\t"kPhoneNumber": "+15555550100"\n}', True),
+        ('com.apple.CommCenter', 'call.provider', COMMCENTER,
+         '#I {\n\t"kActionType": 2,\n\t"kUuid": "U1"\n}', True),
+        ('com.apple.CommCenter', 'call', COMMCENTER,
+         '#N ### Call(StatusUpdate) InitializingMedia -> Dialing for call <private>', True),
+        ('com.apple.calls.mobilephone', 'ContactSearchManager', '/Applications/MobilePhone.app/MobilePhone',
+         'Searching for 5555550', True),
+        # The false positive the scoping exists for: no number, wrong process, wrong category.
+        ('com.apple.locationd.Position', 'Emergency', '/usr/libexec/locationd',
+         '#EmergCon,EMERGENCY:notification,kPhoneNumberStatusNotification', False),
+        # Ordinary call.provider bookkeeping stays in the collection table, not this report.
+        ('com.apple.CommCenter', 'call.provider', COMMCENTER,
+         '#I Updating caller id/phone number to <private>', False),
+        # 'Searching for' is not a dial field on its own.
+        ('com.apple.contacts', 'api-triage', '/usr/libexec/suggestd',
+         '0x1 Searching for 1 identifier: ABCDEF:ABPerson', False),
+    ]
+
+    def setUp(self):
+        self.tempdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tempdir)
+        self.db_path = os.path.join(self.tempdir, '_lava_artifacts.db')
+        conn = sqlite3.connect(self.db_path)
+        conn.execute('''CREATE TABLE logarchive_artifacts (
+            timestamp TEXT, row_number INTEGER, process_image_path TEXT, process_id INTEGER,
+            subsystem TEXT, category TEXT, event_message TEXT, trace_id TEXT)''')
+        for number, (subsystem, category, process, message, _) in enumerate(self.ROWS, start=1):
+            conn.execute('INSERT INTO logarchive_artifacts VALUES (?,?,?,?,?,?,?,?)',
+                         ('2026-08-14 00:00:00', number, process, 102,
+                          subsystem, category, message, ''))
+        conn.commit()
+        conn.close()
+
+    def run_artifact(self):
+        context = unittest.mock.Mock()
+        context.get_files_found.return_value = [self.db_path]
+        _headers, rows, _source = logarchive.logarchive_dialed_numbers.__wrapped__(context)
+        return [row[6] for row in rows]
+
+    def test_only_the_scoped_rows_come_back(self):
+        returned = self.run_artifact()
+        expected = [row[3] for row in self.ROWS if row[4]]
+        self.assertEqual(sorted(returned), sorted(expected))
+
+    def test_locationd_notification_is_not_reported_as_a_dialed_number(self):
+        self.assertNotIn('#EmergCon,EMERGENCY:notification,kPhoneNumberStatusNotification',
+                         self.run_artifact())
+
+    def test_collection_query_gathers_the_categories_the_artifact_reads(self):
+        # The dependent query can only find what logarchive_artifacts materialized.
+        source = inspect.getsource(logarchive.logarchive_artifacts.__wrapped__)
+        for category in ("category = 'call.provider'", "category = 'call'",
+                         "category = 'ContactSearchManager'"):
+            with self.subTest(category=category):
+                self.assertIn(category, source)
 
 
 if __name__ == '__main__':
