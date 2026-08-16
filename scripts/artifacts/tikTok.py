@@ -109,6 +109,79 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 22 rows",
         },
     },
+    "tiktok_published_videos": {
+        "name": "TikTok - Published Videos",
+        "description": "Video files from the app's kAWEPublishLocalVideoStorageFolder, "
+                       "rendered from disk, with the aid from each file name and the video "
+                       "id the companion plist maps it to.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-16",
+        "last_update_date": "2026-08-16",
+        "requirements": "none",
+        "category": "TikTok",
+        "notes": (
+            "Files are named publish_video_local_<aid>.mp4. "
+            "kAWEPublishLocalVideoCacheFile.plist in the same Documents folder maps each "
+            "aid to a video id and both are reported. Hu and Karabiyik describe this "
+            "folder as holding the videos uploaded by the user; on the tested image both "
+            "files' aids also appear in the account's watch history. File Modified is the "
+            "file system timestamp preserved in the extraction. "
+            "Reference: Xiao Hu and Umit Karabiyik, 'Shopping while Watching: An Updated "
+            "Forensic Analysis of TikTok on Android and iOS', ISNCC 2024, "
+            "https://doi.org/10.1109/ISNCC62547.2024.10759027"
+        ),
+        "paths": ("*/mobile/Containers/Data/Application/*/Documents/kAWEPublishLocalVideoStorageFolder/*",
+                  "*/mobile/Containers/Data/Application/*/Documents/kAWEPublishLocalVideoCacheFile.plist"),
+        "output_types": "standard",
+        "artifact_icon": "video",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 1 row",
+            "hickman_ios15": "iOS 15.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row (no companion plist, Video ID blank)",
+        },
+    },
+    "tiktok_app_sessions": {
+        "name": "TikTok - App Sessions",
+        "description": "enter_app and leave_app rows from the FEInternalAppSessionTable in "
+                       "the app's Pitaya feature_engineering databases, with session id, "
+                       "launch flag and duration as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-16",
+        "last_update_date": "2026-08-16",
+        "requirements": "none",
+        "category": "TikTok",
+        "notes": (
+            "The databases live at Library/Pitaya/FE/<module id>/DB/"
+            "feature_engineering.db and not every one carries the session table; files "
+            "without it are skipped. Event Name holds the store's own enter_app and "
+            "leave_app strings. Duration is reported as stored; on the tested image "
+            "leave_app rows carried the milliseconds since that row's enter timestamp. "
+            "Hu and Karabiyik describe the feature_engineering.db of an earlier app "
+            "generation as recording user interaction events with millisecond "
+            "timestamps; the event table they document is absent from the tested build, "
+            "which carries this session table instead. "
+            "Reference: Xiao Hu and Umit Karabiyik, 'Shopping while Watching: An Updated "
+            "Forensic Analysis of TikTok on Android and iOS', ISNCC 2024, "
+            "https://doi.org/10.1109/ISNCC62547.2024.10759027"
+        ),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Pitaya/FE/*/DB/feature_engineering.db*",),
+        "output_types": "standard",
+        "artifact_icon": "activity",
+        "sample_data": {
+            "dexter_ios18": "iOS 18.3.2 | 53 rows",
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 46 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 38 rows",
+            "iphone12_ios18": "iOS 18.7 | 23 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 6 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 0 rows (FE database lacks the session table)",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows (FE database lacks the session table)",
+            "hickman_ios13": "iOS 13.3.1 | no Pitaya feature_engineering.db found",
+        },
+    },
     "tiktok_watch_history": {
         "name": "TikTok - Watch History",
         "description": "Entries from the app's WatchHistory store: one row per aid with a "
@@ -121,11 +194,15 @@ __artifacts_v2__ = {
         "notes": (
             "The store is Documents/WatchHistory/<account id>_history_WCDB.sqlite inside the "
             "TikTok app container; WatchHistory is the app's own directory name. Its single "
-            "table holds an aid text column and a Unix-epoch timestamp. What an aid resolves "
-            "to is not established here: on the tested image none of the aids appeared in the "
-            "app's chat content or play-count stores, so the value is reported as stored. "
-            "The Account ID column is the file name's numeric prefix, which on the tested "
-            "image matches the ChatFiles account folder name (the local account uid)."
+            "table holds an aid text column and a Unix-epoch timestamp. An aid identifies a "
+            "video: on the tested image two of the twelve aids equalled the numeric ids in "
+            "the account's own published video file names "
+            "(Documents/kAWEPublishLocalVideoStorageFolder/publish_video_local_<aid>.mp4) "
+            "and in kAWEPublishLocalVideoCacheFile.plist, which maps each aid to a video "
+            "id. Whether an entry means the video was viewed or prefetched is not "
+            "established here. The Account ID column is the file name's numeric prefix, "
+            "which on the tested image matches the ChatFiles account folder name (the "
+            "local account uid)."
         ),
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/WatchHistory/*_history_WCDB.sqlite*",),
         "output_types": "standard",
@@ -139,12 +216,14 @@ __artifacts_v2__ = {
     },
 }
 
-from os.path import basename, dirname, normcase, normpath
+from datetime import datetime, timezone
+from os.path import basename, dirname, getmtime, getsize, isfile, normcase, normpath
 
 from scripts.ilapfuncs import (
     artifact_processor,
     attach_sqlite_db_readonly,
     convert_unix_ts_to_utc,
+    check_in_media,
     get_plist_content,
     get_plist_file_content,
     get_sqlite_db_records,
@@ -527,4 +606,86 @@ def tiktok_watch_history(context):
         "Source File",
     )
 
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def tiktok_published_videos(context):
+    """ see artifact description """
+    files_found = context.get_files_found()
+    data_list = []
+    source_path = ""
+
+    video_ids = {}
+    for file_found in files_found:
+        file_found = str(file_found)
+        if file_found.endswith("kAWEPublishLocalVideoCacheFile.plist"):
+            mapping = get_plist_file_content(file_found)
+            if isinstance(mapping, dict):
+                video_ids.update({str(k): str(v) for k, v in mapping.items()})
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        name = basename(file_found)
+        if not (name.startswith("publish_video_local_") and isfile(file_found)):
+            continue
+        source_path = source_path or file_found
+        aid = name.replace("publish_video_local_", "").rsplit(".", 1)[0]
+        media_ref = check_in_media(file_found, name)
+        modified = datetime.fromtimestamp(getmtime(file_found), timezone.utc)
+        data_list.append((
+            modified, media_ref or "", aid, video_ids.get(aid, ""),
+            getsize(file_found), context.get_relative_path(file_found),
+        ))
+
+    data_headers = (
+        ("File Modified", "datetime"),
+        ("Media", "media"),
+        "aid (as stored)",
+        "Video ID",
+        "File Size (bytes)",
+        "Source File",
+    )
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def tiktok_app_sessions(context):
+    """ see artifact description """
+    files_found = context.get_files_found()
+    data_list = []
+    source_path = ""
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if not file_found.endswith("feature_engineering.db"):
+            continue
+        has_table = list(get_sqlite_db_records(
+            file_found,
+            "SELECT name FROM sqlite_master WHERE type = 'table' "
+            "AND name = 'FEInternalAppSessionTable'"))
+        if not has_table:
+            continue
+        source_path = source_path or file_found
+        source_file = context.get_relative_path(file_found)
+        for (timestamp_ms, event_name, is_launch, session, enter_ms,
+             duration) in get_sqlite_db_records(file_found, """
+                SELECT timestamp_ms, event_name, is_launch, session,
+                       enter_timestamp_ms, duration
+                FROM FEInternalAppSessionTable ORDER BY timestamp_ms"""):
+            data_list.append((
+                _convert_tiktok_timestamp(timestamp_ms), event_name,
+                "YES" if is_launch else "NO", session,
+                _convert_tiktok_timestamp(enter_ms), duration, source_file,
+            ))
+
+    data_headers = (
+        ("Timestamp", "datetime"),
+        "Event Name",
+        "Is Launch",
+        "Session",
+        ("Enter Timestamp", "datetime"),
+        "Duration (ms, as stored)",
+        "Source File",
+    )
     return data_headers, data_list, source_path
