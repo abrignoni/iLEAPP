@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Path-level file-system event records from the fseventsd disk log stream",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "File System",
         "notes": (
@@ -15,9 +15,11 @@ __artifacts_v2__ = {
             "volume stream at /private/var/.fseventsd and the user-space stream at "
             "/private/var/mobile/.fseventsd. Supports gzip-wrapped "
             "1SLD, 2SLD, and 3SLD streams. Format and flag research: Joachim Metz/libyal and "
-            "Yogesh Khatri/mac_apt. References: https://github.com/libyal/dtformats/blob/main/"
+            "Yogesh Khatri/mac_apt. References: https://github.com/libyal/dtformats/blob/"
+            "4917c9bffc631503c9dbe77dddf14023a572bcef/"
             "documentation/MacOS%20File%20System%20Events%20Disk%20Log%20Stream%20format."
-            "asciidoc and https://github.com/ydkhatri/mac_apt/blob/master/plugins/fsevents.py"
+            "asciidoc and https://github.com/ydkhatri/mac_apt/blob/"
+            "6b1cd4e9301aab0da922d0a6b3f6900e945b7acb/plugins/fsevents.py"
         ),
         "paths": (
             "*/private/var/.fseventsd/*",

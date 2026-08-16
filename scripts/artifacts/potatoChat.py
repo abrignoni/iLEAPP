@@ -109,7 +109,7 @@ def extract_attachment_message(media_blob):
     except UnicodeDecodeError:
         return None
 
-def decode_varint(source_data, offset): # Taken from https://github.com/Whee30/AppParsers/blob/main/Potato/decode_BLOB.py
+def decode_varint(source_data, offset): # Taken from https://github.com/Whee30/AppParsers/blob/c4eebc373764eeedccc4d6a73bc9501fb20ed89e/Potato/decode_BLOB.py
     value = 0
     shift = 0
     while True:

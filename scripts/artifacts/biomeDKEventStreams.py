@@ -112,7 +112,7 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-27",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Biome",
         "notes": "Value follows the UIDeviceOrientation enumeration (UIKit, defined in "
@@ -123,7 +123,8 @@ __artifacts_v2__ = {
                  "Orientation, where Apple defines UIInterfaceOrientation with the two "
                  "landscape cases crossed. Enumeration source: Apple UIKit header UIDevice.h, "
                  "mirrored at "
-                 "https://github.com/silent0123/OSXDev/blob/master/uSav-Mac/usavMac/UIKit.framework/Headers/UIDevice.h "
+                 "https://github.com/silent0123/OSXDev/blob/c943c2158bcd3a6caa3023e396e653cbe3832ae1/"
+                 "uSav-Mac/usavMac/UIKit.framework/Headers/UIDevice.h "
                  "Stream reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
                  "Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",

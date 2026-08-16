@@ -4,13 +4,14 @@ __artifacts_v2__ = {
         "description": "Recent interactions with Apple apps, contacts and addresses",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "User Activity",
         "notes": (
             "The Dates field may contain multiple comma-separated Unix timestamps in "
             "milliseconds. Parsed Dates preserves all valid values. Query adapted from "
-            "https://github.com/kacos2000/Queries/blob/master/recents.sql"
+            "https://github.com/kacos2000/Queries/blob/"
+            "e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/recents.sql"
         ),
         "paths": ("*/mobile/Library/Recents/Recents*",),
         "output_types": ["html", "tsv", "lava", "timeline"],

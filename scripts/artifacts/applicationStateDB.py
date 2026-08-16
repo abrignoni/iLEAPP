@@ -26,7 +26,7 @@ Related work:
 
     https://abrignoni.blogspot.com/2019/09/ios-snapshots-triage-parser-working.html
     https://gforce4n6.blogspot.com/2019/09/a-quick-look-into-ios-snapshots.html
-    https://github.com/nst/iOS-Runtime-Headers/blob/master/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h
+    https://github.com/nst/iOS-Runtime-Headers/blob/fbb634c78269b0169efdead80955ba64eaaa2f21/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h
     https://developer.apple.com/documentation/uikit/preparing-your-ui-to-run-in-the-background
 '''
 
@@ -69,13 +69,13 @@ __artifacts_v2__ = {
                        "not by itself prove foreground application use or that the user viewed the image contents.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "SplashBoard runtime headers expose creationDate and lastUsedDate properties on "
                  "XBApplicationSnapshot. Apple documents that UIKit creates app-switcher snapshots after a scene "
                  "enters the background and that applications may hide sensitive content before capture. Sources: "
-                 "https://github.com/nst/iOS-Runtime-Headers/blob/master/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h ; "
+                 "https://github.com/nst/iOS-Runtime-Headers/blob/fbb634c78269b0169efdead80955ba64eaaa2f21/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h ; "
                  "https://developer.apple.com/documentation/uikit/preparing-your-ui-to-run-in-the-background",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
@@ -107,12 +107,12 @@ __artifacts_v2__ = {
                        "at that time.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "The property name is sourced from the runtime-derived SplashBoard header. Its forensic meaning is "
                  "not documented by Apple. Corroborate with independent device-usage artifacts and report the field "
-                 "as stored. Source: https://github.com/nst/iOS-Runtime-Headers/blob/master/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h",
+                 "as stored. Source: https://github.com/nst/iOS-Runtime-Headers/blob/fbb634c78269b0169efdead80955ba64eaaa2f21/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
