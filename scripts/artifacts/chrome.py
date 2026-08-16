@@ -1685,7 +1685,7 @@ def chromeOfflinePages(context):
             # Generate LAVA output
 
             category = "Chromium"
-            module_name = "chromeTopSites"
+            module_name = "chromeOfflinePages"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
