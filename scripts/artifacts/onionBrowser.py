@@ -1,134 +1,79 @@
 __artifacts_v2__ = {
-    "onion_browser_tabs": {
-        "name": "Onion Browser - Open Tabs",
-        "description": "URLs of the tabs that were open in Onion Browser, from the archived open "
-                       "and private tab lists in the app preferences",
-        "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
-        "requirements": "none",
-        "category": "Onion Browser",
-        "notes": "The open_tabs and privateTabs preference values are NSKeyedArchiver plists holding "
-                 "NSURL objects; each is decoded to its URL. Private tab URLs come from the "
-                 "privateTabs value and are labelled as such.",
-        "paths": ('*/Library/Preferences/ch.b-eng.tor.plist',),
-        "output_types": "standard",
-        "artifact_icon": "layers",
-        "sample_data": {
-            "hc_ios26": "iOS 26.5.2 | Onion Browser | 2 rows",
-        },
-    },
-    "onion_browser_settings": {
-        "name": "Onion Browser - Settings",
-        "description": "Connection, privacy and clean-up settings from Onion Browser, including the "
-                       "Tor connection mode and any custom bridge the user configured",
-        "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
-        "requirements": "none",
-        "category": "Onion Browser",
-        "notes": "Values are read directly from the app preferences plist. Each configured custom "
-                 "bridge is reported on its own row; a bridge line contains the transport, the "
-                 "relay address and its fingerprint as the user entered them.",
-        "paths": ('*/Library/Preferences/ch.b-eng.tor.plist',),
-        "output_types": "standard",
-        "artifact_icon": "settings",
-        "sample_data": {
-            "hc_ios26": "iOS 26.5.2 | Onion Browser | 21 rows",
-        },
-    },
     "onion_browser_bookmarks": {
         "name": "Onion Browser - Bookmarks",
-        "description": "Bookmarks saved in Onion Browser, with the page title, the URL and the site "
-                       "icon",
+        "description": "Bookmarks saved in Onion Browser, with the page name, the URL and the "
+                       "stored site icon",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "creation_date": "2026-08-15",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Onion Browser",
-        "notes": "Read from the class_BookmarkItem table of the app's Realm store "
-                 "(Documents/default.realm) using the vendored realm_parser. The stored icon is a "
-                 "base64 PNG and is checked in.",
-        "paths": ('*/Documents/default.realm*',),
+        "notes": "Read from Documents/bookmarks.plist of the Onion Browser app "
+                 "(com.miketigas.OnionBrowser). The file holds a version number and a bookmarks "
+                 "list whose entries carry name, url and an icon value naming a PNG stored "
+                 "beside the plist. The app seeds a set of default bookmarks on first run, so a "
+                 "row does not on its own show the user added it. Reference: Bookmark.swift in "
+                 "the app's published source, github.com/OnionBrowser/OnionBrowser/blob/"
+                 "9a17dd4f2ee61697a8c65af5b09380b3d32646a8/OnionBrowser/Bookmarks/Bookmark.swift. "
+                 "The sibling host_settings.plist is not parsed: OrNET Browser, a different app, "
+                 "writes a file of the same name and layout.",
+        "paths": ('*/Documents/bookmarks.plist',
+                  '*/Documents/????????-????-????-????-????????????'),
         "output_types": "standard",
         "artifact_icon": "bookmark",
         "sample_data": {
-            "hc_ios26": "iOS 26.5.2 | Onion Browser | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 9 rows",
+            "felix23_ios16": "iOS 16.5 | 10 rows, the seeded default set",
+            "felix_ios17": "iOS 17.6.1 | 10 rows, the seeded default set",
         },
     },
-    "onion_browser_favourites": {
-        "name": "Onion Browser - Favourites",
-        "description": "Favourite sites shown on the Onion Browser start page, with the title, the "
-                       "URL and the site icon",
+    "onion_browser_hsts": {
+        "name": "Onion Browser - HSTS Cache",
+        "description": "Hosts recorded in Onion Browser's HSTS cache, each with the expiration "
+                       "of its strict-transport-security entry",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "creation_date": "2026-08-15",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Onion Browser",
-        "notes": "Read from the class_FavouriteModel table of the app's Realm store. The app ships "
-                 "with preset favourites, so a row does not on its own show the user added it.",
-        "paths": ('*/Documents/default.realm*',),
-        "output_types": "standard",
-        "artifact_icon": "star",
+        "notes": "Read from Documents/hsts_cache.plist of the Onion Browser app "
+                 "(com.miketigas.OnionBrowser). An entry without the Preloaded flag is written "
+                 "when the app receives a Strict-Transport-Security header in an HTTPS response "
+                 "from that host; its expiration comes from the header's max-age and is not a "
+                 "visit timestamp, and such hosts include content-delivery and analytics "
+                 "servers, so the entry shows the browser received a response from the host, "
+                 "not that the user opened it as a page. Older app versions also persisted the "
+                 "bundled preload list into this file, flagged preloaded, with a synthetic "
+                 "expiration one year from when the app loaded the cache; an iOS 13-era store "
+                 "held 67,303 entries of which 9 were unflagged. Current versions write only "
+                 "received entries. References in the app's published source: "
+                 "github.com/OnionBrowser/OnionBrowser/blob/"
+                 "9a17dd4f2ee61697a8c65af5b09380b3d32646a8/OnionBrowser/HstsCache.swift "
+                 "(parseHstsHeader and persist) and blob/v2.7.4 Endless/HSTSCache.m "
+                 "(dictFromSharedHSTSCache mixing in the preload list) with the key names in "
+                 "Endless/HSTSCache.h. Expirations are future-dated by design, so this "
+                 "artifact writes no timeline entries.",
+        "paths": ('*/Documents/hsts_cache.plist',),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "shield-lock",
         "sample_data": {
-            "hc_ios26": "iOS 26.5.2 | Onion Browser | 7 rows",
-        },
-    },
-    "onion_browser_history": {
-        "name": "Onion Browser - Browsing History",
-        "description": "Pages recorded in Onion Browser browsing history, with the title, the URL, "
-                       "the site icon and the date and time shown to the user",
-        "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
-        "requirements": "none",
-        "category": "Onion Browser",
-        "notes": "Read from the class_BrowsingHistoryItem table of the app's Realm store. The date "
-                 "and time are the display strings the app stored, in device local time.",
-        "paths": ('*/Documents/default.realm*',),
-        "output_types": "standard",
-        "artifact_icon": "clock",
-        "sample_data": {
-            "hc_ios26": "iOS 26.5.2 | Onion Browser | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 67,303 rows, 9 not flagged preloaded",
+            "hickman_ios14": "iOS 14.3 | 67,304 rows, 12 not flagged preloaded",
+            "felix23_ios16": "iOS 16.5 | 4 rows, none preloaded",
+            "felix_ios17": "iOS 17.6.1 | 4 rows, none preloaded",
         },
     },
 }
 
-import base64
-import binascii
+import os
 import plistlib
-
-import nska_deserialize
 
 from scripts.ilapfuncs import (
     artifact_processor,
-    check_in_embedded_media,
+    check_in_media,
     convert_plist_date_to_utc,
-    get_file_path,
 )
-from scripts.realm_parser import parse_realm_file, realm_rows
-
-# Preference keys reported by the settings artifact, in the order shown, with readable labels.
-_SETTINGS = [
-    ('browser_connection_mode', 'Connection Mode'),
-    ('kSelectedVPNAddress', 'Selected VPN Address'),
-    ('kSelectedVPNCity', 'Selected VPN City'),
-    ('lastSelectedServer', 'Last Selected Server'),
-    ('kIsSearchHistory', 'Search History Enabled'),
-    ('isCookiesEnabled', 'Cookies Enabled'),
-    ('isPersistentCookiesSelected', 'Persistent Cookies'),
-    ('is_JavaScript_On', 'JavaScript Enabled'),
-    ('isFingerprintingEnabled', 'Fingerprinting Protection Off'),
-    ('isWebGLEnabled', 'WebGL Enabled'),
-    ('isDeleteBrowsingHistorySelected', 'Delete Browsing History On Exit'),
-    ('isDeleteCacheSelected', 'Delete Cache On Exit'),
-    ('isDeleteCookiesSelected', 'Delete Cookies On Exit'),
-    ('isDeleteSuggestionSelected', 'Delete Suggestions On Exit'),
-    ('isPrivacyBlurOn', 'Privacy Blur On'),
-    ('isBottomSearchBar', 'Bottom Search Bar'),
-    ('PremiumUser', 'Premium User'),
-    ('activatedSubscription', 'Activated Subscription'),
-]
 
 
 def _load_plist(path):
@@ -139,162 +84,102 @@ def _load_plist(path):
         return {}
 
 
-def _decode_tab_urls(value):
-    urls = []
-    if not isinstance(value, (bytes, bytearray)):
-        return urls
-    try:
-        import io
-        objects = nska_deserialize.deserialize_plist(io.BytesIO(value))
-    except Exception:  # pylint: disable=broad-except
-        return urls
-    if not isinstance(objects, list):
-        objects = [objects]
-    for obj in objects:
-        if isinstance(obj, dict):
-            url = obj.get('NS.relative') or obj.get('NS.base')
-            if url:
-                urls.append(url)
-        elif isinstance(obj, str):
-            urls.append(obj)
-    return urls
-
-
-@artifact_processor
-def onion_browser_tabs(context):
-    source_path = get_file_path(context.get_files_found(), 'ch.b-eng.tor.plist')
-    plist = _load_plist(source_path)
-    data_list = []
-
-    for url in _decode_tab_urls(plist.get('open_tabs')):
-        data_list.append(('Open', url))
-    for url in _decode_tab_urls(plist.get('privateTabs')):
-        data_list.append(('Private', url))
-
-    data_headers = (
-        'Tab Type',
-        'URL',
-    )
-    return data_headers, data_list, source_path
-
-
-@artifact_processor
-def onion_browser_settings(context):
-    source_path = get_file_path(context.get_files_found(), 'ch.b-eng.tor.plist')
-    plist = _load_plist(source_path)
-    data_list = []
-
-    last_active = plist.get('lastActiveTime')
-    if last_active is not None:
-        try:
-            last_active = convert_plist_date_to_utc(last_active)
-        except (TypeError, ValueError):
-            pass
-        data_list.append(('Last Active Time', last_active))
-
-    for key, label in _SETTINGS:
-        if key in plist:
-            value = plist[key]
-            if isinstance(value, bool):
-                value = 'Yes' if value else 'No'
-            data_list.append((label, value))
-
-    bridges = plist.get('customBridges')
-    if isinstance(bridges, list):
-        for bridge in bridges:
-            data_list.append(('Custom Bridge', bridge))
-
-    data_headers = (
-        'Setting',
-        'Value',
-    )
-    return data_headers, data_list, source_path
-
-
-def _is_onion_realm(path):
-    """The default.realm glob is shared by several apps, so confirm this Realm
-    carries Onion Browser classes before reporting rows."""
-    tables = parse_realm_file(path).get("active", {})
-    return any(name in tables for name in
-               ('class_BookmarkItem', 'class_FavouriteModel', 'class_BrowsingHistoryItem'))
-
-
-def _onion_realm_path(files_found):
-    for file_found in files_found:
-        file_found = str(file_found)
-        if file_found.endswith('default.realm') and _is_onion_realm(file_found):
-            return file_found
-    return ''
-
-
-def _check_in_icon(source_path, icon, name):
-    """Onion Browser stores site icons as base64 PNG; decode and check in."""
-    if not icon or not isinstance(icon, str):
+def _yes_no(value):
+    if value is None:
         return ''
-    try:
-        raw = base64.b64decode(icon)
-    except (binascii.Error, ValueError):
-        return ''
-    if not raw.startswith(b'\x89PNG\r\n\x1a\n'):
-        return ''
-    return check_in_embedded_media(source_path, raw, name,
-                                   force_type='image/png', force_extension='png') or ''
+    return 'Yes' if value else 'No'
 
 
 @artifact_processor
 def onion_browser_bookmarks(context):
-    source_path = _onion_realm_path(context.get_files_found())
+    files_found = [str(f) for f in context.get_files_found()]
     data_list = []
 
-    for index, row in enumerate(realm_rows(source_path, 'class_BookmarkItem')):
-        icon = _check_in_icon(source_path, row.get('icon'), f'onion_bookmark_{index}.png')
-        data_list.append((row.get('title'), row.get('url'), icon))
+    # Icon files sit beside the plist, named by a bare UUID.
+    icons_by_dir = {}
+    for found in files_found:
+        if not found.endswith('bookmarks.plist'):
+            icons_by_dir.setdefault(os.path.dirname(found), {})[
+                os.path.basename(found)] = found
+
+    for found in files_found:
+        if not found.endswith('bookmarks.plist'):
+            continue
+        plist = _load_plist(found)
+        # Other apps could carry a Documents/bookmarks.plist; only the
+        # version-plus-bookmarks layout of this app is reported.
+        if not isinstance(plist, dict) or not isinstance(plist.get('bookmarks'), list):
+            continue
+        icons = icons_by_dir.get(os.path.dirname(found), {})
+        for entry in plist['bookmarks']:
+            if not isinstance(entry, dict):
+                continue
+            media_ref = ''
+            icon_name = entry.get('icon')
+            icon_path = icons.get(icon_name) if isinstance(icon_name, str) else None
+            if icon_path:
+                extension = None
+                try:
+                    with open(icon_path, 'rb') as handle:
+                        magic = handle.read(8)
+                    if magic.startswith(b'\x89PNG'):
+                        extension = 'png'
+                    elif magic.startswith(b'\xff\xd8'):
+                        extension = 'jpg'
+                except OSError:
+                    pass
+                media_ref = check_in_media(icon_path, entry.get('name', ''),
+                                           force_extension=extension) or ''
+            data_list.append((
+                entry.get('name'),
+                entry.get('url'),
+                media_ref,
+                context.get_relative_path(found),
+            ))
 
     data_headers = (
-        'Title',
+        'Name',
         'URL',
         ('Icon', 'media'),
+        'Source Path',
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, 'See Source Path column'
 
 
 @artifact_processor
-def onion_browser_favourites(context):
-    source_path = _onion_realm_path(context.get_files_found())
+def onion_browser_hsts(context):
     data_list = []
 
-    for index, row in enumerate(realm_rows(source_path, 'class_FavouriteModel')):
-        icon = _check_in_icon(source_path, row.get('icon'), f'onion_favourite_{index}.png')
-        data_list.append((row.get('title'), row.get('url'), icon))
+    for found in context.get_files_found():
+        found = str(found)
+        if not found.endswith('hsts_cache.plist'):
+            continue
+        plist = _load_plist(found)
+        if not isinstance(plist, dict):
+            continue
+        for host, entry in sorted(plist.items(),
+                                  key=lambda kv: bool(kv[1].get('preloaded'))
+                                  if isinstance(kv[1], dict) else True):
+            if not isinstance(entry, dict) or 'expiration' not in entry:
+                continue
+            expiration = entry.get('expiration')
+            try:
+                expiration = convert_plist_date_to_utc(expiration)
+            except (TypeError, ValueError):
+                pass
+            data_list.append((
+                expiration,
+                host,
+                _yes_no(entry.get('allowSubdomains')),
+                _yes_no(entry.get('preloaded')),
+                context.get_relative_path(found),
+            ))
 
     data_headers = (
-        'Title',
-        'URL',
-        ('Icon', 'media'),
+        ('Expiration', 'datetime'),
+        'Host',
+        'Allow Subdomains',
+        'Preloaded',
+        'Source Path',
     )
-    return data_headers, data_list, source_path
-
-
-@artifact_processor
-def onion_browser_history(context):
-    source_path = _onion_realm_path(context.get_files_found())
-    data_list = []
-
-    for index, row in enumerate(realm_rows(source_path, 'class_BrowsingHistoryItem')):
-        icon = _check_in_icon(source_path, row.get('icon'), f'onion_history_{index}.png')
-        data_list.append((
-            row.get('date'),
-            row.get('time'),
-            row.get('title'),
-            row.get('url'),
-            icon,
-        ))
-
-    data_headers = (
-        'Date (device local)',
-        'Time (device local)',
-        'Title',
-        'URL',
-        ('Icon', 'media'),
-    )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, 'See Source Path column'
