@@ -74,6 +74,31 @@ __artifacts_v2__ = {
             "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     },
+    "tiktok_watch_history": {
+        "name": "TikTok - Watch History",
+        "description": "Entries from the app's WatchHistory store: one row per aid with a "
+                       "timestamp, reported as stored.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-16",
+        "last_update_date": "2026-08-16",
+        "requirements": "none",
+        "category": "TikTok",
+        "notes": (
+            "The store is Documents/WatchHistory/<account id>_history_WCDB.sqlite inside the "
+            "TikTok app container; WatchHistory is the app's own directory name. Its single "
+            "table holds an aid text column and a Unix-epoch timestamp. What an aid resolves "
+            "to is not established here: on the tested image none of the aids appeared in the "
+            "app's chat content or play-count stores, so the value is reported as stored. "
+            "The Account ID column is the file name's numeric prefix, which on the tested "
+            "image matches the ChatFiles account folder name (the local account uid)."
+        ),
+        "paths": ("*/mobile/Containers/Data/Application/*/Documents/WatchHistory/*_history_WCDB.sqlite*",),
+        "output_types": "standard",
+        "artifact_icon": "eye",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 12 rows",
+        },
+    },
 }
 
 from os.path import basename, dirname, normcase, normpath
@@ -393,3 +418,37 @@ def tiktok_contacts(context):
     )
 
     return data_headers, data_list, "see Source File column"
+
+
+@artifact_processor
+def tiktok_watch_history(context):
+    """ see artifact description """
+    files_found = context.get_files_found()
+    data_list = []
+    source_path = ""
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        if not file_found.endswith("_history_WCDB.sqlite"):
+            continue
+        source_path = source_path or file_found
+        account_id = basename(file_found).split("_", 1)[0]
+        source_file = context.get_relative_path(file_found)
+        for aid, timestamp in get_sqlite_db_records(
+                file_found,
+                "SELECT aid, timestamp FROM kTableName_history ORDER BY timestamp"):
+            data_list.append((
+                _convert_tiktok_timestamp(timestamp),
+                aid,
+                account_id,
+                source_file,
+            ))
+
+    data_headers = (
+        ("Timestamp", "datetime"),
+        "aid (as stored)",
+        "Account ID",
+        "Source File",
+    )
+
+    return data_headers, data_list, source_path
