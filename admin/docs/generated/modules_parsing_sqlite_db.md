@@ -112,6 +112,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | notes |
 | notesPasswordProtected |
 | nsVault |
+| oneDrive |
 | ooklaSpeedtestData |
 | parsecdCache |
 | payByPhone |
