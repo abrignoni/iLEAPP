@@ -175,9 +175,10 @@ def life360DeviceBattery(context):
 
 @artifact_processor
 def life360ChatMessages(context):
-    data_headers = (('Timestamp', 'datetime'), 'Message ID', 'Sender First Name', 'Sender Last Name',
-                    'Message', 'Sent Status', 'Message Seen', 'Message Deleted (Locally)', 'Message Liked',
-                    'Action', 'Location Name', 'Latitude', 'Longitude', 'Direction', 'Thread ID')
+    data_headers = (('Timestamp', 'datetime'), 'Direction', 'Sender First Name', 'Message',
+                    'Message ID', 'Sender Last Name', 'Sent Status', 'Message Seen',
+                    'Message Deleted (Locally)', 'Message Liked', 'Action', 'Location Name',
+                    'Latitude', 'Longitude', 'Thread ID')
     data_list = []
     source_path = _find_db(context)
     if not source_path:
@@ -186,10 +187,11 @@ def life360ChatMessages(context):
     query = '''
     SELECT
         datetime(ZCHATMESSAGE.ZDATE + 978307200, 'unixepoch'),
-        ZCHATMESSAGE.ZMESSAGEID,
+        CASE ZCHATMEMBER.ZISLOGGEDINUSER WHEN 1 THEN 'Outgoing' ELSE 'Incoming' END,
         ZCHATMEMBER.ZFIRSTNAME,
-        ZCHATMEMBER.ZLASTNAME,
         ZCHATMESSAGE.ZMESSAGETEXT,
+        ZCHATMESSAGE.ZMESSAGEID,
+        ZCHATMEMBER.ZLASTNAME,
         CASE ZCHATMESSAGE.ZSENTSTATUSASINTEGER WHEN 2 THEN 'Sent' WHEN 3 THEN 'Failed'
             ELSE ZCHATMESSAGE.ZSENTSTATUSASINTEGER END,
         CASE ZCHATMESSAGE.ZISREAD WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
@@ -199,7 +201,6 @@ def life360ChatMessages(context):
         ZCHATMESSAGELOCATION.ZNAME,
         ZCHATMESSAGELOCATION.ZLATITUDE,
         ZCHATMESSAGELOCATION.ZLONGITUDE,
-        CASE ZCHATMEMBER.ZISLOGGEDINUSER WHEN 1 THEN 'Outgoing' ELSE 'Incoming' END,
         ZCHATMESSAGE.ZTHREAD
     FROM ZCHATMESSAGE
     LEFT JOIN ZCHATMEMBER ON ZCHATMEMBER.Z_PK = ZCHATMESSAGE.ZSENDER

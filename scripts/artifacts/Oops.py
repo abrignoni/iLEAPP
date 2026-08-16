@@ -30,11 +30,11 @@ _QUERY = '''
 SELECT
     datetime(send_time/1000, 'unixepoch'),
     datetime(receive_time/1000, 'unixepoch'),
-    clazz_name,
     json_extract(RCT_MESSAGE.content, '$.user.name'),
+    json_extract(RCT_Message.content, '$.content'),
+    clazz_name,
     sender_id,
     message_direction,
-    json_extract(RCT_Message.content, '$.content'),
     json_extract(json_extract(RCT_Message.content, '$.extra'), '$.nickName'),
     json_extract(json_extract(RCT_Message.content, '$.extra'), '$.userId')
 FROM RCT_MESSAGE
@@ -45,8 +45,8 @@ WHERE json_valid(json_extract(RCT_Message.content, '$.extra'))
 @artifact_processor
 def Oops(context):
     data_headers = (
-        ('Date Sent', 'datetime'), ('Date Received', 'datetime'), 'Message Type', 'Sender Name',
-        'Sender ID', 'Direction (as stored)', 'Message', 'Nickname', 'User ID')
+        ('Date Sent', 'datetime'), ('Date Received', 'datetime'), 'Sender Name', 'Message',
+        'Message Type', 'Sender ID', 'Direction (as stored)', 'Nickname', 'User ID')
     data_list = []
     sources = []
 

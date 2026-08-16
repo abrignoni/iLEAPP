@@ -251,37 +251,37 @@ def instagram_threads(context):
             data_list.append(
                 (
                     server_timestamp,
-                    sender_pk,
+                    reaction_server_timestamp,
+                    shared_media_url_expiration_date,
+                    was_sent,
                     user,
                     message,
+                    sender_pk,
                     thread_id,
                     video_chat_title,
                     video_chat_call_id,
                     dm_reaction,
-                    reaction_server_timestamp,
                     reaction_user_id,
                     shared_media_id,
                     shared_media_url,
-                    shared_media_url_expiration_date,
-                    was_sent,
                 )
             )
 
     data_headers = (
         ("Timestamp", "datetime"),
-        "Sender ID",
+        ("DM Reaction Server Timestamp", "datetime"),
+        ("Shared Media URL Expiration Date", "datetime"),
+        "Viewer ID equals Sender PK",
         "Username",
         "Message",
+        "Sender ID",
         "Thread ID",
         "Video Chat Title",
         "Video Chat ID",
         "DM Reaction",
-        ("DM Reaction Server Timestamp", "datetime"),
         "Reaction User ID",
         "Shared Media ID",
         "Shared Media URL",
-        ("Shared Media URL Expiration Date", "datetime"),
-        "Viewer ID equals Sender PK",
     )
 
     return data_headers, data_list, source_path

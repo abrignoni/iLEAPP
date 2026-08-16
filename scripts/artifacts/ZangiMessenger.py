@@ -237,38 +237,38 @@ def zangi_messages(context):
 
             data_list.append((
                 convert_cocoa_core_data_ts_to_utc(row[0]),
-                row[1],   # Message ID
-                row[2],   # Message Text
-                row[3],   # Conversation Type
-                row[4],   # Message Type
-                row[5],   # Conversation ID
-                row[6],   # Chat Name
-                row[7],   # Sender Name
-                row[8],   # Sender Number
-                row[9],   # Direction
-                row[10],  # Media Path
-                row[11],  # Media Extension
+                row[9],
+                row[7],
+                row[6],
+                row[1],
                 attachment_file,
+                row[2],
+                row[3],
+                row[4],
+                row[5],
+                row[8],
+                row[10],
+                row[11],
                 attachment_link,
-                main_db
+                main_db,
             ))
 
     data_headers = (
         ('Message Timestamp', 'datetime'),
+        'Direction',
+        'Sender Name',
+        'Chat Name',
         'Message Text',
+        ('Attachment File', 'media'),
         'Conversation Type',
         'Message Type',
         'Message ID',
         'Conversation ID',
-        'Chat Name',
-        'Sender Name',
         'Sender Number',
-        'Direction',
         'Media Path',
         'Media Extension',
-        ('Attachment File', 'media'),
         ('Attachment Link', 'media'),
-        'Source Database'
+        'Source Database',
     )
 
     return data_headers, data_list, 'See Table for Source DB'

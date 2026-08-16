@@ -137,13 +137,29 @@ def sms(context):
     left join chat on chat_message_join.chat_id = chat.ROWID 
     '''
 
-    data_headers = (('Message Timestamp', 'datetime'), ('Read Timestamp', 'datetime'), 'Message',
-                    'Service', 'Message Direction', 'Message Sent', 'Message Delivered',
-                    ('Delivered Timestamp', 'datetime'), 'Message Read',
-                    'Account', 'Account Login', 'Chat Contact ID',
-                    'Attachment Name', ('Attachment File', 'media'), ('Attachment Timestamp', 'datetime'),
-                    'Attachment Mimetype', 'Attachment Size (Bytes)', 'Message Row ID', 'Message GUID',
-                    'Chat ID', 'From Me')
+    data_headers = (
+        ('Message Timestamp', 'datetime'),
+        ('Read Timestamp', 'datetime'),
+        ('Delivered Timestamp', 'datetime'),
+        ('Attachment Timestamp', 'datetime'),
+        'From Me',
+        'Chat Contact ID',
+        'Message',
+        ('Attachment File', 'media'),
+        'Service',
+        'Message Direction',
+        'Message Sent',
+        'Message Delivered',
+        'Message Read',
+        'Account',
+        'Account Login',
+        'Attachment Name',
+        'Attachment Mimetype',
+        'Attachment Size (Bytes)',
+        'Message Row ID',
+        'Message GUID',
+        'Chat ID',
+    )
 
 
     # NOTE: moved the definition outside to avoid creating a new function object
@@ -180,10 +196,29 @@ def sms(context):
             else:
                 media_ref_id = check_in_media(clean_path, record[11])
 
-        data_list.append((message_timestamp, read_timestamp, message_text, record[3], record[4], record[5],
-                          record[6], delivered_timestamp, record[7], record[8], record[9], record[10],
-                          record[11], media_ref_id, attachment_timestamp, record[14], record[15], record[16],
-                          record[21], record[17], record[18]))
+        data_list.append((
+            message_timestamp,
+            read_timestamp,
+            delivered_timestamp,
+            attachment_timestamp,
+            record[18],
+            record[10],
+            message_text,
+            media_ref_id,
+            record[3],
+            record[4],
+            record[5],
+            record[6],
+            record[7],
+            record[8],
+            record[9],
+            record[11],
+            record[14],
+            record[15],
+            record[16],
+            record[21],
+            record[17],
+        ))
 
     def copy_attachments(rec):
         media_ref_id = rec["Attachment File"]

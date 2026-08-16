@@ -213,12 +213,13 @@ def groupMeMessages(context):
 
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']),
+            from_me,
+            record['senderName'],
             conversation,
+            record['message'],
             record['chatId'],
             'Group' if chat_type == 'group' else 'Direct Message',
-            record['senderName'],
             sender_id,
-            record['message'],
             record['attachmentType'],
             record['attachmentUrl'],
             record['venueName'],
@@ -230,14 +231,29 @@ def groupMeMessages(context):
             record['replyMessageId'],
             record['messageId'],
             record['sourceGuid'],
-            from_me,
         ))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Chat ID', 'Chat Type',
-        'Sender', 'Sender ID', 'Message', 'Attachment Type', 'Attachment',
-        'Venue Name', 'Latitude', 'Longitude', 'System Message', 'Hidden',
-        'Favorited By', 'Reply To Message ID', 'Message ID', 'Source GUID', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        'Sender',
+        'Conversation',
+        'Message',
+        'Chat ID',
+        'Chat Type',
+        'Sender ID',
+        'Attachment Type',
+        'Attachment',
+        'Venue Name',
+        'Latitude',
+        'Longitude',
+        'System Message',
+        'Hidden',
+        'Favorited By',
+        'Reply To Message ID',
+        'Message ID',
+        'Source GUID',
+    )
 
     return data_headers, data_list, source_path
 

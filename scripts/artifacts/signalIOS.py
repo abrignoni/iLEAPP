@@ -278,6 +278,7 @@ def get_signalIOSMessages(context):
             data_list.append((
                 convert_unix_ts_to_utc(row[0]),
                 convert_unix_ts_to_utc(row[1]),
+                convert_unix_ts_to_utc(row[12]) if row[12] else '',
                 direction,
                 author,
                 row[16] or row[17] or '',
@@ -289,7 +290,6 @@ def get_signalIOSMessages(context):
                 'Yes' if row[9] else 'No',
                 'Yes' if row[10] else 'No',
                 row[11] or '',
-                convert_unix_ts_to_utc(row[12]) if row[12] else '',
                 row[6] or '',
                 row[14],
             ))
@@ -298,6 +298,7 @@ def get_signalIOSMessages(context):
     data_headers = (
         ('Timestamp', 'datetime'),
         ('Received Timestamp', 'datetime'),
+        ('Server Timestamp', 'datetime'),
         'Direction',
         'Author',
         'Conversation With',
@@ -309,7 +310,6 @@ def get_signalIOSMessages(context):
         'View Once',
         'Remotely Deleted',
         'Disappearing Timer (Seconds)',
-        ('Server Timestamp', 'datetime'),
         'Thread ID',
         'Row ID',
     )

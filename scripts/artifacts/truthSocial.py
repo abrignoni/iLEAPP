@@ -150,13 +150,14 @@ def truthSocialMessages(context):
 
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']),
+            from_me,
+            record['senderLabel'] or sender_id,
             conversation,
+            _html_to_text(record['content']) or record['eventText'],
             record['chatId'],
             CHAT_TYPE_LABELS.get(record['chatType'], record['chatType']),
             record['eventType'],
-            record['senderLabel'] or sender_id,
             sender_id,
-            _html_to_text(record['content']) or record['eventText'],
             record['attachmentType'],
             record['attachmentUrl'],
             record['reactions'],
@@ -171,16 +172,33 @@ def truthSocialMessages(context):
             record['invitedByAccountId'],
             record['content'],
             record['messageId'],
-            from_me,
         ))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Chat ID', 'Chat Type',
-        'Event Type', 'Sender', 'Sender Account ID', 'Message',
-        'Attachment Type', 'Attachment URL', 'Reactions', 'Unread', 'Hidden',
-        'Failed To Send', 'Message Expiration (Seconds)', 'URL',
-        'Membership Account ID', 'Changed By Account ID', 'Invited Account ID',
-        'Invited By Account ID', 'Raw HTML Content', 'Message ID', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        'Sender',
+        'Conversation',
+        'Message',
+        'Chat ID',
+        'Chat Type',
+        'Event Type',
+        'Sender Account ID',
+        'Attachment Type',
+        'Attachment URL',
+        'Reactions',
+        'Unread',
+        'Hidden',
+        'Failed To Send',
+        'Message Expiration (Seconds)',
+        'URL',
+        'Membership Account ID',
+        'Changed By Account ID',
+        'Invited Account ID',
+        'Invited By Account ID',
+        'Raw HTML Content',
+        'Message ID',
+    )
 
     return data_headers, data_list, source_path
 

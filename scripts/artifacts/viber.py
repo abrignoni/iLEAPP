@@ -465,15 +465,36 @@ def viber_chats(context):
     '''
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Sender (Display Full Name)', 'Sender (Display Short Name)',
-        'Sender (Phone)', 'Chat Name', 'Chat Participant(s)', 'Chat Phone(s)',
-        'Message Date - UTC', 'Message State Date - UTC',
-        'Message Content', 'Attachment Name', ('Attachment', 'media'), 'Call Date - UTC',
-        'Call Type', 'State', 'Duration (as stored)', 'System Type Description',
-        'Attachment Type', 'Attachment Size', 'Latitude', 'Longitude', 'Conversation Being Deleted',
-        'Message Being Deleted', 'Conversation Time Bomb Duration', 'Message Time Bomb Duration',
-        'Message Time Bomb Timestamp - UTC', 'Conversation Marked Favorite', 'Likes Count',
-        'Message Metadata Fragments')
+        ('Timestamp', 'datetime'),
+        'State',
+        'Sender (Display Full Name)',
+        'Chat Name',
+        'Message Content',
+        ('Attachment', 'media'),
+        'Sender (Display Short Name)',
+        'Sender (Phone)',
+        'Chat Participant(s)',
+        'Chat Phone(s)',
+        'Message Date - UTC',
+        'Message State Date - UTC',
+        'Attachment Name',
+        'Call Date - UTC',
+        'Call Type',
+        'Duration (as stored)',
+        'System Type Description',
+        'Attachment Type',
+        'Attachment Size',
+        'Latitude',
+        'Longitude',
+        'Conversation Being Deleted',
+        'Message Being Deleted',
+        'Conversation Time Bomb Duration',
+        'Message Time Bomb Duration',
+        'Message Time Bomb Timestamp - UTC',
+        'Conversation Marked Favorite',
+        'Likes Count',
+        'Message Metadata Fragments',
+    )
 
     db_records = list( get_sqlite_db_records(data_source, query) )
     # NOTE: same as before, should think of a way to avoid bool() testing
@@ -786,11 +807,36 @@ def viber_chats(context):
         call_ts = convert_cocoa_core_data_ts_to_utc(record[8])
         msg_time_bomb_ts = convert_unix_ts_to_utc(record[24])
         record = tuple(temp_list)
-        data_list.append((message_ts, record[0], record[1], record[2], record[3],
-                          record[4], record[5], message_ts, state_ts, record[14],
-                          record[15], thumb, call_ts, record[9], record[10],
-                          record[11], record[12], record[16], record[17], record[18],
-                          record[19], record[20], record[21], record[22], record[23],
-                          msg_time_bomb_ts, record[25], record[26], record[13]))
+        data_list.append((
+            message_ts,
+            record[10],
+            record[0],
+            record[3],
+            record[14],
+            thumb,
+            record[1],
+            record[2],
+            record[4],
+            record[5],
+            message_ts,
+            state_ts,
+            record[15],
+            call_ts,
+            record[9],
+            record[11],
+            record[12],
+            record[16],
+            record[17],
+            record[18],
+            record[19],
+            record[20],
+            record[21],
+            record[22],
+            record[23],
+            msg_time_bomb_ts,
+            record[25],
+            record[26],
+            record[13],
+        ))
 
     return data_headers, data_list, data_source

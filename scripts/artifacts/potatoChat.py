@@ -402,13 +402,27 @@ def potatochat_chats(context):
                     pass
         if reply != "":
             m_type = "Reply"
-        data_list.append((message_date, chat_name, chat_id, message_id, sender, sender_id, receiver, receiver_id, m_type, message, attach_file, reply, lat, lon, outgoing))
+        data_list.append((message_date, outgoing, sender, chat_name, message, attach_file, chat_id, message_id, sender_id, receiver, receiver_id, m_type, reply, lat, lon))
         
 
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Chat', 'Chat-ID', 'Message-ID', 'Sender Name', 'From ID', 'Receiver', 'To ID', 'Message Type',
-        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)', 'Latitude', 'Longitude', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        'Sender Name',
+        'Chat',
+        'Message',
+        ('Attachment File', 'media'),
+        'Chat-ID',
+        'Message-ID',
+        'From ID',
+        'Receiver',
+        'To ID',
+        'Message Type',
+        'Reply (Message-ID)',
+        'Latitude',
+        'Longitude',
+    )
 
     return data_headers, data_list, source_path
 
@@ -666,10 +680,20 @@ def potatochat_group_chats(context):
             user_name = group_name
         if reply != "":
             m_type = "Reply"
-        data_list.append((message_date, group_name, group_ID, message_id, user_name, user_ID, m_type, message, attach_file, reply, outgoing))
+        data_list.append((message_date, outgoing, user_name, group_name, message, attach_file, group_ID, message_id, user_ID, m_type, reply))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Group Name', 'Group-ID', 'Message-ID', 'Sender Name', 'From ID', 'Message Type',
-        'Message', ('Attachment File', 'media'), 'Reply (Message-ID)', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        'Sender Name',
+        'Group Name',
+        'Message',
+        ('Attachment File', 'media'),
+        'Group-ID',
+        'Message-ID',
+        'From ID',
+        'Message Type',
+        'Reply (Message-ID)',
+    )
 
     return data_headers, data_list, source_path

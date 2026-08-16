@@ -138,8 +138,8 @@ def _slack_prefix(db_path):
 # ---------------------------------------------------------------------------
 @artifact_processor
 def slackModelMessages(context):
-    data_headers = (('Timestamp', 'datetime'), 'Sender ID', 'Sender Name', 'Channel Name',
-                    'Message', 'Conversation ID', 'Group ID', 'Direction')
+    data_headers = (('Timestamp', 'datetime'), 'Direction', 'Sender Name', 'Channel Name',
+                    'Message', 'Sender ID', 'Conversation ID', 'Group ID')
     data_list = []
     db_path = _find_model_db(context)
     if not db_path:
@@ -148,13 +148,13 @@ def slackModelMessages(context):
     query = '''
     SELECT
         datetime(ZCOREDATAMESSAGE.ZTIMESTAMP, 'unixepoch'),
-        ZCOREDATAMESSAGE.ZUSERID,
+        CASE ZCOREDATAUSER.ZISME WHEN 1 THEN 'Sent' WHEN 0 THEN 'Received' ELSE ZCOREDATAUSER.ZISME END,
         ZCOREDATAUSER.ZREALNAME,
         ZCOREDATACONVERSATION.ZNAME,
         ZCOREDATAMESSAGE.ZTEXT,
+        ZCOREDATAMESSAGE.ZUSERID,
         ZCOREDATAMESSAGE.ZCONVERSATIONID,
-        ZCOREDATACONVERSATION.ZCONTEXTTEAMID,
-        CASE ZCOREDATAUSER.ZISME WHEN 1 THEN 'Sent' WHEN 0 THEN 'Received' ELSE ZCOREDATAUSER.ZISME END
+        ZCOREDATACONVERSATION.ZCONTEXTTEAMID
     FROM ZCOREDATAMESSAGE
     LEFT OUTER JOIN ZCOREDATAUSER ON ZCOREDATAMESSAGE.ZUSERID = ZCOREDATAUSER.ZTSID
     LEFT OUTER JOIN ZCOREDATACONVERSATION ON ZCOREDATAMESSAGE.ZCONVERSATIONID = ZCOREDATACONVERSATION.ZTSID

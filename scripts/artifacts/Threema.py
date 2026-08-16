@@ -224,11 +224,23 @@ def threema_chats(context):
         if m_type == "SystemMessage":
             continue
 
-        data_list.append((message_date, chat_name, chat_id, message_id, sender, receiver, m_type, message, attach_file, latitude, longitude, accuracy, outgoing))
+        data_list.append((message_date, outgoing, sender, chat_name, message, attach_file, chat_id, message_id, receiver, m_type, latitude, longitude, accuracy))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Chat', 'Chat-ID', 'Message-ID', 'Sender Name', 'Receiver', 'Message Type',
-        'Message', ('Attachment File', 'media'), 'Latitude', 'Longitude', 'Accuracy', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        'Sender Name',
+        'Chat',
+        'Message',
+        ('Attachment File', 'media'),
+        'Chat-ID',
+        'Message-ID',
+        'Receiver',
+        'Message Type',
+        'Latitude',
+        'Longitude',
+        'Accuracy',
+    )
 
     return data_headers, data_list, source_path
 

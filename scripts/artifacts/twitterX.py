@@ -190,10 +190,22 @@ def _attachment_urls(entry):
 def twitterDirectMessages(context):
     data_list = []
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Conversation ID', 'Timeline',
-        'Sender', 'Sender User ID', 'Message', 'Attachment Media URL',
-        'Attachment Display URL', 'Marked As Spam', 'Marked As Abuse',
-        'In Reply To Message ID', 'Message ID', 'Account ID', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        'Sender',
+        'Conversation',
+        'Message',
+        'Conversation ID',
+        'Timeline',
+        'Sender User ID',
+        'Attachment Media URL',
+        'Attachment Display URL',
+        'Marked As Spam',
+        'Marked As Abuse',
+        'In Reply To Message ID',
+        'Message ID',
+        'Account ID',
+    )
 
     # One archive per signed-in account was observed in test data, so every
     # matched file is parsed rather than only the first.
@@ -239,12 +251,13 @@ def twitterDirectMessages(context):
 
                     data_list.append((
                         entry.get('time'),
+                        1 if local_user_id and sender_id == local_user_id else 0,
+                        _user_label(sender),
                         conversation_label,
+                        entry.get('displayText') or entry.get('originalText'),
                         conversation_id,
                         timeline_label,
-                        _user_label(sender),
                         sender_id,
-                        entry.get('displayText') or entry.get('originalText'),
                         media_url,
                         display_url,
                         'Yes' if entry.get('marked_as_spam') else '',
@@ -252,7 +265,6 @@ def twitterDirectMessages(context):
                         reply_to_id,
                         (entry.get('identifier') or {}).get('canonicalID', ''),
                         account_id,
-                        1 if local_user_id and sender_id == local_user_id else 0,
                     ))
 
     return data_headers, data_list, ', '.join(source_paths)

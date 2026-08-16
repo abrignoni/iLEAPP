@@ -111,7 +111,7 @@ def get_kleinanzeigenmessagecache(context):
                     id_to = my_id
                     out = 0
                 conv_name = f"{ad_name} ({counter_name})"
-                data_list.append((m_rec, conv_id, conv_name, ad_id, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat, out))
+                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat))
 
             except (KeyError, TypeError, ValueError, OverflowError, OSError, NameError):
                 pass
@@ -141,11 +141,23 @@ def get_kleinanzeigenmessagecache(context):
                     id_to = my_id
                     out = 0
                 conv_name = f"{ad_name} ({counter_name})"
-                data_list.append((m_rec, conv_id, conv_name, ad_id, m_from, id_from, m_to, id_to, m_text, m_att, m_id, ad_stat, out))
+                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat))
 
     data_headers = (
-        ('Timestamp', 'datetime'), "Conversation-ID", "Advertisement", "Ad-ID",
-        "From_Name", "From_ID", "To_Name", "To_ID", "Message", "Attachment", "Message_ID", "AD-Status", "From Me")
+        ('Timestamp', 'datetime'),
+        "From Me",
+        "From_Name",
+        "Advertisement",
+        "Message",
+        "Conversation-ID",
+        "Ad-ID",
+        "From_ID",
+        "To_Name",
+        "To_ID",
+        "Attachment",
+        "Message_ID",
+        "AD-Status",
+    )
     return data_headers, data_list, source_path
 
 @artifact_processor

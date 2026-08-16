@@ -252,38 +252,38 @@ def teamsMessages(context):
         
         data_list.append((
             timestamp,
+            row['ZTS_ISSENTBYME'],
             row['ZIMDISPLAYNAME'] or '',
+            row['thread_name'] or '',
             display_message,
+            media_ref,
             raw_message,
             row['ZFROM'] or '',
             row['ZTHREADID'] or '',
             row['ZTHREADTYPE'] or '',
             row['ZTHREADTOPIC'] or '',
             row['ZTSID'] or '',
-            row['thread_name'] or '',
             row['ZTS_MESSAGEBASETYPE'] or '',
             row['ZTS_MESSAGECONTENTTYPE'] or '',
-			row['ZTS_ISSENTBYME'],
-            media_ref
         ))
     
     db.close()
     
     data_headers = (
         ('Timestamp', 'datetime'),
+        'Sent By Me',
         'Display Name',
+        'Thread Name',
         'Message',
+        ('Media', 'media'),
         'Raw Message',
         'Sender',
         'Thread ID',
         'Thread Type',
         'Thread Topic',
         'Thread TSID',
-        'Thread Name',
         'Message Base Type',
         'Message Content Type',
-        'Sent By Me',
-        ('Media', 'media')
     )
     
     return data_headers, data_list, db_file

@@ -179,15 +179,15 @@ def linkedin_conversations(context):
         sender_name = record[1]
 
 
-        data_list.append((delivery_date, conversation_urn, conversation_label, message, sent, sender_name))
+        data_list.append((delivery_date, sent, sender_name, conversation_label, message, conversation_urn))
 
     data_headers = (
         ('Timestamp', 'datetime'),
-        'Conversation-ID',
+        'Sent',
+        'Sender Name',
         'Conversation Name',
         'Message',
-        'Sent',
-        'Sender Name'
+        'Conversation-ID',
     )
 
     return data_headers, data_list, source_path

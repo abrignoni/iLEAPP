@@ -244,8 +244,19 @@ def fla_tu(
 
 @artifact_processor
 def google_chat(context):
-    data_headers = (('Timestamp', 'datetime'), 'Group Type', 'Conversation Name', 'Message Author', 'Message',
-                    'Is Sent', 'Filename', ('Media', 'media'), 'Reaction', 'Reaction User', 'Account ID')
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Is Sent',
+        'Message Author',
+        'Message',
+        ('Media', 'media'),
+        'Group Type',
+        'Conversation Name',
+        'Filename',
+        'Reaction',
+        'Reaction User',
+        'Account ID',
+    )
     data_list = []
     source_path = ''
 
@@ -355,8 +366,17 @@ def google_chat(context):
             timestamp = convert_ts_human_to_utc(row[0]) if row[0] else row[0]
 
             data_list.append((
-                timestamp, row[1], row[2], row[3], row[4], row[7],
-                mediafilename, media_ref_id, reaction, reactionuser, account_id,
+                timestamp,
+                row[7],
+                row[3],
+                row[4],
+                media_ref_id,
+                row[1],
+                row[2],
+                mediafilename,
+                reaction,
+                reactionuser,
+                account_id,
             ))
 
         break

@@ -135,22 +135,31 @@ def googleVoiceMessages(context):
         from_me = 1 if record['itemType'] in OUTGOING_ITEM_TYPES else 0
         data_list.append((
             convert_unix_ts_to_utc(record['timestamp']),
+            from_me,
+            record['senderPhoneNumber'],
             record['conversation'],
+            record['messageText'],
             record['threadKey'],
             'Outgoing' if from_me else 'Incoming',
-            record['senderPhoneNumber'],
-            record['messageText'],
             record['attachmentCount'],
             record['isUnread'],
             record['isDeleted'],
             record['isSystemMessage'],
-            from_me,
         ))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Thread Key', 'Direction',
-        ('Sender', 'phonenumber'), 'Message', 'Attachment Count', 'Unread',
-        'Deleted', 'System Message', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        ('Sender', 'phonenumber'),
+        'Conversation',
+        'Message',
+        'Thread Key',
+        'Direction',
+        'Attachment Count',
+        'Unread',
+        'Deleted',
+        'System Message',
+    )
 
     return data_headers, data_list, source_path
 
