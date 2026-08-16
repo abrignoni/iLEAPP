@@ -7,7 +7,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -28,7 +32,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "Reference: Chromium source, ui/base/page_transition_types.h, https://chromium.googlesource.com/chromium/src (LINK=0, TYPED=1 confirmed).",
+        "notes": "Reference: Chromium source, ui/base/page_transition_types.h, https://chromium.googlesource.com/chromium/src (LINK=0, TYPED=1 confirmed)."
+                 " A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -49,7 +58,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -70,7 +83,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "Reference: Chromium source, components/download/public/common/download_danger_type.h and download_interrupt_reason_values.h, https://chromium.googlesource.com/chromium/src",
+        "notes": "Reference: Chromium source, components/download/public/common/download_danger_type.h and download_interrupt_reason_values.h, https://chromium.googlesource.com/chromium/src"
+                 " A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -91,7 +109,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -112,7 +134,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -146,7 +172,12 @@ __artifacts_v2__ = {
                  "validated with populated Android stores in ALEAPP; every iOS test store is empty, "
                  "so they are corpus-unexercised here. Reference: Chromium, "
                  "'components/autofill/core/browser/field_types.h', "
-                 "https://github.com/chromium/chromium/blob/e90fec8693b4bd68806f3a5addec6722c0bc3939/components/autofill/core/browser/field_types.h",
+                 "https://github.com/chromium/chromium/blob/e90fec8693b4bd68806f3a5addec6722c0bc3939/components/autofill/core/browser/field_types.h"
+                 " A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -189,7 +220,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
         "output_types": "standard",
         "artifact_icon": "cookie",
@@ -202,7 +237,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
         "artifact_icon": "key",
@@ -245,7 +284,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
@@ -260,7 +303,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -274,7 +321,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -288,7 +339,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -302,7 +357,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
                   '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
         "output_types": ['lava', 'tsv', 'html'],
