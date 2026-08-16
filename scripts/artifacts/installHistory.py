@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Successful operating-system install and rollback completion history",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Software Updates",
         "notes": (
@@ -13,8 +13,14 @@ __artifacts_v2__ = {
             "Observed operationType semantics in a reverse-engineered iOS 26.1 "
             "SoftwareUpdateServices implementation are 303 = successful rollback completed and "
             "304 = successful install completed. Unknown values are preserved and not inferred. "
-            "Implementation reference: "
-            "https://github.com/EthanArbuckle/iPhone18-3_26.1_23B85_Restore/blob/main/"
+            "Implementation references: recordInstallCompleted records operationType 304 and "
+            "recordRollbackCompleted records 303, each on the no-error path, in "
+            "https://github.com/EthanArbuckle/iPhone18-3_26.1_23B85_Restore/blob/"
+            "90aa0cfe59d9682b4265e1354c8b19ec3c7823ab/"
+            "System/Library/PrivateFrameworks/SoftwareUpdateServices.framework/"
+            "SoftwareUpdateServices/SUSHistoryTracker.mm ; the 25-record trim is in "
+            "https://github.com/EthanArbuckle/iPhone18-3_26.1_23B85_Restore/blob/"
+            "90aa0cfe59d9682b4265e1354c8b19ec3c7823ab/"
             "System/Library/PrivateFrameworks/SoftwareUpdateServices.framework/"
             "SoftwareUpdateServices/SUSHistoryInstalls.mm"
         ),

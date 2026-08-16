@@ -119,7 +119,7 @@ def coordinate_to_text(lat, lon):
     return f"{lat}, {lon}"
 
 def lv03_to_text(E, N): 
-    # based on https://github.com/ValentinMinder/Swisstopo-WGS84-LV03/blob/master/scripts/py/wgs84_ch1903.py
+    # based on https://github.com/ValentinMinder/Swisstopo-WGS84-LV03/blob/f1a7e0129d93647c1c11e151b95a208a53e57ce6/scripts/py/wgs84_ch1903.py
     y, x = (E-600000)/1e6, (N-200000)/1e6
     lat = (16.9023892 + (3.238272 * x)) + \
             - (0.270978 * pow(y, 2)) + \
