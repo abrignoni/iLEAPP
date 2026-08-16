@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "direction, author, conversation and body.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-10",
-        "last_update_date": "2026-08-10",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Session",
         "notes": "Session for iOS keeps its database key in the iOS keychain, which is captured "
@@ -26,7 +26,8 @@ __artifacts_v2__ = {
                  "to the Session ID (the account's public key) where no profile is stored.\n"
                  "Reference: Session-iOS, 'Interaction.Variant (standardIncoming = 0, "
                  "standardOutgoing = 1, infoCall = 5000, ...)', "
-                 "https://github.com/session-foundation/session-ios/blob/master/"
+                 "https://github.com/session-foundation/session-ios/blob/"
+                 "7a3b2ba22477f22c301748f23c91165be62a84ef/"
                  "SessionMessagingKit/Database/Models/Interaction.swift. "
                  "Reference: SQLCipher documentation, 'cipher_plaintext_header_size', "
                  "https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
