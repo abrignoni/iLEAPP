@@ -74,6 +74,41 @@ __artifacts_v2__ = {
             "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     },
+    "tiktok_account": {
+        "name": "TikTok - Account",
+        "description": "Account values from the com.toutiao.account.userdefault.user record "
+                       "in the app's preferences plist, reported as stored under the app's "
+                       "own key names.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-16",
+        "last_update_date": "2026-08-16",
+        "requirements": "none",
+        "category": "TikTok",
+        "notes": (
+            "The record is an NSKeyedArchiver payload inside "
+            "Library/Preferences/com.zhiliaoapp.musically.plist; its string, number and "
+            "boolean fields are reported one per row and empty values are skipped. On the "
+            "tested image it carried the account's user id, screen name, sec user id, "
+            "avatar URL, session key, and the phone number and email as the app stores "
+            "them, which is partially masked. The sibling "
+            "com.toutiao.account.userdefault.user.* scalar keys (login status, dticket, "
+            "session ids) are included as rows. Other account caches in the same plist "
+            "(NHAccountManager*, AWEUserStorageCacheUserKey, kDYA*) duplicate server "
+            "profile responses and are not parsed."
+        ),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.zhiliaoapp.musically.plist",),
+        "output_types": "standard",
+        "artifact_icon": "user",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 33 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 24 rows",
+            "dexter_ios18": "iOS 18.3.2 | 23 rows",
+            "iphone12_ios18": "iOS 18.7 | 30 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 32 rows",
+            "hickman_ios15": "iOS 15.3.1 | 32 rows",
+            "hickman_ios14": "iOS 14.3 | 22 rows",
+        },
+    },
     "tiktok_watch_history": {
         "name": "TikTok - Watch History",
         "description": "Entries from the app's WatchHistory store: one row per aid with a "
@@ -97,6 +132,9 @@ __artifacts_v2__ = {
         "artifact_icon": "eye",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | TikTok 35.1.0 | 12 rows",
+            "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 1044 rows",
+            "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 1562 rows",
+            "hickman_ios15": "iOS 15.3.1 | 8 rows",
         },
     },
 }
@@ -107,9 +145,13 @@ from scripts.ilapfuncs import (
     artifact_processor,
     attach_sqlite_db_readonly,
     convert_unix_ts_to_utc,
+    get_plist_content,
+    get_plist_file_content,
     get_sqlite_db_records,
     logfunc,
 )
+
+_TIKTOK_ACCOUNT_KEY = "com.toutiao.account.userdefault.user"
 
 
 def _quote_identifier(identifier):
@@ -418,6 +460,40 @@ def tiktok_contacts(context):
     )
 
     return data_headers, data_list, "see Source File column"
+
+
+@artifact_processor
+def tiktok_account(context):
+    """ see artifact description """
+    files_found = context.get_files_found()
+    data_list = []
+    source_path = ""
+
+    for file_found in files_found:
+        file_found = str(file_found)
+        plist_content = get_plist_file_content(file_found)
+        if not isinstance(plist_content, dict) or _TIKTOK_ACCOUNT_KEY not in plist_content:
+            continue
+        source_path = source_path or file_found
+        source_file = context.get_relative_path(file_found)
+
+        account_blob = plist_content.get(_TIKTOK_ACCOUNT_KEY)
+        account = get_plist_content(account_blob) if isinstance(account_blob, bytes) else {}
+        if isinstance(account, dict):
+            for key in sorted(account):
+                value = account[key]
+                if isinstance(value, (str, int, float, bool)) and value != "":
+                    data_list.append((f"{_TIKTOK_ACCOUNT_KEY}: {key}", str(value), source_file))
+
+        for key in sorted(plist_content):
+            if not key.startswith(f"{_TIKTOK_ACCOUNT_KEY}."):
+                continue
+            value = plist_content[key]
+            if isinstance(value, (str, int, float, bool)) and value != "":
+                data_list.append((key, str(value), source_file))
+
+    data_headers = ("Key", "Value", "Source File")
+    return data_headers, data_list, source_path
 
 
 @artifact_processor

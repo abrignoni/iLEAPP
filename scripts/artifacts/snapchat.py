@@ -188,6 +188,39 @@ __artifacts_v2__ = {
             "ctf2020_ios12": "iOS 12.4 | 0 rows (store predates the snapchatter table)",
         },
     },
+    "snapchatGallerySearch": {
+        "name": "Snapchat - Memories Search Index",
+        "description": "Per-snap rows from the app's gallery_search index: the app's own "
+                       "time, location, visual and meta tags, caption text, and visual "
+                       "concept labels with their stored confidence values.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-16", "last_update_date": "2026-08-16",
+        "requirements": "none", "category": "Snapchat",
+        "notes": "search.sqlite3 (Documents/gallery_search/<n>/<account hash>/) is the "
+                 "index the app builds over Memories snaps so they can be searched. All "
+                 "values are app-generated tags reported as stored, not observations about "
+                 "the media itself: location tags are place-name strings (down to street "
+                 "level on the tested image), visual tags and concepts are the app's "
+                 "labels with their stored confidence, and the time tag is a date string.\n"
+                 "Tag rows live in FTS content tables keyed by docid; docid was verified "
+                 "equal to snap_id_table's rowid on the tested image by matching each "
+                 "row's visual tags against snap_visual_tag_conf_table for the same snap "
+                 "id. The snap id refers to a Memories entry; linking it to media files "
+                 "is not done here.",
+        "paths": ('*/mobile/Containers/Data/Application/*/Documents/gallery_search/*/search.sqlite3*',),
+        "output_types": "standard", "artifact_icon": "search",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | 13 rows",
+            "hickman_ios15": "iOS 15.3.1 | 13 rows",
+            "hickman_ios14": "iOS 14.3 | 9 rows",
+            "hickman_ios13": "iOS 13.3.1 | 11 rows",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "abe_ios16": "iOS 16.5 | 1 row",
+            "otto_ios17": "iOS 17.5.1 | 0 rows (index tables empty)",
+            "iphone12_ios18": "iOS 18.7 | no gallery_search search.sqlite3 found",
+        },
+    },
     "snapchatAccount": {
         "name": "Snapchat - Account",
         "description": "Account values from the app's Documents/user.plist: username, user id, "
@@ -804,6 +837,48 @@ def snapchatFriends(context):
                               context.get_relative_path(doc_store)))
     data_headers = ('Username', 'Display Name', 'User ID', 'Mutable Username',
                     'Legacy Username', 'Source File')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def snapchatGallerySearch(context):
+    files_found = context.get_files_found()
+    data_list = []
+    source_path = ''
+    for search_db in sorted({str(f) for f in files_found if str(f).endswith('search.sqlite3')}):
+        source_path = source_path or search_db
+        source_file = context.get_relative_path(search_db)
+        concepts = {}
+        for snap_id, concept, confidence in _rows(search_db, '''
+                SELECT snap_id, concept, conf FROM snap_visual_tag_conf_table
+                ORDER BY snap_id, conf DESC'''):
+            if snap_id and concept:
+                rounded = f'{confidence:.3f}' if isinstance(confidence, float) else confidence
+                concepts.setdefault(snap_id, []).append(f'{concept} ({rounded})')
+        for row in _rows(search_db, '''
+                SELECT ids.snap_id, time_tags.time_tag, ids.language_id,
+                       location_clusters.cluster_name, visual_clusters.cluster_name,
+                       tags.c0time_tag, tags.c1location_tag, tags.c2visual_tag,
+                       tags.c3meta_tag, captions.c0caption
+                FROM snap_id_table AS ids
+                LEFT JOIN snap_tag_table_content AS tags ON tags.docid = ids.rowid
+                LEFT JOIN snap_description_table_content AS captions
+                    ON captions.docid = ids.rowid
+                LEFT JOIN snap_time_tag_table AS time_tags
+                    ON time_tags.snap_id = ids.snap_id
+                LEFT JOIN snap_location_tag_cluster_table AS location_clusters
+                    ON location_clusters.snap_id = ids.snap_id
+                LEFT JOIN snap_visual_tag_cluster_table AS visual_clusters
+                    ON visual_clusters.snap_id = ids.snap_id'''):
+            (snap_id, time_tag, language, location_cluster, visual_cluster,
+             time_tags, location_tags, visual_tags, meta_tags, caption) = row
+            data_list.append((
+                time_tag, snap_id, location_tags, location_cluster, visual_tags,
+                ', '.join(concepts.get(snap_id, [])), visual_cluster, meta_tags,
+                time_tags, caption, language, source_file))
+    data_headers = (('Time Tag', 'date'), 'Snap ID', 'Location Tags', 'Location Cluster',
+                    'Visual Tags', 'Visual Concepts (confidence)', 'Visual Cluster',
+                    'Meta Tags', 'Time Tags', 'Caption', 'Language', 'Source File')
     return data_headers, data_list, source_path
 
 
