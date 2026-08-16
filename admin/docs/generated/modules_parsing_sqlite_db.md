@@ -193,6 +193,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | cashApp |
 | chrome |
 | chromeCreditCards |
+| chromePaymentsCustomerData |
 | cloudkitSharing |
 | cloudkit_cache |
 | coreAccessoriesAcc |
