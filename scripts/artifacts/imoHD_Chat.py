@@ -139,10 +139,20 @@ def _get_key_value(key_values, key):
 
 @artifact_processor
 def imoHDChatMessages(context):
-    data_headers = (('Timestamp', 'datetime'), 'Chat BUID', 'Chat Name', 'Sender ID',
-                    'Sender Name', 'Sender Alias', ('Sender Phone', 'phonenumber'), 'Message',
-                    'Message Status', 'Item Action', 'Constructed CDN URL (unverified)',
-                    ('Attachment', 'media'))
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Message Status',
+        'Sender Name',
+        'Chat Name',
+        'Message',
+        ('Attachment', 'media'),
+        'Chat BUID',
+        'Sender ID',
+        'Sender Alias',
+        ('Sender Phone', 'phonenumber'),
+        'Item Action',
+        'Constructed CDN URL (unverified)',
+    )
     data_list = []
     db_path = _find_db(context)
     if not db_path:
@@ -186,8 +196,20 @@ def imoHDChatMessages(context):
                             break
         sender_id = local_user_id if row[8] == 'Sent' else row[3]
         sender_name = local_user_name if row[8] == 'Sent' else row[4]
-        data_list.append((row[0], row[1], row[2], sender_id, sender_name, row[5], row[6],
-                          row[7], row[8], item_action, attachment_url, media_ref))
+        data_list.append((
+            row[0],
+            row[8],
+            sender_name,
+            row[2],
+            row[7],
+            media_ref,
+            row[1],
+            sender_id,
+            row[5],
+            row[6],
+            item_action,
+            attachment_url,
+        ))
 
     return data_headers, data_list, context.get_relative_path(db_path)
 

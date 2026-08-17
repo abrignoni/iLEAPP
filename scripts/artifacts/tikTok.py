@@ -442,38 +442,38 @@ def tiktok_messages(context):
         for record in db_records:
             data_list.append((
                 _convert_tiktok_timestamp(record[0]),
-                record[1],
-                record[2],
+                _convert_tiktok_timestamp(record[8]),
+                'Outgoing' if str(record[1]) == str(account_id) else 'Incoming',
                 record[3],
                 record[4],
+                record[1],
+                record[2],
                 record[5],
                 record[6],
                 record[7],
-                _convert_tiktok_timestamp(record[8]),
                 record[9],
                 record[10],
                 account_id,
                 source_file,
                 record[11],
-                'Outgoing' if str(record[1]) == str(account_id) else 'Incoming',
             ))
 
     data_headers = (
         ("Timestamp", "datetime"),
-        "Sender",
-        "Custom ID",
+        ("Server Created Timestamp", "datetime"),
+        "Direction",
         "Nickname",
         "Message",
+        "Sender",
+        "Custom ID",
         "Local Response",
         "Content Display Name",
         "Content URL",
-        ("Server Created Timestamp", "datetime"),
         "Profile Pic URL",
         "Contact Table",
         "Account ID",
         "Source File",
         "Conversation ID",
-        "Direction",
     )
 
     return data_headers, data_list, "see Source File column"

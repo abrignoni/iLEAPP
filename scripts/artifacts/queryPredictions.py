@@ -28,7 +28,7 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
 
 @artifact_processor
 def queryPredictions(context):
-    data_headers = (('Timestamp', 'datetime'), 'Content', 'Is Sent?', 'Conversation ID', 'ID', 'UUID')
+    data_headers = (('Timestamp', 'datetime'), 'Is Sent?', 'Content', 'Conversation ID', 'ID', 'UUID')
     data_list = []
 
     source_path = ''
@@ -41,7 +41,7 @@ def queryPredictions(context):
         return data_headers, data_list, ''
 
     query = '''
-    SELECT datetime(creationTimestamp, 'unixepoch'), content, isSent, conversationId, id, uuid
+    SELECT datetime(creationTimestamp, 'unixepoch'), isSent, content, conversationId, id, uuid
     FROM messages
     '''
     for row in get_sqlite_db_records(source_path, query):

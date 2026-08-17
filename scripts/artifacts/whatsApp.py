@@ -273,21 +273,21 @@ def whatsAppMessages(context):
 
     data_headers = (
         ('Timestamp', 'datetime'),
+        'Direction',
         'Sender Name',
+        'Chat Name',
+        'Message',
+        ('Attachment File', 'media'),
         'From ID',
         'Receiver',
         'To ID',
-        'Message',
-        ('Attachment File', 'media'),
         ('Thumb', 'media'),
         'Starred?',
         'Metadata Field 17 (forward count, observed)',
         'Metadata Field 21 (forwarder, observed)',
         'Latitude',
         'Longitude',
-        'Direction',
         'Chat ID',
-        'Chat Name',
         )
 
     db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -342,9 +342,23 @@ def whatsAppMessages(context):
         lat = record['ZLATITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
 
         direction = 'Outgoing' if record['ZISFROMME'] == 1 else 'Incoming'
-        data_list.append((message_date, sender, record['ZFROMJID'], receiver, record['ZTOJID'],
-                          record['ZTEXT'], attach_file, thumb, record['ZSTARRED'],
-                          number_forward, from_forward, lat, lon, direction,
-                          record['ZCONTACTJID'], record['ZPARTNERNAME'],))
+        data_list.append((
+            message_date,
+            direction,
+            sender,
+            record['ZPARTNERNAME'],
+            record['ZTEXT'],
+            attach_file,
+            record['ZFROMJID'],
+            receiver,
+            record['ZTOJID'],
+            thumb,
+            record['ZSTARRED'],
+            number_forward,
+            from_forward,
+            lat,
+            lon,
+            record['ZCONTACTJID'],
+        ))
 
     return data_headers, data_list, source_path

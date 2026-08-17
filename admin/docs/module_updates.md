@@ -124,6 +124,14 @@ Currently the special handler types are:
 
 If the artifact is added to the timeline, be sure that the first column is a datetime or date type.
 
+#### Column order for conversation artifacts
+
+An artifact that reports messages, chats or conversations orders its columns from the roles it
+declares in `data_views.conversation`: the timestamp, then any other date or time columns, then
+direction, sender, conversation label, message text and media, then everything else unchanged.
+`admin/scripts/check_conversation_column_order.py` enforces this in CI. See
+[Column order for conversation artifacts](conversation_column_order.md).
+
 For timestamps in SQLite databases, these functions are actually used to convert timestamps in UTC in human readable format.
 
 ```python

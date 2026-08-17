@@ -232,7 +232,7 @@ def reddit_chats(context):
     ORDER BY "Timestamp" ASC;
     '''
 
-    data_headers = (('Server Timestamp', 'datetime'),'Event ID', 'Sender Display Name','Sender ID','Recipient(s)','Event Type','Message Type','Message','Attachment Cached Name',('Attachment','media'),'Room ID','Direction')
+    data_headers = (('Server Timestamp', 'datetime'), 'Direction', 'Sender Display Name', 'Message', ('Attachment','media'), 'Event ID', 'Sender ID', 'Recipient(s)', 'Event Type', 'Message Type', 'Attachment Cached Name', 'Room ID')
 
     owner_id = _reddit_owner_id(source_path)
 
@@ -247,7 +247,7 @@ def reddit_chats(context):
             direction = 'Outgoing' if record[3] == owner_id else 'Incoming'
         else:
             direction = ''
-        data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], attachment, record[9], direction))
+        data_list.append((record[0], direction, record[2], record[7], attachment, record[1], record[3], record[4], record[5], record[6], record[8], record[9]))
 
     return data_headers, data_list, source_path
 

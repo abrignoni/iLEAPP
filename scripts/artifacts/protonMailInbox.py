@@ -189,24 +189,25 @@ def _labels_by_message(file_found):
 def protonMailInboxMessages(context):
     data_headers = (
         ('Time', 'datetime'),
+        'From Me',
+        'From',
+        'Conversation Subject',
+        'Body',
+        ('Attachment', 'media'),
         'Folder',
         'Conversation ID',
-        'Conversation Subject',
         'Subject',
-        'From',
-        'From Me',
         'To',
         'CC',
         'BCC',
-        'Body',
-        ('Attachment', 'media'),
         'Read',
         'Replied',
         'Forwarded',
         'Attachments',
         'Size',
         'Deleted',
-        'Source File')
+        'Source File',
+    )
     data_list = []
     sources = []
 
@@ -257,24 +258,25 @@ def protonMailInboxMessages(context):
                 media_ref = check_in_media(attachment[0], attachment[1]) or ''
             data_list.append((
                 convert_unix_ts_to_utc(row[1]),
+                from_me,
+                _format_addresses(row[3]),
+                row[15],
+                row[7],
+                media_ref,
                 folders.get(row[0], ''),
                 row[14],
-                row[15],
                 row[2],
-                _format_addresses(row[3]),
-                from_me,
                 _format_addresses(row[4]),
                 _format_addresses(row[5]),
                 _format_addresses(row[6]),
-                row[7],
-                media_ref,
-                'No' if row[8] else 'Yes',   # unread flag inverted to Read
+                'No' if row[8] else 'Yes',
                 'Yes' if row[9] else 'No',
                 'Yes' if row[10] else 'No',
                 row[11],
                 row[12],
                 'Yes' if row[13] else 'No',
-                rel_path))
+                rel_path,
+            ))
             rows_seen = True
         if rows_seen:
             sources.append(rel_path)

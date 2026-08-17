@@ -90,28 +90,31 @@ def airbnb_messages(context):
         else:
             sent = 0
 
-        data_list.append(   (created,
-                            updated,
-                            fetched,
-                            thread_id,
-                            sender_user_id,
-                            sender_user_type,
-                            sender_display_name,
-                            orig_message,
-                            trans_message,
-                            sent)
+        data_list.append(   (
+            created,
+            updated,
+            fetched,
+            sent,
+            sender_display_name,
+            thread_id,
+            orig_message,
+            sender_user_id,
+            sender_user_type,
+            trans_message,
+        )
                         )
 
-    data_headers = (    ('Created Timestamp', 'datetime'),
-                        ('Updated Timestamp', 'datetime'),
-                        ('Fetched Timestamp', 'datetime'),
-                        'Thread ID',
-                        'Sender User ID',
-                        'Sender User Type',
-                        'Sender Display Name',
-                        'Original Message',
-                        'Translated Message',
-                        'Sent'
+    data_headers = (
+        ('Created Timestamp', 'datetime'),
+        ('Updated Timestamp', 'datetime'),
+        ('Fetched Timestamp', 'datetime'),
+        'Sent',
+        'Sender Display Name',
+        'Thread ID',
+        'Original Message',
+        'Sender User ID',
+        'Sender User Type',
+        'Translated Message',
                     )
 
     return data_headers, data_list, files_found[0]
