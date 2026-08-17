@@ -1347,10 +1347,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     
     return mis_encoded_utf8_present, "".join(output)
 
-def logdevinfo(message=""):
-    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
-        b.write(message + '<br>' + OutputParameters.nl)
-
 def write_device_info():
     with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
         for category, values in identifiers.items():
@@ -1384,6 +1380,7 @@ def device_info(category, label, value, source_file=""):
         func_name = 'unknown'
     
     values = identifiers.get(category, {})
+    source_file = Context.get_relative_path(source_file)
     
     # Create value object with both the value and source module
     value_obj = {
