@@ -4,10 +4,27 @@ __artifacts_v2__ = {
         'description': 'Direct and group messages, attachments and shared locations from GroupMe',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-18',
         'requirements': 'none',
         'category': 'GroupMe',
-        'notes': '',
+        'notes': 'Deletion Status Recorded, System Deleted and Deletion Actor (as stored) '
+                 'come from ZGMMESSAGE.ZMESSAGEDELETIONSTATUS, an NSKeyedArchiver archive '
+                 'of a GMMessageDeletionStatus object whose keys are isSystemDeleted and '
+                 'deletionActor. In the tested images the column is populated only on '
+                 'rows whose stored message text is the deleted-message placeholder, and '
+                 'ZHIDDEN is 0 on every one of them, so the Hidden column does not '
+                 'identify these rows. The value domain of deletionActor is not '
+                 'documented, so it is reported as stored. The app binary types the '
+                 'property as a signed integer and declares the enum '
+                 'GroupMe.MessageDeletionStatus.DeletionActor with three cases and no '
+                 'payloads, but its case names are absent from the reflection metadata of '
+                 'the shipped binary, so the mapping is not recoverable from it '
+                 '(GroupMe.app/GroupMe, com.groupme.iphone-app 6.102.4). The separate '
+                 'three-case enum GroupMe.MessageDeletionMode (senderAndAdmin, admin, '
+                 'nobody) is the deletion permission setting and is not this column. '
+                 'Older stores lack the column and are read as NULL, observed on an iOS '
+                 '14.3 image; on an iOS 15.3.1 image the archived object carries '
+                 'isSystemDeleted with no deletionActor key.',
         'paths': (
             '*/mobile/Containers/Data/Application/*/Library/Application Support/GroupMe.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/GroupMe.sqlite*',
@@ -16,7 +33,9 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'message',
         'sample_data': {
-            'iphone11_ios17': 'iOS 17.3 | 146 rows across 3 conversations; 1 hidden message',
+            'iphone11_ios17': 'iOS 17.3 | 146 rows across 3 conversations; 1 hidden message and 4 carrying a deletion status record (deletionActor 0, isSystemDeleted false)',
+            'hickman_ios15': 'iOS 15.3.1 | 66 rows across 2 conversations; 3 carrying a deletion status record that archives isSystemDeleted with no deletionActor key',
+            'hickman_ios14': 'iOS 14.3 | 14 rows in 1 conversation; ZMESSAGEDELETIONSTATUS absent from this store and read as NULL',
         },
         'data_views': {
             'conversation': {
@@ -35,7 +54,7 @@ __artifacts_v2__ = {
         'description': 'Direct message threads and groups known to the GroupMe application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-18',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': '',
@@ -47,6 +66,8 @@ __artifacts_v2__ = {
         'artifact_icon': 'users-group',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 15 rows (13 direct message, 2 group)',
+            'hickman_ios15': 'iOS 15.3.1 | 12 rows',
+            'hickman_ios14': 'iOS 14.3 | 1 row',
         },
     },
     'groupMeGroupMembers': {
@@ -54,7 +75,7 @@ __artifacts_v2__ = {
         'description': 'Members of the GroupMe groups the account belongs to',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-18',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': '',
@@ -66,6 +87,8 @@ __artifacts_v2__ = {
         'artifact_icon': 'users',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 5 rows',
+            'hickman_ios15': 'iOS 15.3.1 | 2 rows',
+            'hickman_ios14': 'iOS 14.3 | 2 rows',
         },
     },
     'groupMeContacts': {
@@ -73,7 +96,7 @@ __artifacts_v2__ = {
         'description': 'Contacts and relationships stored by the GroupMe application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-18',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': '',
@@ -85,6 +108,8 @@ __artifacts_v2__ = {
         'artifact_icon': 'address-book',
         'sample_data': {
             'iphone11_ios17': 'iOS 17.3 | 14 rows',
+            'hickman_ios15': 'iOS 15.3.1 | 2 rows',
+            'hickman_ios14': 'iOS 14.3 | 1 row',
         },
     },
     'groupMeAccount': {
@@ -92,7 +117,7 @@ __artifacts_v2__ = {
         'description': 'Local GroupMe account details from the application preferences',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-18',
         'requirements': 'none',
         'category': 'GroupMe',
         'notes': '',
@@ -100,7 +125,9 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'user',
         'sample_data': {
-            'iphone11_ios17': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 13 rows',
+            'hickman_ios15': 'iOS 15.3.1 | 11 rows',
+            'hickman_ios14': 'iOS 14.3 | 10 rows',
         },
     },
 }
@@ -108,8 +135,8 @@ __artifacts_v2__ = {
 import plistlib
 
 from scripts.ilapfuncs import artifact_processor, logfunc, \
-    get_file_path, get_plist_file_content, get_sqlite_db_records, \
-    convert_cocoa_core_data_ts_to_utc
+    get_file_path, get_plist_content, get_plist_file_content, get_sqlite_db_records, \
+    convert_cocoa_core_data_ts_to_utc, null_absent_columns
 
 # Z_ENT values from Z_PRIMARYKEY. GroupMe keeps direct messages and group
 # messages in the same ZGMMESSAGE table and tells them apart by entity.
@@ -154,6 +181,29 @@ def _get_local_user_id(files_found):
     return str(user_id) if user_id is not None else None
 
 
+def _decode_deletion_status(blob):
+    """Unpack a ZMESSAGEDELETIONSTATUS archive into its two stored values.
+
+    The column holds an NSKeyedArchiver archive of a GMMessageDeletionStatus
+    object. Returns (recorded, isSystemDeleted, deletionActor), where recorded
+    says a status object was stored at all. Either key can be absent: an iOS 15
+    store archives isSystemDeleted on its own, so a missing key is reported
+    empty rather than as a value.
+    """
+    if not blob:
+        return '', '', ''
+    status = get_plist_content(blob)
+    if not isinstance(status, dict):
+        return '', '', ''
+    system_deleted = status.get('isSystemDeleted')
+    actor = status.get('deletionActor')
+    return (
+        'Yes',
+        '' if system_deleted is None else ('Yes' if system_deleted else 'No'),
+        '' if actor is None else actor,
+    )
+
+
 @artifact_processor
 def groupMeMessages(context):
     files_found = context.get_files_found()
@@ -174,6 +224,7 @@ def groupMeMessages(context):
         m.ZSYSTEM AS isSystem,
         m.ZHIDDEN AS isHidden,
         m.ZFAVORITEDBY AS favoritedBy,
+        m.ZMESSAGEDELETIONSTATUS AS deletionStatus,
         m.ZREPLYMESSAGEID AS replyMessageId,
         m.ZSOURCEGUID AS sourceGuid,
         COALESCE(m.ZDIRECTMESSAGEID, m.ZLINEID) AS messageId,
@@ -196,7 +247,7 @@ def groupMeMessages(context):
     ORDER BY m.ZCREATEDAT
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         sender_id = record['senderId']
         if local_user_id is not None and not record['isSystem']:
             from_me = 1 if str(sender_id) == local_user_id else 0
@@ -210,6 +261,9 @@ def groupMeMessages(context):
         # stores 0.0/0.0, which would litter the map output with null island.
         latitude = record['latitude'] if record['latitude'] is not None else ''
         longitude = record['longitude'] if record['longitude'] is not None else ''
+
+        deletion_recorded, system_deleted, deletion_actor = \
+            _decode_deletion_status(record['deletionStatus'])
 
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']),
@@ -227,6 +281,9 @@ def groupMeMessages(context):
             longitude,
             'Yes' if record['isSystem'] else '',
             'Yes' if record['isHidden'] else '',
+            deletion_recorded,
+            system_deleted,
+            deletion_actor,
             'Yes' if record['favoritedBy'] else '',
             record['replyMessageId'],
             record['messageId'],
@@ -249,6 +306,9 @@ def groupMeMessages(context):
         'Longitude',
         'System Message',
         'Hidden',
+        'Deletion Status Recorded',
+        'System Deleted',
+        'Deletion Actor (as stored)',
         'Favorited By',
         'Reply To Message ID',
         'Message ID',
