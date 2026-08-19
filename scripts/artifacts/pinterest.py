@@ -283,6 +283,12 @@ APP_STATE_PREFIXES = (
 # object it archives.
 AUTOCOMPLETE_CURRENT_KEY = 'kPinterestAutocompleteQueryCacheCurrentKey'
 AUTOCOMPLETE_LAST_CHECK_KEY = 'kPinterestAutocompleteQueryCacheLastCheckKey'
+
+# The autocomplete store is named <prefix>ap.db, and the prefix observed in the tested
+# sample is a UUID. Matching on the ending alone also catches unrelated databases whose
+# names end in map.db, among them Apple's phon_map.db and RecordMap.db, so the prefix is
+# restricted to the hexadecimal and dash characters a UUID is made of.
+AUTOCOMPLETE_DB_RE = re.compile(r'^[0-9A-Fa-f-]+ap\.db$')
 AUTOCOMPLETE_FIELDS = {
     'prefix': 'kAutocompleteCacheCodingLocalFilePrefixKey',
     'version': 'kAutocompleteCacheCodingVersionKey',
@@ -419,19 +425,20 @@ def _cache_files(files_found, directory, roots):
         normalized = path.replace('\\', '/')
         if '/' + directory + '/' not in normalized or not os.path.isfile(path):
             continue
-        if roots and not _in_container(path, roots):
+        # The guard must reject when no container was identified, not fall through.
+        # This directory is named for a shared library, so with no Pinterest container
+        # every match belongs to another application.
+        if not _in_container(path, roots):
             skipped += 1
             continue
         kept.append(path)
-    if skipped:
+    if skipped and roots:
         logfunc(f'Pinterest: skipped {skipped} {directory} file(s) found outside a '
                 f'Pinterest container; this cache directory is named for a shared library.')
-    if not roots and not kept:
-        for path in _paths(files_found):
-            if '/' + directory + '/' in path.replace('\\', '/'):
-                logfunc(f'Pinterest: {directory} files were found but no Pinterest '
-                        f'container was identified, so none are reported.')
-                break
+    elif skipped:
+        logfunc(f'Pinterest: {skipped} {directory} file(s) were found but no Pinterest '
+                f'container was identified, so none are reported; this cache directory is '
+                f'named for a shared library and other applications embed it.')
     return kept
 
 
@@ -867,9 +874,11 @@ def pinterestSearchAutocompleteCache(context):
 
     for path in _paths(files_found):
         name = os.path.basename(path)
-        if not name.endswith('ap.db') or not os.path.isfile(path):
+        if not AUTOCOMPLETE_DB_RE.match(name) or not os.path.isfile(path):
             continue
-        if roots and not _in_container(path, roots):
+        # Fails closed: with no Pinterest container identified, every match belongs
+        # to another application or to the system.
+        if not _in_container(path, roots):
             continue
         container = _container_of(path, roots)
         metadata = metadata_by_container.get(container, {})
