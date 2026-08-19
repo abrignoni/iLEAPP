@@ -293,21 +293,19 @@ __artifacts_v2__ = {
 
 ### 9. Update Device Information Collection
 
-The `logdevinfo()` function is being deprecated in favor of the new `device_info()` function. This new function provides better organization and structure for device-related information. Not every module uses these functions, so this section is only applicable to modules that do.
-
-#### Old Method (logdevinfo):
-
-```python
-logdevinfo(f'<b>IMEI: </b>{imei}')
-logdevinfo(f'<b>Serial Number: </b>{serial}')
-```
-
-#### New Method (device_info):
+Device-related information is recorded with the `device_info()` function. The older
+`logdevinfo()` function it replaced has been removed, so a module that still calls it will
+fail on import. Not every module records device information, so this section is only
+applicable to modules that do.
 
 ```python
 device_info("Advertising Identifier", "Apple Advertising Identifier", val, source_path)
 device_info("Device Information", "IMEI", imei, source_path)
 ```
+
+The arguments are category, label, value, and the source file the value came from. The
+source is stored as a path relative to the extraction root and shown as a tooltip in the
+report.
 
 It the module doesn't generate any output, specifiy `"output_types": "none"` in the `__artifacts_v2__` block and replace the return statement
 ```python
@@ -319,7 +317,7 @@ return (), [], source_path
 ``` 
 
 
-Key differences:
+Key points:
 
 1. No HTML formatting needed - display formatting is handled by the output generator
 2. Information is categorized for better organization
@@ -327,7 +325,7 @@ Key differences:
 4. Source tracking is automatic - the module name is recorded with each value
 5. Duplicate handling is built-in - multiple modules can report the same information
 
-The new structure allows for:
+The structure allows for:
 
 - Better organization of device information by category
 - Automatic tracking of which modules provided what information
@@ -335,7 +333,7 @@ The new structure allows for:
 - Consistent formatting across all outputs
 - De-duplication and conflict resolution
 
-You can view the current categories and labels being used across all modules in the [Device Info Values](device_info_values.md) documentation.
+You can view the current categories and labels being used across all modules in the [Device Info Values](generated/device_info_values.md) documentation.
 
 ### 10. Get device model from device identifier
 The `lookup_metadata('apple_device_id_to_model', identifier)` method of the Context class allows you to retrieve the human-readable device model name for a given device identifier (such as "iPhone10,1" or "iPad7,4") in the internal device ID mapping loaded from [data/apple_device_id_to_model.json](../../scripts/data/apple_device_id_to_model.json). This is useful when processing artifacts that include device identifiers and you want to display or use the corresponding model name.
