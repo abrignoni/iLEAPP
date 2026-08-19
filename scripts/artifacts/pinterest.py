@@ -126,6 +126,9 @@ __artifacts_v2__ = {
                  "is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Caches/com.pinterest.PINDiskCache.PINRemoteModelCache/*',
+            '*/mobile/Containers/Data/Application/*/Library/Preferences/pinterest.plist',
+            '*/mobile/Containers/Data/Application/*/Library/Preferences/com.pinterest.applicationhealthmonitor.plist',
+            '*/mobile/Containers/Data/Application/*/Documents/activeUser*',
         ),
         "output_types": "standard",
         "artifact_icon": "database"
@@ -283,12 +286,6 @@ APP_STATE_PREFIXES = (
 # object it archives.
 AUTOCOMPLETE_CURRENT_KEY = 'kPinterestAutocompleteQueryCacheCurrentKey'
 AUTOCOMPLETE_LAST_CHECK_KEY = 'kPinterestAutocompleteQueryCacheLastCheckKey'
-
-# The autocomplete store is named <prefix>ap.db, and the prefix observed in the tested
-# sample is a UUID. Matching on the ending alone also catches unrelated databases whose
-# names end in map.db, among them Apple's phon_map.db and RecordMap.db, so the prefix is
-# restricted to the hexadecimal and dash characters a UUID is made of.
-AUTOCOMPLETE_DB_RE = re.compile(r'^[0-9A-Fa-f-]+ap\.db$')
 AUTOCOMPLETE_FIELDS = {
     'prefix': 'kAutocompleteCacheCodingLocalFilePrefixKey',
     'version': 'kAutocompleteCacheCodingVersionKey',
@@ -874,7 +871,7 @@ def pinterestSearchAutocompleteCache(context):
 
     for path in _paths(files_found):
         name = os.path.basename(path)
-        if not AUTOCOMPLETE_DB_RE.match(name) or not os.path.isfile(path):
+        if not name.endswith('ap.db') or not os.path.isfile(path):
             continue
         # Fails closed: with no Pinterest container identified, every match belongs
         # to another application or to the system.
