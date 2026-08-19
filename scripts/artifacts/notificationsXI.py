@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         "notes": "Best-effort structured rewrite of the old HTML-triage version: pulls the "
                  "AppNotification* fields out of the PushStore NSKeyedArchiver into a flat table "
                  "matching the iOS 12 'Notifications' artifact. Field extraction should be validated "
-                 "against an iOS 11 PushStore sample. Times assumed UTC.",
+                 "against an iOS 11 PushStore sample. Times assumed UTC. No PushStore files exist in any "
+                 "registered corpus image or public path listing checked (iOS 12.4-26.5.2) nor in "
+                 "Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current extractions is expected; notifications there "
+                 "are parsed by the Notifications artifact (notificationsXII) from Library/UserNotifications.",
         "paths": ('*PushStore*',),
         "output_types": "standard",
         "artifact_icon": "bell"

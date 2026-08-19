@@ -73,9 +73,20 @@ def _find_db(context):
 
 @artifact_processor
 def teleguardMessages(context):
-    data_headers = (('Timestamp', 'datetime'), ('User Time', 'datetime'), 'Type', 'Sender',
-                    'Receiver', 'Content', 'Metadata', ('Media', 'media'), 'Status', 'Is Edited?',
-                    'Direction', 'Chat ID')
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        ('User Time', 'datetime'),
+        'Direction',
+        'Sender',
+        'Content',
+        ('Media', 'media'),
+        'Type',
+        'Receiver',
+        'Metadata',
+        'Status',
+        'Is Edited?',
+        'Chat ID',
+    )
     data_list = []
     db_path = _find_db(context)
     if not db_path:
@@ -111,8 +122,20 @@ def teleguardMessages(context):
             direction = 'Outgoing' if row[3] == owner_id else 'Incoming'
         else:
             direction = ''
-        data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6],
-                          media_refs or '', row[7], row[8], direction, row[9]))
+        data_list.append((
+            row[0],
+            row[1],
+            direction,
+            row[3],
+            row[5],
+            media_refs or '',
+            row[2],
+            row[4],
+            row[6],
+            row[7],
+            row[8],
+            row[9],
+        ))
 
     return data_headers, data_list, context.get_relative_path(db_path)
 

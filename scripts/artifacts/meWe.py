@@ -206,18 +206,19 @@ def meWeMessages(context):
 
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZDATE']),
+            convert_cocoa_core_data_ts_to_utc(record['ZEDITEDDATE']) if record['ZEDITEDDATE'] else '',
+            from_me,
+            record['senderName'],
             thread_labels.get(record['threadId'], record['threadId']),
+            record['message'],
             record['threadId'],
             record['chatType'],
-            record['senderName'],
             record['senderId'],
-            record['message'],
             latitude,
             longitude,
             record['attachmentType'],
             record['attachmentName'],
             record['attachmentUrl'],
-            convert_cocoa_core_data_ts_to_utc(record['ZEDITEDDATE']) if record['ZEDITEDDATE'] else '',
             record['originalText'],
             'Yes' if record['deletedBySender'] else '',
             record['disappearingType'],
@@ -226,16 +227,32 @@ def meWeMessages(context):
             'Yes' if record['callHasVideo'] else '',
             record['messageId'],
             record['replyMessageId'],
-            from_me,
         ))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Thread ID', 'Chat Type',
-        'Sender', 'Sender ID', 'Message', 'Latitude', 'Longitude',
-        'Attachment Type', 'Attachment Name', 'Attachment URL',
-        ('Edited', 'datetime'), 'Original Text', 'Deleted By Sender',
-        'Disappearing Type', 'Event Type', 'Call Duration', 'Call Has Video',
-        'Message ID', 'Reply To Message ID', 'From Me')
+        ('Timestamp', 'datetime'),
+        ('Edited', 'datetime'),
+        'From Me',
+        'Sender',
+        'Conversation',
+        'Message',
+        'Thread ID',
+        'Chat Type',
+        'Sender ID',
+        'Latitude',
+        'Longitude',
+        'Attachment Type',
+        'Attachment Name',
+        'Attachment URL',
+        'Original Text',
+        'Deleted By Sender',
+        'Disappearing Type',
+        'Event Type',
+        'Call Duration',
+        'Call Has Video',
+        'Message ID',
+        'Reply To Message ID',
+    )
 
     return data_headers, data_list, source_path
 

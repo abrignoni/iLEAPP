@@ -72,22 +72,22 @@ def get_zangichats(context):  # your def variable should match what you have aft
                     timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
                     data_list.append((
                         timestamp,
-                        row[1],
-                        row[2],
-                        row[3],
                         row[4],
+                        row[1],
+                        row[3],
+                        row[2],
                         row[5],
-                        context.get_relative_path(file_found)
+                        context.get_relative_path(file_found),
                         ))
             db.close()
         else:
             continue
     data_headers = (
         ('Timestamp', 'datetime'),
-        'First Name',
-        'Last Name',
-        'Message Text',
         'Direction',
+        'First Name',
+        'Message Text',
+        'Last Name',
         'Number',
         'Filename',
         )

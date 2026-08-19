@@ -258,20 +258,20 @@ def iOSclaudeMessages(context):
         ) if record[0] else None           
         
         data_list.append((
-            createdAT, 
-            record[1], 
-            record[2], 
-            record[3], 
+            createdAT,
+            record[3],
             record[4],
-            record[5]
+            record[1],
+            record[2],
+            record[5],
         ))
         
     data_headers = (
         ('Message Created Time', 'datetime'),
-        'Message',
-        'Image File Name',
         'Message Sender',
         'Conversation Name',
+        'Message',
+        'Image File Name',
         'Conversation ID',
     )
 

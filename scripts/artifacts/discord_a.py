@@ -49,10 +49,21 @@ def DiscordChatsA(context):
 
     query = '''select data from messages0'''
 
-    data_headers = (('Message Timestamp', 'datetime'), ('Edited Timestamp', 'datetime'),
-                    'Sender Username', 'Sender Global Name', 'Sender ID', 'Message',
-                    'Attachment(s)', 'Message Type', 'Call Ended', 'Message ID', 'Channel ID',
-                    'Account ID', 'Direction',)
+    data_headers = (
+        ('Message Timestamp', 'datetime'),
+        ('Edited Timestamp', 'datetime'),
+        'Direction',
+        'Sender Username',
+        'Message',
+        'Sender Global Name',
+        'Sender ID',
+        'Attachment(s)',
+        'Message Type',
+        'Call Ended',
+        'Message ID',
+        'Channel ID',
+        'Account ID',
+    )
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -119,8 +130,20 @@ def DiscordChatsA(context):
             else:
                 direction = ''
 
-            data_list.append((message_ts, edited_ts, auth_username, global_username, sender_id,
-                              message, attach_name, message_type, call_end, blob_id, channel_id,
-                              account_id, direction))
+            data_list.append((
+                message_ts,
+                edited_ts,
+                direction,
+                auth_username,
+                message,
+                global_username,
+                sender_id,
+                attach_name,
+                message_type,
+                call_end,
+                blob_id,
+                channel_id,
+                account_id,
+            ))
 
     return data_headers, data_list, '\n'.join(source_paths)

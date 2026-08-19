@@ -883,7 +883,14 @@ def get_plist_file_content(file_path):
 
 def get_sqlite_db_path(path):
     if is_platform_windows():
-        path_str = str(path)
+        # An upstream caller may hand us a path normalised to forward slashes,
+        # including any extended-length prefix (\\?\ becomes //?/). Windows
+        # extended paths require backslashes, and '/' is never a valid filename
+        # character on Windows, so restore backslashes before inspecting the
+        # prefix. Without this a forward-slashed extended path matches none of
+        # the checks below, falls through to the normal-path branch, and gets a
+        # second \\?\ prepended (\\?\//?/D:/...), which SQLite cannot open.
+        path_str = str(path).replace('/', '\\')
         if path_str.startswith('\\\\?\\UNC\\'): # UNC long path
             remainder = path_str[4:]
         elif path_str.startswith('\\\\?\\'):    # normal long path
@@ -893,8 +900,8 @@ def get_sqlite_db_path(path):
         else:                                   # normal path
             remainder = path_str
         # Encode special URI characters (e.g. '#', space) so SQLite doesn't
-        # treat them as fragment delimiters or query separators. Keep ':'
-        # and '/' safe so the drive letter and forward slashes are preserved.
+        # treat them as fragment delimiters or query separators. Keep ':' safe
+        # so the drive letter is preserved; separators are now all backslashes.
         return "%5C%5C%3F%5C" + quote(remainder, safe=':/')
     else:
         return quote(str(path), safe='/')
@@ -1340,10 +1347,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     
     return mis_encoded_utf8_present, "".join(output)
 
-def logdevinfo(message=""):
-    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
-        b.write(message + '<br>' + OutputParameters.nl)
-
 def write_device_info():
     with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
         for category, values in identifiers.items():
@@ -1377,6 +1380,7 @@ def device_info(category, label, value, source_file=""):
         func_name = 'unknown'
     
     values = identifiers.get(category, {})
+    source_file = Context.get_relative_path(source_file)
     
     # Create value object with both the value and source module
     value_obj = {
@@ -1449,12 +1453,32 @@ def lava_only_info(category, artifact_name, table_name, records):
     lava_only_artifacts[category] = artifacts
 
 ### New timestamp conversion functions
+_UNIX_EPOCH_UTC = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
 def convert_unix_ts_in_seconds(ts):
-    digits = int(math.log10(ts if ts > 0 else -ts))+1
-    if digits > 10:
-        extra_digits = digits - 10
-        ts = ts // 10**extra_digits
-    return int(ts)
+    """A Unix timestamp normalised to whole seconds, whatever sub-second unit it is stored in.
+
+    The unit is taken from the value's magnitude and divided by the matching power of a
+    thousand, keeping this module's long-standing boundary that more than ten digits means
+    sub-second units. Sizing by digit count alone, as this did previously, assumed the value
+    in seconds was itself ten digits, which only holds from 2001-09-09 to 2286. Outside that
+    window a millisecond value was rescaled by the wrong factor, so a 1990 date read as 2170
+    and a 1952 date as 1795.
+
+    Magnitude cannot separate the units close to the epoch: any value standing for an
+    instant within about four months either side of it is read as the next coarser unit,
+    whichever unit it was really in. A caller that knows the unit should convert it itself
+    rather than rely on this.
+    """
+    ts = int(ts)
+    magnitude = abs(ts)
+    if magnitude >= 10**16:
+        return ts // 1_000_000_000  # nanoseconds
+    if magnitude >= 10**13:
+        return ts // 1_000_000      # microseconds
+    if magnitude >= 10**10:
+        return ts // 1_000          # milliseconds
+    return ts
 
 def convert_unix_ts_to_utc(ts):
     if ts:
@@ -1463,14 +1487,16 @@ def convert_unix_ts_to_utc(ts):
         except (ValueError, TypeError, OSError, OverflowError):
             return ts
         ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, tz=timezone.utc)
+        # Added to the epoch rather than passed to datetime.fromtimestamp, to avoid the
+        # gmtime() errors that function raises for values before 1970 on some platforms.
+        return _UNIX_EPOCH_UTC + timedelta(seconds=ts)
     else:
         return ts
 
 def convert_unix_ts_to_str(ts):
     if ts:
         ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+        return (_UNIX_EPOCH_UTC + timedelta(seconds=ts)).strftime('%Y-%m-%d %H:%M:%S')
     else:
         return ts
 
@@ -1551,15 +1577,14 @@ def convert_ts_human_to_utc(ts): #This is for timestamp in human form
     return timestamp
 
 def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
-    timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
+    # Added to the epoch rather than passed to datetime.fromtimestamp, to avoid the
+    # gmtime() errors that function raises for values before 1970 on some platforms.
+    timestamp = _UNIX_EPOCH_UTC + timedelta(seconds=ts)
     return timestamp
 
 def convert_unix_ts_to_timezone(ts, timezone_offset):
     if ts:
-        digits = int(math.log10(ts))+1
-        if digits > 10:
-            extra_digits = digits - 10
-            ts = ts // 10**extra_digits
+        ts = convert_unix_ts_in_seconds(ts)
         return convert_ts_int_to_timezone(ts, timezone_offset)
     else:
         return ts

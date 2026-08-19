@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses messages from the encrypted Signal database, including direction, author, conversation and body.",
         "author": "Alexis Brignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Signal",
-        "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain is captured separately from the file system extraction, so supply it with --keychain or the keychain field in the GUI. Reference: Signal-iOS, 'SDSRecordType.swift (incomingMessage = 19, outgoingMessage = 21)', https://github.com/signalapp/Signal-iOS/blob/main/SignalServiceKit/Storage/Database/SDSRecordType.swift Reference: SQLCipher documentation, 'cipher_plaintext_header_size', https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
+        "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain is captured separately from the file system extraction, so supply it with --keychain or the keychain field in the GUI. Reference: Signal-iOS, 'SDSRecordType.swift (incomingMessage = 19, outgoingMessage = 21)', https://github.com/signalapp/Signal-iOS/blob/a9f55ea599561e6d3bcee87d4f1540a7191b28dc/SignalServiceKit/Storage/Database/SDSRecordType.swift Reference: SQLCipher documentation, 'cipher_plaintext_header_size', https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
         "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
                   # attachments are stored in the clear, so they only need locating
                   '*/AppGroup/*/Attachments/*',
@@ -278,6 +278,7 @@ def get_signalIOSMessages(context):
             data_list.append((
                 convert_unix_ts_to_utc(row[0]),
                 convert_unix_ts_to_utc(row[1]),
+                convert_unix_ts_to_utc(row[12]) if row[12] else '',
                 direction,
                 author,
                 row[16] or row[17] or '',
@@ -289,7 +290,6 @@ def get_signalIOSMessages(context):
                 'Yes' if row[9] else 'No',
                 'Yes' if row[10] else 'No',
                 row[11] or '',
-                convert_unix_ts_to_utc(row[12]) if row[12] else '',
                 row[6] or '',
                 row[14],
             ))
@@ -298,6 +298,7 @@ def get_signalIOSMessages(context):
     data_headers = (
         ('Timestamp', 'datetime'),
         ('Received Timestamp', 'datetime'),
+        ('Server Timestamp', 'datetime'),
         'Direction',
         'Author',
         'Conversation With',
@@ -309,7 +310,6 @@ def get_signalIOSMessages(context):
         'View Once',
         'Remotely Deleted',
         'Disappearing Timer (Seconds)',
-        ('Server Timestamp', 'datetime'),
         'Thread ID',
         'Row ID',
     )

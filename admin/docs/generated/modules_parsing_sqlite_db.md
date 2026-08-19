@@ -84,6 +84,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | foursquareSwarm |
 | geodApplications |
 | geodPDPlaceCache |
+| googleDrive |
 | googleDuo |
 | googleTranslate |
 | googleVoice |
@@ -111,6 +112,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | notes |
 | notesPasswordProtected |
 | nsVault |
+| oneDrive |
 | ooklaSpeedtestData |
 | parsecdCache |
 | payByPhone |
@@ -122,6 +124,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | potatoChat |
 | powerlog |
 | protonMail |
+| protonMailInbox |
 | queryPredictions |
 | quickLook |
 | recents |
@@ -150,6 +153,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | tileAppDb |
 | tileAppDisc |
 | tileAppNetDb |
+| tinder |
 | trustedPeers |
 | truthSocial |
 | twint |
@@ -163,6 +167,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | voicemail |
 | waze |
 | whatsApp |
+| whatsAppExtended |
 | wickr |
 | wifiAnalytics |
 | wire |
@@ -187,6 +192,8 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | callHistoryGroupCall |
 | cashApp |
 | chrome |
+| chromeCreditCards |
+| chromePaymentsCustomerData |
 | cloudkitSharing |
 | cloudkit_cache |
 | coreAccessoriesAcc |

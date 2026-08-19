@@ -650,19 +650,19 @@ def burnerCache_messages(context):
     seeker = context.get_seeker()
 
     data_headers = (
-        'Thread',
         ('Sent', 'datetime'),
         'Direction',
-        'Read',
         'Sender',
-        'Recipient',
         'Message',
-        'Message type',
         ('Media', 'media', 'height: 96px; border-radius: 5%;'),
+        'Thread',
+        'Read',
+        'Recipient',
+        'Message type',
         'Media URL',
         'Message ID',
         'Source file name',
-        'Location'
+        'Location',
     )
     data_list = []
     data_list_html = []
@@ -882,11 +882,37 @@ def burnerCache_messages(context):
                 location = COMMA_SEP.join(location)
 
                 # html row
-                data_list_html.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url_html,
-                                       message_id, source_file_name_html, esc(location)))
+                data_list_html.append((
+                    created,
+                    direction,
+                    sender,
+                    body,
+                    media_ref_id,
+                    thread,
+                    read,
+                    recipient,
+                    message_type,
+                    media_url_html,
+                    message_id,
+                    source_file_name_html,
+                    esc(location),
+                ))
                 # lava row
-                data_list.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url,
-                                  message_id, source_file_name, location))
+                data_list.append((
+                    created,
+                    direction,
+                    sender,
+                    body,
+                    media_ref_id,
+                    thread,
+                    read,
+                    recipient,
+                    message_type,
+                    media_url,
+                    message_id,
+                    source_file_name,
+                    location,
+                ))
 
         # message
         elif isinstance(json_data, dict):
@@ -911,10 +937,36 @@ def burnerCache_messages(context):
             location = COMMA_SEP.join(location)
 
             # html row
-            data_list_html.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url_html,
-                                   message_id, source_file_name_html, esc(location)))
+            data_list_html.append((
+                created,
+                direction,
+                sender,
+                body,
+                media_ref_id,
+                thread,
+                read,
+                recipient,
+                message_type,
+                media_url_html,
+                message_id,
+                source_file_name_html,
+                esc(location),
+            ))
             # lava row
-            data_list.append((thread, created, direction, read, sender, recipient, body, message_type, media_ref_id, media_url,
-                              message_id, source_file_name, location))
+            data_list.append((
+                created,
+                direction,
+                sender,
+                body,
+                media_ref_id,
+                thread,
+                read,
+                recipient,
+                message_type,
+                media_url,
+                message_id,
+                source_file_name,
+                location,
+            ))
 
     return data_headers, (data_list, data_list_html), ' '

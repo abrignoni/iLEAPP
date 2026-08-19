@@ -30,10 +30,8 @@ __artifacts_v2__ = {
     }
 }
 
-import datetime
-from datetime import timezone
 import os
-from scripts.ilapfuncs import logdevinfo, artifact_processor, convert_unix_ts_to_utc
+from scripts.ilapfuncs import device_info, artifact_processor, convert_unix_ts_to_utc
 
 @artifact_processor
 def wipe_indicators(context):
@@ -46,7 +44,7 @@ def wipe_indicators(context):
         source_name_log = source_name.rsplit('\\', 1)[-1]
         utc_modified_date = convert_unix_ts_to_utc(os.path.getmtime(source_path))
     
-        logdevinfo(f'<b>{source_name_log} Timestamp: </b>{utc_modified_date}')
+        device_info("Wipe Indicators", f"{source_name_log}", utc_modified_date, source_name)
     
         data_list.append((utc_modified_date, source_name_log, source_name))
 

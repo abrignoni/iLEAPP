@@ -7,7 +7,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -28,7 +32,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "Reference: Chromium source, ui/base/page_transition_types.h, https://chromium.googlesource.com/chromium/src (LINK=0, TYPED=1 confirmed).",
+        "notes": "Reference: Chromium source, ui/base/page_transition_types.h, https://chromium.googlesource.com/chromium/src (LINK=0, TYPED=1 confirmed)."
+                 " A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -49,7 +58,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -70,7 +83,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "Reference: Chromium source, components/download/public/common/download_danger_type.h and download_interrupt_reason_values.h, https://chromium.googlesource.com/chromium/src",
+        "notes": "Reference: Chromium source, components/download/public/common/download_danger_type.h and download_interrupt_reason_values.h, https://chromium.googlesource.com/chromium/src"
+                 " A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -91,7 +109,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/History*', '*/app_sbrowser/Default/History*', '*/app_opera/History*',
                   '*/Chromium/Default/History*'),
         "output_types": "standard",
@@ -112,7 +134,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -130,10 +156,28 @@ __artifacts_v2__ = {
         "description": "Parses Autofill Profiles from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "Chromium stores address profiles in several layouts and all observed ones are read. "
+                 "Web Data version 104-111 stores use autofill_profiles joined (LEFT) to "
+                 "autofill_profile_names, _emails and _phones. Version 120-128 stores use "
+                 "contact_info and local_addresses, and version 149+ stores use addresses; in all "
+                 "three the field values live in a companion *_type_tokens table keyed by "
+                 "Chromium's FieldType enum (3 NAME_FIRST, 4 NAME_MIDDLE, 5 NAME_LAST, "
+                 "9 EMAIL_ADDRESS, 14 PHONE_HOME_WHOLE_NUMBER, 33 ADDRESS_HOME_CITY, "
+                 "34 ADDRESS_HOME_STATE, 35 ADDRESS_HOME_ZIP, 60 COMPANY_NAME, "
+                 "77 ADDRESS_HOME_STREET_ADDRESS). Types outside that set are not reported rather "
+                 "than labelled. The token-table layouts are source-verified against Chromium and "
+                 "validated with populated Android stores in ALEAPP; every iOS test store is empty, "
+                 "so they are corpus-unexercised here. Reference: Chromium, "
+                 "'components/autofill/core/browser/field_types.h', "
+                 "https://github.com/chromium/chromium/blob/e90fec8693b4bd68806f3a5addec6722c0bc3939/components/autofill/core/browser/field_types.h"
+                 " A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Web Data*', '*/app_sbrowser/Default/Web Data*', '*/app_opera/Web Data*',
                   '*/Chromium/Default/Web Data*'),
         "output_types": "standard",
@@ -144,6 +188,8 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | Google Chrome (com.google.chrome.ios) | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | Brave (com.brave.ios.browser) | 0 rows",
         },
     },
     "chromeBookmarks": {
@@ -174,7 +220,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Cookies*', '*/app_sbrowser/Default/Cookies*', '*/app_opera/Cookies*', '*/Chromium/Default/Cookies*'),
         "output_types": "standard",
         "artifact_icon": "cookie",
@@ -187,7 +237,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Login Data*', '*/app_sbrowser/Default/Login Data*', '*/app_opera/Login Data*', '*/Chromium/Default/Login Data*'),
         "output_types": "standard",
         "artifact_icon": "key",
@@ -204,19 +258,22 @@ __artifacts_v2__ = {
         "description": "Parses Top Sites from Chromium Based Browsers",
         "author": "@stark4n6",
         "creation_date": "2024-11-10",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "The redirects column is absent from the version-5 Top Sites schema observed "
+                 "on every corpus store checked (iOS 16.1.1-26.5.2); it is reported blank there.",
         "paths": ('*/Chrome/Default/Top Sites*', '*/app_sbrowser/Default/Top Sites*', '*/app_opera/Top Sites*', '*/Chromium/Default/Top Sites*'),
         "output_types": ['lava', 'tsv', 'html'],
         "artifact_icon": "star",
         "sample_data": {
-            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | Google Chrome 120.6099.119 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Brave Browser & Search Engine 1.88 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | Google Chrome 120.6099.119 | 1 row",
             "otto_ios17": "iOS 17.5.1 | Google Chrome 127.6533.107 | 0 rows",
             "abe_ios16": "iOS 16.5 | Google Chrome 109.5414.112 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | Google Chrome 108.5359.112 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | Google Chrome (com.google.chrome.ios) | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | Brave (com.brave.ios.browser) | 7 rows",
         },
     },
     "chromeOfflinePages": {
@@ -227,7 +284,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/app_sbrowser/Default/Offline Pages/metadata/OfflinePages.db*',
                   '*/Chromium/Default/Offline Pages/metadata/OfflinePages.db*'),
@@ -242,7 +303,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -256,7 +321,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -270,7 +339,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Media History*', '*/app_sbrowser/Default/Media History*',
                   '*/app_opera/Media History*', '*/Chromium/Default/Media History*'),
         "output_types": "standard",
@@ -284,7 +357,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Chromium",
-        "notes": "",
+        "notes": "A database that cannot be read is logged and skipped, so the other browsers on the device "
+                 "are still reported. The case this covers is a file left beside a hot rollback journal, "
+                 "which SQLite has to write to replay and so cannot open read only. No registered iOS corpus "
+                 "carries such a file, so that path was exercised against a constructed composite and not "
+                 "against a tested image.",
         "paths": ('*/Chrome/Default/Network Action Predictor*','*/app_sbrowser/Default/Network Action Predictor*',
                   '*/app_opera/Network Action Predictor*', '*/Chromium/Default/Network Action Predictor*'),
         "output_types": ['lava', 'tsv', 'html'],
@@ -359,6 +436,34 @@ def get_valid_date(d1, d2):
         return d2
 
 
+def _read_rows(file_found, browser_name, label, query):
+    '''Run one query against a Chromium database and return its rows.
+
+    Returns None when the database cannot be read, so the caller skips that
+    file instead of ending the whole artifact. Without this, one unreadable
+    database raises out of the loop and every browser already collected on the
+    device is dropped with it.
+
+    The case seen in practice is a database left beside a hot rollback
+    journal: SQLite has to write to replay and clear the journal, which a
+    read-only handle cannot do. sqlite3.connect() is lazy, so that failure
+    surfaces at the first statement rather than at the open, which is why the
+    query and not just the open has to be guarded.
+    '''
+    db = open_sqlite_db_readonly(file_found)
+    if db is None:
+        return None
+    try:
+        cursor = db.cursor()
+        cursor.execute(query)
+        return cursor.fetchall()
+    except sqlite3.Error as ex:
+        logfunc(f'Unable to read {browser_name} - {label} in {file_found}: {ex}')
+        return None
+    finally:
+        db.close()
+
+
 @artifact_processor
 def chromeWebHistory(context):
 
@@ -381,13 +486,8 @@ def chromeWebHistory(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
             
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-        
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        
         # Web History
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Web History', '''
         SELECT
         datetime(last_visit_time/1000000 + (strftime('%s','1601-01-01')),'unixepoch') AS LastVisitDate,
         url AS URL,
@@ -399,10 +499,13 @@ def chromeWebHistory(context):
             WHEN 0 THEN ''
             WHEN 1 THEN 'Yes'
         END as Hidden
-        FROM urls  
+        FROM urls
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web History'
             report = ArtifactHtmlReport(report_name)
@@ -437,8 +540,6 @@ def chromeWebHistory(context):
         else:
             logfunc(f'No {browser_name} - Web History data available')
 
-        db.close()
-
     return all_data_headers, all_data, report_file
 
 
@@ -464,13 +565,8 @@ def chromeWebVisits(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-        
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
         #Web Visits
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Web Visits', '''
         SELECT
         datetime(visits.visit_time/1000000 + (strftime('%s','1601-01-01')),'unixepoch'),
         urls.url,
@@ -507,10 +603,13 @@ def chromeWebVisits(context):
         Query2.url AS FromURL
         FROM visits
         LEFT JOIN urls ON visits.url = urls.id
-        LEFT JOIN (SELECT urls.url,urls.title,visits.visit_time,visits.id FROM visits LEFT JOIN urls ON visits.url = urls.id) Query2 ON visits.from_visit = Query2.id  
+        LEFT JOIN (SELECT urls.url,urls.title,visits.visit_time,visits.id FROM visits LEFT JOIN urls ON visits.url = urls.id) Query2 ON visits.from_visit = Query2.id
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web Visits'
             report = ArtifactHtmlReport(report_name)
@@ -547,8 +646,6 @@ def chromeWebVisits(context):
         else:
             logfunc(f'No {browser_name} - Web Visits data available')
 
-        db.close()
-
     return all_data_headers, all_data, report_file
 
 @artifact_processor
@@ -574,13 +671,8 @@ def chromeWebSearch(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-        
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
-        #Web Search    
-        cursor.execute('''
+        #Web Search
+        all_rows = _read_rows(file_found, browser_name, 'Web Search', '''
         SELECT
             url,
             title,
@@ -589,8 +681,11 @@ def chromeWebSearch(context):
         FROM urls
         WHERE url like '%search?q=%'
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Web Search'
             report = ArtifactHtmlReport(report_name)
@@ -630,8 +725,6 @@ def chromeWebSearch(context):
         else:
             logfunc(f'No {browser_name} - Web Search Terms data available')
 
-        db.close()
-
     return all_data_headers, all_data, report_file
 
 
@@ -661,11 +754,6 @@ def chromeDownloads(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-        
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
         #Downloads
         # check for last_access_time column, an older version of chrome db (32) does not have it
         if does_column_exist_in_db(file_found, 'downloads', 'last_access_time') == True:
@@ -678,8 +766,8 @@ def chromeDownloads(context):
         else:
             last_access_time_query = "'' as last_access_query"
 
-        cursor.execute(f'''
-        SELECT 
+        all_rows = _read_rows(file_found, browser_name, 'Downloads', f'''
+        SELECT
         CASE start_time  
             WHEN "0" 
             THEN "" 
@@ -756,8 +844,11 @@ def chromeDownloads(context):
         total_bytes
         FROM downloads
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Downloads'
             report = ArtifactHtmlReport(report_name)
@@ -792,8 +883,6 @@ def chromeDownloads(context):
         else:
             logfunc(f'No {browser_name} - Downloads data available')
 
-        db.close()
-
     return all_data_headers, all_data, report_file
 
 
@@ -819,13 +908,8 @@ def chromeKeywordSearchTerms(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-        
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
         #Search Terms
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Keyword Search Terms', '''
         SELECT
             url_id,
             term,
@@ -835,8 +919,11 @@ def chromeKeywordSearchTerms(context):
         FROM keyword_search_terms, urls
         WHERE url_id = id
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Keyword Search Terms'
             report = ArtifactHtmlReport(report_name)
@@ -871,8 +958,6 @@ def chromeKeywordSearchTerms(context):
             all_data.extend(data_list)
         else:
             logfunc(f'No {browser_name} - Keyword Search Terms data available')
-        
-        db.close()
 
     return all_data_headers, all_data, report_file
 
@@ -903,25 +988,47 @@ def chromeAutofillEntries(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
+        db = open_sqlite_db_readonly(file_found)
+        if db is None:
+            continue
+
+        # One unreadable database must not end the artifact. See _read_rows for
+        # why the query, and not just the open, has to be guarded.
+        try:
+            cursor = db.cursor()
+            columns = [i[1] for i in cursor.execute('PRAGMA table_info(autofill)')]
+            # Note: 'date_created' presence selects the modern autofill schema.
+            modern_schema = 'date_created' in columns
+            if modern_schema:
+                cursor.execute('''
+                select
+                    datetime(date_created, 'unixepoch'),
+                    name,
+                    value,
+                    datetime(date_last_used, 'unixepoch'),
+                    count
+                from autofill
+                ''')
+            else:
+                cursor.execute('''
+                select
+                    datetime(autofill_dates.date_created, 'unixepoch'),
+                    autofill.name,
+                    autofill.value,
+                    autofill.count
+                from autofill
+                join autofill_dates on autofill_dates.pair_id = autofill.pair_id
+                ''')
+            all_rows = cursor.fetchall()
+        except sqlite3.Error as ex:
+            logfunc(f'Unable to read {browser_name} - Autofill - Entries in {file_found}: {ex}')
+            continue
+        finally:
+            db.close()
+
         report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
 
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
-        columns = [i[1] for i in cursor.execute('PRAGMA table_info(autofill)')]
-        # Note: 'date_created' presence selects the modern autofill schema.
-        if 'date_created' in columns:
-            cursor.execute('''
-            select
-                datetime(date_created, 'unixepoch'),
-                name,
-                value,
-                datetime(date_last_used, 'unixepoch'),
-                count
-            from autofill
-            ''')
-
-            all_rows = cursor.fetchall()
+        if modern_schema:
             if len(all_rows) > 0:
                 report_name = f'{browser_name} - Autofill - Entries'
                 report = ArtifactHtmlReport(report_name)
@@ -958,17 +1065,6 @@ def chromeAutofillEntries(context):
                 logfunc(f'No {browser_name} - Autofill - Entries data available')
 
         else:
-            cursor.execute('''
-            select
-                datetime(autofill_dates.date_created, 'unixepoch'),
-                autofill.name,
-                autofill.value,
-                autofill.count
-            from autofill
-            join autofill_dates on autofill_dates.pair_id = autofill.pair_id
-            ''')
-
-            all_rows = cursor.fetchall()
             if len(all_rows) > 0:
                 report_name = f'{browser_name} - Autofill - Entries'
                 report = ArtifactHtmlReport(report_name)
@@ -1002,9 +1098,53 @@ def chromeAutofillEntries(context):
             else:
                 logfunc(f'No {browser_name} - Autofill - Entries data available')
 
-        db.close()
-
     return all_data_headers, all_data, report_file
+
+
+# Chromium retired the autofill_profiles / autofill_profile_* join. Web Data v120-128
+# stores keep profiles in contact_info and local_addresses, v149+ in addresses; all
+# three use a companion *_type_tokens table (guid, type, value) keyed by Chromium's
+# FieldType enum. Type numbers are Chromium's own, checked against the pinned blob.
+# Reference: Chromium, 'components/autofill/core/browser/field_types.h',
+# https://github.com/chromium/chromium/blob/e90fec8693b4bd68806f3a5addec6722c0bc3939/components/autofill/core/browser/field_types.h
+CHROME_FIELD_TYPES = {
+    'first_name': 3,     # NAME_FIRST
+    'middle_name': 4,    # NAME_MIDDLE
+    'last_name': 5,      # NAME_LAST
+    'email': 9,          # EMAIL_ADDRESS
+    'phone': 14,         # PHONE_HOME_WHOLE_NUMBER
+    'city': 33,          # ADDRESS_HOME_CITY
+    'state': 34,         # ADDRESS_HOME_STATE
+    'zip': 35,           # ADDRESS_HOME_ZIP
+    'company': 60,       # COMPANY_NAME
+    'street': 77,        # ADDRESS_HOME_STREET_ADDRESS
+}
+
+# (profile table, its type-tokens table), in the order the layouts appeared
+CHROME_TOKEN_LAYOUTS = (
+    ('contact_info', 'contact_info_type_tokens'),
+    ('local_addresses', 'local_addresses_type_tokens'),
+    ('addresses', 'address_type_tokens'),
+)
+
+
+def _chrome_token_profiles(cursor, table, tokens_table):
+    """Rows from one token-layout profile table, shaped like the legacy query output."""
+    tokens = {}
+    cursor.execute(f'SELECT guid, type, value FROM {tokens_table}')
+    for guid, field_type, value in cursor.fetchall():
+        tokens.setdefault(guid, {})[field_type] = value
+
+    cursor.execute(f"""SELECT datetime(date_modified, 'unixepoch'), guid,
+                       datetime(use_date, 'unixepoch'), use_count FROM {table}""")
+    rows = []
+    for date_modified, guid, use_date, use_count in cursor.fetchall():
+        field = tokens.get(guid, {})
+        picked = [field.get(CHROME_FIELD_TYPES[name], '') for name in
+                  ('first_name', 'middle_name', 'last_name', 'email', 'phone',
+                   'company', 'street', 'city', 'state', 'zip')]
+        rows.append(tuple([date_modified, guid] + picked + [use_date, use_count]))
+    return rows
 
 
 @artifact_processor
@@ -1030,79 +1170,93 @@ def chromeAutofillProfiles(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-        
         db = open_sqlite_db_readonly(file_found)
-        
-        if does_table_exist_in_db(file_found, 'autofill_profiles'):
+        if db is None:
+            continue
+
+        all_rows = []
+
+        # One unreadable database must not end the artifact. See _read_rows for
+        # why the query, and not just the open, has to be guarded.
+        try:
             cursor = db.cursor()
 
-            cursor.execute('''
-            select
-                datetime(date_modified, 'unixepoch'),
-                autofill_profiles.guid,
-                autofill_profile_names.first_name,
-                autofill_profile_names.middle_name,
-                autofill_profile_names.last_name,
-                autofill_profile_emails.email,
-                autofill_profile_phones.number,
-                autofill_profiles.company_name,
-                autofill_profiles.street_address,
-                autofill_profiles.city,
-                autofill_profiles.state,
-                autofill_profiles.zipcode,
-                datetime(use_date, 'unixepoch'),
-                autofill_profiles.use_count
-            from autofill_profiles
-            inner join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
-            inner join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
-            inner join autofill_profile_names ON autofill_profile_phones.guid = autofill_profile_names.guid
-            ''')
+            if does_table_exist_in_db(file_found, 'autofill_profiles'):
+                # Web Data v104-111 layout. LEFT JOINs: a profile without a stored email
+                # or phone row is still a profile and must not be dropped.
+                cursor.execute('''
+                select
+                    datetime(date_modified, 'unixepoch'),
+                    autofill_profiles.guid,
+                    autofill_profile_names.first_name,
+                    autofill_profile_names.middle_name,
+                    autofill_profile_names.last_name,
+                    autofill_profile_emails.email,
+                    autofill_profile_phones.number,
+                    autofill_profiles.company_name,
+                    autofill_profiles.street_address,
+                    autofill_profiles.city,
+                    autofill_profiles.state,
+                    autofill_profiles.zipcode,
+                    datetime(use_date, 'unixepoch'),
+                    autofill_profiles.use_count
+                from autofill_profiles
+                left join autofill_profile_emails ON autofill_profile_emails.guid = autofill_profiles.guid
+                left join autofill_profile_phones ON autofill_profiles.guid = autofill_profile_phones.guid
+                left join autofill_profile_names ON autofill_profiles.guid = autofill_profile_names.guid
+                ''')
+                all_rows.extend(cursor.fetchall())
 
+            for profile_table, tokens_table in CHROME_TOKEN_LAYOUTS:
+                if does_table_exist_in_db(file_found, profile_table):
+                    all_rows.extend(_chrome_token_profiles(cursor, profile_table, tokens_table))
+        except sqlite3.Error as ex:
+            logfunc(f'Unable to read {browser_name} - Autofill - Profiles in {file_found}: {ex}')
+            continue
+        finally:
+            db.close()
 
-            all_rows = cursor.fetchall()
-            if len(all_rows) > 0:
-                report_name = f'{browser_name} - Autofill - Profiles'
-                report = ArtifactHtmlReport(report_name)
-                # check for existing and get next name for report file, so report from another file does not get overwritten
-                report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
-                report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
-                report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
-                report.add_script()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
 
-                data_list = []
-                for row in all_rows:
-                    modified_dt = convert_ts_human_to_utc(row[0])
-                    last_used_dt = convert_ts_human_to_utc(row[12])
+        if len(all_rows) > 0:
+            report_name = f'{browser_name} - Autofill - Profiles'
+            report = ArtifactHtmlReport(report_name)
+            # check for existing and get next name for report file, so report from another file does not get overwritten
+            report_path = os.path.join(context.get_report_folder(), f'{report_name}.temphtml')
+            report_path = get_next_unused_name(report_path)[:-9]  # remove .temphtml
+            report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
+            report.add_script()
 
-                    data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                                      row[10], row[11], last_used_dt, row[13]))
+            data_list = []
+            for row in all_rows:
+                modified_dt = convert_ts_human_to_utc(row[0])
+                last_used_dt = convert_ts_human_to_utc(row[12])
 
-                report.write_artifact_data_table(data_headers, data_list, file_found)
-                report.end_artifact_report()
+                data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                                  row[10], row[11], last_used_dt, row[13]))
 
-                # Generate LAVA output
+            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.end_artifact_report()
 
-                category = "Chromium"
-                module_name = "chromeAutofillProfiles"
+            # Generate LAVA output
 
-                table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
-                                                                               lava_data_headers, len(data_list),
-                                                                               artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
+            category = "Chromium"
+            module_name = "chromeAutofillProfiles"
 
-                lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
+            table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
+                                                                           lava_data_headers, len(data_list),
+                                                                           artifact_icon=__artifacts_v2__[module_name].get("artifact_icon"))
 
-                # Add browser name column to the data
-                data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
+            lava_insert_sqlite_data(table_name, data_list, object_columns, lava_data_headers, column_map)
 
-                # Add current list to the combined list
-                all_data.extend(data_list)
+            # Add browser name column to the data
+            data_list = [row + (browser_name, Context.get_relative_path(file_found)) for row in data_list]
 
-            else:
-                logfunc(f'No {browser_name} - Autofill - Profiles data available')
+            # Add current list to the combined list
+            all_data.extend(data_list)
+
         else:
             logfunc(f'No {browser_name} - Autofill - Profiles data available')
-        db.close()
 
     return all_data_headers, all_data, report_file
 
@@ -1219,14 +1373,10 @@ def chromeCookies(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Cookies', '''
         SELECT
         CASE
-            last_access_utc 
+            last_access_utc
             WHEN
                 "0" 
             THEN
@@ -1259,8 +1409,11 @@ def chromeCookies(context):
         FROM
         cookies
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Cookies'
             report = ArtifactHtmlReport(report_name)
@@ -1299,8 +1452,6 @@ def chromeCookies(context):
         else:
             logfunc(f'No {browser_name} - Cookies data available')
 
-        db.close()
-
     return all_data_headers, all_data, report_file
 
 @artifact_processor
@@ -1325,11 +1476,7 @@ def chromeLoginData(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Login Data', '''
         SELECT
         username_value,
         password_value,
@@ -1344,8 +1491,11 @@ def chromeLoginData(context):
         blacklisted_by_user
         FROM logins
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Login Data'
             report = ArtifactHtmlReport(report_name)
@@ -1385,8 +1535,6 @@ def chromeLoginData(context):
         else:
             logfunc(f'No {browser_name} - Login Data available')
 
-        db.close()
-
     return all_data_headers, all_data, report_file
 
 
@@ -1415,13 +1563,20 @@ def chromeTopSites(context):
 
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
+        # The redirects column is absent from the version-5 Top Sites schema seen on
+        # iOS 16-26 stores; selecting it unconditionally fails there and the error was
+        # swallowed below, silently dropping every row.
+        if does_column_exist_in_db(file_found, 'top_sites', 'redirects'):
+            redirects_col = 'redirects'
+        else:
+            redirects_col = "'' as redirects"
         try:
-            cursor.execute('''
+            cursor.execute(f'''
             select
             url,
             url_rank,
             title,
-            redirects
+            {redirects_col}
             FROM
             top_sites ORDER by url_rank asc
             ''')
@@ -1495,11 +1650,7 @@ def chromeOfflinePages(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Offline Pages', '''
         SELECT
         datetime(creation_time / 1000000 + (strftime('%s', '1601-01-01')), "unixepoch") as creation_time,
         datetime(last_access_time / 1000000 + (strftime('%s', '1601-01-01')), "unixepoch") as last_access_time,
@@ -1510,8 +1661,11 @@ def chromeOfflinePages(context):
         file_size
         from offlinepages_v1
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Offline Pages'
             report = ArtifactHtmlReport(report_name)
@@ -1531,7 +1685,7 @@ def chromeOfflinePages(context):
             # Generate LAVA output
 
             category = "Chromium"
-            module_name = "chromeTopSites"
+            module_name = "chromeOfflinePages"
 
             table_name, object_columns, column_map = lava_process_artifact(category, module_name, report_name,
                                                                            lava_data_headers, len(data_list),
@@ -1548,8 +1702,6 @@ def chromeOfflinePages(context):
         else:
             logfunc(f'No {browser_name} - Offline Pages data available')
 
-        db.close()
-        
     return all_data_headers, all_data, report_file
 
 
@@ -1577,11 +1729,7 @@ def chromeMediaHistorySessions(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Media History - Sessions', '''
         select
         datetime(last_updated_time_s-11644473600, 'unixepoch') as last_updated_time_s,
             origin_id,
@@ -1594,8 +1742,11 @@ def chromeMediaHistorySessions(context):
             source_title
         from playbackSession
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Sessions'
             report = ArtifactHtmlReport(report_name)
@@ -1631,7 +1782,6 @@ def chromeMediaHistorySessions(context):
 
         else:
             logfunc(f'No {browser_name} - Media History - Sessions data available')
-        db.close()
 
     return all_data_headers, all_data, report_file
 
@@ -1658,11 +1808,7 @@ def chromeMediaHistoryPlaybacks(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Media History - Playbacks', '''
         select
             datetime(last_updated_time_s-11644473600, 'unixepoch') as last_updated_time_s,
             id,
@@ -1676,11 +1822,14 @@ def chromeMediaHistoryPlaybacks(context):
             case has_video
                 when 0 then ''
                 when 1 then 'Yes'
-            end as has_video  
+            end as has_video
         from playback
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Playbacks'
             report = ArtifactHtmlReport(report_name)
@@ -1716,7 +1865,6 @@ def chromeMediaHistoryPlaybacks(context):
 
         else:
             logfunc(f'No {browser_name} - Media History - Playbacks data available')
-        db.close()
 
     return all_data_headers, all_data, report_file
 
@@ -1743,12 +1891,7 @@ def chromeMediaHistoryOrigins(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Media History - Origins', '''
         select
             datetime(last_updated_time_s-11644473600, 'unixepoch') as last_updated_time_s,
             id,
@@ -1756,8 +1899,11 @@ def chromeMediaHistoryOrigins(context):
             cast(aggregate_watchtime_audio_video_s/86400 as integer) || ':' || strftime('%H:%M:%S', aggregate_watchtime_audio_video_s ,'unixepoch') as aggregate_watchtime_audio_video_s
         from origin
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Media History - Origins'
             report = ArtifactHtmlReport(report_name)
@@ -1794,8 +1940,6 @@ def chromeMediaHistoryOrigins(context):
         else:
             logfunc(f'No {browser_name} - Media History - Origins data available')
 
-        db.close()
-
     return all_data_headers, all_data, report_file
 
 
@@ -1822,11 +1966,7 @@ def chromeNetworkActionPredictor(context):
         if file_found.find('app_sbrowser') >= 0:
             browser_name = 'Browser'
 
-        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
-
-        db = open_sqlite_db_readonly(file_found)
-        cursor = db.cursor()
-        cursor.execute('''
+        all_rows = _read_rows(file_found, browser_name, 'Network Action Predictor', '''
         select
         user_text,
         url,
@@ -1834,8 +1974,11 @@ def chromeNetworkActionPredictor(context):
         number_of_misses
         from network_action_predictor
         ''')
+        if all_rows is None:
+            continue
 
-        all_rows = cursor.fetchall()
+        report_file = file_found if report_file == 'Unknown' else report_file + ', ' + file_found
+
         if len(all_rows) > 0:
             report_name = f'{browser_name} - Network Action Predictor'
             report = ArtifactHtmlReport(report_name)
@@ -1871,7 +2014,5 @@ def chromeNetworkActionPredictor(context):
 
         else:
             logfunc(f'No {browser_name} - Network Action Predictor data available')
-
-        db.close()
 
     return all_data_headers, all_data, report_file

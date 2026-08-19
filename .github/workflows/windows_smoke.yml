@@ -29,3 +29,12 @@ jobs:
 
       - name: Import all artifact modules on Windows
         run: python admin/test/scripts/test_artifact_imports.py
+
+      # Pre-1970 timestamps are converted by adding a timedelta to the epoch rather than
+      # through datetime.fromtimestamp, which raises gmtime() errors for them on Windows.
+      - name: Convert pre-1970 Unix timestamps
+        run: python admin/test/scripts/test_unix_timestamp_conversion.py
+
+
+      - name: Open SQLite on a path longer than 260 characters
+        run: python admin/test/scripts/test_sqlite_longpath_uri.py

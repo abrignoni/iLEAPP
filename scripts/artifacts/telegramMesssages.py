@@ -75,17 +75,17 @@ def telegramMessages(context):
     """ see artifact description """
     data_headers = [
         ('Timestamp', 'datetime'),
-        'Chat',
-        'Chat ID',
-        'Thread ID',
+        ('Forward Timestamp', 'datetime'),
         'Direction',
         'Author',
-        'Author ID',
+        'Chat',
         'Text',
-        'Action Data',
         ('Thumbnail', 'media'),
+        'Chat ID',
+        'Thread ID',
+        'Author ID',
+        'Action Data',
         'Forward From',
-        ('Forward Timestamp', 'datetime'),
     ]
     report_file_path = 'Unknown'
 
@@ -534,9 +534,9 @@ def telegramMessages(context):
         text_content = msg_data.get('text', '')
 
         return (
-            ts, chat_str, chat_id, thread_id, direction, author_id_str,
-            author_id_num, text_content, final_action_data_text,
-            media_item_ref_id, forward_from_str, forward_date_obj
+            ts, forward_date_obj, direction, author_id_str, chat_str,
+            text_content, media_item_ref_id, chat_id, thread_id,
+            author_id_num, final_action_data_text, forward_from_str
         )
 
     def read_intermediate_fwd_info(buf): # No changes needed here, uses buf directly

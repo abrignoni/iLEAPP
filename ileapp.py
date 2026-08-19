@@ -376,7 +376,6 @@ def crunch_artifacts(
     logfunc('Objective: Triage iOS Full File System and iTunes Backup Extractions.')
     logfunc('By: Alexis Brignoni | @AlexisBrignoni | abrignoni.com')
     logfunc('By: Yogesh Khatri   | @SwiftForensics | swiftforensics.com\n')
-    logdevinfo()
     report_supplied_keychain()
     seeker = None
     password = itunes_backup_password

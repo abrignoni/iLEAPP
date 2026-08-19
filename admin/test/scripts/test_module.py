@@ -180,7 +180,7 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             }
 
         patches = [
-            patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo),
+            patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo, create=True),
             patch(f'scripts.artifacts.{module_name}.logdevinfo', mock_logdevinfo, create=True),
             patch(f'scripts.artifacts.{module_name}.logfunc', mock_logfunc, create=True),
             patch('scripts.lavafuncs.lava_db', mock_lava_db_instance),

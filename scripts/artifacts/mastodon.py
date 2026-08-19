@@ -222,11 +222,23 @@ def mastodonDirectMessages(context):
     source_path = _get_source(context)
     data_list = []
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Conversation Key', 'Author',
-        'Author Handle', 'Message', 'Mentions', 'Attachment URLs',
-        'Attachment Descriptions', 'Content Warning', 'Language',
-        ('Edited', 'datetime'), 'In Reply To Status ID', 'Status ID', 'URL',
-        'From Me')
+        ('Timestamp', 'datetime'),
+        ('Edited', 'datetime'),
+        'From Me',
+        'Author',
+        'Conversation',
+        'Message',
+        'Conversation Key',
+        'Author Handle',
+        'Mentions',
+        'Attachment URLs',
+        'Attachment Descriptions',
+        'Content Warning',
+        'Language',
+        'In Reply To Status ID',
+        'Status ID',
+        'URL',
+    )
     if not source_path:
         return data_headers, data_list, ''
 
@@ -247,21 +259,21 @@ def mastodonDirectMessages(context):
 
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']),
-            conversation_key,
-            conversation_key,
+            convert_cocoa_core_data_ts_to_utc(record['ZEDITEDAT']) if record['ZEDITEDAT'] else '',
+            from_me,
             record['authorLabel'],
-            record['authorAcct'],
+            conversation_key,
             _html_to_text(record['content']),
+            conversation_key,
+            record['authorAcct'],
             mentions,
             attachment_urls,
             attachment_descriptions,
             record['spoilerText'],
             record['language'],
-            convert_cocoa_core_data_ts_to_utc(record['ZEDITEDAT']) if record['ZEDITEDAT'] else '',
             record['inReplyToId'],
             record['statusId'],
             record['url'],
-            from_me,
         ))
 
     return data_headers, data_list, source_path

@@ -234,11 +234,57 @@ __artifacts_v2__ = {
                  "and observed on iOS 18.7. The open-request entries name the process that "
                  "asked for the call UI (touch, Siri, or a Bluetooth accessory). Keypad tone "
                  "entries come from mediaserverd in the cited research and from audiomxd on "
-                 "iOS 18.7, and only appear when keypad sounds are enabled. Number payloads "
-                 "are redacted to <private>.",
+                 "iOS 18.7, and only appear when keypad sounds are enabled. The number "
+                 "payloads in these particular entries are redacted to <private>; the "
+                 "dialed numbers artifact collects the CommCenter call.provider block that "
+                 "carries the number in the clear.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "phone",
+    },
+    "logarchive_dialed_numbers": {
+        "name": "logarchive dialed numbers",
+        "description": "Unified log entries from CommCenter and the Phone app: the "
+                       "call.provider setup block whose kPhoneNumber field holds a dialed "
+                       "number, the teardown block carrying the same kUuid, the "
+                       "Call(StatusUpdate) state chain, and MobilePhone "
+                       "ContactSearchManager entries whose message text holds the contents "
+                       "of the Phone app dial field",
+        "author": "@AlexisBrignoni",
+        "creation_date": "2026-08-14",
+        "last_update_date": "2026-08-14",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Patterns documented by Tim Korver, 'Recovering a dialed number from the "
+                 "Unified Log' "
+                 "(https://thesisfriday.com/thesis-friday-24-recovering-a-dialed-number-from-the-unified-log/), "
+                 "from six recordings on one iPhone 14 running iOS 26.6. Both families were "
+                 "observed here, on different images. kPhoneNumber: on an iOS 26.5.2 full "
+                 "file system image, three kActionType 0 blocks each carried a phone number "
+                 "in the clear in E.164 form, and each was followed by a kActionType 2 "
+                 "block with the same kUuid, matching the cited structure; kActionType "
+                 "values 1 and 7 also appeared there and are reported as stored, since no "
+                 "source read for this artifact defines them. Other call.provider entries "
+                 "on that image render caller id as <private>, so the kPhoneNumber block is "
+                 "where the value survived. ContactSearchManager: 752 entries on an iOS "
+                 "18.7 image, 301 of them the 'Searching for' and 'Search cancelled for' "
+                 "pairs, whose digit strings lengthen one step at a time up to a ten-digit "
+                 "value, as the cited research describes. Four images were swept for both "
+                 "families (iOS 16.5, 17.1, 18.7 and 26.5.2). Only the 26.5.2 one carried "
+                 "any kActionType block and only the 18.7 one carried ContactSearchManager, "
+                 "although call.provider activity was present on all four. That is a set of "
+                 "single-image observations, not an established version range, and no "
+                 "absence here is evidence the family is unavailable on that release. The "
+                 "cited research reports a setup block with no matching "
+                 "teardown as a dialed attempt, which does not establish that a call "
+                 "connected, and reports ContactSearchManager firing for digits entered on "
+                 "the device keypad but not for entry on a CarPlay screen; contact, Recents "
+                 "and Siri dialing were not tested there. A bare 'Searching for' predicate "
+                 "is deliberately not used: that text alone matched 808 unrelated records "
+                 "on the iOS 26.5.2 image, so the category is matched instead.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "phone-outgoing",
     },
     "logarchive_typing": {
         "name": "logarchive keyboard activity",
@@ -1027,6 +1073,19 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Received trusted open application request%'
         OR event_message LIKE '%Resuming to tab type%'
         OR event_message LIKE '%tab bar tab changed%'
+        -- logarchive_dialed_numbers. The whole call.provider category is collected
+        -- rather than a message pattern: the teardown block carries only kActionType
+        -- and kUuid, with no distinctive text to anchor on. On the iOS 26.5.2 image
+        -- the category held 328 records across three calls, and 1,482 records on the
+        -- iOS 18.7 image, so the volume is small either way. The sibling 'call'
+        -- category, 199 records on that image, carries the Call(StatusUpdate) state
+        -- chain the artifact reads plus the surrounding CommCenter call bookkeeping.
+        -- ContactSearchManager is matched by category for the same reason its message
+        -- text is not: 'Searching for' on its own matched 808 unrelated records on
+        -- the iOS 26.5.2 image.
+        OR category = 'call.provider'
+        OR category = 'call'
+        OR category = 'ContactSearchManager'
         -- logarchive_calls (keypad tones) and logarchive_typing (key sounds); the
         -- actionID space also carries other UI sounds, which stay in this table
         -- for context without a dedicated artifact
@@ -1502,6 +1561,24 @@ def logarchive_calls(context):
         OR event_message LIKE '%tab bar tab changed%'
         -- Keypad tones: actionID 1200-1209 map to keypad digits 0-9
         OR event_message LIKE '%Incoming Request : actionID 120%'
+    ''')
+
+@artifact_processor
+def logarchive_dialed_numbers(context):
+    # kActionType selects the setup and teardown blocks out of the call.provider
+    # narrative; Call(StatusUpdate) carries the state chain the cited research uses to
+    # separate a connected call from a dialed attempt. The rest of the category stays in
+    # the collection table for context.
+    #
+    # Every clause is scoped to the category on purpose. A bare '%kPhoneNumber%' also
+    # matches locationd's 'kPhoneNumberStatusNotification' under category Emergency,
+    # which carries no number: 7 such records on the iOS 16.5 image and 44 on the
+    # iOS 17.1 one, against 3 real setup blocks on the iOS 26.5.2 image.
+    return _artifacts_table_records(context, '''
+        (category = 'call.provider' AND event_message LIKE '%kPhoneNumber%')
+        OR (category = 'call.provider' AND event_message LIKE '%kActionType%')
+        OR (category = 'call' AND event_message LIKE '%Call(StatusUpdate)%')
+        OR category = 'ContactSearchManager'
     ''')
 
 @artifact_processor

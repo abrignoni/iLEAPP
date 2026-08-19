@@ -46,6 +46,12 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_claim_language.py
 
+      # A conversation artifact's columns are ordered from the roles it declares in
+      # data_views: timestamp, other dates, direction, sender, conversation label,
+      # message text, media, then the rest. See admin/docs/conversation_column_order.md.
+      - name: Check conversation artifact column order
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_conversation_column_order.py
       # os.path.normcase folds case on Windows, so two paths patterns differing only in
       # case are one pattern there: the artifact reports one file twice and can leave the
       # other file unread entirely. Use a single bracket class. See the script's docstring.
