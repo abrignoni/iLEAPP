@@ -148,13 +148,17 @@ def collisions_in(patterns):
 
 
 def scan_file(path):
-    """Return (violations, skip_reason, tuples_checked) for one artifact module."""
+    """Return (violations, skip_reason, checked) for one artifact module.
+
+    `checked` is the list of (path, artifact_key, patterns) actually examined, so the
+    count reported and the tuples printed by --list can never disagree.
+    """
     artifacts, skip_reason = load_artifacts(path)
     if artifacts is None:
-        return [], skip_reason, 0
+        return [], skip_reason, []
 
     violations = []
-    checked = 0
+    checked = []
     for artifact_key, entry in artifacts.items():
         if not isinstance(entry, dict):
             continue
@@ -166,7 +170,7 @@ def scan_file(path):
         literal = [p for p in paths if isinstance(p, str)]
         if not literal:
             continue
-        checked += 1
+        checked.append((path, str(artifact_key), literal))
         for folded, spellings in collisions_in(literal):
             violations.append((path, str(artifact_key), folded, spellings))
     return violations, None, checked
@@ -177,13 +181,17 @@ def repo_root():
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-def format_violation(violation):
-    """Render one violation as `path:artifact_key` plus the colliding spellings."""
+def format_violation(violation, root):
+    """Render one violation as `path:artifact_key` plus the colliding spellings.
+
+    The path is rendered relative to the repository root, matching the NOT CHECKED
+    block, so CI output does not carry the runner's absolute directory.
+    """
     path, artifact_key, _folded, spellings = violation
     rendered = '\n'.join(f'      {spelling!r}' for spelling in spellings)
     kind = ('the same pattern twice' if len(set(spellings)) == 1
             else 'patterns differing only in case')
-    return f'{path}:{artifact_key}: {kind}\n{rendered}'
+    return f'{os.path.relpath(path, root)}:{artifact_key}: {kind}\n{rendered}'
 
 
 def self_test():
@@ -239,14 +247,15 @@ def main():
 
     violations = []
     skipped = []
-    tuples_checked = 0
+    checked_tuples = []
     for path in paths:
         found, skip_reason, checked = scan_file(path)
-        tuples_checked += checked
+        checked_tuples.extend(checked)
         if skip_reason:
             skipped.append((path, skip_reason))
             continue
         violations.extend(found)
+    tuples_checked = len(checked_tuples)
 
     if skipped and (args.verbose or violations):
         print(f'NOT CHECKED ({len(skipped)}):')
@@ -255,14 +264,17 @@ def main():
         print()
 
     if args.list_all:
-        print(f'Checked {tuples_checked} paths tuple(s) across '
-              f'{len(paths) - len(skipped)} module(s).\n')
+        for path, artifact_key, patterns in checked_tuples:
+            print(f'{os.path.relpath(path, root)}:{artifact_key}')
+            for pattern in patterns:
+                print(f'      {pattern!r}')
+        print()
 
     if violations:
         print(f'Artifact paths patterns that collide under Windows normcase '
               f'({len(violations)}):')
         for violation in violations:
-            print(f'  {format_violation(violation)}')
+            print(f'  {format_violation(violation, root)}')
         print()
         print(STANDARD_NOTE)
         return 1
