@@ -86,6 +86,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | geodPDPlaceCache |
 | googleDrive |
 | googleDuo |
+| googlePhotos |
 | googleTranslate |
 | googleVoice |
 | groupMe |
@@ -205,6 +206,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | geodMapTiles |
 | gmail |
 | googleChat |
+| googlePhotos |
 | keyboard |
 | keychain |
 | kikGroupadmins |
