@@ -174,7 +174,10 @@ __artifacts_v2__ = {
                  "concatenating them yields a separate audio and video track needing an "
                  "external muxer, and some caches are missing their first segment, so the "
                  "bytes are inventoried and located here rather than checked in as media. The "
-                 "stream id is reported as stored.",
+                 "stream id is reported as stored. This path is not namespaced by bundle "
+                 "id, unlike the app's other cache paths, so the Source File column should "
+                 "be read to confirm which container a row came from. No other app was "
+                 "observed using it in the tested samples.",
         "paths": ('*/Library/Caches/Media/CacheV0/*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "video",
