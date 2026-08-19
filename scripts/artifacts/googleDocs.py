@@ -50,7 +50,11 @@ __artifacts_v2__ = {
                  "file, and one that does not is skipped and logged. That guard fails closed, so a "
                  "collection that captured the stores but not the preferences file would report "
                  "nothing here; the skip lines in the run log are what distinguishes that from an "
-                 "app that was never used. One row per document, built "
+                 "app that was never used. "
+                 "A container holds a directory per signed in account and the same document can be "
+                 "open under more than one of them, so each account's copy is reported as its own "
+                 "row. "
+                 "One row per document, built "
                  "from the document_commands table of the <document id>.db store under "
                  "Documents/<account id>/localStore/documents/. Each command row holds a JSON "
                  "array; the text is taken from the commands whose stored ty value is is, using "
@@ -261,6 +265,7 @@ from scripts.ilapfuncs import (
     check_in_media,
     get_plist_file_content,
     get_sqlite_db_records,
+    null_absent_columns,
     logfunc,
 )
 
@@ -441,7 +446,12 @@ def _in_docs_container(path, containers, context):
 
 
 def _document_stores(files, containers=None):
-    """Map a document identifier to the per document store path, per container."""
+    """Map a store to its path, keyed by container, account directory and document id.
+
+    One container holds a directory per signed in account, and the same document can be
+    open under more than one of them. Keying on the document id alone silently drops all
+    but one copy, so the account directory is part of the key.
+    """
     stores = {}
     skipped = set()
     for file_found in files:
@@ -454,7 +464,8 @@ def _document_stores(files, containers=None):
         # The directory and the file are named for the same document in every tested
         # store; the file name is what is read here.
         document_id = os.path.splitext(os.path.basename(str(file_found)))[0]
-        stores[(_container_root(file_found, '/Documents/'), document_id)] = str(file_found)
+        key = (_container_root(file_found, '/Documents/'), match.group(1), document_id)
+        stores[key] = str(file_found)
     for container in sorted(x for x in skipped if x):
         logfunc('Google Docs: skipping the document stores of a container with no Google Docs '
                 f'preferences file: {container}')
@@ -474,13 +485,12 @@ def _container_root(path, marker='/Library/'):
 
 
 def _titles_by_document(files, containers=None):
-    """Document identifier to title, keyed by container, read from the per document stores."""
+    """Title per (container, account, document id), read from the per document stores."""
     titles = {}
-    for (container, document_id), path in _document_stores(files, containers).items():
-        properties = _read_properties(path)
-        title = _text(properties.get('title'))
+    for key, path in _document_stores(files, containers).items():
+        title = _text(_read_properties(path).get('title'))
         if title:
-            titles[(container, document_id)] = title
+            titles[key] = title
     return titles
 
 
@@ -490,7 +500,8 @@ def googleDocsDocuments(context):
     files = [str(f) for f in context.get_files_found()]
     containers = _docs_containers(files)
 
-    for (_container, document_id), file_found in sorted(_document_stores(files, containers).items()):
+    for (_container, _account, document_id), file_found in sorted(
+            _document_stores(files, containers).items()):
         properties = _read_properties(file_found)
         if not properties:
             continue
@@ -549,9 +560,9 @@ def googleDocsDocumentText(context):
     files = [str(f) for f in context.get_files_found()]
     containers = _docs_containers(files)
 
-    for (_container, document_id), file_found in sorted(_document_stores(files, containers).items()):
-        properties = _read_properties(file_found)
-        title = _text(properties.get('title'))
+    for (_container, _account, document_id), file_found in sorted(
+            _document_stores(files, containers).items()):
+        title = _text(_read_properties(file_found).get('title'))
         try:
             records = list(get_sqlite_db_records(
                 file_found,
@@ -639,7 +650,7 @@ def googleDocsDocumentMedia(context):
 
         media = check_in_media(file_found, blob_name)
         data_list.append((
-            titles.get((container, outer_id), ''),
+            titles.get((container, account_id, outer_id), ''),
             outer_id,
             kind,
             blob_name,
@@ -672,17 +683,22 @@ def googleDocsDocumentSync(context):
         if not _in_docs_container(file_found, containers, context):
             continue
         account = _ACCOUNT_DIR_RE.search(str(file_found).replace('\\', '/'))
+        # Older stores do not carry every column: last_sync_finish_timestamp is absent on
+        # the oldest tested image. Resolve the query against the file's own schema so a
+        # missing column reports empty instead of failing the whole read.
+        query = '''
+            SELECT document_id, document_type,
+                   last_server_updated_timestamp_milliseconds,
+                   drive_last_server_udated_timestamp,
+                   last_sync_finish_timestamp,
+                   has_pending_changes, is_fast_track, needs_snapshot,
+                   sync_failures, all_pending_commands_persisted,
+                   jobset, resource_key
+            FROM cross_document_metadata
+        '''
         try:
-            records = list(get_sqlite_db_records(file_found, '''
-                SELECT document_id, document_type,
-                       last_server_updated_timestamp_milliseconds,
-                       drive_last_server_udated_timestamp,
-                       last_sync_finish_timestamp,
-                       has_pending_changes, is_fast_track, needs_snapshot,
-                       sync_failures, all_pending_commands_persisted,
-                       jobset, resource_key
-                FROM cross_document_metadata
-            '''))
+            records = list(get_sqlite_db_records(
+                file_found, null_absent_columns(file_found, query)))
         except sqlite3.Error as error:
             logfunc('Google Docs: could not read '
                     f'{context.get_relative_path(file_found)}: {error}')
@@ -761,7 +777,7 @@ def googleDocsCommentSync(context):
                 document_id = stored
             data_list.append((
                 _from_seconds(last_modified),
-                titles.get((container, document_id), ''),
+                titles.get((container, account.group(1) if account else '', document_id), ''),
                 document_id,
                 next_sync,
                 resource_key,
@@ -784,7 +800,7 @@ def googleDocsCommentSync(context):
 def _account_identities(files, containers=None):
     """Account identifier to the name, email and photo a document store recorded for it."""
     identities = {}
-    for (_container, _document_id), path in _document_stores(files, containers).items():
+    for _key, path in _document_stores(files, containers).items():
         name, photo, account_id, email = _identity(_read_properties(path))
         if account_id and account_id not in identities:
             identities[account_id] = (name, email, photo)
