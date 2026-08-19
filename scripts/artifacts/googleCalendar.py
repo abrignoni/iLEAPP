@@ -145,7 +145,9 @@ __artifacts_v2__ = {
         "notes": "Rows come from the Settings table of unifiedsync.db. The setting identifier is a "
                  "readable key stored by the app. A setting value may be a string or a nested structure; "
                  "where it is a structure the decoded content is reported rather than the row being "
-                 "skipped, so the row count matches the number of settings stored. The setting timestamp "
+                 "skipped, so the row count matches the number of settings stored. A minority of settings "
+                 "carry no value in the usual field and hold a structured value in another; those are "
+                 "reported from that field rather than as an empty cell. The setting timestamp "
                  "is stored as a microsecond string and is converted as microseconds.",
         "paths": ('*/Library/Application Support/UnifiedSync/unifiedsync.db*',),
         "output_types": "standard",
@@ -842,10 +844,16 @@ def googleCalendarSettings(context):
     for file_found, record in _unifiedsync_rows(context, query):
         account_id, setting_id, to_be_removed, blob = record
         message = _decode(blob) or {}
+        # Most settings hold their value in field 2. A minority hold no field 2 at all and
+        # carry a structured value elsewhere instead; reporting those as an empty cell would
+        # hide a value the app did store, so fall back to the structured content.
+        value = _text(_first(message.get('2')))
+        if value == '':
+            value = _text(_first(message.get('8')))
         data_list.append((
             _from_us(_get(message, '3')),
             setting_id,
-            _text(_first(message.get('2'))),
+            value,
             _as_stored(to_be_removed),
             account_id,
             context.get_relative_path(file_found),
