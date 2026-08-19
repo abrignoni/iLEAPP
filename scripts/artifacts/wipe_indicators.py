@@ -4,9 +4,9 @@ __artifacts_v2__ = {
         "description": "Reports the last-modified time of /root/.obliterated and /root/.bootstrapped, files created when the device is wiped; the timestamp reflects the first boot after reset.",
         "author": "@JohnHyla",
         "creation_date": "2026-08-06",
-        "version": "0.0.2",
+        "version": "0.0.3",
         "date": "2024-10-17",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "The file is not present in every extraction and extraction handling can disturb file times; corroborate with containermanagerd logs. Reference: Cellebrite, 'Upgrade From Null: Detecting iOS Wipe Artifacts', https://cellebrite.com/en/blog/upgrade-from-null-detecting-ios-wipe-artifacts/",
@@ -41,7 +41,7 @@ def wipe_indicators(context):
     
     for source_path in files_found:
         source_name = str(context.get_relative_path(source_path))
-        source_name_log = source_name.rsplit('\\', 1)[-1]
+        source_name_log = os.path.basename(source_name.replace('\\', '/'))
         utc_modified_date = convert_unix_ts_to_utc(os.path.getmtime(source_path))
     
         device_info("Wipe Indicators", f"{source_name_log}", utc_modified_date, source_name)
