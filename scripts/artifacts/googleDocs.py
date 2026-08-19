@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Docs",
-        "notes": "One row per <document id>.db under Documents/<account id>/localStore/documents/"
+        "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a Google Sheets or Google Slides container carries the same paths; a store is only reported when the same container also holds the Google Docs preferences file, and one that does not is skipped and logged. That guard fails closed, so a collection that captured the stores but not the preferences file would report nothing here; the skip lines in the run log are what distinguishes that from an app that was never used. One row per <document id>.db under Documents/<account id>/localStore/documents/"
                  "<document id>/. Values come from that store's document_properties table, which "
                  "holds a property name, a type code and a value blob. The type code is read from "
                  "the file: code 0 values decoded as UTF-8 on all 762 rows tested, code 2 values "
@@ -30,37 +30,45 @@ __artifacts_v2__ = {
                  "Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of Google "
                  "applications on Android and iOS platforms', Forensic Science International: "
                  "Digital Investigation.",
-        "paths": ('*/Documents/*/localStore/documents/*/*.db*',),
+        "paths": ('*/Documents/*/localStore/documents/*/*.db*',
+                  '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "file-text",
     },
     "googleDocsDocumentText": {
         "name": "Google Docs - Document Text",
-        "description": "Text stored in the Google Docs iOS app's per document command log, shown "
-                       "with the document it belongs to",
+        "description": "Text stored in the Google Docs iOS app's per document command log, one "
+                       "row per document",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Docs",
-        "notes": "One row per document_commands row that carries stored text, from the "
-                 "<document id>.db store under Documents/<account id>/localStore/documents/. Each "
-                 "row holds a JSON array of commands; the text is taken from the commands whose "
-                 "stored ty value is is, using their s value, and the stored insertion index is "
-                 "reported as the Insert Index column. Command types are reported as stored: the "
-                 "tested stores held as, is, ae, nm, te, ord, umv, mkch, ac and utlp, and no "
-                 "mapping for those names was sourced. Ordering the rows of one document by "
-                 "revision then chunk index reproduces the order the text is stored in. The text "
-                 "is what the command log holds, not a rendering of the document: across the "
-                 "tested stores the recovered characters covered 99.49 percent of the index span "
-                 "the insert commands describe, and 18 of 38 documents were gap free, so "
-                 "positions held by other command types are absent. The timestamp column of "
+        "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a "
+                 "Google Sheets or Google Slides container carries the same paths; a store is "
+                 "only reported when the same container also holds the Google Docs preferences "
+                 "file, and one that does not is skipped and logged. That guard fails closed, so a "
+                 "collection that captured the stores but not the preferences file would report "
+                 "nothing here; the skip lines in the run log are what distinguishes that from an "
+                 "app that was never used. One row per document, built "
+                 "from the document_commands table of the <document id>.db store under "
+                 "Documents/<account id>/localStore/documents/. Each command row holds a JSON "
+                 "array; the text is taken from the commands whose stored ty value is is, using "
+                 "their s value, and the rows are read in stored order, revision then chunk "
+                 "index, so joining them reproduces the order the log holds. The Stored Text "
+                 "Segments column gives how many such commands the document was built from. "
+                 "Command types are reported as stored: the tested stores held as, is, ae, nm, "
+                 "te, ord, umv, mkch, ac and utlp, and no mapping for those names was sourced. "
+                 "The text is what the command log holds, not a rendering of the document: "
+                 "across the tested stores the recovered characters covered 99.49 percent of the "
+                 "index span the insert commands describe, and 18 of 38 documents were gap free, "
+                 "so positions held by other command types are absent. The timestamp column of "
                  "document_commands was zero on all 361 tested rows and is not reported, and the "
-                 "part identifier was 0 on all of them. "
-                 "Reference: Park, Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of "
-                 "Google applications on Android and iOS platforms', Forensic Science "
-                 "International: Digital Investigation.",
-        "paths": ('*/Documents/*/localStore/documents/*/*.db*',),
+                 "part identifier was 0 on all of them. Reference: Park, Park, Kim, Kang and "
+                 "Kim, 'A comprehensive artifact analysis of Google applications on Android and "
+                 "iOS platforms', Forensic Science International: Digital Investigation.",
+        "paths": ('*/Documents/*/localStore/documents/*/*.db*',
+                  '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "file-description",
     },
@@ -73,7 +81,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Docs",
-        "notes": "One row per file under Documents/<account id>/fileStore/documents/<document id>/"
+        "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a Google Sheets or Google Slides container carries the same paths; a store is only reported when the same container also holds the Google Docs preferences file, and one that does not is skipped and logged. That guard fails closed, so a collection that captured the stores but not the preferences file would report nothing here; the skip lines in the run log are what distinguishes that from an app that was never used. One row per file under Documents/<account id>/fileStore/documents/<document id>/"
                  "documents/<document id>/image/ and the sibling drawing/ directory. The document "
                  "is taken from the path, which repeats the document identifier. The two "
                  "identifiers were equal on all 61 tested files, image and drawing alike, and "
@@ -88,7 +96,8 @@ __artifacts_v2__ = {
                  "International: Digital Investigation.",
         "paths": ('*/Documents/*/localStore/documents/*/*.db*',
                   '*/Documents/*/fileStore/documents/*/documents/*/image/*',
-                  '*/Documents/*/fileStore/documents/*/documents/*/drawing/*'),
+                  '*/Documents/*/fileStore/documents/*/documents/*/drawing/*',
+                  '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "photo",
     },
@@ -102,7 +111,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Docs",
-        "notes": "One row per cross_document_metadata row in documentMetadata.db under "
+        "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a Google Sheets or Google Slides container carries the same paths; a store is only reported when the same container also holds the Google Docs preferences file, and one that does not is skipped and logged. That guard fails closed, so a collection that captured the stores but not the preferences file would report nothing here; the skip lines in the run log are what distinguishes that from an app that was never used. One row per cross_document_metadata row in documentMetadata.db under "
                  "Documents/<account id>/localStore/shared/. This table stores the same server "
                  "update time in two units in two columns, so each is converted by its own unit "
                  "rather than by magnitude: last_server_updated_timestamp_milliseconds is Unix "
@@ -121,7 +130,8 @@ __artifacts_v2__ = {
                  "Reference: Park, Park, Kim, Kang and Kim, 'A comprehensive artifact analysis of "
                  "Google applications on Android and iOS platforms', Forensic Science "
                  "International: Digital Investigation.",
-        "paths": ('*/Documents/*/localStore/shared/documentMetadata.db*',),
+        "paths": ('*/Documents/*/localStore/shared/documentMetadata.db*',
+                  '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "refresh",
     },
@@ -134,21 +144,25 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Docs",
-        "notes": "One row per comment_items row in comments_snapshot_<account id>.db under "
+        "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a Google Sheets or Google Slides container carries the same paths; a store is only reported when the same container also holds the Google Docs preferences file, and one that does not is skipped and logged. That guard fails closed, so a collection that captured the stores but not the preferences file would report nothing here; the skip lines in the run log are what distinguishes that from an app that was never used. One row per comment_items row in comments_snapshot_<account id>.db under "
                  "Documents/<account id>/. The stored item_identifier reads <kind>:<document id>; "
-                 "the kind part was document on every tested row and the identifier part is used "
+                 "the kind part was document on each tested row and is not reported as its own "
+                 "column, and the identifier part is used "
                  "to fill the Document Title column when a per document store in the same "
                  "container holds a title. last_modified_date is Unix seconds. next_sync_date is "
                  "an ISO 8601 string carrying its own zone designator and is reported as stored "
                  "rather than converted. The comments table in the same database, which holds "
                  "comment text, was empty on both tested samples while comment_items held rows, "
                  "so a row here records that the app tracked comments for that document and does "
-                 "not carry the comment content. Comment text from this database is covered by "
+                 "not carry the comment content. The resource key column was empty on every "
+                 "tested row and is kept so its absence is visible; the stored comment item "
+                 "version held the same value on every tested row and is not reported. Comment text from this database is covered by "
                  "the Google Drive comments artifact, whose path pattern also matches this file. "
                  "The whole table sat in the write ahead log on both tested samples, with a 4096 "
                  "byte main database file, so the sidecars must travel with the database.",
         "paths": ('*/Documents/*/comments_snapshot_*.db*',
-                  '*/Documents/*/localStore/documents/*/*.db*'),
+                  '*/Documents/*/localStore/documents/*/*.db*',
+                  '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
     },
@@ -403,17 +417,47 @@ def _identity(properties):
     return (at(0), at(2), at(3, _ACCOUNT_ID_RE), at(7, _EMAIL_RE))
 
 
-def _document_stores(files):
+def _docs_containers(files):
+    """Container roots holding this app's preferences file.
+
+    The localStore and fileStore layouts are shared by the Google editor apps, so a Google
+    Sheets or Google Slides container carries the same paths and would otherwise be
+    reported here as Google Docs. The set is built from this artifact's own matched files,
+    so it does not depend on the order artifacts run in.
+    """
+    roots = {_container_root(f) for f in files
+             if os.path.basename(str(f)) == 'com.google.Docs.plist'}
+    roots.discard(None)
+    return roots
+
+
+def _in_docs_container(path, containers, context):
+    """True when a matched file sits in a container that holds the Docs preferences file."""
+    if _container_root(path, '/Documents/') in containers:
+        return True
+    logfunc('Google Docs: skipping a store with no Google Docs preferences file in the '
+            f'same container: {context.get_relative_path(path)}')
+    return False
+
+
+def _document_stores(files, containers=None):
     """Map a document identifier to the per document store path, per container."""
     stores = {}
+    skipped = set()
     for file_found in files:
         match = _DOC_STORE_RE.search(str(file_found).replace('\\', '/'))
         if not match:
+            continue
+        if containers is not None and _container_root(file_found, '/Documents/') not in containers:
+            skipped.add(_container_root(file_found, '/Documents/'))
             continue
         # The directory and the file are named for the same document in every tested
         # store; the file name is what is read here.
         document_id = os.path.splitext(os.path.basename(str(file_found)))[0]
         stores[(_container_root(file_found, '/Documents/'), document_id)] = str(file_found)
+    for container in sorted(x for x in skipped if x):
+        logfunc('Google Docs: skipping the document stores of a container with no Google Docs '
+                f'preferences file: {container}')
     return stores
 
 
@@ -429,10 +473,10 @@ def _container_root(path, marker='/Library/'):
     return normalised[:index] if index != -1 else None
 
 
-def _titles_by_document(files):
+def _titles_by_document(files, containers=None):
     """Document identifier to title, keyed by container, read from the per document stores."""
     titles = {}
-    for (container, document_id), path in _document_stores(files).items():
+    for (container, document_id), path in _document_stores(files, containers).items():
         properties = _read_properties(path)
         title = _text(properties.get('title'))
         if title:
@@ -444,8 +488,9 @@ def _titles_by_document(files):
 def googleDocsDocuments(context):
     data_list = []
     files = [str(f) for f in context.get_files_found()]
+    containers = _docs_containers(files)
 
-    for (_container, document_id), file_found in sorted(_document_stores(files).items()):
+    for (_container, document_id), file_found in sorted(_document_stores(files, containers).items()):
         properties = _read_properties(file_found)
         if not properties:
             continue
@@ -502,21 +547,24 @@ def googleDocsDocuments(context):
 def googleDocsDocumentText(context):
     data_list = []
     files = [str(f) for f in context.get_files_found()]
+    containers = _docs_containers(files)
 
-    for (_container, document_id), file_found in sorted(_document_stores(files).items()):
+    for (_container, document_id), file_found in sorted(_document_stores(files, containers).items()):
         properties = _read_properties(file_found)
         title = _text(properties.get('title'))
         try:
             records = list(get_sqlite_db_records(
                 file_found,
-                'SELECT revision, chunk_index, part_id, serialized_commands '
+                'SELECT revision, chunk_index, serialized_commands '
                 'FROM document_commands ORDER BY revision, chunk_index'))
         except sqlite3.Error as error:
             logfunc('Google Docs: could not read document_commands from '
                     f'{context.get_relative_path(file_found)}: {error}')
             continue
 
-        for revision, chunk_index, part_id, serialized in records:
+        segments = []
+        types = []
+        for _revision, _chunk_index, serialized in records:
             if not serialized:
                 continue
             try:
@@ -527,42 +575,40 @@ def googleDocsDocumentText(context):
                 continue
             if not isinstance(commands, list):
                 continue
-
-            types = []
             for command in commands:
-                if isinstance(command, dict):
-                    stored_type = command.get('ty')
-                    if stored_type not in types:
-                        types.append(str(stored_type))
+                if not isinstance(command, dict):
+                    continue
+                stored_type = command.get('ty')
+                if stored_type not in types:
+                    types.append(str(stored_type))
+                if stored_type == 'is':
+                    text = command.get('s')
+                    if isinstance(text, str) and text:
+                        segments.append(text)
 
-            for command in commands:
-                if not isinstance(command, dict) or command.get('ty') != 'is':
-                    continue
-                text = command.get('s')
-                if not isinstance(text, str) or not text:
-                    continue
-                data_list.append((
-                    title,
-                    document_id,
-                    revision,
-                    chunk_index,
-                    part_id,
-                    command.get('ibi', ''),
-                    len(text),
-                    ' | '.join(types),
-                    text,
-                    context.get_relative_path(file_found),
-                ))
+        if not segments:
+            continue
+
+        # The rows are read in stored order, so joining them reproduces the order the
+        # command log holds. One row per document: the storage chunks are not something an
+        # examiner acts on individually.
+        body = ''.join(segments)
+        data_list.append((
+            title,
+            document_id,
+            len(body),
+            len(segments),
+            ' | '.join(types),
+            body,
+            context.get_relative_path(file_found),
+        ))
 
     data_headers = (
         'Title',
         'Document ID',
-        'Revision',
-        'Chunk Index',
-        'Part ID',
-        'Insert Index',
         'Characters',
-        'Command Types In Row (as stored)',
+        'Stored Text Segments',
+        'Command Types In Document (as stored)',
         'Text',
         'Source File',
     )
@@ -573,11 +619,14 @@ def googleDocsDocumentText(context):
 def googleDocsDocumentMedia(context):
     data_list = []
     files = [str(f) for f in context.get_files_found()]
-    titles = _titles_by_document(files)
+    containers = _docs_containers(files)
+    titles = _titles_by_document(files, containers)
 
     for file_found in sorted(files):
         match = _DOC_MEDIA_RE.search(str(file_found).replace('\\', '/'))
         if not match:
+            continue
+        if not _in_docs_container(file_found, containers, context):
             continue
         account_id, outer_id, inner_id, kind, blob_name = match.groups()
         container = _container_root(file_found, '/Documents/')
@@ -615,9 +664,12 @@ def googleDocsDocumentMedia(context):
 def googleDocsDocumentSync(context):
     data_list = []
     files = [str(f) for f in context.get_files_found()]
+    containers = _docs_containers(files)
 
     for file_found in sorted(files):
         if os.path.basename(str(file_found)) != 'documentMetadata.db':
+            continue
+        if not _in_docs_container(file_found, containers, context):
             continue
         account = _ACCOUNT_DIR_RE.search(str(file_found).replace('\\', '/'))
         try:
@@ -680,18 +732,21 @@ def googleDocsDocumentSync(context):
 def googleDocsCommentSync(context):
     data_list = []
     files = [str(f) for f in context.get_files_found()]
-    titles = _titles_by_document(files)
+    containers = _docs_containers(files)
+    titles = _titles_by_document(files, containers)
 
     for file_found in sorted(files):
         base = os.path.basename(str(file_found))
         if not base.startswith('comments_snapshot_') or not base.endswith('.db'):
+            continue
+        if not _in_docs_container(file_found, containers, context):
             continue
         container = _container_root(file_found, '/Documents/')
         account = _ACCOUNT_DIR_RE.search(str(file_found).replace('\\', '/'))
         try:
             records = list(get_sqlite_db_records(file_found, '''
                 SELECT item_identifier, last_modified_date, next_sync_date,
-                       comment_item_version, resource_key
+                       resource_key
                 FROM comment_items
             '''))
         except sqlite3.Error as error:
@@ -699,18 +754,16 @@ def googleDocsCommentSync(context):
                     f'{context.get_relative_path(file_found)}: {error}')
             continue
 
-        for identifier, last_modified, next_sync, version, resource_key in records:
+        for identifier, last_modified, next_sync, resource_key in records:
             stored = identifier or ''
-            kind, _, document_id = stored.partition(':')
+            _kind, _, document_id = stored.partition(':')
             if not document_id:
-                kind, document_id = '', stored
+                document_id = stored
             data_list.append((
                 _from_seconds(last_modified),
                 titles.get((container, document_id), ''),
                 document_id,
-                kind,
                 next_sync,
-                version,
                 resource_key,
                 account.group(1) if account else '',
                 context.get_relative_path(file_found),
@@ -720,9 +773,7 @@ def googleDocsCommentSync(context):
         ('Last Modified', 'datetime'),
         'Document Title',
         'Document ID',
-        'Item Kind (as stored)',
         'Next Sync (as stored)',
-        'Comment Item Version',
         'Resource Key',
         'Account ID',
         'Source File',
@@ -730,10 +781,10 @@ def googleDocsCommentSync(context):
     return data_headers, data_list, 'see Source File for more info'
 
 
-def _account_identities(files):
+def _account_identities(files, containers=None):
     """Account identifier to the name, email and photo a document store recorded for it."""
     identities = {}
-    for (_container, _document_id), path in _document_stores(files).items():
+    for (_container, _document_id), path in _document_stores(files, containers).items():
         name, photo, account_id, email = _identity(_read_properties(path))
         if account_id and account_id not in identities:
             identities[account_id] = (name, email, photo)
@@ -744,7 +795,7 @@ def _account_identities(files):
 def googleDocsAccounts(context):
     data_list = []
     files = [str(f) for f in context.get_files_found()]
-    identities = _account_identities(files)
+    identities = _account_identities(files, _docs_containers(files))
 
     for file_found in sorted(files):
         if os.path.basename(str(file_found)) != 'com.google.Docs.plist':
