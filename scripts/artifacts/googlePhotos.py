@@ -182,6 +182,36 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "video",
     },
+    "googlePhotosPreCheckpointRows": {
+        "name": "Google Photos - Pre-Checkpoint Rows",
+        "description": "Rows held in the committed part of the app's stores that the current "
+                       "state of those stores no longer returns.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-19",
+        "last_update_date": "2026-08-19",
+        "requirements": "none",
+        "category": "Google Photos",
+        "notes": "Each store is read twice, once normally so the write-ahead log is applied and "
+                 "once with the log ignored, and the two are compared row by row on the "
+                 "primary key, or on the whole row where the table declares none. A row the "
+                 "second read holds and the first does not is reported as absent from the "
+                 "current read; a row both hold with differing content is reported as a prior "
+                 "version, and the values shown are the committed ones. Comparing counts alone "
+                 "would have missed most of these: in the tested samples counts flagged 2 "
+                 "tables while the key comparison found rows in 8. This recovers only rows that "
+                 "reached the main database file at a checkpoint and is not a substitute for "
+                 "log frame parsing or freespace carving. Why a row is no longer returned is "
+                 "not recorded: it may have been removed by the app, replaced by a later sync, "
+                 "or rewritten, and this artifact reports the observation rather than a cause. "
+                 "Full text index tables are skipped because they hold index structures rather "
+                 "than records, and the external content index tables are skipped because they "
+                 "duplicate the tables they index. Blob values are summarised by byte length "
+                 "and by the container their leading bytes identify.",
+        "paths": ('*/Library/Application Support/store/photos-*.db*',
+                  '*/Library/Application Support/store/transaction-shared.db*'),
+        "output_types": ["html", "tsv", "lava", "timeline"],
+        "artifact_icon": "rotate-ccw",
+    },
     "googlePhotosAppState": {
         "name": "Google Photos - Application State",
         "description": "Application and operating system versions and backup state recorded in "
@@ -201,7 +231,9 @@ __artifacts_v2__ = {
     },
 }
 
+import hashlib
 import os
+import sqlite3
 import zlib
 from datetime import datetime, timedelta, timezone
 
@@ -209,7 +241,10 @@ from scripts.ilapfuncs import (
     artifact_processor,
     check_in_media,
     get_plist_file_content,
+    get_sqlite_db_path,
     get_sqlite_db_records,
+    logfunc,
+    open_sqlite_db_readonly,
 )
 
 _UNIX_EPOCH_UTC = datetime(1970, 1, 1, tzinfo=timezone.utc)
@@ -854,5 +889,199 @@ def googlePhotosAppState(context):
                 value = value.replace(tzinfo=value.tzinfo or timezone.utc)
             data_list.append((key, str(value), context.get_relative_path(file_found)))
         source_files.append(file_found)
+
+    return data_headers, data_list, '\n'.join(source_files)
+
+
+# Tables holding full text index structures rather than records. The _content table is kept
+# because it holds the indexed values themselves and is what the live artifact reads.
+_INDEX_TABLE_SUFFIXES = ('_segdir', '_segments', '_stat', '_docsize')
+
+# The column naming the row's own event time, for the tables whose column name states what it
+# is. Tables absent from this map report no timestamp rather than a guessed one.
+_TABLE_TIMESTAMP_MS = {
+    'ServerPhotos': 'timestampMs',
+    'SharedServerPhotos': 'timestampMs',
+    'LocalAssets': 'localDedupKeyTimeMs',
+    'Stories': 'renderStartTimeMS',
+    'SharedStories': 'renderStartTimeMS',
+    'LifeItems': 'timestamp',
+    'SharedCollections': 'lastActivityTimeMs',
+    'SharedReactions': 'creationTimeMs',
+    'SharedRecipients': 'inviteTimeMs',
+    'SharedSync': 'lastActivityTimestampMs',
+}
+
+# Blob columns this module decodes elsewhere, so a recovered row can carry its file name
+# rather than only a byte count.
+_NAMED_BLOB_COLUMNS = {
+    ('ExtendedPhotos', 'mcMediaItem'),
+    ('SharedExtendedPhotos', 'mcMediaItem'),
+}
+
+
+def _blob_kind(data):
+    """The container a blob's leading bytes identify."""
+    if data[:8] == b'bplist00':
+        return 'bplist'
+    # RFC 1950: low nibble 8 is deflate and the two header bytes are a multiple of 31.
+    if len(data) >= 2 and data[0] & 0x0F == 8 and (data[0] * 256 + data[1]) % 31 == 0:
+        return 'zlib'
+    return 'blob'
+
+
+def _decode(value):
+    """A stored value as text, leaving bytes that are not text as bytes."""
+    if isinstance(value, (bytes, bytearray)):
+        try:
+            return bytes(value).decode('utf-8')
+        except UnicodeDecodeError:
+            return bytes(value)
+    return value
+
+
+def _render_value(table, column, value):
+    """One column of a recovered row, with blobs summarised rather than dumped."""
+    if value is None:
+        return f'{column}=NULL'
+    if isinstance(value, (bytes, bytearray)):
+        data = bytes(value)
+        summary = f'{column}=<{_blob_kind(data)} {len(data)} bytes'
+        if (table, column) in _NAMED_BLOB_COLUMNS:
+            name = _pb_text(_inflate(data), (2, 4))
+            if name:
+                summary += f', file name {name}'
+        return summary + '>'
+    return f'{column}={value}'
+
+
+def _open_committed(path):
+    """The store as committed to its main file, with any write-ahead log ignored.
+
+    sqlite3.connect is lazy, so the query is what raises when the file cannot be read that
+    way and the guard has to wrap it rather than the open.
+    """
+    try:
+        db = sqlite3.connect(f'file:{get_sqlite_db_path(path)}?immutable=1', uri=True)
+        db.execute('SELECT count(*) FROM sqlite_master')
+        return db
+    except sqlite3.Error as error:
+        logfunc(f'Could not read the committed state of {os.path.basename(path)}: {error}')
+        return None
+
+
+def _comparable_tables(db):
+    """The tables worth comparing, excluding index structures and external content indexes."""
+    names = []
+    for name, sql in db.execute(
+            "SELECT name, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"):
+        name = _decode(name)
+        sql = _decode(sql) or ''
+        if name.endswith(_INDEX_TABLE_SUFFIXES):
+            continue
+        if 'USING fts' in sql or 'using fts' in sql:
+            continue
+        names.append(name)
+    return sorted(names)
+
+
+def _table_shape(db, table):
+    """The table's column names and its primary key columns."""
+    columns, primary_key = [], []
+    for row in db.execute(f'PRAGMA table_info("{table}")'):
+        name = _decode(row[1])
+        columns.append(name)
+        if row[5]:
+            primary_key.append(name)
+    return columns, primary_key
+
+
+def _table_rows(db, table, columns, primary_key):
+    """Every row keyed by identity, with the row itself and a hash of its contents.
+
+    Identity is the primary key when the table declares one. When it does not, the row's own
+    contents are its identity, so a changed row reads as one row gone and one row added
+    rather than as a modification.
+    """
+    selection = ','.join(f'"{column}"' for column in columns)
+    rows = {}
+    for row in db.execute(f'SELECT {selection} FROM "{table}"'):
+        digest = hashlib.sha256(repr(row).encode()).hexdigest()
+        if primary_key:
+            identity = tuple(_decode(row[columns.index(key)]) for key in primary_key)
+        else:
+            identity = ('', digest)
+        rows[identity] = (digest, row)
+    return rows
+
+
+@artifact_processor
+def googlePhotosPreCheckpointRows(context):
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Table',
+        'State',
+        'Row Identity',
+        'Values',
+        'Source File',
+    )
+    data_list = []
+    source_files = []
+
+    stores = sorted({
+        str(file_found) for file_found in context.get_files_found()
+        if str(file_found).endswith('.db') and os.path.isfile(str(file_found))
+    })
+
+    for store in stores:
+        committed = _open_committed(store)
+        if committed is None:
+            continue
+        current = open_sqlite_db_readonly(store)
+        if current is None:
+            committed.close()
+            continue
+        current.text_factory = bytes
+        committed.text_factory = bytes
+        recovered = 0
+        try:
+            for table in _comparable_tables(current):
+                columns, primary_key = _table_shape(current, table)
+                if not columns:
+                    continue
+                try:
+                    live = _table_rows(current, table, columns, primary_key)
+                    # The table can be newer than the last checkpoint, in which case the
+                    # committed file does not carry it at all.
+                    held = _table_rows(committed, table, columns, primary_key)
+                except sqlite3.Error:
+                    continue
+                for identity, (digest, row) in held.items():
+                    if identity in live and live[identity][0] == digest:
+                        continue
+                    state = ('Prior version of a current row' if identity in live
+                             else 'Absent from current read')
+                    values = ', '.join(
+                        _render_value(table, column, row[index])
+                        for index, column in enumerate(columns))
+                    timestamp = ''
+                    time_column = _TABLE_TIMESTAMP_MS.get(table)
+                    if time_column in columns:
+                        timestamp = _ms_to_utc(row[columns.index(time_column)])
+                    label = '|'.join(str(part) for part in identity if part) or digest[:16]
+                    data_list.append((
+                        timestamp,
+                        table,
+                        state,
+                        label,
+                        values,
+                        context.get_relative_path(store),
+                    ))
+                    recovered += 1
+        finally:
+            committed.close()
+            current.close()
+        if recovered:
+            source_files.append(store)
 
     return data_headers, data_list, '\n'.join(source_files)
