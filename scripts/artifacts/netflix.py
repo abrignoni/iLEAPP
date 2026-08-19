@@ -212,11 +212,11 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "network",
     },
-    "netflix_preview_media": {
-        "name": "Netflix - Cached Preview Media",
-        "description": "Preview clips and subtitle tracks the Netflix app cached under a "
-                       "directory named after a video identifier, with the media checked in and "
-                       "the title filled in where the app had cached one",
+    "netflix_stream_segments": {
+        "name": "Netflix - Cached Stream Segments",
+        "description": "Adaptive streaming segment files the Netflix app cached under a "
+                       "directory named after a video identifier, with the title filled in "
+                       "where the app had cached one and the box layout of each file reported",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
@@ -225,10 +225,23 @@ __artifacts_v2__ = {
         "notes": "Files under Library/Caches/br/ch/<videoId>/. The directory name is the video "
                  "id, which is a recorded link rather than a correlation, so each file is "
                  "attributed to the title of that id where a UnifiedEntity record for the same "
-                 "id exists under Library/gqlData. File types are decided by reading the leading "
-                 "bytes rather than by trusting the file name, which carries no extension; the "
-                 "samples tested held MP4 video and UTF-8 WebVTT subtitle text. Video files are "
-                 "checked in and rendered. The separate image caches under "
+                 "id exists under Library/gqlData. File types are decided by reading the "
+                 "leading bytes rather than by trusting the file name, which carries no "
+                 "extension. These are not playable video files and no media is checked in "
+                 "for them. Across the samples tested 821 files carried MP4 magic and not one "
+                 "held a complete mdat box: 494 walked cleanly and carried no mdat at all, "
+                 "meaning an initialisation segment and a segment index with no media "
+                 "samples, and the remaining 327 ended part way through a box, 142 of them "
+                 "inside an mdat whose declared size exceeded the bytes on disk. The mdat "
+                 "payload actually present across all 821 files totalled 50,596 bytes, so the "
+                 "audio and video samples were not written to this cache. Sample entry codes "
+                 "are reported as stored; encv and enca name an encrypted sample entry and "
+                 "407 files declared one, so a complete fragment would still need a key these "
+                 "stores do not hold. Box sizes are checked against the bytes actually "
+                 "present, and a file the walk cannot finish is reported with the box it ends "
+                 "inside rather than with an invented size. The subtitle text cached "
+                 "alongside these files is reported by the Netflix - Cached Subtitle Cues "
+                 "artifact. The separate image caches under "
                  "Library/Caches/com.github.kean.Nuke.DataCache and Library/assetCache were "
                  "checked for a reproducible link to a title: their file names are 40 character "
                  "hex and did not match SHA-1, MD5 or SHA-256 of the artwork URL, of the URL "
@@ -238,7 +251,32 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Caches/br/ch/*',
                   '*/Library/gqlData/*gql*.db*'),
         "output_types": "standard",
-        "artifact_icon": "video",
+        "artifact_icon": "file-download",
+    },
+    "netflix_subtitle_cues": {
+        "name": "Netflix - Cached Subtitle Cues",
+        "description": "Subtitle cues from WebVTT files the Netflix app cached under a "
+                       "directory named after a video identifier, with the cue times, the cue "
+                       "text and the title the identifier belongs to",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-19",
+        "last_update_date": "2026-08-19",
+        "requirements": "none",
+        "category": "Netflix",
+        "notes": "WebVTT files under Library/Caches/br/ch/<videoId>/, identified by their "
+                 "leading bytes because the file names carry no extension. The directory name "
+                 "is the video id and is a recorded link, so cues are attributed to the title "
+                 "of that id where a UnifiedEntity record for the same id exists under "
+                 "Library/gqlData. Cue times are reported as the file stores them, which is a "
+                 "position within the title rather than a wall clock time, so they cannot be "
+                 "placed on a timeline. Any cue markup is removed and the text is otherwise "
+                 "reported as stored. Across the samples tested 96 such files held 8,246 cues. "
+                 "A cached subtitle track records what the app downloaded for a title; it does "
+                 "not establish that the title was played or that any of it was displayed.",
+        "paths": ('*/Library/Caches/br/ch/*',
+                  '*/Library/gqlData/*gql*.db*'),
+        "output_types": "standard",
+        "artifact_icon": "badge-cc",
     },
     "netflix_preferences": {
         "name": "Netflix - Preferences",
@@ -302,9 +340,9 @@ import os
 import plistlib
 import re
 import sqlite3
+import struct
 
-from scripts.ilapfuncs import (artifact_processor, check_in_media,
-                               get_sqlite_db_records, logfunc,
+from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records, logfunc,
                                open_sqlite_db_readonly)
 
 try:
@@ -1095,10 +1133,10 @@ def _sniff(path):
     except OSError:
         return '', ''
     if head[4:8] == b'ftyp':
-        return 'MP4 video', 'mp4'
+        return 'MP4', 'mp4'
     if head[:3] == b'\xff\xd8\xff':
         return 'JPEG image', 'jpg'
-    if head[:8] == b'\x89PNG\r\n\x1a\n':
+    if head[:8] == b'\x89PNG\r\n\x1a\x08'[:8]:
         return 'PNG image', 'png'
     if head[:4] == b'RIFF' and head[8:12] == b'WEBP':
         return 'WebP image', 'webp'
@@ -1107,22 +1145,104 @@ def _sniff(path):
     return f'unrecognised (0x{binascii.hexlify(head[:4]).decode()})', ''
 
 
-def _preview_row(path, titles):
-    """One row for a cached preview file, keyed on the video id in its directory name."""
+def _mp4_boxes(path):
+    """Top-level ISO BMFF boxes.
+
+    Every size is checked against the bytes actually remaining, so a cache entry that
+    was cut short is reported as truncated rather than producing an invented box size.
+    Returns (complete boxes, cut) where cut is (box type, declared size, bytes present)
+    for the box the file ends inside, or None.
+    """
+    boxes, cut = [], None
+    try:
+        size = os.path.getsize(path)
+        with open(path, 'rb') as handle:
+            offset = 0
+            while offset < size:
+                handle.seek(offset)
+                header = handle.read(8)
+                if len(header) < 8:
+                    cut = ('', 0, size - offset)
+                    break
+                box_size = struct.unpack('>I', header[:4])[0]
+                box_type = header[4:8].decode('latin1', 'replace')
+                header_size = 8
+                if box_size == 1:
+                    extended = handle.read(8)
+                    if len(extended) < 8:
+                        cut = (box_type, 0, size - offset)
+                        break
+                    box_size = struct.unpack('>Q', extended)[0]
+                    header_size = 16
+                elif box_size == 0:
+                    box_size = size - offset
+                if box_size < header_size or offset + box_size > size:
+                    cut = (box_type, box_size, size - offset)
+                    break
+                boxes.append((box_type, box_size, offset))
+                offset += box_size
+    except (OSError, struct.error):
+        cut = ('', 0, 0)
+    return boxes, cut
+
+
+def _mp4_sample_entries(path, boxes):
+    """Sample entry four character codes inside moov, for example avc1, av01, encv."""
+    found = []
+    moov = [b for b in boxes if b[0] == 'moov']
+    if not moov:
+        return found
+    _type, moov_size, moov_offset = moov[0]
+    try:
+        with open(path, 'rb') as handle:
+            handle.seek(moov_offset)
+            blob = handle.read(moov_size)
+    except OSError:
+        return found
+    # From the 'stsd' type field: +4 version and flags, +4 entry count, +4 entry size,
+    # then the four character format code of the first sample entry.
+    marker = blob.find(b'stsd')
+    while marker != -1 and len(found) < 8:
+        entry = blob[marker + 16:marker + 20]
+        if len(entry) == 4 and (entry.isalnum() or entry in (b'ec-3', b'ac-3')):
+            code = entry.decode('latin1', 'replace')
+            if code not in found:
+                found.append(code)
+        marker = blob.find(b'stsd', marker + 4)
+    return found
+
+
+ENCRYPTED_ENTRIES = ('encv', 'enca')
+
+
+def _segment_row(path, titles):
+    """One row describing a cached stream segment, keyed on the video id in its path."""
     segments = path.replace('\\', '/').split('/Library/Caches/br/ch/', 1)[1].split('/')
     video_id = segments[0] if segments else ''
     title, entity_type = titles.get(video_id, ('', ''))
     kind, extension = _sniff(path)
-    media_ref = ''
-    if extension in ('mp4', 'jpg', 'png', 'webp'):
-        media_ref = check_in_media(path, name=f'{video_id} {segments[-1]}',
-                                   force_extension=extension)
+    media_bytes, entries, truncated, form = '', '', '', kind
+    if extension == 'mp4':
+        boxes, cut = _mp4_boxes(path)
+        media_bytes = sum(size - 8 for name, size, _ in boxes if name == 'mdat')
+        if cut and cut[0] == 'mdat':
+            # the mdat header is present but the payload is cut off with the cache entry
+            media_bytes += max(0, cut[2] - 8)
+        entries = ', '.join(_mp4_sample_entries(path, boxes))
+        truncated = f'Yes, ends inside {cut[0] or "a box header"}' if cut else 'No'
+        if media_bytes:
+            form = 'MP4 fragment, media samples present but incomplete'
+        else:
+            form = 'MP4 initialisation and index only, no media samples'
+    encrypted = ''
+    if extension == 'mp4':
+        encrypted = 'Yes' if any(e in entries for e in ENCRYPTED_ENTRIES) else 'No'
     return (video_id, title, entity_type, segments[-1] if segments else '',
-            kind, os.path.getsize(path), media_ref)
+            form, media_bytes, encrypted, entries, truncated, os.path.getsize(path))
 
 
 @artifact_processor
-def netflix_preview_media(context):
+def netflix_stream_segments(context):
     data_list = []
     files_found = context.get_files_found()
 
@@ -1134,16 +1254,80 @@ def netflix_preview_media(context):
     for path in _files(files_found, lambda p: '/Library/Caches/br/ch/' in p):
         if not os.path.isfile(path):
             continue
-        data_list.append(_preview_row(path, titles) + (context.get_relative_path(path),))
+        data_list.append(_segment_row(path, titles) + (context.get_relative_path(path),))
 
     data_headers = (
         'Video ID (from directory name)',
         'Title',
         'Entity Type (as stored)',
         'File Name',
-        'File Type (from leading bytes)',
+        'Form (from leading bytes and box layout)',
+        'Media Sample Bytes',
+        'Encrypted Sample Entry',
+        'Sample Entry Codes (as stored)',
+        'Truncated Cache Entry',
         'Size (bytes)',
-        ('Media', 'media'),
+        'Source Path',
+    )
+    return data_headers, data_list, 'See Source Path column'
+
+
+CUE_TIME_RE = re.compile(
+    r'^\s*(?:\S+\s+)?'
+    r'(\d{1,2}:\d{2}:\d{2}[.,]\d{1,3}|\d{1,2}:\d{2}[.,]\d{1,3})'
+    r'\s*-->\s*'
+    r'(\d{1,2}:\d{2}:\d{2}[.,]\d{1,3}|\d{1,2}:\d{2}[.,]\d{1,3})')
+
+
+def _cues(path):
+    """Yield (start, end, text) for each WebVTT cue in a cached subtitle file."""
+    try:
+        with open(path, 'rb') as handle:
+            body = handle.read().decode('utf-8-sig', 'replace')
+    except OSError:
+        return
+    for block in re.split(r'\r?\n\r?\n', body):
+        lines = [line for line in block.splitlines() if line.strip()]
+        for index, line in enumerate(lines):
+            match = CUE_TIME_RE.match(line)
+            if not match:
+                continue
+            text = ' '.join(lines[index + 1:]).strip()
+            yield match.group(1), match.group(2), re.sub(r'<[^>]+>', '', text)
+            break
+
+
+@artifact_processor
+def netflix_subtitle_cues(context):
+    data_list = []
+    files_found = context.get_files_found()
+
+    titles = {}
+    for db_path in _gql_databases(files_found):
+        for video_id, pair in _title_index(db_path).items():
+            titles.setdefault(video_id, pair)
+
+    for path in _files(files_found, lambda p: '/Library/Caches/br/ch/' in p):
+        if not os.path.isfile(path) or _sniff(path)[1] != 'vtt':
+            continue
+        segments = path.replace('\\', '/').split('/Library/Caches/br/ch/', 1)[1].split('/')
+        video_id = segments[0] if segments else ''
+        title, entity_type = titles.get(video_id, ('', ''))
+        relative = context.get_relative_path(path)
+        for start, end, text in _cues(path):
+            data_list.append((
+                start, end, video_id, title, entity_type, text,
+                segments[-1] if segments else '', relative,
+            ))
+
+    data_headers = (
+        'Cue Start (as stored)',
+        'Cue End (as stored)',
+        'Video ID (from directory name)',
+        'Title',
+        'Entity Type (as stored)',
+        'Cue Text',
+        'File Name',
         'Source Path',
     )
     return data_headers, data_list, 'See Source Path column'
