@@ -126,6 +126,9 @@ __artifacts_v2__ = {
                  "is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Caches/com.pinterest.PINDiskCache.PINRemoteModelCache/*',
+            '*/mobile/Containers/Data/Application/*/Library/Preferences/pinterest.plist',
+            '*/mobile/Containers/Data/Application/*/Library/Preferences/com.pinterest.applicationhealthmonitor.plist',
+            '*/mobile/Containers/Data/Application/*/Documents/activeUser*',
         ),
         "output_types": "standard",
         "artifact_icon": "database"
@@ -414,24 +417,21 @@ def _cache_files(files_found, directory, roots):
     Files matched in another application's container are skipped and counted, so
     a run that reports nothing says why rather than reporting a bare zero.
     '''
-    kept, skipped = [], 0
-    for path in _paths(files_found):
-        normalized = path.replace('\\', '/')
-        if '/' + directory + '/' not in normalized or not os.path.isfile(path):
-            continue
-        if roots and not _in_container(path, roots):
-            skipped += 1
-            continue
-        kept.append(path)
+    candidates = [path for path in _paths(files_found)
+                  if '/' + directory + '/' in path.replace('\\', '/')
+                  and os.path.isfile(path)]
+    if not candidates:
+        return []
+    if not roots:
+        logfunc(f'Pinterest: {len(candidates)} {directory} file(s) were found but no '
+                f'Pinterest container was identified, so none are reported. This cache '
+                f'directory is named for a shared library and is not evidence of Pinterest.')
+        return []
+    kept = [path for path in candidates if _in_container(path, roots)]
+    skipped = len(candidates) - len(kept)
     if skipped:
         logfunc(f'Pinterest: skipped {skipped} {directory} file(s) found outside a '
                 f'Pinterest container; this cache directory is named for a shared library.')
-    if not roots and not kept:
-        for path in _paths(files_found):
-            if '/' + directory + '/' in path.replace('\\', '/'):
-                logfunc(f'Pinterest: {directory} files were found but no Pinterest '
-                        f'container was identified, so none are reported.')
-                break
     return kept
 
 
