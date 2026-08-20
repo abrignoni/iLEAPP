@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Google Calendar - Events",
         "description": "Calendar events synced by the Google Calendar iOS app, decoded from the "
                        "per-event protobuf held in the UnifiedSync store",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
     "googleCalendarEventAttendees": {
         "name": "Google Calendar - Event Attendees",
         "description": "Attendees recorded on Google Calendar events",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
     "googleCalendarEventLocations": {
         "name": "Google Calendar - Event Locations",
         "description": "Structured locations attached to Google Calendar events, with coordinates where present",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -73,7 +73,7 @@ __artifacts_v2__ = {
     "googleCalendarCalendars": {
         "name": "Google Calendar - Calendars",
         "description": "Calendars known to the Google Calendar iOS app",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
     "googleCalendarCalendarSync": {
         "name": "Google Calendar - Calendar Sync Settings",
         "description": "Per calendar selection and sync flags",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
     "googleCalendarCalendarAccess": {
         "name": "Google Calendar - Calendar Access",
         "description": "Access control entries recorded for calendars",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -121,7 +121,7 @@ __artifacts_v2__ = {
     "googleCalendarAccounts": {
         "name": "Google Calendar - Accounts",
         "description": "Accounts registered in the Google Calendar UnifiedSync store",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
     "googleCalendarSettings": {
         "name": "Google Calendar - Account Settings",
         "description": "Per account settings recorded in the UnifiedSync store",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -156,7 +156,7 @@ __artifacts_v2__ = {
     "googleCalendarAppointmentSchedules": {
         "name": "Google Calendar - Appointment Schedules",
         "description": "Appointment schedules defined on a calendar",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -171,7 +171,7 @@ __artifacts_v2__ = {
     "googleCalendarContacts": {
         "name": "Google Calendar - Cached Contacts",
         "description": "Contacts cached by the Google Calendar iOS app for guest lookup",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -195,7 +195,7 @@ __artifacts_v2__ = {
     "googleCalendarAccountPreferences": {
         "name": "Google Calendar - Account Preferences",
         "description": "Per account calendar preferences cached by the app",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -211,7 +211,7 @@ __artifacts_v2__ = {
     "googleCalendarAppState": {
         "name": "Google Calendar - Application State",
         "description": "Application level preferences recorded by the Google Calendar iOS app",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",

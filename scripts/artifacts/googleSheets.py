@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Spreadsheets the Google Sheets app has opened and kept an offline copy of, "
                        "with the stored title, MIME type, revision, sync timestamps and the cached "
                        "thumbnail where one is present",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -61,7 +61,7 @@ __artifacts_v2__ = {
         "name": "Google Sheets - Sheet Tabs",
         "description": "The individual sheet tabs of each spreadsheet held offline by the Google "
                        "Sheets app, with the stored tab name, tab id and grid size",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
         "name": "Google Sheets - Offline Content Parts",
         "description": "The stored parts of each spreadsheet's offline copy, one row per part and "
                        "revision, recording where the cell values and formulas are held on the device",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -125,7 +125,7 @@ __artifacts_v2__ = {
         "name": "Google Sheets - Template Gallery",
         "description": "The spreadsheet template gallery the app downloaded and cached, with each "
                        "template's stored title, category and thumbnail",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -160,7 +160,7 @@ __artifacts_v2__ = {
         "name": "Google Sheets - Accounts and App State",
         "description": "Google accounts known to the Google Sheets app and the app state recorded "
                        "beside them, including the signed in account, app version and first launch",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -188,7 +188,7 @@ __artifacts_v2__ = {
         "name": "Google Sheets - Document View State",
         "description": "The tab, scroll position and zoom the Google Sheets app recorded for each "
                        "spreadsheet it has open state for",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -211,7 +211,7 @@ __artifacts_v2__ = {
         "name": "Google Sheets - Synced Settings",
         "description": "Editor settings the app synced for the account, one row per stored setting "
                        "key path",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",

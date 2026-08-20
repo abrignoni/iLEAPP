@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Documents the Google Docs iOS app kept a local store for, with the "
                        "document title, identifier, type, ownership flag and the timestamps the "
                        "app recorded for creation, server modification, sync and app start",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -44,7 +44,7 @@ __artifacts_v2__ = {
         "name": "Google Docs - Document Text",
         "description": "Text stored in the Google Docs iOS app's per document command log, one "
                        "row per document",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
         "name": "Google Docs - Document Media",
         "description": "Images and drawings the Google Docs iOS app stored for a document, "
                        "rendered and shown with the document they belong to",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -125,7 +125,7 @@ __artifacts_v2__ = {
         "description": "Per document sync state the Google Docs iOS app records across documents, "
                        "with the server update time, the last sync finish time and the failure "
                        "count",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -163,7 +163,7 @@ __artifacts_v2__ = {
         "name": "Google Docs - Comment Sync State",
         "description": "Documents the Google Docs iOS app tracked comments for, with the last "
                        "modified time and the next scheduled sync time",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -200,7 +200,7 @@ __artifacts_v2__ = {
         "description": "Google accounts the Google Docs iOS app recorded, showing the signed in "
                        "account and the account identifiers named by keys in the app's "
                        "preferences",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -228,7 +228,7 @@ __artifacts_v2__ = {
         "name": "Google Docs - Application State",
         "description": "Application level state recorded by the Google Docs iOS app, including "
                        "first launch dates, the recorded app version and device boot time",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -254,7 +254,7 @@ __artifacts_v2__ = {
         "name": "Google Docs - Contacts Cache",
         "description": "People cached by the Google Docs iOS app for looking up collaborators, "
                        "with the display name, addresses and the affinity value as stored",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",

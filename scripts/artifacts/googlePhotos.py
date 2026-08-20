@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Items in the Google Photos library store, with the file name, capture "
                        "and client creation timestamps, dimensions, coordinates and camera "
                        "fields recorded for each item.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
     "googlePhotosAlbums": {
         "name": "Google Photos - Albums",
         "description": "Albums recorded in the Google Photos library store.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "name": "Google Photos - Shared Albums",
         "description": "Shared albums, their recipients and the sync and activity timestamps "
                        "recorded for each.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "name": "Google Photos - Shared Album Items",
         "description": "Items belonging to shared albums, with the album and contributing actor "
                        "keys recorded for each.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
     "googlePhotosSearchCategories": {
         "name": "Google Photos - On-Device Search Clusters",
         "description": "Labelled clusters the app holds for on-device search over the library.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -116,7 +116,7 @@ __artifacts_v2__ = {
     "googlePhotosRecentSearches": {
         "name": "Google Photos - Recent Searches",
         "description": "Recent search entries held by the app's on-device search store.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -134,7 +134,7 @@ __artifacts_v2__ = {
     "googlePhotosDownloadedMedia": {
         "name": "Google Photos - Downloaded Media Files",
         "description": "Video and audio files held in the app's per-extension fetch caches.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -160,7 +160,7 @@ __artifacts_v2__ = {
     "googlePhotosCachedVideoStreams": {
         "name": "Google Photos - Cached Video Streams",
         "description": "Streamed video the app cached, keyed by the library item it belongs to.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -186,7 +186,7 @@ __artifacts_v2__ = {
         "name": "Google Photos - Pre-Checkpoint Rows",
         "description": "Rows held in the committed part of the app's stores that the current "
                        "state of those stores no longer returns.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -216,7 +216,7 @@ __artifacts_v2__ = {
         "name": "Google Photos - Application State",
         "description": "Application and operating system versions and backup state recorded in "
                        "the app's preferences.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",

@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "description": (
             "Reports selected account, marketplace, device and app-state values from the "
             "Amazon Shopping preferences store."),
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
         "description": (
             "Reports Amazon account profiles held in the app's React Native storage, and the "
             "account identifiers used to name per-account preference files."),
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
         "name": "Amazon - Orders",
         "description": (
             "Reports orders and order line items from the app's cached orders API response."),
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "description": (
             "Reports product detail responses held in the app's network cache, with the ASIN and "
             "the product title where the response carried one."),
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -138,7 +138,7 @@ __artifacts_v2__ = {
         "description": (
             "Reports the delivery address label the app cached from the storefront location "
             "service."),
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -158,7 +158,7 @@ __artifacts_v2__ = {
     "amazon_network_cache": {
         "name": "Amazon - Network Cache",
         "description": "Reports the request URLs and entry times held in the app's network cache.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -180,7 +180,7 @@ __artifacts_v2__ = {
         "description": (
             "Reports the SSNAP image cache registry and the cached image files it points at, "
             "including cached files the registry does not reference."),
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -206,7 +206,7 @@ __artifacts_v2__ = {
         "name": "Amazon - Metric Events",
         "description": (
             "Reports timestamped client metric events from the app's queued DCM batches."),
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -238,7 +238,7 @@ __artifacts_v2__ = {
         "description": (
             "Reports the per-batch device, account and session context recorded in the app's "
             "queued DCM batches."),
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
