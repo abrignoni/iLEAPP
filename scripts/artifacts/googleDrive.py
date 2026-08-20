@@ -81,12 +81,12 @@ __artifacts_v2__ = {
         "category": "Google Drive",
         "notes": "The cello.db store is written by Google's DriveKit library, which is embedded by several Google apps, so a store can sit in a container belonging to an app other than Google Drive. Across the tested images these stores were found in Google Drive, Google Docs, Google Sheets, Gmail and Google Chat containers, and three tested images carried one with no Google Drive container present. A store can also sit in an app extension container under Data/PluginKitPlugin, which is read the same way and reports the extension's own bundle id. The Container App column names the app that owns the container, read from that container's metadata property list, and is empty when the extraction carries no metadata property list for it. A row is evidence that the named app held this data; it does not establish that the Google Drive app was installed. One row per file under Documents/drivekit/users/<account id>/files/<item id>/. "
                  "A file whose item id has no row in that account's cello.db is still listed, "
-                 "The Drive metadata shown beside a stored file or thumbnail is looked up by "
-                 "account and item id, which two containers on the same device can share: an account "
-                 "appeared in more than one container on each of the tested images. The values that "
-                 "lookup carries, the title, mime type and trash state, agreed between containers "
-                 "wherever a pair was cached twice, so the Container App column is what says which "
-                 "container a row was read from. "
+                 "The Drive metadata shown beside a stored file or thumbnail is looked up within the "
+                 "container the file sits in, keyed on container, account and item id, so a row is "
+                 "described by the store that holds it. That matters because an account appeared in "
+                 "more than one container on each of the tested images and a Drive item id is the "
+                 "same string wherever it is cached. Where a pair was cached in two containers the "
+                 "values agreed, so this prevents a mix rather than repairing an observed one. "
                  "with the Drive metadata columns empty; in tested samples such files exist. "
                  "Offline Last Modified is the offlineLastModifiedDate value the app records for "
                  "the item, in Unix milliseconds as stored. The newer gdx-content sibling "
@@ -123,12 +123,12 @@ __artifacts_v2__ = {
                  "the file content (PNG and JPEG observed). Thumbnail filenames end in an "
                  "undocumented number, reported as stored; in tested samples it parses as Unix "
                  "milliseconds inside the account's activity window. A thumbnail whose item id "
-                 "The Drive metadata shown beside a stored file or thumbnail is looked up by "
-                 "account and item id, which two containers on the same device can share: an account "
-                 "appeared in more than one container on each of the tested images. The values that "
-                 "lookup carries, the title, mime type and trash state, agreed between containers "
-                 "wherever a pair was cached twice, so the Container App column is what says which "
-                 "container a row was read from. "
+                 "The Drive metadata shown beside a stored file or thumbnail is looked up within the "
+                 "container the file sits in, keyed on container, account and item id, so a row is "
+                 "described by the store that holds it. That matters because an account appeared in "
+                 "more than one container on each of the tested images and a Drive item id is the "
+                 "same string wherever it is cached. Where a pair was cached in two containers the "
+                 "values agreed, so this prevents a mix rather than repairing an observed one. "
                  "has no row in cello.db is still listed. The newer gdx-thumbnails sibling "
                  "directory was empty in every tested image and is not covered.",
         "paths": ('*/Documents/drivekit/users/*/*cello/cello.db*',
@@ -383,14 +383,20 @@ def google_drive_accounts(context):
 
 
 def _local_file_index(files_found):
-    '''Map (account id, item id) to the content files stored on the device.'''
+    '''Map (container, account id, item id) to the content files stored on the device.
+
+    The container is part of the key because one device carries several of these stores,
+    an account can appear in more than one of them, and a Drive item id is the same string
+    wherever it is cached. Keying on the account and item alone lets one container's cache
+    answer for another's.
+    '''
     index = {}
     for found in files_found:
         found = str(found)
         match = _CONTENT_FILE_RE.search(found)
         if match:
-            account_id = _account_from_path(found)
-            index.setdefault((account_id, match.group(1)), []).append(found)
+            key = (_container_root(found), _account_from_path(found), match.group(1))
+            index.setdefault(key, []).append(found)
     return index
 
 
@@ -440,7 +446,8 @@ def google_drive_items(context):
         path_for = _parent_paths(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
             media_ref = ''
-            stored = local_files.get((account_id, record[15]), [])
+            stored = local_files.get(
+                (_container_root(db_path), account_id, record[15]), [])
             if stored:
                 media_ref = check_in_media(stored[0], record[6] or '') or ''
             data_list.append((
@@ -512,11 +519,12 @@ def google_drive_local_files(context):
     items_by_key = {}
     for db_path in _cello_dbs(files_found):
         account_id = _account_from_path(db_path)
+        container = _container_root(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, item_query)):
-            items_by_key[(account_id, record[0])] = record
+            items_by_key[(container, account_id, record[0])] = record
 
-    for (account_id, item_id), paths in sorted(local_files.items()):
-        item = items_by_key.get((account_id, item_id))
+    for (container, account_id, item_id), paths in sorted(local_files.items()):
+        item = items_by_key.get((container, account_id, item_id))
         for stored in sorted(paths):
             media_ref = check_in_media(stored, os.path.basename(stored)) or ''
             data_list.append((
@@ -560,8 +568,9 @@ def google_drive_thumbnails(context):
     titles_by_key = {}
     for db_path in _cello_dbs(files_found):
         account_id = _account_from_path(db_path)
+        container = _container_root(db_path)
         for record in get_sqlite_db_records(db_path, 'SELECT id, title FROM items'):
-            titles_by_key[(account_id, record[0])] = record[1]
+            titles_by_key[(container, account_id, record[0])] = record[1]
 
     for found in files_found:
         found = str(found)
@@ -584,11 +593,12 @@ def google_drive_thumbnails(context):
         except OSError:
             pass
         media_ref = check_in_media(
-            found, titles_by_key.get((account_id, item_id), item_id),
+            found,
+            titles_by_key.get((_container_root(found), account_id, item_id), item_id),
             force_extension=extension) or ''
 
         data_list.append((
-            titles_by_key.get((account_id, item_id), ''),
+            titles_by_key.get((_container_root(found), account_id, item_id), ''),
             item_id,
             suffix,
             media_ref,
@@ -618,8 +628,9 @@ def google_drive_comments(context):
     titles_by_key = {}
     for db_path in _cello_dbs(files_found):
         cello_account = _account_from_path(db_path)
+        cello_container = _container_root(db_path)
         for record in get_sqlite_db_records(db_path, 'SELECT id, title FROM items'):
-            titles_by_key[(cello_account, record[0])] = record[1]
+            titles_by_key[(cello_container, cello_account, record[0])] = record[1]
 
     query = '''
     SELECT published_date, updated_date, item_identifier, quote, anchor,
@@ -640,7 +651,8 @@ def google_drive_comments(context):
                 entries = [{}]
             identifier = record[2] or ''
             id_part = identifier.split(':', 1)[-1]
-            drive_title = titles_by_key.get((account_id, id_part), '')
+            drive_title = titles_by_key.get(
+                (_container_root(db_path), account_id, id_part), '')
             for entry in entries:
                 if not isinstance(entry, dict):
                     entry = {}
