@@ -126,6 +126,9 @@ __artifacts_v2__ = {
                  "is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Caches/com.pinterest.PINDiskCache.PINRemoteModelCache/*',
+            '*/mobile/Containers/Data/Application/*/Library/Preferences/pinterest.plist',
+            '*/mobile/Containers/Data/Application/*/Library/Preferences/com.pinterest.applicationhealthmonitor.plist',
+            '*/mobile/Containers/Data/Application/*/Documents/activeUser*',
         ),
         "output_types": "standard",
         "artifact_icon": "database"
@@ -419,19 +422,20 @@ def _cache_files(files_found, directory, roots):
         normalized = path.replace('\\', '/')
         if '/' + directory + '/' not in normalized or not os.path.isfile(path):
             continue
-        if roots and not _in_container(path, roots):
+        # The guard must reject when no container was identified, not fall through.
+        # This directory is named for a shared library, so with no Pinterest container
+        # every match belongs to another application.
+        if not _in_container(path, roots):
             skipped += 1
             continue
         kept.append(path)
-    if skipped:
+    if skipped and roots:
         logfunc(f'Pinterest: skipped {skipped} {directory} file(s) found outside a '
                 f'Pinterest container; this cache directory is named for a shared library.')
-    if not roots and not kept:
-        for path in _paths(files_found):
-            if '/' + directory + '/' in path.replace('\\', '/'):
-                logfunc(f'Pinterest: {directory} files were found but no Pinterest '
-                        f'container was identified, so none are reported.')
-                break
+    elif skipped:
+        logfunc(f'Pinterest: {skipped} {directory} file(s) were found but no Pinterest '
+                f'container was identified, so none are reported; this cache directory is '
+                f'named for a shared library and other applications embed it.')
     return kept
 
 
@@ -869,7 +873,9 @@ def pinterestSearchAutocompleteCache(context):
         name = os.path.basename(path)
         if not name.endswith('ap.db') or not os.path.isfile(path):
             continue
-        if roots and not _in_container(path, roots):
+        # Fails closed: with no Pinterest container identified, every match belongs
+        # to another application or to the system.
+        if not _in_container(path, roots):
             continue
         container = _container_of(path, roots)
         metadata = metadata_by_container.get(container, {})
