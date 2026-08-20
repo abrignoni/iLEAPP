@@ -59,6 +59,16 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_artifact_paths.py
 
+      # An artifact reading a directory named for a third party library accepts a file only
+      # when its container also holds a marker file the application itself writes.
+      # files_found is built per artifact, so those marker patterns must sit in that
+      # artifact's own paths; otherwise its marker set is always empty and a guard that
+      # fails closed reports nothing on exactly the images where the app is installed.
+      # See the script's docstring.
+      - name: Guard against container-scoped artifacts with no marker pattern
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_container_markers.py
+
       # html_columns cells are written to the report without html.escape, so evidence
       # placed there can inject markup, and any remote href/src makes opening a report
       # beacon to a third party. Pre-existing findings are carried in the script's
