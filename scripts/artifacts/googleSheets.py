@@ -12,7 +12,13 @@ __artifacts_v2__ = {
         "notes": "One row per row of cross_document_metadata in "
                  "Documents/<account id>/localStore/shared/documentMetadata.db, joined by document "
                  "id to the per-document store at localStore/documents/<document id>/<document "
-                 "id>.db. Title, MIME type, revision and ownership come from that store's "
+                 "id>.db. A container can hold more than one account directory, and the same Drive "
+                 "document can appear under each of them, so the join is keyed on the container, "
+                 "the account directory and the document id together and each account's copy is "
+                 "reported as its own row. Rows for the same document under different accounts "
+                 "carry that account's own sync timestamps, revision and ownership; the title is "
+                 "expected to agree between them, because it is one document seen from two "
+                 "accounts. Title, MIME type, revision and ownership come from that store's "
                  "document_properties table, which is an entity-attribute-value table whose type "
                  "column selects the encoding of the value blob: in the tested container every "
                  "type 0 value decoded as UTF-8 text (230 of 230), every type 1 value as an "
@@ -290,9 +296,21 @@ def _container_roots(files_found):
 
 
 def _in_container(path, roots):
+    return _root_for(path, roots) is not None
+
+
+def _root_for(path, roots):
+    '''The container this path sits under, or None.
+
+    roots is ordered longest first, so a container nested inside another is preferred over
+    the outer one. The answer is part of every store key: two containers can hold the same
+    account and the same document id.
+    '''
     path = str(path)
-    return any(path == root or path.startswith(root + os.sep) or path.startswith(root + '/')
-               for root in roots)
+    for root in roots:
+        if path == root or path.startswith(root + os.sep) or path.startswith(root + '/'):
+            return root
+    return None
 
 
 def _scoped(files_found, roots, predicate):
@@ -544,17 +562,24 @@ def google_sheets_documents(context):
     data_list = []
     sources = []
 
-    # document id -> per-document store, and the thumbnail files available per document
+    # Both maps are keyed on the full identity of the store: the container, the account
+    # directory it sits in, and the document id. A container can hold more than one account
+    # directory, and the same Drive document can appear under each of them, so a key of the
+    # document id alone keeps only the last copy read and reports its title, MIME type,
+    # revision and ownership against every account's row.
     doc_dbs = {}
     for path in _doc_dbs(files_found, roots):
         match = _DOC_DB_RE.search(path)
         if match and match.group(1) == match.group(2):
-            doc_dbs[match.group(1)] = path
+            doc_dbs[(_root_for(path, roots), _account_from_path(path),
+                     match.group(1))] = path
 
     thumbs = {}
     for path in _scoped(files_found, roots, lambda p: bool(_THUMB_RE.search(p))):
         match = _THUMB_RE.search(path)
-        thumbs.setdefault(match.group(1), []).append((match.group(2), path))
+        key = (_root_for(path, roots),
+               _account_from_path(path, _DRIVEKIT_ACCOUNT_RE), match.group(1))
+        thumbs.setdefault(key, []).append((match.group(2), path))
 
     query = '''
     SELECT document_id, document_type, last_server_updated_timestamp_milliseconds,
@@ -565,11 +590,12 @@ def google_sheets_documents(context):
     '''
     for db_path in _shared_db(files_found, roots, 'documentMetadata.db'):
         account = _account_from_path(db_path)
+        container = _root_for(db_path, roots)
         sources.append(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
             document_id = _text(record[0])
             properties = {}
-            doc_db = doc_dbs.get(document_id)
+            doc_db = doc_dbs.get((container, account, document_id))
             if doc_db:
                 properties = _document_rows(doc_db)
                 if doc_db not in sources:
@@ -577,7 +603,7 @@ def google_sheets_documents(context):
 
             server_ms = record[2]
             thumbnail = ''
-            for name, path in thumbs.get(document_id, []):
+            for name, path in thumbs.get((container, account, document_id), []):
                 suffix = name.rsplit('-', 1)[-1]
                 # Match only on the milliseconds the metadata row itself records.
                 if server_ms is not None and suffix.isdigit() and int(suffix) == int(server_ms):
