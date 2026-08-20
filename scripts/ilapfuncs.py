@@ -1594,22 +1594,21 @@ def convert_ts_human_to_timezone_offset(ts, timezone_offset):
 
 def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
     if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day,
-            plist_date.hour, plist_date.minute, plist_date.second
-            )
-        iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
+        # Formatting the value and parsing it back only to drop the sub-second part
+        # cost a round trip and, because the string carried a trailing Z, raised
+        # ValueError on Python 3.10, which datetime.fromisoformat supports from 3.11.
+        iso_date = plist_date.replace(microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
         return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
     else:
         return plist_date
 
 def convert_plist_date_to_utc(plist_date):
     if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day,
-            plist_date.hour, plist_date.minute, plist_date.second
-            )
-        return datetime.fromisoformat(str_date)
+        # A plist date is naive and already UTC, so the timezone is attached directly.
+        # The previous version formatted it with a trailing Z and parsed that back,
+        # which raises ValueError on Python 3.10; datetime.fromisoformat only accepts
+        # Z from 3.11. The sub-second part is still dropped, as it was before.
+        return plist_date.replace(microsecond=0, tzinfo=timezone.utc)
     else:
         return plist_date
 
