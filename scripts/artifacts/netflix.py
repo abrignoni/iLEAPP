@@ -107,20 +107,23 @@ __artifacts_v2__ = {
         "artifact_icon": "player-play",
     },
     "netflix_titles": {
-        "name": "Netflix - Cached Titles",
-        "description": "Titles the Netflix app had cached in its GraphQL record cache, with the "
-                       "video identifier, the title and the entity type as stored",
+        "name": "Netflix - Titles With An Interaction Signal",
+        "description": "Titles the Netflix app cached for which some interaction signal also "
+                       "exists, being a stored playback position, a Continue Watching entry or "
+                       "cached stream data, with the signal named on each row",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Netflix",
-        "notes": "One row per distinct video id carrying a title in a UnifiedEntity or Video "
-                 "record under Library/gqlData. Entity Type is the record's own __typename, for "
-                 "example Movie, Show or Episode, and is reported as stored. This cache holds "
-                 "the catalogue the app had fetched for browsing, which includes titles the "
-                 "service placed on a page as well as titles reached deliberately, so presence "
-                 "here does not establish that a title was opened or played. The artwork URL is "
+        "notes": "The GraphQL cache holds the catalogue the app fetched for browsing, which is "
+                 "mostly what the service composed onto a page rather than anything the user "
+                 "chose, so the raw catalogue is not reported. A title appears here only when "
+                 "the same extraction also carries a stored playback position for it, a "
+                 "Continue Watching entry, or cached stream data under its video id, and the "
+                 "Interaction Signal column names which. The run log records how many cached "
+                 "title records were read and how many carried a signal. Even with a signal, "
+                 "presence does not establish who operated the device. The artwork URL is "
                  "reported as text; see the Netflix - Cached Preview Media artifact for the "
                  "media that could be linked to a title by a recorded identifier. The same title "
                  "is cached by each gqlData file, so rows identical across every reported field "
@@ -191,7 +194,7 @@ __artifacts_v2__ = {
         "artifact_icon": "lock",
     },
     "netflix_network_observations": {
-        "name": "Netflix - Network Observations",
+        "name": "Netflix - Network Observations Summary",
         "description": "Per interface network measurements the Netflix app recorded in its "
                        "sqlstore last_observed table, with the interface, the observed "
                        "throughput and the exchange identifier",
@@ -200,12 +203,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Netflix",
-        "notes": "Rows of the last_observed table in Documents/sqlstore/store.sqlite3, which is "
-                 "stored unencrypted. Keys take the form <metric>-<interface>[-<index>], and the "
-                 "interface segment is reported as stored; values seen in the samples tested "
-                 "included wifi, mobile, cellular and en0. The metric names observed were xid, "
-                 "bps, observedKbps and playdelay. No timestamp is stored on these rows, so they "
-                 "cannot be placed in time from this table alone. A bps or Kbps figure is a "
+        "notes": "Summarised from the last_observed table in Documents/sqlstore/store.sqlite3, "
+                 "which is stored unencrypted. Keys take the form <metric>-<interface>[-<index>], "
+                 "and the interface segment is reported as stored; values seen in the samples "
+                 "tested included wifi, mobile, cellular and en0. The metric names observed were "
+                 "xid, bps, observedKbps and playdelay. No timestamp is stored on any of these "
+                 "rows, so an individual observation cannot be placed in time and one row per "
+                 "observation would not be actionable; one row per interface is reported "
+                 "instead, with the observation count and the range of throughput readings. The "
+                 "underlying table still holds every value. A bps or Kbps figure is a "
                  "throughput measurement the client recorded for that interface, not a record of "
                  "data transferred.",
         "paths": ('*/Documents/sqlstore/store.sqlite3*',),
@@ -213,10 +219,10 @@ __artifacts_v2__ = {
         "artifact_icon": "network",
     },
     "netflix_stream_segments": {
-        "name": "Netflix - Cached Stream Segments",
-        "description": "Adaptive streaming segment files the Netflix app cached under a "
-                       "directory named after a video identifier, with the title filled in "
-                       "where the app had cached one and the box layout of each file reported",
+        "name": "Netflix - Cached Stream Data",
+        "description": "Adaptive streaming data the Netflix app cached per title, one row per "
+                       "video identifier, with the file and byte counts, how much media is "
+                       "actually present and how many files declare an encrypted sample entry",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
@@ -225,9 +231,12 @@ __artifacts_v2__ = {
         "notes": "Files under Library/Caches/br/ch/<videoId>/. The directory name is the video "
                  "id, which is a recorded link rather than a correlation, so each file is "
                  "attributed to the title of that id where a UnifiedEntity record for the same "
-                 "id exists under Library/gqlData. File types are decided by reading the "
-                 "leading bytes rather than by trusting the file name, which carries no "
-                 "extension. These are not playable video files and no media is checked in "
+                 "id exists under Library/gqlData. One row per video id rather than one per "
+                 "file: the individual files are cache entries with no separate meaning, so "
+                 "they are counted and their bytes totalled instead. File types are decided by "
+                 "reading the leading bytes rather than by trusting the file name, which "
+                 "carries no extension. These are not playable video files and no media is "
+                 "checked in for them. "
                  "for them. Across the samples tested 821 files carried MP4 magic and not one "
                  "held a complete mdat box: 494 walked cleanly and carried no mdat at all, "
                  "meaning an initialisation segment and a segment index with no media "
@@ -253,11 +262,11 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "file-download",
     },
-    "netflix_subtitle_cues": {
-        "name": "Netflix - Cached Subtitle Cues",
-        "description": "Subtitle cues from WebVTT files the Netflix app cached under a "
-                       "directory named after a video identifier, with the cue times, the cue "
-                       "text and the title the identifier belongs to",
+    "netflix_subtitle_tracks": {
+        "name": "Netflix - Cached Subtitle Tracks",
+        "description": "Subtitle tracks the Netflix app cached under a directory named after a "
+                       "video identifier, one row per track, carrying the cue count, the span "
+                       "the cues cover and the cue text",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
@@ -265,14 +274,17 @@ __artifacts_v2__ = {
         "category": "Netflix",
         "notes": "WebVTT files under Library/Caches/br/ch/<videoId>/, identified by their "
                  "leading bytes because the file names carry no extension. The directory name "
-                 "is the video id and is a recorded link, so cues are attributed to the title "
+                 "is the video id and is a recorded link, so a track is attributed to the title "
                  "of that id where a UnifiedEntity record for the same id exists under "
-                 "Library/gqlData. Cue times are reported as the file stores them, which is a "
-                 "position within the title rather than a wall clock time, so they cannot be "
-                 "placed on a timeline. Any cue markup is removed and the text is otherwise "
-                 "reported as stored. Across the samples tested 96 such files held 8,246 cues. "
-                 "A cached subtitle track records what the app downloaded for a title; it does "
-                 "not establish that the title was played or that any of it was displayed.",
+                 "Library/gqlData. One row per track rather than one per cue: across the "
+                 "samples tested 96 tracks held 8,246 cues, and a row per cue is a volume an "
+                 "examiner cannot work through, so the cue text is joined into a single column "
+                 "and the count and span are carried beside it. Cue times are reported as the "
+                 "file stores them, which is a position within the title rather than a wall "
+                 "clock time, so they cannot be placed on a timeline. Cue markup is removed and "
+                 "the text is otherwise reported as stored. A cached subtitle track records what "
+                 "the app downloaded for a title; it does not establish that the title was "
+                 "played or that any of it was displayed.",
         "paths": ('*/Library/Caches/br/ch/*',
                   '*/Library/gqlData/*gql*.db*'),
         "output_types": "standard",
@@ -890,39 +902,62 @@ def netflix_continue_watching(context):
 
 @artifact_processor
 def netflix_titles(context):
+    """Titles the app cached AND for which some interaction signal exists.
+
+    The GraphQL cache holds whatever the service composed onto a page, so the raw
+    catalogue is mostly not evidence of user interest. Only titles carrying a stored
+    playback position, a Continue Watching entry, or cached stream data are reported.
+    """
     data_list, rows = [], []
-    for db_path in _gql_databases(context.get_files_found()):
-        seen, artwork = {}, {}
+    files_found = context.get_files_found()
+
+    cached = {p for p in _files(files_found, lambda x: '/Library/Caches/br/ch/' in x)}
+    with_media = set()
+    for path in cached:
+        segs = path.replace('\\', '/').split('/Library/Caches/br/ch/', 1)[1].split('/')
+        if segs:
+            with_media.add(segs[0])
+
+    total_cached = 0
+    for db_path in _gql_databases(files_found):
+        index = _title_index(db_path)
+        total_cached += len(index)
+        bookmarks, continues = set(), set()
         for key, value in _gql_records(db_path):
             if not isinstance(value, dict):
                 continue
-            if value.get('__typename') == 'Image' and value.get('url'):
-                video_match = VIDEO_ID_RE.search(key)
-                if video_match:
-                    artwork.setdefault(video_match.group(1), value['url'])
-            title = value.get('title')
-            video_id = value.get('videoId')
-            if title and video_id is not None:
-                seen.setdefault(str(video_id), (title, value.get('__typename', '')))
-        for video_id, (title, entity_type) in seen.items():
-            rows.append((
-                video_id,
-                title,
-                entity_type,
-                artwork.get(video_id, ''),
-                context.get_relative_path(db_path),
-            ))
+            match = BOOKMARK_KEY_RE.search(key)
+            if match:
+                bookmarks.add(match.group(1))
+            if value.get('__typename') == 'PinotContinueWatchingEntityTreatment':
+                target = VIDEO_ID_RE.search(_reference_target(value.get('unifiedEntity')))
+                if target:
+                    continues.add(target.group(1))
+        for video_id, (title, entity_type) in index.items():
+            signals = []
+            if video_id in bookmarks:
+                signals.append('playback position')
+            if video_id in continues:
+                signals.append('continue watching')
+            if video_id in with_media:
+                signals.append('cached stream data')
+            if not signals:
+                continue
+            rows.append((video_id, title, entity_type, ', '.join(signals),
+                         context.get_relative_path(db_path)))
 
-    # The artwork URL is a per cache CDN link and differs between files for the same
-    # title, so it is carried but not part of the identity the dedupe keys on.
-    for row, occurrences in _dedupe(rows, 3):
+    for row, occurrences in _dedupe(rows, 4):
         data_list.append(row[:4] + (occurrences, row[4]))
+
+    if total_cached:
+        logfunc(f'Netflix: {total_cached} cached title records were read across the GraphQL '
+                f'stores; {len(data_list)} carry an interaction signal and are reported.')
 
     data_headers = (
         'Video ID',
         'Title',
         'Entity Type (as stored)',
-        'Artwork URL',
+        'Interaction Signal',
         'Cache Files Holding This Row',
         'Source Path (first cache file)',
     )
@@ -1038,8 +1073,16 @@ def _value_kind(plain):
     return 'text', ''
 
 
+IDENTITY_KINDS = ('ESN string',)
+
+
 @artifact_processor
 def netflix_secure_store(context):
+    """Identity-bearing entries individually; certificates and key material summarised.
+
+    Most of this store is Message Security Layer material. A row saying an entry holds a
+    3,264 byte certificate is not actionable, so those are counted by kind instead.
+    """
     data_list = []
     files_found = context.get_files_found()
     for db_path in _databases(files_found, '/store.sqlite3'):
@@ -1048,9 +1091,8 @@ def netflix_secure_store(context):
         if not keys:
             logfunc(f'Netflix: no derivation keys available for {db_path}; '
                     'encrypted secure store values are reported undecrypted')
-        elif not named:
-            logfunc(f'Netflix: the crypto row in {db_path} is not opened by any key in the '
-                    'preference file; rows are decrypted by trying each key in turn')
+        relative = context.get_relative_path(db_path)
+        summary = {}
         query = 'SELECT rowid, length(value) AS stored_length, value FROM store ORDER BY rowid'
         for record in get_sqlite_db_records(db_path, query):
             plain = _stored_plain(record['value'])
@@ -1062,16 +1104,18 @@ def netflix_secure_store(context):
                     key_id, plain = _open_blob(record['value'], keys, named)
                 storage = 'Encrypted' if plain is not None else 'Not recovered'
             kind, identity = _value_kind(plain)
-            data_list.append((
-                kind,
-                identity,
-                storage,
-                len(plain) if plain is not None else '',
-                record['stored_length'],
-                key_id or '',
-                record['rowid'],
-                context.get_relative_path(db_path),
-            ))
+            if identity or kind in IDENTITY_KINDS:
+                data_list.append((kind, identity, storage,
+                                  len(plain) if plain is not None else '',
+                                  record['stored_length'], key_id or '',
+                                  record['rowid'], relative))
+            else:
+                bucket = summary.setdefault((kind, storage), {'n': 0, 'bytes': 0})
+                bucket['n'] += 1
+                bucket['bytes'] += record['stored_length']
+        for (kind, storage), b in sorted(summary.items()):
+            data_list.append((f'{kind} ({b["n"]} entries, not reported individually)', '',
+                              storage, '', b['bytes'], '', '', relative))
 
     data_headers = (
         'Value Kind',
@@ -1088,6 +1132,8 @@ def netflix_secure_store(context):
 
 @artifact_processor
 def netflix_network_observations(context):
+    """One row per interface. The rows carry no timestamp, so per-observation rows
+    cannot be placed in time and are summarised instead."""
     data_list = []
     for db_path in _databases(context.get_files_found(), '/store.sqlite3'):
         query = 'SELECT key, value FROM last_observed'
@@ -1096,6 +1142,7 @@ def netflix_network_observations(context):
         except (sqlite3.Error, OSError, TypeError) as error:
             logfunc(f'Netflix: could not read last_observed from {db_path}: {error}')
             continue
+        per_iface = {}
         for record in records:
             key = record['key']
             key_text = key.decode('utf-8', 'replace') if isinstance(key, bytes) else str(key)
@@ -1104,22 +1151,33 @@ def netflix_network_observations(context):
             parts = key_text.split('-')
             metric = parts[0] if parts else key_text
             interface = parts[1] if len(parts) > 1 else ''
-            index = parts[2] if len(parts) > 2 else ''
+            entry = per_iface.setdefault(interface, {'n': 0, 'metrics': set(), 'kbps': []})
+            entry['n'] += 1
+            entry['metrics'].add(metric)
+            if metric == 'observedKbps':
+                try:
+                    entry['kbps'].append(int(value_text))
+                except ValueError:
+                    pass
+        for interface, e in per_iface.items():
+            kbps = sorted(e['kbps'])
             data_list.append((
-                metric,
                 interface,
-                index,
-                value_text,
-                key_text,
+                e['n'],
+                ', '.join(sorted(e['metrics'])),
+                len(kbps),
+                kbps[0] if kbps else '',
+                kbps[-1] if kbps else '',
                 context.get_relative_path(db_path),
             ))
 
     data_headers = (
-        'Metric (as stored)',
         'Interface (as stored)',
-        'Index (as stored)',
-        'Value (as stored)',
-        'Stored Key',
+        'Stored Observations',
+        'Metrics Recorded (as stored)',
+        'Throughput Readings',
+        'Lowest Observed Kbps',
+        'Highest Observed Kbps',
         'Source Path',
     )
     return data_headers, data_list, 'See Source Path column'
@@ -1251,22 +1309,52 @@ def netflix_stream_segments(context):
         for video_id, pair in _title_index(db_path).items():
             titles.setdefault(video_id, pair)
 
+    per_video = {}
     for path in _files(files_found, lambda p: '/Library/Caches/br/ch/' in p):
         if not os.path.isfile(path):
             continue
-        data_list.append(_segment_row(path, titles) + (context.get_relative_path(path),))
+        row = _segment_row(path, titles)
+        video_id = row[0]
+        entry = per_video.setdefault(video_id, {
+            'title': row[1], 'type': row[2], 'files': 0, 'bytes': 0, 'media': 0,
+            'with_media': 0, 'index_only': 0, 'truncated': 0, 'encrypted': 0,
+            'subtitles': 0, 'codes': set(),
+            'path': context.get_relative_path(os.path.dirname(path)),
+        })
+        entry['files'] += 1
+        entry['bytes'] += row[9]
+        if row[4].startswith('WebVTT'):
+            entry['subtitles'] += 1
+            continue
+        entry['media'] += row[5] or 0
+        entry['with_media'] += 1 if row[5] else 0
+        entry['index_only'] += 0 if row[5] else 1
+        entry['truncated'] += 1 if str(row[8]).startswith('Yes') else 0
+        entry['encrypted'] += 1 if row[6] == 'Yes' else 0
+        for code in (row[7] or '').split(', '):
+            if code:
+                entry['codes'].add(code)
+
+    for video_id, e in per_video.items():
+        data_list.append((
+            video_id, e['title'], e['type'], e['files'], e['bytes'],
+            e['with_media'], e['index_only'], e['media'], e['encrypted'],
+            e['truncated'], e['subtitles'], ', '.join(sorted(e['codes'])), e['path'],
+        ))
 
     data_headers = (
         'Video ID (from directory name)',
         'Title',
         'Entity Type (as stored)',
-        'File Name',
-        'Form (from leading bytes and box layout)',
-        'Media Sample Bytes',
-        'Encrypted Sample Entry',
+        'Cached Files',
+        'Total Size (bytes)',
+        'Files With Media Samples',
+        'Files Initialisation And Index Only',
+        'Media Sample Bytes Present',
+        'Files Declaring An Encrypted Sample Entry',
+        'Truncated Cache Entries',
+        'Subtitle Files',
         'Sample Entry Codes (as stored)',
-        'Truncated Cache Entry',
-        'Size (bytes)',
         'Source Path',
     )
     return data_headers, data_list, 'See Source Path column'
@@ -1298,7 +1386,7 @@ def _cues(path):
 
 
 @artifact_processor
-def netflix_subtitle_cues(context):
+def netflix_subtitle_tracks(context):
     data_list = []
     files_found = context.get_files_found()
 
@@ -1313,21 +1401,31 @@ def netflix_subtitle_cues(context):
         segments = path.replace('\\', '/').split('/Library/Caches/br/ch/', 1)[1].split('/')
         video_id = segments[0] if segments else ''
         title, entity_type = titles.get(video_id, ('', ''))
-        relative = context.get_relative_path(path)
-        for start, end, text in _cues(path):
-            data_list.append((
-                start, end, video_id, title, entity_type, text,
-                segments[-1] if segments else '', relative,
-            ))
+        cues = list(_cues(path))
+        text = ' '.join(t for _s, _e, t in cues if t)
+        data_list.append((
+            video_id,
+            title,
+            entity_type,
+            len(cues),
+            cues[0][0] if cues else '',
+            cues[-1][1] if cues else '',
+            text,
+            segments[-1] if segments else '',
+            os.path.getsize(path),
+            context.get_relative_path(path),
+        ))
 
     data_headers = (
-        'Cue Start (as stored)',
-        'Cue End (as stored)',
         'Video ID (from directory name)',
         'Title',
         'Entity Type (as stored)',
+        'Cue Count',
+        'First Cue Start (as stored)',
+        'Last Cue End (as stored)',
         'Cue Text',
         'File Name',
+        'Size (bytes)',
         'Source Path',
     )
     return data_headers, data_list, 'See Source Path column'
