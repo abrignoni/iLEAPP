@@ -34,6 +34,11 @@ __artifacts_v2__ = {
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "file-text",
+        "sample_data": {
+            "magnet_ios16": "iOS 16.1.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "hc_ios26": "iOS 26.5.2 | 0 rows, no document stores in the container",
+        },
     },
     "googleDocsDocumentText": {
         "name": "Google Docs - Document Text",
@@ -75,6 +80,11 @@ __artifacts_v2__ = {
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "file-description",
+        "sample_data": {
+            "magnet_ios16": "iOS 16.1.1 | 3 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "hc_ios26": "iOS 26.5.2 | 0 rows, no document stores in the container",
+        },
     },
     "googleDocsDocumentMedia": {
         "name": "Google Docs - Document Media",
@@ -104,6 +114,11 @@ __artifacts_v2__ = {
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "photo",
+        "sample_data": {
+            "magnet_ios16": "iOS 16.1.1 | 0 rows, no stored document media in the container",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows, no stored document media in the container",
+            "hc_ios26": "iOS 26.5.2 | 0 rows, no document stores in the container",
+        },
     },
     "googleDocsDocumentSync": {
         "name": "Google Docs - Document Sync State",
@@ -138,6 +153,11 @@ __artifacts_v2__ = {
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "refresh",
+        "sample_data": {
+            "magnet_ios16": "iOS 16.1.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "hc_ios26": "iOS 26.5.2 | 0 rows, no document stores in the container",
+        },
     },
     "googleDocsCommentSync": {
         "name": "Google Docs - Comment Sync State",
@@ -169,6 +189,11 @@ __artifacts_v2__ = {
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "magnet_ios16": "iOS 16.1.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "hc_ios26": "iOS 26.5.2 | 0 rows, no document stores in the container",
+        },
     },
     "googleDocsAccounts": {
         "name": "Google Docs - Accounts",
@@ -193,6 +218,11 @@ __artifacts_v2__ = {
                   '*/Documents/*/localStore/documents/*/*.db*'),
         "output_types": "standard",
         "artifact_icon": "user-circle",
+        "sample_data": {
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row",
+            "hc_ios26": "iOS 26.5.2 | 1 row",
+        },
     },
     "googleDocsAppState": {
         "name": "Google Docs - Application State",
@@ -214,6 +244,11 @@ __artifacts_v2__ = {
         "paths": ('*/Library/Preferences/com.google.Docs.plist',),
         "output_types": "standard",
         "artifact_icon": "settings",
+        "sample_data": {
+            "magnet_ios16": "iOS 16.1.1 | 38 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 32 rows",
+            "hc_ios26": "iOS 26.5.2 | 32 rows",
+        },
     },
     "googleDocsContacts": {
         "name": "Google Docs - Contacts Cache",
@@ -247,6 +282,11 @@ __artifacts_v2__ = {
                   '*/Library/Preferences/com.google.Docs.plist'),
         "output_types": "standard",
         "artifact_icon": "users",
+        "sample_data": {
+            "magnet_ios16": "iOS 16.1.1 | 4 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows, contacts cache present in the container but empty",
+            "hc_ios26": "iOS 26.5.2 | 0 rows, no contacts cache in the container",
+        },
     },
 }
 
