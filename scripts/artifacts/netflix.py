@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Stored playback positions the Netflix app held for a title, with the "
                        "position in seconds, the time the position was last modified and the "
                        "video identifier the position belongs to",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "description": "Profiles recorded in the Netflix app's GraphQL record cache, with the "
                        "profile name, guid, creation time, maturity rating and the kids, PIN "
                        "lock and account owner flags as stored",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -62,7 +62,7 @@ __artifacts_v2__ = {
         "description": "Account level values recorded by the Netflix app, including the signed "
                        "in account name, membership start, country of sign up, the device ESN "
                        "and the app version",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -88,7 +88,7 @@ __artifacts_v2__ = {
         "name": "Netflix - Continue Watching",
         "description": "Entries the Netflix app cached for its Continue Watching row, with the "
                        "displayed title and the video identifier each entry points at",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "description": "Titles the Netflix app cached for which some interaction signal also "
                        "exists, being a stored playback position, a Continue Watching entry or "
                        "cached stream data, with the signal named on each row",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -138,7 +138,7 @@ __artifacts_v2__ = {
         "description": "Client log events queued by the Netflix app in its brl.sqlite store, "
                        "decrypted, with the event time, event type, session identifier, device "
                        "ESN, device model and app version",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -162,7 +162,7 @@ __artifacts_v2__ = {
         "name": "Netflix - Secure Store",
         "description": "Entries of the Netflix app's encrypted key value store, decrypted, "
                        "reported by the kind of value each entry holds",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -198,7 +198,7 @@ __artifacts_v2__ = {
         "description": "Per interface network measurements the Netflix app recorded in its "
                        "sqlstore last_observed table, with the interface, the observed "
                        "throughput and the exchange identifier",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -223,7 +223,7 @@ __artifacts_v2__ = {
         "description": "Adaptive streaming data the Netflix app cached per title, one row per "
                        "video identifier, with the file and byte counts, how much media is "
                        "actually present and how many files declare an encrypted sample entry",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -267,7 +267,7 @@ __artifacts_v2__ = {
         "description": "Subtitle tracks the Netflix app cached under a directory named after a "
                        "video identifier, one row per track, carrying the cue count, the span "
                        "the cues cover and the cue text",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -295,7 +295,7 @@ __artifacts_v2__ = {
         "description": "Selected values from the Netflix app preference file, including "
                        "identifiers the app persisted, the recorded app version and the profile "
                        "guids the app kept message state for",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",

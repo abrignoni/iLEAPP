@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "pinterestAccount": {
         "name": "Pinterest - Account",
         "description": "Parses the signed in account record stored by the Pinterest iOS app.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
     "pinterestMessages": {
         "name": "Pinterest - Messages",
         "description": "Parses cached direct message conversations of the Pinterest iOS app.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -102,7 +102,7 @@ __artifacts_v2__ = {
     "pinterestCachedModelRequests": {
         "name": "Pinterest - Cached Model Requests",
         "description": "Inventories the cached API responses held by the Pinterest iOS app.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -136,7 +136,7 @@ __artifacts_v2__ = {
     "pinterestCachedImages": {
         "name": "Pinterest - Cached Images",
         "description": "Parses and renders the PINRemoteImage disk cache of the Pinterest iOS app.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -172,7 +172,7 @@ __artifacts_v2__ = {
     "pinterestSearchAutocompleteCache": {
         "name": "Pinterest - Search Autocomplete Cache",
         "description": "Parses the downloaded search autocomplete cache of the Pinterest iOS app.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
@@ -217,7 +217,7 @@ __artifacts_v2__ = {
     "pinterestAppState": {
         "name": "Pinterest - App State",
         "description": "Parses the application state preferences of the Pinterest iOS app.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
