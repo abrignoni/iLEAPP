@@ -136,7 +136,7 @@ __artifacts_v2__ = {
                        "and matched to the profile photo URLs stored in Tinder2.sqlite",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Tinder",
         "notes": "The cache file name is the source URL with the ':', '/' and '.' characters "
@@ -145,21 +145,38 @@ __artifacts_v2__ = {
                  "that URL also appears in the ZPHOTO or ZPROCESSEDPHOTO tables of "
                  "Tinder2.sqlite, the owning profile's name and user id are reported with it, "
                  "and the Source column says whether the row was matched to the database.\n"
-                 "In the tested image 4 of the 53 cached files matched a stored profile photo "
-                 "URL, all of them the account holder's own photos; the rest are app assets "
-                 "and marketing images served from static-assets, marketing-images and "
-                 "inboxcrm hosts, and they are reported too rather than dropped. A profile "
-                 "photo URL with no cached file means no copy was found in the extraction; it "
-                 "does not establish that the image was never on the device.\n"
+                 "In the tested image the Tinder container held 79 cache files. 53 carry a "
+                 "percent encoded name that decodes to a URL and 26 carry an opaque cache "
+                 "key that does not, so the Source URL column holds the stored name as is on "
+                 "those 26 rows. 4 of the 79 matched a stored profile photo URL, all of them "
+                 "the account holder's own photos; the rest are app assets and marketing "
+                 "images served from static-assets, marketing-images and inboxcrm hosts, and "
+                 "they are reported too rather than dropped. A profile photo URL with no "
+                 "cached file means no copy was found in the extraction; it does not "
+                 "establish that the image was never on the device.\n"
                  "Content is sniffed from the file header rather than trusted from the URL "
                  "extension, since the cache stores webp, jpeg and png alike with no extension "
-                 "of its own.",
+                 "of its own.\n"
+                 "PINRemoteImage is Pinterest's own open source image library and other "
+                 "applications embed it, so this cache directory carries the "
+                 "com.pinterest.PINDiskCache prefix inside those applications' containers too "
+                 "and its name does not say which application wrote a file. Twelve distinct "
+                 "applications were observed carrying this directory across the tested images. "
+                 "Rows are therefore restricted to files sitting under a container that also "
+                 "holds Tinder2.sqlite or com.cardify.tinder.plist, which only Tinder writes. "
+                 "Cache files under any other container are skipped and counted in the run log "
+                 "rather than reported here, and where no Tinder container is identified no "
+                 "rows are produced and that is logged. An empty result is not evidence that "
+                 "the cache was empty.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*',
-                  '*/mobile/Containers/Data/Application/*/Library/Application Support/Tinder/Tinder2.sqlite*'),
+                  '*/mobile/Containers/Data/Application/*/Library/Application Support/Tinder/Tinder2.sqlite*',
+                  '*/mobile/Containers/Data/Application/*/Library/Preferences/com.cardify.tinder.plist'),
         "output_types": "standard",
         "artifact_icon": "image",
         "sample_data": {
-            "abe_ios16": "iOS 16.4.1 | Tinder 14.9.0 | 53 rows",
+            "abe_ios16": "iOS 16.4.1 | Tinder 14.9.0 | 79 rows",
+            "jess_ios15": "iOS 15.0.2 | Tinder not installed | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | Tinder not installed | 0 rows",
         },
     },
 }
@@ -177,9 +194,74 @@ _INBOX_USER = 'com.tinder.inbox.user'
 
 _STORE = 'Tinder2.sqlite'
 
+# The image cache directory is named for PINRemoteImage, Pinterest's open source
+# image library, which other applications embed as well, so the directory carries
+# the com.pinterest.PINDiskCache prefix inside their containers too and the name
+# alone does not say which application wrote a file.
+_IMAGE_CACHE_DIR = 'com.pinterest.PINDiskCache.PINRemoteImageManagerCache'
+
+# Files only the Tinder application writes, used to tell its container from any
+# other container in the same extraction. Both are matched by this artifact's own
+# path patterns, so the set is built from the files handed to it rather than from
+# the filesystem, which holds only what has been copied out so far.
+_CONTAINER_MARKERS = (
+    'Library/Application Support/Tinder/Tinder2.sqlite',
+    'Library/Preferences/com.cardify.tinder.plist',
+)
+
 
 def _store_path(files_found):
     return get_file_path(files_found, _STORE)
+
+
+def _containers(files_found):
+    """Container directories holding a file only the Tinder app writes."""
+    roots = set()
+    for path in sorted(str(f) for f in files_found):
+        normalized = path.replace('\\', '/')
+        for marker in _CONTAINER_MARKERS:
+            index = normalized.rfind('/' + marker)
+            if index > 0:
+                roots.add(normalized[:index])
+                break
+    return roots
+
+
+def _container_of(path, roots):
+    """The Tinder container a path sits under, or '' when it is outside them.
+
+    The longest match wins, so a container nested inside another cannot be
+    attributed to the outer one.
+    """
+    normalized = path.replace('\\', '/')
+    matches = [root for root in roots if normalized.startswith(root + '/')]
+    return max(matches, key=len) if matches else ''
+
+
+def _cached_photo_files(files_found):
+    """The image cache files that sit inside a Tinder container.
+
+    A file matched in another application's container is skipped and counted, and
+    when no Tinder container is identified nothing is reported, so a run that
+    reports fewer rows says why rather than reporting a bare zero.
+    """
+    roots = _containers(files_found)
+    candidates = [path for path in sorted(str(f) for f in files_found)
+                  if '/' + _IMAGE_CACHE_DIR + '/' in path.replace('\\', '/')
+                  and os.path.isfile(path)]
+    if not candidates:
+        return []
+    if not roots:
+        logfunc(f'Tinder: {len(candidates)} {_IMAGE_CACHE_DIR} file(s) were found but no '
+                f'Tinder container was identified, so none are reported. This cache '
+                f'directory is named for a shared library and is not evidence of Tinder.')
+        return []
+    kept = [path for path in candidates if _container_of(path, roots)]
+    skipped = len(candidates) - len(kept)
+    if skipped:
+        logfunc(f'Tinder: skipped {skipped} {_IMAGE_CACHE_DIR} file(s) found outside a '
+                f'Tinder container; this cache directory is named for a shared library.')
+    return kept
 
 
 def _records(files_found, query):
@@ -541,11 +623,7 @@ def tinderCachedPhotos(context):
             owners.setdefault(record['URL'],
                               (record['NAME'] or '', record['USER_ID'] or ''))
 
-    for file_found in sorted(str(f) for f in files_found):
-        if 'PINRemoteImageManagerCache' not in file_found:
-            continue
-        if not os.path.isfile(file_found):
-            continue
+    for file_found in _cached_photo_files(files_found):
         source_path = os.path.dirname(file_found)
         name = os.path.basename(file_found)
         url = _decode_cache_name(name)
