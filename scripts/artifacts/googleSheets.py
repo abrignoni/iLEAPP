@@ -9,59 +9,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Sheets",
-        "notes": "One row per row of cross_document_metadata in "
-                 "Documents/<account id>/localStore/shared/documentMetadata.db, joined by document "
-                 "id to the per-document store at localStore/documents/<document id>/<document "
-                 "id>.db. A container can hold more than one account directory, and the same Drive "
-                 "document can appear under each of them, so the join is keyed on the container, "
-                 "the account directory and the document id together and each account's copy is "
-                 "reported as its own row. Rows for the same document under different accounts "
-                 "carry that account's own sync timestamps, revision and ownership; the title is "
-                 "expected to agree between them, because it is one document seen from two "
-                 "accounts. Title, MIME type, revision and ownership come from that store's "
-                 "document_properties table, which is an entity-attribute-value table whose type "
-                 "column selects the encoding of the value blob: in the tested container every "
-                 "type 0 value decoded as UTF-8 text (230 of 230), every type 1 value as an "
-                 "8-byte little-endian IEEE 754 double (186 of 186) and every type 2 value as JSON "
-                 "(60 of 60). Timestamps are converted by the unit the column name or the store "
-                 "states rather than inferred: last_server_updated_timestamp_milliseconds and the "
-                 "document_properties doubles are Unix milliseconds, "
-                 "drive_last_server_udated_timestamp (spelled that way in the schema) and "
-                 "last_sync_finish_timestamp are Unix seconds. Those two units were checked against each "
-                 "other: cross_document_metadata.last_sync_finish_timestamp in seconds and the "
-                 "per-document lastSyncedTimestamp in milliseconds are held in different stores and "
-                 "rendered the same instant on all 12 documents, so only Last Synced is reported "
-                 "here. Has Pending Changes, Needs Snapshot and All Pending Commands Persisted read "
-                 "the same value on every row of the tested container, which bounds what they "
-                 "demonstrate rather than showing they are the same field. Owned by Account comes from the "
-                 "document_properties isOwner value, which stores the text true when set and an "
-                 "empty value when not, with the row written either way, so an empty value is "
-                 "reported as No and only a missing property is left blank; on the tested "
-                 "container the two documents storing it empty are the two the Drive item cache in "
-                 "the same container independently records with is_owner 0. Document Type is "
-                 "reported as stored; "
-                 "no value list ships in the container. The Thumbnail column shows the PNG under "
-                 "Documents/drivekit/users/<account id>/thumbnails/<document id>/, which is named "
-                 "<document id>-<milliseconds> and is matched only when those milliseconds equal "
-                 "the row's last_server_updated_timestamp_milliseconds, so the link is the one the "
-                 "store records rather than a nearest match. The main database files carry their "
-                 "content in the WAL sidecar; documentMetadata.db read without it returned no rows "
-                 "at all in the tested container, so the sidecars must travel with the evidence. "
-                 "Files are accepted only from a container that also holds "
-                 "Library/Preferences/com.google.Sheets.plist, because Google Docs and Google "
-                 "Slides ship the same localStore layout and would otherwise be reported here. "
-                 "Validated against a single device, so nothing here is corroborated across "
-                 "devices; a second extraction would establish whether the property names, the "
-                 "type encodings and the thumbnail naming hold across app versions. Reference: "
-                 "Park, Park, Kim, Kang, Kim, 'A comprehensive artifact analysis of Google "
-                 "applications on Android and iOS platforms', Forensic Science International: "
-                 "Digital Investigation.",
+        "notes": "One row per row of cross_document_metadata in Documents/<account id>/localStore/shared/documentMetadata.db, joined by document id to the per-document store at localStore/documents/<document id>/<document id>.db. A container can hold more than one account directory, and the same Drive document can appear under each of them, so the join is keyed on the container, the account directory and the document id together and each account's copy is reported as its own row. Rows for the same document under different accounts carry that account's own sync timestamps, revision and ownership; the title is expected to agree between them, because it is one document seen from two accounts. Title, MIME type, revision and ownership come from that store's document_properties table, which is an entity-attribute-value table whose type column selects the encoding of the value blob: in the tested container every type 0 value decoded as UTF-8 text (230 of 230), every type 1 value as an 8-byte little-endian IEEE 754 double (186 of 186) and every type 2 value as JSON (60 of 60). Timestamps are converted by the unit the column name or the store states rather than inferred: last_server_updated_timestamp_milliseconds and the document_properties doubles are Unix milliseconds, drive_last_server_udated_timestamp (spelled that way in the schema) and last_sync_finish_timestamp are Unix seconds. Those two units were checked against each other: cross_document_metadata.last_sync_finish_timestamp in seconds and the per-document lastSyncedTimestamp in milliseconds are held in different stores and rendered the same instant on all 12 documents, so only Last Synced is reported here. Has Pending Changes, Needs Snapshot and All Pending Commands Persisted read the same value on every row of the tested container, which bounds what they demonstrate rather than showing they are the same field. Offline Content Parts and Offline Content Bytes count the rows and total the payload of the document_commands table of that document's own store, which holds the offline copy: cell text, formulas and formatting as JSON arrays of command code and payload. The command codes are undocumented, no value list ships in the container and the sample holds no application binary, so the payload is located and measured here rather than decoded, and an examiner reading it goes to the source database named per row. The highest revision in that table equalled the rev property on all 12 documents tested, so only the property is reported. Owned by Account comes from the document_properties isOwner value, which stores the text true when set and an empty value when not, with the row written either way, so an empty value is reported as No and only a missing property is left blank; on the tested container the two documents storing it empty are the two the Drive item cache in the same container independently records with is_owner 0. Document Type is reported as stored; no value list ships in the container. The Thumbnail column shows the PNG under Documents/drivekit/users/<account id>/thumbnails/<document id>/, which is named <document id>-<milliseconds> and is matched only when those milliseconds equal the row's last_server_updated_timestamp_milliseconds, so the link is the one the store records rather than a nearest match. The main database files carry their content in the WAL sidecar; documentMetadata.db read without it returned no rows at all in the tested container, so the sidecars must travel with the evidence. Files are accepted only from a container that also holds Library/Preferences/com.google.Sheets.plist, because Google Docs and Google Slides ship the same localStore layout and would otherwise be reported here. Validated against a single device, so nothing here is corroborated across devices; a second extraction would establish whether the property names, the type encodings and the thumbnail naming hold across app versions. Reference: Park, Park, Kim, Kang, Kim, 'A comprehensive artifact analysis of Google applications on Android and iOS platforms', Forensic Science International: Digital Investigation. A file is attributed to this app only when its container also holds Library/Preferences/com.google.Sheets.plist, which is declared in this artifact's own paths; the check fails closed, so a collection that captured the stores but not that preferences file reports nothing here, and the skip line in the run log is what distinguishes that from an app whose feature was never used.",
         "paths": ('*/Library/Preferences/com.google.Sheets.plist',
                   '*/Documents/*/localStore/shared/documentMetadata.db*',
                   '*/Documents/*/localStore/documents/*/*.db*',
                   '*/Documents/drivekit/users/*/thumbnails/*/*'),
         "output_types": "standard",
-        "artifact_icon": "grid",
+        "artifact_icon": 'grid',
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+        }
     },
     "google_sheets_tabs": {
         "name": "Google Sheets - Sheet Tabs",
@@ -72,95 +29,32 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Sheets",
-        "notes": "One row per sheet tab declared in the top part of the document_commands table of "
-                 "each localStore/documents/<document id>/<document id>.db. Each serialized_commands "
-                 "value is a JSON array of two-element [integer, payload] entries; the integers are "
-                 "undocumented and are reported as stored in the Command Code column rather than "
-                 "named. A tab is read only from an entry whose payload matches the fixed shape "
-                 "[null, index, n, tab id, {...}, rows, columns], and only that shape is used. The "
-                 "reading is checked against identity the store records elsewhere: the tab id "
-                 "carried in the payload has to equal the chunk<tab id> value of a part_id row in "
-                 "the same database. In the tested container that held for 21 of 21 tabs, and for "
-                 "12 of 12 documents the set of declared tab ids equalled the set of chunk part ids "
-                 "exactly, with no tab declared that had no chunk and no chunk that had no tab. The "
-                 "Active When Last Viewed column is set from the settingsForSheet:<document id> "
-                 "entry of Library/Preferences/com.google.Sheets.plist, whose recorded tab ids were "
-                 "a subset of the declared tab ids on both documents that carried the preference; "
-                 "it is left empty for documents with no such entry, which is not evidence the tab "
-                 "was not viewed. Row and column counts are the grid extent the store records, not "
-                 "a count of populated cells. Files are accepted only from a container that also "
-                 "holds Library/Preferences/com.google.Sheets.plist. Validated against a single "
-                 "device, so the shape check is not corroborated across devices or app versions.",
+        "notes": "One row per sheet tab declared in the top part of the document_commands table of each localStore/documents/<document id>/<document id>.db. Each serialized_commands value is a JSON array of two-element [integer, payload] entries; the integers are undocumented and are reported as stored in the Command Code column rather than named. The payload is written two ways in real data, a positional array whose index is the field number and an object whose keys are those numbers as strings; both are read, and a reader that accepted only the array form reported no tabs at all for a document written the other way while every other artifact reported that same document. A tab is read only from an entry whose payload matches the fixed shape [null, index, n, tab id, {...}, rows, columns], and only that shape is used. The reading is checked against identity the store records elsewhere: the tab id carried in the payload has to equal the chunk<tab id> value of a part_id row in the same database. In the tested container that held for 21 of 21 tabs, and for 12 of 12 documents the set of declared tab ids equalled the set of chunk part ids exactly, with no tab declared that had no chunk and no chunk that had no tab. The Active When Last Viewed column is set from the settingsForSheet:<document id> entry of Library/Preferences/com.google.Sheets.plist, whose recorded tab ids were a subset of the declared tab ids on both documents that carried the preference; it is left empty for documents with no such entry, which is not evidence the tab was not viewed. Row and column counts are the grid extent the store records, not a count of populated cells. Files are accepted only from a container that also holds Library/Preferences/com.google.Sheets.plist. Validated against a single device, so the shape check is not corroborated across devices or app versions. A file is attributed to this app only when its container also holds Library/Preferences/com.google.Sheets.plist, which is declared in this artifact's own paths; the check fails closed, so a collection that captured the stores but not that preferences file reports nothing here, and the skip line in the run log is what distinguishes that from an app whose feature was never used.",
         "paths": ('*/Library/Preferences/com.google.Sheets.plist',
                   '*/Documents/*/localStore/documents/*/*.db*'),
         "output_types": "standard",
-        "artifact_icon": "table",
-    },
-    "google_sheets_offline_content": {
-        "name": "Google Sheets - Offline Content Parts",
-        "description": "The stored parts of each spreadsheet's offline copy, one row per part and "
-                       "revision, recording where the cell values and formulas are held on the device",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
-        "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
-        "requirements": "none",
-        "category": "Google Sheets",
-        "notes": "One row per row of the document_commands table of each "
-                 "localStore/documents/<document id>/<document id>.db. This artifact reports where "
-                 "the offline copy is and how large each part is; it does not decode the cell "
-                 "values. The serialized_commands column holds a JSON array of [integer, payload] "
-                 "entries carrying cell text, formulas and formatting, and the integers that would "
-                 "say which is which are undocumented: no value list ships in the container, and "
-                 "the sample holds no application binary to source them from, so decoding them "
-                 "into labelled columns would mean asserting meanings nothing here supports. An "
-                 "examiner can read the payload from the source database, whose extraction-relative "
-                 "path is given per row. The part_id column reads top for the part that declares "
-                 "the sheet tabs and chunk<tab id> for a tab's own content, matching the ids in the "
-                 "Google Sheets - Sheet Tabs artifact. The timestamp column of this table read 0 on "
-                 "all 229 rows in the tested container, so it is reported as stored rather than "
-                 "converted, which would have printed 1970 on every row. Files are accepted only "
-                 "from a container that also holds Library/Preferences/com.google.Sheets.plist. "
-                 "Validated against a single device; a second extraction would establish whether "
-                 "the timestamp column is ever populated.",
-        "paths": ('*/Library/Preferences/com.google.Sheets.plist',
-                  '*/Documents/*/localStore/documents/*/*.db*'),
-        "output_types": "standard",
-        "artifact_icon": "file-spreadsheet",
+        "artifact_icon": 'table',
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+        }
     },
     "google_sheets_templates": {
         "name": "Google Sheets - Template Gallery",
-        "description": "The spreadsheet template gallery the app downloaded and cached, with each "
-                       "template's stored title, category and thumbnail",
+        "description": "One row per account summarising the spreadsheet template gallery the app "
+                       "downloaded and cached, with the count and the newest publication date",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Sheets",
-        "notes": "One row per row of template_metadata in "
-                 "Documents/<account id>/localStore/shared/templateMetadata.db, with the fields "
-                 "taken from its entity-attribute-value companion table. These are templates the "
-                 "app fetched to populate its gallery, not documents the user created: every row "
-                 "in the tested container carried a thumbnailUrl on a Google host, a server-side "
-                 "category number and a locale, and the locale read en on all 25 rows while the "
-                 "device and the account were set to Italian. Presence of a row is not evidence "
-                 "the template was opened or used. The Thumbnail column shows the PNG under "
-                 "fileStore/globalFiles/templates/thumbnail/, which is named by the template id, so "
-                 "the link is recorded rather than inferred; that matched 25 of 25 rows with no "
-                 "file left over. Last Modified is stored in one column that mixes units: 23 of the "
-                 "25 values were Unix milliseconds and 2 were Unix microseconds, and the "
-                 "microsecond reading is the only one of the two in representable range for those "
-                 "2, so the unit is taken from the magnitude here rather than assumed. Every one of "
-                 "the 25 values fell on exactly 00:00:00 UTC, so the value encodes a calendar date "
-                 "and is also given as a plain date that no later timezone conversion can move. "
-                 "Category and Style are reported as stored; no value list ships in the container. "
-                 "templateMetadata.db read without its WAL sidecar returned no rows at all. Files "
-                 "are accepted only from a container that also holds "
-                 "Library/Preferences/com.google.Sheets.plist. Validated against a single device.",
+        "notes": "One row per templateMetadata.db under Documents/<account id>/localStore/shared/. These are templates the app fetched to populate its gallery, not documents the user created: every row in the tested container carried a thumbnailUrl on a Google host, a server-side category number and a locale, and the locale read en on all 25 rows while the device and the account were set to Italian. They are summarised rather than listed, because a downloaded catalogue enumerated beside an account reads as something the user chose. The underlying store still holds each template's id, title, category, style, branded author and URL, and the cached PNG for each sits under fileStore/globalFiles/templates/thumbnail/ named by the template id, matching 25 of 25 rows with no file left over in the tested container. Newest Template Last Modified is the most recent of a column that mixes units: 23 of the 25 values were Unix milliseconds and 2 were Unix microseconds, and the microsecond reading is the only one of the two in representable range for those 2, so the unit is taken from the magnitude here rather than assumed. Every one of the 25 values fell on exactly 00:00:00 UTC, so the value encodes a calendar date and is also given as a plain date that no later timezone conversion can move. Categories and document types are reported as stored; no value list ships in the container. templateMetadata.db read without its WAL sidecar returned no rows at all. Validated against a single device plus one corpus image. A file is attributed to this app only when its container also holds Library/Preferences/com.google.Sheets.plist, which is declared in this artifact's own paths; the check fails closed, so a collection that captured the stores but not that preferences file reports nothing here, and the skip line in the run log is what distinguishes that from an app whose feature was never used.",
         "paths": ('*/Library/Preferences/com.google.Sheets.plist',
-                  '*/Documents/*/localStore/shared/templateMetadata.db*',
-                  '*/Documents/*/fileStore/globalFiles/templates/thumbnail/*'),
+                  '*/Documents/*/localStore/shared/templateMetadata.db*'),
         "output_types": "standard",
-        "artifact_icon": "layout-grid",
+        "artifact_icon": 'layout-grid',
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+        }
     },
     "google_sheets_accounts": {
         "name": "Google Sheets - Accounts and App State",
@@ -171,24 +65,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Sheets",
-        "notes": "One row per account id found in Library/Preferences/com.google.Sheets.plist. "
-                 "Account ids are read from the preference keys that carry one, and the account "
-                 "named by signed_in_user_id is marked in the Signed In column; the file records "
-                 "account ids only, so no address or display name is available from it. The "
-                 "per-account sync timestamps come from the NSKeyedArchiver archive stored under "
-                 "userid:<account id>, whose date values are Cocoa timestamps counted in seconds "
-                 "from 2001-01-01 UTC as plistlib returns them. Three of those sync fields fell inside the "
-                 "same second in the tested container and so render identically at this "
-                 "resolution; they are separate stored fields and are kept separate. Storage "
-                 "Locale is the value the app "
-                 "recorded for its own messaging cache, not a device setting. Version fields are "
-                 "reported from the two keys that carry one, which held different values in the "
-                 "tested container, so both are shown rather than one being chosen. Absence of a "
-                 "key is reported as empty and is not evidence a feature was unused. Validated "
-                 "against a single device, so the key set is not corroborated across app versions.",
+        "notes": "One row per account id found in Library/Preferences/com.google.Sheets.plist. Account ids are read from the preference keys that carry one, and the account named by signed_in_user_id is marked in the Signed In column; the file records account ids only, so no address or display name is available from it. The per-account sync timestamps come from the NSKeyedArchiver archive stored under userid:<account id>, whose date values are Cocoa timestamps counted in seconds from 2001-01-01 UTC as plistlib returns them. Three of those sync fields fell inside the same second in the tested container and so render identically at this resolution; they are separate stored fields and are kept separate. Storage Locale is the value the app recorded for its own messaging cache, not a device setting. Version fields are reported from the two keys that carry one, which held different values in the tested container, so both are shown rather than one being chosen. Absence of a key is reported as empty and is not evidence a feature was unused. Validated against a single device, so the key set is not corroborated across app versions. A file is attributed to this app only when its container also holds Library/Preferences/com.google.Sheets.plist, which is declared in this artifact's own paths; the check fails closed, so a collection that captured the stores but not that preferences file reports nothing here, and the skip line in the run log is what distinguishes that from an app whose feature was never used.",
         "paths": ('*/Library/Preferences/com.google.Sheets.plist',),
         "output_types": "standard",
-        "artifact_icon": "user-circle",
+        "artifact_icon": 'user-circle',
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+        }
     },
     "google_sheets_document_view_state": {
         "name": "Google Sheets - Document View State",
@@ -199,43 +82,31 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Sheets",
-        "notes": "One row per sheet tab recorded under a settingsForSheet:<document id> key of "
-                 "Library/Preferences/com.google.Sheets.plist. The value is an NSKeyedArchiver "
-                 "archive holding kActiveSheetId and a map of tab id to scroll offset and zoom "
-                 "scale; those key names are the app's own and the values are reported as stored. "
-                 "The offsets are the numbers the app recorded, in its own units, and are not "
-                 "converted to a cell reference. In the tested container only 2 of the 12 documents "
-                 "carried this preference, and for both the recorded tab ids were a subset of the "
-                 "tabs declared in that document's own store, so the key is a partial record of "
-                 "documents opened rather than a complete one; absence of a document here is not "
-                 "evidence it was never opened. Validated against a single device.",
+        "notes": "One row per sheet tab recorded under a settingsForSheet:<document id> key of Library/Preferences/com.google.Sheets.plist. The value is an NSKeyedArchiver archive holding kActiveSheetId and a map of tab id to scroll offset and zoom scale; those key names are the app's own and the values are reported as stored. The offsets are the numbers the app recorded, in its own units, and are not converted to a cell reference. In the tested container only 2 of the 12 documents carried this preference, and for both the recorded tab ids were a subset of the tabs declared in that document's own store, so the key is a partial record of documents opened rather than a complete one; absence of a document here is not evidence it was never opened. Validated against a single device. A file is attributed to this app only when its container also holds Library/Preferences/com.google.Sheets.plist, which is declared in this artifact's own paths; the check fails closed, so a collection that captured the stores but not that preferences file reports nothing here, and the skip line in the run log is what distinguishes that from an app whose feature was never used.",
         "paths": ('*/Library/Preferences/com.google.Sheets.plist',),
         "output_types": "standard",
-        "artifact_icon": "eye",
+        "artifact_icon": 'eye',
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+        }
     },
     "google_sheets_synced_settings": {
         "name": "Google Sheets - Synced Settings",
-        "description": "Editor settings the app synced for the account, one row per stored setting "
-                       "key path",
+        "description": "One row per account recording how many editor settings and fonts the app "
+                       "synced, and which setting groups the store holds",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Sheets",
-        "notes": "One row per row of sync_objects in "
-                 "Documents/<account id>/localStore/shared/applicationMetadata.db, with the data "
-                 "and state values from its entity-attribute-value companion table. The key path is "
-                 "stored as a JSON array and is reported as stored. These are settings the editors "
-                 "share, so the key names carry a docs- prefix in the Google Sheets container as "
-                 "well; that prefix names the shared editors namespace and not the Google Docs app. "
-                 "Values that arrived from the server are indistinguishable here from values the "
-                 "user changed, so a row is not evidence the user set that option. Files are "
-                 "accepted only from a container that also holds "
-                 "Library/Preferences/com.google.Sheets.plist. Validated against a single device.",
+        "notes": "One row per applicationMetadata.db under Documents/<account id>/localStore/shared/, counting the rows of its sync_objects and font_metadata tables and listing the second element of each stored key path. The individual settings are summarised rather than listed: they carry no timestamp, so they cannot be placed in time, and a value that arrived from the server is indistinguishable here from one the user changed, so a row would not be evidence the user set that option. The store still holds every key path and its value and sync state for an examiner who needs them. Key paths are stored as JSON arrays and the group names are reported as stored; they carry a docs- prefix in the Google Sheets container as well, which names the shared editors namespace and not the Google Docs app. Validated against a single device plus one corpus image. A file is attributed to this app only when its container also holds Library/Preferences/com.google.Sheets.plist, which is declared in this artifact's own paths; the check fails closed, so a collection that captured the stores but not that preferences file reports nothing here, and the skip line in the run log is what distinguishes that from an app whose feature was never used.",
         "paths": ('*/Library/Preferences/com.google.Sheets.plist',
                   '*/Documents/*/localStore/shared/applicationMetadata.db*'),
         "output_types": "standard",
-        "artifact_icon": "settings",
+        "artifact_icon": 'settings',
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+        }
     },
 }
 
@@ -503,11 +374,12 @@ def _unarchive(blob):
 # The tab declaration inside a `top` part. The command code is undocumented, so a payload
 # is read only when it matches this exact shape and the id it carries is one the same
 # database records as a chunk part.
-_TAB_PAYLOAD_LENGTH = 7
+_TAB_INDEX_INDEX = 1
 _TAB_ID_INDEX = 3
 _TAB_DETAIL_INDEX = 4
 _TAB_ROWS_INDEX = 5
 _TAB_COLS_INDEX = 6
+_TAB_NAME_INDEX = 3
 
 
 def _iter_commands(serialized):
@@ -522,28 +394,40 @@ def _iter_commands(serialized):
             yield entry[0], entry[1]
 
 
+def _payload_field(payload, number):
+    """One numbered field of a command payload, whichever way it was written.
+
+    These payloads carry the same fields in two spellings: a positional array, where the
+    field number is the index, and an object whose keys are those numbers as strings. Both
+    appear in real data, chosen per message by the producer, so a reader that tests for a
+    list silently returns nothing for every document written the other way.
+    """
+    if isinstance(payload, list):
+        return payload[number] if 0 <= number < len(payload) else None
+    if isinstance(payload, dict):
+        return payload.get(str(number))
+    return None
+
+
 def _tab_from_payload(payload):
     '''A (tab id, name, rows, columns, index) tuple, or None when the shape does not match.'''
-    if not (isinstance(payload, list) and len(payload) >= _TAB_PAYLOAD_LENGTH):
+    if not isinstance(payload, (list, dict)):
         return None
-    if payload[0] is not None:
-        return None
-    tab_id = payload[_TAB_ID_INDEX]
-    detail = payload[_TAB_DETAIL_INDEX]
-    rows = payload[_TAB_ROWS_INDEX]
-    columns = payload[_TAB_COLS_INDEX]
-    if not (isinstance(tab_id, str) and isinstance(detail, dict)
+    tab_id = _payload_field(payload, _TAB_ID_INDEX)
+    detail = _payload_field(payload, _TAB_DETAIL_INDEX)
+    rows = _payload_field(payload, _TAB_ROWS_INDEX)
+    columns = _payload_field(payload, _TAB_COLS_INDEX)
+    if not (isinstance(tab_id, str) and tab_id and isinstance(detail, dict)
             and isinstance(rows, int) and isinstance(columns, int)):
         return None
     inner = detail.get('1')
-    if not (isinstance(inner, list) and inner
-            and isinstance(inner[0], list) and len(inner[0]) >= 4):
+    if not (isinstance(inner, list) and inner):
         return None
-    name = inner[0][3]
+    name = _payload_field(inner[0], _TAB_NAME_INDEX)
     if not isinstance(name, str):
         return None
-    index = payload[1] if isinstance(payload[1], int) else ''
-    return tab_id, name, rows, columns, index
+    index = _payload_field(payload, _TAB_INDEX_INDEX)
+    return tab_id, name, rows, columns, index if isinstance(index, int) else ''
 
 
 def _document_rows(db_path):
@@ -612,6 +496,15 @@ def google_sheets_documents(context):
                         sources.append(path)
                     break
 
+            parts = payload_bytes = ''
+            if doc_db:
+                counted = list(get_sqlite_db_records(
+                    doc_db, 'SELECT COUNT(*), SUM(LENGTH(serialized_commands)) '
+                            'FROM document_commands'))
+                if counted:
+                    parts = _number(counted[0][0])
+                    payload_bytes = _number(counted[0][1])
+
             data_list.append((
                 _from_unix_ms(server_ms),
                 _from_unix_ms(properties.get('lastSyncedTimestamp')),
@@ -623,6 +516,8 @@ def google_sheets_documents(context):
                 _text(record[1]),
                 _text(properties.get('mimeType', '')),
                 _number(properties.get('rev')),
+                parts,
+                payload_bytes,
                 _stored_flag(properties, 'isOwner'),
                 _yes_no(record[5]),
                 _yes_no(record[7]),
@@ -647,6 +542,8 @@ def google_sheets_documents(context):
         'Document Type (as stored)',
         'MIME Type',
         'Revision',
+        'Offline Content Parts',
+        'Offline Content Bytes',
         'Owned by Account',
         'Has Pending Changes',
         'Needs Snapshot',
@@ -745,130 +642,56 @@ def google_sheets_tabs(context):
 
 
 @artifact_processor
-def google_sheets_offline_content(context):
-    files_found = context.get_files_found()
-    roots = _container_roots(files_found)
-    data_list = []
-    sources = []
-
-    for db_path in _doc_dbs(files_found, roots):
-        match = _DOC_DB_RE.search(db_path)
-        if not match or match.group(1) != match.group(2):
-            continue
-        document_id = match.group(1)
-        account = _account_from_path(db_path)
-        properties = _document_rows(db_path)
-        title = _text(properties.get('title', ''))
-        rows_for_db = []
-        for record in get_sqlite_db_records(
-                db_path, 'SELECT part_id, revision, chunk_index, timestamp, '
-                         'LENGTH(serialized_commands) FROM document_commands '
-                         'ORDER BY part_id, revision, chunk_index'):
-            part_id = _text(record[0])
-            rows_for_db.append((
-                title,
-                document_id,
-                part_id,
-                part_id[len('chunk'):] if part_id.startswith('chunk') else '',
-                _number(record[1]),
-                _number(record[2]),
-                _number(record[3]),
-                _number(record[4]),
-                account,
-                db_path,
-            ))
-        if rows_for_db:
-            data_list.extend(rows_for_db)
-            sources.append(db_path)
-
-    data_headers = (
-        'Document Title',
-        'Document ID',
-        'Part ID',
-        'Tab ID',
-        'Revision',
-        'Chunk Index',
-        'Stored Timestamp (as stored)',
-        'Payload Bytes',
-        'Account',
-        'Source File',
-    )
-    return data_headers, data_list, '\n'.join(sources)
-
-
-@artifact_processor
 def google_sheets_templates(context):
     files_found = context.get_files_found()
     roots = _container_roots(files_found)
     data_list = []
     sources = []
 
-    thumbs = {}
-    for path in _scoped(files_found, roots, lambda p: bool(_TEMPLATE_THUMB_RE.search(p))):
-        thumbs[_TEMPLATE_THUMB_RE.search(path).group(1)] = path
-
     for db_path in _shared_db(files_found, roots, 'templateMetadata.db'):
         account = _account_from_path(db_path)
-        sources.append(db_path)
         properties = _eav_map(db_path, 'template_metadata_properties')
-        for record in get_sqlite_db_records(
-                db_path, 'SELECT record_id, template_id FROM template_metadata'):
-            template_id = _text(record[1])
+        rows = list(get_sqlite_db_records(
+            db_path, 'SELECT record_id, template_id FROM template_metadata'))
+        if not rows:
+            continue
+        sources.append(db_path)
+        newest = None
+        categories, locales, types = set(), set(), set()
+        for record in rows:
             fields = properties.get(record[0], {})
             stored = fields.get('lastModifiedTimestamp')
             # One column, two units. The microsecond reading is the only one in
             # representable range for the larger values, so magnitude decides here.
-            if isinstance(stored, float) and abs(stored) >= 10 ** 13:
-                when = _from_unix(stored, 1_000_000.0)
-            else:
-                when = _from_unix_ms(stored)
-            thumbnail = ''
-            path = thumbs.get(template_id)
-            if path:
-                thumbnail = check_in_media(path, template_id)
-                if path not in sources:
-                    sources.append(path)
-            data_list.append((
-                when,
-                when.split(' ')[0] if when else '',
-                _text(fields.get('title', '')),
-                template_id,
-                _text(fields.get('documentType', '')),
-                _number(fields.get('category')),
-                _number(fields.get('style')),
-                _number(fields.get('masterTemplate')),
-                _text(fields.get('locale', '')),
-                _text(fields.get('brandedAuthor', '')),
-                _text(fields.get('brandedUrl', '')),
-                _text(fields.get('thumbnailUrl', '')),
-                _yes_no(fields.get('isThumbnailReady')),
-                _yes_no(fields.get('isReady')),
-                _yes_no(fields.get('isDirty')),
-                _text(fields.get('fontFamilies', '')),
-                account,
-                thumbnail,
-                db_path,
-            ))
+            if isinstance(stored, float):
+                seconds = stored / (1_000_000.0 if abs(stored) >= 10 ** 13 else 1000.0)
+                newest = seconds if newest is None else max(newest, seconds)
+            for value, bucket in ((fields.get('category'), categories),
+                                  (fields.get('locale'), locales),
+                                  (fields.get('documentType'), types)):
+                rendered = _number(value) if isinstance(value, float) else _text(value)
+                if rendered:
+                    bucket.add(rendered)
+        when = _from_unix(newest * 1000.0, 1000.0) if newest is not None else ''
+        data_list.append((
+            when,
+            when.split(' ')[0] if when else '',
+            _number(len(rows)),
+            ', '.join(sorted(categories)),
+            ', '.join(sorted(types)),
+            ', '.join(sorted(locales)),
+            account,
+            db_path,
+        ))
 
     data_headers = (
-        ('Last Modified', 'datetime'),
-        ('Last Modified Date', 'date'),
-        'Title',
-        'Template ID',
-        'Document Type (as stored)',
-        'Category (as stored)',
-        'Style (as stored)',
-        'Master Template (as stored)',
-        'Locale',
-        'Branded Author',
-        'Branded URL',
-        'Thumbnail URL',
-        'Thumbnail Ready',
-        'Ready',
-        'Dirty',
-        'Font Families',
+        ('Newest Template Last Modified', 'datetime'),
+        ('Newest Template Date', 'date'),
+        'Templates Cached',
+        'Categories (as stored)',
+        'Document Types (as stored)',
+        'Locales',
         'Account',
-        ('Thumbnail', 'media'),
         'Source File',
     )
     return data_headers, data_list, '\n'.join(sources)
@@ -1022,34 +845,31 @@ def google_sheets_synced_settings(context):
 
     for db_path in _shared_db(files_found, roots, 'applicationMetadata.db'):
         account = _account_from_path(db_path)
-        properties = _eav_map(db_path, 'sync_object_properties')
-        rows_for_db = []
-        for record in get_sqlite_db_records(
-                db_path, 'SELECT record_id, key_path FROM sync_objects ORDER BY record_id'):
-            fields = properties.get(record[0], {})
-            key_path = _text(record[1])
+        rows = list(get_sqlite_db_records(db_path, 'SELECT key_path FROM sync_objects'))
+        if not rows:
+            continue
+        sources.append(db_path)
+        groups = set()
+        for record in rows:
             try:
-                parts = json.loads(key_path)
-                readable = ' / '.join(str(p) for p in parts) if isinstance(parts, list) else key_path
+                parts = json.loads(_text(record[0]))
             except (TypeError, ValueError):
-                readable = key_path
-            rows_for_db.append((
-                readable,
-                key_path,
-                _text(fields.get('data', '')),
-                _text(fields.get('state', '')),
-                account,
-                db_path,
-            ))
-        if rows_for_db:
-            data_list.extend(rows_for_db)
-            sources.append(db_path)
+                continue
+            if isinstance(parts, list) and len(parts) > 1:
+                groups.add(str(parts[1]))
+        fonts = list(get_sqlite_db_records(db_path, 'SELECT COUNT(*) FROM font_metadata'))
+        data_list.append((
+            _number(len(rows)),
+            ', '.join(sorted(groups)),
+            _number(fonts[0][0]) if fonts else '',
+            account,
+            db_path,
+        ))
 
     data_headers = (
-        'Setting',
-        'Key Path (as stored)',
-        'Value (as stored)',
-        'Sync State (as stored)',
+        'Settings Synced',
+        'Setting Groups (as stored)',
+        'Fonts Cached',
         'Account',
         'Source File',
     )
