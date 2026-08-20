@@ -23,7 +23,10 @@ This script closes that gap in three escalating steps:
    with ``--verify-hashes`` that its SHA-256 still matches what was recorded.
 
 3. Counts. With ``--run KEY``, parses that corpus end to end and compares the
-   rows each artifact actually produced against the rows it declares.
+   rows each artifact actually produced against the rows it declares. The
+   produced count is read from the run's LAVA manifest, so an artifact whose
+   ``output_types`` exclude LAVA is reported as uncheckable rather than as
+   zero, and the run log is kept so a genuine zero can be explained.
 
 Usage::
 
@@ -52,6 +55,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS_DIR = REPO_ROOT / "scripts" / "artifacts"
 ROW_COUNT_RE = re.compile(r"(\d[\d,]*)\s+rows?\b", re.I)
 HASH_CHUNK = 1 << 22
+# What artifact_processor falls back to when an artifact declares no output_types.
+DEFAULT_OUTPUT_TYPES = ["html", "tsv", "timeline", "lava", "kml"]
 
 
 class Report:
@@ -236,6 +241,32 @@ def input_type_for(source):
     return None
 
 
+def lava_output_predicate(report):
+    """The core's own output_types predicate, or None if it cannot be imported.
+
+    Row counts below are read from the LAVA manifest, so an artifact whose
+    output_types exclude LAVA reads as zero no matter how many rows it produced.
+    Telling those apart needs the same predicate the core dispatches on, imported
+    rather than copied so the two cannot drift.
+
+    The import is lazy and only reached from --run, which already runs ileapp.py
+    and therefore already needs its dependencies. The structure step stays
+    import-free and safe for CI. If the import fails, the caller compares
+    everything as before, which keeps a real regression visible rather than
+    hiding it behind a skip.
+    """
+    try:
+        if str(REPO_ROOT) not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT))
+        from scripts.ilapfuncs import check_output_types
+        return check_output_types
+    except Exception as ex:  # pylint: disable=broad-except
+        report.warn(f"could not import check_output_types from the core ({ex}), so "
+                    "artifacts that never write to LAVA cannot be told apart from "
+                    "artifacts that produced nothing; every count was compared")
+        return None
+
+
 def run_corpus(registry, registry_path, corpus, report, keep=False):
     """Step 3: parse a corpus and compare produced rows against declared rows."""
     entry = registry["samples"].get(corpus)
@@ -264,8 +295,19 @@ def run_corpus(registry, registry_path, corpus, report, keep=False):
     print(f"  running {source.name} ...")
     completed = subprocess.run(command, cwd=str(REPO_ROOT),
                                capture_output=True, text=True, check=False)
+    # Kept beside the output rather than inside it, so it outlives the cleanup below.
+    # An artifact that produced nothing has usually logged why, and that reason is the
+    # difference between a regression and an input this corpus does not carry.
+    log_path = Path(output_root).parent / f"ileapp-validate-{corpus}.log"
+    try:
+        log_path.write_text((completed.stdout or "") + (completed.stderr or ""),
+                            encoding="utf-8")
+    except OSError as ex:
+        report.warn(f"--run '{corpus}': could not write the run log: {ex}")
+        log_path = None
     if completed.returncode != 0:
-        report.error(f"--run '{corpus}': ileapp.py exited {completed.returncode}\n"
+        report.error(f"--run '{corpus}': ileapp.py exited {completed.returncode}, so no "
+                     f"count was taken; run log at {log_path}\n"
                      f"{completed.stdout[-600:]}")
         if not keep:
             shutil.rmtree(output_root, ignore_errors=True)
@@ -286,7 +328,10 @@ def run_corpus(registry, registry_path, corpus, report, keep=False):
         for item in entries:
             produced[item.get("name")] = item.get("record_count", 0)
 
+    writes_to_lava = lava_output_predicate(report)
+    errors_before = len(report.errors)
     checked = skipped = 0
+    no_lava = []
     for key, (module, info) in sorted(read_artifacts().items()):
         value = (info.get("sample_data") or {}).get(corpus)
         if value is None:
@@ -295,18 +340,33 @@ def run_corpus(registry, registry_path, corpus, report, keep=False):
         if expected is None:
             skipped += 1
             continue
+        output_types = info.get("output_types", DEFAULT_OUTPUT_TYPES)
+        if writes_to_lava is not None and not writes_to_lava("lava", output_types):
+            # Nothing this artifact produces reaches the manifest read above, so
+            # comparing it would report zero for every corpus whatever it found.
+            no_lava.append(f"{module}:{key} (output_types={output_types!r})")
+            continue
         # An artifact that finds nothing is absent from the LAVA output.
         actual = produced.get(info.get("name"), 0)
         checked += 1
         if actual != expected:
             report.error(f"{module}:{key} declares {expected} row(s) for '{corpus}' "
-                         f"but produced {actual}")
-    report.note(f"--run '{corpus}': compared {checked} artifact(s), "
-                f"skipped {skipped} without a row count")
+                         f"but the run's LAVA output holds {actual}")
+    report.note(f"--run '{corpus}': compared {checked} artifact(s) against the LAVA "
+                f"manifest, skipped {skipped} without a row count")
+    if no_lava:
+        report.note(f"--run '{corpus}': {len(no_lava)} artifact(s) declare a row count but "
+                    f"do not write to LAVA, so --run cannot check them: {', '.join(no_lava)}")
+    if len(report.errors) > errors_before:
+        report.note(f"--run '{corpus}': a produced count of 0 can mean the artifact found "
+                    "nothing, that its input is absent from this corpus, or that a tool it "
+                    "needs is not installed here. The artifact usually logged which.")
     if keep:
         report.note(f"--run output kept at {output_root}")
     else:
         shutil.rmtree(output_root, ignore_errors=True)
+    if log_path:
+        report.note(f"--run '{corpus}': run log at {log_path}")
 
 
 def main():
