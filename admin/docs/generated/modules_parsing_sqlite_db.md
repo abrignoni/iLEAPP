@@ -81,6 +81,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | duetNotificationSuggestions |
 | facebookMessenger |
 | filesApp |
+| firefoxIOS |
 | fitbitIOS |
 | foursquareSwarm |
 | geodApplications |
