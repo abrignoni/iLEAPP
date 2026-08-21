@@ -168,6 +168,31 @@ container's data is not.
 This is also the cheapest audit that exists for code already merged, and it finds defects the
 authoring session missed. Run it over a batch of new modules as routine.
 
+### Let the output checker read the report you cannot fully read yourself
+
+`admin/scripts/check_artifact_output.py REPORT_DIR` reads the generated report and reports the
+column defects that source review and lint cannot see, because they are properties of a run
+against real data:
+
+- **empty-column**: no value on any row. The query never fills it, or the field is not what it
+  was taken for.
+- **constant-column**: one value across every row. Sometimes the data is uniform; sometimes a
+  derivation never ran.
+- **identical-columns**: two columns equal on every row where the values vary, which is what a
+  derived column that equals its input looks like (a basename split on the wrong separator is
+  the classic case).
+- **sparse-lead**: the table leads with a timestamp that is mostly blank.
+
+Pass `--compare MULTI_REPORT_DIR` to add the multi-container arithmetic above as a check rather
+than a manual diff.
+
+It is not a gate. A finding is a prompt, and the answer is usually one of two things: fix the
+column, or, when the blank or the constant is a real result, **name that column in the notes**.
+A column the notes name is not reported, so the documented way to keep a uniform column, saying
+it was uniform and why it still earns its place, is exactly what clears the finding. An empty
+column on a messages or location artifact is frequently a forensic negative worth stating (no
+group chats, no disappearing timers, coarse location denied), not a column to delete.
+
 ## 6. Before opening the PR
 
 - **Re-derive every number in `description`, `notes` and `sample_data` from the finished
