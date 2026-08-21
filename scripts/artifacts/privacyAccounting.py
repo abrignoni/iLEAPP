@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        'identifier shared by paired records, and the record kind.',
         'author': '@abrignoni, @mattiaepi (Mattia Epifani)',
         'creation_date': '2026-07-31',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-20',
         'requirements': 'none',
         'category': 'App Permissions',
         'notes': ('Biome-format SEGB v2 streams stored under PrivacyAccounting/Biome rather than '
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
                        'process; entry timestamps record when the entries were written.',
         'author': '@abrignoni, @mattiaepi (Mattia Epifani)',
         'creation_date': '2026-07-31',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-20',
         'requirements': 'none',
         'category': 'App Permissions',
         'notes': ('Tombstone entries accompany pruning of the access streams: privacyaccountingd '
@@ -140,9 +140,11 @@ def _stream_files(context, tombstones):
 def privacyAccountingAccess(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in _stream_files(context, tombstones=False):
         stream = _stream_name(file_found)
         filename = os.path.basename(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             if record.state not in (EntryState.Written, EntryState.Deleted):
                 continue
@@ -179,16 +181,18 @@ def privacyAccountingAccess(context):
                     'Client ID Type (as stored)', 'Service (as stored)', 'Kind (as stored)',
                     'Access ID', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 @artifact_processor
 def privacyAccountingTombstones(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in _stream_files(context, tombstones=True):
         stream = _stream_name(file_found)
         filename = os.path.basename(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -222,4 +226,4 @@ def privacyAccountingTombstones(context):
                     'Field 2 (as stored)', 'Field 3 (as stored)', 'Field 4 (as stored)',
                     'Process', 'Field 6 (as stored)', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

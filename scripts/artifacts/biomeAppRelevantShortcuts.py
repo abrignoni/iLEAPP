@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "the shortcut should appear in.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record embeds an NSKeyedArchiver plist holding the shortcut. The widget "
@@ -83,6 +83,7 @@ def _shortcut_detail(plist):
 def get_biomeAppRelevantShortcuts(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -94,6 +95,7 @@ def get_biomeAppRelevantShortcuts(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -127,4 +129,4 @@ def get_biomeAppRelevantShortcuts(context):
                     'Shortcut Role (raw)', 'Shortcut Title', 'Intent', 'Watch Template',
                     'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

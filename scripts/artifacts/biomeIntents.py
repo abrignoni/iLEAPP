@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses app intent entries from biomes",
         "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record is parsed independently: a record that cannot be decoded is "
@@ -262,6 +262,7 @@ def get_biomeIntents(context):
 
     data_list_html = []
     data_list = []
+    source_dirs = set()
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -273,6 +274,7 @@ def get_biomeIntents(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             if record.state != EntryState.Written:
                 continue
@@ -290,4 +292,4 @@ def get_biomeIntents(context):
             data_list.append(row)
             data_list_html.append(row_html)
 
-    return data_headers, (data_list, data_list_html), 'see Filename for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))

@@ -8,7 +8,7 @@ __artifacts_v2__ = {
                        "that accompanied it.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "A high volume stream: the sample held tens of thousands of records across "
@@ -66,6 +66,7 @@ def _raw_repr(value):
 def get_biomeDiscoverabilitySignals(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -77,6 +78,7 @@ def get_biomeDiscoverabilitySignals(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -107,4 +109,4 @@ def get_biomeDiscoverabilitySignals(context):
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Signal', 'Value',
                     'Payload', 'Signal (raw)', 'Context ID (raw)', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
