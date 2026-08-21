@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "app recorded for creation, server modification, sync and app start",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a Google Sheets or Google Slides container carries the same paths; a store is only reported when the same container also holds the Google Docs preferences file, and one that does not is skipped and logged. That guard fails closed, so a collection that captured the stores but not the preferences file would report nothing here; the skip lines in the run log are what distinguishes that from an app that was never used. One row per <document id>.db under Documents/<account id>/localStore/documents/"
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
                        "row per document",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
                        "rendered and shown with the document they belong to",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a Google Sheets or Google Slides container carries the same paths; a store is only reported when the same container also holds the Google Docs preferences file, and one that does not is skipped and logged. That guard fails closed, so a collection that captured the stores but not the preferences file would report nothing here; the skip lines in the run log are what distinguishes that from an app that was never used. One row per file under Documents/<account id>/fileStore/documents/<document id>/"
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
                        "count",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a Google Sheets or Google Slides container carries the same paths; a store is only reported when the same container also holds the Google Docs preferences file, and one that does not is skipped and logged. That guard fails closed, so a collection that captured the stores but not the preferences file would report nothing here; the skip lines in the run log are what distinguishes that from an app that was never used. One row per cross_document_metadata row in documentMetadata.db under "
@@ -165,7 +165,7 @@ __artifacts_v2__ = {
                        "modified time and the next scheduled sync time",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "The localStore and fileStore layouts are shared by the Google editor apps, so a Google Sheets or Google Slides container carries the same paths; a store is only reported when the same container also holds the Google Docs preferences file, and one that does not is skipped and logged. That guard fails closed, so a collection that captured the stores but not the preferences file would report nothing here; the skip lines in the run log are what distinguishes that from an app that was never used. One row per comment_items row in comments_snapshot_<account id>.db under "
@@ -202,7 +202,7 @@ __artifacts_v2__ = {
                        "preferences",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "One row per account identifier named by a key in the app's preferences property "
@@ -230,7 +230,7 @@ __artifacts_v2__ = {
                        "first launch dates, the recorded app version and device boot time",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "One row per key read from Library/Preferences/com.google.Docs.plist. Date typed "
@@ -256,7 +256,7 @@ __artifacts_v2__ = {
                        "with the display name, addresses and the affinity value as stored",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Docs",
         "notes": "One row per contacts row in Contacts_<number>_<account id>.db under "
@@ -537,11 +537,13 @@ def _titles_by_document(files, containers=None):
 @artifact_processor
 def googleDocsDocuments(context):
     data_list = []
+    source_files = set()
     files = [str(f) for f in context.get_files_found()]
     containers = _docs_containers(files)
 
     for (_container, _account, document_id), file_found in sorted(
             _document_stores(files, containers).items()):
+        source_files.add(file_found)
         properties = _read_properties(file_found)
         if not properties:
             continue
@@ -591,17 +593,19 @@ def googleDocsDocuments(context):
         'Jobset',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 @artifact_processor
 def googleDocsDocumentText(context):
     data_list = []
+    source_files = set()
     files = [str(f) for f in context.get_files_found()]
     containers = _docs_containers(files)
 
     for (_container, _account, document_id), file_found in sorted(
             _document_stores(files, containers).items()):
+        source_files.add(file_found)
         title = _text(_read_properties(file_found).get('title'))
         try:
             records = list(get_sqlite_db_records(
@@ -663,12 +667,13 @@ def googleDocsDocumentText(context):
         'Text',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 @artifact_processor
 def googleDocsDocumentMedia(context):
     data_list = []
+    source_dirs = set()
     files = [str(f) for f in context.get_files_found()]
     containers = _docs_containers(files)
     titles = _titles_by_document(files, containers)
@@ -679,6 +684,7 @@ def googleDocsDocumentMedia(context):
             continue
         if not _in_docs_container(file_found, containers, context):
             continue
+        source_dirs.add(os.path.dirname(file_found))
         account_id, outer_id, inner_id, kind, blob_name = match.groups()
         container = _container_root(file_found, '/Documents/')
 
@@ -708,12 +714,13 @@ def googleDocsDocumentMedia(context):
         ('Media', 'media'),
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 @artifact_processor
 def googleDocsDocumentSync(context):
     data_list = []
+    source_files = set()
     files = [str(f) for f in context.get_files_found()]
     containers = _docs_containers(files)
 
@@ -722,6 +729,7 @@ def googleDocsDocumentSync(context):
             continue
         if not _in_docs_container(file_found, containers, context):
             continue
+        source_files.add(file_found)
         account = _ACCOUNT_DIR_RE.search(str(file_found).replace('\\', '/'))
         # Older stores do not carry every column: last_sync_finish_timestamp is absent on
         # the oldest tested image. Resolve the query against the file's own schema so a
@@ -781,12 +789,13 @@ def googleDocsDocumentSync(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 @artifact_processor
 def googleDocsCommentSync(context):
     data_list = []
+    source_files = set()
     files = [str(f) for f in context.get_files_found()]
     containers = _docs_containers(files)
     titles = _titles_by_document(files, containers)
@@ -797,6 +806,7 @@ def googleDocsCommentSync(context):
             continue
         if not _in_docs_container(file_found, containers, context):
             continue
+        source_files.add(file_found)
         container = _container_root(file_found, '/Documents/')
         account = _ACCOUNT_DIR_RE.search(str(file_found).replace('\\', '/'))
         try:
@@ -834,7 +844,7 @@ def googleDocsCommentSync(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 def _account_identities(files, containers=None):
@@ -850,12 +860,14 @@ def _account_identities(files, containers=None):
 @artifact_processor
 def googleDocsAccounts(context):
     data_list = []
+    source_files = set()
     files = [str(f) for f in context.get_files_found()]
     identities = _account_identities(files, _docs_containers(files))
 
     for file_found in sorted(files):
         if os.path.basename(str(file_found)) != 'com.google.Docs.plist':
             continue
+        source_files.add(file_found)
         plist = get_plist_file_content(file_found)
         if not isinstance(plist, dict):
             continue
@@ -893,7 +905,7 @@ def googleDocsAccounts(context):
         'Recorded By Preference Keys',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 # Keys whose value is floating point Unix seconds. Listed rather than detected, so a value
@@ -909,11 +921,13 @@ _SECOND_KEYS = (
 @artifact_processor
 def googleDocsAppState(context):
     data_list = []
+    source_files = set()
     files = [str(f) for f in context.get_files_found()]
 
     for file_found in sorted(files):
         if os.path.basename(str(file_found)) != 'com.google.Docs.plist':
             continue
+        source_files.add(file_found)
         plist = get_plist_file_content(file_found)
         if not isinstance(plist, dict):
             continue
@@ -952,7 +966,7 @@ def googleDocsAppState(context):
         'Stored Type',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 def _get(message, *path):
@@ -990,6 +1004,7 @@ def _proto_text(value):
 @artifact_processor
 def googleDocsContacts(context):
     data_list = []
+    source_files = set()
     files = [str(f) for f in context.get_files_found()]
 
     # Contacts_<number>_<account>.db under Library/Caches is a shared Google people cache
@@ -1013,6 +1028,8 @@ def googleDocsContacts(context):
             logfunc('Google Docs: skipping a contacts cache with no Google Docs preferences '
                     f'file in the same container: {context.get_relative_path(file_found)}')
             continue
+
+        source_files.add(file_found)
 
         # The file name carries the account identifier after the source number.
         account_id = base[len('Contacts_'):-len('.db')]
@@ -1082,4 +1099,4 @@ def googleDocsContacts(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

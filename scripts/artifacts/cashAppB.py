@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Cash App activity from the production account cashappapi SQLite database (alternate location).",
         "author": "Alexis Brignoni",
         "creation_date": "2025-08-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Banking",
         "notes": "Amounts are stored in the smallest denomination unit of the currency (e.g., 100 = $1.00 USD). Protobuf field positions for name/url/cashtag were established through testing. Reference: Square Developer Documentation, 'Working with Monetary Amounts', https://developer.squareup.com/docs/build-basics/working-with-monetary-amounts",
@@ -24,6 +24,7 @@ from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert
 @artifact_processor
 def get_cashAppB(context):
     data_list = []
+    source_files = set()
 
     # Define the protobuf message structure for decoding the binary data in ZSYNCCUSTOMER and ZSYNCPAYMENT
     # This avoids message types being misinterpreted (ie: str as sub-message)
@@ -45,7 +46,8 @@ def get_cashAppB(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         
-        if file_found.endswith('.sqlite'):            
+        if file_found.endswith('.sqlite'):
+            source_files.add(file_found)
             query = """
             SELECT
             ZDISPLAYDATE,
@@ -162,6 +164,6 @@ def get_cashAppB(context):
                     'Suffix', 'Display Name', 'Display Instrument', 'Instrument Type', 'Transaction ID',
                     'Token', 'Receipt', 'State', ('Created At', 'datetime'), ('Captured At', 'datetime'), ('Reached Customer At', 'datetime'),
                     ('Paid Out At', 'datetime'), ('Deposited At', 'datetime'), ('Display Date', 'datetime'), 'Source File')
-    return data_headers, data_list, 'see source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
     
     

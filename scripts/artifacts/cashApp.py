@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Cash App transactions and account data from the CCEntitySync SQLite stores.",
         "author": "@gforce4n6",
         "creation_date": "2021-10-06",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Banking",
         "notes": "",
@@ -24,9 +24,11 @@ from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, conve
 @artifact_processor
 def get_cashApp(context):
     data_list = []
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('.sqlite'):
+            source_files.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             db.text_factory = lambda b: b.decode(errors = 'ignore')
             cursor = db.cursor()
@@ -88,4 +90,4 @@ ORDER BY ZPAYMENT.ZDISPLAYDATE ASC
 
     db.close()
     
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

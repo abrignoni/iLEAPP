@@ -1,5 +1,6 @@
 """Apple ATX image textures."""
 
+import os
 from pathlib import Path
 
 from leapp_functions.parsers.apple_atx import decode_atx_file
@@ -16,7 +17,7 @@ __artifacts_v2__ = {
         "description": "Apple ATX texture archives decoded to images when possible",
         "author": "@JamesHabben",
         "creation_date": "2026-06-25",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "Images",
         "notes": "ATX files are AAPL texture containers wrapping ASTC image data. These files "
@@ -87,9 +88,11 @@ def apple_atx_images(context):
         'Source Path',
     )
     data_list = []
+    source_dirs = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         source_path = context.get_relative_path(file_found)
         filename = _path_name(file_found)
         created_at, modified_at = _file_timestamps(context, file_found)
@@ -145,4 +148,4 @@ def apple_atx_images(context):
             source_path,
         ))
 
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

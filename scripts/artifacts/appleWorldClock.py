@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of different World Clock entries",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2025-02-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
@@ -41,7 +41,7 @@ def worldclock(context):
 
     pl = get_plist_file_content(source_path)
     if not pl or not isinstance(pl, dict):
-        return (), [], ''
+        return (), [], source_path
     
     if 'cities' in pl:
         for city in pl['cities']:

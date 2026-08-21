@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple Mail messages from the Envelope Index and Protected Index databases (iOS 13+)",
         "author": "@abrignoni - @stark4n6",
         "creation_date": "2020-05-07",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Mail",
         "notes": ("Supports iOS 13 and later. The recipients.type = 1 = To mapping was "
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "description": "RFC 822 headers of Apple Mail messages, including CC and BCC, read from the .emlx files in MessageData",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Mail",
         "notes": ("In the examined corpora no CC/BCC recipients appeared in the Envelope Index recipients table. "
@@ -202,6 +202,7 @@ def mailHeaders(context):
         'Subject', 'Date', 'Message ID', 'Return Path', 'List Unsubscribe',
         'Attachment Filenames', 'Global Message ID', 'Raw Headers', 'Source File')
     data_list = []
+    source_dirs = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -213,6 +214,7 @@ def mailHeaders(context):
         except OSError as ex:
             logfunc(f'Could not read {file_found}: {ex}')
             continue
+        source_dirs.add(os.path.dirname(os.path.dirname(file_found)))
 
         message = email.message_from_bytes(_EMLX_LEADING_COUNT_RE.sub(b'', raw, count=1))
 
@@ -248,4 +250,4 @@ def mailHeaders(context):
             context.get_relative_path(file_found),
         ))
 
-    return data_headers, data_list, ''
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

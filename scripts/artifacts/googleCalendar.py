@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "per-event protobuf held in the UnifiedSync store",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the Events table of unifiedsync.db. Most event content is held in a "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
         "description": "Attendees recorded on Google Calendar events",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "One row per attendee entry in the repeated attendee field of the event protobuf. "
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
         "description": "Structured locations attached to Google Calendar events, with coordinates where present",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Coordinates are stored as two 64 bit values in the event protobuf and are read back as "
@@ -75,7 +75,7 @@ __artifacts_v2__ = {
         "description": "Calendars known to the Google Calendar iOS app",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the Calendars table of unifiedsync.db. The calendar timezone is the "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "description": "Per calendar selection and sync flags",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the CalendarSyncInfo table of unifiedsync.db. IsSelected and "
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
         "description": "Access control entries recorded for calendars",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "One row per access entry in the AccessData table of unifiedsync.db. The role integer is "
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "description": "Accounts registered in the Google Calendar UnifiedSync store",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the Accounts table of unifiedsync.db, joined to the sync state recorded "
@@ -139,7 +139,7 @@ __artifacts_v2__ = {
         "description": "Per account settings recorded in the UnifiedSync store",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the Settings table of unifiedsync.db. The setting identifier is a "
@@ -158,7 +158,7 @@ __artifacts_v2__ = {
         "description": "Appointment schedules defined on a calendar",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the AppointmentSlot table of unifiedsync.db. This table was empty in one "
@@ -173,7 +173,7 @@ __artifacts_v2__ = {
         "description": "Contacts cached by the Google Calendar iOS app for guest lookup",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the contacts table of the per account Contacts cache database. This is a "
@@ -197,7 +197,7 @@ __artifacts_v2__ = {
         "description": "Per account calendar preferences cached by the app",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "One row per preference key in the per account cached preferences property list under "
@@ -213,7 +213,7 @@ __artifacts_v2__ = {
         "description": "Application level preferences recorded by the Google Calendar iOS app",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "One row per key in the app's preferences property list. Values are reported as stored. "
@@ -463,6 +463,13 @@ def _unifiedsync_rows(context, query):
             yield file_found, record
 
 
+def _unifiedsync_sources(context):
+    """The UnifiedSync databases the seeker matched, newline joined."""
+    return '\n'.join(sorted({
+        str(f) for f in context.get_files_found() if str(f).endswith('unifiedsync.db')
+    }))
+
+
 @artifact_processor
 def googleCalendarEvents(context):
     data_list = []
@@ -550,7 +557,7 @@ def googleCalendarEvents(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
@@ -612,7 +619,7 @@ def googleCalendarEventAttendees(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
@@ -672,7 +679,7 @@ def googleCalendarEventLocations(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
@@ -721,7 +728,7 @@ def googleCalendarCalendars(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
@@ -761,7 +768,7 @@ def googleCalendarCalendarSync(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
@@ -805,7 +812,7 @@ def googleCalendarCalendarAccess(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
@@ -831,7 +838,7 @@ def googleCalendarAccounts(context):
         'Platform Account Name',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
@@ -867,7 +874,7 @@ def googleCalendarSettings(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
@@ -899,12 +906,13 @@ def googleCalendarAppointmentSchedules(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, _unifiedsync_sources(context)
 
 
 @artifact_processor
 def googleCalendarContacts(context):
     data_list = []
+    source_files = set()
 
     # Contacts_<n>_<account>.db under Library/Caches is a shared Google people cache name and
     # is not specific to this app. Anchor on the container: only report a cache that sits
@@ -928,6 +936,8 @@ def googleCalendarContacts(context):
                     f'preferences file in the same container: '
                     f'{context.get_relative_path(file_found)}')
             continue
+
+        source_files.add(file_found)
 
         # The file name carries the account identifier after the source number.
         account_id = base[len('Contacts_'):-len('.db')]
@@ -995,18 +1005,20 @@ def googleCalendarContacts(context):
         'Account ID',
         'Source File',
     )
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 @artifact_processor
 def googleCalendarAccountPreferences(context):
     data_list = []
+    source_files = set()
     marker = 'cached.preferences.storage.'
     for file_found in context.get_files_found():
         file_found = str(file_found)
         base = os.path.basename(file_found)
         if not base.startswith(marker):
             continue
+        source_files.add(file_found)
         account_id = base[len(marker):]
 
         content = get_plist_file_content(file_found)
@@ -1021,7 +1033,7 @@ def googleCalendarAccountPreferences(context):
             ))
 
     data_headers = ('Preference', 'Value', 'Account ID', 'Source File')
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 @artifact_processor
@@ -1039,4 +1051,4 @@ def googleCalendarAppState(context):
                 ))
 
     data_headers = ('Preference', 'Value', 'Source File')
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, file_found

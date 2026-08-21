@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-13",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -343,7 +343,7 @@ def burnerCache_accounts(context):
             # lava row
             data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # contacts
@@ -463,7 +463,7 @@ def burnerCache_contacts(context):
             # lava row
             data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # numbers
@@ -640,7 +640,7 @@ def burnerCache_numbers(context):
             data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
                               rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # messages
@@ -969,4 +969,4 @@ def burnerCache_messages(context):
                 location,
             ))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found

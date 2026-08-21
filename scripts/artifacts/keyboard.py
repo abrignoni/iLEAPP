@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts dynamic lexicon data from the keyboard",
         "author": "@any333",
         "creation_date": "2023-05-24",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "User Activity",
         "notes": "",
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
         "description": "Extracts keyboard application usage data",
         "author": "@yany333",
         "creation_date": "2023-05-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "User Activity",
         "notes": "Field units and semantics for app_usage_database.plist are not "
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "description": "Extracts keyboard usage statistics",
         "author": "@any333",
         "creation_date": "2023-05-24",
-        "last_update_date": "2023-05-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "User Activity",
         "notes": "",
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         "description": "Words and usage values stored in VulgarWordUsage.db",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "User Activity",
         "notes": "The last-use timestamp is interpreted as Apple Cocoa epoch; "
@@ -100,7 +100,7 @@ __artifacts_v2__ = {
                        "stored rejection counts and timestamps",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-13",
-        "last_update_date": "2026-08-13",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "User Activity",
         "notes": "Column meanings are quoted from the CREATE TABLE comments stored in "
@@ -158,7 +158,7 @@ __artifacts_v2__ = {
                        "and timestamps",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-13",
-        "last_update_date": "2026-08-13",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "User Activity",
         "notes": "A second table in the same database as the Keyboard Autocorrection "
@@ -269,9 +269,11 @@ def keyboardAppUsage(context):
 @artifact_processor
 def keyboardUsageStats(context):
     data_list = []
+    source_paths = set()
     files_found = context.get_files_found()
     for file_found in files_found:
         if file_found.endswith('user_model_database.sqlite'):
+            source_paths.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
             cursor.execute('''
@@ -289,7 +291,7 @@ def keyboardUsageStats(context):
                 data_list.append((create_ts, update_ts, row[2], row[3], context.get_relative_path(file_found)))
     
     data_headers = (('Creation Date', 'datetime'), ('Last Update Date', 'datetime'), 'Key', 'Data Value', 'Source File')
-    return data_headers, data_list, 'See source paths in data'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -304,8 +306,10 @@ def keyboardVulgarWordUsage(context):
          if str(path).endswith("VulgarWordUsage.db")),
         "",
     )
-    if not source_path or not does_table_exist_in_db(source_path, "vword_usage"):
+    if not source_path:
         return data_headers, data_list, ""
+    if not does_table_exist_in_db(source_path, "vword_usage"):
+        return data_headers, data_list, context.get_relative_path(source_path)
 
     query = """
         SELECT CASE WHEN last_use_timestamp > 0
@@ -343,8 +347,10 @@ def _autocorrection_rejection_rows(context, table_name):
          if str(path).endswith("AutocorrectionRejections.db")),
         "",
     )
-    if not source_path or not does_table_exist_in_db(source_path, table_name):
+    if not source_path:
         return _REJECTION_HEADERS, data_list, ""
+    if not does_table_exist_in_db(source_path, table_name):
+        return _REJECTION_HEADERS, data_list, context.get_relative_path(source_path)
 
     query = f"""
         SELECT CASE WHEN last_hard_rejection > 0

@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts the user defaults plist file for each application",
         "author": "@jfhyla",
         "creation_date": "2024-12-16",
-        "last_update_date": "2026-08-08",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "https://developer.apple.com/documentation/foundation/userdefaults",
@@ -58,6 +58,7 @@ def user_defaults(context):
     files_found = context.get_files_found()
     applications = {}
     data_list = []
+    source_dirs = set()
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -86,6 +87,7 @@ def user_defaults(context):
             if not isinstance(plist, dict):
                 continue
 
+            source_dirs.add(str(pathlib.Path(file_found).parent))
             source_file = context.get_relative_path(file_found)
             for key, item in plist.items():
                 data_list.append((
@@ -104,4 +106,4 @@ def user_defaults(context):
         "Source File",
     )
 
-    return data_headers, data_list, "Source files listed in report"
+    return data_headers, data_list, "\n".join(sorted(source_dirs))

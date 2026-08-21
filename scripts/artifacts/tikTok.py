@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok message data from the ChatFiles databases",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok contact data from AwemeIM.db",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": "Timestamp corresponds to latest chat if available.",
@@ -81,7 +81,7 @@ __artifacts_v2__ = {
                        "own key names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -116,7 +116,7 @@ __artifacts_v2__ = {
                        "id the companion plist maps it to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -151,7 +151,7 @@ __artifacts_v2__ = {
                        "launch flag and duration as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -188,7 +188,7 @@ __artifacts_v2__ = {
                        "timestamp, reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -380,6 +380,7 @@ def tiktok_messages(context):
     files_found = context.get_files_found()
     aweme_dbs = _aweme_im_dbs(files_found)
     data_list = []
+    source_paths = set()
 
     if not aweme_dbs:
         logfunc("AwemeIM.db not found. TikTok messages cannot be parsed.")
@@ -403,6 +404,9 @@ def tiktok_messages(context):
             logfunc(f"Table TIMMessageORM not found in {chat_db}")
             continue
 
+        source_paths.add(chat_db)
+        if aweme_im_db:
+            source_paths.add(aweme_im_db)
         contact_tables = _contact_tables(
             chat_db,
             attach_query,
@@ -476,7 +480,7 @@ def tiktok_messages(context):
         "Conversation ID",
     )
 
-    return data_headers, data_list, "see Source File column"
+    return data_headers, data_list, "\n".join(sorted(source_paths))
 
 
 @artifact_processor
@@ -485,6 +489,7 @@ def tiktok_contacts(context):
     files_found = context.get_files_found()
     aweme_dbs = _aweme_im_dbs(files_found)
     data_list = []
+    source_paths = set()
 
     if not aweme_dbs:
         logfunc("AwemeIM.db not found. TikTok contacts cannot be parsed.")
@@ -499,6 +504,7 @@ def tiktok_contacts(context):
             logfunc(f"No AwemeContacts tables found in {aweme_im_db}.")
             continue
 
+        source_paths.add(aweme_im_db)
         contacts_query = []
         for table in contact_tables:
             table_name = _quote_literal(table)
@@ -538,7 +544,7 @@ def tiktok_contacts(context):
         "Source File",
     )
 
-    return data_headers, data_list, "see Source File column"
+    return data_headers, data_list, "\n".join(sorted(source_paths))
 
 
 @artifact_processor

@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "validated up to the app's 1.2024.178 version.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "",
@@ -23,7 +23,7 @@ __artifacts_v2__ = {
                        "validated up to the app's 1.2024.178 version.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "",
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
         "description": "User draft conversations with ChatGPT.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "",
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "description": "ChatGPT preferences (account information).",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "",
@@ -73,7 +73,7 @@ __artifacts_v2__ = {
                        "container attribution is best-effort and media from other apps can appear (see notes)",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "Rows are limited to the ChatGPT app container only when a ChatGPT marker file "
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
                        "where identifiable",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "ChatGPT",
         "notes": "Rows are limited to the ChatGPT app container only when a ChatGPT marker file "
@@ -314,6 +314,7 @@ def _checkin_tmp_media(context, extension):
     """Check in tmp media of a given extension belonging to the ChatGPT app container."""
     app_id = _app_id(context)
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not (file_found.endswith(extension) and 'tmp' in file_found):
@@ -321,18 +322,21 @@ def _checkin_tmp_media(context, extension):
         if app_id and app_id not in file_found:
             continue
         media_ref = check_in_media(file_found, os.path.basename(file_found))
+        source_dirs.add(os.path.dirname(file_found))
         data_list.append((media_ref, os.path.basename(file_found),
                           context.get_relative_path(file_found)))
-    return data_list
+    return data_list, '\n'.join(sorted(source_dirs))
 
 
 @artifact_processor
 def chatgptMediaUploads(context):
     data_headers = (('Media', 'media'), 'File Name', 'File Path')
-    return data_headers, _checkin_tmp_media(context, '.png'), ''
+    data_list, source_path = _checkin_tmp_media(context, '.png')
+    return data_headers, data_list, source_path
 
 
 @artifact_processor
 def chatgptVoicePrompts(context):
     data_headers = (('Voice Prompt', 'media'), 'File Name', 'File Path')
-    return data_headers, _checkin_tmp_media(context, '.m4a'), ''
+    data_list, source_path = _checkin_tmp_media(context, '.m4a')
+    return data_headers, data_list, source_path

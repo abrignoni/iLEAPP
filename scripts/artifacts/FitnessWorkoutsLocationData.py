@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "(point counts vs expected, capture timespan/average, workout type and times)",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-08-10",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
                        "(healthdb_secure.sqlite)",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
@@ -177,7 +177,7 @@ def fitnessWorkoutsAnalysis(context):
     data_list = []
     db_path = _find_healthdb(context)
     if not db_path or not _has_required_tables(db_path):
-        return data_headers, data_list, ''
+        return data_headers, data_list, db_path
 
     associations_child_id_exists = does_column_exist_in_db(db_path, 'associations', 'child_id')
 
@@ -238,7 +238,7 @@ def fitnessWorkoutsLocation(context):
     data_list = []
     db_path = _find_healthdb(context)
     if not db_path or not _has_required_tables(db_path):
-        return data_headers, data_list, ''
+        return data_headers, data_list, db_path
 
     associations_child_id_exists = does_column_exist_in_db(db_path, 'associations', 'child_id')
     

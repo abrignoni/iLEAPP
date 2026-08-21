@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "safariTabsBrowserState": {
         "name": "Safari Browser - Tabs (BrowserState)",
         "description": "Open Safari tabs from BrowserState.db",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/BrowserState.db*',),
         "output_types": "standard", "artifact_icon": "layout",
@@ -27,7 +27,7 @@ __artifacts_v2__ = {
     "safariTabsiCloud": {
         "name": "Safari Browser - iCloud Tabs",
         "description": "Safari iCloud (cloud) tabs synced across devices",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/CloudTabs.db*',),
         "output_types": "standard", "artifact_icon": "cloud",
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
         "description": "Open normal and private Safari tabs from SafariTabs.db",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": "Public and LocalProfile are normal browsing; private is private browsing. "
@@ -206,7 +206,7 @@ def safariTabsDatabase(context):
     data_list = []
     source_path = _find(context, "SafariTabs.db")
     if not source_path or not does_table_exist_in_db(source_path, "bookmarks"):
-        return data_headers, data_list, ""
+        return data_headers, data_list, source_path
 
     # The attribute plists and external_uuid are absent from older/reduced
     # bookmarks schemas, so select them only when the columns really exist.
