@@ -55,9 +55,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Grindr",
-        "notes": "One row per conversation record in the app's Realm database. Draft Message "
-                 "is text the account holder had typed and not sent, which the app keeps on "
-                 "the conversation. Pinned, Muted and Unread Count are the values the record "
+        "notes": "One row per conversation record in the app's Realm database. This record holds "
+                 "no message text; the messages themselves are reported by the messages "
+                 "artifact and a conversation links to them. Messages Linked, Tap Messages "
+                 "Linked and Members Linked are the lengths of those link lists, which is "
+                 "what lets a conversation be sized without opening it. On the tested device "
+                 "they totalled 118 message links across 17 conversations and 9 tap links "
+                 "across 9, against 129 rows in the messages artifact, so the two do not "
+                 "reconcile exactly and a message can be present without a conversation "
+                 "linking it. Draft Message is text the account holder typed and did not "
+                 "send, and Name is a conversation name; both were empty on every row of the "
+                 "tested device and are carried because either one is significant wherever it "
+                 "is populated. Pinned, Muted and Unread Count are the values the record "
                  "carries. Type is reported as stored. Some conversation records are created "
                  "by the app's marketing framework rather than by a person: their identifiers "
                  "carry that framework's name, and the Marketing column marks them so they "
@@ -212,6 +221,18 @@ def _text(value):
     return '' if value is None else str(value)
 
 
+def _links(value):
+    '''The number of entries in a Realm link list, or '' when the column is absent.
+
+    The list holds the store's own row references rather than values, so only its length
+    is reported: the count is a fact about the record, while resolving the references to
+    rows is not something this artifact does.
+    '''
+    if isinstance(value, list):
+        return len(value)
+    return ''
+
+
 def _is_marketing(value):
     '''Whether an identifier was created by the app's marketing framework.'''
     return _MARKETING in str(value or '').lower()
@@ -315,6 +336,9 @@ def grindr_conversations(context):
                 _text(row.get('name')),
                 _text(row.get('draftMessage')),
                 _text(row.get('unreadCount')),
+                _links(row.get('messages')),
+                _links(row.get('tapMessages')),
+                _links(row.get('members')),
                 _text(row.get('hasMessages')),
                 _text(row.get('hasTapMessages')),
                 _text(row.get('pinned')),
@@ -329,7 +353,7 @@ def grindr_conversations(context):
                 relative,
             ))
 
-    data_list.sort(key=lambda r: (str(r[0]), str(r[17])), reverse=True)
+    data_list.sort(key=lambda r: (str(r[0]), str(r[20])), reverse=True)
 
     data_headers = (
         ('Last Activity', 'datetime'),
@@ -340,6 +364,9 @@ def grindr_conversations(context):
         'Name',
         'Draft Message',
         'Unread Count',
+        'Messages Linked',
+        'Tap Messages Linked',
+        'Members Linked',
         'Has Messages',
         'Has Tap Messages',
         'Pinned',
