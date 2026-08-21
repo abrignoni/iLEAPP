@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses location activity entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -117,6 +117,7 @@ def get_biomeLocationactivity(context):
     }
 
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -128,6 +129,7 @@ def get_biomeLocationactivity(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
@@ -204,4 +206,4 @@ def get_biomeLocationactivity(context):
                     ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Bundle ID','Bundle ID 2', 'Data 0', 'Data 1',
                     'Data 2', 'Data 3', 'Data 4', 'Data 5', 'Data 6', 'Action GUID', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

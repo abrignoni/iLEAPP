@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "Device.Display.InterfaceOrientation biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Value follows the UIInterfaceOrientation enumeration (UIKit, defined in "
@@ -49,7 +49,7 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Appears to be the modern counterpart of the _DKEvent.System.AirplaneMode "
@@ -86,7 +86,7 @@ __artifacts_v2__ = {
                        "Device.Wireless.CellularDataEnabled biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -104,7 +104,7 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Appears to be the modern counterpart of the _DKEvent.Carplay.IsConnected "
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
                        "Device.Thermals.BatteryTemperature biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The raw value is temperature in hundredths of a degree Celsius (observed "
@@ -143,7 +143,7 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Lock polarity validated against the _DKEvent.Device.IsLockedImputed stream "
@@ -165,7 +165,7 @@ __artifacts_v2__ = {
                        "stream records its locked state over time.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Lock polarity validated against the _DKEvent.Keybag.IsLocked stream on the "
@@ -187,7 +187,7 @@ __artifacts_v2__ = {
                        "stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The level is a percentage stored as a double (observed range 1.0 to 100.0). "
@@ -207,7 +207,7 @@ __artifacts_v2__ = {
                        "Device.Power.PluggedIn biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-27",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field 3 is populated only while plugged in and is reported raw as its "
@@ -231,7 +231,7 @@ __artifacts_v2__ = {
                        "stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Both fields are reported raw: the sample data does not confirm which energy "
@@ -257,7 +257,7 @@ __artifacts_v2__ = {
                        "reading the switch position at startup).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Reasons observed: RingerSwitchEvent and 'MXSessionManager startup HID ringer "
@@ -320,18 +320,24 @@ def _to_str(value):
     return str(value)
 
 
+def _stream_files(context):
+    """Non-hidden, non-tombstone stream files from the artifact's matched paths."""
+    for file_found in sorted(map(str, context.get_files_found())):
+        if os.path.basename(file_found).startswith('.'):
+            continue
+        if not os.path.isfile(file_found) or 'tombstone' in file_found:
+            continue
+        yield file_found
+
+
+def _source_path(context):
+    return '\n'.join(sorted({os.path.dirname(f) for f in _stream_files(context)}))
+
+
 def _records(context, label, typess=None):
     typess = TYPESS if typess is None else typess
-    for file_found in sorted(context.get_files_found()):
-        file_found = str(file_found)
+    for file_found in _stream_files(context):
         filename = os.path.basename(file_found)
-        if filename.startswith('.'):
-            continue
-        if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
-                continue
-        else:
-            continue
 
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
@@ -359,7 +365,7 @@ def _parse_state(context, label, value_map):
         raw = protostuff.get('1', '')
         data_list.append((ts, record.state.name, value_map.get(raw, ''), raw, filename,
                           record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -395,7 +401,7 @@ def get_biomeCarPlayConnected(context):
         raw = protostuff.get('1', '')
         data_list.append((ts, record.state.name, CONNECTED.get(raw, ''), raw,
                           protostuff.get('2', ''), filename, record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -412,7 +418,7 @@ def get_biomeBatteryTemperature(context):
         celsius = round(raw / 100, 2) if isinstance(raw, int) else ''
         data_list.append((ts, record.state.name, celsius, raw, protostuff.get('2', ''),
                           filename, record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -440,7 +446,7 @@ def get_biomeBatteryLevel(context):
             level = round(level, 2)
         data_list.append((ts, record.state.name, level, protostuff.get('2', ''), filename,
                           record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -458,7 +464,7 @@ def get_biomeDevicePluggedIn(context):
         data_list.append((ts, record.state.name, PLUGGED.get(raw, ''), raw,
                           protostuff.get('2', ''), protostuff.get('3', ''), filename,
                           record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -475,7 +481,7 @@ def get_biomeSilentMode(context):
         data_list.append((ts, record.state.name, SILENT.get(raw, ''), raw,
                           _to_str(protostuff.get('4', b'')), protostuff.get('2', ''), filename,
                           record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -490,4 +496,4 @@ def get_biomeEnergyMode(context):
             continue
         data_list.append((ts, record.state.name, protostuff.get('1', ''),
                           protostuff.get('2', ''), filename, record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)

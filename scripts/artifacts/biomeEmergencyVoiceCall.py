@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "the serving network at the time of the call.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field mapped from a small private sample, so read the columns with that in "
@@ -65,6 +65,7 @@ def _to_str(value):
 def get_biomeEmergencyVoiceCall(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -76,6 +77,7 @@ def get_biomeEmergencyVoiceCall(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -105,4 +107,4 @@ def get_biomeEmergencyVoiceCall(context):
                     'Duration Seconds (unconfirmed)', 'Field 4 (raw)', 'Field 5 (raw)',
                     'Field 6 (raw)', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
