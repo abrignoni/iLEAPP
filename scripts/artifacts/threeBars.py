@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        'centroid coordinates the location service reported for each one',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-30',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
         'notes': ('ThreeBars caches tiles of Wi-Fi location data that the device downloaded. '
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                        'their BSSID and reported coordinates',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
         'notes': ('Same caveat as the networks artifact: these are access points the location '
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
                        'the time of each download',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
         'notes': ('A tile row records that the device requested Wi-Fi location data covering '
@@ -110,7 +110,7 @@ def threeBarsNetworks(context):
         'Quality Score', 'Popularity Score', 'Auth Mask', 'Type', 'Venue Group', 'Venue Type',
         'Tile Key', 'Record ID')
     if not source_path or not does_table_exist_in_db(source_path, 'ZNETWORK'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     query = '''
     SELECT ZCREATED, ZCENTROIDLAT, ZCENTROIDLNG, ZNAME, ZIDENTIFIER, ZACCESSPOINTCOUNT,
@@ -156,7 +156,7 @@ def threeBarsAccessPoints(context):
         'Network Identifier', 'Edge', 'TCP Good', 'Quality Score', 'Popularity Score',
         'Record ID')
     if not source_path or not does_table_exist_in_db(source_path, 'ZACCESSPOINT'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     join = ''
     columns = ''
@@ -201,7 +201,7 @@ def threeBarsTiles(context):
     data_headers = (
         ('Created', 'datetime'), 'Tile Key', 'Network Count', 'ETag', 'Record ID')
     if not source_path or not does_table_exist_in_db(source_path, 'ZTILE'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     query = '''
     SELECT ZCREATED, ZKEY, ZNETWORKCOUNT, ZETAG, Z_PK

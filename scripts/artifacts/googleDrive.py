@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "container the cache was read from",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Drive",
         "notes": "The cello.db store is written by Google's DriveKit library, which is embedded by several Google apps, so a store can sit in a container belonging to an app other than Google Drive. Across the tested images these stores were found in Google Drive, Google Docs, Google Sheets, Gmail and Google Chat containers, and three tested images carried one with no Google Drive container present. A store can also sit in an app extension container under Data/PluginKitPlugin, which is read the same way and reports the extension's own bundle id. The Container App column names the app that owns the container, read from that container's metadata property list, and is empty when the extraction carries no metadata property list for it. A row is evidence that the named app held this data; it does not establish that the Google Drive app was installed. One row per cello.db under Documents/drivekit/users/<account id>/. Identity "
@@ -40,7 +40,7 @@ __artifacts_v2__ = {
                        "the locally stored copy of the file where one exists on the device",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Drive",
         "notes": "The cello.db store is written by Google's DriveKit library, which is embedded by several Google apps, so a store can sit in a container belonging to an app other than Google Drive. Across the tested images these stores were found in Google Drive, Google Docs, Google Sheets, Gmail and Google Chat containers, and three tested images carried one with no Google Drive container present. A store can also sit in an app extension container under Data/PluginKitPlugin, which is read the same way and reports the extension's own bundle id. The Container App column names the app that owns the container, read from that container's metadata property list, and is empty when the extraction carries no metadata property list for it. A row is evidence that the named app held this data; it does not establish that the Google Drive app was installed. One row per row of the items table of each cello.db under "
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
                        "cello.db still lists it, and with the app container it was read from",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Drive",
         "notes": "The cello.db store is written by Google's DriveKit library, which is embedded by several Google apps, so a store can sit in a container belonging to an app other than Google Drive. Across the tested images these stores were found in Google Drive, Google Docs, Google Sheets, Gmail and Google Chat containers, and three tested images carried one with no Google Drive container present. A store can also sit in an app extension container under Data/PluginKitPlugin, which is read the same way and reports the extension's own bundle id. The Container App column names the app that owns the container, read from that container's metadata property list, and is empty when the extraction carries no metadata property list for it. A row is evidence that the named app held this data; it does not establish that the Google Drive app was installed. One row per file under Documents/drivekit/users/<account id>/files/<item id>/. "
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
                        "lists it, and with the app container it was read from",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Drive",
         "notes": "The cello.db store is written by Google's DriveKit library, which is embedded by several Google apps, so a store can sit in a container belonging to an app other than Google Drive. Across the tested images these stores were found in Google Drive, Google Docs, Google Sheets, Gmail and Google Chat containers, and three tested images carried one with no Google Drive container present. A store can also sit in an app extension container under Data/PluginKitPlugin, which is read the same way and reports the extension's own bundle id. The Container App column names the app that owns the container, read from that container's metadata property list, and is empty when the extraction carries no metadata property list for it. A row is evidence that the named app held this data; it does not establish that the Google Drive app was installed. One row per file under Documents/drivekit/users/<account id>/thumbnails/"
@@ -154,7 +154,7 @@ __artifacts_v2__ = {
                        "author display name, quoted document text and anchor position",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Drive",
         "notes": "This store and the cello.db beside it are written by Google's DriveKit library, which is embedded by several Google apps, so a store can sit in a container belonging to an app other than Google Drive. Across the tested images these stores were found in Google Drive, Google Docs, Google Sheets, Gmail and Google Chat containers, and three tested images carried one with no Google Drive container present. A store can also sit in an app extension container under Data/PluginKitPlugin, which is read the same way and reports the extension's own bundle id. The Container App column names the app that owns the container, read from that container's metadata property list, and is empty when the extraction carries no metadata property list for it. A row is evidence that the named app held this data; it does not establish that the Google Drive app was installed. Read from comments_snapshot_<account id>.db under Documents/<account id>/. "
@@ -341,8 +341,10 @@ def _decode_account_proto(blob):
 @artifact_processor
 def google_drive_accounts(context):
     data_list = []
+    source_files = set()
     apps = _container_apps(context.get_files_found())
     for db_path in _cello_dbs(context.get_files_found()):
+        source_files.add(db_path)
         account_id = _account_from_path(db_path)
         rows = get_sqlite_db_records(
             db_path,
@@ -379,7 +381,7 @@ def google_drive_accounts(context):
         'Container App',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 def _local_file_index(files_found):
@@ -430,6 +432,7 @@ def google_drive_items(context):
     apps = _container_apps(files_found)
     local_files = _local_file_index(files_found)
     data_list = []
+    source_files = set()
 
     query = '''
     SELECT created_date, modified_date, modified_by_me_date, viewed_by_me_date,
@@ -442,6 +445,7 @@ def google_drive_items(context):
     ORDER BY created_date
     '''
     for db_path in _cello_dbs(files_found):
+        source_files.add(db_path)
         account_id = _account_from_path(db_path)
         path_for = _parent_paths(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
@@ -499,7 +503,7 @@ def google_drive_items(context):
         'Container App',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 @artifact_processor
@@ -508,6 +512,7 @@ def google_drive_local_files(context):
     apps = _container_apps(files_found)
     local_files = _local_file_index(files_found)
     data_list = []
+    source_paths = set()
 
     item_query = '''
     SELECT id, title, mime_type, modified_date, trashed,
@@ -518,6 +523,7 @@ def google_drive_local_files(context):
     '''
     items_by_key = {}
     for db_path in _cello_dbs(files_found):
+        source_paths.add(db_path)
         account_id = _account_from_path(db_path)
         container = _container_root(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, item_query)):
@@ -526,6 +532,7 @@ def google_drive_local_files(context):
     for (container, account_id, item_id), paths in sorted(local_files.items()):
         item = items_by_key.get((container, account_id, item_id))
         for stored in sorted(paths):
+            source_paths.add(os.path.dirname(stored))
             media_ref = check_in_media(stored, os.path.basename(stored)) or ''
             data_list.append((
                 _when(item[5]) if item else '',
@@ -556,7 +563,7 @@ def google_drive_local_files(context):
         'Container App',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -564,9 +571,11 @@ def google_drive_thumbnails(context):
     files_found = context.get_files_found()
     apps = _container_apps(files_found)
     data_list = []
+    source_paths = set()
 
     titles_by_key = {}
     for db_path in _cello_dbs(files_found):
+        source_paths.add(db_path)
         account_id = _account_from_path(db_path)
         container = _container_root(db_path)
         for record in get_sqlite_db_records(db_path, 'SELECT id, title FROM items'):
@@ -577,6 +586,7 @@ def google_drive_thumbnails(context):
         match = _THUMBNAIL_FILE_RE.search(found)
         if not match:
             continue
+        source_paths.add(os.path.dirname(found))
         account_id = _account_from_path(found)
         item_id = match.group(1)
         filename = match.group(2)
@@ -616,7 +626,7 @@ def google_drive_thumbnails(context):
         'Container App',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -624,9 +634,11 @@ def google_drive_comments(context):
     files_found = context.get_files_found()
     apps = _container_apps(files_found)
     data_list = []
+    source_files = set()
 
     titles_by_key = {}
     for db_path in _cello_dbs(files_found):
+        source_files.add(db_path)
         cello_account = _account_from_path(db_path)
         cello_container = _container_root(db_path)
         for record in get_sqlite_db_records(db_path, 'SELECT id, title FROM items'):
@@ -643,6 +655,7 @@ def google_drive_comments(context):
         if not os.path.basename(db_path).startswith('comments_snapshot_') \
                 or not db_path.endswith('.db'):
             continue
+        source_files.add(db_path)
         account_id = os.path.basename(db_path).replace(
             'comments_snapshot_', '').replace('.db', '')
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
@@ -696,4 +709,4 @@ def google_drive_comments(context):
         'Container App',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

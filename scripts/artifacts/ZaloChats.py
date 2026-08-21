@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "pillow",
         "category": "Zalo",
         "notes": "Message type mappings were established through testing and are not vendor-documented; unrecognized types are reported as Unknown with the raw Type ID column.",
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Zalo",
         "notes": "",
@@ -51,6 +51,7 @@ __artifacts_v2__ = {
     }
 }
 
+import os
 import re
 import json
 from io import BytesIO
@@ -208,6 +209,7 @@ def zalo_messages(context):
             ChatContent
     '''
 
+    source_dirs = set()
     user_dict = {}
     user_records = get_sqlite_db_records(chat_info, user_query)
     for record in user_records:
@@ -224,6 +226,7 @@ def zalo_messages(context):
 
     for db_file in chat_dbs:
         source_file = db_file
+        source_dirs.add(os.path.dirname(db_file))
         isgroup = False
         if "group_" in db_file:
             isgroup = True
@@ -426,4 +429,4 @@ def zalo_messages(context):
 
     data_headers = (('Timestamp', 'datetime'), "Outgoing", "Sender", "Chat Name", "Message", ('Attachment File', 'media'), "Sender-ID", "Type ID", "Message Type", "Latitude", "Longitude", "Group Chat", "Source File")
 
-    return data_headers, data_list, 'See Table for Source DB'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

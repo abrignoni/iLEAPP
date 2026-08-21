@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
         "author": "@stark4n6",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Battery",
         "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
@@ -38,6 +38,7 @@ __artifacts_v2__ = {
 }
 
 import csv
+import os
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 
@@ -52,6 +53,7 @@ def battery_bdc(context):
     """
 
     data_list = []
+    source_dirs = set()
     files_found = context.get_files_found()
 
     for file_found in files_found:
@@ -71,6 +73,7 @@ def battery_bdc(context):
                 )
                 continue
 
+            source_dirs.add(os.path.dirname(file_found))
             for item in (first_row, *delimited):
                 timestamp = item[0]
                 current_cap = item[2]
@@ -105,4 +108,4 @@ def battery_bdc(context):
         'Watts',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

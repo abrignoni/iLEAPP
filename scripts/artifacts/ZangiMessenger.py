@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "pathlib",
         "category": "Chats",
         "notes": "Message type mappings observed in testing (app version 5.6.7); not vendor-documented.",
@@ -46,7 +46,7 @@ __artifacts_v2__ = {
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
-        "last_update_date": "2026-03-01",
+        "last_update_date": "2026-08-21",
         "requirements": "",
         "category": "Contacts",
         "notes": "",
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
-        "last_update_date": "2026-03-01",
+        "last_update_date": "2026-08-21",
         "requirements": "",
         "category": "Accounts",
         "notes": "",
@@ -271,7 +271,7 @@ def zangi_messages(context):
         'Source Database',
     )
 
-    return data_headers, data_list, 'See Table for Source DB'
+    return data_headers, data_list, '\n'.join(sorted(set(db_files)))
 
 
 @artifact_processor
@@ -302,8 +302,10 @@ def zangi_contacts(context):
             LEFT JOIN ZCONTACTNUMBERTYPE zcnt ON zcnt.Z_PK = zc.Z_PK
             '''
 
+    source_files = set()
     for file_found in files_found:
         main_db = str(file_found)
+        source_files.add(main_db)
 
         db_records = get_sqlite_db_records(main_db, query)
 
@@ -349,7 +351,7 @@ def zangi_contacts(context):
                             'Source Database'
                         )
 
-    return data_headers, data_list, 'See Table for Source DB'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 @artifact_processor
@@ -379,8 +381,10 @@ def zangi_accounts(context):
             FROM ZUSER
             '''
 
+    source_files = set()
     for file_found in files_found:
         main_db = str(file_found)
+        source_files.add(main_db)
 
         db_records = get_sqlite_db_records(main_db, query)
 
@@ -430,4 +434,4 @@ def zangi_accounts(context):
                             'Source Database'
                         )
 
-    return data_headers, data_list, 'See Table for Source DB'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

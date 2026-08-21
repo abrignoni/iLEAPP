@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Discord chat messages from fsCachedData and the local KV storage database",
         "author": "Original Unknown, John Hyla & @stark4n6",
         "creation_date": "2025-06-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Discord",
         "notes": "Reference: Discord Developer Documentation, 'Message Resource', https://docs.discord.com/developers/resources/message",
@@ -54,7 +54,7 @@ import json
 import math
 import re
 from datetime import datetime
-from os.path import basename, isfile, normcase, normpath
+from os.path import basename, dirname, isfile, normcase, normpath
 
 import biplist
 
@@ -336,7 +336,9 @@ def discordChats(context):
 
     account_ids = _account_ids_by_container(files_found)
     data_list = []
+    source_dirs = set()
     for source_file, message in _fs_cache_messages(files_found):
+        source_dirs.add(dirname(source_file))
         account_id = _account_id_for_file(source_file, account_ids)
         data_list.extend(
             _message_rows(
@@ -352,6 +354,7 @@ def discordChats(context):
 
     for db_file in _kv_storage_dbs(files_found):
         for source_file, message in _kv_storage_messages(db_file):
+            source_dirs.add(dirname(source_file))
             account_id = _account_id_for_file(source_file, account_ids)
             data_list.extend(
                 _message_rows(
@@ -394,4 +397,4 @@ def discordChats(context):
         "Source File",
     )
 
-    return data_headers, data_list, "see Source File column"
+    return data_headers, data_list, "\n".join(sorted(source_dirs))

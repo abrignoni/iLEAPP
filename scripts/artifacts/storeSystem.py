@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        'Apple Account and the on-disk bundle path',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-30',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ('Store metadata is an NSKeyedArchiver payload recorded at install time, so the '
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
                        'metadata cached alongside it',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-30',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ('The catalog metadata is a cached copy of the App Store listing, so the latest '
@@ -57,7 +57,7 @@ __artifacts_v2__ = {
                        'URLs, joined to the install record they belong to',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-30',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ('One install can own several packages, such as the app itself plus its '
@@ -167,7 +167,7 @@ def storeSystemAppInstalls(context):
         'Phase', 'Update Type', 'Source Type', 'Redownload', 'One Shot Bootstrap',
         'Switch Distributor', 'Optimal Download Duration')
     if not source_path or not does_table_exist_in_db(source_path, 'app_install'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     # bundle_directory_name, one_shot_bootstrap, switch_distributor and
     # optimal_download_duration arrived with iOS 26; download_volume went away in
@@ -236,7 +236,7 @@ def storeSystemAppUpdates(context):
         'Item ID', 'Store Software Version ID', 'External Version ID', 'Update State',
         'Package Type', 'Installer Packaging Type', 'App Store URL')
     if not source_path or not does_table_exist_in_db(source_path, 'mapi_app_update'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     # installer_packaging_type arrived with iOS 26.
     wanted = ('timestamp', 'install_date', 'bundle_id', 'item_id',
@@ -286,7 +286,7 @@ def storeSystemAppPackages(context):
         'Disk Usage', 'Extracted Content Size', 'Variant ID', 'Compression',
         'Delta Algorithm', 'Archive Type', 'Request Count', 'Package URL')
     if not source_path or not does_table_exist_in_db(source_path, 'app_package'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     # parent_id carries the app_install.pid this package belongs to, despite the
     # column being declared UUID.

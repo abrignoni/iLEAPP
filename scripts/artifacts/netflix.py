@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "video identifier the position belongs to",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Read from the app's GraphQL record cache under Library/gqlData, where a record "
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
                        "lock and account owner flags as stored",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Read from QUERY_ROOT.account.profiles.<n> records under Library/gqlData. "
@@ -64,7 +64,7 @@ __artifacts_v2__ = {
                        "and the app version",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Values are drawn from QUERY_ROOT.account records under Library/gqlData and "
@@ -90,7 +90,7 @@ __artifacts_v2__ = {
                        "displayed title and the video identifier each entry points at",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Read from records whose __typename is PinotContinueWatchingEntityTreatment "
@@ -113,7 +113,7 @@ __artifacts_v2__ = {
                        "cached stream data, with the signal named on each row",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "The GraphQL cache holds the catalogue the app fetched for browsing, which is "
@@ -140,7 +140,7 @@ __artifacts_v2__ = {
                        "ESN, device model and app version",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Rows of logblobs_table in Documents/brl-dedicated/brl.sqlite. The entry_data "
@@ -164,7 +164,7 @@ __artifacts_v2__ = {
                        "reported by the kind of value each entry holds",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Rows of the store table in Documents/sqlstore/store.sqlite3. The value blob is "
@@ -200,7 +200,7 @@ __artifacts_v2__ = {
                        "throughput and the exchange identifier",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Summarised from the last_observed table in Documents/sqlstore/store.sqlite3, "
@@ -225,7 +225,7 @@ __artifacts_v2__ = {
                        "actually present and how many files declare an encrypted sample entry",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Files under Library/Caches/br/ch/<videoId>/. The directory name is the video "
@@ -269,7 +269,7 @@ __artifacts_v2__ = {
                        "the cues cover and the cue text",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "WebVTT files under Library/Caches/br/ch/<videoId>/, identified by their "
@@ -297,7 +297,7 @@ __artifacts_v2__ = {
                        "guids the app kept message state for",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Read from Library/Preferences/com.netflix.Netflix.plist. Keys are reported "
@@ -681,7 +681,9 @@ def _reference_target(value):
 @artifact_processor
 def netflix_bookmarks(context):
     data_list = []
+    source_paths = set()
     for db_path in _gql_databases(context.get_files_found()):
+        source_paths.add(db_path)
         profile_guid, app_version, _schema = _gql_meta(db_path)
         titles = _title_index(db_path)
         for key, value in _gql_records(db_path):
@@ -715,13 +717,15 @@ def netflix_bookmarks(context):
         'App Version (from file name)',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
 def netflix_profiles(context):
     data_list, rows = [], []
+    source_paths = set()
     for db_path in _gql_databases(context.get_files_found()):
+        source_paths.add(db_path)
         records = dict(_gql_records(db_path))
         current = ''
         current_record = records.get('QUERY_ROOT.currentProfile')
@@ -790,15 +794,17 @@ def netflix_profiles(context):
         'Cache Files Holding This Row',
         'Source Path (first cache file)',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
 def netflix_account(context):
     data_list, rows = [], []
+    source_paths = set()
     files_found = context.get_files_found()
 
     for db_path in _gql_databases(files_found):
+        source_paths.add(db_path)
         records = dict(_gql_records(db_path))
         account = records.get('QUERY_ROOT.account')
         if not isinstance(account, dict):
@@ -831,6 +837,7 @@ def netflix_account(context):
         prefs = _plist(prefs_path)
         if not prefs:
             continue
+        source_paths.add(prefs_path)
         relative = context.get_relative_path(prefs_path)
         version = prefs.get('kFullVersion') or prefs.get('kVersionKey') or ''
         for label, key in (('Preference file account', 'currentLoginAccount'),
@@ -858,13 +865,15 @@ def netflix_account(context):
         'Cache Files Holding This Row',
         'Source Path (first cache file)',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
 def netflix_continue_watching(context):
     data_list, rows = [], []
+    source_paths = set()
     for db_path in _gql_databases(context.get_files_found()):
+        source_paths.add(db_path)
         profile_guid, _version, _schema = _gql_meta(db_path)
         titles = _title_index(db_path)
         for _key, value in _gql_records(db_path):
@@ -897,7 +906,7 @@ def netflix_continue_watching(context):
         'Cache Entries Holding This Row',
         'Source Path (first cache file)',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -909,6 +918,7 @@ def netflix_titles(context):
     playback position, a Continue Watching entry, or cached stream data are reported.
     """
     data_list, rows = [], []
+    source_paths = set()
     files_found = context.get_files_found()
 
     cached = {p for p in _files(files_found, lambda x: '/Library/Caches/br/ch/' in x)}
@@ -920,6 +930,7 @@ def netflix_titles(context):
 
     total_cached = 0
     for db_path in _gql_databases(files_found):
+        source_paths.add(db_path)
         index = _title_index(db_path)
         total_cached += len(index)
         bookmarks, continues = set(), set()
@@ -961,14 +972,16 @@ def netflix_titles(context):
         'Cache Files Holding This Row',
         'Source Path (first cache file)',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
 def netflix_log_events(context):
     data_list = []
+    source_paths = set()
     files_found = context.get_files_found()
     for db_path in _databases(files_found, '/brl.sqlite'):
+        source_paths.add(db_path)
         keys, _source = _load_keys(files_found, db_path)
         named = _named_key(db_path, keys)
         if not keys:
@@ -1028,7 +1041,7 @@ def netflix_log_events(context):
         'Row ID',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 def _value_kind(plain):
@@ -1084,8 +1097,10 @@ def netflix_secure_store(context):
     3,264 byte certificate is not actionable, so those are counted by kind instead.
     """
     data_list = []
+    source_paths = set()
     files_found = context.get_files_found()
     for db_path in _databases(files_found, '/store.sqlite3'):
+        source_paths.add(db_path)
         keys, _source = _load_keys(files_found, db_path)
         named = _named_key(db_path, keys)
         if not keys:
@@ -1127,7 +1142,7 @@ def netflix_secure_store(context):
         'Row ID',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -1135,6 +1150,7 @@ def netflix_network_observations(context):
     """One row per interface. The rows carry no timestamp, so per-observation rows
     cannot be placed in time and are summarised instead."""
     data_list = []
+    source_paths = set()
     for db_path in _databases(context.get_files_found(), '/store.sqlite3'):
         query = 'SELECT key, value FROM last_observed'
         try:
@@ -1142,6 +1158,7 @@ def netflix_network_observations(context):
         except (sqlite3.Error, OSError, TypeError) as error:
             logfunc(f'Netflix: could not read last_observed from {db_path}: {error}')
             continue
+        source_paths.add(db_path)
         per_iface = {}
         for record in records:
             key = record['key']
@@ -1180,7 +1197,7 @@ def netflix_network_observations(context):
         'Highest Observed Kbps',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 def _sniff(path):
@@ -1310,9 +1327,11 @@ def netflix_stream_segments(context):
             titles.setdefault(video_id, pair)
 
     per_video = {}
+    source_dirs = set()
     for path in _files(files_found, lambda p: '/Library/Caches/br/ch/' in p):
         if not os.path.isfile(path):
             continue
+        source_dirs.add(os.path.dirname(path))
         row = _segment_row(path, titles)
         video_id = row[0]
         entry = per_video.setdefault(video_id, {
@@ -1357,7 +1376,7 @@ def netflix_stream_segments(context):
         'Sample Entry Codes (as stored)',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 CUE_TIME_RE = re.compile(
@@ -1395,9 +1414,11 @@ def netflix_subtitle_tracks(context):
         for video_id, pair in _title_index(db_path).items():
             titles.setdefault(video_id, pair)
 
+    source_dirs = set()
     for path in _files(files_found, lambda p: '/Library/Caches/br/ch/' in p):
         if not os.path.isfile(path) or _sniff(path)[1] != 'vtt':
             continue
+        source_dirs.add(os.path.dirname(path))
         segments = path.replace('\\', '/').split('/Library/Caches/br/ch/', 1)[1].split('/')
         video_id = segments[0] if segments else ''
         title, entity_type = titles.get(video_id, ('', ''))
@@ -1428,7 +1449,7 @@ def netflix_subtitle_tracks(context):
         'Size (bytes)',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 PREFERENCE_KEYS = (
@@ -1451,8 +1472,10 @@ PREFERENCE_KEYS = (
 @artifact_processor
 def netflix_preferences(context):
     data_list = []
+    source_paths = set()
     for prefs_path in _files(context.get_files_found(),
                              lambda p: p.endswith(PREFS_BASENAME)):
+        source_paths.add(prefs_path)
         prefs = _plist(prefs_path)
         relative = context.get_relative_path(prefs_path)
         for name in PREFERENCE_KEYS:
@@ -1479,4 +1502,4 @@ def netflix_preferences(context):
         'Profile Guid In Key',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

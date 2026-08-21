@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "creation_date": "2023-10-03",
         "version": "0.4",
         "date": "2023-10-04",
-        "last_update_date": "2026-08-13",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "iOS <=16 / iOS 17+ key naming per tested corpora. This directory can hold com.apple.MobileSMS.plist and com.apple.mobileSMS.plist as two different files; 6 of 20 tested images carry both, iOS 14.3 through 26.5.2. Every match is read and each row names the file it was read from. Where the report folder is on a case-insensitive volume the two copies collide under data/, so the preserved copy at a row's path can hold the other file's bytes; the value reported is read before the overwrite. That collision is in the file seeker, not here. On all 6 of those images the lowercase-spelled file held the same three IMDCKBackupController* keys and no retention key, so it is reported as 'No value'. Row counts here are from runs on macOS. Windows cannot tell the two spellings apart, so where both exist it reports whichever single file the extraction preserved. Reference: Apple Support, 'Delete messages and attachments', https://support.apple.com/guide/iphone/delete-messages-and-attachments-iph2c9c4bfcb/ios",
@@ -78,8 +78,9 @@ def messageRetention(context):
     # as different files, so every spelling is read rather than only the first.
     matches = seeker.search(_PREFERENCES + 'com.apple.[Mm]obileSMS.plist', force=True)
     if not matches:
-        return data_headers, data_list, 'File path in the report below'
+        return data_headers, data_list, ''
 
+    source_paths = set()
     processed = set()
     for spelling in sorted({os.path.basename(str(p)) for p in matches}):
         # On Windows the two spellings name one file; process it once.
@@ -100,6 +101,7 @@ def messageRetention(context):
         # Name the file that was actually read, which on a case-insensitive volume is
         # not necessarily the spelling that was asked for.
         filename = os.path.basename(source_path)
+        source_paths.add(source_path)
         pl = get_plist_file_content(source_path)
 
         found = False
@@ -117,4 +119,4 @@ def messageRetention(context):
             data_list.append((setting, 'No value', source_path))
             device_info('Messages Settings', setting, 'No value', source_path)
 
-    return data_headers, data_list, 'File path in the report below'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

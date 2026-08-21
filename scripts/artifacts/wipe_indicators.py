@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-06",
         "version": "0.0.3",
         "date": "2024-10-17",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "The file is not present in every extraction and extraction handling can disturb file times; corroborate with containermanagerd logs. Reference: Cellebrite, 'Upgrade From Null: Detecting iOS Wipe Artifacts', https://cellebrite.com/en/blog/upgrade-from-null-detecting-ios-wipe-artifacts/",
@@ -49,4 +49,4 @@ def wipe_indicators(context):
         data_list.append((utc_modified_date, source_name_log, source_name))
 
     data_headers = (('Timestamp', 'datetime'),'Source File','Source Path')
-    return data_headers, data_list, 'See source file below'
+    return data_headers, data_list, '\n'.join(sorted(str(file_found) for file_found in files_found))

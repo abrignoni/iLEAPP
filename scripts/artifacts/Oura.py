@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                        "and auth tokens, Apple App-Attest UUID.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Identifiers allow correlation with Segment/Amplitude/Braze/Zendesk "
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
                        "and ring/UTC time mapping records.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "The Ring ID is the ring's Bluetooth MAC address - correlate with "
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
                        "speed, course and their accuracy values. Exportable to KML.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "From 'findMyRingLastKnownLocation'; timestamp is Apple Cocoa/NSDate.",
@@ -77,7 +77,7 @@ __artifacts_v2__ = {
                        "level settings and goals, consents, and other profile traits.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Values the user disclosed to the app (sleep problems, shift work, "
@@ -99,7 +99,7 @@ __artifacts_v2__ = {
                        "intensity, stress, temperature trend and past-day scores.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Snapshot of 'widgetInfo' cached for the last day the widget "
@@ -121,7 +121,7 @@ __artifacts_v2__ = {
                        "anchors, CarPlay head units, home-screen widgets, permissions.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "appConnections names the external accounts linked to Oura. "
@@ -143,7 +143,7 @@ __artifacts_v2__ = {
                        "PPG/stress sensing, onboarding milestones and more.",
         "author": "@slay3r00",
         "creation_date": "2026-06-02",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Mixed ISO/Unix/Cocoa timestamps normalised to UTC; day-only values "
@@ -166,7 +166,7 @@ __artifacts_v2__ = {
                        "free disk space, network and permission state.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "The suite and com.ouraring.oura.plist copies of version keys are "
@@ -188,7 +188,7 @@ __artifacts_v2__ = {
                        "explore/meditation session traces.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Article caches show which health modules the app served to this "
@@ -210,7 +210,7 @@ __artifacts_v2__ = {
                        "plus queued event count and telemetry sample rate.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "From the 'integrations' block of 'segment.settings'. API keys can "
@@ -230,7 +230,7 @@ __artifacts_v2__ = {
                        "for track/identify/group calls, showing planned telemetry.",
         "author": "@slay3r00",
         "creation_date": "2026-06-04",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "From the 'plan' block of 'segment.settings'; bulk, so TSV + LAVA only.",
@@ -250,7 +250,7 @@ __artifacts_v2__ = {
                        "Segment traits.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Flags reveal which features/studies were active for this account "
@@ -271,7 +271,7 @@ __artifacts_v2__ = {
                        "OS/SDK housekeeping and keys new app versions add.",
         "author": "@slay3r00",
         "creation_date": "2026-07-21",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Oura Ring",
         "notes": "Completeness guarantee: keys land here instead of being silently "
@@ -1172,7 +1172,7 @@ def oura_health_snapshot(context):
     widget = _jload(suite.get("widgetInfo")) or {}
     if not isinstance(widget, dict) or not widget:
         return (("Timestamp", "datetime"), "Category", "Metric", "Value",
-                "Details"), [], ""
+                "Details"), [], source
 
     rows = []
     day = widget.get("dayString", "")

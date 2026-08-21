@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Accounts",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Contacts",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -38,7 +38,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Persons",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Friends, Friend Requests Sent, Friend Requests Received, and Friends Following",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -76,7 +76,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Blocked Users",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -93,7 +93,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Memories, Person BeReal of the day and Production Feeds",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -113,7 +113,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Pinned Memories",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -131,7 +131,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal RealMojis from my memories and Person's memories",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -160,7 +160,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Comments from my memories, Person's posts, and Production post Feeds",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -189,7 +189,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Messages",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -216,7 +216,7 @@ __artifacts_v2__ = {
         "description": "Parses and extract BeReal Chat List",
         "author": "@djangofaiola, Gear-I",
         "creation_date": "2024-12-20",
-        "last_update_date": "2026-07-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "BeReal",
         "notes": "https://djangofaiola.blogspot.com",
@@ -525,12 +525,15 @@ def bereal_accounts(context):
     data_list = []
     data_list_html = []
 
+    source_dirs = set()
+
     # all files
     for file_found in context.get_files_found():
         # accounts
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -634,7 +637,7 @@ def bereal_accounts(context):
     data_headers[6] = (data_headers[6], 'date')
     data_headers[12] = (data_headers[12], 'phonenumber')
 
-    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))
 
 
 # contacts
@@ -653,11 +656,14 @@ def bereal_contacts(context):
     data_list = []
     data_list_html = []
 
+    source_dirs = set()
+
     # all files
     for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -715,7 +721,7 @@ def bereal_contacts(context):
         except (ValueError, TypeError, IndexError, AttributeError) as e:
             logfunc(f"Error: {str(e)}")
 
-    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))
 
 
 # persons
@@ -727,11 +733,14 @@ def bereal_persons(context):
     data_list = []
     data_list_html = []
 
+    source_dirs = set()
+
     # all files
     for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -801,7 +810,7 @@ def bereal_persons(context):
     data_headers[0] = (data_headers[0], 'datetime')
     data_headers[8] = (data_headers[8], 'datetime')
 
-    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))
 
 
 # friends
@@ -813,11 +822,14 @@ def bereal_friends(context):
     data_list = []
     data_list_html = []
 
+    source_dirs = set()
+
     # all files
     for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -925,7 +937,7 @@ def bereal_friends(context):
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
 
-    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))
 
 
 # blocked users
@@ -936,11 +948,14 @@ def bereal_blocked_users(context):
     data_list = []
     data_list_html = []
 
+    source_dirs = set()
+
     # all files
     for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -988,7 +1003,7 @@ def bereal_blocked_users(context):
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
 
-    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))
 
 
 # posts
@@ -1003,6 +1018,8 @@ def bereal_posts(context):
     files_found = context.get_files_found()
     bereal_user_id, user_map = get_bereal_preferences(files_found)
 
+    source_dirs = set()
+
     # all files
     for file_found in files_found:
         if str(file_found).endswith('group.BeReal.plist'):
@@ -1011,6 +1028,7 @@ def bereal_posts(context):
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -1261,7 +1279,7 @@ def bereal_posts(context):
     data_headers[0] = (data_headers[0], 'datetime')
     data_headers[1] = (data_headers[1], 'datetime')
 
-    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))
 
 
 # pinned memories
@@ -1310,11 +1328,14 @@ def bereal_pinned_memories(context):
         return
 
 
+    source_dirs = set()
+
     # all files
     for file_found in context.get_files_found():
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -1360,7 +1381,7 @@ def bereal_pinned_memories(context):
     data_headers[0] = (data_headers[0], 'datetime')
     data_headers[1] = (data_headers[1], 'datetime')
 
-    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))
 
 
 # realmojis
@@ -1374,6 +1395,8 @@ def bereal_realmojis(context):
     files_found = context.get_files_found()
     bereal_user_id, user_map = get_bereal_preferences(files_found)
 
+    source_dirs = set()
+
     # all files
     for file_found in files_found:
         if str(file_found).endswith('group.BeReal.plist'):
@@ -1382,6 +1405,7 @@ def bereal_realmojis(context):
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -1606,7 +1630,7 @@ def bereal_realmojis(context):
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
 
-    return data_headers, (data_list, data_list_html), 'see Source File name for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))
 
 
 # comments
@@ -1619,6 +1643,8 @@ def bereal_comments(context):
     files_found = context.get_files_found()
     bereal_user_id, user_map = get_bereal_preferences(files_found)
 
+    source_dirs = set()
+
     # all files
     for file_found in files_found:
         
@@ -1628,6 +1654,7 @@ def bereal_comments(context):
         json_data = get_json_data(file_found)
         if not bool(json_data):
             continue
+        source_dirs.add(os.path.dirname(file_found))
 
         try:
             if is_platform_windows() and file_found.startswith('\\\\?\\'):
@@ -1835,7 +1862,7 @@ def bereal_comments(context):
     # lava types
     data_headers[0] = (data_headers[0], 'datetime')
 
-    return data_headers, data_list, 'see Source File name for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 # messages
@@ -1851,7 +1878,7 @@ def bereal_messages(context):
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
     if not source_path:
         logfunc("BeReal Messages: bereal-chat.sqlite not found")
-        return data_headers, (data_list, data_list_html), "No source file found"
+        return data_headers, (data_list, data_list_html), ''
 
     query = '''
     SELECT
@@ -1940,7 +1967,7 @@ def bereal_chat_list(context):
     source_path = get_file_path(files_found, "bereal-chat.sqlite")
     if not source_path:
         logfunc("BeReal Chat List: bereal-chat.sqlite not found")
-        return data_headers, (data_list, data_list_html), "No source file found"
+        return data_headers, (data_list, data_list_html), ''
 
     query = '''
     SELECT

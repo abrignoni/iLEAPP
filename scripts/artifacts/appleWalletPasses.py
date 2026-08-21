@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple wallet passes PK",
         "author": "@any333",
         "creation_date": "2021-02-17",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Wallet",
         "notes": "",
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
         "description": "Apple wallet Nano passes",
         "author": "@any333",
         "creation_date": "2021-02-17",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Wallet",
         "notes": "",
@@ -49,31 +49,36 @@ __artifacts_v2__ = {
 }
 
 import json
+import os
 from scripts.ilapfuncs import open_sqlite_db_readonly, artifact_processor, convert_cocoa_core_data_ts_to_utc, \
     get_plist_content
 
 @artifact_processor
 def get_appleWalletPKPasses(context):
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
         if file_found.endswith('pass.json'):
+            source_dirs.add(os.path.dirname(file_found))
             with open(file_found, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 for x, y in data.items():
                     data_list.append((x,str(y), context.get_relative_path(file_found)))
     
     data_headers = ['Identifier','Items', 'Source File']
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
                     
 @artifact_processor
 def get_appleWalletNanoPasses(context):
     data_list = []
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
         if file_found.endswith('.sqlite3'):
+            source_files.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
             cursor.execute('''SELECT 
@@ -141,4 +146,4 @@ def get_appleWalletNanoPasses(context):
     data_headers = [('Pass Added', 'datetime'),'Unique ID', 'Organization Name', 'Type', 'Localized Description',
         'Pending Delete', 'Front Fields Content', 'Back Fields Content', 'Encoded Pass', 'Source File']
             
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

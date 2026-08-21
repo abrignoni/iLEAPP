@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "a folder path reconstructed from the parent chain",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
         "notes": "Timestamp columns hold Unix milliseconds and are reported in UTC; zero and "
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
                        "the account id, drive path, service URLs and last sync time",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
         "notes": "One row per drives row, joined to web_app on accountId and to sync_root on "
@@ -50,7 +50,7 @@ __artifacts_v2__ = {
                        "with the entity name, email, role as stored and the item they attach to",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
         "notes": "Rows from permission_entity, joined through permission to the items row the "
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
                        "dates, the item they attach to and the stream file location as stored",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
         "notes": "Stream Location is a path relative to the app's data area, reported as "
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
                        "table, resolved to item names in QTMetadata.db when present",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "OneDrive",
         "notes": "Item Name is resolved by matching resource_id to items.resourceId in "
@@ -180,7 +180,9 @@ def one_drive_files(context):
     FROM items
     ORDER BY itemDate
     '''
+    source_paths = set()
     for db_path in _metadata_dbs(context.get_files_found()):
+        source_paths.add(db_path)
         path_for = _parent_paths(db_path)
         drives = _drive_map(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
@@ -254,7 +256,7 @@ def one_drive_files(context):
         'Account ID',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -270,7 +272,9 @@ def one_drive_accounts(context):
     LEFT JOIN sync_root ON sync_root.driveId = drives._id
     ORDER BY drives._id
     '''
+    source_paths = set()
     for db_path in _metadata_dbs(context.get_files_found()):
+        source_paths.add(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
             data_list.append((
                 _when(record[0]),
@@ -303,7 +307,7 @@ def one_drive_accounts(context):
         'Tenant Hosts',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -320,7 +324,9 @@ def one_drive_sharing_permissions(context):
     LEFT JOIN items i ON i._id = p.parentId
     ORDER BY pe._id
     '''
+    source_paths = set()
     for db_path in _metadata_dbs(context.get_files_found()):
+        source_paths.add(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
             data_list.append((
                 record[0],
@@ -351,7 +357,7 @@ def one_drive_sharing_permissions(context):
         'Item Resource ID',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -366,7 +372,9 @@ def one_drive_stream_cache(context):
     LEFT JOIN items i ON i._id = sc.parentId
     ORDER BY sc.last_access_date
     '''
+    source_paths = set()
     for db_path in _metadata_dbs(context.get_files_found()):
+        source_paths.add(db_path)
         for record in get_sqlite_db_records(db_path, null_absent_columns(db_path, query)):
             data_list.append((
                 _when(record[0]),
@@ -395,7 +403,7 @@ def one_drive_stream_cache(context):
         'Stream Location',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -411,9 +419,11 @@ def one_drive_offline_items(context):
             if record[0] is not None:
                 names.setdefault(record[0], record[1])
 
+    source_paths = set()
     for db_path in files_found:
         if not db_path.endswith('OfflineSelection.db'):
             continue
+        source_paths.add(db_path)
         for record in get_sqlite_db_records(
                 db_path,
                 'SELECT account_id, owner_id, resource_id FROM explicit_offline_items'):
@@ -432,4 +442,4 @@ def one_drive_offline_items(context):
         'Item Name',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

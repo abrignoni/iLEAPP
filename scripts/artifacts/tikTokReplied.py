@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         ),
         "author": "John Hyla http://www.bluecrewforensics.com/",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -268,6 +268,7 @@ def tiktok_replied(context):
     files_found = context.get_files_found()
     aweme_dbs = _aweme_im_dbs(files_found)
     data_list = []
+    source_paths = set()
 
     if not aweme_dbs:
         logfunc("AwemeIM.db not found. TikTok replied messages cannot be parsed.")
@@ -294,6 +295,9 @@ def tiktok_replied(context):
             )
             continue
 
+        source_paths.add(chat_db)
+        if aweme_im_db:
+            source_paths.add(aweme_im_db)
         db_records = get_sqlite_db_records(chat_db, query, attach_query)
         source_file = _source_file_text(context, chat_db, aweme_im_db)
         account_id = basename(dirname(chat_db))
@@ -345,4 +349,4 @@ def tiktok_replied(context):
         "Source File",
     )
 
-    return data_headers, data_list, "see Source File column"
+    return data_headers, data_list, "\n".join(sorted(source_paths))

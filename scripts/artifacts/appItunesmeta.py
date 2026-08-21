@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "iTunes & Bundle ID Metadata contents for apps",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-10-04",
-        "last_update_date": "2025-12-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -39,6 +39,7 @@ from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, conve
 @artifact_processor
 def get_appItunesmeta(context):
     data_list = []       
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
@@ -54,6 +55,7 @@ def get_appItunesmeta(context):
             # Check if plist is a valid parseable object
             if not plist or not isinstance(plist, dict):
                 continue
+            source_dirs.add(os.path.dirname(file_found))
                 
             purchasedate = plist.get('com.apple.iTunesStore.downloadInfo', {}).get('purchaseDate', '')
             # purchaseDate may be a plist <date> object or an ISO string; only convert objects
@@ -110,7 +112,7 @@ def get_appItunesmeta(context):
         'Sideloaded?', 
         'Variant ID', 
         'Source File Location')
-    return data_headers, data_list, 'see Source File Location'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
         
 
 

@@ -703,7 +703,7 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         for processor in (locationdWifiLocations, locationdWifiHarvest, locationdWifiTiles):
             headers, rows, source = processor.__wrapped__(_Context(path))
             self.assertEqual(rows, [])
-            self.assertEqual(source, "")
+            self.assertEqual(source, str(path))
             self.assertTrue(headers)
         # The cell artifact has no single required table, so it reports nothing
         # rather than bailing out.
@@ -715,7 +715,7 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
         for processor in (threeBarsNetworks, threeBarsAccessPoints, threeBarsTiles):
             headers, rows, source = processor.__wrapped__(_Context(path))
             self.assertEqual(rows, [])
-            self.assertEqual(source, "")
+            self.assertEqual(source, str(path))
             self.assertTrue(headers)
 
     def test_store_system_missing_tables(self):
@@ -725,14 +725,14 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
                           storeSystemAppPackages):
             headers, rows, source = processor.__wrapped__(_Context(path))
             self.assertEqual(rows, [])
-            self.assertEqual(source, "")
+            self.assertEqual(source, str(path))
             self.assertTrue(headers)
 
     def test_apple_account_deleted_device_list_missing_table(self):
         path = self._devicelist_database([(self.DEVICE_LIST_SCHEMA, ())])
         headers, rows, source = appleAccountDeletedDeviceList.__wrapped__(_Context(path))
         self.assertEqual(rows, [])
-        self.assertEqual(source, "")
+        self.assertEqual(source, str(path))
         self.assertTrue(headers)
 
 
