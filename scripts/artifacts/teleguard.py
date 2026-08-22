@@ -2,8 +2,17 @@ __artifacts_v2__ = {
     "teleguardMessages": {
         "name": "Teleguard Messages",
         "description": "TeleGuard chat messages and shared media",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-03", "requirements": "none",
-        "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
+        "category": "Teleguard",
+        "notes": "Timestamps are UTC (epoch milliseconds). Is Edited? held 0 on every message row of "
+                 "the tested extraction, so no message in it had been edited; the column is reported "
+                 "so an edited message is visible on an extraction that has one. Media was empty on "
+                 "every row: each item is resolved by the server file id a message records in its "
+                 "metadata, and the tested extraction carried no files under the app's "
+                 "Library/Caches/images directory, so its media messages have no bytes to show and "
+                 "the run logs one unresolved lookup for each. Call events and membership events are "
+                 "rows of this same table, of type CALL and SERVICE, and are also reported in full by "
+                 "Teleguard Calls and Teleguard Chat Events.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',
                   '*/Library/Caches/images/*'),
         "output_types": "standard", "artifact_icon": "message-circle",
@@ -36,8 +45,14 @@ __artifacts_v2__ = {
     "teleguardContacts": {
         "name": "Teleguard Contacts",
         "description": "TeleGuard contacts (with avatar thumbnails)",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
+        "category": "Teleguard",
+        "notes": "Timestamps are UTC (epoch milliseconds). Personal ID is an optional identifier "
+                 "separate from the Server ID the app issues. The app's own binary labels it "
+                 "'Personal TeleGuard ID', carries a 'Change personal ID' action and a buyPersonalId "
+                 "endpoint, and adds the column to this table in a migration, so a contact has one "
+                 "only where that feature was used. It was null on every contact row of the tested "
+                 "extraction, meaning none of those contacts had one recorded.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
