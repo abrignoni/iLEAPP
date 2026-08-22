@@ -93,7 +93,7 @@ __artifacts_v2__ = {
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "phone",
         "sample_data": {
-            "iphone11_ios17": "iOS 17.3 | 10 rows",
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 10 rows",
         },
     },
     "teleguardChatEvents": {
@@ -110,7 +110,7 @@ __artifacts_v2__ = {
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "users-plus",
         "sample_data": {
-            "iphone11_ios17": "iOS 17.3 | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 5 rows",
         },
     },
     "teleguardAccount": {
@@ -137,7 +137,7 @@ __artifacts_v2__ = {
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "user-circle",
         "sample_data": {
-            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 1 row",
         },
     },
     "teleguardDrafts": {
@@ -159,7 +159,7 @@ __artifacts_v2__ = {
                   '*/Shared/AppGroup/*/Library/teleguard_database.db*'),
         "output_types": "standard", "artifact_icon": "pencil",
         "sample_data": {
-            "iphone11_ios17": "iOS 17.3 | 3 rows",
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 3 rows",
         },
     },
     "teleguardAppSettings": {
@@ -181,7 +181,7 @@ __artifacts_v2__ = {
                   '*/Library/Preferences/ch.swisscows.messenger.teleguardapp.plist'),
         "output_types": "standard", "artifact_icon": "settings",
         "sample_data": {
-            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | TeleGuard 4.0.1 | 1 row",
         },
     }
 }
