@@ -262,6 +262,86 @@ def decrypt_itunes_backup(directory, passcode):
     return (protection_classes, unwrapped_manifest_key), "Decryption successful"
 
 
+def _probe_volume_case_insensitive(folder):
+    """True when this folder's volume folds case.
+
+    os.path.normcase reports the platform convention, not the volume.
+    Probe by creating Aa then exclusively creating aA.
+    """
+    try:
+        os.makedirs(folder, exist_ok=True)
+    except OSError:
+        return os.path.normcase("Aa") == os.path.normcase("aA")
+    probe_a = os.path.join(folder, ".leapp_case_probe_Aa")
+    probe_b = os.path.join(folder, ".leapp_case_probe_aA")
+    for leftover in (probe_a, probe_b):
+        try:
+            os.remove(leftover)
+        except OSError:
+            pass
+    wrote_a = False
+    wrote_b = False
+    try:
+        fd = os.open(probe_a, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.write(fd, b"Aa")
+        os.close(fd)
+        wrote_a = True
+        try:
+            fd = os.open(probe_b, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, b"aA")
+            os.close(fd)
+            wrote_b = True
+            return False
+        except FileExistsError:
+            return True
+        except OSError:
+            return os.path.normcase("Aa") == os.path.normcase("aA")
+    except OSError:
+        return os.path.normcase("Aa") == os.path.normcase("aA")
+    finally:
+        if wrote_a:
+            try:
+                os.remove(probe_a)
+            except OSError:
+                pass
+        if wrote_b:
+            try:
+                os.remove(probe_b)
+            except OSError:
+                pass
+
+
+def _dest_claim_key(data_path, folds_case):
+    normalized = os.path.normpath(data_path)
+    return normalized.casefold() if folds_case else normalized
+
+
+def _disambiguated_data_path(data_path, source_key, dest_claims, folds_case):
+    """Pick a dest that does not overwrite a different source."""
+    key = _dest_claim_key(data_path, folds_case)
+    claimed = dest_claims.get(key)
+    if claimed is not None:
+        claimed_source, claimed_path = claimed
+        if claimed_source == source_key:
+            return claimed_path
+    elif not os.path.lexists(data_path):
+        dest_claims[key] = (source_key, data_path)
+        return data_path
+    root, ext = os.path.splitext(data_path)
+    n = 2
+    while True:
+        alt = f"{root}~case{n}{ext}"
+        alt_key = _dest_claim_key(alt, folds_case)
+        if alt_key not in dest_claims and not os.path.lexists(alt):
+            dest_claims[alt_key] = (source_key, alt)
+            logfunc(
+                f"INFO: destination {data_path} already holds a different source; "
+                f"writing {source_key} to {alt}"
+            )
+            return alt
+        n += 1
+
+
 class FileInfo:
     """
     A class to store file metadata information.
@@ -289,6 +369,15 @@ class FileSeekerBase:
 
     def cleanup(self):
         '''close any open handles'''
+
+    def _init_dest_guard(self, data_folder):
+        self._dest_claims = {}
+        self._data_folder_folds_case = _probe_volume_case_insensitive(data_folder)
+
+    def _unique_data_path(self, data_path, source_key):
+        return _disambiguated_data_path(
+            data_path, source_key, self._dest_claims, self._data_folder_folds_case
+        )
 
 
 class FileSeekerDir(FileSeekerBase):
@@ -320,6 +409,7 @@ class FileSeekerDir(FileSeekerBase):
         self.searched = {}
         self.copied = {}
         self.file_infos = {}
+        self._init_dest_guard(self.data_folder)
 
     def build_files_list(self, directory):
         '''Populates all paths in directory into _all_files'''
@@ -350,6 +440,7 @@ class FileSeekerDir(FileSeekerBase):
                         if os.path.isdir(item):
                             pass
                         elif os.path.isfile(item):
+                            data_path = self._unique_data_path(data_path, item)
                             os.makedirs(os.path.dirname(data_path), exist_ok=True)
                             copy2(item, data_path)
                             self.copied[item] = data_path
@@ -433,6 +524,7 @@ class FileSeekerItunes(FileSeekerBase):
         self.searched = {}
         self.copied = {}
         self.file_infos = {}
+        self._init_dest_guard(self.data_folder)
 
     def get_root_path_from_domain(self, domain):
         """
@@ -576,6 +668,7 @@ class FileSeekerItunes(FileSeekerBase):
                 data_path = data_path.replace('/', '\\')
             if original_location not in self.copied or force:
                 try:
+                    data_path = self._unique_data_path(data_path, original_location)
                     os.makedirs(os.path.dirname(data_path), exist_ok=True)
 
                     # Handle encrypted backups differently, don't just copy the encrypted files
@@ -657,6 +750,7 @@ class FileSeekerTar(FileSeekerBase):
         self.searched = {}
         self.copied = {}
         self.file_infos = {}
+        self._init_dest_guard(self.data_folder)
 
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
@@ -674,6 +768,7 @@ class FileSeekerTar(FileSeekerBase):
                         if member.isdir():
                             os.makedirs(full_path, exist_ok=True)
                         else:
+                            full_path = self._unique_data_path(str(full_path), member.name)
                             parent_dir = os.path.dirname(full_path)
                             if not os.path.exists(parent_dir):
                                 os.makedirs(parent_dir)
@@ -728,6 +823,7 @@ class FileSeekerZip(FileSeekerBase):
         self.searched = {}
         self.copied = {}
         self.file_infos = {}
+        self._init_dest_guard(self.data_folder)
 
     def decode_extended_timestamp(self, extra_data):
         """
@@ -774,7 +870,10 @@ class FileSeekerZip(FileSeekerBase):
             if pat(root + normcase(member)) is not None:
                 if member not in self.copied or force:
                     try:
-                        extracted_path = self._extract_member(member)
+                        intended = self._intended_extract_path(member)
+                        extracted_path = self._extract_member(
+                            member, dest_path=self._unique_data_path(intended, member)
+                        )
                         f = self.zip_file.getinfo(member)
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
                         file_info = FileInfo(member, creation_date, modification_date)
@@ -795,7 +894,15 @@ class FileSeekerZip(FileSeekerBase):
         self.searched[filepattern] = pathlist
         return pathlist
 
-    def _extract_member(self, member):
+    def _intended_extract_path(self, member):
+        clean_member = sanitize_file_path(member)
+        parts = [part for part in clean_member.replace('\\', '/').split('/')
+                 if part not in ('', '.', '..')]
+        if not parts:
+            return self.data_folder
+        return os.path.join(self.data_folder, *parts)
+
+    def _extract_member(self, member, dest_path=None):
         """Extract one member, sanitizing names ZipFile.extract() cannot write.
 
         ZipFile.extract() only replaces a fixed set of printable characters
@@ -803,20 +910,25 @@ class FileSeekerZip(FileSeekerBase):
         name (present in real iOS extractions, e.g. chronod icon files) reach
         the OS untouched and Windows rejects them with EINVAL. Members whose
         names need sanitizing are written out manually to a cleaned path.
+
+        dest_path, when given, is the already-disambiguated destination so a
+        later case-variant member cannot overwrite an earlier one.
         """
+        intended = self._intended_extract_path(member)
+        if dest_path is None:
+            dest_path = intended
         clean_member = sanitize_file_path(member)
-        if clean_member == member:
+        if dest_path == intended and clean_member == member:
             return self.zip_file.extract(member, path=self.data_folder)
-        parts = [part for part in clean_member.split('/')
-                 if part not in ('', '.', '..')]
-        extracted_path = os.path.join(self.data_folder, *parts)
         if member.endswith('/'):
-            os.makedirs(extracted_path, exist_ok=True)
+            os.makedirs(dest_path, exist_ok=True)
         else:
-            os.makedirs(os.path.dirname(extracted_path), exist_ok=True)
-            with self.zip_file.open(member) as fin, open(extracted_path, 'wb') as fout:
+            parent = os.path.dirname(dest_path)
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            with self.zip_file.open(member) as fin, open(dest_path, 'wb') as fout:
                 fout.write(fin.read())
-        return extracted_path
+        return dest_path
 
     def cleanup(self):
         self.zip_file.close()
@@ -856,6 +968,7 @@ class FileSeekerFile(FileSeekerBase):
         self.searched = {}
         self.copied = {}
         self.file_infos = {}
+        self._init_dest_guard(self.data_folder)
 
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if not self.single_file_basename:
@@ -910,7 +1023,13 @@ class FileSeekerFile(FileSeekerBase):
 
             if self.single_file_abs_path not in self.copied or force:
                 try:
-                    os.makedirs(self.data_folder, exist_ok=True)
+                    dest_data_path = self._unique_data_path(
+                        dest_data_path, self.single_file_abs_path
+                    )
+                    os.makedirs(
+                        os.path.dirname(dest_data_path) or self.data_folder,
+                        exist_ok=True,
+                    )
                     copy2(self.single_file_abs_path, dest_data_path)
                     self.copied[self.single_file_abs_path] = dest_data_path
                     s = Path(self.single_file_abs_path).stat()
