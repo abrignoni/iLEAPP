@@ -53,6 +53,25 @@ def mock_logfunc(message):
     print(f"[LOGFUNC] {message}")
 
 
+def unwrap_data_list(data_list):
+    """Unpacks a (data_list, html_data_list) artifact return the way artifact_processor
+    does (scripts/ilapfuncs.py), so snapshots hold the plain rows the LAVA, TSV and
+    timeline outputs consume instead of the two lists serialized as two giant rows."""
+    if isinstance(data_list, tuple):
+        return data_list[0]
+    return data_list
+
+
+def artifact_declaration_order(artifacts_info):
+    """Artifact names mapped to their __artifacts_v2__ declaration position.
+
+    Production runs a module's artifacts in declaration order (ileapp.py sorts
+    plugins by category only, and that sort is stable), and modules with
+    cross-artifact state depend on it, so tests must execute in the same order.
+    """
+    return {name: index for index, name in enumerate(artifacts_info)}
+
+
 def process_artifact(zip_path, module_name, artifact_name, _artifact_data, target_os_version=None):
     """
     Processes a specific artifact from a given zip file.
@@ -232,6 +251,8 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
             finally:
                 Context.clear()
 
+            data_list = unwrap_data_list(data_list)
+
             end_time = time.time()
 
         return data_headers, data_list, end_time - start_time, last_commit_info, \
@@ -281,9 +302,9 @@ def get_artifact_names(_module_name, test_cases):
     Returns:
         list: List of artifact names.
     """
-    artifact_names = set()
+    artifact_names = {}
     for case in test_cases.values():
-        artifact_names.update(case['artifacts'].keys())
+        artifact_names.update(dict.fromkeys(case['artifacts'].keys()))
     return list(artifact_names)
 
 
@@ -492,6 +513,14 @@ def main(module_name, artifact_name=None, case_number=None):
 
         module = importlib.import_module(f'scripts.artifacts.{module_name}')
         artifacts_info = getattr(module, '__artifacts_v2__', {})
+
+        # Execute in production's order so cross-artifact state (module-level maps
+        # populated by earlier artifacts) matches a real run, and so two recordings
+        # of the same code and data cannot differ by iteration order.
+        declaration_order = artifact_declaration_order(artifacts_info)
+        artifacts_to_process = sorted(
+            artifacts_to_process,
+            key=lambda name: (declaration_order.get(name, len(declaration_order)), name))
 
         for case in cases_to_process:
             case_data = test_cases[case]

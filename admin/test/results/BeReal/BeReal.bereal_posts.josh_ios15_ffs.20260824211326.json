@@ -5,20 +5,20 @@
     "function_name": "bereal_posts",
     "case_number": "josh_ios15_ffs",
     "number_of_columns": 20,
-    "number_of_rows": 2,
+    "number_of_rows": 0,
     "total_data_size_bytes": 0,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/BeReal/testdata.BeReal.bereal_posts.josh_ios15_ffs.zip",
-    "start_time": "2025-06-23T16:52:09.171070+00:00",
-    "end_time": "2025-06-23T16:52:09.229845+00:00",
-    "run_time_seconds": 0.00045609474182128906,
+    "start_time": "2026-08-24T21:13:26.345372+00:00",
+    "end_time": "2026-08-24T21:13:26.365709+00:00",
+    "run_time_seconds": 0.0003409385681152344,
     "last_commit": {
-      "hash": "eb873e268aaf490bc5de34e557978e290150082d",
-      "author_name": "James Habben",
-      "author_email": "james@wmif.net",
-      "date": "2025-06-21T12:50:38-07:00",
-      "message": "update BeReal"
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
     }
   },
   "headers": [
@@ -43,8 +43,5 @@
     "Source file name",
     "Location"
   ],
-  "data": [
-    [],
-    []
-  ]
+  "data": []
 }

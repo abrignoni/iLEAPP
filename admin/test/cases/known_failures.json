@@ -1,6 +1,4 @@
 {
-  "burnerCache.burnerCache_messages.josh_ios15_ffs": "output rows are malformed under the harness: 13 headers over 18-cell rows whose cells are nested per-message lists, identically in the old snapshot and current code; the return shape needs investigation before a baseline match would mean anything",
-  "burnerCache.burnerCache_numbers.josh_ios15_ffs": "output differs between two identical same-timezone runs under the harness, so no snapshot can reproduce; find and pin the nondeterminism before recording a baseline",
   "gmail.gmailLabelDetails.mvs_ios_2023": "the fixture holds two account databases and identical code and data produce 28 rows on macOS and 31 on ubuntu, so selection or WAL handling is platform-dependent; make the artifact read every account store deterministically before this can gate",
   "twitterX.twitterDirectMessages.josh_ios17_ffs": "output shifts with the host timezone (rows differ between TZ=UTC and America/New_York runs of identical code and data); the artifact converts through a local-timezone-dependent path and needs a fix before it can gate"
 }
