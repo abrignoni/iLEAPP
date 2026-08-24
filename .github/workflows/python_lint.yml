@@ -13,6 +13,12 @@ jobs:
         with:
           # Required to fetch the base branch for comparison
           fetch-depth: 0
+          # Blob-less fetch; materialize everything except the committed test
+          # fixtures under admin/test/cases/data, which no step here reads.
+          sparse-checkout: |
+            /*
+            !/admin/test/cases/data
+          sparse-checkout-cone-mode: false
 
       - name: Get changed Python files
         id: changed-files-py
