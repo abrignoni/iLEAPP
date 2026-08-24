@@ -29,6 +29,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Blob-less fetch; materialize everything except the committed test
+          # fixtures under admin/test/cases/data, which no step here reads.
+          sparse-checkout: |
+            /*
+            !/admin/test/cases/data
+          sparse-checkout-cone-mode: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
