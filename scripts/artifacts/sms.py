@@ -232,11 +232,27 @@ def sms(context):
     # an empty DataFrame breaks the pandas apply in render_chat.
     if data_list:
         sms_df = pd.DataFrame(data_list,
-                              columns=['data-time', 'Read Timestamp', 'message', 'Service', 'Message Direction',
-                                       'Message Sent', 'Message Delivered', 'Delivered Timestamp', 'Message Read',
-                                       'Account', 'Account Login', 'data-name', 'Attachment Name', 'Attachment File',
-                                       'Attachment Timestamp', 'content-type', 'Attachment Size (Bytes)', 'message-id',
-                                       'Message GUID', 'Chat ID', 'from_me'])
+                              columns=['data-time',
+                                       'Read Timestamp',
+                                       'Delivered Timestamp',
+                                       'Attachment Timestamp',
+                                       'from_me',
+                                       'data-name',
+                                       'message',
+                                       'Attachment File',
+                                       'Service',
+                                       'Message Direction',
+                                       'Message Sent',
+                                       'Message Delivered',
+                                       'Message Read',
+                                       'Account',
+                                       'Account Login',
+                                       'Attachment Name',
+                                       'content-type',
+                                       'Attachment Size (Bytes)',
+                                       'message-id',
+                                       'Message GUID',
+                                       'Chat ID'])
 
         sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
 

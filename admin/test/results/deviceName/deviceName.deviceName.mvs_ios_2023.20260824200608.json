@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "module_name": "deviceName",
+    "artifact_name": "Device Name",
+    "function_name": "deviceName",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 0,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/deviceName/testdata.deviceName.deviceName.mvs_ios_2023.zip",
+    "start_time": "2026-08-24T20:06:08.349838+00:00",
+    "end_time": "2026-08-24T20:06:08.376057+00:00",
+    "run_time_seconds": 0.0050280094146728516,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [],
+  "data": []
+}

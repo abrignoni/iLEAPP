@@ -1,0 +1,200 @@
+{
+  "metadata": {
+    "module_name": "gmail",
+    "artifact_name": "Gmail - Label Details",
+    "function_name": "gmailLabelDetails",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 4,
+    "number_of_rows": 28,
+    "total_data_size_bytes": 473,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/gmail/testdata.gmail.gmailLabelDetails.mvs_ios_2023.zip",
+    "start_time": "2026-08-24T20:06:08.663224+00:00",
+    "end_time": "2026-08-24T20:06:08.723908+00:00",
+    "run_time_seconds": 0.001378774642944336,
+    "last_commit": {
+      "hash": "0ae7aa3bb24fd334efd624fc8ba47e40e13c4dc3",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-08T01:17:21-04:00",
+      "message": "fix: give every artifact a creation_date and last_update_date"
+    }
+  },
+  "headers": [
+    "Label",
+    "Unread Count",
+    "Total Count",
+    "Unseen Count"
+  ],
+  "data": [
+    [
+      "^afw",
+      null,
+      null,
+      null
+    ],
+    [
+      "^all",
+      11,
+      17,
+      null
+    ],
+    [
+      "^assistive_purchase",
+      0,
+      0,
+      null
+    ],
+    [
+      "^assistive_travel",
+      0,
+      0,
+      null
+    ],
+    [
+      "^b",
+      0,
+      0,
+      null
+    ],
+    [
+      "^cr",
+      0,
+      0,
+      null
+    ],
+    [
+      "^f",
+      0,
+      1,
+      null
+    ],
+    [
+      "^i",
+      11,
+      15,
+      null
+    ],
+    [
+      "^iim",
+      0,
+      0,
+      null
+    ],
+    [
+      "^io_f_iiim",
+      11,
+      15,
+      null
+    ],
+    [
+      "^io_f_iim",
+      0,
+      0,
+      null
+    ],
+    [
+      "^io_f_ti",
+      0,
+      0,
+      null
+    ],
+    [
+      "^io_im",
+      0,
+      0,
+      null
+    ],
+    [
+      "^k",
+      0,
+      0,
+      null
+    ],
+    [
+      "^p_cc",
+      0,
+      0,
+      null
+    ],
+    [
+      "^r",
+      0,
+      1,
+      null
+    ],
+    [
+      "^s",
+      0,
+      1,
+      null
+    ],
+    [
+      "^scheduled",
+      0,
+      0,
+      null
+    ],
+    [
+      "^smartlabel_finance",
+      0,
+      0,
+      null
+    ],
+    [
+      "^smartlabel_group",
+      0,
+      0,
+      null
+    ],
+    [
+      "^smartlabel_notification",
+      11,
+      15,
+      null
+    ],
+    [
+      "^smartlabel_promo",
+      0,
+      0,
+      null
+    ],
+    [
+      "^smartlabel_pure_notif",
+      11,
+      15,
+      null
+    ],
+    [
+      "^smartlabel_social",
+      0,
+      0,
+      null
+    ],
+    [
+      "^smartlabel_travel",
+      0,
+      0,
+      null
+    ],
+    [
+      "^t",
+      0,
+      0,
+      null
+    ],
+    [
+      "^t_z",
+      0,
+      0,
+      null
+    ],
+    [
+      "fake_outbox_label_for_label_counts",
+      null,
+      0,
+      null
+    ]
+  ]
+}

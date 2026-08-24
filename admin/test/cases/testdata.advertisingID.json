@@ -15,7 +15,7 @@
       }
     },
     "artifacts": {
-      "get_adId": {
+      "advertisingID": {
         "search_patterns": [
           "*/containers/Shared/SystemGroup/*/Library/Caches/com.apple.lsdidentifiers.plist"
         ],

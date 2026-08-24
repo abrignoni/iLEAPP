@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "module_name": "cloudkit_cache",
+    "artifact_name": "iCloud Backup Snapshots",
+    "function_name": "cloudkit_snapshots",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 13,
+    "number_of_rows": 3,
+    "total_data_size_bytes": 453,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/cloudkit_cache/testdata.cloudkit_cache.cloudkit_snapshots.josh_ios15_ffs.zip",
+    "start_time": "2026-08-24T19:59:34.059038+00:00",
+    "end_time": "2026-08-24T19:59:34.123787+00:00",
+    "run_time_seconds": 0.010133981704711914,
+    "last_commit": {
+      "hash": "5a7ea9d31f3d859b390fb84a54b9fdec532f02ac",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-10T01:18:08-04:00",
+      "message": "docs: re-record sample_data from a full post-fix corpus run"
+    }
+  },
+  "headers": [
+    "Created Timestamp",
+    "Snapshot Modification Timestamp",
+    "Snapshot Created Timestamp",
+    "Snapshot ID",
+    "Committed",
+    "Device UUID",
+    "Device Name",
+    "Product Version",
+    "Backup Type",
+    "Backup Reason",
+    "Is Backup Allowed On Cellular",
+    "File Count",
+    "Total File Size"
+  ],
+  "data": [
+    [
+      1684153543,
+      1684352819,
+      1684153543,
+      "F8F5A7C2-7EFA-4883-9E0D-C488D89E8262",
+      1,
+      "bf8c4cf1692cd7837f1f1b90f96d2fcfda3809d4",
+      "This Is\u2019s iPhone",
+      "15.3.1",
+      0,
+      2,
+      false,
+      5072,
+      "208.18 MiB"
+    ],
+    [
+      1684352808,
+      1684352820,
+      1684352808,
+      "190E3AC4-E3C7-40A9-B23C-AB7814536B20",
+      1,
+      "bf8c4cf1692cd7837f1f1b90f96d2fcfda3809d4",
+      "This Is\u2019s iPhone",
+      "15.3.1",
+      1,
+      2,
+      false,
+      2033,
+      "58.73 MiB"
+    ],
+    [
+      1684546854,
+      1684546854,
+      1684546854,
+      "2FFDD791-4E1F-4942-848C-65D6227217C2",
+      1,
+      "bf8c4cf1692cd7837f1f1b90f96d2fcfda3809d4",
+      "This Is\u2019s iPhone",
+      "15.3.1",
+      1,
+      2,
+      false,
+      772,
+      "10.77 MiB"
+    ]
+  ]
+}

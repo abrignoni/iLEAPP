@@ -1,0 +1,150 @@
+{
+  "metadata": {
+    "module_name": "accountConfig",
+    "artifact_name": "Account Configuration",
+    "function_name": "accountConfig",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 2,
+    "number_of_rows": 30,
+    "total_data_size_bytes": 1109,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/accountConfig/testdata.accountConfig.accountConfig.mvs_ios_2023.zip",
+    "start_time": "2026-08-24T20:06:06.502199+00:00",
+    "end_time": "2026-08-24T20:06:06.572721+00:00",
+    "run_time_seconds": 0.00026869773864746094,
+    "last_commit": {
+      "hash": "977de16b4cc2b0ddc565758987a2fc2535a99664",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-11T22:48:20-04:00",
+      "message": "Populate sample_data from 6 older iOS test images (13.3.1-16.5)"
+    }
+  },
+  "headers": [
+    "Account ID",
+    "Data Value"
+  ],
+  "data": [
+    [
+      "com.apple.account.CardDAV.count",
+      1
+    ],
+    [
+      "com.apple.account.GameCenter.exists",
+      1
+    ],
+    [
+      "com.apple.account.iTunesStore.count",
+      2
+    ],
+    [
+      "com.apple.account.AppleAccount.exists",
+      1
+    ],
+    [
+      "com.apple.account.IMAPMail.count",
+      1
+    ],
+    [
+      "com.apple.account.GameCenter.count",
+      1
+    ],
+    [
+      "com.apple.account.IMAPNotes.exists",
+      1
+    ],
+    [
+      "com.apple.account.AppleAccount.count",
+      1
+    ],
+    [
+      "com.apple.account.IdentityServices.exists",
+      1
+    ],
+    [
+      "com.apple.account.FindMyFriends.count",
+      1
+    ],
+    [
+      "com.apple.account.HolidayCalendar.exists",
+      1
+    ],
+    [
+      "com.apple.account.iTunesStore.sandbox.exists",
+      1
+    ],
+    [
+      "com.apple.account.AppleIDAuthentication.exists",
+      1
+    ],
+    [
+      "com.apple.account.DeviceLocator.count",
+      1
+    ],
+    [
+      "com.apple.account.IMAPNotes.count",
+      1
+    ],
+    [
+      "com.apple.account.iTunesStore.sandbox.count",
+      1
+    ],
+    [
+      "com.apple.account.CloudKit.count",
+      1
+    ],
+    [
+      "com.apple.account.iTunesStore.exists",
+      1
+    ],
+    [
+      "com.apple.account.CalDAV.exists",
+      1
+    ],
+    [
+      "com.apple.account.idms.count",
+      1
+    ],
+    [
+      "com.apple.account.idms.exists",
+      1
+    ],
+    [
+      "com.apple.account.CloudKit.exists",
+      1
+    ],
+    [
+      "com.apple.account.IdentityServices.count",
+      1
+    ],
+    [
+      "com.apple.account.FindMyFriends.exists",
+      1
+    ],
+    [
+      "com.apple.account.HolidayCalendar.count",
+      1
+    ],
+    [
+      "com.apple.account.CalDAV.count",
+      1
+    ],
+    [
+      "com.apple.account.IMAPMail.exists",
+      1
+    ],
+    [
+      "com.apple.account.AppleIDAuthentication.count",
+      1
+    ],
+    [
+      "com.apple.account.DeviceLocator.exists",
+      1
+    ],
+    [
+      "com.apple.account.CardDAV.exists",
+      1
+    ]
+  ]
+}
