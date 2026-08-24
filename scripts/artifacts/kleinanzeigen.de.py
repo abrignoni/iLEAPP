@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "description": "Extracts cached Messages",
         "author": "@C_Peter",
         "creation_date": "2025-02-18",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
         "notes": "The sender=0 = local account mapping was established through testing; the OUTBOUND boundness branch is self-describing.",
@@ -98,6 +98,9 @@ def get_kleinanzeigenmessagecache(context):
             try:
                 m_text = elem['clientData']['textShortTrimmed']
                 m_rec = datetime.datetime.fromtimestamp(elem['clientData']['receivedDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
+                # preview row: no message id and no attachments
+                m_id = ''
+                m_att = "none"
                 if elem['clientData']['boundness'] == "OUTBOUND":
                     m_from = my_name
                     id_from = my_id
@@ -113,7 +116,7 @@ def get_kleinanzeigenmessagecache(context):
                 conv_name = f"{ad_name} ({counter_name})"
                 data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat))
 
-            except (KeyError, TypeError, ValueError, OverflowError, OSError, NameError):
+            except (KeyError, TypeError, ValueError, OverflowError, OSError):
                 pass
         else:
             for message in elem['messages']:
