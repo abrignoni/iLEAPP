@@ -33,6 +33,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST_PATH = REPO_ROOT / "admin" / "image_manifest.json"
 MARKER = "<!-- leapp-test-data-check -->"
+TEST_LABEL = "bot-test"
 LABEL_ASK = "needs-test-data"
 LABEL_FIXTURE = "fixture-needed"
 LABELS = {
@@ -220,6 +221,22 @@ def desired_labels(fixture, ask):
     return labels
 
 
+def should_skip(login, permission, label_names):
+    """Returns (skip, reason) for authors the bot would not normally address.
+
+    A maintainer-applied bot-test label overrides the skip so the whole flow
+    can be exercised end to end on any PR. Applying labels needs triage
+    access, so contributors cannot trigger that on themselves.
+    """
+    if TEST_LABEL in label_names:
+        return False, f"'{TEST_LABEL}' label present; treating the author as external"
+    if login.endswith("[bot]"):
+        return True, f"author {login} is a bot"
+    if permission in ("admin", "write"):
+        return True, f"author {login} has {permission} access"
+    return False, f"author {login} has {permission} access"
+
+
 def find_marker_comment(token, repo, pr_number):
     for comment in paginate(token, f"{API}/repos/{repo}/issues/{pr_number}/comments"):
         if MARKER in comment.get("body", ""):
@@ -270,12 +287,12 @@ def main():
 
     pr = api_request(token, f"{API}/repos/{repo}/pulls/{pr_number}")
     login = pr["user"]["login"]
-    if login.endswith("[bot]"):
-        print(f"Author {login} is a bot; skipping.")
-        return
+    label_names = {l["name"] for l in pr.get("labels", [])}
     permission = author_permission(token, repo, login)
-    if permission in ("admin", "write"):
-        print(f"Author {login} has {permission} access; skipping.")
+    skip, reason = should_skip(login, permission, label_names)
+    print(reason)
+    if skip:
+        print("Skipping.")
         if not dry_run:
             return
         print("DRY_RUN: continuing anyway to show the decision.")

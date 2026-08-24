@@ -131,6 +131,23 @@ class RenderCommentTests(unittest.TestCase):
             self.assertNotIn('—', body)
 
 
+class ShouldSkipTests(unittest.TestCase):
+    def test_write_and_admin_authors_skip(self):
+        self.assertTrue(bot.should_skip('dev', 'write', set())[0])
+        self.assertTrue(bot.should_skip('dev', 'admin', set())[0])
+
+    def test_bot_authors_skip(self):
+        self.assertTrue(bot.should_skip('dependabot[bot]', 'none', set())[0])
+
+    def test_external_authors_do_not_skip(self):
+        self.assertFalse(bot.should_skip('someone', 'read', set())[0])
+        self.assertFalse(bot.should_skip('someone', 'none', set())[0])
+
+    def test_bot_test_label_overrides_every_skip(self):
+        self.assertFalse(bot.should_skip('dev', 'admin', {bot.TEST_LABEL})[0])
+        self.assertFalse(bot.should_skip('dependabot[bot]', 'none', {bot.TEST_LABEL})[0])
+
+
 class DesiredLabelsTests(unittest.TestCase):
     def test_matrix(self):
         self.assertEqual(bot.desired_labels({}, []), set())
