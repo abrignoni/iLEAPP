@@ -196,8 +196,10 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
 
         ]
 
-        # If a target OS version is provided, mock iOS.get_version()
-        if target_os_version:
+        # If a target OS version is provided, mock iOS.get_version() where the
+        # core defines it (iLEAPP); other cores have no such class to mock.
+        import scripts.ilapfuncs as _ilapfuncs
+        if target_os_version and hasattr(_ilapfuncs, 'iOS'):
             mock_ios_get_version = MagicMock(return_value=target_os_version)
             patches.append(patch('scripts.ilapfuncs.iOS.get_version', mock_ios_get_version))
 
