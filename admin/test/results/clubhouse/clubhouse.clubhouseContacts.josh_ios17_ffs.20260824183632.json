@@ -10,23 +10,23 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/clubhouse/testdata.clubhouse.clubhouseContacts.josh_ios17_ffs.zip",
-    "start_time": "2026-07-25T22:03:20.164391+00:00",
-    "end_time": "2026-07-25T22:03:20.237344+00:00",
-    "run_time_seconds": 0.0003170967102050781,
+    "start_time": "2026-08-24T18:36:32.297569+00:00",
+    "end_time": "2026-08-24T18:36:32.341700+00:00",
+    "run_time_seconds": 0.0003440380096435547,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-07-25T17:03:20.233929",
-      "message": "File not yet committed to git"
+      "hash": "e675a8d498bce51583cda2dde3ba0ba88ba6c87f",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-10T19:19:47-04:00",
+      "message": "fix: consolidate sample_data corpus keys onto the registry vocabulary"
     }
   },
   "headers": [
-    "Contacts Last Uploaded",
+    "Store Last Updated",
     "Name",
     "Phone Number",
-    "Already On Clubhouse",
-    "Popularity Score",
+    "In App",
+    "pop (score)",
     "Address Book Identifier",
     "Contact Hash",
     "Image Path"
