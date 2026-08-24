@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses the signed in account record stored by the Pinterest iOS app.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Pinterest",
         "notes": "Read from the activeUser file in the app's Documents directory, an "
@@ -251,6 +251,7 @@ import re
 import sqlite3
 import urllib.parse
 import xml.parsers.expat
+from datetime import timezone
 from email.utils import parsedate_to_datetime
 from plistlib import UID
 
@@ -494,9 +495,15 @@ def _rfc2822(value):
     if not value or not isinstance(value, str):
         return ''
     try:
-        return parsedate_to_datetime(value)
+        parsed = parsedate_to_datetime(value)
     except (TypeError, ValueError):
         return value
+    if parsed.tzinfo is None:
+        # A '-0000' or unrecognized zone parses to a naive datetime. RFC 5322
+        # (3.3, 4.3) reads both as Universal Time with the sender's zone
+        # unknown, so pin UTC here.
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
 
 
 def _text(value):

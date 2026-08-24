@@ -97,7 +97,7 @@ def get_kleinanzeigenmessagecache(context):
         if elem['messages'] == []:
             try:
                 m_text = elem['clientData']['textShortTrimmed']
-                m_rec = datetime.datetime.fromtimestamp(elem['clientData']['receivedDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
+                m_rec = datetime.datetime.fromtimestamp(elem['clientData']['receivedDate'] + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
                 # preview row: no message id and no attachments
                 m_id = ''
                 m_att = "none"
@@ -122,7 +122,7 @@ def get_kleinanzeigenmessagecache(context):
             for message in elem['messages']:
                 m_id = message['messageId']
                 # Original timestamp is cocoa time - so 978307200 will be added
-                m_rec = datetime.datetime.fromtimestamp(message['sentDate'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
+                m_rec = datetime.datetime.fromtimestamp(message['sentDate'] + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
                 m_text = message['text']
                 m_att = []
                 for att in message['attachments']:
