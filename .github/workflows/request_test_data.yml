@@ -7,7 +7,8 @@ name: Request Test Data
 
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened]
+    # labeled: a maintainer applying the bot-test label fires the flow at once
+    types: [opened, synchronize, reopened, labeled]
     paths:
       - 'scripts/artifacts/**'
 
