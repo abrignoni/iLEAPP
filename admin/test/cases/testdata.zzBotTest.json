@@ -1,0 +1,11 @@
+{
+  "testcase": {
+    "description": "Placeholder fixture for the bot end-to-end test",
+    "artifacts": {
+      "zzBotTest": {
+        "search_patterns": "*/zz_bot_test_placeholder.plist",
+        "file_count": 1
+      }
+    }
+  }
+}
