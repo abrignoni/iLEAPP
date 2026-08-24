@@ -8,6 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Identifiers",
         "paths": ('*/zz_bot_test_placeholder.plist',),
+        "sample_data": {"hickman_ios15": "0 rows"},
         "output_types": "none",
         "artifact_icon": "device-mobile"
     }
