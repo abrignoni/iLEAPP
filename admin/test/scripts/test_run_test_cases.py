@@ -14,6 +14,31 @@ from pathlib import Path
 sys.path.append(os.path.dirname(__file__))
 
 import run_test_cases as rtc  # noqa: E402  pylint: disable=wrong-import-position
+import test_module  # noqa: E402  pylint: disable=wrong-import-position
+
+
+class ArtifactRunOrderTests(unittest.TestCase):
+    def test_declaration_order_beats_alphabetical(self):
+        # burnerCache resolves IDs through a module-level map that earlier
+        # artifacts populate, so the gate must replay production's declaration
+        # order: numbers before messages, though the alphabet says otherwise.
+        order = rtc.artifact_run_order("burnerCache")
+        self.assertLess(order["burnerCache_accounts"], order["burnerCache_numbers"])
+        self.assertLess(order["burnerCache_numbers"], order["burnerCache_messages"])
+
+    def test_unimportable_module_yields_empty_order(self):
+        self.assertEqual(rtc.artifact_run_order("no_such_module_xyz"), {})
+
+
+class UnwrapDataListTests(unittest.TestCase):
+    def test_tuple_return_keeps_only_the_plain_rows(self):
+        plain = [(1, "a"), (2, "b")]
+        html = [(1, "<b>a</b>"), (2, "<b>b</b>")]
+        self.assertEqual(test_module.unwrap_data_list((plain, html)), plain)
+
+    def test_plain_list_passes_through(self):
+        rows = [(1, "a")]
+        self.assertIs(test_module.unwrap_data_list(rows), rows)
 
 
 class NormalizeRowsTests(unittest.TestCase):

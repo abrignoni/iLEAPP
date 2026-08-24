@@ -33,6 +33,7 @@ Exit status is 1 if any non-excluded unit failed, errored, or has no
 baseline; 0 otherwise.
 """
 import argparse
+import importlib
 import json
 import os
 import re
@@ -56,6 +57,23 @@ def discover_modules():
     """Module names that have a committed case file."""
     return sorted(p.name[len("testdata."):-len(".json")]
                   for p in CASES_DIR.glob("testdata.*.json"))
+
+
+def artifact_run_order(module):
+    """Artifact name -> position in the module's __artifacts_v2__ declaration.
+
+    Production executes a module's artifacts in declaration order (ileapp.py
+    sorts plugins by category only, and that sort is stable), and modules with
+    cross-artifact state produce different rows under a different order, so the
+    gate has to replay the recorder's order exactly. Empty on import failure;
+    unknown names sort after the declared ones, alphabetically.
+    """
+    try:
+        mod = importlib.import_module(f"scripts.artifacts.{module}")
+    except Exception:  # pylint: disable=broad-except
+        return {}
+    return {name: index for index, name in
+            enumerate(getattr(mod, "__artifacts_v2__", {}))}
 
 
 def latest_baseline(module, artifact, case):
@@ -152,8 +170,11 @@ def main(argv=None):
             continue
         with open(cases_file, encoding="utf-8") as f:
             cases = json.load(f)
+        run_order = artifact_run_order(module)
         for case, case_data in sorted(cases.items()):
-            for artifact, artifact_data in sorted(case_data.get("artifacts", {}).items()):
+            for artifact, artifact_data in sorted(
+                    case_data.get("artifacts", {}).items(),
+                    key=lambda kv, order=run_order: (order.get(kv[0], len(order)), kv[0])):
                 if artifact_data.get("file_count", 0) == 0:
                     continue
                 if args.list:
