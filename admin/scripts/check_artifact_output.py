@@ -86,6 +86,23 @@ def artifact_notes(repo_root):
     return notes
 
 
+def allow_oversized_fields():
+    """Accept cells over csv's 128KB default; a rendered message body exceeds it.
+
+    sys.maxsize overflows the C long on some platforms, so halve until accepted.
+    """
+    limit = sys.maxsize
+    while True:
+        try:
+            csv.field_size_limit(limit)
+            return
+        except OverflowError:
+            limit //= 2
+
+
+allow_oversized_fields()
+
+
 def read_table(path):
     """(column names, rows) for one tab separated export."""
     with open(path, encoding='utf-8-sig', newline='') as handle:
