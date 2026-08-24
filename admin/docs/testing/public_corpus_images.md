@@ -111,10 +111,17 @@ genuinely useful contribution. See [guide_adding_images.md](guide_adding_images.
 
 ## Relationship to `image_manifest.json`
 
-[`admin/image_manifest.json`](../../image_manifest.json) is a different and narrower thing. It
-exists so `make_test_data.py` can find an image on a contributor's disk to generate committed test
-cases, and it covers four images. Its `image_name` values are an older vocabulary and do not match
-the `sample_data` keys:
+[`admin/image_manifest.json`](../../image_manifest.json) exists so `make_test_data.py` can find
+an image on a contributor's disk to generate committed test cases. Every publicly available
+image above has an entry, and every entry carries a `sample_data_key` field naming the corpus
+key used in `sample_data` and in this document, so `make_test_data.py --image` accepts either
+name. Keys from the non-public table stay out of the manifest deliberately: a manifest entry is
+a statement that the image can be obtained.
+
+Machine-specific locations do not live in the manifest. Record yours in the git-ignored
+`admin/image_manifest.local.json`; see [guide_adding_images.md](guide_adding_images.md). The
+four oldest entries keep their original `image_name` vocabulary and their committed
+`local_image_paths` for compatibility:
 
 | `image_manifest.json` `image_name` | `sample_data` key |
 | --- | --- |
