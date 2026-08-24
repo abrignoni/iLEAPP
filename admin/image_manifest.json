@@ -1,111 +1,376 @@
 {
-    "images": [
-      {
-        "image_name": "josh_ios15_ffs",
-        "description": "iPhone 8 extraction with sample data for testing",
-        "local_image_paths": [
-            "~/Documents/phone-images/Josh/iOS_15_Public_Image.tar",
-            "~/Documents/phone-images/Josh/iOS_15_Public_Image.zip",
-            "/home/user/images/iphone_001.zip"
-        ],
-        "file_path_list": "admin/data/filepath-lists/josh-hickman-ios15.csv.zip",
-        "download_url": "https://digitalcorpora.org/corpora/cell-phones/",
-        "author": {
-          "name": "Josh Hickman"
-        },
-        "image_info": {
-          "creation_date": "2023-05-20",
-          "os_name": "iPhone OS",
-          "os_version": "15.3.1",
-          "device_model": "iPhone 8",
-          "extraction_method": "Full Filesystem",
-          "extraction_tool": "Cellebrite"
-        },
-        "file_info": {
-          "file_count": 474300,
-          "md5_hash": "b1ec40d5cd835621326b821d6fa12ff5"
-        },
-        "notes": ""
+  "images": [
+    {
+      "image_name": "josh_ios15_ffs",
+      "sample_data_key": "hickman_ios15",
+      "description": "iPhone 8 extraction with sample data for testing",
+      "local_image_paths": [
+        "~/Documents/phone-images/Josh/iOS_15_Public_Image.tar",
+        "~/Documents/phone-images/Josh/iOS_15_Public_Image.zip",
+        "/home/user/images/iphone_001.zip"
+      ],
+      "file_path_list": "admin/data/filepath-lists/josh-hickman-ios15.csv.zip",
+      "download_url": "https://digitalcorpora.org/corpora/cell-phones/",
+      "author": {
+        "name": "Josh Hickman"
       },
-      {
-        "image_name": "josh_ios17_ffs",
-        "description": "iPhone 11 extraction with sample data for testing; successor to the iOS 15 public image and carries the same third-party app set",
-        "local_image_paths": [
-            "~/Documents/phone-images/Josh/iOS_17_Public_Image.zip",
-            "/Volumes/Corpus/iOS Extractions/iOS_17/Cellebrite_Extraction/UFED Apple iPhone 11 (N104AP) 2024_07_28 (001)/EXTRACTION_FFS 01/EXTRACTION_FFS.zip"
-        ],
-        "file_path_list": "admin/data/filepath-lists/josh-hickman-ios17.csv.zip",
-        "download_url": "https://digitalcorpora.org/corpora/cell-phones/",
-        "author": {
-          "name": "Josh Hickman"
-        },
-        "image_info": {
-          "creation_date": "2024-07-28",
-          "os_name": "iPhone OS",
-          "os_version": "17.3",
-          "device_model": "iPhone 11",
-          "extraction_method": "Full Filesystem",
-          "extraction_tool": "Cellebrite"
-        },
-        "file_info": {
-          "file_count": 830298,
-          "md5_hash": ""
-        },
-        "notes": ""
+      "image_info": {
+        "creation_date": "2023-05-20",
+        "os_name": "iPhone OS",
+        "os_version": "15.3.1",
+        "device_model": "iPhone 8",
+        "extraction_method": "Full Filesystem",
+        "extraction_tool": "Cellebrite"
       },
-      {
-        "image_name": "mvs_ios_2023",
-        "description": "Magnet Virtual Summit 2023 iOS image for forensic testing and training",
-        "local_image_paths": [
-            "~/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
-            "/home/user/images/magnet_mvs_2023_ios.zip",
-            "/Volumes/Corpus/iOS Extractions/00008101-0010541A1130001E_files_full-001.zip"
-        ],
-        "file_path_list": "admin/data/filepath-lists/magnet-mvs-2023-ios.csv.zip",
-        "download_url": "https://cfreds.nist.gov/all/MagnetForensics/MagnetVirtualSummit2023",
-        "author": {
-          "name": "Magnet Forensics",
-          "organization": "Magnet Forensics"
-        },
-        "image_info": {
-          "creation_date": "2023-01-01",
-          "os_name": "iPhone OS",
-          "os_version": "16.1.1",
-          "device_model": "Unknown",
-          "extraction_method": "Full Filesystem",
-          "extraction_tool": "Magnet"
-        },
-        "file_info": {
-          "file_count": 338104,
-          "md5_hash": "067606649297d7adcf6082e5ed0acbb9"
-        },
-        "notes": "Image from Magnet Virtual Summit 2023. Contains full file system data."
+      "file_info": {
+        "file_count": 474300,
+        "md5_hash": "b1ec40d5cd835621326b821d6fa12ff5"
       },
-      {
-        "image_name": "belkasoft_ctf6_ios_device1",
-        "description": "BelkaSoft CTF 6 iOS 16 Device 1 image for forensic analysis and competition",
-        "local_image_paths": [
-          "~/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar"
-        ],
-        "file_path_list": "admin/data/filepath-lists/belkasoft-ctf6-ios-dev1.csv.zip",
-        "download_url": "https://cfreds.nist.gov/all/Belkasoft/BelkaCTF6BogusBill",
-        "author": {
-          "name": "BelkaSoft",
-          "organization": "BelkaSoft"
-        },
-        "image_info": {
-          "creation_date": "2023-01-01",
-          "os_name": "iPhone OS",
-          "os_version": "16.3",  
-          "device_model": "Unknown",
-          "extraction_method": "Unknown",
-          "extraction_tool": "Unknown"
-        },
-        "file_info": {
-          "file_count": 65000,
-          "md5_hash": "0da3a6df28802cd19d41ef1fde884e7c"
-        },
-        "notes": "Image extracted from zip for BelkaSoft CTF 6, iOS Device 1. "
-      }
-    ]
-  }
+      "notes": "",
+      "published_file": "iOS_15_Public_Image.tar.gz"
+    },
+    {
+      "image_name": "josh_ios17_ffs",
+      "sample_data_key": "iphone11_ios17",
+      "description": "iPhone 11 extraction with sample data for testing; successor to the iOS 15 public image and carries the same third-party app set",
+      "local_image_paths": [
+        "~/Documents/phone-images/Josh/iOS_17_Public_Image.zip",
+        "/Volumes/Corpus/iOS Extractions/iOS_17/Cellebrite_Extraction/UFED Apple iPhone 11 (N104AP) 2024_07_28 (001)/EXTRACTION_FFS 01/EXTRACTION_FFS.zip"
+      ],
+      "file_path_list": "admin/data/filepath-lists/josh-hickman-ios17.csv.zip",
+      "download_url": "https://digitalcorpora.org/corpora/cell-phones/",
+      "author": {
+        "name": "Josh Hickman"
+      },
+      "image_info": {
+        "creation_date": "2024-07-28",
+        "os_name": "iPhone OS",
+        "os_version": "17.3",
+        "device_model": "iPhone 11",
+        "extraction_method": "Full Filesystem",
+        "extraction_tool": "Cellebrite"
+      },
+      "file_info": {
+        "file_count": 830298,
+        "md5_hash": ""
+      },
+      "notes": "",
+      "published_file": "iOS_17_Public_Image.tar.gz"
+    },
+    {
+      "image_name": "mvs_ios_2023",
+      "sample_data_key": "magnet_ios16",
+      "description": "Magnet Virtual Summit 2023 iOS image for forensic testing and training",
+      "local_image_paths": [
+        "~/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+        "/home/user/images/magnet_mvs_2023_ios.zip",
+        "/Volumes/Corpus/iOS Extractions/00008101-0010541A1130001E_files_full-001.zip"
+      ],
+      "file_path_list": "admin/data/filepath-lists/magnet-mvs-2023-ios.csv.zip",
+      "download_url": "https://cfreds.nist.gov/all/MagnetForensics/MagnetVirtualSummit2023",
+      "author": {
+        "name": "Magnet Forensics",
+        "organization": "Magnet Forensics"
+      },
+      "image_info": {
+        "creation_date": "2023-01-01",
+        "os_name": "iPhone OS",
+        "os_version": "16.1.1",
+        "device_model": "Unknown",
+        "extraction_method": "Full Filesystem",
+        "extraction_tool": "Magnet"
+      },
+      "file_info": {
+        "file_count": 338104,
+        "md5_hash": "067606649297d7adcf6082e5ed0acbb9"
+      },
+      "notes": "Image from Magnet Virtual Summit 2023. Contains full file system data.",
+      "published_file": "00008101-0010541A1130001E_files_full-001.zip"
+    },
+    {
+      "image_name": "belkasoft_ctf6_ios_device1",
+      "sample_data_key": "belkactf6",
+      "description": "BelkaSoft CTF 6 iOS 16 Device 1 image for forensic analysis and competition",
+      "local_image_paths": [
+        "~/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar"
+      ],
+      "file_path_list": "admin/data/filepath-lists/belkasoft-ctf6-ios-dev1.csv.zip",
+      "download_url": "https://cfreds.nist.gov/all/Belkasoft/BelkaCTF6BogusBill",
+      "author": {
+        "name": "BelkaSoft",
+        "organization": "BelkaSoft"
+      },
+      "image_info": {
+        "creation_date": "2023-01-01",
+        "os_name": "iPhone OS",
+        "os_version": "16.3",
+        "device_model": "Unknown",
+        "extraction_method": "Unknown",
+        "extraction_tool": "Unknown"
+      },
+      "file_info": {
+        "file_count": 65000,
+        "md5_hash": "0da3a6df28802cd19d41ef1fde884e7c"
+      },
+      "notes": "Image extracted from zip for BelkaSoft CTF 6, iOS Device 1. ",
+      "published_file": "BelkaCTF_6_CASE240405_D201AP.zip"
+    },
+    {
+      "image_name": "ctf2020_ios12",
+      "sample_data_key": "ctf2020_ios12",
+      "description": "iOS 12.4. Magnet Forensics, Magnet Virtual Summit CTF 2020.",
+      "published_file": "2020 CTF - iOS.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Magnet Forensics"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "12.4"
+      },
+      "file_info": {
+        "md5_hash": "8134dfb212393099573ab5c3123172f3"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "hickman_ios13",
+      "sample_data_key": "hickman_ios13",
+      "description": "iOS 13.3.1. Josh Hickman, public images.",
+      "published_file": "ios_13_3_1.zip",
+      "download_url": "https://digitalcorpora.org/corpora/cell-phones/",
+      "author": {
+        "name": "Josh Hickman"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "13.3.1"
+      },
+      "file_info": {
+        "md5_hash": "6641ce1395d392661921cb0ca321e4b7"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "hickman_ios14",
+      "sample_data_key": "hickman_ios14",
+      "description": "iPhone SE, iOS 14.3. Josh Hickman, public images.",
+      "published_file": "iOS 14-3 - Apple iPhone SE.tar",
+      "download_url": "https://digitalcorpora.org/corpora/cell-phones/",
+      "author": {
+        "name": "Josh Hickman"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "14.3",
+        "device_model": "iPhone SE"
+      },
+      "file_info": {
+        "md5_hash": "7e7cb4d7e6204089758bf41d5d2c5efc"
+      },
+      "notes": "Published MD5 is of the published file and matches a held copy byte for byte. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "abe_ios16",
+      "sample_data_key": "abe_ios16",
+      "description": "iPhone X, iOS 16.5. Cellebrite CTF 2023 (\"Abe\").",
+      "published_file": "CellebriteCTF23_Abe_.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Cellebrite"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "16.5",
+        "device_model": "iPhone X",
+        "extraction_method": "Full Filesystem",
+        "extraction_tool": "Cellebrite"
+      },
+      "file_info": {
+        "md5_hash": "e6aace42d05f400889bc9b9be31ceb46"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "felix23_ios16",
+      "sample_data_key": "felix23_ios16",
+      "description": "iPhone 8 Plus, iOS 16.5. Cellebrite CTF 2023 (\"Felix\").",
+      "published_file": "CellebriteCTF23_Felix.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Cellebrite"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "16.5",
+        "device_model": "iPhone 8 Plus",
+        "extraction_method": "Full Filesystem",
+        "extraction_tool": "Cellebrite"
+      },
+      "file_info": {
+        "md5_hash": "996a913b1301ab011ca7dd8ca93a9400"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "hexordia_ios1651",
+      "sample_data_key": "hexordia_ios1651",
+      "description": "iOS 16.5.1. Hexordia, Magnet Virtual Summit CTF 2024.",
+      "published_file": "00008110-000925383620A01E_files_full.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Hexordia"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "16.5.1",
+        "extraction_method": "Full Filesystem"
+      },
+      "file_info": {
+        "md5_hash": "56ebd62968d37b67e656ad58eee7a985"
+      },
+      "notes": "Published MD5 is of the published file and matches a held copy byte for byte. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "cookbook_ios1751",
+      "sample_data_key": "cookbook_ios1751",
+      "description": "iOS 17.5.1. Cody Bounds, Digital Forensics Cookbook Datasets.",
+      "published_file": "Apple iOS.7z",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Cody Bounds"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "17.5.1"
+      },
+      "file_info": {
+        "md5_hash": "374891eae84e4d380c632b9b47acbb9d"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md. Distributed as Apple iOS.7z; LEAPP reads the inner Apple iPhone.zip."
+    },
+    {
+      "image_name": "otto_ios17",
+      "sample_data_key": "otto_ios17",
+      "description": "iPhone 11 Pro, iOS 17.5.1. Cellebrite CTF 2024 (\"Otto\").",
+      "published_file": "CellebriteCTF24_Otto.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Cellebrite"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "17.5.1",
+        "device_model": "iPhone 11 Pro",
+        "extraction_method": "Full Filesystem",
+        "extraction_tool": "Cellebrite"
+      },
+      "file_info": {
+        "md5_hash": "54e581d2209a62eb431b06cefd786b1a"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "felix_ios17",
+      "sample_data_key": "felix_ios17",
+      "description": "iPhone 8, iOS 17.6.1. Cellebrite CTF 2024 (\"Felix\").",
+      "published_file": "CellebriteCTF24_Felix.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Cellebrite"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "17.6.1",
+        "device_model": "iPhone 8",
+        "extraction_method": "Full Filesystem",
+        "extraction_tool": "Cellebrite"
+      },
+      "file_info": {
+        "md5_hash": "986fb9022e9af1bf143126be4e65aaaf"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "iphone14plus_ios18",
+      "sample_data_key": "iphone14plus_ios18",
+      "description": "iPhone 14 Plus, iOS 18.0. Hexordia, Magnet Virtual Summit CTF 2026.",
+      "published_file": "iPhone14Plus.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Hexordia"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "18.0",
+        "device_model": "iPhone 14 Plus",
+        "extraction_method": "Full Filesystem"
+      },
+      "file_info": {
+        "md5_hash": "23075789fe93781a9a99e1db952f47c5"
+      },
+      "notes": "Published MD5 is of the published file and matches a held copy byte for byte. See admin/docs/testing/public_corpus_images.md. The published zip is a wrapper around 00008110-0008196A2299401E_files_full.zip. Hexordia's 2025 CTF acquisition of the same device uses the same inner filename with a different MD5, so check the hash rather than the filename."
+    },
+    {
+      "image_name": "iphone14plus_ios18_mvs2025",
+      "sample_data_key": "iphone14plus_ios18_mvs2025",
+      "description": "iPhone 14 Plus, iOS 18.0. Hexordia, Magnet Virtual Summit CTF 2025.",
+      "published_file": "00008110-0008196A2299401E_files_full.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Hexordia"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "18.0",
+        "device_model": "iPhone 14 Plus",
+        "extraction_method": "Full Filesystem"
+      },
+      "file_info": {
+        "md5_hash": "a8e9df3fc94c5c66f8ca8824773c0332"
+      },
+      "notes": "Published MD5 is of the published file and matches a held copy byte for byte. See admin/docs/testing/public_corpus_images.md. Same device serial as iphone14plus_ios18 but a distinct acquisition, published for the 2025 CTF under the same inner filename; check the hash rather than the filename."
+    },
+    {
+      "image_name": "dexter_ios18",
+      "sample_data_key": "dexter_ios18",
+      "description": "iPhone 16, iOS 18.3.2. Cellebrite CTF 2025 (\"Dexter King\").",
+      "published_file": "2025CellebriteCTF_DexterKing.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "Cellebrite"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "18.3.2",
+        "device_model": "iPhone 16",
+        "extraction_method": "Full Filesystem",
+        "extraction_tool": "Cellebrite"
+      },
+      "file_info": {
+        "md5_hash": "4d455f968c61ec43960ab6b66b55ac4a"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md."
+    },
+    {
+      "image_name": "iphone12_ios18",
+      "sample_data_key": "iphone12_ios18",
+      "description": "iPhone 12, iOS 18.7. MSAB, Mobile Forensics Digital Summit CTF 2026.",
+      "published_file": "iPhone12.zip",
+      "download_url": "https://theevidencelocker.github.io/",
+      "author": {
+        "name": "MSAB"
+      },
+      "image_info": {
+        "os_name": "iPhone OS",
+        "os_version": "18.7",
+        "device_model": "iPhone 12",
+        "extraction_method": "Full Filesystem"
+      },
+      "file_info": {
+        "md5_hash": "0e1d586e89098ec0ebc4e6c12852f462"
+      },
+      "notes": "Published MD5 is of the publisher's wrapper archive; a working copy is usually the un-nested inner image whose hash cannot match it by construction. Correlate by extraction metadata. See admin/docs/testing/public_corpus_images.md."
+    }
+  ]
+}
