@@ -4,15 +4,15 @@
     "artifact_name": "Gmail - Offline Search",
     "function_name": "gmailOfflineSearch",
     "case_number": "mvs_ios_2023",
-    "number_of_columns": 10,
+    "number_of_columns": 11,
     "number_of_rows": 21,
-    "total_data_size_bytes": 68196,
+    "total_data_size_bytes": 68679,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/gmail/testdata.gmail.gmailOfflineSearch.mvs_ios_2023.zip",
-    "start_time": "2026-08-24T20:06:09.021937+00:00",
-    "end_time": "2026-08-24T20:06:09.076602+00:00",
-    "run_time_seconds": 0.0010247230529785156,
+    "start_time": "2026-08-24T21:12:51.750901+00:00",
+    "end_time": "2026-08-24T21:12:51.804075+00:00",
+    "run_time_seconds": 0.0006978511810302734,
     "last_commit": {
       "hash": "0ae7aa3bb24fd334efd624fc8ba47e40e13c4dc3",
       "author_name": "Brigs",
@@ -23,6 +23,7 @@
   },
   "headers": [
     "Timestamp",
+    "Account",
     "Sender Name",
     "Sender Email",
     "Receiver",
@@ -36,6 +37,7 @@
   "data": [
     [
       1669648755,
+      "mborchardt@kurvalis.com",
       "The Google Workspace Team",
       "workspace@google.com",
       "mborchardt@kurvalis.com",
@@ -48,6 +50,7 @@
     ],
     [
       1669169512,
+      "mborchardt@kurvalis.com",
       "Google Cloud Platform",
       "CloudPlatform-noreply@google.com",
       "mborchardt@kurvalis.com",
@@ -60,6 +63,7 @@
     ],
     [
       1670290288,
+      "mborchardt@kurvalis.com",
       "The Google Workspace Team",
       "workspace@google.com",
       "mborchardt@kurvalis.com",
@@ -72,6 +76,7 @@
     ],
     [
       1669475916,
+      "mborchardt@kurvalis.com",
       "The Google Workspace Team",
       "workspace@google.com",
       "mborchardt@kurvalis.com",
@@ -84,6 +89,7 @@
     ],
     [
       1669169027,
+      "mborchardt@kurvalis.com",
       "Google Notifications",
       "notify-noreply@google.com",
       "mborchardt@kurvalis.com",
@@ -96,6 +102,7 @@
     ],
     [
       1669842049,
+      "mborchardt@kurvalis.com",
       "The Google Workspace Team",
       "workspace@google.com",
       "mborchardt@kurvalis.com",
@@ -108,6 +115,7 @@
     ],
     [
       1669736877,
+      "mborchardt@kurvalis.com",
       "Google Cloud",
       "googlecloud@google.com",
       "mborchardt@kurvalis.com",
@@ -120,6 +128,7 @@
     ],
     [
       1669944687,
+      "mborchardt@kurvalis.com",
       "The Google Workspace Team",
       "workspace-noreply@google.com",
       "mborchardt@kurvalis.com",
@@ -132,6 +141,7 @@
     ],
     [
       1669170655,
+      "mborchardt@kurvalis.com",
       "Google Cloud Platform",
       "CloudPlatform-noreply@google.com",
       "mborchardt@kurvalis.com",
@@ -144,6 +154,7 @@
     ],
     [
       1669172240,
+      "mborchardt@kurvalis.com",
       "Google Cloud Platform",
       "CloudPlatform-noreply@google.com",
       "mborchardt@kurvalis.com",
@@ -156,6 +167,7 @@
     ],
     [
       1669695124,
+      "mborchardt@kurvalis.com",
       "Google Workspace Alerts",
       "google-workspace-alerts-noreply@google.com",
       "mborchardt@kurvalis.com",
@@ -168,6 +180,7 @@
     ],
     [
       1669956357,
+      "mborchardt@kurvalis.com",
       "Google Payments",
       "payments-noreply@google.com",
       "mborchardt@kurvalis.com",
@@ -180,6 +193,7 @@
     ],
     [
       1670082476,
+      "mborchardt@kurvalis.com",
       "Google Cloud",
       "googlecloud@google.com",
       "mborchardt@kurvalis.com",
@@ -192,6 +206,7 @@
     ],
     [
       1670428077,
+      "mborchardt@kurvalis.com",
       "Google Cloud",
       "googlecloud@google.com",
       "mborchardt@kurvalis.com",
@@ -204,6 +219,7 @@
     ],
     [
       1669175130,
+      "mborchardt@kurvalis.com",
       "Google Workspace Alerts",
       "google-workspace-alerts-noreply@google.com",
       "mborchardt@kurvalis.com",
@@ -216,6 +232,7 @@
     ],
     [
       1670631860,
+      "mborchardt@kurvalis.com",
       "(unknown sender)",
       "",
       "",
@@ -228,6 +245,7 @@
     ],
     [
       1670382149,
+      "mborchardt@kurvalis.com",
       "Wilts1991",
       "Wilts1991@protonmail.com",
       "mborchardt@kurvalis.com, mborchardt@kurvalis.com",
@@ -240,6 +258,7 @@
     ],
     [
       1670115707,
+      "mborchardt@kurvalis.com",
       "Wilts1991",
       "Wilts1991@protonmail.com",
       "mborchardt@kurvalis.com, mborchardt@kurvalis.com",
@@ -252,6 +271,7 @@
     ],
     [
       1670469209,
+      "mborchardt@kurvalis.com",
       "Michael Borchardt",
       "mborchardt@kurvalis.com",
       "Wilts1991, Wilts1991@protonmail.com",
@@ -264,6 +284,7 @@
     ],
     [
       1671813769,
+      "mborchardt@kurvalis.com",
       "Michael Borchardt",
       "mborchardt@kurvalis.com",
       "",
@@ -276,6 +297,7 @@
     ],
     [
       1672660545,
+      "mborchardt@kurvalis.com",
       "Michael Borchardt",
       "mborchardt@kurvalis.com",
       "Shawn Garza, sgarza@kurvalis.com, Tina Louis, tlouis@kurvalis.com",

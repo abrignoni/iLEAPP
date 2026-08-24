@@ -3,16 +3,16 @@
     "module_name": "gmail",
     "artifact_name": "Gmail - Label Details",
     "function_name": "gmailLabelDetails",
-    "case_number": "mvs_ios_2023",
-    "number_of_columns": 4,
-    "number_of_rows": 28,
-    "total_data_size_bytes": 473,
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 5,
+    "number_of_rows": 31,
+    "total_data_size_bytes": 1171,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
-    "input_zip_path": "admin/test/cases/data/gmail/testdata.gmail.gmailLabelDetails.mvs_ios_2023.zip",
-    "start_time": "2026-08-24T20:06:08.663224+00:00",
-    "end_time": "2026-08-24T20:06:08.723908+00:00",
-    "run_time_seconds": 0.001378774642944336,
+    "input_zip_path": "admin/test/cases/data/gmail/testdata.gmail.gmailLabelDetails.josh_ios15_ffs.zip",
+    "start_time": "2026-08-24T21:12:51.694515+00:00",
+    "end_time": "2026-08-24T21:12:51.750459+00:00",
+    "run_time_seconds": 0.0017077922821044922,
     "last_commit": {
       "hash": "0ae7aa3bb24fd334efd624fc8ba47e40e13c4dc3",
       "author_name": "Brigs",
@@ -22,6 +22,7 @@
     }
   },
   "headers": [
+    "Account",
     "Label",
     "Unread Count",
     "Total Count",
@@ -29,168 +30,217 @@
   ],
   "data": [
     [
+      "thisisdfir@gmail.com",
       "^afw",
       null,
       null,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^all",
-      11,
-      17,
+      198,
+      207,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^assistive_purchase",
-      0,
-      0,
+      3,
+      3,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^assistive_travel",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^b",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^cr",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^f",
       0,
-      1,
+      4,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^i",
-      11,
-      15,
+      198,
+      207,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^iim",
       0,
-      0,
+      7,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^io_f_iiim",
-      11,
-      15,
+      198,
+      207,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^io_f_iim",
       0,
-      0,
+      7,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^io_f_ti",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^io_im",
       0,
-      0,
+      7,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^k",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^p_cc",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^r",
       0,
-      1,
+      0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^s",
       0,
-      1,
+      0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^scheduled",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^smartlabel_finance",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^smartlabel_group",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^smartlabel_notification",
-      11,
-      15,
+      102,
+      106,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^smartlabel_promo",
-      0,
-      0,
+      50,
+      50,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^smartlabel_pure_notif",
-      11,
-      15,
+      98,
+      102,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^smartlabel_social",
-      0,
-      0,
+      46,
+      46,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^smartlabel_travel",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
+      "^sq_ig_i_personal",
+      102,
+      111,
+      1
+    ],
+    [
+      "thisisdfir@gmail.com",
+      "^sq_ig_i_promo",
+      50,
+      50,
+      50
+    ],
+    [
+      "thisisdfir@gmail.com",
+      "^sq_ig_i_social",
+      46,
+      46,
+      46
+    ],
+    [
+      "thisisdfir@gmail.com",
       "^t",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "^t_z",
       0,
       0,
       null
     ],
     [
+      "thisisdfir@gmail.com",
       "fake_outbox_label_for_label_counts",
       null,
       0,
