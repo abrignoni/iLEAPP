@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -103,7 +103,7 @@ from scripts.ilapfuncs import get_file_path, open_sqlite_db_readonly, lava_get_f
 from scripts.html_safe import esc, safe_join, safe_url
 
 
-# <id, phone number (display name)> shared across the artifacts below.
+# <id or phone number, phone number (display name)> shared across the artifacts below.
 # NOTE: accounts/contacts/numbers populate entries that numbers/messages read,
 # so ID-to-number resolution is richer when artifacts run in file order;
 # readers fall back to raw IDs when an entry is missing.
@@ -690,10 +690,12 @@ def burnerCache_messages(context):
         burner_id = message.get('burnerId', '')
         # burner number
         burner_number = burner_uid_map.get(burner_id)
-        # contact id
+        # contact id, falling back to the phone-number key the contacts artifact also stores
         contact_id = message.get('contactId', '')
         contact_temp = burner_uid_map.get(contact_id)
-        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')       
+        if not bool(contact_temp):
+            contact_temp = burner_uid_map.get(message.get('contactPhoneNumber'))
+        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')
         # sender, recipient
         if dir_val == 1:
             sender = contact_phone_number
