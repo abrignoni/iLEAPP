@@ -316,8 +316,43 @@ def _dest_claim_key(data_path, folds_case):
     return normalized.casefold() if folds_case else normalized
 
 
-def _disambiguated_data_path(data_path, source_key, dest_claims, folds_case):
-    """Pick a dest that does not overwrite a different source."""
+def _case_variant_digest(hash_source):
+    """Hex tag for a case-variant copy, derived from the source path.
+
+    Hash the evidence-relative spelling, case preserved, separators normalized,
+    so the same source maps to the same tag on every search, every run and
+    every machine, and each case variant gets its own tag.
+    """
+    normalized = str(hash_source).replace('\\', '/').lstrip('/')
+    return hashlib.sha256(normalized.encode('utf-8', 'surrogatepass')).hexdigest()
+
+
+def _case_variant_candidates(root, ext, digest):
+    """Candidate alternate names: short tag, full digest, then a counter tail.
+
+    The later tiers only matter when a candidate name is already taken, for
+    example by an evidence file that legitimately carries the tagged name. The
+    walk over them stays finite because every blocker is a recorded claim or an
+    existing file, and both sets are finite.
+    """
+    yield f"{root}~case-{digest[:8]}{ext}"
+    yield f"{root}~case-{digest}{ext}"
+    n = 2
+    while True:
+        yield f"{root}~case-{digest}-{n}{ext}"
+        n += 1
+
+
+def _disambiguated_data_path(data_path, source_key, dest_claims, folds_case,
+                             hash_source=None):
+    """Pick a dest that does not overwrite a different source.
+
+    When the wanted destination is already claimed by a different source (two
+    evidence paths differing only in case fold together on a case-insensitive
+    report volume), the copy is written to name~case-<tag>.ext instead. The tag
+    names the source rather than the arrival order, so re-searches and repeat
+    runs land on the same path with nothing to remember.
+    """
     key = _dest_claim_key(data_path, folds_case)
     claimed = dest_claims.get(key)
     if claimed is not None:
@@ -328,18 +363,22 @@ def _disambiguated_data_path(data_path, source_key, dest_claims, folds_case):
         dest_claims[key] = (source_key, data_path)
         return data_path
     root, ext = os.path.splitext(data_path)
-    n = 2
-    while True:
-        alt = f"{root}~case{n}{ext}"
+    digest = _case_variant_digest(source_key if hash_source is None else hash_source)
+    for alt in _case_variant_candidates(root, ext, digest):
         alt_key = _dest_claim_key(alt, folds_case)
-        if alt_key not in dest_claims and not os.path.lexists(alt):
-            dest_claims[alt_key] = (source_key, alt)
-            logfunc(
-                f"INFO: destination {data_path} already holds a different source; "
-                f"writing {source_key} to {alt}"
-            )
-            return alt
-        n += 1
+        claimed = dest_claims.get(alt_key)
+        if claimed is not None:
+            if claimed[0] == source_key:
+                return claimed[1]
+            continue
+        if os.path.lexists(alt):
+            continue
+        dest_claims[alt_key] = (source_key, alt)
+        logfunc(
+            f"INFO: destination {data_path} already holds a different source; "
+            f"writing {source_key} to {alt}"
+        )
+        return alt
 
 
 class FileInfo:
@@ -367,6 +406,12 @@ class FileSeekerBase:
         '''Returns a list of paths for files/folders that matched'''
         raise NotImplementedError
 
+    def __init__(self):
+        # Refined by _init_dest_guard once the subclass knows its data folder;
+        # the defaults leave the dest-guard a pass-through.
+        self._dest_claims = {}
+        self._data_folder_folds_case = False
+
     def cleanup(self):
         '''close any open handles'''
 
@@ -374,9 +419,10 @@ class FileSeekerBase:
         self._dest_claims = {}
         self._data_folder_folds_case = _probe_volume_case_insensitive(data_folder)
 
-    def _unique_data_path(self, data_path, source_key):
+    def _unique_data_path(self, data_path, source_key, hash_source=None):
         return _disambiguated_data_path(
-            data_path, source_key, self._dest_claims, self._data_folder_folds_case
+            data_path, source_key, self._dest_claims,
+            self._data_folder_folds_case, hash_source=hash_source
         )
 
 
@@ -440,7 +486,8 @@ class FileSeekerDir(FileSeekerBase):
                         if os.path.isdir(item):
                             pass
                         elif os.path.isfile(item):
-                            data_path = self._unique_data_path(data_path, item)
+                            data_path = self._unique_data_path(
+                                data_path, item, hash_source=item_rel_path)
                             os.makedirs(os.path.dirname(data_path), exist_ok=True)
                             copy2(item, data_path)
                             self.copied[item] = data_path
@@ -668,7 +715,8 @@ class FileSeekerItunes(FileSeekerBase):
                 data_path = data_path.replace('/', '\\')
             if original_location not in self.copied or force:
                 try:
-                    data_path = self._unique_data_path(data_path, original_location)
+                    data_path = self._unique_data_path(
+                        data_path, original_location, hash_source=relative_path)
                     os.makedirs(os.path.dirname(data_path), exist_ok=True)
 
                     # Handle encrypted backups differently, don't just copy the encrypted files
@@ -870,10 +918,16 @@ class FileSeekerZip(FileSeekerBase):
             if pat(root + normcase(member)) is not None:
                 if member not in self.copied or force:
                     try:
-                        intended = self._intended_extract_path(member)
-                        extracted_path = self._extract_member(
-                            member, dest_path=self._unique_data_path(intended, member)
-                        )
+                        if member.endswith('/'):
+                            # Case-variant directories fold into one on a
+                            # case-insensitive volume; their files disambiguate
+                            # individually, so directory members take no guard.
+                            extracted_path = self._extract_member(member)
+                        else:
+                            intended = self._intended_extract_path(member)
+                            extracted_path = self._extract_member(
+                                member,
+                                dest_path=self._unique_data_path(intended, member))
                         f = self.zip_file.getinfo(member)
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
                         file_info = FileInfo(member, creation_date, modification_date)
@@ -1024,8 +1078,8 @@ class FileSeekerFile(FileSeekerBase):
             if self.single_file_abs_path not in self.copied or force:
                 try:
                     dest_data_path = self._unique_data_path(
-                        dest_data_path, self.single_file_abs_path
-                    )
+                        dest_data_path, self.single_file_abs_path,
+                        hash_source=self.single_file_basename)
                     os.makedirs(
                         os.path.dirname(dest_data_path) or self.data_folder,
                         exist_ok=True,
