@@ -38,7 +38,7 @@ The script generates the following outputs:
 1. A JSON file containing test case metadata.
     - `admin/test/cases/testdata.<module_name>.json`
 2. Zip files for each artifact, containing the relevant test data files.
-    - `admin/test/cases/data/testdata.<module_name>.<artifact_name>.<case_key>.zip`
+    - `admin/test/cases/data/<module_name>/testdata.<module_name>.<artifact_name>.<case_key>.zip`
 
 ## Example
 
