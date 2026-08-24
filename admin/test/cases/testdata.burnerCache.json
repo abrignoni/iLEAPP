@@ -15,11 +15,6 @@
       }
     },
     "artifacts": {
-      "burnerCache_preferences": {
-        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Preferences/com.adhoclabs.burner.plist",
-        "file_count": 0,
-        "note": "No responsive files found for this artifact"
-      },
       "burnerCache_accounts": {
         "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*",
         "file_count": 0,
@@ -60,14 +55,6 @@
       }
     },
     "artifacts": {
-      "burnerCache_preferences": {
-        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Preferences/com.adhoclabs.burner.plist",
-        "file_count": 1,
-        "expected_output": {
-          "headers": [],
-          "data": []
-        }
-      },
       "burnerCache_accounts": {
         "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*",
         "file_count": 3,
@@ -122,11 +109,6 @@
       }
     },
     "artifacts": {
-      "burnerCache_preferences": {
-        "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Preferences/com.adhoclabs.burner.plist",
-        "file_count": 0,
-        "note": "No responsive files found for this artifact"
-      },
       "burnerCache_accounts": {
         "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*",
         "file_count": 0,

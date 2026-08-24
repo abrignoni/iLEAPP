@@ -23,14 +23,6 @@
       "extraction_tool": "Cellebrite"
     },
     "artifacts": {
-      "bereal_preferences": {
-        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist",
-        "file_count": 1,
-        "expected_output": {
-          "headers": [],
-          "data": []
-        }
-      },
       "bereal_accounts": {
         "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*",
         "file_count": 1,
@@ -155,11 +147,6 @@
       "extraction_tool": "Magnet"
     },
     "artifacts": {
-      "bereal_preferences": {
-        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist",
-        "file_count": 0,
-        "note": "No responsive files found for this artifact"
-      },
       "bereal_accounts": {
         "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*",
         "file_count": 0,
@@ -258,17 +245,12 @@
     "image_info": {
       "creation_date": "2023-01-01",
       "os_name": "iPhone OS",
-      "os_version": "16.3",  
+      "os_version": "16.3",
       "device_model": "Unknown",
       "extraction_method": "Unknown",
       "extraction_tool": "Unknown"
     },
     "artifacts": {
-      "bereal_preferences": {
-        "search_patterns": "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.BeReal.plist",
-        "file_count": 0,
-        "note": "No responsive files found for this artifact"
-      },
       "bereal_accounts": {
         "search_patterns": "*/mobile/Containers/Data/Application/*/Library/Caches/disk-bereal-ProfileRepository/*",
         "file_count": 0,

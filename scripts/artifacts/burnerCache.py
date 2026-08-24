@@ -731,7 +731,7 @@ def burnerCache_messages(context):
                 else:
                     media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
-                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                if media_item: device_file_paths.append(get_device_file_path(media_item['source_path'], seeker))
                 break
         # message type
         message_type = message.get('messageType')
@@ -811,7 +811,7 @@ def burnerCache_messages(context):
                 else:
                     media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
-                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                if media_item: device_file_paths.append(get_device_file_path(media_item['source_path'], seeker))
                 break
         # message type
         message_type = conversation.get('messageType')

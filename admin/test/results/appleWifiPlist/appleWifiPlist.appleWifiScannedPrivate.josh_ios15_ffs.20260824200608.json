@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "module_name": "appleWifiPlist",
+    "artifact_name": "WiFi Scanned Networks (Private)",
+    "function_name": "appleWifiScannedPrivate",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 13,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 288,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiScannedPrivate.josh_ios15_ffs.zip",
+    "start_time": "2026-08-24T20:06:08.214069+00:00",
+    "end_time": "2026-08-24T20:06:08.236059+00:00",
+    "run_time_seconds": 0.00020933151245117188,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "Last Updated",
+    "Added At",
+    "Last Joined",
+    "Link Down Timestamp",
+    "MAC Generation Timestamp",
+    "First Join With New MAC Timestamp",
+    "SSID",
+    "BSSID",
+    "MAC Used For Network",
+    "Private MAC Computed For Network",
+    "MAC Valid",
+    "In Known Networks",
+    "Source File"
+  ],
+  "data": [
+    [
+      1684612503,
+      1681566827,
+      1684612503,
+      1684602091,
+      1681566830,
+      1681567703,
+      "Matt_Foley",
+      "6a:22:32:98:f4:df",
+      "5e:e9:b1:2c:04:fb",
+      "5e:e9:b1:2c:04:fb",
+      true,
+      true,
+      "admin/test/temp/extract_appleWifiPlist_appleWifiScannedPrivate_1787601968/filesystem2/preferences/SystemConfiguration/com.apple.wifi-private-mac-networks.plist"
+    ]
+  ]
+}
