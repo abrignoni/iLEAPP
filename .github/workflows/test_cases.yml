@@ -1,0 +1,51 @@
+name: Test Cases
+
+# Runs every committed test case (admin/test/cases) and compares the output
+# against the recorded baselines (admin/test/results). Baselines are ordinary
+# committed files: a PR that deliberately changes a parser's output re-records
+# the affected snapshot in the same PR, so the reviewer sees the row-level
+# diff next to the code change. Units excluded from gating are listed with
+# reasons in admin/test/cases/known_failures.json.
+#
+# This job needs the committed fixtures, so it does NOT use the sparse
+# checkout the other PR workflows use.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'admin/test/cases/**'
+      - 'admin/test/results/**'
+      - 'admin/test/scripts/**'
+      - 'requirements.txt'
+      - '.github/workflows/test_cases.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - 'admin/test/cases/**'
+      - 'admin/test/results/**'
+      - 'admin/test/scripts/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-cases:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install runtime dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run test cases against recorded baselines
+        run: python admin/test/scripts/run_test_cases.py

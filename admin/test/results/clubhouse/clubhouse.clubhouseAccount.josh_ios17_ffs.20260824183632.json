@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/clubhouse/testdata.clubhouse.clubhouseAccount.josh_ios17_ffs.zip",
-    "start_time": "2026-07-25T22:03:20.089855+00:00",
-    "end_time": "2026-07-25T22:03:20.164135+00:00",
-    "run_time_seconds": 0.00034809112548828125,
+    "start_time": "2026-08-24T18:36:32.143568+00:00",
+    "end_time": "2026-08-24T18:36:32.188219+00:00",
+    "run_time_seconds": 0.00032711029052734375,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-07-25T17:03:20.160491",
-      "message": "File not yet committed to git"
+      "hash": "e675a8d498bce51583cda2dde3ba0ba88ba6c87f",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-10T19:19:47-04:00",
+      "message": "fix: consolidate sample_data corpus keys onto the registry vocabulary"
     }
   },
   "headers": [
@@ -29,7 +29,7 @@
     "Photo URL",
     "Device ID",
     "Is Admin",
-    "Invites Remaining",
+    "Num Invites",
     "Co-follows",
     "Blind Invite User",
     "Upgraded From V1",

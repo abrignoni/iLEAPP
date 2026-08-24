@@ -7,16 +7,18 @@
     "number_of_columns": 10,
     "number_of_rows": 37,
     "total_data_size_bytes": 7763,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiBSSList.mvs_ios_2023.zip",
-    "start_time": "2024-10-22T18:36:17.854035+00:00",
-    "end_time": "2024-10-22T18:36:17.926846+00:00",
-    "run_time_seconds": 0.003450155258178711,
+    "start_time": "2026-08-24T18:36:31.739306+00:00",
+    "end_time": "2026-08-24T18:36:31.761301+00:00",
+    "run_time_seconds": 0.0006239414215087891,
     "last_commit": {
-      "hash": "f17226b6a76c22a59eb6ce157eb5e98bfd2abfc4",
-      "author_name": "stark4n6",
-      "author_email": "48143894+stark4n6@users.noreply.github.com",
-      "date": "2024-05-14T09:49:53-04:00",
-      "message": "Minor Timeline fixes"
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
     }
   },
   "headers": [
@@ -24,11 +26,11 @@
     "BSSID",
     "Channel Flags",
     "Channel",
-    "Last Associated At",
+    "Last Associated/Roamed At",
     "Location Accuracy",
     "Location Timestamp",
-    "Location Latitude",
-    "Location Longitude",
+    "Latitude",
+    "Longitude",
     "Source File"
   ],
   "data": [
@@ -42,7 +44,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "Hotel Bonaventure",
@@ -54,7 +56,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "Hotel Bonaventure",
@@ -66,7 +68,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -78,7 +80,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -90,7 +92,7 @@
       1671423054,
       44.47242981463471,
       -73.18685246464568,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -102,7 +104,7 @@
       1672671795,
       49.999018324081646,
       8.018786640728537,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -114,7 +116,7 @@
       1672751556,
       49.239239396935666,
       8.897036929423436,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -126,7 +128,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -138,7 +140,7 @@
       1671813215,
       44.469545119993015,
       -73.1547495987436,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -150,7 +152,7 @@
       1672343524,
       50.02137779339605,
       8.093266368323908,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -162,7 +164,7 @@
       1672321695,
       49.97939332400715,
       7.9215691637204255,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -174,7 +176,7 @@
       1672147034,
       50.12536050729983,
       8.168707024565805,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "NETGEAR-345",
@@ -186,7 +188,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -198,7 +200,7 @@
       1669749621,
       44.47381057774737,
       -73.20326129897475,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -210,7 +212,7 @@
       1669744201,
       44.473758776641894,
       -73.2033146846281,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -222,7 +224,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -234,7 +236,7 @@
       1669669027,
       44.473029991639095,
       -73.20410156697532,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -246,7 +248,7 @@
       1669744160,
       44.47323126831322,
       -73.20321829344962,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -258,7 +260,7 @@
       1669673156,
       44.460980987712446,
       -73.21598510691501,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -270,7 +272,7 @@
       1669744287,
       44.47334671055296,
       -73.20353393485448,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -282,7 +284,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -294,7 +296,7 @@
       1669672744,
       44.47303008956223,
       -73.20410156044193,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -306,7 +308,7 @@
       1669749447,
       44.47323684727005,
       -73.20324096610008,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -318,7 +320,7 @@
       1669673851,
       44.46073684708381,
       -73.21589965769499,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -330,7 +332,7 @@
       1669744169,
       44.473240004836605,
       -73.20327472274077,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -342,7 +344,7 @@
       "",
       "",
       "",
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -354,7 +356,7 @@
       1669744162,
       44.4732331402169,
       -73.20322148473221,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -366,7 +368,7 @@
       1669744169,
       44.473240004836605,
       -73.20327472274077,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -378,7 +380,7 @@
       1669749479,
       44.473623220213845,
       -73.20408085500961,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -390,7 +392,7 @@
       1669673229,
       44.46085528067225,
       -73.2156016146706,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -402,7 +404,7 @@
       1669660630,
       44.473030111269686,
       -73.20410155827717,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -414,7 +416,7 @@
       1669672747,
       44.47303008956223,
       -73.20410156044193,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "ChamplainPSK",
@@ -426,7 +428,7 @@
       1669749621,
       44.47381057774737,
       -73.20326129897475,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "Spinner Place",
@@ -438,7 +440,7 @@
       1670840976,
       44.49024217978243,
       -73.18477164535895,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "Spinner Place",
@@ -450,7 +452,7 @@
       1673041033,
       44.49019791804817,
       -73.184722167165,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "Airport-Frankfurt",
@@ -462,7 +464,7 @@
       1672921286,
       50.04686727844971,
       8.559869283925913,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ],
     [
       "Airport-Frankfurt",
@@ -474,7 +476,7 @@
       1672921238,
       50.04686933405728,
       8.55987429092478,
-      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1729622177/private/var/preferences/com.apple.wifi.known-networks.plist"
+      "admin/test/temp/extract_appleWifiPlist_appleWifiBSSList_1787596591/private/var/preferences/com.apple.wifi.known-networks.plist"
     ]
   ]
 }

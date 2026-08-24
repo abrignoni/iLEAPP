@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/notes/testdata.notes.notes.josh_ios17_ffs.zip",
-    "start_time": "2026-07-25T22:28:59.512108+00:00",
-    "end_time": "2026-07-25T22:28:59.542887+00:00",
-    "run_time_seconds": 0.005505084991455078,
+    "start_time": "2026-08-24T18:36:34.038243+00:00",
+    "end_time": "2026-08-24T18:36:34.088537+00:00",
+    "run_time_seconds": 0.005518198013305664,
     "last_commit": {
-      "hash": "6146d91e066f3b54e0779095a9475356550f0287",
+      "hash": "e675a8d498bce51583cda2dde3ba0ba88ba6c87f",
       "author_name": "Brigs",
       "author_email": "abrignoni@gmail.com",
-      "date": "2026-07-13T18:50:02-04:00",
-      "message": "Fix Notes returning zero rows on iOS 16+ (account FK moved to ZACCOUNT7)"
+      "date": "2026-08-10T19:19:47-04:00",
+      "message": "fix: consolidate sample_data corpus keys onto the registry vocabulary"
     }
   },
   "headers": [
@@ -36,7 +36,7 @@
     "Attachment",
     "Attachment Original Filename",
     "Attachment Storage Folder",
-    "Attachment Size in KB",
+    "Attachment Size (as stored)",
     "Attachment Type",
     "Attachment Creation Date",
     "Attachment Last Modified"

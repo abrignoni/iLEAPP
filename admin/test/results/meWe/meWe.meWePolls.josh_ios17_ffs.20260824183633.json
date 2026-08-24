@@ -10,15 +10,15 @@
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/meWe/testdata.meWe.meWePolls.josh_ios17_ffs.zip",
-    "start_time": "2026-07-25T22:03:18.539653+00:00",
-    "end_time": "2026-07-25T22:03:18.621637+00:00",
-    "run_time_seconds": 0.0012540817260742188,
+    "start_time": "2026-08-24T18:36:33.884717+00:00",
+    "end_time": "2026-08-24T18:36:33.923426+00:00",
+    "run_time_seconds": 0.00238800048828125,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-07-25T17:03:18.616630",
-      "message": "File not yet committed to git"
+      "hash": "aaac2bad87415e89fc76ec5712ec22bde09a0ee3",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-16T19:59:41-04:00",
+      "message": "Order conversation artifact columns by their declared roles"
     }
   },
   "headers": [
@@ -27,7 +27,7 @@
     "Question",
     "Options",
     "Option Votes",
-    "Selected By User",
+    "Selected Option (client state)",
     "Option Count",
     "Closed",
     "Posted By User ID",
