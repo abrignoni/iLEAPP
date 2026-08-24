@@ -100,6 +100,9 @@ def load_image_manifest():
         list: A list of image dictionaries from the manifest.
     """
     manifest_path = os.path.join(repo_root, 'admin', 'image_manifest.json')
+    if not os.path.exists(manifest_path):
+        sys.exit("This repo has no admin/image_manifest.json yet; use --case with --input, "
+                 "or add a manifest (see admin/docs/testing/guide_adding_images.md in iLEAPP).")
     with open(manifest_path, 'r', encoding='utf-8') as f:
         return json.load(f)['images']
 

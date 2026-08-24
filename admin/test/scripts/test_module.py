@@ -53,7 +53,7 @@ def mock_logfunc(message):
     print(f"[LOGFUNC] {message}")
 
 
-def process_artifact(zip_path, module_name, artifact_name, artifact_data, target_os_version=None):
+def process_artifact(zip_path, module_name, artifact_name, _artifact_data, target_os_version=None):
     """
     Processes a specific artifact from a given zip file.
 
@@ -61,7 +61,7 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
         zip_path (Path): Path to the zip file containing test data.
         module_name (str): Name of the artifact module.
         artifact_name (str): Name of the artifact function to test.
-        artifact_data (dict): Metadata about the artifact from the test case.
+        _artifact_data (dict): Metadata about the artifact from the test case (unused).
         target_os_version (str, optional): OS version to mock for the test.
 
     Returns:
@@ -146,14 +146,14 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
         mock_lava_db_instance.commit.return_value = None
 
         # <<< NEW MOCKS FOR CHECK_IN_MEDIA >>>
-        def mocked_check_in_media(file_path, *args, **kwargs):
+        def mocked_check_in_media(file_path, *_args, **_kwargs):
             nonlocal check_in_media_call_count
             check_in_media_call_count += 1
             # Simplified return for counter, avoiding deep side effects of original if problematic
             return f"mock_hash_for_{os.path.basename(str(file_path))}"
 
 
-        def mocked_check_in_embedded_media(*args, **kwargs):
+        def mocked_check_in_embedded_media(*_args, **_kwargs):
             nonlocal check_in_media_embedded_call_count
             check_in_media_embedded_call_count += 1
             # Similar to above, call original or return dummy
@@ -196,8 +196,10 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
 
         ]
 
-        # If a target OS version is provided, mock iOS.get_version()
-        if target_os_version:
+        # If a target OS version is provided, mock iOS.get_version() where the
+        # core defines it (iLEAPP); other cores have no such class to mock.
+        import scripts.ilapfuncs as _ilapfuncs
+        if target_os_version and hasattr(_ilapfuncs, 'iOS'):
             mock_ios_get_version = MagicMock(return_value=target_os_version)
             patches.append(patch('scripts.ilapfuncs.iOS.get_version', mock_ios_get_version))
 
@@ -268,7 +270,7 @@ def load_test_cases(module_name):
         return json.load(f)
 
 
-def get_artifact_names(module_name, test_cases):
+def get_artifact_names(_module_name, test_cases):
     """
     Retrieves all artifact names defined in the test cases for a module.
 

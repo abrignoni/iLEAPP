@@ -132,7 +132,13 @@ def sample_data_keys_from_source(source_text):
 
 
 def manifest_keys(manifest_path=MANIFEST_PATH):
-    """Every name the image manifest answers to (public images only)."""
+    """Every name the image manifest answers to (public images only).
+
+    A repo without a manifest gets an empty set, which routes every module to
+    the full ask rather than the maintainer-can-generate note.
+    """
+    if not Path(manifest_path).exists():
+        return set()
     with open(manifest_path, encoding="utf-8") as f:
         entries = json.load(f)["images"]
     names = set()
