@@ -42,7 +42,6 @@
   "googleVoice.googleVoiceMessages.josh_ios17_ffs": "baseline recorded 2024-2025 predates reviewed parser changes; re-record after a module-level review of the current output",
   "groupMe.groupMeMessages.josh_ios17_ffs": "baseline recorded 2024-2025 predates reviewed parser changes; re-record after a module-level review of the current output",
   "keyboard.keyboardAppUsage.josh_ios15_ffs": "baseline recorded 2024-2025 predates reviewed parser changes; re-record after a module-level review of the current output",
-  "mailprotect.mailHeaders.josh_ios17_ffs": "output shifts with the host timezone (fails under TZ=UTC against a snapshot recorded in US Eastern); the artifact converts a naive datetime through a local-timezone-dependent path and needs a fix before it can gate",
   "mastodon.mastodonDirectMessages.josh_ios17_ffs": "baseline recorded 2024-2025 predates reviewed parser changes; re-record after a module-level review of the current output",
   "meWe.meWeMessages.josh_ios17_ffs": "baseline recorded 2024-2025 predates reviewed parser changes; re-record after a module-level review of the current output",
   "notes.notesParticipants.josh_ios17_ffs": "baseline recorded 2024-2025 predates reviewed parser changes; re-record after a module-level review of the current output",
