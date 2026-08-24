@@ -26,7 +26,6 @@ print intended writes instead of performing them (reads still happen).
 import ast
 import json
 import os
-import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
