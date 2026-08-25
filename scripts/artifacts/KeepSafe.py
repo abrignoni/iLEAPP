@@ -95,6 +95,7 @@ import pathlib
 import re
 import struct
 import plistlib
+from datetime import timezone
 
 from scripts.ccl_leveldb import LogFile
 from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, logfunc
@@ -513,6 +514,22 @@ def keepsafe_albums(context):
 # Account / PIN security state.
 # ---------------------------------------------------------------------------
 
+def _plist_date_to_epoch(value):
+    """Unix seconds for a plist <date>, or None.
+
+    A plist date is UTC, but plistlib returns a NAIVE datetime (the aware_datetime
+    keyword only exists from 3.12, and CI runs 3.10). datetime.timestamp() reads a
+    naive value as local time, so without pinning UTC the reported time shifts by
+    the offset of whoever ran the tool: measured 21,600 seconds against this
+    artifact on a UTC-6 host.
+    """
+    if not hasattr(value, "timestamp"):
+        return None
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.timestamp()
+
+
 def _load_plist(path):
     try:
         with open(path, "rb") as file_obj:
@@ -576,8 +593,8 @@ def keepsafe_account_security(context):
             invalid_pin_count = group_prefs.get(f"{tracking_id}.consecutiveInvalidPinCount", "")
             pin_timeout_remaining = group_prefs.get(f"{tracking_id}.pinTimeoutTimeRemaining", "")
 
-        join_date = app_prefs.get("preference-join-date")
-        close_time = app_prefs.get("preference-close-time")
+        join_date = _plist_date_to_epoch(app_prefs.get("preference-join-date"))
+        close_time = _plist_date_to_epoch(app_prefs.get("preference-close-time"))
 
         if app_plist_path:
             source_files.add(app_plist_path)
@@ -592,8 +609,8 @@ def keepsafe_account_security(context):
             pin_timeout_remaining,
             app_prefs.get("KeepsafeAppInitialAppVersion.initialVersionInstalled", ""),
             app_prefs.get("preference-app-previous-version-name", ""),
-            convert_unix_ts_to_utc(join_date.timestamp()) if hasattr(join_date, "timestamp") else "",
-            convert_unix_ts_to_utc(close_time.timestamp()) if hasattr(close_time, "timestamp") else "",
+            convert_unix_ts_to_utc(join_date) if join_date is not None else "",
+            convert_unix_ts_to_utc(close_time) if close_time is not None else "",
             app_prefs.get("preference-launch-count", ""),
             app_prefs.get("preference-launch-count-since-update", ""),
             app_prefs.get("com.keepsafe.switchboard.properties.installId", ""),
