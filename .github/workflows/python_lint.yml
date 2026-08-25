@@ -83,6 +83,15 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_html_safety.py
 
+      # The seeker stages evidence under <report folder>/data, so every files_found entry
+      # is an absolute path on the examiner's machine. artifact_processor normalizes only
+      # the third element of the return tuple; a path put in a data row or handed to
+      # write_artifact_data_table is published verbatim. The column is never empty and the
+      # row count is always right, so nothing else catches it. See the script's docstring.
+      - name: Guard report output against local filesystem paths
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_report_local_paths.py
+
       # Fails only on warnings this pull request introduces. Long-lived modules carry
       # deliberate pre-existing warnings (ileapp.py's wildcard imports, ilapfuncs.py's
       # backward-compat re-exports), and failing on those pushed contributors toward
