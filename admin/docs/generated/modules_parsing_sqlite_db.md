@@ -72,7 +72,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | bumble |
 | burner |
 | callHistory |
-| cashAppB |
+| cashApp |
 | cloudkit_cache |
 | discordChats |
 | discord_a |
@@ -199,7 +199,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | cachev0 |
 | calendarAll |
 | callHistoryGroupCall |
-| cashApp |
 | chrome |
 | chromeCreditCards |
 | chromePaymentsCustomerData |
