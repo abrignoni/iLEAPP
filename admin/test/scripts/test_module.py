@@ -457,6 +457,18 @@ def convert_to_unix_time(value):
     return value
 
 
+def previous_row_count(output_dir, module_name, artifact, case):
+    """Rows in the newest existing snapshot for this unit, or None if there is none."""
+    snapshots = sorted(Path(output_dir).glob(f"{module_name}.{artifact}.{case}.*.json"))
+    if not snapshots:
+        return None
+    try:
+        with open(snapshots[-1], encoding='utf-8') as handle:
+            return len(json.load(handle).get("data") or [])
+    except (OSError, ValueError):
+        return None
+
+
 def process_data(headers, data):
     """
     Processes artifact output data for comparison, handling datetime conversions.
@@ -488,7 +500,7 @@ def process_data(headers, data):
     return processed_headers, processed_data
 
 
-def main(module_name, artifact_name=None, case_number=None):
+def main(module_name, artifact_name=None, case_number=None, allow_empty=False):
     """
     Main entry point for testing module artifacts.
 
@@ -587,6 +599,24 @@ def main(module_name, artifact_name=None, case_number=None):
 
                     output_dir = Path('admin/test/results') / module_name
                     output_dir.mkdir(parents=True, exist_ok=True)
+
+                    # An artifact that needs an optional dependency disables itself and
+                    # returns nothing when that dependency is absent, so a recording made
+                    # on a machine without it replaces real rows with zero and the
+                    # snapshot then asserts the absence as the correct answer. Refuse the
+                    # overwrite rather than trust the recorder to notice: Threema goes
+                    # from 33 messages to 0 without sqlcipher3, which has no wheel on
+                    # every platform. Pass --allow-empty when the artifact genuinely
+                    # stopped finding anything.
+                    prior_rows = previous_row_count(output_dir, module_name, artifact, case)
+                    if not processed_data and prior_rows and not allow_empty:
+                        print(f"REFUSED to record {module_name} - {artifact} - Case {case}: "
+                              f"this run produced 0 rows but the existing snapshot has "
+                              f"{prior_rows}. Check the run log for a disabled capability "
+                              f"(a missing optional dependency logs one line and carries on). "
+                              f"Re-run with --allow-empty if the artifact really finds nothing now.")
+                        continue
+
                     output_file = output_dir / f"{module_name}.{artifact}.{case}.{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
 
                     with open(output_file, 'w', encoding='utf-8') as f:
@@ -657,6 +687,12 @@ if __name__ == '__main__':
                         help="Case number to test (or 'all' for all cases)",
                         default=None)
 
+    parser.add_argument("--allow-empty", action="store_true",
+                        help="Record a snapshot even when this run produced 0 rows and the "
+                             "existing one has rows. Without it that overwrite is refused, "
+                             "because an artifact whose optional dependency is missing "
+                             "returns nothing and the snapshot would assert that as correct.")
+
     args = parser.parse_args()
 
-    main(args.module_name, args.artifact, args.case)
+    main(args.module_name, args.artifact, args.case, args.allow_empty)
