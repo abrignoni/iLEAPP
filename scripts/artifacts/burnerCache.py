@@ -101,6 +101,7 @@ from pathlib import Path
 from scripts.ilapfuncs import get_file_path, open_sqlite_db_readonly, lava_get_full_media_info, \
     convert_unix_ts_to_utc, check_in_media, check_in_embedded_media, artifact_processor, logfunc
 from scripts.html_safe import esc, safe_join, safe_url
+from scripts.context import Context
 
 
 # <id or phone number, phone number (display name)> shared across the artifacts below.
@@ -170,25 +171,43 @@ def get_json_content(data):
         return {}
 
 
+def _device_relative(path):
+    """A path as it sat on the device: extraction relative, no leading slash.
+
+    The seeker stages every file under <report folder>/data/<extraction relative
+    path>, whatever the input type, so stripping that prefix is what makes this
+    work the same for a zip, a tar, an iTunes backup and a directory.
+
+    The slice from '/private/' is a fallback for the one input this cannot
+    reduce: the directory and single-file seekers record an absolute path on the
+    examiner's machine in file_infos, and only the seeker knows the input root.
+    It stops firing once those seekers record an extraction relative path.
+    """
+    text = Context.get_relative_path(Path(str(path)).as_posix()).replace('\\', '/')
+    if text.startswith('/'):
+        index = text.find('/private/')
+        if index > 0:
+            text = text[index:]
+    return text.lstrip('/')
+
+
 # device path/local path
 def get_device_file_path(file_path, seeker):
-    device_path = file_path
+    """Where this file lived on the device, for the Location column.
 
-    if bool(file_path):
-        file_info = seeker.file_infos.get(file_path) if file_path else None
-        # data folder: /path/to/report/data
-        if file_info:
-            source_path = file_info.source_path
-        # extraction folder: /path/to/directory
-        else:
-            source_path = file_path
-        source_path = Path(source_path).as_posix()
+    Callers pass either a staged path or a media item's recorded source_path.
+    file_infos is keyed by the staged path, so a hit means the first kind and a
+    miss means the second; both reduce the same way.
 
-        index_private = source_path.find('/private/')
-        if index_private > 0:
-            device_path = source_path[index_private:]
-    
-    return device_path
+    Previously this returned the staged path whenever it could not find
+    '/private/', which published the examiner's own report folder in the report
+    and never fired at all on an image whose root is not /private.
+    """
+    if not file_path:
+        return file_path
+
+    file_info = seeker.file_infos.get(file_path) if seeker else None
+    return _device_relative(file_info.source_path if file_info else file_path)
 
 
 def get_cache_db_fs_path(data, file_found, seeker):
