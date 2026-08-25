@@ -6,19 +6,19 @@
     "case_number": "josh_ios15_ffs",
     "number_of_columns": 9,
     "number_of_rows": 2,
-    "total_data_size_bytes": 680,
+    "total_data_size_bytes": 544,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin/test/cases/data/burnerCache/testdata.burnerCache.burnerCache_accounts.josh_ios15_ffs.zip",
-    "start_time": "2026-08-24T21:29:37.823780+00:00",
-    "end_time": "2026-08-24T21:29:37.847711+00:00",
-    "run_time_seconds": 0.001405954360961914,
+    "start_time": "2026-08-25T20:38:11.399960+00:00",
+    "end_time": "2026-08-25T20:38:11.427052+00:00",
+    "run_time_seconds": 0.0013539791107177734,
     "last_commit": {
-      "hash": "7d97d2358166a6f062088df775ca73ecf97a4db2",
+      "hash": "c66861b624a9ed7f54f5b8af1659c6769cc646d3",
       "author_name": "Brigs",
       "author_email": "abrignoni@gmail.com",
-      "date": "2026-08-24T15:12:08-05:00",
-      "message": "Burn the test-case exclusion list down from 56 units to 3"
+      "date": "2026-08-24T16:36:23-05:00",
+      "message": "Resolve message thread labels through the contact phone number"
     }
   },
   "headers": [
@@ -41,7 +41,7 @@
       "T-Mobile USA, Inc.",
       6,
       "21d2ca9c-aba1-4ada-b7f5-23b0d97acb47",
-      "admin/test/temp/extract_burnerCache_burnerCache_accounts_1787606977/filesystem2/mobile/Containers/Data/Application/43637BC0-E3FA-4375-9A56-B85713075C0D/Library/Caches/com.adhoclabs.burner/Cache.db",
+      "filesystem2/mobile/Containers/Data/Application/43637BC0-E3FA-4375-9A56-B85713075C0D/Library/Caches/com.adhoclabs.burner/Cache.db",
       "cfurl_cache_receiver_data (entry_ID: 29), receiver_data"
     ],
     [
@@ -52,7 +52,7 @@
       "T-Mobile USA, Inc.",
       5,
       "21d2ca9c-aba1-4ada-b7f5-23b0d97acb47",
-      "admin/test/temp/extract_burnerCache_burnerCache_accounts_1787606977/filesystem2/mobile/Containers/Data/Application/43637BC0-E3FA-4375-9A56-B85713075C0D/Library/Caches/com.adhoclabs.burner/Cache.db",
+      "filesystem2/mobile/Containers/Data/Application/43637BC0-E3FA-4375-9A56-B85713075C0D/Library/Caches/com.adhoclabs.burner/Cache.db",
       "cfurl_cache_receiver_data (entry_ID: 13), receiver_data"
     ]
   ]
