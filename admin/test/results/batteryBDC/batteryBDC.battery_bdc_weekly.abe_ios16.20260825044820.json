@@ -1,0 +1,166 @@
+{
+  "metadata": {
+    "module_name": "batteryBDC",
+    "artifact_name": "Battery Data Collection (BDC) - Weekly",
+    "function_name": "battery_bdc_weekly",
+    "case_number": "abe_ios16",
+    "number_of_columns": 5,
+    "number_of_rows": 19,
+    "total_data_size_bytes": 4351,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/batteryBDC/testdata.batteryBDC.battery_bdc_weekly.abe_ios16.zip",
+    "start_time": "2026-08-25T04:48:20.358750+00:00",
+    "end_time": "2026-08-25T04:48:20.379788+00:00",
+    "run_time_seconds": 0.0002658367156982422,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Ra Table Raw0",
+    "Total Operating Time (hrs)",
+    "Gas Gauge Firmware Version",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2023-06-12 01:39:56",
+      "02d7023901e3015a015d016b01a301fc0203020a021402d703a307170c960000",
+      "48346",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-06-12_01:39:56.csv"
+    ],
+    [
+      "2023-06-19 01:50:48",
+      "02b8022101cf014b014e015b019101e801ed01f301fd02b8037b06ca0c0f0000",
+      "48502",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-06-12_01:39:56.csv"
+    ],
+    [
+      "2023-06-26 01:50:48",
+      "028701fa01ae014501480155018901e001e501ea01f202ab036a06a80bd30000",
+      "48670",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-06-12_01:39:56.csv"
+    ],
+    [
+      "2023-03-20 01:36:16",
+      "023901ba017b0102010201060125016001660169017301f7028504ea08ba0000",
+      "46317",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-03-20_01:36:16.csv"
+    ],
+    [
+      "2023-03-27 01:38:26",
+      "024c01ca01880114011401180139017901800183018d021c02b3054409590000",
+      "46485",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-03-20_01:36:16.csv"
+    ],
+    [
+      "2023-04-03 01:39:44",
+      "024c01ca01880114011401180139017901800183018d021c02b3054409590000",
+      "46653",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-03-20_01:36:16.csv"
+    ],
+    [
+      "2023-04-10 01:39:55",
+      "026301dc0198011f011f012301450188018f0192019d023202cf057a09b80000",
+      "46832",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-03-20_01:36:16.csv"
+    ],
+    [
+      "2023-04-17 01:39:55",
+      "026301dc0198011f011f012301450188018f0192019d023202cf057a09b80000",
+      "47000",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-04-17_01:39:55.csv"
+    ],
+    [
+      "2023-04-24 01:41:15",
+      "027e01f101aa012c012c01300154019901a001a401af024b02ef05b80a270000",
+      "47168",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-04-17_01:39:55.csv"
+    ],
+    [
+      "2023-05-01 01:39:55",
+      "028b01fc01b3013201320136015b01a201a901ad01b8025702ff05d70a5e0000",
+      "47342",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-04-17_01:39:55.csv"
+    ],
+    [
+      "2023-02-20 01:36:12",
+      "023f01be017e0104010400ff011d0156015d015f016b01eb027304ca08810000",
+      "45644",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-02-20_01:36:13.csv"
+    ],
+    [
+      "2023-02-27 01:36:13",
+      "027a01ec01a6011f011f012401460187018e0192019e023102ce057909b80000",
+      "45813",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-02-20_01:36:13.csv"
+    ],
+    [
+      "2023-03-06 01:36:14",
+      "027701eb01a5011e011e012201460186018c0190019c022e02cb057409af0000",
+      "45981",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-02-20_01:36:13.csv"
+    ],
+    [
+      "2023-03-13 01:36:15",
+      "025b01d5019201110111011501370175017b017f0189021502ab053509400000",
+      "46149",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-02-20_01:36:13.csv"
+    ],
+    [
+      "2023-05-08 01:42:05",
+      "028b01fc01b3013201320136015b01a201a901ad01b8025702ff05d70a5e0000",
+      "47504",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-05-08_01:42:05.csv"
+    ],
+    [
+      "2023-05-15 01:40:14",
+      "028b01fc01b3013201320136015b01a201a901ad01b8025702ff05d70a5e0000",
+      "47672",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-05-08_01:42:05.csv"
+    ],
+    [
+      "2023-05-22 01:39:55",
+      "02a3020f01c3013e013e0142016701b101b801bd01c8026d031b060e0ac00000",
+      "47823",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-05-08_01:42:05.csv"
+    ],
+    [
+      "2023-05-29 01:39:55",
+      "02b7021e01cd014401440148016e01ba01c001c601d10279032b062e0af80000",
+      "48005",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-05-08_01:42:05.csv"
+    ],
+    [
+      "2023-06-05 01:39:56",
+      "02ca022e01da01540157015d018001d201d801de01e8029b035606800b8a0000",
+      "48178",
+      "1538",
+      "admin/test/temp/extract_batteryBDC_battery_bdc_weekly_1787633300/filesystem2/db/Battery/BDC/BDC_Weekly_version2.0_2023-05-08_01:42:05.csv"
+    ]
+  ]
+}
