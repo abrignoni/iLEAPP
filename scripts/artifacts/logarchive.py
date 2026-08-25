@@ -201,16 +201,24 @@ __artifacts_v2__ = {
     },
     "logarchive_navigation": {
         "name": "logarchive navigation",
-        "description": "Navigation entries",
-        "author": "@AlexisBrignoni",
+        "description": "Records logged by the MapsNavigation framework under the com.apple.Navigation subsystem",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2025-07-25",
-        "last_update_date": "2025-07-25",
+        "last_update_date": "2026-08-25",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "Rows the MapsNavigation framework writes under the com.apple.Navigation subsystem, collected by subsystem rather than by message text. Across the six tested images the emitting processes are the Maps widget extension GeneralMapsWidget (955 rows on four images), navd (755 on five) and Maps.app (609 on two), with single-figure counts from assistantd, routined and destinationd on one image each. Categories observed on the iOS 16.5 through 18.7 images, with the number of images carrying each: MNNavigationXPC, MNNavigationService, MNNavigationStateManager and MNRouteStorage on four; MNLocationProvider on three; MNVoiceLanguageUtil, MNUserOptionsEngine and Navd on two; MNRouteEditor, MNSuggestedNavigationMode, MNRouteAttributes, MNSequence, MNCarPlayConnectionMonitor, MNRingerSwitchObserver, ProcessHandling and the three VirtualGarage categories on one each. The iOS 26.5.2 image shares only MNLocationProvider with those and otherwise logs two categories seen nowhere else, FamiliarRouteAuthorizationChecker and GEONavigationListener, which is why the subsystem prefix is matched instead of a list of categories. Until 2026-08-25 this artifact instead matched event_message against fifteen English spoken guidance phrases such as 'Starting route to' and 'your destination'. None of those phrases occurs in any of the 117,678,121 records across the six images listed in sample_data, every one of them an en-US device, so it reported nothing on all six. What the artifact reports is the framework's own activity around route planning and navigation service connections. It is not a record of a route being followed: on every tested image that logs a navigation state, the only values seen are MNNavigationStateTypeNoDestination, MNNavigationStateTypeNone and Stopped, so none of them holds an active turn by turn session. Whether spoken guidance text reaches the unified log at all is untested here, and 19.1 percent of messages on the iOS 18.7 image are redacted to <private>. An image captured during live navigation would settle it. Trace ID carries no value on any tested row, which is true of every artifact reading this table.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 131 rows",
+            "fsfull002_ios17": "iOS 17.1 | 924 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows; no com.apple.Navigation records in the sysdiagnose window",
+            "dexter_ios18": "iOS 18.3.2 | 229 rows",
+            "iphone12_ios18": "iOS 18.7 | 912 rows; the only tested image with MNRouteEditor, MNSuggestedNavigationMode or MNRouteAttributes",
+            "hc_ios26": "iOS 26.5.2 | 128 rows; FamiliarRouteAuthorizationChecker and GEONavigationListener only",
+        },
     },
     # The artifacts below come from the 2026-08-01 unified log predicate survey.
     # Every message pattern is either documented in a cited publication, observed
@@ -1048,19 +1056,15 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Tethering is now enabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
-        OR event_message LIKE '%Proceed to%'
-        OR event_message LIKE '%Turn right%'
-        OR event_message LIKE '%Turn left%'
-        OR event_message LIKE '%roundabout%'
-        OR event_message LIKE '%first exit%'
-        OR event_message LIKE '%Stay in the%'
-        OR event_message LIKE '%parking lot%'
-        OR event_message LIKE '%of a mile%'
-        OR event_message LIKE '%In about%'
-        OR event_message LIKE '%Arrived%'
-        OR event_message LIKE '%destination%'
-        OR event_message LIKE '%At the light%'
-        OR event_message LIKE '%Starting route to%'
+        -- logarchive_navigation. Collected by subsystem rather than by spoken
+        -- guidance text. The MapsNavigation framework logs under com.apple.Navigation
+        -- out of navd; the categories beneath it differ completely between iOS 16-18
+        -- (MNNavigationStateManager, MNNavigationXPC) and iOS 26
+        -- (FamiliarRouteAuthorizationChecker, GEONavigationListener), so the subsystem
+        -- prefix is matched rather than a category list. Keep this as LIKE: the
+        -- com.apple.navigation.VirtualGarage subsystem has a lowercase n and is only
+        -- matched because SQLite LIKE is case-insensitive for ASCII.
+        OR subsystem LIKE 'com.apple.Navigation%'
         -- Patterns below were added by the 2026-08-01 unified log predicate survey.
         -- Each is documented in the source cited by the artifact that consumes it
         -- (see __artifacts_v2__ notes) and, unless noted there, was observed in an
@@ -1509,34 +1513,23 @@ def logarchive_audio_status(context):
 
 @artifact_processor
 def logarchive_navigation(context):
-    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
-    data_list = []
-    
-    query = '''
-    SELECT *
-    FROM logarchive_artifacts
-    WHERE event_message LIKE '%Starting route to%'
-        OR event_message LIKE '%Proceed to the%'
-        OR event_message LIKE '%Proceed to\\%'
-        OR event_message LIKE '%Turn right%'
-        OR event_message LIKE '%Turn left%'
-        OR event_message LIKE '%roundabout%'
-        OR event_message LIKE '%first exit%'
-        OR event_message LIKE '%Stay in the%'
-        OR event_message LIKE '%parking lot for%'
-        OR event_message LIKE '%of a mile%'
-        OR event_message LIKE '%In about%'
-        OR event_message LIKE '%then arrive%'
-        OR event_message LIKE '%your destination%'
-        OR event_message LIKE '%At the light%'
-        OR event_message LIKE '%Arrived\\%'
-    '''
-    
-    data_list = list( get_sqlite_db_records(source_path, query) )
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
-                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
-    
-    return data_headers, data_list, source_path
+    # The MapsNavigation framework logs under the com.apple.Navigation subsystem, from
+    # navd. Matching the subsystem rather than message text keeps this working across
+    # releases and on devices in any language: the categories beneath the subsystem are
+    # entirely different on iOS 26 (FamiliarRouteAuthorizationChecker,
+    # GEONavigationListener) from iOS 16 through 18 (MNNavigationStateManager,
+    # MNNavigationXPC, MNRouteEditor), so a category list would need editing per release.
+    #
+    # LIKE is case-insensitive for ASCII in SQLite, and one subsystem in this family is
+    # spelled with a lowercase n: com.apple.navigation.VirtualGarage. It is inside this
+    # pattern only because of that case-insensitivity. Rewriting the comparison as GLOB,
+    # or adding a COLLATE BINARY, drops those rows silently, 42 of them on the iOS 18.7
+    # image, with no error and no change to any other count.
+    return _artifacts_table_records(context, """
+        subsystem LIKE 'com.apple.Navigation%'
+    """)
+
+
 def _artifacts_table_records(context, where_clause):
     """Rows from the logarchive_artifacts table matching where_clause.
 
