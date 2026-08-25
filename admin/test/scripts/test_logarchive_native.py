@@ -657,5 +657,65 @@ class TestDialedNumbersPredicates(unittest.TestCase):
                 self.assertIn(category, source)
 
 
+class TestNavigationPredicates(unittest.TestCase):
+    """Navigation is matched by subsystem, never by spoken guidance text.
+
+    The artifact used to filter event_message for fifteen English turn-by-turn phrases
+    ('Starting route to', 'Turn right', 'your destination'). Those phrases occur in 0 of
+    117,678,121 unified log records across six images spanning iOS 16.5 to 26.5.2, all of
+    them en-US devices, so the artifact returned nothing on every one of them and a
+    non-English device could never have matched regardless.
+
+    Two of the old clauses could not match anything at all: SQLite reads the backslash in
+    "%Arrived\\%" literally without an ESCAPE clause, so the pattern required a literal
+    backslash after the word.
+
+    logarchive_navigation selects from the table logarchive_artifacts builds, so a
+    predicate missing from the broad query cannot be recovered by the narrow one. Both
+    halves are checked here for that reason.
+    """
+
+    SUBSYSTEM = "subsystem LIKE 'com.apple.Navigation%'"
+
+    # Every phrase the artifact used to match. None of them appeared in any tested image.
+    RETIRED_PHRASES = (
+        'Starting route to', 'Proceed to', 'Turn right', 'Turn left', 'roundabout',
+        'first exit', 'Stay in the', 'parking lot', 'of a mile', 'In about',
+        'then arrive', 'your destination', 'At the light', 'Arrived',
+    )
+
+    def test_collection_query_gathers_the_subsystem_the_artifact_reads(self):
+        source = inspect.getsource(logarchive.logarchive_artifacts.__wrapped__)
+        self.assertIn(self.SUBSYSTEM, source)
+
+    def test_navigation_artifact_matches_the_subsystem(self):
+        source = inspect.getsource(logarchive.logarchive_navigation.__wrapped__)
+        self.assertIn(self.SUBSYSTEM, source)
+
+    def test_spoken_guidance_phrases_are_not_matched_anywhere_in_the_module(self):
+        source = pathlib.Path(logarchive.__file__).read_text(encoding='utf-8')
+        predicates = [line for line in source.splitlines() if 'event_message LIKE' in line]
+        for phrase in self.RETIRED_PHRASES:
+            with self.subTest(phrase=phrase):
+                self.assertFalse(
+                    [line for line in predicates if phrase in line],
+                    f'{phrase!r} is a spoken guidance phrase; match the subsystem instead')
+
+    def test_subsystem_predicate_matches_real_navigation_rows(self):
+        # Verbatim subsystem values from iOS 17.1, 18 and 26.5.2 extractions. The
+        # lowercase VirtualGarage spelling is included on purpose: SQLite LIKE is
+        # case-insensitive for ASCII, so one pattern covers both.
+        subsystems = ('com.apple.Navigation', 'com.apple.Navigation.Audio',
+                      'com.apple.Navigation.NavigationListener',
+                      'com.apple.navigation.VirtualGarage')
+        with sqlite3.connect(':memory:') as connection:
+            connection.execute('CREATE TABLE t (subsystem TEXT)')
+            connection.executemany('INSERT INTO t VALUES (?)', [(s,) for s in subsystems])
+            connection.execute("INSERT INTO t VALUES ('com.apple.locationd.Core')")
+            matched = connection.execute(
+                f'SELECT COUNT(*) FROM t WHERE {self.SUBSYSTEM}').fetchone()[0]
+        self.assertEqual(matched, len(subsystems))
+
+
 if __name__ == '__main__':
     unittest.main()
