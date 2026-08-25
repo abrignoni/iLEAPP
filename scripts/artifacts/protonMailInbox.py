@@ -149,7 +149,7 @@ def _body_text_and_links(html_body):
             numbers[href] = len(targets)
         anchor.append(NavigableString(f' [{numbers[href]}]'))
     text = _WHITESPACE_RUN.sub(' ', soup.get_text(separator=' ')).strip()
-    links = ' '.join(f'[{number}] {target}' for number, target in enumerate(targets, 1))
+    links = '\n'.join(f'[{number}] {target}' for number, target in enumerate(targets, 1))
     return text, links
 
 
