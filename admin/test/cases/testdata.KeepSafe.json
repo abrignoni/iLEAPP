@@ -1,0 +1,62 @@
+{
+  "hickman_ios14": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "iOS 14-3 - Apple iPhone SE.tar",
+      "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+      "timestamp": "2026-08-24T23:45:45.709205",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-08-24T23:45:45.700583",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "keepsafe_vault_items": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Documents/rdb/*",
+          "*/mobile/Containers/Data/Application/*/Documents/rdb_backups/*/*",
+          "*/mobile/Containers/Data/Application/*/Documents/primary/*/*",
+          "*/mobile/Containers/Data/Application/*/Documents/breakin_alert/*/*",
+          "*/mobile/Containers/Data/Application/*/Documents/fake/*/*",
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+        ],
+        "file_count": 44,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keepsafe_albums": {
+        "search_patterns": [
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "keepsafe_account_security": {
+        "search_patterns": [
+          "*/mobile/Containers/Data/Application/*/Library/Preferences/com.keepsafe.KeepSafe.plist",
+          "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+        ],
+        "file_count": 2,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    },
+    "image_name": "hickman_ios14",
+    "image_info": {
+      "os_name": "iPhone OS",
+      "os_version": "14.3",
+      "device_model": "iPhone SE"
+    }
+  }
+}
