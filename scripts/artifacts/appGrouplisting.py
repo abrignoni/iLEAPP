@@ -50,7 +50,7 @@ def appGrouplisting(context):
         
         p = pathlib.Path(file_found)
         appgroupid = p.parent.name
-        fileloc = str(p.parents[1])
+        fileloc = context.get_relative_path(str(p.parents[1]))
         typedir = str(p.parents[1].name)
         
         data_list.append((bundleid, typedir, appgroupid, fileloc))

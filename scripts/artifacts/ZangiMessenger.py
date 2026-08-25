@@ -210,6 +210,7 @@ def zangi_messages(context):
         return found_path
 
     for main_db in db_files:
+        source_db = context.get_relative_path(main_db)
         db_records = get_sqlite_db_records(main_db, query)
 
         for row in db_records:
@@ -250,7 +251,7 @@ def zangi_messages(context):
                 row[10],
                 row[11],
                 attachment_link,
-                main_db,
+                source_db,
             ))
 
     data_headers = (
@@ -306,6 +307,7 @@ def zangi_contacts(context):
     for file_found in files_found:
         main_db = str(file_found)
         source_files.add(main_db)
+        source_db = context.get_relative_path(main_db)
 
         db_records = get_sqlite_db_records(main_db, query)
 
@@ -335,7 +337,7 @@ def zangi_contacts(context):
                                 contact_id,
                                 is_blocked,
                                 is_favorite,
-                                main_db))
+                                source_db))
 
         data_headers = (    ('Last Modification Timestamp', 'datetime'),
                             ('Last Activity Timestamp', 'datetime'),
@@ -385,6 +387,7 @@ def zangi_accounts(context):
     for file_found in files_found:
         main_db = str(file_found)
         source_files.add(main_db)
+        source_db = context.get_relative_path(main_db)
 
         db_records = get_sqlite_db_records(main_db, query)
 
@@ -416,7 +419,7 @@ def zangi_accounts(context):
                                 status,
                                 reg_status,
                                 country,
-                                main_db))
+                                source_db))
 
         data_headers = (    ('Last Sync Timestamp', 'datetime'),
                             'Account ID',
