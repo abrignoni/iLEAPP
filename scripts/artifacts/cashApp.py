@@ -34,8 +34,15 @@ __artifacts_v2__ = {
 import json
 import re
 
+from google.protobuf.message import DecodeError
+
 from scripts import blackboxprotobuf
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, convert_unix_ts_to_utc
+
+# What blackboxprotobuf.decode_message raises on a blob that does not match the
+# expected layout: a malformed protobuf, or a length/field mismatch it surfaces as
+# one of the plain built-ins below.
+_DECODE_ERRORS = (DecodeError, ValueError, TypeError, KeyError, IndexError)
 
 # Protobuf message structures for the binary ZSYNCCUSTOMER and ZSYNCPAYMENT columns.
 # Declaring the types explicitly keeps fields from being misinterpreted (ie: str as sub-message).
@@ -85,7 +92,7 @@ def _decode_blob(raw, typedef):
         return {}
     try:
         decoded, _ = blackboxprotobuf.decode_message(raw, typedef)
-    except Exception:
+    except _DECODE_ERRORS:
         return {}
     inner = decoded.get('1')
     if isinstance(inner, list):
