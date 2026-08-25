@@ -147,6 +147,7 @@ def googleTranslateTts(context):
     for record in db_records:
         # audio
         audio_html = ''
+        audio_ref = ''
         audio = record[3]
         if bool(audio):
             mimetype = audio_match(audio)
@@ -159,13 +160,13 @@ def googleTranslateTts(context):
                 # Report-relative path to the audio written beside the report.
                 # safe_local_path() percent-encodes it and refuses anything that
                 # would leave the report folder.
-                audio_path_html = safe_local_path(
-                    Path(report_folder).name + '/' + audio_filename)
+                audio_ref = Path(report_folder).name + '/' + audio_filename
+                audio_path_html = safe_local_path(audio_ref)
                 audio_html = f'<audio controls><source src="{audio_path_html}" type="audio/ogg"><source src="{audio_path_html}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
 
         location = f'tts (ROWID: {record[0]})'  # location
 
-        data_list.append((record[1], record[2], audio_path, location))
+        data_list.append((record[1], record[2], audio_ref, location))
         data_list_html.append((record[1], record[2], audio_html, location))
 
     return data_headers, (data_list, data_list_html), source_path

@@ -81,6 +81,7 @@ def messageRetention(context):
         filename = os.path.basename(info.source_path) if info else \
             os.path.basename(source_path)
         source_paths.add(source_path)
+        rel_path = context.get_relative_path(source_path)
         pl = get_plist_file_content(source_path)
 
         found = False
@@ -89,13 +90,13 @@ def messageRetention(context):
                 continue
             keep_val = _describe(pl[key])
             setting = f'{filename} - Keep Messages for Days ({generation})'
-            data_list.append((setting, keep_val, source_path))
+            data_list.append((setting, keep_val, rel_path))
             device_info('Messages Settings', setting, keep_val, source_path)
             found = True
 
         if not found:
             setting = f'{filename} - Keep Messages for Days'
-            data_list.append((setting, 'No value', source_path))
+            data_list.append((setting, 'No value', rel_path))
             device_info('Messages Settings', setting, 'No value', source_path)
 
     return data_headers, data_list, '\n'.join(sorted(source_paths))
