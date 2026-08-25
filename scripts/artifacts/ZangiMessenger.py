@@ -304,6 +304,20 @@ def zangi_contacts(context):
             '''
 
     source_files = set()
+    data_headers = (    ('Last Modification Timestamp', 'datetime'),
+                        ('Last Activity Timestamp', 'datetime'),
+                        'Last Name',
+                        'First Name', 
+                        'Display Name',
+                        'Contact Number',
+                        'Contact Email',
+                        'Registration Type',
+                        'Contact ID',
+                        'Is Blocked?',
+                        'Is Favorite?',
+                        'Source Database'
+                    )
+
     for file_found in files_found:
         main_db = str(file_found)
         source_files.add(main_db)
@@ -339,20 +353,6 @@ def zangi_contacts(context):
                                 is_favorite,
                                 source_db))
 
-        data_headers = (    ('Last Modification Timestamp', 'datetime'),
-                            ('Last Activity Timestamp', 'datetime'),
-                            'Last Name',
-                            'First Name', 
-                            'Display Name',
-                            'Contact Number',
-                            'Contact Email',
-                            'Registration Type',
-                            'Contact ID',
-                            'Is Blocked?',
-                            'Is Favorite?',
-                            'Source Database'
-                        )
-
     return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
@@ -384,6 +384,22 @@ def zangi_accounts(context):
             '''
 
     source_files = set()
+    data_headers = (    ('Last Sync Timestamp', 'datetime'),
+                        'Account ID',
+                        'Nickname',
+                        'Last Name',
+                        'First Name',
+                        'Passcode',
+                        'Password',
+                        'PIN Code',
+                        'Conversation Hiding Password',
+                        'E-Mail',
+                        'Status',
+                        'Registration Status',
+                        'Country',
+                        'Source Database'
+                    )
+
     for file_found in files_found:
         main_db = str(file_found)
         source_files.add(main_db)
@@ -420,21 +436,5 @@ def zangi_accounts(context):
                                 reg_status,
                                 country,
                                 source_db))
-
-        data_headers = (    ('Last Sync Timestamp', 'datetime'),
-                            'Account ID',
-                            'Nickname',
-                            'Last Name',
-                            'First Name',
-                            'Passcode',
-                            'Password',
-                            'PIN Code',
-                            'Conversation Hiding Password',
-                            'E-Mail',
-                            'Status',
-                            'Registration Status',
-                            'Country',
-                            'Source Database'
-                        )
 
     return data_headers, data_list, '\n'.join(sorted(source_files))
