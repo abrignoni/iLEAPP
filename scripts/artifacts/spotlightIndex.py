@@ -27,10 +27,11 @@ from scripts.ilapfuncs import artifact_processor
 def get_spotlightIndexCache(context):
 
     data_list = []
-    report_file = '/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/'
+    source_paths = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_paths.add(file_found)
         filename = os.path.basename(file_found)
         cache_folder = os.path.basename(os.path.dirname(file_found))
 
@@ -46,6 +47,6 @@ def get_spotlightIndexCache(context):
 
     data_headers = (('File Modified Time', 'datetime'), 'Text Content', 'Cache Folder', 'Filename')
 
-    return data_headers, data_list, report_file
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 

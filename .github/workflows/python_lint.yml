@@ -92,6 +92,14 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_report_local_paths.py
 
+      # The third element of an artifact's return tuple becomes the report's
+      # "located at" line and the LAVA manifest source_path, so it has to be real
+      # paths. Prose standing in for one points the examiner at a column that often
+      # holds a basename, and the location ends up nowhere in the report.
+      - name: Guard against prose returned as a source path
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_source_path.py
+
       # Fails only on warnings this pull request introduces. Long-lived modules carry
       # deliberate pre-existing warnings (ileapp.py's wildcard imports, ilapfuncs.py's
       # backward-compat re-exports), and failing on those pushed contributors toward
