@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "appleWifiPlist",
+    "artifact_name": "WiFi BSS List",
+    "function_name": "appleWifiBSSList",
+    "case_number": "belkasoft_ctf6_ios_device1",
+    "number_of_columns": 10,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 204,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiBSSList.belkasoft_ctf6_ios_device1.zip",
+    "start_time": "2026-08-25T15:39:10.214113+00:00",
+    "end_time": "2026-08-25T15:39:10.238427+00:00",
+    "run_time_seconds": 0.0003211498260498047,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Channel Flags",
+    "Channel",
+    "Last Associated/Roamed At",
+    "Location Accuracy",
+    "Location Timestamp",
+    "Latitude",
+    "Longitude",
+    "Source File"
+  ],
+  "data": [
+    [
+      "TWR9",
+      "80:69:1a:6a:e3:93",
+      10,
+      11,
+      1705876709,
+      "",
+      "",
+      "",
+      "",
+      "private/var/preferences/com.apple.wifi.known-networks.plist"
+    ],
+    [
+      "UCPLPublicWireless",
+      "36:56:ee:50:83:97",
+      1040,
+      36,
+      1712129178,
+      "",
+      "",
+      "",
+      "",
+      "private/var/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

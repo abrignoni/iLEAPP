@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "module_name": "KeepSafe",
+    "artifact_name": "KeepSafe - Account & PIN Security",
+    "function_name": "keepsafe_account_security",
+    "case_number": "hickman_ios14",
+    "number_of_columns": 14,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 369,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/KeepSafe/testdata.KeepSafe.keepsafe_account_security.hickman_ios14.zip",
+    "start_time": "2026-08-25T15:38:55.678576+00:00",
+    "end_time": "2026-08-25T15:38:55.699465+00:00",
+    "run_time_seconds": 0.0003108978271484375,
+    "last_commit": {
+      "hash": "e5812e9fd29f22a7a84d337360eec108385e7e7c",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-23T16:10:25-04:00",
+      "message": "Created KeepSafe Support for iOS"
+    }
+  },
+  "headers": [
+    "Account Tracking ID",
+    "PIN (as stored)",
+    "PIN Type (as stored)",
+    "Consecutive Invalid PIN Count",
+    "PIN Timeout Remaining (seconds)",
+    "Initial App Version Installed",
+    "Previous App Version",
+    "Account Join Date",
+    "Last App Close Time",
+    "Launch Count",
+    "Launch Count Since Update",
+    "Install ID",
+    "Source File (App Prefs)",
+    "Source File (Group Prefs)"
+  ],
+  "data": [
+    [
+      "S8a33udpRbS0oFkFJQTiGg",
+      "1,2,3,4",
+      0,
+      0,
+      0,
+      "10.2.4",
+      "10.2.4",
+      1612291588,
+      1613671448,
+      8,
+      9,
+      "DFF5B367-3874-4A9E-9B2E-76134FB1FE8D",
+      "private/var/mobile/Containers/Data/Application/A9537F01-A814-4829-B80F-3357487D9148/Library/Preferences/com.keepsafe.KeepSafe.plist",
+      "private/var/mobile/Containers/Shared/AppGroup/D3B5CD3C-7728-459B-AA79-168914A2C436/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+    ]
+  ]
+}

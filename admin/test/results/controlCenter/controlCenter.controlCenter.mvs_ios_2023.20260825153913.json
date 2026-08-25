@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "module_name": "controlCenter",
+    "artifact_name": "Control Center Configuration",
+    "function_name": "controlCenter",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 4,
+    "number_of_rows": 7,
+    "total_data_size_bytes": 967,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/controlCenter/testdata.controlCenter.controlCenter.mvs_ios_2023.zip",
+    "start_time": "2026-08-25T15:39:13.186280+00:00",
+    "end_time": "2026-08-25T15:39:13.210253+00:00",
+    "run_time_seconds": 0.000164031982421875,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "Position",
+    "App Bundle",
+    "Control Type",
+    "Source File"
+  ],
+  "data": [
+    [
+      "A-1",
+      "com.apple.control-center.MuteModule",
+      "Module Identifiers (in order)",
+      "private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+    ],
+    [
+      "A-2",
+      "com.apple.control-center.FlashlightModule",
+      "Module Identifiers (in order)",
+      "private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+    ],
+    [
+      "A-3",
+      "com.apple.mobiletimer.controlcenter.timer",
+      "Module Identifiers (in order)",
+      "private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+    ],
+    [
+      "A-4",
+      "com.apple.control-center.CalculatorModule",
+      "Module Identifiers (in order)",
+      "private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+    ],
+    [
+      "A-5",
+      "com.apple.control-center.CameraModule",
+      "Module Identifiers (in order)",
+      "private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+    ],
+    [
+      "A-6",
+      "com.apple.BarcodeSupport.NFCControlCenterModule",
+      "Module Identifiers (in order)",
+      "private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+    ],
+    [
+      "A-7",
+      "com.apple.springboard.SensitiveUIModule",
+      "Module Identifiers (in order)",
+      "private/var/mobile/Library/ControlCenter/ModuleConfiguration.plist"
+    ]
+  ]
+}

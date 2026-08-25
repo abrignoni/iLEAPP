@@ -229,6 +229,11 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
             all_artifacts_info = getattr(module, '__artifacts_v2__', {})
             artifact_info = all_artifacts_info.get(artifact_name, {})
 
+            # The case zip is extracted into temp_dir, so temp_dir is this run's
+            # equivalent of the seeker's data folder. Without it get_relative_path
+            # is a no-op here and a path column records the recorder's own
+            # directory instead of the extraction-relative path.
+            Context.set_data_folder(str(temp_dir))
             Context.set_report_folder(str(mock_report_folder_path))
             Context.set_seeker(mock_seeker)
             Context.set_files_found(all_files)

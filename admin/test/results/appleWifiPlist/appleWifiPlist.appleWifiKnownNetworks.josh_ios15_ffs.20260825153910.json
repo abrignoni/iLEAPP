@@ -1,0 +1,62 @@
+{
+  "metadata": {
+    "module_name": "appleWifiPlist",
+    "artifact_name": "WiFi Known Networks Info",
+    "function_name": "appleWifiKnownNetworks",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 16,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 114,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiKnownNetworks.josh_ios15_ffs.zip",
+    "start_time": "2026-08-25T15:39:10.337926+00:00",
+    "end_time": "2026-08-25T15:39:10.360853+00:00",
+    "run_time_seconds": 0.0002701282501220703,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "SSID",
+    "BSSID",
+    "Network Usage",
+    "Country Code",
+    "Device Name",
+    "Manufacturer",
+    "Serial Number",
+    "Model Name",
+    "Enabled",
+    "Carplay Network",
+    "Hidden",
+    "Captive Network",
+    "User Portal URL",
+    "Add Reason",
+    "Bundle ID",
+    "Source File"
+  ],
+  "data": [
+    [
+      "Matt_Foley",
+      "6a:22:32:98:f4:df",
+      2262707.5380142927,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      false,
+      false,
+      "",
+      "",
+      "",
+      "filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}
