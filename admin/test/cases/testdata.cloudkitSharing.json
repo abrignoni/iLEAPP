@@ -3,7 +3,7 @@
     "description": "",
     "maker": "",
     "make_data": {
-      "input_data_path": "/Users/jameshabben/Documents/phone-images/magnet/00008101-0010541A1130001E_files_full-001.zip",
+      "input_data_path": "00008101-0010541A1130001E_files_full-001.zip",
       "os": "macOS-15.7.4-x86_64-i386-64bit",
       "timestamp": "2026-05-27T15:33:22.409614",
       "last_commit": {
@@ -50,7 +50,7 @@
     "description": "",
     "maker": "",
     "make_data": {
-      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.zip",
+      "input_data_path": "iOS_15_Public_Image.zip",
       "os": "macOS-15.7.4-x86_64-i386-64bit",
       "timestamp": "2026-05-28T06:45:31.943111",
       "last_commit": {
@@ -97,7 +97,7 @@
     "description": "",
     "maker": "",
     "make_data": {
-      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "input_data_path": "BelkaCTF_6_CASE240405_D201AP.tar",
       "os": "macOS-15.7.4-x86_64-i386-64bit",
       "timestamp": "2026-05-28T09:04:21.116050",
       "last_commit": {
