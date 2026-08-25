@@ -219,4 +219,4 @@ def get_cashApp(context):
                     ('Created At', 'datetime'), ('Captured At', 'datetime'), ('Reached Customer At', 'datetime'),
                     ('Paid Out At', 'datetime'), ('Deposited At', 'datetime'), 'Source File')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(seen_files))
