@@ -67,7 +67,7 @@ The script generates a JSON file (e.g., `testdata.<module_name>.json`) that cont
     "os_name": "iOS",
     "os_version": "12.5.5",
     "make_data": {
-      "input_data_path": "/path/to/iOS12_image.tar.gz",
+      "input_data_path": "iOS12_image.tar.gz",
       "os": "macOS-14.0-...",
       "timestamp": "2024-10-14T10:17:49.432528",
       "last_commit": {
@@ -94,7 +94,7 @@ The script generates a JSON file (e.g., `testdata.<module_name>.json`) that cont
   - `os_name`: Include the name of the operating system this case data originated from (iOS, Android, etc)
   - `os_version`: The specific OS version string (e.g., "12.5.5", "14.1") that this test case represents. `test_module.py` will use this to mock `iOS.get_version()`.
   - `make_data`: Information about the `make_test_data.py` run that generated this case's input data.
-    - `input_data_path`: The path to the original full image/archive used.
+    - `input_data_path`: The file name of the original full image/archive used. Only the name is recorded; the machine-specific location of an image belongs in the git-ignored `admin/image_manifest.local.json`, and `image_name` is what identifies the image.
     - `os`: The operating system on which `make_test_data.py` was run.
     - `timestamp`: The date and time when the input data ZIP was created.
     - `last_commit`: Information about the module's Git commit at the time of data creation.

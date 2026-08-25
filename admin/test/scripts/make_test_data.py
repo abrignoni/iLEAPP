@@ -437,7 +437,7 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
         "description": "",
         "maker": "",
         "make_data": {
-            "input_data_path": os.path.abspath(input_file),
+            "input_data_path": os.path.basename(input_file),
             "os": platform.platform(),
             "timestamp": datetime.now().isoformat(),
             "last_commit": last_commit_info
