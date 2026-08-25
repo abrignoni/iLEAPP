@@ -201,10 +201,10 @@ __artifacts_v2__ = {
     },
     "logarchive_navigation": {
         "name": "logarchive navigation",
-        "description": "Navigation entries",
-        "author": "@AlexisBrignoni",
+        "description": "Records logged by the MapsNavigation framework under the com.apple.Navigation subsystem",
+        "author": "@AlexisBrignoni, Claude",
         "creation_date": "2025-07-25",
-        "last_update_date": "2025-07-25",
+        "last_update_date": "2026-08-25",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "",
@@ -1048,19 +1048,13 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Tethering is now enabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
-        OR event_message LIKE '%Proceed to%'
-        OR event_message LIKE '%Turn right%'
-        OR event_message LIKE '%Turn left%'
-        OR event_message LIKE '%roundabout%'
-        OR event_message LIKE '%first exit%'
-        OR event_message LIKE '%Stay in the%'
-        OR event_message LIKE '%parking lot%'
-        OR event_message LIKE '%of a mile%'
-        OR event_message LIKE '%In about%'
-        OR event_message LIKE '%Arrived%'
-        OR event_message LIKE '%destination%'
-        OR event_message LIKE '%At the light%'
-        OR event_message LIKE '%Starting route to%'
+        -- logarchive_navigation. Collected by subsystem rather than by spoken
+        -- guidance text. The MapsNavigation framework logs under com.apple.Navigation
+        -- out of navd; the categories beneath it differ completely between iOS 16-18
+        -- (MNNavigationStateManager, MNNavigationXPC) and iOS 26
+        -- (FamiliarRouteAuthorizationChecker, GEONavigationListener), so the subsystem
+        -- prefix is matched rather than a category list.
+        OR subsystem LIKE 'com.apple.Navigation%'
         -- Patterns below were added by the 2026-08-01 unified log predicate survey.
         -- Each is documented in the source cited by the artifact that consumes it
         -- (see __artifacts_v2__ notes) and, unless noted there, was observed in an
@@ -1509,34 +1503,20 @@ def logarchive_audio_status(context):
 
 @artifact_processor
 def logarchive_navigation(context):
-    source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
-    data_list = []
-    
-    query = '''
-    SELECT *
-    FROM logarchive_artifacts
-    WHERE event_message LIKE '%Starting route to%'
-        OR event_message LIKE '%Proceed to the%'
-        OR event_message LIKE '%Proceed to\\%'
-        OR event_message LIKE '%Turn right%'
-        OR event_message LIKE '%Turn left%'
-        OR event_message LIKE '%roundabout%'
-        OR event_message LIKE '%first exit%'
-        OR event_message LIKE '%Stay in the%'
-        OR event_message LIKE '%parking lot for%'
-        OR event_message LIKE '%of a mile%'
-        OR event_message LIKE '%In about%'
-        OR event_message LIKE '%then arrive%'
-        OR event_message LIKE '%your destination%'
-        OR event_message LIKE '%At the light%'
-        OR event_message LIKE '%Arrived\\%'
-    '''
-    
-    data_list = list( get_sqlite_db_records(source_path, query) )
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
-                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
-    
-    return data_headers, data_list, source_path
+    # The MapsNavigation framework logs under the com.apple.Navigation subsystem, from
+    # navd. Matching the subsystem rather than message text keeps this working across
+    # releases and on devices in any language: the categories beneath the subsystem are
+    # entirely different on iOS 26 (FamiliarRouteAuthorizationChecker,
+    # GEONavigationListener) from iOS 16 through 18 (MNNavigationStateManager,
+    # MNNavigationXPC, MNRouteEditor), so a category list would need editing per release.
+    #
+    # LIKE is case-insensitive for ASCII in SQLite, so the lowercase
+    # com.apple.navigation.VirtualGarage subsystem is picked up by the same pattern.
+    return _artifacts_table_records(context, """
+        subsystem LIKE 'com.apple.Navigation%'
+    """)
+
+
 def _artifacts_table_records(context, where_clause):
     """Rows from the logarchive_artifacts table matching where_clause.
 
