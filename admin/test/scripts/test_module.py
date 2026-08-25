@@ -10,6 +10,11 @@ Design Goals:
   streamlined developer experience.
 - CI/CD Ready: Structured to be eventually integrated into continuous integration
   pipelines for automated regression testing.
+
+Record baselines with TZ=UTC. The committed snapshots are UTC and CI runs UTC, so
+recording on a host in any other zone bakes that offset into every column derived
+from a naive datetime, and the snapshot then only reproduces on a machine set the
+same way. It fails as a wrong value rather than an error.
 """
 
 import sys
