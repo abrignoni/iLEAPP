@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts detailed information from WebKit Network Cache record files",
         "author": "@JamesHabben",
         "creation_date": "2024-10-24",
-        "last_update_date": "2026-08-04",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Browser",
         "notes": "The cache record layout (timestamp, hash, response-code positions) was established through reverse engineering and is unverified against WebKit source; undeciphered fields are reported as U1-U8.",
@@ -107,6 +107,7 @@ SALT_MAP = {}
 @artifact_processor
 def webkit_cache_records(context):
     data_list = []
+    source_dirs = set()
     research_mode = context.get_artifact_info().get("research_mode", False)
     data_headers = (
         'Application GUID', 'Records GUID', 'File', 'Salt', 'URI', ('Timestamp', 'datetime'), 
@@ -128,6 +129,7 @@ def webkit_cache_records(context):
             continue
         if file_found.endswith('-blob'):
             continue
+        source_dirs.add(os.path.dirname(file_found))
         if research_mode:
             logfunc(f"Processing {file_found}")
         app_guid, records_guid = extract_path_info(file_found)
@@ -249,4 +251,4 @@ def webkit_cache_records(context):
                 tuple(file_data.get(header[0] if isinstance(header, tuple) else header, '') for header in data_headers)
             )
 
-    return data_headers, data_list, 'see column data'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

@@ -13,6 +13,12 @@ jobs:
         with:
           # Required to fetch the base branch for comparison
           fetch-depth: 0
+          # Blob-less fetch; materialize everything except the committed test
+          # fixtures under admin/test/cases/data, which no step here reads.
+          sparse-checkout: |
+            /*
+            !/admin/test/cases/data
+          sparse-checkout-cone-mode: false
 
       - name: Get changed Python files
         id: changed-files-py
@@ -52,6 +58,22 @@ jobs:
       - name: Check conversation artifact column order
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_conversation_column_order.py
+      # os.path.normcase folds case on Windows, so two paths patterns differing only in
+      # case are one pattern there: the artifact reports one file twice and can leave the
+      # other file unread entirely. Use a single bracket class. See the script's docstring.
+      - name: Guard against colliding artifact paths patterns
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_artifact_paths.py
+
+      # An artifact reading a directory named for a third party library accepts a file only
+      # when its container also holds a marker file the application itself writes.
+      # files_found is built per artifact, so those marker patterns must sit in that
+      # artifact's own paths; otherwise its marker set is always empty and a guard that
+      # fails closed reports nothing on exactly the images where the app is installed.
+      # See the script's docstring.
+      - name: Guard against container-scoped artifacts with no marker pattern
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_container_markers.py
 
       # html_columns cells are written to the report without html.escape, so evidence
       # placed there can inject markup, and any remote href/src makes opening a report

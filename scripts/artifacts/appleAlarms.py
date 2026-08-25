@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Clock",
         "notes": "Repeat-schedule bitmask mapping observed in testing; not vendor-documented.",
@@ -90,7 +90,7 @@ def alarms(context):
     
     # Check if plist is valid before processing
     if not pl or not isinstance(pl, dict):
-        return (), [], ''
+        return (), [], source_path
         
     if 'MTAlarms' in pl:
         if 'MTAlarms' in pl['MTAlarms']:

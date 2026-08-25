@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-13",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -103,7 +103,7 @@ from scripts.ilapfuncs import get_file_path, open_sqlite_db_readonly, lava_get_f
 from scripts.html_safe import esc, safe_join, safe_url
 
 
-# <id, phone number (display name)> shared across the artifacts below.
+# <id or phone number, phone number (display name)> shared across the artifacts below.
 # NOTE: accounts/contacts/numbers populate entries that numbers/messages read,
 # so ID-to-number resolution is richer when artifacts run in file order;
 # readers fall back to raw IDs when an entry is missing.
@@ -343,7 +343,7 @@ def burnerCache_accounts(context):
             # lava row
             data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # contacts
@@ -463,7 +463,7 @@ def burnerCache_contacts(context):
             # lava row
             data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # numbers
@@ -640,7 +640,7 @@ def burnerCache_numbers(context):
             data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
                               rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # messages
@@ -690,10 +690,12 @@ def burnerCache_messages(context):
         burner_id = message.get('burnerId', '')
         # burner number
         burner_number = burner_uid_map.get(burner_id)
-        # contact id
+        # contact id, falling back to the phone-number key the contacts artifact also stores
         contact_id = message.get('contactId', '')
         contact_temp = burner_uid_map.get(contact_id)
-        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')       
+        if not bool(contact_temp):
+            contact_temp = burner_uid_map.get(message.get('contactPhoneNumber'))
+        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')
         # sender, recipient
         if dir_val == 1:
             sender = contact_phone_number
@@ -731,7 +733,7 @@ def burnerCache_messages(context):
                 else:
                     media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
-                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                if media_item: device_file_paths.append(get_device_file_path(media_item['source_path'], seeker))
                 break
         # message type
         message_type = message.get('messageType')
@@ -811,7 +813,7 @@ def burnerCache_messages(context):
                 else:
                     media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
-                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                if media_item: device_file_paths.append(get_device_file_path(media_item['source_path'], seeker))
                 break
         # message type
         message_type = conversation.get('messageType')
@@ -969,4 +971,4 @@ def burnerCache_messages(context):
                 location,
             ))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found

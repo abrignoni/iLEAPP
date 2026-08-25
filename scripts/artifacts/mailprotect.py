@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Apple Mail messages from the Envelope Index and Protected Index databases (iOS 13+)",
         "author": "@abrignoni - @stark4n6",
         "creation_date": "2020-05-07",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Mail",
         "notes": ("Supports iOS 13 and later. The recipients.type = 1 = To mapping was "
@@ -35,12 +35,16 @@ __artifacts_v2__ = {
         "description": "RFC 822 headers of Apple Mail messages, including CC and BCC, read from the .emlx files in MessageData",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Apple Mail",
         "notes": ("In the examined corpora no CC/BCC recipients appeared in the Envelope Index recipients table. "
                   "The CC/BCC columns are parsed per RFC 822 but no message in the available test "
-                  "corpora carries either header, so those two columns are unexercised."),
+                  "corpora carries either header, so those two columns are unexercised. "
+                  "Date headers whose zone is '-0000' or an unrecognized name are read as UTC, per "
+                  "RFC 5322 sections 3.3 and 4.3 (Universal Time, sender's local zone unknown); "
+                  "54 of the 2,010 messages in the tested corpus carry '-0000', none an "
+                  "unrecognized zone name, so the unrecognized-name path is unexercised."),
         "paths": ('*/mobile/Library/Mail/MessageData/*/*.emlx',),
         "output_types": "standard",
         "artifact_icon": "mail-opened",
@@ -56,6 +60,7 @@ import email.utils
 import os
 import re
 import sqlite3
+from datetime import timezone
 
 from scripts.ilapfuncs import (artifact_processor, attach_sqlite_db_readonly,
                                get_sqlite_db_records, logfunc,
@@ -202,6 +207,7 @@ def mailHeaders(context):
         'Subject', 'Date', 'Message ID', 'Return Path', 'List Unsubscribe',
         'Attachment Filenames', 'Global Message ID', 'Raw Headers', 'Source File')
     data_list = []
+    source_dirs = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -213,6 +219,7 @@ def mailHeaders(context):
         except OSError as ex:
             logfunc(f'Could not read {file_found}: {ex}')
             continue
+        source_dirs.add(os.path.dirname(os.path.dirname(file_found)))
 
         message = email.message_from_bytes(_EMLX_LEADING_COUNT_RE.sub(b'', raw, count=1))
 
@@ -235,6 +242,12 @@ def mailHeaders(context):
             parsed = email.utils.parsedate_to_datetime(message.get('Date')) \
                 if message.get('Date') else None
             if parsed is not None:
+                if parsed.tzinfo is None:
+                    # A '-0000' or unrecognized zone parses to a naive datetime.
+                    # RFC 5322 (3.3, 4.3) reads both as Universal Time with the
+                    # sender's zone unknown, so pin UTC here; a naive value fed to
+                    # timestamp() would shift with the host timezone instead.
+                    parsed = parsed.replace(tzinfo=timezone.utc)
                 received = convert_unix_ts_to_utc(parsed.timestamp())
         except (TypeError, ValueError, OverflowError):
             received = ''
@@ -248,4 +261,4 @@ def mailHeaders(context):
             context.get_relative_path(file_found),
         ))
 
-    return data_headers, data_list, ''
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

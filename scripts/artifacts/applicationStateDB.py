@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni - @mxkrt",
         "creation_date": "2025-08-27",
-        "last_update_date": "2025-10-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
                        "not by itself prove foreground application use or that the user viewed the image contents.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "SplashBoard runtime headers expose creationDate and lastUsedDate properties on "
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
                        "at that time.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "The property name is sourced from the runtime-derived SplashBoard header. Its forensic meaning is "
@@ -188,7 +188,7 @@ def get_installed_apps(context):
     # get the records grouped by application identifier
     applications = _do_query(file_found)
     if applications is None:
-        return (), [], ''
+        return (), [], file_found
 
     data_headers = ('Bundle ID','Bundle Path','Sandbox Path')
     data_list = []

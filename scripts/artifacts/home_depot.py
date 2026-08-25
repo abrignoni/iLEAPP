@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "description": "Cached product image URLs and HTTP Last-Modified timestamps",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Home Depot",
         "notes": "",
@@ -332,9 +332,15 @@ def _parse_http_date(value):
     if not value:
         return ''
     try:
-        return parsedate_to_datetime(value)
+        parsed = parsedate_to_datetime(value)
     except (TypeError, ValueError):
         return value
+    if parsed.tzinfo is None:
+        # A '-0000' or unrecognized zone parses to a naive datetime. RFC 5322
+        # (3.3, 4.3) reads both as Universal Time with the sender's zone
+        # unknown, so pin UTC here.
+        return parsed.replace(tzinfo=datetime.timezone.utc)
+    return parsed.astimezone(datetime.timezone.utc)
 
 
 def _stringify(value):

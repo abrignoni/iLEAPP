@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Apple Maps search history entries and timestamps from GeoHistory.mapsdata.",
         "author": "@any333",
         "creation_date": "2021-01-29",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
         "notes": "GeoHistory.mapsdata is present only on the iOS 12.4 and 13.3.1 test images; it is absent from every newer registered corpus image and public path listing checked and from all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current extractions is expected (Maps history there is parsed by the Apple Maps Sync artifacts). Search terms have been documented in GeoHistory.mapsdata by published research; the specific protobuf field positions used here were established through testing. Reference: Heather Mahalik, 'How the Grinch Stole Apple Maps Artifacts (Or Did He Just Hide Them?)', https://smarterforensics.com/2016/12/how-the-grinch-stole-apple-maps-artifacts-or-did-he-just-hide-them/",
@@ -64,6 +64,7 @@ def shortbase64proto(shortstuff, shorttypes):
 @artifact_processor
 def get_appleMapsSearchHistory(context):
     data_list = []
+    source_files = set()
 
     shorttypes = {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'bytes', 'name': ''}}, 'name': ''}, '7': {'type': 'int', 'name': ''}, '8': {'type': 'message', 'message_typedef': {'4': {'type': 'message', 'message_typedef': {'3': {'type': 'int', 'name': ''}, '4': {'type': 'message', 'message_typedef': {'1': {'type': 'message', 'message_typedef': {'1': {'type': 'double', 'name': ''}, '2': {'type': 'double', 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}, 'name': ''}}
 
@@ -83,7 +84,9 @@ def get_appleMapsSearchHistory(context):
         
         if not b or not isinstance(b, dict):
             continue
-            
+
+        source_files.add(file_found)
+
         for _, d in b.items():
             if isinstance(d, str):
                 pass
@@ -235,4 +238,4 @@ def get_appleMapsSearchHistory(context):
         'Record GUID', 'Current Location', 'Items', 'Source File'
     )
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

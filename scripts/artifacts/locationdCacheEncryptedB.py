@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Access point positions cached by locationd, keyed by BSSID',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-30',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
         'notes': ('These are positions the location service reported for access points. A row '
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
                        'a position and signal strength at the time of the scan',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-30',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
         'notes': ('Unlike the Wi-Fi Locations table, these rows record access points the '
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
                        '5G NR, CDMA and TD-SCDMA tables',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
         'notes': ('As with the Wi-Fi table, a row is the position the location service '
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
                        'covers and when it was generated and last accessed',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
         'notes': ('A tile row shows that the device held Wi-Fi location data covering an area '
@@ -154,8 +154,10 @@ def locationdWifiLocations(context):
         ('Timestamp', 'datetime'), ('ALS Query Timestamp', 'datetime'), 'Latitude',
         'Longitude', 'BSSID', 'Horizontal Accuracy', 'Altitude', 'Vertical Accuracy',
         'Speed', 'Course', 'Channel', 'Confidence', 'Score', 'Reach', 'Info Mask')
-    if not source_path or not does_table_exist_in_db(source_path, 'WifiLocation'):
+    if not source_path:
         return data_headers, data_list, ''
+    if not does_table_exist_in_db(source_path, 'WifiLocation'):
+        return data_headers, data_list, source_path
 
     # AlsQueryTimestamp arrived with iOS 26, so the column list is built from the
     # table rather than hardcoded.
@@ -203,8 +205,10 @@ def locationdWifiHarvest(context):
         'BSSID', 'RSSI', 'Channel', 'Horizontal Accuracy', 'Altitude', 'Vertical Accuracy',
         'LOI Type')
     table = 'WifiAssociatedApWifiHarvestTable'
-    if not source_path or not does_table_exist_in_db(source_path, table):
+    if not source_path:
         return data_headers, data_list, ''
+    if not does_table_exist_in_db(source_path, table):
+        return data_headers, data_list, source_path
 
     query = f'''
     SELECT Timestamp, ScanTimestamp, Latitude, Longitude, MAC, Rssi, Channel,
@@ -301,8 +305,10 @@ def locationdWifiTiles(context):
         'Latitude', 'Longitude', 'Delta Latitude', 'Delta Longitude', 'Tile X', 'Tile Y',
         'Altitude', 'Minimum Altitude', 'Maximum Altitude', 'Index Entries', 'Input Points',
         'Expiration Age', 'Version', 'Flags')
-    if not source_path or not does_table_exist_in_db(source_path, 'WifiTileHeader'):
+    if not source_path:
         return data_headers, data_list, ''
+    if not does_table_exist_in_db(source_path, 'WifiTileHeader'):
+        return data_headers, data_list, source_path
 
     query = '''
     SELECT AccessTimestamp, GenerationTimestamp, SouthwestLatitude, SouthwestLongitude,

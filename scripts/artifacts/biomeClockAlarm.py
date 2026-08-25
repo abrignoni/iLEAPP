@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Raw state values observed: 0, 1, 2 and 4. Published research states this "
@@ -61,6 +61,7 @@ def _to_str(value):
 def get_biomeClockAlarm(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -72,6 +73,7 @@ def get_biomeClockAlarm(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -94,4 +96,4 @@ def get_biomeClockAlarm(context):
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Alarm ID', 'State (raw)',
                     'Field 1 (raw)', 'Field 4 (raw)', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

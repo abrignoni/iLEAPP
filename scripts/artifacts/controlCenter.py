@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses controls/apps added to the Control Center",
         "author": "@KevinPagano3",
         "creation_date": "2024-10-18",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Control Center",
         "notes": "",
@@ -36,8 +36,10 @@ from scripts.ilapfuncs import artifact_processor, get_plist_file_content
 @artifact_processor
 def controlCenter(context):
     data_list = []
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_files.add(file_found)
         pl = get_plist_file_content(file_found)
             
         for control_type, key, prefix in [
@@ -52,6 +54,6 @@ def controlCenter(context):
 
     data_headers = ('Position', 'App Bundle', 'Control Type', 'Source File')
     
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 

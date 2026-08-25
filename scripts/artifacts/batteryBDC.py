@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
         "author": "@stark4n6",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Battery",
         "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
@@ -146,6 +146,7 @@ __artifacts_v2__ = {
 }
 
 import csv
+import os
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 
@@ -171,6 +172,11 @@ def _resolve(header, keys):
 
 def _values(row, indices):
     return [row[i] if (i is not None and i < len(row)) else '' for i in indices]
+
+
+def _source_dirs(context):
+    """Newline-joined directories of the files this artifact matched."""
+    return '\n'.join(sorted({os.path.dirname(str(f)) for f in context.get_files_found()}))
 
 
 def _iter_bdc_files(context):
@@ -256,7 +262,7 @@ def battery_bdc(context):
         'Watts',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)
 
 
 @artifact_processor
@@ -275,7 +281,7 @@ def battery_bdc_once(context):
         'Gas Gauge Firmware Version',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)
 
 
 @artifact_processor
@@ -296,7 +302,7 @@ def battery_bdc_daily(context):
         'BH Calibration Flags',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)
 
 
 @artifact_processor
@@ -311,7 +317,7 @@ def battery_bdc_weekly(context):
         'Gas Gauge Firmware Version',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)
 
 
 @artifact_processor
@@ -348,7 +354,7 @@ def battery_bdc_obc(context):
         'Vac Voltage Limit (mV)',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)
 
 
 @artifact_processor
@@ -367,7 +373,7 @@ def battery_bdc_smartcharging(context):
         'Mode Of Operation',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)
 
 
 @artifact_processor
@@ -390,7 +396,7 @@ def battery_bdc_cpmsrc(context):
         'RC Freq4 (Hz)',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)
 
 
 @artifact_processor
@@ -406,4 +412,4 @@ def battery_bdc_timestamps(context):
         'Current RTC Ticks',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)

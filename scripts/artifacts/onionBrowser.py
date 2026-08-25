@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "stored site icon",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Onion Browser",
         "notes": "Read from Documents/bookmarks.plist of the Onion Browser app "
@@ -34,7 +34,7 @@ __artifacts_v2__ = {
                        "of its strict-transport-security entry",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Onion Browser",
         "notes": "Read from Documents/hsts_cache.plist of the Onion Browser app "
@@ -94,6 +94,7 @@ def _yes_no(value):
 def onion_browser_bookmarks(context):
     files_found = [str(f) for f in context.get_files_found()]
     data_list = []
+    source_paths = set()
 
     # Icon files sit beside the plist, named by a bare UUID.
     icons_by_dir = {}
@@ -110,6 +111,7 @@ def onion_browser_bookmarks(context):
         # version-plus-bookmarks layout of this app is reported.
         if not isinstance(plist, dict) or not isinstance(plist.get('bookmarks'), list):
             continue
+        source_paths.add(found)
         icons = icons_by_dir.get(os.path.dirname(found), {})
         for entry in plist['bookmarks']:
             if not isinstance(entry, dict):
@@ -143,12 +145,13 @@ def onion_browser_bookmarks(context):
         ('Icon', 'media'),
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
 def onion_browser_hsts(context):
     data_list = []
+    source_paths = set()
 
     for found in context.get_files_found():
         found = str(found)
@@ -157,6 +160,7 @@ def onion_browser_hsts(context):
         plist = _load_plist(found)
         if not isinstance(plist, dict):
             continue
+        source_paths.add(found)
         for host, entry in sorted(plist.items(),
                                   key=lambda kv: bool(kv[1].get('preloaded'))
                                   if isinstance(kv[1], dict) else True):
@@ -182,4 +186,4 @@ def onion_browser_hsts(context):
         'Preloaded',
         'Source Path',
     )
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

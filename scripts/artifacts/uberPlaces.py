@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses Uber Places Database",
         "author": "Heather Charpentier, @JamesHabben",
         "creation_date": "2024-04-10",
-        "last_update_date": "2026-06-08",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Uber",
         "notes": "",
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
     }
 }
 
-from datetime import datetime
+from datetime import datetime, timezone
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, open_sqlite_db_readonly
 
 @artifact_processor
@@ -78,7 +78,12 @@ def uber_places(context):
                     elif isinstance(last_used, str):
                         try:
                             # Try to convert ISO string to float timestamp for sub-second precision
-                            last_used = datetime.fromisoformat(last_used.replace('Z', '+00:00')).timestamp()
+                            parsed = datetime.fromisoformat(last_used.replace('Z', '+00:00'))
+                            if parsed.tzinfo is None:
+                                # A zone-less string parses naive, and timestamp() would
+                                # read a naive value in the host timezone, so pin UTC.
+                                parsed = parsed.replace(tzinfo=timezone.utc)
+                            last_used = parsed.timestamp()
                         except ValueError:
                             # Fallback to cleaned string if conversion fails
                             last_used = last_used.replace('T', ' ').replace('Z', '')

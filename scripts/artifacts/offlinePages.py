@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Saved offline web pages (MHTML/MHT) with their captured source URL and date",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Offline Pages",
         "notes": "Source location in the extraction is provided for each item.",
@@ -30,6 +30,7 @@ def offlinePages(context):
         'MIME Date',
         'Source in Extraction')
     data_list = []
+    source_dirs = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -43,6 +44,7 @@ def offlinePages(context):
             logfunc(f'Failed to read offline page {file_found}: {ex}')
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         media_ref = check_in_media(file_found)
         data_list.append((
             modified_time,
@@ -52,4 +54,4 @@ def offlinePages(context):
             message['Date'],
             context.get_relative_path(file_found)))
 
-    return data_headers, data_list, ''
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

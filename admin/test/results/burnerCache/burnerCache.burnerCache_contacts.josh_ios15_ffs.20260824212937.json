@@ -1,0 +1,65 @@
+{
+  "metadata": {
+    "module_name": "burnerCache",
+    "artifact_name": "Burner Cache Contacts",
+    "function_name": "burnerCache_contacts",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 11,
+    "number_of_rows": 2,
+    "total_data_size_bytes": 672,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/burnerCache/testdata.burnerCache.burnerCache_contacts.josh_ios15_ffs.zip",
+    "start_time": "2026-08-24T21:29:37.847966+00:00",
+    "end_time": "2026-08-24T21:29:37.867408+00:00",
+    "run_time_seconds": 0.0011048316955566406,
+    "last_commit": {
+      "hash": "7d97d2358166a6f062088df775ca73ecf97a4db2",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-24T15:12:08-05:00",
+      "message": "Burn the test-case exclusion list down from 56 units to 3"
+    }
+  },
+  "headers": [
+    "Created",
+    "Phone number",
+    "Full name",
+    "Notes",
+    "Verified",
+    "Blocked",
+    "Muted",
+    "Burner IDs",
+    "Contact ID",
+    "Source file name",
+    "Location"
+  ],
+  "data": [
+    [
+      1613670031,
+      "+19198887386",
+      "This Is DFIR Two",
+      null,
+      "No",
+      "No",
+      "No",
+      "",
+      "1955458a-57c4-4b4e-9105-205f58f9f740",
+      "admin/test/temp/extract_burnerCache_burnerCache_contacts_1787606977/filesystem2/mobile/Containers/Data/Application/43637BC0-E3FA-4375-9A56-B85713075C0D/Library/Caches/com.adhoclabs.burner/Cache.db",
+      "cfurl_cache_receiver_data (entry_ID: 19), receiver_data[0]"
+    ],
+    [
+      1586653435,
+      "+19195790479",
+      "Josh Hickman",
+      null,
+      "No",
+      "No",
+      "No",
+      "",
+      "95e8a348-804a-46ff-b67f-288efd6e3194",
+      "admin/test/temp/extract_burnerCache_burnerCache_contacts_1787606977/filesystem2/mobile/Containers/Data/Application/43637BC0-E3FA-4375-9A56-B85713075C0D/Library/Caches/com.adhoclabs.burner/Cache.db",
+      "cfurl_cache_receiver_data (entry_ID: 19), receiver_data[1]"
+    ]
+  ]
+}

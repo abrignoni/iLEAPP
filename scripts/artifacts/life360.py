@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses Life360 location records from app logs",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Life360",
         "notes": "",
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "description": "Parses Life360 device battery records from app logs",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Life360",
         "notes": "",
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "description": "Parses Life360 chat messages",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Life360",
         "notes": "Sent-status value mapping observed in testing; unrecognized values reported as stored",
@@ -78,7 +78,7 @@ __artifacts_v2__ = {
         "description": "Parses Life360 circle members",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Life360",
         "notes": "",
@@ -130,7 +130,7 @@ def _iter_usercontext(context):
                 time_create = ''
             items.append((time_create, json_load))
         sources.append(context.get_relative_path(file_found))
-    return items, ', '.join(dict.fromkeys(sources))
+    return items, '\n'.join(dict.fromkeys(sources))
 
 
 def _find_db(context):

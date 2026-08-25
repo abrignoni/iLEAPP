@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Processes CloudKit sharing data from NoteStore.sqlite",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Cloudkit",
         "notes": "",
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "description": "Processes CloudKit participant data from NoteStore.sqlite",
         "author": "@DFIRScience",
         "creation_date": "2022-08-09",
-        "last_update_date": "2026-05-28",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Cloudkit",
         "notes": "",
@@ -121,6 +121,7 @@ def write_debug_bplist(report_folder, prefix, z_pk, data):
 def cloudkit_sharing(context):
     """ See artifact description """
     data_list = []
+    source_files = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -128,6 +129,7 @@ def cloudkit_sharing(context):
             continue
         if not has_cloudkit_table(file_found):
             continue
+        source_files.add(file_found)
 
         # Dictionary to merge share and record data by Z_PK
         shares = {}
@@ -220,19 +222,21 @@ def cloudkit_sharing(context):
         'Displayed Hostname', 'Public Permission', 'Participant Visibility',
         'Allows Anonymous Access', 'Known To Server'
     )
-    return data_headers, data_list, 'NoteStore.sqlite'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 
 @artifact_processor
 def cloudkit_participants(context):
     """ See artifact description """
     data_list = []
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('NoteStore.sqlite'):
             continue
         if not has_cloudkit_table(file_found):
             continue
+        source_files.add(file_found)
 
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
@@ -301,4 +305,4 @@ def cloudkit_participants(context):
         'Is Anonymous Invited Participant', 'Created In Process', 'Accepted In Process',
         'Name Prefix', 'First Name', 'Middle Name', 'Last Name', 'Name Suffix', 'Nickname'
     )
-    return data_headers, data_list, 'NoteStore.sqlite'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

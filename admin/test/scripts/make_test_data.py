@@ -100,6 +100,9 @@ def load_image_manifest():
         list: A list of image dictionaries from the manifest.
     """
     manifest_path = os.path.join(repo_root, 'admin', 'image_manifest.json')
+    if not os.path.exists(manifest_path):
+        sys.exit("This repo has no admin/image_manifest.json yet; use --case with --input, "
+                 "or add a manifest (see admin/docs/testing/guide_adding_images.md).")
     with open(manifest_path, 'r', encoding='utf-8') as f:
         return json.load(f)['images']
 
@@ -114,32 +117,98 @@ def expand_user_path(path):
     """
     return os.path.expanduser(path)
 
-def get_image_info(image_name):
-    """Finds an image in the manifest and validates its local path.
+LOCAL_CONFIG_FILENAME = 'image_manifest.local.json'
+
+def load_local_image_config(config_path=None):
+    """Loads the per-machine image location file, if present.
+
+    The manifest itself carries only machine-independent identity; where an
+    image lives on a given machine is recorded in a git-ignored
+    admin/image_manifest.local.json:
+
+        {
+          "image_paths": {"<image_name or sample_data_key>": "/path/to/image.zip"},
+          "search_roots": ["/path/to/a/folder/of/images"]
+        }
 
     Args:
-        image_name (str): The name of the image to look up.
+        config_path (str): Override for the config location (used by tests).
 
     Returns:
-        dict: The image's metadata dictionary from the manifest, with an
-              'input_file' key added for the validated local path.
-
-    Raises:
-        ValueError: If the image is not found in the manifest.
-        FileNotFoundError: If no valid local path for the image can be found.
+        dict: The parsed config, or an empty dict when the file is absent.
     """
-    manifest = load_image_manifest()
-    image_data = next((img for img in manifest if img['image_name'] == image_name), None)
-    if not image_data:
-        raise ValueError(f"Image '{image_name}' not found in manifest")
+    if config_path is None:
+        config_path = os.path.join(repo_root, 'admin', LOCAL_CONFIG_FILENAME)
+    if not os.path.exists(config_path):
+        return {}
+    with open(config_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def resolve_image_path(image_data, local_config):
+    """Finds an existing local copy of a manifest image.
+
+    Tried in order: an explicit "image_paths" mapping in the local config
+    (keyed by image_name or sample_data_key), the entry's legacy
+    local_image_paths list, then each local config "search_roots" directory
+    walked for a file named exactly like the entry's published_file.
+
+    Args:
+        image_data (dict): One entry from the image manifest.
+        local_config (dict): Result of load_local_image_config().
+
+    Returns:
+        str: An existing path, or None when nothing resolves.
+    """
+    mapped = local_config.get('image_paths', {})
+    for key in (image_data.get('image_name'), image_data.get('sample_data_key')):
+        if key and key in mapped:
+            candidate = expand_user_path(mapped[key])
+            if os.path.exists(candidate):
+                return candidate
+            print(f"Warning: {LOCAL_CONFIG_FILENAME} maps '{key}' to a missing path: {candidate}")
 
     for path in image_data.get('local_image_paths', []):
         expanded_path = expand_user_path(path)
         if os.path.exists(expanded_path):
-            image_data['input_file'] = expanded_path
-            return image_data
+            return expanded_path
 
-    raise FileNotFoundError(f"No valid path found for image '{image_name}'. Please add your local path to the manifest.")
+    published = image_data.get('published_file')
+    if published:
+        for root in local_config.get('search_roots', []):
+            for dirpath, _dirnames, filenames in os.walk(expand_user_path(root)):
+                if published in filenames:
+                    return os.path.join(dirpath, published)
+    return None
+
+def get_image_info(image_name, config_path=None):
+    """Finds an image in the manifest and resolves its local path.
+
+    Args:
+        image_name (str): The image_name or sample_data_key to look up.
+        config_path (str): Override for the local config location (tests).
+
+    Returns:
+        dict: The image's metadata dictionary from the manifest, with an
+              'input_file' key added for the resolved local path.
+
+    Raises:
+        ValueError: If the image is not found in the manifest.
+        FileNotFoundError: If no local copy of the image can be found.
+    """
+    manifest = load_image_manifest()
+    image_data = next((img for img in manifest
+                       if image_name in (img.get('image_name'), img.get('sample_data_key'))), None)
+    if not image_data:
+        raise ValueError(f"Image '{image_name}' not found in manifest")
+
+    resolved = resolve_image_path(image_data, load_local_image_config(config_path))
+    if resolved:
+        image_data['input_file'] = resolved
+        return image_data
+
+    raise FileNotFoundError(
+        f"No local copy found for image '{image_name}'. Map it in admin/{LOCAL_CONFIG_FILENAME} "
+        "(see admin/docs/testing/guide_adding_images.md).")
 
 def read_filepath_list(file_path_list):
     """Reads a zipped CSV file containing a list of file paths from an image.
@@ -368,7 +437,7 @@ def create_test_data(module_name, image_name=None, case_number=None, input_file=
         "description": "",
         "maker": "",
         "make_data": {
-            "input_data_path": os.path.abspath(input_file),
+            "input_data_path": os.path.basename(input_file),
             "os": platform.platform(),
             "timestamp": datetime.now().isoformat(),
             "last_commit": last_commit_info

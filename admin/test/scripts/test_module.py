@@ -53,7 +53,26 @@ def mock_logfunc(message):
     print(f"[LOGFUNC] {message}")
 
 
-def process_artifact(zip_path, module_name, artifact_name, artifact_data, target_os_version=None):
+def unwrap_data_list(data_list):
+    """Unpacks a (data_list, html_data_list) artifact return the way artifact_processor
+    does (scripts/ilapfuncs.py), so snapshots hold the plain rows the LAVA, TSV and
+    timeline outputs consume instead of the two lists serialized as two giant rows."""
+    if isinstance(data_list, tuple):
+        return data_list[0]
+    return data_list
+
+
+def artifact_declaration_order(artifacts_info):
+    """Artifact names mapped to their __artifacts_v2__ declaration position.
+
+    Production runs a module's artifacts in declaration order (ileapp.py sorts
+    plugins by category only, and that sort is stable), and modules with
+    cross-artifact state depend on it, so tests must execute in the same order.
+    """
+    return {name: index for index, name in enumerate(artifacts_info)}
+
+
+def process_artifact(zip_path, module_name, artifact_name, _artifact_data, target_os_version=None):
     """
     Processes a specific artifact from a given zip file.
 
@@ -61,7 +80,7 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
         zip_path (Path): Path to the zip file containing test data.
         module_name (str): Name of the artifact module.
         artifact_name (str): Name of the artifact function to test.
-        artifact_data (dict): Metadata about the artifact from the test case.
+        _artifact_data (dict): Metadata about the artifact from the test case (unused).
         target_os_version (str, optional): OS version to mock for the test.
 
     Returns:
@@ -146,14 +165,14 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
         mock_lava_db_instance.commit.return_value = None
 
         # <<< NEW MOCKS FOR CHECK_IN_MEDIA >>>
-        def mocked_check_in_media(file_path, *args, **kwargs):
+        def mocked_check_in_media(file_path, *_args, **_kwargs):
             nonlocal check_in_media_call_count
             check_in_media_call_count += 1
             # Simplified return for counter, avoiding deep side effects of original if problematic
             return f"mock_hash_for_{os.path.basename(str(file_path))}"
 
 
-        def mocked_check_in_embedded_media(*args, **kwargs):
+        def mocked_check_in_embedded_media(*_args, **_kwargs):
             nonlocal check_in_media_embedded_call_count
             check_in_media_embedded_call_count += 1
             # Similar to above, call original or return dummy
@@ -180,7 +199,7 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
             }
 
         patches = [
-            patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo),
+            patch('scripts.ilapfuncs.logdevinfo', mock_logdevinfo, create=True),
             patch(f'scripts.artifacts.{module_name}.logdevinfo', mock_logdevinfo, create=True),
             patch(f'scripts.artifacts.{module_name}.logfunc', mock_logfunc, create=True),
             patch('scripts.lavafuncs.lava_db', mock_lava_db_instance),
@@ -196,8 +215,10 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
 
         ]
 
-        # If a target OS version is provided, mock iOS.get_version()
-        if target_os_version:
+        # If a target OS version is provided, mock iOS.get_version() where the
+        # core defines it (iLEAPP); other cores have no such class to mock.
+        import scripts.ilapfuncs as _ilapfuncs
+        if target_os_version and hasattr(_ilapfuncs, 'iOS'):
             mock_ios_get_version = MagicMock(return_value=target_os_version)
             patches.append(patch('scripts.ilapfuncs.iOS.get_version', mock_ios_get_version))
 
@@ -229,6 +250,8 @@ def process_artifact(zip_path, module_name, artifact_name, artifact_data, target
                                                                timezone_offset)
             finally:
                 Context.clear()
+
+            data_list = unwrap_data_list(data_list)
 
             end_time = time.time()
 
@@ -268,7 +291,7 @@ def load_test_cases(module_name):
         return json.load(f)
 
 
-def get_artifact_names(module_name, test_cases):
+def get_artifact_names(_module_name, test_cases):
     """
     Retrieves all artifact names defined in the test cases for a module.
 
@@ -279,9 +302,9 @@ def get_artifact_names(module_name, test_cases):
     Returns:
         list: List of artifact names.
     """
-    artifact_names = set()
+    artifact_names = {}
     for case in test_cases.values():
-        artifact_names.update(case['artifacts'].keys())
+        artifact_names.update(dict.fromkeys(case['artifacts'].keys()))
     return list(artifact_names)
 
 
@@ -490,6 +513,14 @@ def main(module_name, artifact_name=None, case_number=None):
 
         module = importlib.import_module(f'scripts.artifacts.{module_name}')
         artifacts_info = getattr(module, '__artifacts_v2__', {})
+
+        # Execute in production's order so cross-artifact state (module-level maps
+        # populated by earlier artifacts) matches a real run, and so two recordings
+        # of the same code and data cannot differ by iteration order.
+        declaration_order = artifact_declaration_order(artifacts_info)
+        artifacts_to_process = sorted(
+            artifacts_to_process,
+            key=lambda name: (declaration_order.get(name, len(declaration_order)), name))
 
         for case in cases_to_process:
             case_data = test_cases[case]

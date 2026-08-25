@@ -81,11 +81,18 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | duetNotificationSuggestions |
 | facebookMessenger |
 | filesApp |
+| firefoxIOS |
+| fitbitIOS |
 | foursquareSwarm |
 | geodApplications |
 | geodPDPlaceCache |
+| googleCalendar |
+| googleDocs |
 | googleDrive |
 | googleDuo |
+| googleMaps |
+| googlePhotos |
+| googleSheets |
 | googleTranslate |
 | googleVoice |
 | groupMe |
@@ -108,6 +115,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | meWe |
 | mediaLibrary |
 | mega |
+| netflix |
 | netusage |
 | notes |
 | notesPasswordProtected |
@@ -179,6 +187,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 |----------------|
 | DataUsage |
 | ZangiChats |
+| amazonShopping |
 | applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
@@ -204,6 +213,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | geodMapTiles |
 | gmail |
 | googleChat |
+| googlePhotos |
 | keyboard |
 | keychain |
 | kikGroupadmins |
@@ -213,6 +223,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | knowledgeC |
 | lidl_plus |
 | mapsSync |
+| netflix |
 | serialNumber |
 | swissmeteo |
 | teams |

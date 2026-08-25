@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         "description": "Extracts iCloud sync, Email, FaceTime, more.",
         "author": "@djangofaiola",
         "creation_date": "2024-07-16",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Identity Lookup Service",
         "notes": "https://djangofaiola.blogspot.com "
@@ -515,4 +515,4 @@ def idstatuscache(context):
                     f"Info - File {file_found} yielded no records "
                     "(it might be empty, corrupted, or a legacy residue).")
 
-    return data_headers, data_list, "; ".join(source_paths)
+    return data_headers, data_list, "\n".join(source_paths)

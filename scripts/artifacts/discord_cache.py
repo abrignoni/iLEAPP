@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "name": "Discord Cache",
         "description": "Parses Discord URL cache records and files from Cache.db and fsCachedData",
         "author": "@JamesHabben",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-21",
         "creation_date": "2026-05-29",
         "last_updated": "2026-05-29",
         "requirements": "none",
@@ -122,6 +122,7 @@ def discord_cache(context):
     # Track all fsCachedData files to find orphans
     fs_cached_files = {} # path -> seen_in_db (bool)
     cache_db_files = []
+    source_paths = set()
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -168,6 +169,8 @@ def discord_cache(context):
             logfunc(f"Error querying Discord Cache.db at {cache_db}: {e}")
             db.close()
             continue
+
+        source_paths.add(cache_db)
 
         # Get the sibling fsCachedData directory
         cache_dir = os.path.dirname(cache_db)
@@ -271,6 +274,7 @@ def discord_cache(context):
     for path, seen in fs_cached_files.items():
         if not seen:
             # Orphaned file
+            source_paths.add(os.path.dirname(path))
             payload_data = None
             payload_size = 0
             try:
@@ -313,4 +317,4 @@ def discord_cache(context):
         'Source DB'
     )
 
-    return data_headers, data_list, 'See source file(s) below:'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

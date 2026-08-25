@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Discord - Account",
         "description": "Parses Discord accounts",
         "author": "@abrignoni",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-21",
         "creation_date": "2020-09-15",
         "last_updated": "2025-11-25",
         "requirements": "none",
@@ -53,9 +53,11 @@ def strings(filename, min_length=4):
 @artifact_processor
 def get_discordAcct(context):
     data_list = []
-    data_headers = ('Key Name', 'Data Value', 'Source File')   
+    data_headers = ('Key Name', 'Data Value', 'Source File')
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_files.add(file_found)
         searchlist = []
         for s in strings(file_found):
             searchlist.append(str(s),)
@@ -78,5 +80,5 @@ def get_discordAcct(context):
                 except (IndexError, TypeError) as e:
                     logfunc(f"Error parsing email_cache: {str(e)}")
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
     

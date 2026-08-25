@@ -1,0 +1,43 @@
+name: Request Test Data
+
+# Asks external contributors for test data when a PR changes artifact modules
+# without any. pull_request_target so the comment can be posted on fork PRs;
+# safe here because the job checks out and runs only the base branch's code.
+# The contributor's files are fetched as text by the script and never executed.
+
+on:
+  pull_request_target:
+    # labeled: a maintainer applying the bot-test label fires the flow at once
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - 'scripts/artifacts/**'
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  request-test-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          # Blob-less fetch; the script needs only admin/ sources, not the
+          # committed test fixtures under admin/test/cases/data.
+          sparse-checkout: |
+            /*
+            !/admin/test/cases/data
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Check the PR for test data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python admin/scripts/check_pr_test_data.py

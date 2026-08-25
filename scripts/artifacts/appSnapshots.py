@@ -6,7 +6,7 @@ __artifacts_v2__ = {
             than 2500 bytes are skipped.",
         "author": "@ydkhatri - @AlexisBrignoni",
         "creation_date": "2020-07-23",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "Apple explains that UIKit takes a scene snapshot after an app enters the background for display in "
@@ -148,6 +148,7 @@ def _manifest_record(index, media_path, bundle_id, snapshot_group):
 def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_text, timezone_offset):
     # artifact_info = inspect.stack()[0]
     data_list = []
+    source_dirs = set()
 
     files_found = context.get_files_found()
     manifest_index = _manifest_index(files_found)
@@ -191,6 +192,8 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
         
         if not media_item:
             continue
+
+        source_dirs.add(str(media_path.parent))
             
         last_modified_date = convert_unix_ts_to_utc(lava_get_full_media_info(media_item)['updated_at'])
         creation_date = manifest.creationDate if manifest else ''
@@ -221,4 +224,4 @@ def applicationSnapshots(context): #files_found, report_folder, seeker, wrap_tex
         ('Snapshot', 'media'),
     )
 
-    return data_headers, data_list, 'see Source Path for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
