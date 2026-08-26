@@ -1,28 +1,29 @@
 __artifacts_v2__ = {
     "get_biomeAppinstall": {
         "name": "Biome - App Install",
-        "description": "Parses app install entries from biomes",
+        "description": "App install entries from the App.Install and _DKEvent.App.Install Biome streams",
        "author": "@JohnHyla, @Gear-I",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records carry the activity, the bundle id, the event and write timestamps and the app display strings. App.Install records carry only a bundle id and one integer, which is reported as stored because no source documenting its meaning was identified. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their timestamp and offset only. Paths containing 'tombstone' are not parsed. Across the tested images those files hold the Biome daemons' own record of retired stream files, naming the file, a byte size and a record count, and no record in them carried a bundle identifier or an application event.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.App.Install/local/*', '*/Biome/streams/restricted/App.Install/local/*'),
         "output_types": "standard",
         "artifact_icon": "package",
         "sample_data": {
-            "dexter_ios18": "iOS 18.3.2 | 178 rows",
-            "felix_ios17": "iOS 17.6.1 | 228 rows",
-            "fsfull002_ios17": "iOS 17.1 | 120 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 194 rows",
-            "iphone11_ios17": "iOS 17.3 | 151 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 92 rows",
-            "otto_ios17": "iOS 17.5.1 | 244 rows",
-            "iphone12_ios18": "iOS 18.7 | 123 rows",
             "abe_ios16": "iOS 16.5 | 142 rows",
             "felix23_ios16": "iOS 16.5 | 88 rows",
             "magnet_ios16": "iOS 16.1.1 | 64 rows",
+            "felix_ios17": "iOS 17.6.1 | 262 rows",
+            "fsfull002_ios17": "iOS 17.1 | 120 rows",
+            "iphone11_ios17": "iOS 17.3 | 151 rows",
+            "otto_ios17": "iOS 17.5.1 | 244 rows",
+            "dexter_ios18": "iOS 18.3.2 | 179 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 200 rows",
+            "iphone12_ios18": "iOS 18.7 | 168 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 98 rows",
+            "hc_ios26": "iOS 26.5.2 | 266 rows",
         }
     }
 }
@@ -105,6 +106,14 @@ def get_biomeAppinstall(context):
         '10': {'type': 'int', 'name': ''}
     }
 
+    # App.Install records are a different message from _DKEvent.App.Install: a bundle id
+    # and a single integer. Applying the typedef above to them fails on every record, so
+    # the stream directory selects the layout.
+    minimal_typess = {
+        '1': {'type': 'str', 'name': ''},
+        '5': {'type': 'int', 'name': ''}
+    }
+
     data_list = []
     source_dirs = set()
 
@@ -121,12 +130,31 @@ def get_biomeAppinstall(context):
         if 'tombstone' in file_found:
             continue
 
-        source_dirs.add(os.path.dirname(file_found))
+        parent = os.path.dirname(file_found)
+        is_dkevent = '_DKEvent.App.Install' in parent
+        stream = '_DKEvent.App.Install' if is_dkevent else 'App.Install'
+
+        source_dirs.add(parent)
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
+                if not is_dkevent:
+                    try:
+                        minimal, _ = blackboxprotobuf.decode_message(record.data, minimal_typess)
+                    except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
+                        logfunc(f"Skipping biomeAppinstall record due to protobuf decode error: {ex} |"
+                                f"File: {context.get_relative_path(file_found)} | "
+                                f"Offset: {record.data_start_offset}"
+                                )
+                        continue
+                    data_list.append((
+                        ts, None, None, None, record.state.name, stream, None,
+                        minimal.get('1', ''), None, None, None, None,
+                        minimal.get('5', ''), filename, record.data_start_offset
+                    ))
+                    continue
                 try:
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
@@ -161,12 +189,14 @@ def get_biomeAppinstall(context):
                     timeend,
                     timewrite,
                     record.state.name,
+                    stream,
                     activity,
                     bundleid,
                     bundleinfo,
                     appinfo1,
                     appinfo2,
                     actionguid,
+                    '',
                     filename,
                     record.data_start_offset
                 ))
@@ -178,6 +208,8 @@ def get_biomeAppinstall(context):
                     None,
                     None,
                     record.state.name,
+                    stream,
+                    None,
                     None,
                     None,
                     None,
@@ -194,12 +226,14 @@ def get_biomeAppinstall(context):
         ('Time End', 'datetime'),
         ('Time Write', 'datetime'),
         'SEGB State',
+        'Stream',
         'Activity',
         'Bundle ID',
         'Bundle Info',
         'App Info',
         'App Info2',
         'Action GUID',
+        'Event Value (as stored)',
         'Filename',
         'Offset'
     )

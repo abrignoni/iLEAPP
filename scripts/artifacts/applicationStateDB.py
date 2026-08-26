@@ -37,10 +37,15 @@ __artifacts_v2__ = {
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni - @mxkrt",
         "creation_date": "2025-08-27",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The bundle identifier is read from each application identifier's compatibilityInfo "
+                 "blob, so an application identifier whose compatibilityInfo is absent or unparseable "
+                 "is logged and left out of this table. Absence of a bundle identifier here therefore "
+                 "means the mapping this parser needs was not available in applicationState.db. It is "
+                 "not evidence that the application was never installed, and other sources such as the "
+                 "Mobile Installation logs may still carry its install and uninstall history.",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": ["html","tsv","lava"],
         "artifact_icon": "package",
