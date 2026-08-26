@@ -122,6 +122,37 @@ __artifacts_v2__ = {
             "iphone14plus_ios18": "iOS 18.0 | 6 rows",
             "hc_ios26": "iOS 26.5.2 | 4 rows",
         }
+    },
+    "mobileInstall_container_only": {
+        "name": "Apps - Container Activity Only",
+        "description": "Bundle IDs that mobile_installation.log mentions only through container or patch activity, with no installer-reported install or uninstall",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-08-25",
+        "last_update_date": "2026-08-25",
+        "requirements": "none",
+        "category": "Mobile Installation Logs",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. These bundle IDs appear in the log but never in an 'Install successful', 'Uninstalling identifier' or 'Destroying container' line, so Apps - Installed and Apps - Uninstalled do not list them. That happens when the install predates the retained log window. Presence here shows the log mentioned the bundle; it does not establish that the app was installed, and absence of an install line is not evidence that it was not. App extension bundle IDs appear here because extensions have their own containers. Parent Bundle ID (by prefix) is filled in when another bundle ID in the same log is a dotted prefix of this one, which is Apple's convention for an extension and its host app; it is read from the identifier strings, not from a relationship the log records. The Source Event column names the most recent line that mentioned the bundle.",
+        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "box",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 92 rows",
+            "hickman_ios13": "iOS 13.3.1 | 137 rows",
+            "hickman_ios14": "iOS 14.3 | 157 rows",
+            "jess_ios15": "iOS 15.0.2 | 534 rows",
+            "abe_ios16": "iOS 16.5 | 173 rows",
+            "felix23_ios16": "iOS 16.5 | 168 rows",
+            "magnet_ios16": "iOS 16.1.1 | 215 rows",
+            "felix_ios17": "iOS 17.6.1 | 192 rows",
+            "fsfull002_ios17": "iOS 17.1 | 204 rows",
+            "iphone11_ios17": "iOS 17.3 | 143 rows",
+            "otto_ios17": "iOS 17.5.1 | 158 rows",
+            "dexter_ios18": "iOS 18.3.2 | 145 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 136 rows",
+            "iphone12_ios18": "iOS 18.7 | 174 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 169 rows",
+            "hc_ios26": "iOS 26.5.2 | 160 rows",
+        }
     }
 }
 
@@ -295,6 +326,31 @@ def _latest_state_per_bundle(events):
     return {bundle: event for bundle, (event, _index) in latest.items()}
 
 
+def _latest_non_state_per_bundle(events, stateful):
+    """Most recent event per bundle id that has no installer-reported outcome anywhere in the log."""
+    latest = {}
+    for index, event in enumerate(events):
+        bundle = event[2]
+        if not bundle or bundle in stateful:
+            continue
+        if bundle not in latest or (event[0], index) >= (latest[bundle][0][0], latest[bundle][1]):
+            latest[bundle] = (event, index)
+    return {bundle: event for bundle, (event, _index) in latest.items()}
+
+
+def _parent_by_prefix(bundle, all_bundles):
+    """The longest other bundle id in the same log that this one extends with a dot.
+
+    Apple's convention is that an app extension's bundle id extends its host app's, so
+    this is a string relationship read off the ids, not a link the log records.
+    """
+    best = ''
+    for candidate in all_bundles:
+        if candidate != bundle and bundle.startswith(candidate + '.') and len(candidate) > len(best):
+            best = candidate
+    return best
+
+
 @artifact_processor
 def mobileInstall_installed(context):
     data_headers = ('Last Installed', 'Bundle ID', 'Source Event')
@@ -326,4 +382,16 @@ def mobileInstall_reboots(context):
     data_headers = ('Timestamp (Local Time)', 'Description')
     events, source = _events_and_source(context)
     data_list = [(ev[0], ev[1]) for ev in events if ev[1] == 'Reboot detected']
+    return data_headers, data_list, source
+
+
+@artifact_processor
+def mobileInstall_container_only(context):
+    data_headers = ('Last Seen', 'Bundle ID', 'Parent Bundle ID (by prefix)', 'Source Event')
+    events, source = _events_and_source(context)
+    stateful = set(_latest_state_per_bundle(events))
+    remaining = _latest_non_state_per_bundle(events, stateful)
+    all_bundles = {ev[2] for ev in events if ev[2]}
+    data_list = [(ev[0], ev[2], _parent_by_prefix(ev[2], all_bundles), ev[1])
+                 for ev in remaining.values()]
     return data_headers, data_list, source
