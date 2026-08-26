@@ -15,7 +15,9 @@ __artifacts_v2__ = {
                  "reported. Two 16 byte values accompany each event and are surfaced as hex "
                  "digests; their role is not established. The version and 16 byte fields are read "
                  "with a pinned field type because some of those values are themselves valid "
-                 "protobuf and an inferring decode reports them as empty.",
+                 "protobuf and an inferring decode reports them as empty. Paths containing 'tombstone' "
+                 "are not parsed; across the tested images those files hold the Biome daemons' own "
+                 "record of retired stream files and carried no application event.",
         "paths": ('*/streams/*/App.Installation/local/*',),
         "output_types": "standard",
         "artifact_icon": "download",

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records carry the activity, the bundle id, the event and write timestamps and the app display strings. App.Install records carry only a bundle id and one integer, which is reported as stored because no source documenting its meaning was identified. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their timestamp and offset only. Paths containing 'tombstone' are not parsed.",
+        "notes": "Covers two Biome streams that carry different record layouts. _DKEvent.App.Install records carry the activity, the bundle id, the event and write timestamps and the app display strings. App.Install records carry only a bundle id and one integer, which is reported as stored because no source documenting its meaning was identified. The Stream column names the source stream for each row. Records whose SEGB state is Deleted are reported with their timestamp and offset only. Paths containing 'tombstone' are not parsed. Across the tested images those files hold the Biome daemons' own record of retired stream files, naming the file, a byte size and a record count, and no record in them carried a bundle identifier or an application event.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.App.Install/local/*', '*/Biome/streams/restricted/App.Install/local/*'),
         "output_types": "standard",
         "artifact_icon": "package",
