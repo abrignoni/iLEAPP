@@ -7,18 +7,20 @@ __artifacts_v2__ = {
                        "App.Install and _DKEvent.App.Install streams.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The event type field takes values 1, 2 and 3 in the sample; which of install, "
-                 "update and removal each denotes is not confirmed, so the raw value is "
+        "notes": "The event type field takes values 0, 1, 2 and 3 in the tested sample; which of "
+                 "install, update and removal each denotes is not confirmed, so the raw value is "
                  "reported. Two 16 byte values accompany each event and are surfaced as hex "
-                 "digests; their role is not established.",
+                 "digests; their role is not established. The version and 16 byte fields are read "
+                 "with a pinned field type because some of those values are themselves valid "
+                 "protobuf and an inferring decode reports them as empty.",
         "paths": ('*/streams/*/App.Installation/local/*',),
         "output_types": "standard",
         "artifact_icon": "download",
         "sample_data": {
-            "hc_ios26": "26.5.2 | 232 rows",
+            "hc_ios26": "iOS 26.5.2 | 232 rows",
         },
     }
 }
@@ -36,6 +38,18 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 
 _DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
                   IndexError)
+
+# The version strings and the two 16 byte values are sometimes themselves valid protobuf,
+# and an inferring decode reads those as nested messages, which blanks the column. Only
+# these four fields are pinned; everything else is still inferred, so the fixed64 fields
+# keep arriving as integers for _unix_double().
+_TYPEDEF = {
+    '3': {'type': 'message', 'name': '', 'message_typedef': {
+        '2': {'type': 'str', 'name': ''},
+        '3': {'type': 'str', 'name': ''},
+        '4': {'type': 'bytes', 'name': ''},
+        '5': {'type': 'bytes', 'name': ''}}},
+}
 
 
 def _to_str(value):
@@ -85,7 +99,7 @@ def get_biomeAppInstallation(context):
 
             if record.state == EntryState.Written:
                 try:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, _TYPEDEF)
                 except _DECODE_ERRORS as ex:
                     logfunc(f'App Installation: could not decode record at offset '
                             f'{record.data_start_offset} in {filename}: {ex}')
