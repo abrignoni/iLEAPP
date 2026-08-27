@@ -91,6 +91,39 @@ An exact match can fail, and a failure is a real result; a ranked guess always r
 something. When no recorded link exists, say so and say what you checked, so the next person
 does not re-derive the same dead ends.
 
+### The framework shortens one path and no others
+
+Every seeker copies matched evidence into `<report folder>/data/`, so each `files_found`
+entry is an absolute path on the machine running the tool. `artifact_processor` splits the
+**third element** of your return tuple on `\n` and passes each piece through
+`Context.get_relative_path`. Nothing else is touched. A staged path placed in a data row goes
+verbatim into the HTML, the TSV, the timeline, the KML and the LAVA database, publishing the
+examiner's home directory, case folder and report layout to everyone who reads the report.
+
+Shorten the path where it enters the row, not centrally afterwards:
+
+```python
+data_list.append((timestamp, name, context.get_relative_path(file_found)))
+```
+
+Two things stop this showing up on its own:
+
+- `get_relative_path` returns its input unchanged when the data folder is unset, so wherever
+  that state is missing a leaking artifact and a correct one produce byte-identical output.
+  The committed test harness is one such place, which is why a fixture comparison cannot tell
+  them apart. Read a report from a real run instead.
+- A module that builds its own `ArtifactHtmlReport` rather than returning to the wrapper skips
+  the normalization entirely, including its own "located at" line.
+
+The third element itself has to be real paths, newline joined, because that is what the
+wrapper splits. Placeholder prose (`'see the Source File column'`), several paths joined with
+`'; '` or `', '`, and an empty string on a run that parsed data are all silent defects: the
+report's "located at" line then points nowhere. Return `''` only from a branch where no file
+was found. A file that exists but lacks the expected table still reports its path.
+
+`admin/scripts/check_report_local_paths.py` and `admin/scripts/check_source_path.py` gate both
+halves in CI. Run them before opening the PR.
+
 ### Three failure modes that are silent by construction
 
 **An index keyed on a bare name merges two app data directories.** The moment you write
