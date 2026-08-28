@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - '**.py' # only trigger on python files
+
+permissions:
+  contents: read
+
 jobs:
   lint-changed-files:
     runs-on: ubuntu-latest
