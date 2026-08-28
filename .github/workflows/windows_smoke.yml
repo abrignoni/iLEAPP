@@ -12,6 +12,9 @@ on:
       - '.github/workflows/windows_smoke.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   windows-smoke:
     runs-on: windows-latest

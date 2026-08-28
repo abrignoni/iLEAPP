@@ -17,6 +17,9 @@ on:
       - 'ileapp.py'
       - 'ileappGUI.py'
 
+permissions:
+  contents: read
+
 jobs:
   runtime-contract:
     runs-on: ubuntu-latest
