@@ -27,6 +27,11 @@ from scripts.ios_keychain import report_supplied_keychain
 from scripts.lavafuncs import lava_json_name
 
 
+# How many of the slowest artifacts to list at the end of a run. Enough to show a
+# pattern, short enough that nobody has to scroll past it.
+SLOWEST_ARTIFACTS_TO_REPORT = 10
+
+
 def validate_args(args):
     if args.artifact_paths or args.create_profile_casedata:
         return  # Skip further validation if --artifact_paths is used
@@ -471,14 +476,19 @@ def crunch_artifacts(
 
     # Search for the files per the arguments
     parsed_modules = 0
+    plugin_run_times = []
     lava_only = False
     artifact_search_pattern_id = 0
     file_path_ids = set()
 
     for plugin_number, plugin in enumerate(plugins, start=1):
+        # Timed from here, before the file search, because the search runs after the
+        # "artifact started" line is printed and is itself a place a run can sit.
+        plugin_start = perf_counter()
         logfunc()
-        logfunc('[{}/{}] {} [{}] artifact started'.format(plugin_number, len(plugins),
-                                                              plugin.name, plugin.module_name))
+        logfunc('[{}/{}] {} [{}] artifact started at {} UTC'.format(plugin_number, len(plugins),
+                                                              plugin.name, plugin.module_name,
+                                                              strftime('%H:%M:%S', gmtime())))
         output_types = plugin.artifact_info.get('output_types', '')
         if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
             search_regexes = plugin.search
@@ -555,13 +565,20 @@ def crunch_artifacts(
                 logfunc('Reading {} artifact had errors!'.format(plugin.name))
                 logfunc('Error was {}'.format(str(ex)))
                 logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
+                plugin_elapsed = perf_counter() - plugin_start
+                plugin_run_times.append((plugin.name, plugin_elapsed))
+                logfunc('{} [{}] artifact failed after {:.1f}s'.format(
+                    plugin.name, plugin.module_name, plugin_elapsed))
                 lava_add_module(plugin.module_name, "Error", len(files_found), plugin.name)
                 continue  # nope
             lava_add_module(plugin.module_name, "Complete", len(files_found), plugin.name)
         else:
             lava_add_module(plugin.module_name, "No files found", 0, plugin.name)
             logfunc("No file found")
-        logfunc('{} [{}] artifact completed'.format(plugin.name, plugin.module_name))
+        plugin_elapsed = perf_counter() - plugin_start
+        plugin_run_times.append((plugin.name, plugin_elapsed))
+        logfunc('{} [{}] artifact completed in {:.1f}s'.format(
+            plugin.name, plugin.module_name, plugin_elapsed))
         parsed_modules += 1
         GuiWindow.SetProgressBar(parsed_modules, len(plugins))
         log.flush()
@@ -580,6 +597,16 @@ def crunch_artifacts(
     run_time_secs =  end_wall - start_wall
     run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
     logfunc("Run time (wall clock) = {}".format(run_time_HMS))
+
+    # Filtered on the rounded value so the list holds exactly what the per-artifact
+    # lines showed as 1.0s or more, with no artifact visible above the cut but missing here.
+    slowest = sorted((entry for entry in plugin_run_times if round(entry[1], 1) >= 1.0),
+                     key=lambda item: item[1], reverse=True)[:SLOWEST_ARTIFACTS_TO_REPORT]
+    if slowest:
+        logfunc('')
+        logfunc('Slowest artifacts:')
+        for artifact_name, elapsed in slowest:
+            logfunc('  {:>8.1f}s  {}'.format(elapsed, artifact_name))
 
     logfunc('')
     logfunc('Report generation started.')
