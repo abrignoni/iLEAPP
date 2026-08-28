@@ -160,6 +160,13 @@ Build a focused profile containing only the artifacts you changed so the run is 
 Record what you verified in `sample_data` as `"<corpus key>": "<OS> <ver> | <n> rows"`.
 Record zero-row corpora too: that a corpus was checked and had none is useful.
 
+`python3 admin/scripts/validate_sample_data.py --emit <image> --key <corpus key>` prints
+these values for you: it runs the tool on a zip, tar, gz or extraction directory, asserts
+the completion marker and greps the error vocabulary itself, and emits paste-ready blocks
+for the modules changed on the branch (or `--modules`), with every zero flagged as
+unverified. Add the app name and version yourself, and confirm a zero against the source
+store before recording it. The two checks below still apply to any run you scrape by hand.
+
 **Assert the run finished.** Scrape counts only from a log containing the tool's own
 end-of-work marker, and record a sentinel rather than zero when it is absent. A default of
 zero in an error path asserts a measurement that was never taken, and a zero is
