@@ -97,10 +97,8 @@ CLAIM_PATTERN = re.compile(
     r'|\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|read|sent'
     r'|created|hid|chose)\b'
     r'|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b'
-    r'|\bsearched by\b'
-    r'|\btyped by\b'
-    r'|\bviewed by\b'
-    r'|\bread by\b'
+    r'|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|delet'
+    r'ed|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b'
     r'|\bmanually\b'
     r'|\bproves?\b'
     r'|\bdefinitively\b'
@@ -128,9 +126,8 @@ NOTES_PATTERN = re.compile(
     r'\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|read|sent'
     r'|created|hid|chose)\b'
     r'|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b'
-    r'|\bsearched by\b'
-    r'|\btyped by\b'
-    r'|\bviewed by\b'
+    r'|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|delet'
+    r'ed|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b'
     r'|\bmanually\b'
     r'|\bproves?\b'
     r'|\bdefinitively\b'
@@ -225,8 +222,13 @@ ALLOWLIST = {
 
     # "originally typed by the user" is quoted verbatim from the CREATE TABLE comment
     # stored in Apple's own database, which the note says it is quoting.
-    ('keyboard.py', 'keyboardAutocorrectionRejections', 'notes', 'typed by'),
-    ('keyboard.py', 'keyboardInlineCompletionRejections', 'notes', 'typed by'),
+    ('keyboard.py', 'keyboardAutocorrectionRejections', 'notes', 'typed by the user'),
+    ('keyboard.py', 'keyboardInlineCompletionRejections', 'notes', 'typed by the user'),
+
+    # The description cites Apple's documentation for how Medical ID is populated and
+    # says in the same sentence that the contents are not verified. A sourced claim
+    # carrying its own hedge is what the standard asks for.
+    ('medicalID.py', 'medicalID', 'description', 'entered by the user'),
 
     # "It does not establish that the profile was displayed to the user, that the user
     # viewed it, or that the user acted on it" is a denial governing a list. The
