@@ -35,29 +35,19 @@ differ the sidecars are load-bearing and must be in your `paths` glob.
 
 ## 2. Decide what is worth reporting
 
-Ask of each candidate table and column: **what question does this let an examiner answer,
-and what would they do with a row?** If the honest answer is "nothing", it does not ship.
-Having decoded something is not a reason to report it.
+**The `leapp-artifact-value` rule is the bar. Read it before deciding anything here.** This
+section is only the order of operations for clearing that bar with the extraction open.
 
-Four things that look like user activity and are not:
-
-- **A server-supplied catalogue.** Suggestion dictionaries, trending feeds, rate tables,
-  help articles, device lists, effect libraries. Ask "could this row exist if the user had
-  never touched the feature?" Tells: the app's own preferences name the fetch, ids are
-  contiguous with no gaps, there is a relevance or score column, or a sibling table records
-  when it was downloaded. Report the fetch time and the row count, never the contents.
-- **A shipped candidate list.** A table of paths or names the app *looks for*, which reads
-  as a list of what the device *has*. Directory names in a language the device does not use,
-  or paths belonging to apps that need not be installed, are the tell.
-- **Prefetched content.** A feed row whose own column says it arrived by background prefetch
-  records that the app fetched it, not that anyone saw it.
-- **A constant column.** Uniformly null or uniformly identical across every row is noise, and
-  it is also a bug tell: a derivation that never ran looks exactly like this. Drop it, or keep
-  it and say in the notes that it was uniform and why it still earns its place.
-
-Aggregate what should be aggregated. A cache of 800 files belonging to 70 titles is 70 rows
-with a file count, not 800 rows. When you summarise rather than enumerate, say so in the
-notes and name the path, so the next examiner who needs the detail knows where it is.
+1. **Enumerate every store in the extraction, across all file types**, not just the ones
+   that enumerate themselves. Inventory by extension with sizes alongside the magic-byte
+   scan from step 1, so a format class you have not considered is visible.
+2. **List every table with its row count and its full schema.** Both, because the ranking
+   that matters is what the columns promise and the counts rank it backwards.
+3. **Sort the candidates by what a row would let an examiner do**, then draw the line.
+4. **Write down which side each table fell on, the excluded ones included**, in the notes
+   and in the PR body. Nothing else in the diff records that a table was considered, so an
+   omission and a reasoned exclusion are indistinguishable without it.
+5. Turn every zero-row table you kept into a checked absence in `sample_data`.
 
 ## 3. Check the siblings first
 
