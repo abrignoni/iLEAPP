@@ -27,12 +27,12 @@ __artifacts_v2__ = {
                        "Tor connection mode and any custom bridge the user configured",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "OrNET Browser",
         "notes": "Values are read directly from the app preferences plist. Each configured custom "
                  "bridge is reported on its own row; a bridge line contains the transport, the "
-                 "relay address and its fingerprint as the user entered them. The app with "
+                 "relay address and its fingerprint, reported as stored. The app with "
                  "bundle id ch.b-eng.tor names itself OrNET Browser in its bundle's Info.plist, "
                  "read from the tested image; iLEAPP releases up to v2026.3.0 labelled these "
                  "artifacts Onion Browser, which is a different app.",

@@ -107,11 +107,70 @@ CLAIM_PATTERN = re.compile(
     r'|\balways\b'
     r'|\breliable'
     r'|\bvisited\b'
-    r'|\bhabit',
+    r'|\bhabits?\b',
     re.IGNORECASE)
 
+# `notes` reaches the examiner too, in the report and in the artifact info modal, so
+# the same standard applies to it. It cannot use the same vocabulary, because notes do
+# a job name and description do not: they state what was tested. "empty on all 18
+# copies tested" and "NULL for every account tested" are the coverage discipline this
+# project asks for, not claims about a person, and the completeness words fire on every
+# one of them. Measured 2026-08-29: the full vocabulary flags 368 of the 1,477
+# artifacts carrying notes across the five cores, dominated by `every` and `all`,
+# almost all describing a test set.
+#
+# `read by` comes out for the same reason. In a note it means read by the code, not by
+# a person: "columns are read by position", "not read by this artifact".
+#
+# What is left is attribution and certainty, which mean the same thing in a note as in
+# a description.
+NOTES_PATTERN = re.compile(
+    r'\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|read|sent'
+    r'|created|hid|chose)\b'
+    r'|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b'
+    r'|\bsearched by\b'
+    r'|\btyped by\b'
+    r'|\bviewed by\b'
+    r'|\bmanually\b'
+    r'|\bproves?\b'
+    r'|\bdefinitively\b'
+    r'|\balways\b'
+    r'|\breliable'
+    r'|\bvisited\b'
+    r'|\bhabits?\b',
+    re.IGNORECASE)
+
+# A note that *denies* a claim uses the same words as one that makes it: "not terms the
+# user searched for", "does not establish that the user viewed them". That denial is the
+# wording this project asks for, so matching it and demanding an allowlist entry would
+# tax the correct behaviour and grow the allowlist without bound. A match in `notes`
+# preceded by a negation inside the same clause is therefore not reported.
+#
+# The window is deliberately short. A negation two sentences back says nothing about
+# this clause, and a long window would swallow real claims. Suppressed matches are
+# counted and printed under --verbose, because a check that narrows its own scope
+# silently is worse than no check.
+NEGATION_WINDOW = 60
+NEGATION_PATTERN = re.compile(
+    r"\b(not|no|never|nor|neither|without|cannot|rather than|instead of"
+    r"|isn't|doesn't|don't|does not|do not)\b",
+    re.IGNORECASE)
+
+
+def negated(text, start):
+    """True when a negation appears close enough before `start` to govern it."""
+    window = text[max(0, start - NEGATION_WINDOW):start]
+    # A sentence boundary ends the clause, so a negation before it does not govern.
+    window = window.rsplit('. ', 1)[-1]
+    return bool(NEGATION_PATTERN.search(window))
+
+
 # Fields that reach the examiner through the report and the LAVA manifest.
-CHECKED_FIELDS = ('name', 'description')
+CHECKED_FIELDS = {
+    'name': CLAIM_PATTERN,
+    'description': CLAIM_PATTERN,
+    'notes': NOTES_PATTERN,
+}
 
 # Reviewed exceptions, keyed by (filename, artifact_key, field). Every entry
 # needs a comment justifying it. See the module docstring before adding one.
@@ -154,6 +213,26 @@ ALLOWLIST = {
     # A Foursquare list is user-created by the definition of the feature, and
     # the artifact reads the account holder's own list table.
     ('foursquareSwarm.py', 'foursquare_swarm_saved_lists', 'description'),
+
+    # "one row per visited page" names the record ZBROWSINGHISTORYENTRYMANAGEDOBJECT
+    # holds, alongside the aggregate visit count the app's own column carries. It
+    # describes the table, not what the account holder did.
+    ('duckduckgo.py', 'duckduckgo_history', 'notes'),
+
+    # "enumerated beside an account reads as something the user chose" is the reason
+    # the downloaded catalogue is summarised rather than listed. The denial follows
+    # the phrase instead of preceding it, so the negation lookback cannot see it.
+    ('googleSheets.py', 'google_sheets_templates', 'notes'),
+
+    # "originally typed by the user" is quoted verbatim from the CREATE TABLE comment
+    # stored in Apple's own database, which the note says it is quoting.
+    ('keyboard.py', 'keyboardAutocorrectionRejections', 'notes'),
+    ('keyboard.py', 'keyboardInlineCompletionRejections', 'notes'),
+
+    # "It does not establish that the profile was displayed to the user, that the user
+    # viewed it, or that the user acted on it" is a denial governing a list. The
+    # negation sits before the first item and the lookback does not span to the third.
+    ('tinder.py', 'tinderRecommendations', 'notes'),
 }
 
 STANDARD_NOTE = (
@@ -207,30 +286,36 @@ def load_artifacts(path):
 
 
 def scan_file(path):
-    """Return (matches, skip_reason) for one artifact module.
+    """Return (matches, skip_reason, negated_count) for one artifact module.
 
     Each match is a (rel_path, artifact_key, field, text, matched_terms,
     allowlisted) tuple.
     """
     artifacts, skip_reason = load_artifacts(path)
     if artifacts is None:
-        return [], skip_reason
+        return [], skip_reason, 0
 
     filename = os.path.basename(path)
     matches = []
+    negated_count = 0
     for artifact_key, entry in artifacts.items():
         if not isinstance(entry, dict):
             continue
-        for field in CHECKED_FIELDS:
+        for field, pattern in CHECKED_FIELDS.items():
             text = entry.get(field)
             if not isinstance(text, str):
                 continue
-            terms = CLAIM_PATTERN.findall(text)
+            hits = list(pattern.finditer(text))
+            if field == 'notes':
+                kept = [hit for hit in hits if not negated(text, hit.start())]
+                negated_count += len(hits) - len(kept)
+                hits = kept
+            terms = [hit.group(0) for hit in hits]
             if not terms:
                 continue
             allowlisted = (filename, str(artifact_key), field) in ALLOWLIST
             matches.append((path, str(artifact_key), field, text, terms, allowlisted))
-    return matches, None
+    return matches, None, negated_count
 
 
 def repo_root():
@@ -268,9 +353,11 @@ def main():
     allowlisted = []
     skipped = []
     fired = set()
+    negated_total = 0
     for path in paths:
         rel_path = os.path.relpath(path, root)
-        matches, skip_reason = scan_file(path)
+        matches, skip_reason, negated_here = scan_file(path)
+        negated_total += negated_here
         if skip_reason:
             skipped.append((rel_path, skip_reason))
             continue
@@ -301,6 +388,8 @@ def main():
               f'{len(skipped)} skipped.')
         print(f'Allowlist holds {len(ALLOWLIST)} entr(ies); {len(allowlisted)} fired '
               f'this run.')
+        print(f'{negated_total} match(es) in notes were preceded by a negation and '
+              f'not reported.')
         print()
 
     if stale:

@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                        "is relied on.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "Biome",
         "notes": "Timestamp reliability, observed in the sample data: every record in a stream "
@@ -22,7 +22,7 @@ __artifacts_v2__ = {
                  "weeks, so the whole batch was flushed at once. The detection timestamp "
                  "(field 1) ran from hours to more than a day after the recorded departure and "
                  "up to 28 days before the SEGB write. Arrival and departure are internally "
-                 "consistent (arrival always precedes departure, spans from about half an hour "
+                 "consistent (arrival precedes departure, spans from about half an hour "
                  "to just over a day) and are the most usable pair, but they are still not "
                  "independently verified. In tested samples the coordinates, accuracy and "
                  "point of interest details decoded consistently. Latitude, longitude, "

@@ -392,7 +392,7 @@ __artifacts_v2__ = {
                        "VBUS power and CON_DET physical-connection states",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-02",
+        "last_update_date": "2026-08-29",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented at "
@@ -402,7 +402,7 @@ __artifacts_v2__ = {
                  "form. The 'USB Power (VBUS) Present' pattern was added 2026-08-02 as "
                  "version insurance, not as a fix: the cited CarPlay research, revised for "
                  "iOS 26.6, quotes that line without the shim prefix and treats it as the "
-                 "most consistent connection marker, with 'Present: 0' the reliable detach "
+                 "most consistent connection marker, with 'Present: 0' treated as the detach "
                  "signal while CON_DET can remain 1. On our images every VBUS line did "
                  "carry the shim prefix and was therefore already collected (30 records on "
                  "iOS 18.7, 40 on iOS 17.1, none without the prefix), so the pattern is "
