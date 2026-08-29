@@ -172,63 +172,77 @@ CHECKED_FIELDS = {
     'notes': NOTES_PATTERN,
 }
 
-# Reviewed exceptions, keyed by (filename, artifact_key, field). Every entry
+# Reviewed exceptions, as (filename, artifact_key, field, term). Each needs a
+# reason. The term is part of the key, so an entry silences the one word it was
+# granted for and never the next claim added to the same text.
 # needs a comment justifying it. See the module docstring before adding one.
 ALLOWLIST = {
     # "All Files" is Box's own name for the product feature; renaming it would
     # make the artifact harder to match to what the examiner sees in the app.
-    ('box.py', 'box_all_files', 'name'),
-    ('box.py', 'box_all_files', 'description'),
+    ('box.py', 'box_all_files', 'name', 'all'),
+    ('box.py', 'box_all_files', 'description', 'all'),
 
     # The match is inside the cautionary note itself -- "these timestamps do not
     # always indicate application usage" is the hedge, not a claim.
-    ('applicationStateDB.py', 'get_snapshot_creationDate', 'description'),
-    ('applicationStateDB.py', 'get_snapshot_lastUsedDate', 'description'),
+    ('applicationStateDB.py', 'get_snapshot_creationDate', 'description', 'prove'),
+    ('applicationStateDB.py', 'get_snapshot_creationDate', 'description', 'the user viewed'),
+    ('applicationStateDB.py', 'get_snapshot_lastUsedDate', 'description', 'the user viewed'),
 
     # "may be user-entered or written by apps and connected devices" is an
     # explicit statement that authorship is unknown, which is the point.
-    ('health.py', 'health_height', 'description'),
-    ('health.py', 'health_weight', 'description'),
+    ('health.py', 'health_height', 'description', 'user-entered'),
+    ('health.py', 'health_weight', 'description', 'user-entered'),
 
     # Both reproduce a path through the Apple Health UI ("Show All Health Data",
     # "All Recorded Data", "All Watch Sleep Data"), so the word is a label the
     # examiner can navigate to, not a completeness claim by us.
-    ('health.py', 'health_all_watch_sleep_data', 'name'),
-    ('health.py', 'health_wrist_temperature', 'description'),
+    ('health.py', 'health_all_watch_sleep_data', 'name', 'all'),
+    ('health.py', 'health_wrist_temperature', 'description', 'all'),
 
     # The match is inside verbatim ZSYNDICATIONSTATE enum labels quoted from the
     # schema (e.g. "2-SyndPs-Manually-Saved_SWY_Synd_Asset-2"), not prose.
-    ('Ph026SyndicationPLAssets.py', 'Ph026_1SyndicationIDAssetsPhDaPsql', 'description'),
-    ('Ph026SyndicationPLAssets.py', 'Ph026_2SyndicationPLAssetsSyndPL', 'description'),
+    ('Ph026SyndicationPLAssets.py', 'Ph026_1SyndicationIDAssetsPhDaPsql', 'description', 'manually'),
+    ('Ph026SyndicationPLAssets.py', 'Ph026_2SyndicationPLAssetsSyndPL', 'description', 'manually'),
 
     # "visited places" restates the name of the Location.Visit stream being
     # parsed, and the description goes on to caution against relying on its
     # timestamps.
-    ('biomeLocationVisit.py', 'get_biomeLocationVisit', 'description'),
+    ('biomeLocationVisit.py', 'get_biomeLocationVisit', 'description', 'every'),
+    ('biomeLocationVisit.py', 'get_biomeLocationVisit', 'description', 'visited'),
 
     # "all interfaces listed in NetworkInterfaces.plist" is scoped to the file
     # being parsed, not a claim about the interfaces the device ever had.
-    ('wifiIdentifiers.py', 'wifiIdentifiers', 'description'),
+    ('wifiIdentifiers.py', 'wifiIdentifiers', 'description', 'all'),
 
     # A Foursquare list is user-created by the definition of the feature, and
     # the artifact reads the account holder's own list table.
-    ('foursquareSwarm.py', 'foursquare_swarm_saved_lists', 'description'),
+    ('foursquareSwarm.py', 'foursquare_swarm_saved_lists', 'description', 'user-created'),
 
     # "enumerated beside an account reads as something the user chose" is the reason
     # the downloaded catalogue is summarised rather than listed. The denial follows
     # the phrase instead of preceding it, so the negation lookback cannot see it.
-    ('googleSheets.py', 'google_sheets_templates', 'notes'),
+    ('googleSheets.py', 'google_sheets_templates', 'notes', 'the user chose'),
 
     # "originally typed by the user" is quoted verbatim from the CREATE TABLE comment
     # stored in Apple's own database, which the note says it is quoting.
-    ('keyboard.py', 'keyboardAutocorrectionRejections', 'notes'),
-    ('keyboard.py', 'keyboardInlineCompletionRejections', 'notes'),
+    ('keyboard.py', 'keyboardAutocorrectionRejections', 'notes', 'typed by'),
+    ('keyboard.py', 'keyboardInlineCompletionRejections', 'notes', 'typed by'),
 
     # "It does not establish that the profile was displayed to the user, that the user
     # viewed it, or that the user acted on it" is a denial governing a list. The
     # negation sits before the first item and the lookback does not span to the third.
-    ('tinder.py', 'tinderRecommendations', 'notes'),
+    ('tinder.py', 'tinderRecommendations', 'notes', 'the user viewed'),
 }
+
+
+def unallowlisted(filename, artifact_key, field, terms):
+    """The terms no ALLOWLIST entry covers for this field.
+
+    An entry is keyed on the term it was granted for, so allowlisting one word does
+    not pre-approve the next claim somebody adds to the same text.
+    """
+    return [term for term in terms
+            if (filename, str(artifact_key), field, term) not in ALLOWLIST]
 
 STANDARD_NOTE = (
     'Artifact name/description reach the examiner through the HTML report and the LAVA\n'
@@ -305,11 +319,12 @@ def scan_file(path):
                 kept = [hit for hit in hits if not negated(text, hit.start())]
                 negated_count += len(hits) - len(kept)
                 hits = kept
-            terms = [hit.group(0) for hit in hits]
-            if not terms:
+            found = sorted({hit.group(0).lower() for hit in hits})
+            if not found:
                 continue
-            allowlisted = (filename, str(artifact_key), field) in ALLOWLIST
-            matches.append((path, str(artifact_key), field, text, terms, allowlisted))
+            remaining = unallowlisted(filename, artifact_key, field, found)
+            matches.append((path, str(artifact_key), field, text,
+                            remaining or found, not remaining, found))
     return matches, None, negated_count
 
 
@@ -320,7 +335,7 @@ def repo_root():
 
 def format_match(match):
     """Render one match as `path:artifact_key:field: <text>`."""
-    path, artifact_key, field, text, terms, _ = match
+    path, artifact_key, field, text, terms = match[:5]
     collapsed = ' '.join(text.split())
     if len(collapsed) > 300:
         collapsed = collapsed[:297] + '...'
@@ -358,7 +373,8 @@ def main():
             continue
         for match in matches:
             entry = (rel_path,) + match[1:]
-            fired.add((os.path.basename(path), match[1], match[2]))
+            for term in match[6]:
+                fired.add((os.path.basename(str(match[0])), match[1], match[2], term))
             if match[5]:
                 allowlisted.append(entry)
             else:
@@ -391,7 +407,7 @@ def main():
         print(f'Stale ALLOWLIST entr(ies) ({len(stale)}) -- these no longer match '
               f'anything and should be deleted:')
         for entry in stale:
-            print(f'  {entry[0]}:{entry[1]}:{entry[2]}')
+            print(f'  {entry[0]}:{entry[1]}:{entry[2]}  [{entry[3]}]')
         print()
 
     if args.list_all and allowlisted:

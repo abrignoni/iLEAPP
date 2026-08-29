@@ -175,5 +175,46 @@ class Negation(unittest.TestCase):
         self.assertTrue(fires('notes', text))
 
 
+class AllowlistIsTermScoped(unittest.TestCase):
+    """An exception silences the word it was granted for, not the whole field.
+
+    Keyed on (file, artifact_key, field) an entry pre-approves every future claim
+    anyone adds to that text. The term is part of the key so that it does not.
+    """
+
+    def test_every_entry_is_a_four_tuple_of_strings(self):
+        for entry in ccl.ALLOWLIST:
+            with self.subTest(entry=entry):
+                self.assertEqual(len(entry), 4)
+                self.assertTrue(all(isinstance(part, str) for part in entry))
+
+    def test_every_entry_names_a_term_the_vocabulary_can_produce(self):
+        # A term no pattern can emit is dead on arrival: it silences nothing and the
+        # stale check cannot tell it apart from an entry whose text was reworded.
+        for filename, artifact_key, field, term in ccl.ALLOWLIST:
+            with self.subTest(entry=(filename, artifact_key, field, term)):
+                self.assertEqual(term, term.lower())
+                match = ccl.CHECKED_FIELDS[field].search(term)
+                self.assertIsNotNone(match, f'{term!r} is not in the {field} vocabulary')
+                self.assertEqual(match.group(0).lower(), term)
+
+    def test_an_entry_covers_its_own_term_only(self):
+        # A key no repo can hold, so this behaves the same in all five.
+        probe = ('no_such_module.py', 'no_such_artifact', 'notes')
+        self.assertEqual(
+            ccl.unallowlisted(*probe, ['always', 'the user typed']),
+            ['always', 'the user typed'])
+
+    def test_unallowlisted_returns_only_what_is_uncovered(self):
+        for filename, artifact_key, field, term in sorted(ccl.ALLOWLIST):
+            covered = ccl.unallowlisted(filename, artifact_key, field, [term])
+            self.assertEqual(covered, [], f'{term!r} should be covered by its own entry')
+            # A different term on the same field must still be reported.
+            other = 'proves' if term != 'proves' else 'always'
+            self.assertEqual(
+                ccl.unallowlisted(filename, artifact_key, field, [term, other]), [other])
+            break   # one entry is enough; repos with an empty allowlist skip the loop
+
+
 if __name__ == '__main__':
     unittest.main()
