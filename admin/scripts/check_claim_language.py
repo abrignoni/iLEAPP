@@ -214,11 +214,6 @@ ALLOWLIST = {
     # the artifact reads the account holder's own list table.
     ('foursquareSwarm.py', 'foursquare_swarm_saved_lists', 'description'),
 
-    # "one row per visited page" names the record ZBROWSINGHISTORYENTRYMANAGEDOBJECT
-    # holds, alongside the aggregate visit count the app's own column carries. It
-    # describes the table, not what the account holder did.
-    ('duckduckgo.py', 'duckduckgo_history', 'notes'),
-
     # "enumerated beside an account reads as something the user chose" is the reason
     # the downloaded catalogue is summarised rather than listed. The denial follows
     # the phrase instead of preceding it, so the negation lookback cannot see it.
