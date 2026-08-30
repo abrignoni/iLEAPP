@@ -39,16 +39,20 @@ EXPECTED_CLAIM = (
     r'\ball\b|\bevery\b|\bcomplete|\bfull list\b|\bentire\b|'
     r'\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|'
     r'read|sent|created|hid|chose)\b|\buser[- ](?:created|entered|typed|'
-    r'searched|selected|initiated)\b|\bsearched by\b|\btyped by\b|'
-    r'\bviewed by\b|\bread by\b|\bmanually\b|\bproves?\b|\bdefinitively\b|'
+    r'searched|selected|initiated)\b|\b(?:searched|typed|viewed|read|'
+    r'entered|created|sent|opened|selected|deleted|visited|chosen|hidden|'
+    r'initiated) by (?:the |a |an )?(?:user|account holder|device owner|'
+    r'subject|owner)\b|\bmanually\b|\bproves?\b|\bdefinitively\b|'
     r'\balways\b|\breliable|\bvisited\b|\bhabits?\b'
 )
 EXPECTED_NOTES = (
     r'\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|'
     r'read|sent|created|hid|chose)\b|\buser[- ](?:created|entered|typed|'
-    r'searched|selected|initiated)\b|\bsearched by\b|\btyped by\b|'
-    r'\bviewed by\b|\bmanually\b|\bproves?\b|\bdefinitively\b|\balways\b|'
-    r'\breliable|\bvisited\b|\bhabits?\b'
+    r'searched|selected|initiated)\b|\b(?:searched|typed|viewed|read|'
+    r'entered|created|sent|opened|selected|deleted|visited|chosen|hidden|'
+    r'initiated) by (?:the |a |an )?(?:user|account holder|device owner|'
+    r'subject|owner)\b|\bmanually\b|\bproves?\b|\bdefinitively\b|'
+    r'\balways\b|\breliable|\bvisited\b|\bhabits?\b'
 )
 EXPECTED_NEGATION = (
     r'\b(not|no|never|nor|neither|without|cannot|rather than|instead of|'
@@ -119,6 +123,7 @@ class NotesVocabulary(unittest.TestCase):
         'the complete table list is given above',
         'present on the entire corpus',
         'columns are read by position over a select star',
+        'the value entered by the calling app',
         'the sidecar is not read by this artifact',
     )
 
@@ -134,13 +139,13 @@ class NotesVocabulary(unittest.TestCase):
 
     def test_notes_drops_exactly_the_two_documented_classes(self):
         """The two vocabularies differ only where the module says they do."""
-        removed = ('all', 'every', 'complete', 'entire', 'full list', 'read by')
+        removed = ('all', 'every', 'complete', 'entire', 'full list')
         for word in removed:
             with self.subTest(word=word, vocabulary='description'):
                 self.assertTrue(ccl.CLAIM_PATTERN.search(word))
             with self.subTest(word=word, vocabulary='notes'):
                 self.assertFalse(ccl.NOTES_PATTERN.search(word))
-        kept = ('the user typed', 'typed by', 'manually', 'proves', 'always',
+        kept = ('the user typed', 'typed by the user', 'manually', 'proves', 'always',
                 'reliable', 'visited', 'habits', 'user-created')
         for word in kept:
             with self.subTest(word=word):
@@ -214,6 +219,44 @@ class AllowlistIsTermScoped(unittest.TestCase):
             self.assertEqual(
                 ccl.unallowlisted(filename, artifact_key, field, [term, other]), [other])
             break   # one entry is enough; repos with an empty allowlist skip the loop
+
+
+class PassiveFormsAreAnchoredOnAPerson(unittest.TestCase):
+    """The passive family must cover the same verbs as the active one, and fire only
+    when the subject is a person.
+
+    Left short, the check was evadable by voice alone: "the user created" was flagged
+    and "created by the user" was not, with nothing about the claim changed. Left
+    unanchored, "<verb> by" matched a subject that is not a person, which is what put
+    two entries on the allowlist and kept `read by` out of the notes vocabulary.
+    """
+
+    VERBS = ('searched', 'typed', 'viewed', 'read', 'entered', 'created', 'sent',
+             'opened', 'selected', 'deleted', 'visited', 'chosen', 'hidden', 'initiated')
+
+    def test_a_person_as_the_subject_fires_in_both_voices(self):
+        for verb in self.VERBS:
+            for field in ('description', 'notes'):
+                with self.subTest(verb=verb, field=field):
+                    self.assertTrue(fires(field, f'the value {verb} by the user'))
+
+    def test_a_non_person_subject_stays_silent(self):
+        for text in ('columns are read by position',
+                     'values are typed by the calling app',
+                     'rows searched by the indexer',
+                     'a record created by the sync service',
+                     'the file opened by the parser'):
+            for field in ('description', 'notes'):
+                with self.subTest(text=text, field=field):
+                    self.assertFalse(fires(field, text))
+
+    def test_the_two_vocabularies_agree_on_the_passive_family(self):
+        # They diverge only where the module documents a reason, and this is not one.
+        for verb in self.VERBS:
+            probe = f'{verb} by the account holder'
+            with self.subTest(verb=verb):
+                self.assertEqual(bool(ccl.CLAIM_PATTERN.search(probe)),
+                                 bool(ccl.NOTES_PATTERN.search(probe)))
 
 
 if __name__ == '__main__':
