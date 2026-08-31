@@ -1,10 +1,15 @@
 """
 Parses Apple iOS Amazon Shopping application artifacts.
 
-Every path and field in this module was derived from two private iOS Data containers
-whose .com.apple.mobile_container_manager.metadata.plist records
-MCMMetadataIdentifier = com.amazon.AmazonUK. Other Amazon storefront builds are not
-covered by that observation.
+Every field in this module was derived from two private iOS Data containers whose
+.com.apple.mobile_container_manager.metadata.plist records
+MCMMetadataIdentifier = com.amazon.AmazonUK. Containers recording
+MCMMetadataIdentifier = com.amazon.Amazon keep the same stores under their own bundle
+identifier, so the path patterns accept both spellings. No other spelling has been
+observed in tested images; storefront builds under other bundle identifiers, where
+they exist, are not covered. Sibling Amazon apps (com.amazon.echo,
+com.amazon.Hendrix) keep their own Cache.db under their own bundle identifiers and
+are deliberately not matched.
 """
 # pylint: disable=too-many-lines
 
@@ -31,11 +36,13 @@ __artifacts_v2__ = {
             "Amazon Shopping preferences store."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
-            "Values are read from Library/Preferences/com.amazon.AmazonUK.plist. Only keys "
+            "Values are read from the preference plist the app names for its own bundle "
+            "identifier under Library/Preferences; com.amazon.Amazon and com.amazon.AmazonUK "
+            "are the spellings observed in tested images. Only keys "
             "on an explicit list are reported; the store holds several hundred further keys, "
             "most of them A/B test treatment codes. Timestamp units were established per key "
             "by decoding the stored value against each candidate epoch and keeping the only "
@@ -49,9 +56,15 @@ __artifacts_v2__ = {
             "are reported as stored. LastRefreshTime is a small number of seconds that does not "
             "decode to a plausible date under any epoch tried, so it is reported as stored "
             "without interpretation."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.amazon.AmazonUK.plist',),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.amazon.Amazon.plist',
+                  '*/mobile/Containers/Data/Application/*/Library/Preferences/com.amazon.AmazonUK.plist',),
         "output_types": ["standard"],
-        "artifact_icon": "shopping-cart"
+        "artifact_icon": "shopping-cart",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 19 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 42 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 34 rows",
+        }
     },
     "amazon_profiles": {
         "name": "Amazon - Profiles",
@@ -77,7 +90,12 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
                   '*/mobile/Containers/Data/Application/*/Library/Preferences/amzn1.account.*.plist',),
         "output_types": ["standard"],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 0 rows",
+        }
     },
     "amazon_orders": {
         "name": "Amazon - Orders",
@@ -85,7 +103,7 @@ __artifacts_v2__ = {
             "Reports orders and order line items from the app's cached orders API response."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
@@ -100,11 +118,17 @@ __artifacts_v2__ = {
             "name inside Library/Caches/ssnap_image_cache; the recorded path carries the container "
             "UUID of the acquiring device, so only the file name is used. A line item whose image "
             "is not in that cache is reported with an empty media cell rather than dropped."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/LocalDatabase/ssnapImageCacheRegistry.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/ssnap_image_cache/*',),
         "output_types": ["standard"],
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 0 rows",
+        }
     },
     "amazon_products": {
         "name": "Amazon - Product Lookups",
@@ -113,7 +137,7 @@ __artifacts_v2__ = {
             "the product title where the response carried one."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
@@ -129,9 +153,15 @@ __artifacts_v2__ = {
             "user opening the product page. Documents/asins/*.plist in the same container holds "
             "tens of thousands of ASINs and is a deep-link lookup table fetched from the server; "
             "it is not parsed here and must not be read as products the user viewed."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
         "output_types": ["standard"],
-        "artifact_icon": "tag"
+        "artifact_icon": "tag",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 0 rows",
+        }
     },
     "amazon_delivery_location": {
         "name": "Amazon - Delivery Location",
@@ -140,7 +170,7 @@ __artifacts_v2__ = {
             "service."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
@@ -150,30 +180,51 @@ __artifacts_v2__ = {
             "stored. The values describe the delivery destination the storefront had selected for "
             "the session that made the request. They are not a device position fix and carry no "
             "coordinates. Page Type is the pageType parameter of the request URL, which records "
-            "the app screen that triggered the lookup."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+            "the app screen that triggered the lookup. The address identifier and delivery "
+            "line fields populate only when the cached response carries them; the address "
+            "identifiers were empty on every corpus image tested."),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
         "output_types": ["standard"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 4 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 6 rows",
+        }
     },
     "amazon_network_cache": {
         "name": "Amazon - Network Cache",
         "description": "Reports the request URLs and entry times held in the app's network cache.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
-            "Reads the standard NSURLCache tables in "
-            "Library/Caches/com.amazon.AmazonUK/Cache.db. time_stamp is stored by SQLite as UTC "
+            "Reads the standard NSURLCache tables in the Cache.db the app keeps under "
+            "Library/Caches in a folder named for its own bundle identifier; "
+            "com.amazon.Amazon and com.amazon.AmazonUK are the spellings observed in tested "
+            "images. time_stamp is stored by SQLite as UTC "
             "text. Response Size is the byte length of the stored body, which is not always the "
             "resource: image entries in the tested samples frequently hold a 36 byte token rather "
             "than image bytes, so a small size on an image URL means the bytes are not in this "
             "cache. The WAL sidecar is load bearing here, carrying entries absent from the "
-            "committed file in both tested samples, so the path pattern picks up the sidecars."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+            "committed file in both tested samples, so the path pattern picks up the sidecars. "
+            "The app also keeps a second NSURLCache at SSNAP/SNPFileStore/Cache.db inside the "
+            "same folder, present on every corpus image tested; that store is not read by this "
+            "artifact, and in the two copies read it held only image CDN fetches. The "
+            "Partition column was empty on every row of every corpus image tested and is "
+            "reported as stored."),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
         "output_types": ["standard"],
-        "artifact_icon": "globe"
+        "artifact_icon": "globe",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 5 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 35 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 119 rows",
+        }
     },
     "amazon_image_cache": {
         "name": "Amazon - Image Cache",
@@ -200,7 +251,12 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/LocalDatabase/ssnapImageCacheRegistry.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/ssnap_image_cache/*',),
         "output_types": ["standard"],
-        "artifact_icon": "image"
+        "artifact_icon": "image",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 7 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 6 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 0 rows",
+        }
     },
     "amazon_metric_events": {
         "name": "Amazon - Metric Events",
@@ -231,7 +287,12 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_HIGH/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_NORMAL/*',),
         "output_types": ["standard"],
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 32 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 2978 rows",
+        }
     },
     "amazon_metric_batches": {
         "name": "Amazon - Metric Batch Context",
@@ -255,7 +316,12 @@ __artifacts_v2__ = {
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_HIGH/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_NORMAL/*',),
         "output_types": ["standard"],
-        "artifact_icon": "smartphone"
+        "artifact_icon": "smartphone",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 1 row",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 12 rows",
+        }
     },
 }
 
@@ -492,10 +558,19 @@ def _parse_metric_batch(data):
 # Shared lookups
 # ---------------------------------------------------------------------------
 
+# Bundle identifier spellings observed for the shopping app's own Data container.
+# The Cache.db folder under Library/Caches and the main preference plist are both
+# named for the app's bundle identifier, and sibling Amazon apps keep their own
+# Cache.db under theirs, so membership is an exact name match, never a substring.
+_SHOPPING_BUNDLE_IDS = ('com.amazon.Amazon', 'com.amazon.AmazonUK')
+_SHOPPING_PLIST_NAMES = tuple(f'{bundle_id}.plist' for bundle_id in _SHOPPING_BUNDLE_IDS)
+
+
 def _cache_databases(files_found):
     """Main Cache.db paths, with the WAL and shm sidecars filtered out."""
     return [f for f in files_found
-            if os.path.basename(f) == 'Cache.db' and 'com.amazon.AmazonUK' in f]
+            if os.path.basename(f) == 'Cache.db'
+            and os.path.basename(os.path.dirname(f)) in _SHOPPING_BUNDLE_IDS]
 
 
 def _registry_databases(files_found):
@@ -671,7 +746,7 @@ def amazon_account(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        if os.path.basename(file_found) != 'com.amazon.AmazonUK.plist':
+        if os.path.basename(file_found) not in _SHOPPING_PLIST_NAMES:
             continue
         plist = get_plist_file_content(file_found)
         if not isinstance(plist, dict):
