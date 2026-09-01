@@ -9,32 +9,34 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-01",
         "requirements": "none",
         "category": "Realm",
-        "notes": "This artifact reports nothing about the contents of any database. It exists "
-                 "so that a store the bundled parser cannot read is visible as unread rather "
-                 "than indistinguishable from an empty one. The parser decodes Realm file "
-                 "format 24. On the tested extractions every file format 24 store returned its "
-                 "classes and every file it returned nothing for reported file format 9, where "
-                 "the schema group is laid out differently; the parser follows the format 24 "
-                 "layout and returns an empty class list rather than raising, so an unsupported "
-                 "format and an empty store otherwise look the same in the output. Reported "
-                 "upstream as kalink0/crush-forensics issue 55. A row is emitted only when the "
-                 "file holds more than 1024 non-zero bytes, which excludes uninitialised "
-                 "stores: on the tested data a populated undecoded store held 1,662,831 and "
-                 "9,119 non-zero bytes while an uninitialised one held 204. Non-Zero Bytes is a "
-                 "count of bytes, not an interpretation of them. A row here means the file "
-                 "should be examined with other tooling; it is not evidence that the app held "
-                 "any particular data, and an absence of rows means every Realm store found "
-                 "was decoded, not that none exists. Header Read separates two different "
-                 "conditions. False means the file does not begin with the Realm mnemonic, so "
-                 "no header could be read and no file format is reported; Realm supports "
-                 "whole-file encryption, which presents this way, and the artifact does not "
-                 "assert which cause applies. True with a file format the parser does not "
-                 "decode is the unsupported-format case described above.",
+        "notes": "This artifact reports nothing about the contents of any database. It exists so "
+                 "that a store the bundled parser cannot read is visible as unread rather than "
+                 "indistinguishable from an empty one. The parser's row decoders need the Cluster "
+                 "table layout that Realm introduced in file format 10. On the tested extractions "
+                 "every store it returned classes for reported file format 24, and every file it "
+                 "returned no tables for reported file format 9, which predates that layout; the "
+                 "parser reads the class names of a format 9 store but returns no tables for it "
+                 "rather than raising, so an unsupported format and an empty store look the same "
+                 "in this output. Reported upstream as kalink0/crush-forensics issue 55, where "
+                 "the class name reading was fixed and row support remains open. A row is emitted "
+                 "only when the file holds more than 1024 non-zero bytes, which excludes "
+                 "uninitialised stores: on the tested data a populated undecoded store held "
+                 "1,662,831 and 9,119 non-zero bytes while an uninitialised one held 204. "
+                 "Non-Zero Bytes is a count of bytes, not an interpretation of them. A row here "
+                 "means the file should be examined with other tooling; it is not evidence that "
+                 "the app held any particular data, and an absence of rows means every Realm "
+                 "store found was decoded, not that none exists. Header Read separates two "
+                 "different conditions. False means the file does not begin with the Realm "
+                 "mnemonic, so no header could be read and File Format Version (as stored) is "
+                 "empty; Realm supports whole-file encryption, which presents this way, and the "
+                 "artifact does not assert which cause applies. True with a file format the "
+                 "parser does not decode is the unsupported-format case described above.",
         "paths": ('*.realm',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "database",
         "sample_data": {
             "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "hc_ios26": "iOS 26.5.2 | 1 row",
             "adams_iphone12mini": "iOS 17.1.1 | 1 row",
         },
     },
