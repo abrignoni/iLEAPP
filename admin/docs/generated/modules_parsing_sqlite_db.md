@@ -91,6 +91,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleDocs |
 | googleDrive |
 | googleDuo |
+| googleHome |
 | googleMaps |
 | googlePhotos |
 | googleSheets |
@@ -214,6 +215,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | geodMapTiles |
 | gmail |
 | googleChat |
+| googleHome |
 | googlePhotos |
 | keyboard |
 | keychain |
