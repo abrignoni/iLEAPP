@@ -27,7 +27,7 @@ def fdrInfo(context):
     bt_mac = ''
     wifi_mac = ''
     imei = ''
-    imei2 = ''
+    ime2 = ''
     seid = ''
     meid = ''
     eeid = ''
@@ -74,12 +74,12 @@ def fdrInfo(context):
                     elif 'nuid' in key:
                         nuid = value.get('LiveProperty','')
                     
-            data_list.append((serialnumber,bt_mac,wifi_mac,imei,imei2,seid,meid,eeid,tsid,mlb,arc,textwrap.fill(drp, width=75),nuid,source_name))
+            data_list.append((serialnumber,bt_mac,wifi_mac,imei,ime2,seid,meid,eeid,tsid,mlb,arc,textwrap.fill(drp, width=75),nuid,source_name))
             
     device_info("Device Identifier", "Serial Number", serialnumber, source_name)
     device_info("Device Identifier", "IMEI", imei, source_name)
     
-    if imei2 != '':
+    if ime2 != '':
         device_info("Device Identifier", "Serial Number", serialnumber, source_name)
     if meid != '':
         device_info("Device Identifier", "Mobile Equipment ID (MEID)", meid, source_name)

@@ -35,7 +35,6 @@ def user_settings(context):
     data_list = []    
     source_paths = set()
     for file_found in context.get_files_found():
-        source_name = str(context.get_relative_path(file_found))
         source_paths.add(file_found)
         with open(file_found, 'rb') as f:
             pl = plistlib.load(f)

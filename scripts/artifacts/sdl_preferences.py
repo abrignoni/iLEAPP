@@ -27,7 +27,6 @@ __artifacts_v2__ = {
     }
 }
 
-import os
 import plistlib
  
 from scripts.ilapfuncs import artifact_processor, device_info
