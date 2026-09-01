@@ -80,6 +80,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | dubox |
 | duckduckgo |
 | duetNotificationSuggestions |
+| easy4ip |
 | facebookMessenger |
 | filesApp |
 | firefoxIOS |
@@ -212,6 +213,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | coreAccessoriesUserEvent |
 | discord_cache |
 | dmss |
+| easy4ip |
 | foursquareSwarm |
 | geodMapTiles |
 | gmail |
