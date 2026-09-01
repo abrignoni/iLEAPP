@@ -117,9 +117,14 @@ __artifacts_v2__ = {
             "the SSNAP image cache registry, and resolving that row's recorded filePath by file "
             "name inside Library/Caches/ssnap_image_cache; the recorded path carries the container "
             "UUID of the acquiring device, so only the file name is used. A line item whose image "
-            "is not in that cache is reported with an empty media cell rather than dropped."),
+            "is not in that cache is reported with an empty media cell rather than dropped. A "
+            "response body the cache stored as a separate file under fsCachedData is resolved "
+            "through the file name recorded in the cache row before decoding; this path is "
+            "code-present and was not exercised by any tested image for this endpoint."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/fsCachedData/*',
                   '*/mobile/Containers/Data/Application/*/Library/LocalDatabase/ssnapImageCacheRegistry.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/ssnap_image_cache/*',),
         "output_types": ["standard"],
@@ -152,9 +157,14 @@ __artifacts_v2__ = {
             "records that the app requested detail for that ASIN, which is not the same as the "
             "user opening the product page. Documents/asins/*.plist in the same container holds "
             "tens of thousands of ASINs and is a deep-link lookup table fetched from the server; "
-            "it is not parsed here and must not be read as products the user viewed."),
+            "it is not parsed here and must not be read as products the user viewed. A "
+            "response body the cache stored as a separate file under fsCachedData is resolved "
+            "through the file name recorded in the cache row before decoding; this path is "
+            "code-present and was not exercised by any tested image for this endpoint."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
-                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/fsCachedData/*',),
         "output_types": ["standard"],
         "artifact_icon": "tag",
         "sample_data": {
@@ -182,9 +192,14 @@ __artifacts_v2__ = {
             "coordinates. Page Type is the pageType parameter of the request URL, which records "
             "the app screen that triggered the lookup. The address identifier and delivery "
             "line fields populate only when the cached response carries them; the address "
-            "identifiers were empty on every corpus image tested."),
+            "identifiers were empty on every corpus image tested. A response body the cache "
+            "stored as a separate file under fsCachedData is resolved through the file name "
+            "recorded in the cache row before decoding; this path is code-present and was not "
+            "exercised by any tested image for this endpoint."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
-                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/fsCachedData/*',),
         "output_types": ["standard"],
         "artifact_icon": "map-pin",
         "sample_data": {
@@ -195,7 +210,9 @@ __artifacts_v2__ = {
     },
     "amazon_network_cache": {
         "name": "Amazon - Network Cache",
-        "description": "Reports the request URLs and entry times held in the app's network cache.",
+        "description": (
+            "Reports the request URLs, entry times and stored response bodies held in the "
+            "app's network cache, rendering bodies the cache stored as image files."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-31",
@@ -205,19 +222,33 @@ __artifacts_v2__ = {
             "Reads the standard NSURLCache tables in the Cache.db the app keeps under "
             "Library/Caches in a folder named for its own bundle identifier; "
             "com.amazon.Amazon and com.amazon.AmazonUK are the spellings observed in tested "
-            "images. time_stamp is stored by SQLite as UTC "
-            "text. Response Size is the byte length of the stored body, which is not always the "
-            "resource: image entries in the tested samples frequently hold a 36 byte token rather "
-            "than image bytes, so a small size on an image URL means the bytes are not in this "
-            "cache. The WAL sidecar is load bearing here, carrying entries absent from the "
-            "committed file in both tested samples, so the path pattern picks up the sidecars. "
-            "The app also keeps a second NSURLCache at SSNAP/SNPFileStore/Cache.db inside the "
-            "same folder, present on every corpus image tested; that store is not read by this "
-            "artifact, and in the two copies read it held only image CDN fetches. The "
+            "images. time_stamp is stored by SQLite as UTC text. NSURLCache stores a response "
+            "body either inline in the database or, when isDataOnFS is set, as a separate file "
+            "in the fsCachedData folder beside the database, with the row holding that file's "
+            "name; Body Storage says which, Body Size is the byte length of the stored body "
+            "wherever it lives, and Body Format is read from the body's own leading bytes, not "
+            "from the URL. On the two corpus images that use external storage every reference "
+            "resolved to a file present in the extraction (7 of 7 and 17 of 17). An external "
+            "body whose bytes are an image is rendered in Cached Body; on tested images those "
+            "were Amazon interface and promotional graphics, not product photographs. Inline "
+            "bodies are characterized but not rendered; on tested images every inline image "
+            "body was an interface asset or a 43 byte tracking pixel. Body content is served "
+            "by Amazon, so a row records what the app fetched and when; the cache does not "
+            "record what was displayed. The WAL sidecar is load bearing here, carrying entries "
+            "absent from the committed file in both tested samples, so the path pattern picks "
+            "up the sidecars. The app keeps further NSURLCache stores inside the same folder, "
+            "none of which this artifact reads: SSNAP/SNPFileStore, present on all three "
+            "corpus images, held only the app's own JavaScript feature bundles and manifests "
+            "fetched from the ssnap-msa CDN path, with entry dates a subset of this cache's "
+            "dates on every tested image; SSNAP/ARCRuntimeConfig, where populated, held "
+            "server-supplied runtime configuration JSON; ABS/ClientStore held no rows on the "
+            "image that has it. The "
             "Partition column was empty on every row of every corpus image tested and is "
             "reported as stored."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
-                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/fsCachedData/*',),
         "output_types": ["standard"],
         "artifact_icon": "globe",
         "sample_data": {
@@ -625,13 +656,81 @@ def _image_url_index(files_found):
     return index
 
 
+def _external_body_path(db_path, file_name):
+    """Path of a cached body stored as its own file beside the database, or ''.
+
+    An isDataOnFS row's receiver_data holds a bare file name recorded for the
+    fsCachedData folder next to the Cache.db that owns the row, so resolution is
+    anchored to that sibling folder and cannot cross into another container. A
+    value carrying a path separator is refused rather than joined.
+    """
+    if not file_name or os.path.basename(file_name) != file_name:
+        return ''
+    candidate = os.path.join(os.path.dirname(db_path), 'fsCachedData', file_name)
+    return candidate if os.path.isfile(candidate) else ''
+
+
+def _resolve_body(db_path, body, data_on_fs):
+    """The stored body's bytes and, when it lives in its own file, that file's path.
+
+    When the referenced file is not in the extraction the stored reference bytes
+    are returned unchanged, so a caller's decode fails the same way it would on
+    an unresolved token.
+    """
+    body = bytes(body) if body is not None else b''
+    if data_on_fs != 1:
+        return body, ''
+    body_path = _external_body_path(db_path, body.decode('utf-8', 'replace'))
+    if not body_path:
+        logfunc(f'Amazon: cached body file {body[:64]!r} referenced by '
+                f'{db_path} is not in the extraction')
+        return body, ''
+    with open(body_path, 'rb') as body_file:
+        return body_file.read(), body_path
+
+
+_BODY_SIGNATURES = (
+    (b'\xff\xd8\xff', 'JPEG image'),
+    (b'\x89PNG\r\n\x1a\n', 'PNG image'),
+    (b'GIF87a', 'GIF image'),
+    (b'GIF89a', 'GIF image'),
+)
+
+
+def _body_format(data):
+    """Format label for a stored body, read from its own leading bytes."""
+    if not data:
+        return ''
+    for magic, label in _BODY_SIGNATURES:
+        if data.startswith(magic):
+            return label
+    if data[:4] == b'RIFF' and data[8:12] == b'WEBP':
+        return 'WebP image'
+    head = data.lstrip()[:1]
+    if head in (b'{', b'['):
+        return 'JSON text'
+    if head == b'<':
+        return 'HTML/XML text'
+    try:
+        sample = data[:256].decode('utf-8')
+    except UnicodeDecodeError:
+        return 'not identified'
+    if all(ch.isprintable() or ch in '\r\n\t' for ch in sample):
+        return 'text'
+    return 'not identified'
+
+
 def _cached_entries(db_path, url_like):
-    """Rows of (request_key, time_stamp, body) for cache entries matching a pattern."""
+    """Rows of (request_key, time_stamp, body) for cache entries matching a pattern.
+
+    A body NSURLCache stored as a separate file is read back through the file
+    name recorded in receiver_data.
+    """
     try:
         db = open_sqlite_db_readonly(db_path)
         db.text_factory = bytes
         rows = db.execute(
-            'SELECT r.request_key, r.time_stamp, d.receiver_data '
+            'SELECT r.request_key, r.time_stamp, d.receiver_data, d.isDataOnFS '
             'FROM cfurl_cache_response r '
             'JOIN cfurl_cache_receiver_data d ON d.entry_ID = r.entry_ID '
             'WHERE r.request_key LIKE ? ORDER BY r.time_stamp DESC', (url_like,)).fetchall()
@@ -640,11 +739,12 @@ def _cached_entries(db_path, url_like):
         logfunc(f'Amazon: could not read the network cache {db_path}: {err}')
         return []
     decoded = []
-    for request_key, time_stamp, body in rows:
+    for request_key, time_stamp, body, data_on_fs in rows:
+        body, _ = _resolve_body(db_path, body, data_on_fs)
         decoded.append((
             request_key.decode('utf-8', 'replace') if isinstance(request_key, bytes) else request_key,
             time_stamp.decode('utf-8', 'replace') if isinstance(time_stamp, bytes) else str(time_stamp),
-            body or b''))
+            body))
     return decoded
 
 
@@ -1059,11 +1159,14 @@ def amazon_delivery_location(context):
 
 @artifact_processor
 def amazon_network_cache(context):
-    """Reports request URLs and entry times from the app's network cache."""
+    """Reports request URLs, entry times and stored bodies from the app's network cache."""
     data_headers = (
         ('Cached', 'datetime'),
         'Request URL',
-        'Response Size',
+        'Body Format',
+        'Body Size',
+        'Body Storage',
+        ('Cached Body', 'media'),
         'Partition',
         SOURCE_FILE,
     )
@@ -1075,7 +1178,8 @@ def amazon_network_cache(context):
             db = open_sqlite_db_readonly(db_path)
             db.text_factory = bytes
             rows = db.execute(
-                'SELECT r.time_stamp, r.request_key, LENGTH(d.receiver_data), r.partition '
+                'SELECT r.time_stamp, r.request_key, r.partition, '
+                'd.entry_ID, d.isDataOnFS, d.receiver_data '
                 'FROM cfurl_cache_response r '
                 'LEFT JOIN cfurl_cache_receiver_data d ON d.entry_ID = r.entry_ID '
                 'ORDER BY r.time_stamp DESC').fetchall()
@@ -1087,11 +1191,28 @@ def amazon_network_cache(context):
             continue
         source_path = source_path or db_path
         relative = context.get_relative_path(db_path)
-        for time_stamp, request_key, size, partition in rows:
+        for time_stamp, request_key, partition, data_row_id, data_on_fs, stored in rows:
             decode = lambda v: v.decode('utf-8', 'replace') if isinstance(v, bytes) else (
                 '' if v is None else str(v))
-            data_list.append((decode(time_stamp), decode(request_key),
-                              '' if size is None else size, decode(partition), relative))
+            url = decode(request_key)
+            body_format = body_size = storage = media_ref = ''
+            if data_row_id is not None:
+                body, body_path = _resolve_body(db_path, stored, data_on_fs)
+                if data_on_fs != 1:
+                    storage = 'database'
+                    body_format = _body_format(body)
+                    body_size = len(body)
+                elif body_path:
+                    storage = 'external file'
+                    body_format = _body_format(body)
+                    body_size = len(body)
+                    if body_format.endswith('image'):
+                        media_ref = check_in_media(
+                            body_path, name=url.split('?')[0].rsplit('/', 1)[-1]) or ''
+                else:
+                    storage = 'external file (not in extraction)'
+            data_list.append((decode(time_stamp), url, body_format, body_size, storage,
+                              media_ref, decode(partition), relative))
 
     return data_headers, data_list, source_path
 
