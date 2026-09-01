@@ -1,6 +1,7 @@
 # ---------------------------------------------------------------------------
 # Vendored into iLEAPP from crush-forensics (github.com/kalink0/crush-forensics)
 # by Marco Neumann (kalink0), Apache-2.0, unchanged except:
+#   * upstream commit 927e62b404f1ba2d7a5efd8b1dcd9a25e3a87e86 (2026-09-01).
 #   * the two crush framework imports below are replaced with minimal local
 #     shims so the module is self-contained (iLEAPP has no crush.core.vfs /
 #     crush.parsers.base); the RealmParser class is kept verbatim but iLEAPP
@@ -12,9 +13,12 @@
 # held to iLEAPP's own lint rules; the file-level disable below silences the
 # warnings its upstream style and pylint's type inference raise (broad excepts
 # and deliberately-unused signature args in the on-disk decoders, plus a few
-# not-an-iterable / no-member / import-error false positives). Do not add a
+# not-an-iterable / no-member / import-error false positives, and two
+# possibly-used-before-assignment on the per-top-ref format variables, which
+# are assigned and used under the same `if header_info:` condition that
+# pylint does not correlate). Do not add a
 # blanket disable like this to iLEAPP's own artifact code.
-# pylint: disable=unused-argument,broad-exception-caught,not-an-iterable,no-member,import-error
+# pylint: disable=unused-argument,broad-exception-caught,not-an-iterable,no-member,import-error,possibly-used-before-assignment
 # ---------------------------------------------------------------------------
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 - now Marco Neumann (kalink0)
@@ -108,6 +112,11 @@ class ParseResult:  # pragma: no cover
 
 _HEADER_SIZE = 24
 _MNEMONIC = b"T-DB"
+
+# File format 10 introduced the Cluster/ClusterTree row layout this module's
+# row/table decoders are written against; older formats use a structurally
+# different layout they can't read. See issue #55.
+_MIN_CLUSTER_FORMAT_VERSION = 10
 
 # width_ndx (bits [2:0] of array flags byte) → element width value
 # Scheme 0: width is in bits.  Scheme 1: width is in bytes.
@@ -403,12 +412,19 @@ def _extract_root_children(
 
 
 def _extract_schema(data: bytes, root_offset: int, file_size: int) -> list[str]:
-    """Extract class/table names from the Realm schema group array.
+    """Extract class/table names from the Group's table-names array
+    (m_table_names, group.hpp: child[0] of the Group top array).
 
-    B+ tree path followed:
-        root_offset  →  root Reference Array
-        entry[0]     →  schema group Data Array
-        each entry   →  null-terminated ASCII class name (padded to *width* bytes)
+    B+ tree path: root_offset → Group top Reference Array → child[0] →
+    m_table_names array.
+
+    m_table_names is `ArrayStringShort`-only in current realm-core (format
+    10+), but pre-rewrite realm-core (format 9 and earlier) declares it as
+    the full polymorphic `ArrayString`, which can also use the
+    SmallBlobs/BigBlobs on-disk forms. Dispatching through
+    _read_array_string_or_binary (the same decoder used for real
+    String/Binary columns) handles all three forms instead of assuming the
+    inline one — see issue #55.
     """
     root_hdr = _parse_array_header(data, root_offset)
     if root_hdr is None or not root_hdr["has_refs"]:
@@ -423,32 +439,12 @@ def _extract_schema(data: bytes, root_offset: int, file_size: int) -> list[str]:
     if schema_offset <= 0 or schema_offset >= file_size:
         return []
 
-    schema_hdr = _parse_array_header(data, schema_offset)
-    if schema_hdr is None:
+    raw_names = _read_array_string_or_binary(
+        data, schema_offset, file_size, is_string=True, nullable=False
+    )
+    if not raw_names:
         return []
-
-    entry_bytes = _elem_bytes(schema_hdr)
-    count = schema_hdr["Element count (size)"]
-    if entry_bytes < 1 or count == 0:
-        return []
-
-    payload_start = schema_offset + 8
-    names: list[str] = []
-    for i in range(count):
-        entry_off = payload_start + i * entry_bytes
-        if entry_off + entry_bytes > len(data):
-            break
-        entry = data[entry_off : entry_off + entry_bytes]
-        null_pos = entry.find(b"\x00")
-        raw = entry[:null_pos] if null_pos >= 0 else entry
-        try:
-            name = raw.decode("ascii")
-        except Exception:
-            continue
-        if name:
-            names.append(name)
-
-    return names
+    return [name for name in raw_names if isinstance(name, str) and name]
 
 
 # ---------------------------------------------------------------------------
@@ -2108,26 +2104,49 @@ class RealmParser(AbstractParser):
             active_offset = top_ref1_val if active_idx == 1 else top_ref0_val
             inactive_offset = top_ref0_val if active_idx == 1 else top_ref1_val
             inactive_ref_idx = 0 if active_idx == 1 else 1
+            # Each top ref carries its own format byte (fmt0/fmt1) rather than
+            # a single file-wide value: mid-upgrade, Realm briefly writes the
+            # new format to one ref while the other still reads the old one.
+            active_format = (
+                header_info["File format (top ref 1)"] if active_idx == 1
+                else header_info["File format (top ref 0)"]
+            )
+            inactive_format = (
+                header_info["File format (top ref 0)"] if active_idx == 1
+                else header_info["File format (top ref 1)"]
+            )
             schema = _extract_schema(full_data, active_offset, file_size)
             inactive_schema = _extract_schema(full_data, inactive_offset, file_size)
 
         strings = _scan_strings(full_data)
 
+        # Row/table data needs the Cluster-based layout (see
+        # _MIN_CLUSTER_FORMAT_VERSION); older formats get an explicit
+        # "not supported" status instead of a silent empty table list.
+        unsupported_row_format: int | None = None
+
         tables: list[dict[str, Any]] = []
         if header_info and schema:
-            table_key_map = _build_table_key_map(full_data, active_offset, schema, file_size)
-            tables = _extract_table_data(
-                full_data, active_offset, schema, file_size, table_key_map
-            )
+            if active_format < _MIN_CLUSTER_FORMAT_VERSION:
+                unsupported_row_format = active_format
+            else:
+                table_key_map = _build_table_key_map(full_data, active_offset, schema, file_size)
+                tables = _extract_table_data(
+                    full_data, active_offset, schema, file_size, table_key_map
+                )
 
         inactive_tables: list[dict[str, Any]] = []
         if header_info and inactive_schema:
-            inactive_table_key_map = _build_table_key_map(
-                full_data, inactive_offset, inactive_schema, file_size
-            )
-            inactive_tables = _extract_table_data(
-                full_data, inactive_offset, inactive_schema, file_size, inactive_table_key_map
-            )
+            if inactive_format < _MIN_CLUSTER_FORMAT_VERSION:
+                if unsupported_row_format is None:
+                    unsupported_row_format = inactive_format
+            else:
+                inactive_table_key_map = _build_table_key_map(
+                    full_data, inactive_offset, inactive_schema, file_size
+                )
+                inactive_tables = _extract_table_data(
+                    full_data, inactive_offset, inactive_schema, file_size, inactive_table_key_map
+                )
 
         # Inject schema-level diff into top_refs so the viewer can display it.
         if top_refs and (schema or inactive_schema):
@@ -2180,6 +2199,7 @@ class RealmParser(AbstractParser):
             "inactive_ref_index": inactive_ref_idx if header_info else None,
             "strings": strings,
             "freed_blocks": freed_blocks,
+            "unsupported_row_format": unsupported_row_format,
         }
 
         meta: dict[str, Any] = {
@@ -2198,6 +2218,11 @@ class RealmParser(AbstractParser):
             meta["Active top ref"] = str(active_idx)
             if schema:
                 meta["Tables found"] = str(len(schema))
+            if unsupported_row_format is not None:
+                meta["Row data"] = (
+                    f"Not supported (format {unsupported_row_format} "
+                    f"< {_MIN_CLUSTER_FORMAT_VERSION}, pre-Cluster)"
+                )
         else:
             meta["Header"] = "Not detected (corrupt or non-standard)"
             meta["Possibly Encrypted"] = "Try Open as → Realm DB (Encrypted)…"
