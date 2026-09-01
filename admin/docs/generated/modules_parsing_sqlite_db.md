@@ -115,6 +115,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | meWe |
 | mediaLibrary |
 | mega |
+| nest |
 | netflix |
 | netusage |
 | notes |
@@ -222,6 +223,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | knowledgeC |
 | lidl_plus |
 | mapsSync |
+| nest |
 | netflix |
 | serialNumber |
 | swissmeteo |
