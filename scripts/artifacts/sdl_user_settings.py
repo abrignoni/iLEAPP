@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": "",
-        "paths": ('*/Shared/UserSettings.plist'),
+        "paths": ('*/Shared/UserSettings.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings"
     },
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": "",
-        "paths": ('*/Shared/UserSettings.plist'),
+        "paths": ('*/Shared/UserSettings.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "lock"
     }
@@ -35,6 +35,7 @@ def user_settings(context):
     data_list = []    
     source_paths = set()
     for file_found in context.get_files_found():
+        source_name = str(context.get_relative_path(file_found))
         source_paths.add(file_found)
         with open(file_found, 'rb') as f:
             pl = plistlib.load(f)
@@ -43,9 +44,9 @@ def user_settings(context):
             restrictedBool = pl.get('restrictedBool')
             for key, value in restrictedBool.items():
                 setting_value = str(value.get('value'))
-                data_list.append((key,setting_value))
+                data_list.append((key,setting_value,source_name))
                 
-    data_headers = ('Setting','Value')
+    data_headers = ('Setting','Value','Source File')
     return data_headers, data_list, '\n'.join(sorted(source_paths))
                 
 @artifact_processor                

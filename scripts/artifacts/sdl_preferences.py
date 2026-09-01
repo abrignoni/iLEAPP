@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": "",
-        "paths": ('*/Networking/preferences.plist'),
+        "paths": ('*/Networking/preferences.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings"
     },
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": "",
-        "paths": ('*/Networking/preferences.plist'),
+        "paths": ('*/Networking/preferences.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings"
     }

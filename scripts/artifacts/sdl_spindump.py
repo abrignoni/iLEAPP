@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/spindump-nosymbols.txt'),
+        "paths": ('*/spindump-nosymbols.txt',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings"
     }

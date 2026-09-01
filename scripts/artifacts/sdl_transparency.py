@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/Transparency.log'),
+        "paths": ('*/[Tt]ransparency.log',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "download-cloud"
     },
@@ -21,14 +21,31 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/Transparency.log'),
+        "paths": ('*/[Tt]ransparency.log',),
         "output_types": ["html", "timeline", "tsv", "lava"],
         "artifact_icon": "box"
     }
 }
 
 import json
-from scripts.ilapfuncs import artifact_processor 
+from datetime import datetime, timezone
+from scripts.ilapfuncs import artifact_processor
+
+def _parse_to_utc(ts_str):
+    """Converts offset date strings (e.g. 2023-05-20 18:36:50.961 -0400) to UTC formatted strings."""
+    if not ts_str:
+        return ""
+    ts_str = ts_str.strip()
+    for fmt in ("%Y-%m-%d %H:%M:%S.%f %z", "%Y-%m-%d %H:%M:%S %z"):
+        try:
+            dt = datetime.strptime(ts_str, fmt)
+            dt_utc = dt.astimezone(timezone.utc)
+            if dt.microsecond:
+                return dt_utc.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+            return dt_utc.strftime("%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            pass
+    return ts_str
 
 @artifact_processor
 def transparency_devices(context):
@@ -92,7 +109,9 @@ def transparency_cloud(context):
                                 serial = ''
                                 for x,y in values.items():
                                     if x == 'timestampReadable':
-                                        timestamp = str(y).split(' +')[0]
+                                        timestamp = _parse_to_utc(y)
+                                        #timestamp = str(y).split(' +')[0]
+                                        
                                     if x == 'state':
                                         state = y
                                     if x == 'osVersion':

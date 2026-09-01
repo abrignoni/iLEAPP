@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/remotectl_dumpstate.txt'),
+        "paths": ('*/remotectl_dumpstate.txt',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings"
     }

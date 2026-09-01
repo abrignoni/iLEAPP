@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": "",
-        "paths": ('*/SystemVersion/SystemVersion.plist','*/OS/SystemVersion.plist'),
+        "paths": ('*/SystemVersion/SystemVersion.plist','*/OS/SystemVersion.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings"
     }

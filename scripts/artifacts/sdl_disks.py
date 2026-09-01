@@ -8,13 +8,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/disks.txt'),
+        "paths": ('*/disks.txt',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hard-drive"
     }
 }
 
-import textwrap
 from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
@@ -35,7 +34,7 @@ def sdl_disks(context):
                 for line in lines:
                     if '/' in line:
                         line_item = line.split()
-                        data_list.append((textwrap.fill(line_item[0], width=75),line_item[1],line_item[2],line_item[3],line_item[4],line_item[5],line_item[6],line_item[7],line_item[8],source_name))
+                        data_list.append((line_item[0],line_item[1],line_item[2],line_item[3],line_item[4],line_item[5],line_item[6],line_item[7],line_item[8],source_name))
     # Disks Report  
     data_headers = ('File System','Size','Used','Available','Capacity','I Used','I Free','% I Used','Mounted On','Source File')
     

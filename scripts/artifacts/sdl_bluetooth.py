@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/WiFi/bluetooth_status.txt','*/logs/Bluetooth/CoreCapture/bluetooth_status.txt'),
+        "paths": ('*/WiFi/bluetooth_status.txt','*/logs/Bluetooth/CoreCapture/bluetooth_status.txt',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "bluetooth"
     },
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/WiFi/bluetooth_status.txt','*/logs/Bluetooth/CoreCapture/bluetooth_status.txt'),
+        "paths": ('*/WiFi/bluetooth_status.txt','*/logs/Bluetooth/CoreCapture/bluetooth_status.txt',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "bluetooth"
     }
@@ -52,7 +52,7 @@ def bluetooth_status(context):
                         item = item.strip()
                         value = value.strip()
                         
-                        if 'MAC Address' in item:
+                        if 'MAC Address' in item and value != 'None':
                             value = str(value).upper()
                         
                         data_list_bluetooth_status.append((item, value, source_name))
@@ -137,7 +137,7 @@ def bluetooth_devices(context):
         'Cloud Paired',
         'Connected',
         'Type',
-        'LE',
+        'Low Energy',
         'Source File'
     )
     return data_headers, data_list_bt_device, '\n'.join(sorted(source_paths))

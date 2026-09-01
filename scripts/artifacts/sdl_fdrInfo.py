@@ -8,14 +8,13 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose - Settings & Preferences",
         "notes": "",
-        "paths": ('*/logs/FDR/FDRDiagnosticReport.plist'),
+        "paths": ('*/logs/FDR/FDRDiagnosticReport.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "settings"
     }
 }
 
 import plistlib
-import textwrap
  
 from scripts.ilapfuncs import artifact_processor, device_info
 
@@ -74,13 +73,13 @@ def fdrInfo(context):
                     elif 'nuid' in key:
                         nuid = value.get('LiveProperty','')
                     
-            data_list.append((serialnumber,bt_mac,wifi_mac,imei,ime2,seid,meid,eeid,tsid,mlb,arc,textwrap.fill(drp, width=75),nuid,source_name))
+            data_list.append((serialnumber,bt_mac,wifi_mac,imei,ime2,seid,meid,eeid,tsid,mlb,arc,drp,nuid,source_name))
             
     device_info("Device Identifier", "Serial Number", serialnumber, source_name)
     device_info("Device Identifier", "IMEI", imei, source_name)
     
     if ime2 != '':
-        device_info("Device Identifier", "Serial Number", serialnumber, source_name)
+        device_info("Device Identifier", "Serial Number", ime2, source_name)
     if meid != '':
         device_info("Device Identifier", "Mobile Equipment ID (MEID)", meid, source_name)
     if seid != '':
