@@ -30,14 +30,14 @@ def display_time(seconds):
 @artifact_processor
 def spindump(context):
     data_list = []
-    
-    files_found = context.get_files_found()
-    for file_found in files_found:
+    source_paths = set()
+
+    for file_found in context.get_files_found():
         if 'PaxHeader' in file_found:
             continue
         else:
             source_name = str(context.get_relative_path(file_found))
-
+            source_paths.add(file_found)
             with open(file_found, encoding = 'utf-8', mode = 'r') as f:
                 lines = f.readlines()[1:]
                 
@@ -97,4 +97,4 @@ def spindump(context):
                         device_info('System Stats','Disk Space',fds,file_found)
 
     data_headers = ('Property','Value','Source File')
-    return data_headers, data_list, 'See source file path(s) below:'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

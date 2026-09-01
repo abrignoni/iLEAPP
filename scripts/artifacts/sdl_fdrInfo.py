@@ -22,6 +22,7 @@ from scripts.ilapfuncs import artifact_processor, device_info
 @artifact_processor
 def fdrInfo(context):
     data_list = []
+    source_paths = set()
     serialnumber = ''
     bt_mac = ''
     wifi_mac = ''
@@ -35,12 +36,10 @@ def fdrInfo(context):
     arc = ''
     drp = ''
     nuid = ''
-    
-    files_found = context.get_files_found()
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         source_name = str(context.get_relative_path(file_found))
-    
+        source_paths.add(file_found)
         with open(file_found, 'rb') as f:
             pl = plistlib.load(f)
             
@@ -93,4 +92,4 @@ def fdrInfo(context):
     device_info("Device Identifier", "Wifi MAC Address (BSSID)", wifi_mac, source_name)
             
     data_headers = ('Serial Number','Bluetooth MAC','Wifi MAC','IMEI','IMEI2','Secure Element ID (SEID)','Mobile Equipment ID (MEID)','Embedded Identity Document (EID)','TSID','MLB','ARC','DRP','NUID','Source File')
-    return data_headers, data_list, 'See source file path(s) below:'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

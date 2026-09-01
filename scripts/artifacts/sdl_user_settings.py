@@ -33,10 +33,10 @@ from scripts.ilapfuncs import artifact_processor, device_info
 @artifact_processor
 def user_settings(context):
     data_list = []    
-
+    source_paths = set()
     for file_found in context.get_files_found():
         source_name = str(context.get_relative_path(file_found))
-    
+        source_paths.add(file_found)
         with open(file_found, 'rb') as f:
             pl = plistlib.load(f)
             
@@ -47,15 +47,15 @@ def user_settings(context):
                 data_list.append((key,setting_value))
                 
     data_headers = ('Setting','Value')
-    return data_headers, data_list, 'See source file(s) below:'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
                 
 @artifact_processor                
 def user_autolock_settings(context):
     data_list_lockout = []
-    
+    source_paths = set()
     for file_found in context.get_files_found():
         source_name = str(context.get_relative_path(file_found))
-    
+        source_paths.add(file_found)
         with open(file_found, 'rb') as f:
             pl = plistlib.load(f)
 
@@ -115,4 +115,4 @@ def user_autolock_settings(context):
                     device_info("Settings & Preferences", "Require Password Re-Entry", grace_val, source_name)
                     
     data_headers = ('Setting','Value','Source File')
-    return data_headers, data_list_lockout, 'See source file(s) below:'
+    return data_headers, data_list_lockout, '\n'.join(sorted(source_paths))

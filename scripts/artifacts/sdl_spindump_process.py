@@ -40,7 +40,7 @@ def _parse_to_utc(ts_str):
 @artifact_processor
 def spindump_process(context):
     data_list = []
-
+    source_paths = set()
     # Regex patterns for header metadata and process blocks
     header_start_time_pattern = re.compile(r"^Date/Time:\s+(.+)$")
     header_end_time_pattern = re.compile(r"^End time:\s+(.+)$")
@@ -52,15 +52,13 @@ def spindump_process(context):
     )
     key_val_pattern = re.compile(r"^(?P<key>[A-Za-z0-9\s]+?):\s+(?P<val>.*)$")
     
-    files_found = context.get_files_found()
-
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         file_found = str(file_found)
         if not os.path.isfile(file_found):
             continue
 
         source_name = str(context.get_relative_path(file_found))
-
+        source_paths.add(file_found)
         global_start_time = ""
         global_end_time = ""
         os_version = ""
@@ -186,7 +184,7 @@ def spindump_process(context):
         "Source File",
     )
 
-    return data_headers, data_list, 'See source file path(s) below:'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 def _append_process_record(

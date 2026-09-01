@@ -20,13 +20,14 @@ from scripts.ilapfuncs import artifact_processor
 @artifact_processor
 def sdl_disks(context):
     data_list = []
-    files_found = context.get_files_found()    
-    
-    for file_found in files_found:
+    source_paths = set()
+        
+    for file_found in context.get_files_found():
         if 'PaxHeader' in file_found:
             continue
         else:
             source_name = str(context.get_relative_path(file_found))
+            source_paths.add(file_found)
             # Disks
             with open(file_found, encoding = 'utf-8', mode = 'r') as f:
                 lines = f.readlines()[1:]
@@ -38,4 +39,4 @@ def sdl_disks(context):
     # Disks Report  
     data_headers = ('File System','Size','Used','Available','Capacity','I Used','I Free','% I Used','Mounted On','Source File')
     
-    return data_headers, data_list, 'See source file path(s) below:'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

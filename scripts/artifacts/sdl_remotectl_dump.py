@@ -19,14 +19,14 @@ from scripts.ilapfuncs import artifact_processor, device_info
 @artifact_processor
 def remotectl_dump(context):
     data_list = []
-    
-    files_found = context.get_files_found()
-    for file_found in files_found:
+    source_paths = set()
+
+    for file_found in context.get_files_found():
         if 'PaxHeader' in file_found:
             continue
         else:
             source_name = str(context.get_relative_path(file_found))
-
+            source_paths.add(file_found)
             with open(file_found, encoding = 'utf-8', mode = 'r') as f:
                 lines = f.readlines()[1:]
                 
@@ -90,4 +90,4 @@ def remotectl_dump(context):
                         data_list.append(('Unique Chip ID',unique_chip,source_name))
 
     data_headers = ('Property','Value','Source File')
-    return data_headers, data_list, 'See source file path(s) below:'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

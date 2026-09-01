@@ -32,14 +32,16 @@ from scripts.ilapfuncs import artifact_processor
 @artifact_processor
 def bluetooth_status(context):
     data_list_bluetooth_status = []
+    source_paths = set()
     
     files_found = context.get_files_found()
     
     for file_found in files_found:
         source_name = str(context.get_relative_path(file_found))
-    
+        
         # Bluetooth Status
         if file_found.endswith('bluetooth_status.txt'):
+            source_paths.add(file_found)
             with open(file_found, encoding='utf-8', mode='r') as f:
                 lines = f.readlines()[2:8]
     
@@ -56,7 +58,7 @@ def bluetooth_status(context):
                         data_list_bluetooth_status.append((item, value, source_name))
 
     data_headers = ('Category', 'Value', 'Source File')
-    return data_headers, data_list_bluetooth_status, 'See source file path(s) below:'
+    return data_headers, data_list_bluetooth_status, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -118,12 +120,14 @@ def bluetooth_devices(context):
             ))
     
     data_list_bt_device = []
+    source_paths = set()
     files_found = context.get_files_found()
     
     for file_found in files_found:
         source_name = str(context.get_relative_path(file_found))
     
         if file_found.endswith('bluetooth_status.txt'):
+            source_paths.add(file_found)
             process_chunks(file_found, source_name)
     
     data_headers = (
@@ -136,4 +140,4 @@ def bluetooth_devices(context):
         'LE',
         'Source File'
     )
-    return data_headers, data_list_bt_device, 'See source file path(s) below:'
+    return data_headers, data_list_bt_device, '\n'.join(sorted(source_paths))

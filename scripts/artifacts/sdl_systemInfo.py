@@ -22,13 +22,13 @@ from scripts.ilapfuncs import artifact_processor, device_info
 @artifact_processor
 def systemInfo(context):
     data_list = []
+    source_paths = set()
     prod_version = ''
     build_version = ''
-    
-    files_found = context.get_files_found()
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         source_name = str(context.get_relative_path(file_found))
+        source_paths.add(file_found)
     
         with open(file_found, 'rb') as f:
             pl = plistlib.load(f)
@@ -45,4 +45,4 @@ def systemInfo(context):
     device_info('Device Information', 'OS Build Version', build_version, source_name)
     
     data_headers = ('Product Name','Product Version','Build ID','Product Build Version','System Image ID','Source File')
-    return data_headers, data_list, 'See source file(s) below:'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

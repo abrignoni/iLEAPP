@@ -34,15 +34,14 @@ from scripts.ilapfuncs import artifact_processor, convert_utc_human_to_timezone,
 @artifact_processor
 def transparency_devices(context):
     data_list_devices = []
-    
-    files_found = context.get_files_found()
+    source_paths = set()
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if 'PaxHeader' in file_found:
             continue
         else:
             source_name = str(context.get_relative_path(file_found))
-        
+            source_paths.add(file_found)
             with open(file_found, "r", encoding='utf-8') as f:
                 json_file = json.loads(f.read())
                 if 'stateMachine' in json_file:
@@ -68,20 +67,19 @@ def transparency_devices(context):
                             data_list_devices.append((name,dev_model,os_version,build,serial,devID,pushToken,source_name))
     
     data_headers = ('Device Name','Device Model','OS Version','OS Build','Serial Number','Device ID','Push Token','Source File')
-    return data_headers, data_list_devices, 'See source file(s) below'
+    return data_headers, data_list_devices, '\n'.join(sorted(source_paths))
 
 @artifact_processor                    
 def transparency_cloud(context):
     data_list_cloudrecords = []
-    
-    files_found = context.get_files_found()
+    source_paths = set()
 
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         if 'PaxHeader' in file_found:
             continue
         else:
             source_name = str(context.get_relative_path(file_found))
-        
+            source_paths.add(file_found)
             with open(file_found, "r", encoding='utf-8') as f:
                 json_file = json.loads(f.read())
                 if 'stateMachine' in json_file:                    
@@ -115,4 +113,4 @@ def transparency_cloud(context):
                                 data_list_cloudrecords.append((timestamp,item_name,state,osVersion,serial,source_name))
     
     data_headers = (('Timestamp','datetime'),'Record','State','OS Version','Serial Number','Source File')
-    return data_headers, data_list_cloudrecords, 'See source path(s) below'
+    return data_headers, data_list_cloudrecords, '\n'.join(sorted(source_paths))

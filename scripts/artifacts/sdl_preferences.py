@@ -35,12 +35,11 @@ from scripts.ilapfuncs import artifact_processor, device_info
 @artifact_processor
 def pref_devinfo(context):
     data_list_dev = []
+    source_paths = set()
     
-    files_found = context.get_files_found()
-    
-    for file_found in files_found:
+    for file_found in context.get_files_found():
         source_name = str(context.get_relative_path(file_found))
-    
+        source_paths.add(file_found)
         with open(file_found, 'rb') as f:
             pl = plistlib.load(f)
             system = pl['System'].get('System')
@@ -59,17 +58,16 @@ def pref_devinfo(context):
             data_list_dev.append((computerName,hostName,model,version,source_name))
 
     data_headers = ('Device Name','Host Name','Motherboard Model','Version','Source File')
-    return data_headers, data_list_dev, 'See source file path(s) below:'
+    return data_headers, data_list_dev, '\n'.join(sorted(source_paths))
         
 @artifact_processor
 def pref_netserv(context):
     data_list_netservices = []
-    
-    files_found = context.get_files_found()
-    
-    for file_found in files_found:
+    source_paths = set()
+
+    for file_found in context.get_files_found():
         source_name = str(context.get_relative_path(file_found))
-    
+        source_paths.add(file_found)
         with open(file_found, 'rb') as f:
             pl = plistlib.load(f)
             netServices = pl.get('NetworkServices')
@@ -85,4 +83,4 @@ def pref_netserv(context):
                 data_list_netservices = sorted(data_list_netservices, key=lambda x: x[4])
     
     data_headers = ('Network Service GUID','Interface Name','Interface Type','Interface Hardware','Interface Device Name','Source File')
-    return data_headers, data_list_netservices, 'See source file path(s) below:'
+    return data_headers, data_list_netservices, '\n'.join(sorted(source_paths))
