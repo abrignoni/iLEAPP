@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "(PLAppTimeService_Aggregate_AppRunTime table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-01",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -16,8 +16,10 @@ __artifacts_v2__ = {
             "before its raw timestamp (rows older than the oldest retained entry use that "
             "oldest entry) and the applied offset is reported in its own column. Checked "
             "against test images: raw values lagged an iOS 18.7 acquisition date by ~32 "
-            "days and led an iOS 12.4 acquisition by 69 seconds; corrected values align "
-            "with the acquisition dates. ScreenOnTime/BackgroundTime read as seconds are "
+            "days, led an iOS 12.4 acquisition by 69 seconds, and on an iOS 26.5.2 "
+            "sysdiagnose ran on an internal clock reading 1971, about 54.7 years (1.73 "
+            "billion seconds) behind wall time; corrected values align with the "
+            "acquisition dates. ScreenOnTime/BackgroundTime read as seconds are "
             "consistent with the sampling-window durations in test data. Gzipped rotated "
             "logs (*.PLSQL.gz) are decompressed to a temporary location and parsed; the "
             "Source File column carries the archive path. InCallScreenOnTime and "
