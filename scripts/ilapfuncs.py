@@ -15,6 +15,7 @@ import re  # pylint: disable=unused-import  # re-exported for modules importing 
 import shutil
 import sqlite3
 import sys
+import tarfile
 import xml
 
 from datetime import datetime, timezone, timedelta
@@ -905,6 +906,46 @@ def get_sqlite_db_path(path):
         return "%5C%5C%3F%5C" + quote(remainder, safe=':/')
     else:
         return quote(str(path), safe='/')
+        
+def get_sysdiagnose_files(files_found, target_file, text_mode=True, encoding='utf-8'):
+    """
+    Yields (file_object, source_path) for target_file across standalone matches
+    and active sysdiagnose archives (.tar.gz / .tar).
+    """
+    for file_found in files_found:
+        file_path = str(file_found)
+        filename = os.path.basename(file_path)
+
+        # 1. Direct standalone file match
+        if filename == target_file:
+            try:
+                mode = 'r' if text_mode else 'rb'
+                kwargs = {'encoding': encoding, 'errors': 'replace'} if text_mode else {}
+                with open(file_path, mode, **kwargs) as f:
+                    yield f, file_path
+            except (OSError, IOError) as e:
+                print(f"Error reading standalone file {file_path}: {e}")
+
+        # 2. Sysdiagnose archive match (ignoring incomplete/in-progress dumps)
+        elif "sysdiagnose_" in filename and "IN_PROGRESS_" not in filename and (".tar" in filename):
+            try:
+                with tarfile.open(file_path, 'r:*') as tar:
+                    for member in tar.getmembers():
+                        # Match exact filename or target subpath regardless of root folder name
+                        if member.isreg() and (member.name.endswith(f"/{target_file}") or member.name == target_file):
+                            extracted = tar.extractfile(member)
+                            if extracted is None:
+                                continue
+                            
+                            # Wrap in TextIOWrapper if text mode is requested (e.g., json.load, regex, csv)
+                            stream = io.TextIOWrapper(extracted, encoding=encoding, errors='replace') if text_mode else extracted
+                            try:
+                                yield stream, f"{file_path} >> {member.name}"
+                            finally:
+                                if text_mode:
+                                    stream.detach() # Detach wrapper so tarfile manages underlying stream
+            except (tarfile.TarError, EOFError, OSError) as e:
+                print(f"Error processing archive {file_path}: {e}")
 
 def open_sqlite_db_readonly(path):
     '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
