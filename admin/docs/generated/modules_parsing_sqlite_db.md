@@ -215,6 +215,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | discord_cache |
 | dmss |
 | easy4ip |
+| familyHub |
 | foursquareSwarm |
 | geodMapTiles |
 | gmail |
