@@ -11,34 +11,31 @@ __artifacts_v2__ = {
         "category": "Realm",
         "notes": "This artifact reports nothing about the contents of any database. It exists so "
                  "that a store the bundled parser cannot read is visible as unread rather than "
-                 "indistinguishable from an empty one. The parser's row decoders need the Cluster "
-                 "table layout that Realm introduced in file format 10. On the tested extractions "
-                 "every store it returned classes for reported file format 24, and every file it "
-                 "returned no tables for reported file format 9, which predates that layout; the "
-                 "parser reads the class names of a format 9 store but returns no tables for it "
-                 "rather than raising, so an unsupported format and an empty store look the same "
-                 "in this output. Reported upstream as kalink0/crush-forensics issue 55, where "
-                 "the class name reading was fixed and row support remains open. A row is emitted "
-                 "only when the file holds more than 1024 non-zero bytes, which excludes "
-                 "uninitialised stores: on the tested data a populated undecoded store held "
-                 "1,662,831 and 9,119 non-zero bytes while an uninitialised one held 204. "
-                 "Non-Zero Bytes is a count of bytes, not an interpretation of them. A row here "
-                 "means the file should be examined with other tooling; it is not evidence that "
-                 "the app held any particular data, and an absence of rows means every Realm "
-                 "store found was decoded, not that none exists. Header Read separates two "
-                 "different conditions. False means the file does not begin with the Realm "
-                 "mnemonic, so no header could be read and File Format Version (as stored) is "
-                 "empty; Realm supports whole-file encryption, which presents this way, and the "
-                 "artifact does not assert which cause applies. True with a file format the "
-                 "parser does not decode is the unsupported-format case described above.",
+                 "indistinguishable from an empty one. The parser reads the Cluster table layout "
+                 "Realm introduced in file format 10 and the pre-Cluster layout used before it, "
+                 "so a store in either layout is decoded and is not reported here. On the tested "
+                 "extractions the only stores it returned no classes for were ones whose header "
+                 "could not be read at all. A row is emitted only when the file holds more than "
+                 "1024 non-zero bytes, which excludes uninitialised stores: the two stores "
+                 "reported held 4,133 and 4,136 non-zero bytes while an uninitialised one held "
+                 "204. Header Read separates two conditions. False means the file does not begin "
+                 "with the Realm mnemonic, so no header could be read and File Format Version (as "
+                 "stored) is empty; Realm supports whole-file encryption, which presents this "
+                 "way, and the artifact does not assert which cause applies. True with a file "
+                 "format the parser does not decode would be an unsupported format, which the "
+                 "tested extractions did not contain. Non-Zero Bytes is a count of bytes, not an "
+                 "interpretation of them. A row here means the file should be examined with other "
+                 "tooling; it is not evidence that the app held any particular data, and an "
+                 "absence of rows means every Realm store found was decoded, not that none "
+                 "exists.",
         "paths": ('*.realm',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "database",
         "sample_data": {
-            "falken_ios26": "iOS 26.2.1 | 2 rows",
-            "hc_ios26": "iOS 26.5.2 | 1 row",
-            "adams_iphone12mini": "iOS 17.1.1 | 1 row",
-        },
+                           "falken_ios26": "iOS 26.2.1 | 1 row",
+                           "hc_ios26": "iOS 26.5.2 | 0 rows",
+                           "adams_iphone12mini": "iOS 17.1.1 | 1 row",
+                       },
     },
 }
 
