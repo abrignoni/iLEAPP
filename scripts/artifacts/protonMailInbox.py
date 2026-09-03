@@ -28,9 +28,10 @@ __artifacts_v2__ = {
         "notes": "Reads the group.me.proton.mail cache used by Proton Mail 7.x (Inbox). In the tested "
                  "image the cached subject, body, sender and recipient values are stored in clear "
                  "text; the store holds the HTML the app rendered, and Body is the readable text "
-                 "extracted from it (tags, styling and repeated whitespace removed). Links lists the "
-                 "distinct link targets the same body carries, in document order, as stored; the "
-                 "unmodified HTML stays in the source database. Folder is resolved from the app's own "
+                 "extracted from it (tags, styling and repeated whitespace removed). Each link's "
+                 "place in the text is marked [n], and Links lists the link targets by those "
+                 "numbers, as stored; a repeated target keeps its first number. The unmodified "
+                 "HTML stays in the source database. Folder is resolved from the app's own "
                  "labels table. From Me is derived by comparing the message sender to the account's "
                  "own addresses. The Attachment column shows the first cached attachment file for the "
                  "message when it is present in the extraction; the Inbox Attachments artifact lists "
@@ -116,7 +117,7 @@ __artifacts_v2__ = {
 import json
 import re
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records,
                                does_table_exist_in_db, convert_unix_ts_to_utc,
@@ -127,20 +128,29 @@ _ATTACHMENT_ID_RE = re.compile(r'/mail-cache/attachments/(\d+)/')
 _WHITESPACE_RUN = re.compile(r'[\s\u00ad\u034f\u200b\u200c\u200d\ufeff]+')
 
 
-def _body_text(html_body):
-    """The readable text of an HTML body: tags dropped, whitespace runs collapsed."""
-    if not html_body:
-        return ''
-    text = BeautifulSoup(html_body, 'html.parser').get_text(separator=' ')
-    return _WHITESPACE_RUN.sub(' ', text).strip()
+def _body_text_and_links(html_body):
+    """The readable text of an HTML body plus the link targets it carries.
 
-
-def _body_links(html_body):
-    """The distinct link targets an HTML body carries, in document order, as stored."""
+    Tags are dropped and whitespace runs collapse to one space. Each link's place in
+    the text is marked [n], and the second value lists the targets by those numbers,
+    as stored. A repeated target keeps its first number, and a marker with no text
+    beside it is a link that carried none, such as a linked image."""
     if not html_body:
-        return ''
-    hrefs = (a.get('href') for a in BeautifulSoup(html_body, 'html.parser').find_all('a', href=True))
-    return ' '.join(dict.fromkeys(h for h in hrefs if h))
+        return '', ''
+    soup = BeautifulSoup(html_body, 'html.parser')
+    targets = []
+    numbers = {}
+    for anchor in soup.find_all('a', href=True):
+        href = anchor.get('href')
+        if not href:
+            continue
+        if href not in numbers:
+            targets.append(href)
+            numbers[href] = len(targets)
+        anchor.append(NavigableString(f' [{numbers[href]}]'))
+    text = _WHITESPACE_RUN.sub(' ', soup.get_text(separator=' ')).strip()
+    links = '\n'.join(f'[{number}] {target}' for number, target in enumerate(targets, 1))
+    return text, links
 
 
 def _is_mail_cache(file_found):
@@ -280,14 +290,15 @@ def protonMailInboxMessages(context):
             attachment = first_attachment.get(row[0])
             if attachment:
                 media_ref = check_in_media(attachment[0], attachment[1]) or ''
+            body, body_links = _body_text_and_links(row[7])
             data_list.append((
                 convert_unix_ts_to_utc(row[1]),
                 from_me,
                 _format_addresses(row[3]),
                 row[15],
-                _body_text(row[7]),
+                body,
                 media_ref,
-                _body_links(row[7]),
+                body_links,
                 folders.get(row[0], ''),
                 row[14],
                 row[2],
