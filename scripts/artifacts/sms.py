@@ -4,10 +4,21 @@ __artifacts_v2__ = {
         "description": "Parses SMS and iMessage chats",
         "author": "@AlexisBrignoni, @XperyLab, @ydkhatri, @tobraha, @snoop168",
         "creation_date": "2020-04-30",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-09-02",
         "requirements": "none",
         "category": "SMS & iMessage",
-        "notes": "",
+        "notes": "Sender is the handle joined to a received row through message.handle_id, which "
+                 "imessage-exporter documents as the sender handle row ID "
+                 "(imessage-database/src/tables/messages/message.rs at commit 4d90fc8d, line "
+                 "190); it is left blank on sent rows, whose local account is in the Account "
+                 "column, and on received rows that record no handle, such as group participant "
+                 "and title changes. Chat Participants lists the handles joined to the message's "
+                 "chat through chat_handle_join, comma separated. In a direct chat that is the "
+                 "same value as Chat Contact ID; in a group chat, Chat Contact ID holds the chat "
+                 "identifier as stored and Chat Participants is where a phone number or email is "
+                 "found. Chat Name is chat.display_name as stored. A message with no "
+                 "chat_message_join row has blank chat columns, and Sender still resolves for it "
+                 "where a handle is recorded.",
         "paths": ('*/Library/SMS/sms.db*',
                   '*/Library/SMS/Attachments/*'),
         "output_types": "standard",
@@ -37,7 +48,7 @@ __artifacts_v2__ = {
                 "directionColumn": "From Me",
                 "directionSentValue": 1,
                 "timeColumn": "Message Timestamp",
-                "senderColumn": "Chat Contact ID",
+                "senderColumn": "Sender",
                 "sentMessageLabelColumn": "Account",
                 "mediaColumn": "Attachment File"
             }
@@ -129,8 +140,16 @@ def sms(context):
     message.is_from_me as "From Me",
     message.attributedBody,
     message.date_delivered,
-    message.guid as "Message GUID"
+    message.guid as "Message GUID",
+    case when message.is_from_me = 0 then handle.id end as "Sender",
+    chat.display_name as "Chat Name",
+    (select group_concat(id) from
+        (select distinct handle.id as id from chat_handle_join
+         join handle on handle.ROWID = chat_handle_join.handle_id
+         where chat_handle_join.chat_id = chat.ROWID
+         order by id)) as "Chat Participants"
     from message
+    left join handle on message.handle_id = handle.ROWID
     left join message_attachment_join on message.ROWID = message_attachment_join.message_id
     left join attachment on message_attachment_join.attachment_id = attachment.ROWID
     left join chat_message_join on message.ROWID = chat_message_join.message_id
@@ -143,9 +162,12 @@ def sms(context):
         ('Delivered Timestamp', 'datetime'),
         ('Attachment Timestamp', 'datetime'),
         'From Me',
+        'Sender',
         'Chat Contact ID',
         'Message',
         ('Attachment File', 'media'),
+        'Chat Name',
+        'Chat Participants',
         'Service',
         'Message Direction',
         'Message Sent',
@@ -202,9 +224,12 @@ def sms(context):
             delivered_timestamp,
             attachment_timestamp,
             record[18],
+            record[22],
             record[10],
             message_text,
             media_ref_id,
+            record[23],
+            record[24],
             record[3],
             record[4],
             record[5],
@@ -237,9 +262,12 @@ def sms(context):
                                        'Delivered Timestamp',
                                        'Attachment Timestamp',
                                        'from_me',
+                                       'Sender',
                                        'data-name',
                                        'message',
                                        'Attachment File',
+                                       'Chat Name',
+                                       'Chat Participants',
                                        'Service',
                                        'Message Direction',
                                        'Message Sent',
