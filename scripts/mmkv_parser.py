@@ -6,9 +6,13 @@ iOS apps in place of SharedPreferences or NSUserDefaults
 read directly:
 
     [0:4]   actual size of the data region, uint32 little-endian
-    [4:8]   CRC of the data region, uint32 little-endian
-    [8:8+actual_size]
-            the data region: entries laid end to end, each one
+    [4:4+actual_size]
+            the data region. It opens with one varint, the total size of the
+            items that follow (Tencent's MMKV_IO.cpp reserves a fixed 4-byte
+            slot for it on the append path, ItemSizeHolderSize, and writes a
+            plain varint on the full-rewrite path in MiniPBCoder.cpp, so on
+            disk it is 1 to 4 bytes long). After it, entries laid end to end,
+            each one
                 varint  key length
                 bytes   key, UTF-8
                 varint  value container length
@@ -35,9 +39,10 @@ the app reads.
 drops those keys, matching what the app sees. They stay visible in
 `read_entries`.
 
-Nothing here decrypts. MMKV supports an AES-encrypted mode, and a store written
-that way will not produce readable keys; callers should treat an empty or
-garbage result as possibly encrypted rather than as an empty store.
+Nothing here decrypts. MMKV supports an AES-encrypted mode; the AES vector for it
+is kept in the sibling ``<name>.crc`` meta file at bytes 12 to 28. When that file
+is present and the vector is non-zero, `read_entries` raises MMKVError rather than
+returning the garbage keys an encrypted region decodes to.
 """
 
 import struct
@@ -47,7 +52,7 @@ class MMKVError(Exception):
     """Raised when a file cannot be read as an MMKV store."""
 
 
-_HEADER_LENGTH = 8
+_HEADER_LENGTH = 4
 # Ten sevens covers a 64-bit value, which is the widest scalar MMKV writes.
 # A varint longer than that means the walk has lost alignment.
 _MAX_VARINT_BYTES = 10
@@ -70,26 +75,29 @@ def _read_varint(data, offset):
 
 
 def read_entries(path):
-    """Return [(key, value_container_bytes)] in file order.
+    """Return every (key, raw_value_container) entry in file order.
 
     Every entry is returned, including repeats of the same key. Later entries
-    supersede earlier ones; see the module docstring.
+    for a key supersede earlier ones; see read_dict for the collapsed view.
+    Raises MMKVError for a file that is not a readable MMKV store, including one
+    whose .crc meta file records an AES vector (an encrypted store).
     """
     with open(path, 'rb') as handle:
         data = handle.read()
-
     if len(data) < _HEADER_LENGTH:
         raise MMKVError('file shorter than an MMKV header')
-
     actual_size = struct.unpack_from('<I', data, 0)[0]
-    end = _HEADER_LENGTH + actual_size
     if actual_size == 0:
         return []
+    end = _HEADER_LENGTH + actual_size
     if end > len(data):
         raise MMKVError('recorded data size runs past the end of the file')
+    if _aes_vector(path):
+        raise MMKVError('store is AES-encrypted (non-zero vector in the .crc meta file)')
 
     entries = []
-    offset = _HEADER_LENGTH
+    # The data region opens with the items-size varint; the first key follows it.
+    _items_size, offset = _read_varint(data, _HEADER_LENGTH)
     while offset < end:
         try:
             key_length, offset = _read_varint(data, offset)
@@ -100,14 +108,26 @@ def read_entries(path):
             value_length, offset = _read_varint(data, offset)
             if offset + value_length > end:
                 break
+            entries.append((key, data[offset:offset + value_length]))
+            offset += value_length
         except (MMKVError, UnicodeDecodeError):
-            # Alignment is lost, so nothing after this point can be trusted.
-            # Keep what was read rather than discarding the whole store.
             break
-        entries.append((key, data[offset:offset + value_length]))
-        offset += value_length
-
     return entries
+
+
+def _aes_vector(path):
+    """The 16-byte AES vector from the sibling .crc meta file, or b'' when absent or zero.
+
+    MMKVMetaInfo lays out: crc u32, version u32, sequence u32, aesVector[16], ...
+    """
+    meta = path + '.crc'
+    try:
+        with open(meta, 'rb') as handle:
+            head = handle.read(28)
+    except OSError:
+        return b''
+    vector = head[12:28]
+    return vector if len(vector) == 16 and any(vector) else b''
 
 
 def decode_value(container):
