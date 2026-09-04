@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "registered, and which app features were switched on.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
-        "last_update_date": "2026-09-02",
+        "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "Samsung Family Hub",
         "notes": "Read from Library/Preferences/com.samsung.familyhub.plist, including the "
@@ -47,8 +47,9 @@ __artifacts_v2__ = {
                  "on the tested extraction none of the refrigerator features had been used. The "
                  "SafariViewService web cache beside the app holds the Samsung account sign-in "
                  "page and its static assets and is not reported. The app's data container was "
-                 "present on 1 of the 24 registered iOS corpora swept for it, and no Android "
-                 "corpus of 28 holds the app.",
+                 "present on 1 of the 26 registered iOS test extractions and on none of the 31 "
+                 "Android ones when every registered archive was scanned for the package name on "
+                 "2026-09-04.",
         "paths": ('*/Library/Preferences/com.samsung.familyhub.plist',
                   '*/Library/Caches/com.samsung.familyhub/Cache.db*'),
         "output_types": ["html", "tsv", "lava"],
