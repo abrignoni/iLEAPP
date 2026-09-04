@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "app cached for each, and the profile text the account published.",
         "author": "@abrignoni, Claude",
         "creation_date": "2020-09-15",
-        "last_update_date": "2026-09-03",
+        "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "Discord",
         "notes": "Read from the app's MMKV store (Documents/mmkv/mmkv.default) with the vendored "
@@ -14,15 +14,16 @@ __artifacts_v2__ = {
                  "path pattern matches every app's mmkv.default because an iOS data container is "
                  "named by a GUID, so a store is read only when it carries Discord's own keys "
                  "(user_id_cache, MultiAccountStore or UserStore-snapshot) and is skipped "
-                 "otherwise. One row per account in MultiAccountStore, which lists every "
-                 "account signed in on the device, joined to the fuller record in "
-                 "UserStore-snapshot and UserProfileStore-snapshot where the same id appears; an "
-                 "account present only in the older user_id_cache and email_cache keys is still "
-                 "reported from those. Token Status is reported as stored. The account's "
-                 "authentication tokens and push tokens are in the same store and are not "
-                 "reported. Email is what the app cached, not a verified identifier. Profile Fetched At and Legacy Username come from "
-                 "UserProfileStore-snapshot and are present only where that key is; it was on one of "
-                 "the fifteen tested extractions.",
+                 "otherwise. One row per account in MultiAccountStore, which lists every account "
+                 "signed in on the device, joined to the fuller record in UserStore-snapshot and "
+                 "UserProfileStore-snapshot where the same id appears; an account present only in "
+                 "the older user_id_cache and email_cache keys is still reported from those. "
+                 "Token Status is reported as stored. The account's authentication tokens and "
+                 "push tokens are in the same store and are not reported. Email is what the app "
+                 "cached, not a verified identifier. Profile Fetched At and Legacy Username come "
+                 "from UserProfileStore-snapshot and are present only where that key is; the key "
+                 "was present on four of the eleven tested extractions that held a Discord store "
+                 "and carried those two fields on one of them.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default',),
         "output_types": "standard",
         "artifact_icon": "brand-discord",
@@ -51,25 +52,25 @@ __artifacts_v2__ = {
                        "measured as nearest.",
         "author": "@abrignoni, Claude",
         "creation_date": "2026-09-03",
-        "last_update_date": "2026-09-03",
+        "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "Discord",
         "notes": "Read from the app's MMKV store. One row per store. First Run is the "
-                 "first_run_date_key value and First Use the firstUse value of RequestReviewStore, "
-                 "both Unix milliseconds. Last Sync, Session Started and Last Heartbeat are the "
-                 "lastSyncTime, LATEST_SESSION_INITIALIZED_TIMESTAMP and the newest of the "
-                 "LATEST_SESSION_TIMESTAMP and LATEST_HEARTBEAST_TIMESTAMP values; the store is "
-                 "append-only so the heartbeat key can carry dozens of superseded writes, and the "
-                 "count of those writes is reported as Heartbeat Writes; Session UUID, Session Started "
-                 "and Last Heartbeat are present only where the app wrote those keys (two of fifteen "
-                 "tested extractions). Device fields come from "
-                 "the deviceProperties JSON as stored: OS, client, device model, system locale, "
-                 "client version, release channel and the device vendor identifier. Preferred "
-                 "Voice Region and Region Test At come from RTCRegionStore; the region is the one "
-                 "the app measured as nearest at that time and is a coarse indication, not a "
-                 "location. Camera and Microphone Permission are the app's recorded permission "
-                 "states as stored. Values are what the app cached and are reported without "
-                 "interpretation.",
+                 "first_run_date_key value and First Use the firstUse value of "
+                 "RequestReviewStore, both Unix milliseconds. Last Sync, Session Started and Last "
+                 "Heartbeat are the lastSyncTime, LATEST_SESSION_INITIALIZED_TIMESTAMP and the "
+                 "newest of the LATEST_SESSION_TIMESTAMP and LATEST_HEARTBEAST_TIMESTAMP values; "
+                 "the store is append-only so the heartbeat key can carry dozens of superseded "
+                 "writes, and the count of those writes is reported as Heartbeat Writes; Session "
+                 "UUID, Session Started and Last Heartbeat are present only where the app wrote "
+                 "those keys (two of the eleven tested extractions that held a Discord store). "
+                 "Device fields come from the deviceProperties JSON as stored: OS, client, device "
+                 "model, system locale, client version, release channel and the device vendor "
+                 "identifier. Preferred Voice Region and Region Test At come from RTCRegionStore; "
+                 "the region is the one the app measured as nearest at that time and is a coarse "
+                 "indication, not a location. Camera and Microphone Permission are the app's "
+                 "recorded permission states as stored. Values are what the app cached and are "
+                 "reported without interpretation.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default',),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -96,15 +97,15 @@ __artifacts_v2__ = {
         "description": "Times the Discord app recorded a session start, by day.",
         "author": "@abrignoni, Claude",
         "creation_date": "2026-09-03",
-        "last_update_date": "2026-09-03",
+        "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "Discord",
         "notes": "Read from the UsageStatisticsStore JSON in the app's MMKV store, whose _state "
                  "holds a sessions map from a calendar day to a list of startTimestamp values in "
                  "Unix milliseconds. One row per start. The day string is the app's own bucket "
                  "and is reported as stored beside the rendered UTC time. This key was present on "
-                 "two of the fifteen tested extractions; where it is absent the artifact reports "
-                 "nothing for that store.",
+                 "two of the eleven tested extractions that held a Discord store; where it is "
+                 "absent the artifact reports nothing for that store.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default',),
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -128,23 +129,23 @@ __artifacts_v2__ = {
     },
     "discordDrafts": {
         "name": "Discord - Message Drafts",
-        "description": "Text the account typed into a channel's message box and had not sent when "
-                       "the app saved it, with the time of each save, including superseded "
-                       "versions that show the text as it was being typed.",
+        "description": "Draft text the app saved for a channel's message box and had not sent at "
+                       "the time of the save, with the time of each save, including superseded "
+                       "saves that show how the text changed.",
         "author": "@abrignoni, Claude",
         "creation_date": "2026-09-03",
-        "last_update_date": "2026-09-03",
+        "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "Discord",
         "notes": "Read from every write of the DraftStore key in the app's MMKV store, not only "
                  "the current one: the store is append-only, so each save of the draft box is a "
-                 "separate entry, and one tested extraction held 120 rows tracing a message being "
-                 "typed a few characters at a time. Each write's _state maps an account id to a "
-                 "channel id to a draft type to a timestamp and the draft text; one row per "
-                 "(write, account, channel, type). Superseded Write is True for every entry "
-                 "except the newest, and Write Index is that entry's position in the store. Draft "
-                 "Type is reported as stored. Channel IDs are Discord snowflakes and are not "
-                 "resolved to names here.",
+                 "separate entry, and one tested extraction held 120 rows in which the draft text "
+                 "grew by a few characters from one save to the next. Each write's _state maps an "
+                 "account id to a channel id to a draft type to a timestamp and the draft text; "
+                 "one row per (write, account, channel, type). Superseded Write is True for every "
+                 "entry except the newest, and Write Index is that entry's position in the store. "
+                 "Draft Type is reported as stored. Channel IDs are Discord snowflakes and are "
+                 "not resolved to names here.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default',),
         "output_types": "standard",
         "artifact_icon": "edit",
