@@ -29,12 +29,13 @@ from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 
 @artifact_processor
 def get_sysdiag_account_devices(context):
-    """ See artifact description """
     files_found = context.get_files_found()
     data_list = []
     sources = []
+    
 
     for file_obj, source_path in get_sysdiagnose_files(files_found, "otctl_status.txt"):
+        source_name = context.get_relative_path(source_path)
         try:
             f = json.load(file_obj)
         except json.JSONDecodeError:
@@ -55,9 +56,9 @@ def get_sysdiag_account_devices(context):
                 continue
 
             if not any(serial in subliste for subliste in data_list):
-                data_list.append((opush, model, m_name, os_bnum, os_ver, serial))
+                data_list.append((opush, model, m_name, os_bnum, os_ver, serial,source_name))
 
     source_list = "; ".join(sources)
-    data_headers = ("lastOctagonPush", "Model", "Product", "OS Build", "OS Version", "Serial Number")
+    data_headers = ("lastOctagonPush", "Model", "Product", "OS Build", "OS Version", "Serial Number","Source Path")
 
     return data_headers, data_list, source_list
