@@ -2,8 +2,8 @@ __artifacts_v2__ = {
     "chrome_session_tabs": {
         "name": "Chromium Session Tabs - Navigation Entries",
         "description": "Pages held in the tab restore file of a Chromium browser, with the "
-                       "address, page title, visit time and HTTP status the browser stored for "
-                       "each entry, and the tab it belongs to.",
+                       "address, page title and visit time the browser stored for each entry, and "
+                       "the tab it belongs to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-04",
         "last_update_date": "2026-09-04",
@@ -11,9 +11,9 @@ __artifacts_v2__ = {
         "category": "Chromium Sessions",
         "notes": "Read from the Sessions/Tabs_<number> files a Chromium browser writes under "
                  "Library/Application Support, with the vendored snss_parser. The pattern carries "
-                 "no bundle name because an app's data container is named by a identifier, so the "
-                 "Browser column reports the vendor and browser folders the file sits under and "
-                 "the same pattern covers Chrome and Edge.\n"
+                 "no bundle name because an app's data container is named by an identifier, so "
+                 "the Browser column reports the vendor and browser folders the file sits under "
+                 "and the same pattern covers Chrome and Edge.\n"
                  "One row per navigation entry, taken from the command Chromium calls "
                  "kCommandUpdateTabNavigation. Timestamp is the entry's stored time, microseconds "
                  "since 1601. Tab ID and Index identify the tab and the position of the entry in "
@@ -23,15 +23,15 @@ __artifacts_v2__ = {
                  "components/sessions/core/serialized_navigation_entry.cc, which sets the field "
                  "order, and components/sessions/core/tab_restore_service_impl.cc, which sets the "
                  "command ids.\n"
-                 "The format also carries an HTTP status, an original request URL, a post data flag, a "
-                 "user agent override flag and a page state blob holding form and scroll state. On "
-                 "every one of the 19 entries across the tested images those were empty, zero or "
-                 "false, which is why they are not reported here and why an entry written on this "
-                 "platform is a fraction of the size of one written on Android. Every Chrome entry "
-                 "consumed its record exactly. The Edge entries left four trailing bytes unread, one "
-                 "further value the format allows after the fields read here, which Chromium's own "
-                 "reader also treats as optional; the reported fields decode the same way in both "
-                 "browsers.\n"
+                 "The format also carries an HTTP status, an original request URL, a post data "
+                 "flag, a user agent override flag and a page state blob holding form and scroll "
+                 "state. On every one of the 19 entries across the tested images those were "
+                 "empty, zero or false, which is why they are not reported here and why an entry "
+                 "written on this platform is a fraction of the size of one written on Android. "
+                 "Every Chrome entry consumed its record exactly. The Edge entries left four "
+                 "trailing bytes unread, one further value the format allows after the fields "
+                 "read here, which Chromium's own reader also treats as optional; the reported "
+                 "fields decode the same way in both browsers.\n"
                  "This is the browser's own restore file, so a row means the page was in a tab "
                  "the browser was holding, not that it was open when the device was seized, and "
                  "the file keeps a limited number of tabs rather than a full history. A page here "

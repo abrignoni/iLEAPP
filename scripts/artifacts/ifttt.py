@@ -5,20 +5,19 @@ __artifacts_v2__ = {
                        "address and time zone the app held for it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
-        "last_update_date": "2026-09-02",
+        "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "IFTTT",
         "notes": "Read from class_UserRecord in the app's Realm store (Documents/default.realm) "
                  "with the vendored realm_parser. The store is Realm file format 9, which the "
-                 "parser reads through its pre-Cluster path. An iOS data container is named by "
-                 "a GUID, so the path pattern cannot carry the bundle identifier and matches "
-                 "any Documents/default.realm; every candidate is then required to carry an "
-                 "IFTTT class before it is read, and a store without one is skipped and "
-                 "logged, so another app's Realm cannot be reported under IFTTT's name. Time "
-                 "Zone is the zone the account holds in the IFTTT service, not a device "
-                 "setting. These are values the account held in the app, which the app "
-                 "received from its service; they are not verified identifiers. User Type and "
-                 "Home Screen Preference are reported as stored.",
+                 "parser reads through its pre-Cluster path. An iOS data container is named by a "
+                 "GUID, so the path pattern cannot carry the bundle identifier and matches any "
+                 "Documents/default.realm; every candidate is then required to carry an IFTTT "
+                 "class before it is read, and a store without one is skipped and logged, so "
+                 "another app's Realm cannot be reported under IFTTT's name. Time Zone is the "
+                 "timezone value of the account record, as stored. These are values the account "
+                 "held in the app, which the app received from its service; they are not verified "
+                 "identifiers. User Type and Home Screen Preference are reported as stored.",
         "paths": ('*/Documents/default.realm',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "user",
@@ -32,24 +31,23 @@ __artifacts_v2__ = {
                        "it runs on, who published it and when the app first recorded it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
-        "last_update_date": "2026-09-02",
+        "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "IFTTT",
         "notes": "Read from class_LiveConnectionRecord in the app's Realm store, which is where "
                  "the connected applets are held on the tested extraction; class_AppletRecord, "
                  "which the name suggests would carry them, held no rows. The service name is "
-                 "joined from class_LiveServiceRecord through the row's own primaryService "
-                 "link. Author is the applet's publisher as the service supplied it, not the "
-                 "account on this device: an applet published by someone else and switched on "
-                 "by this account shows that publisher. Created At is when the app first "
-                 "recorded the applet locally, which is not the same as when the applet last "
-                 "ran; no run history was present, see the Activity note below. Status and Kind "
-                 "are reported as stored. The store's installsCount is how many IFTTT accounts "
-                 "had that applet and is service-supplied popularity rather than anything about "
-                 "this device, so it is not reported. Activity: class_ActivityItemRecord, "
-                 "class_WidgetRunRecord and class_RegionEvent were present in the schema and "
-                 "held no rows on the tested extraction, so no applet run, widget run or "
-                 "geofence event was recovered.",
+                 "joined from class_LiveServiceRecord through the row's own primaryService link. "
+                 "Author is the applet's publisher as the service supplied it, not the account on "
+                 "this device: an applet published by someone else and switched on by this "
+                 "account shows that publisher. Created At is when the app first recorded the "
+                 "applet locally, which is not the same as when the applet last ran; no run "
+                 "history was present, see the Activity note below. Status and Kind are reported "
+                 "as stored. The store's installsCount is a service-supplied count for the applet "
+                 "that says nothing about this device, so it is not reported. Activity: "
+                 "class_ActivityItemRecord, class_WidgetRunRecord and class_RegionEvent were "
+                 "present in the schema and held no rows on the tested extraction, so no applet "
+                 "run, widget run or geofence event was recovered.",
         "paths": ('*/Documents/default.realm',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "zap",
