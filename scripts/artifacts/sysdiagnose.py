@@ -7,7 +7,7 @@ __artifacts_v2__ = {
             to get informations about peers in the account's Octagon trust circle (iCloud Keychain syncing).",
         "author": "@C_Peter",
         "creation_date": "2025-05-22",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "OCTL refers to the Octagon Account (iCloud Keychain). Reference: Apple Security open source (OctagonTrust; otctl man page: 'diagnostic information for iCloud Keychain syncing'), https://github.com/apple-oss-distributions/Security",
