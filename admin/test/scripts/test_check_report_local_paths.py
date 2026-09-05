@@ -146,6 +146,18 @@ class ShapesThatOnceHidALeak(unittest.TestCase):
         """)
         self.assertEqual(len(found), 1, 'strip() must not clear the taint')
 
+    def test_str_format_carries_the_path_into_the_result(self):
+        """A constant receiver means the path arrives as an argument, not a receiver."""
+        found = findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append(('{}'.format(file_found), 'b'))
+                return (), data_list, ''
+        """)
+        self.assertEqual(len(found), 1, 'str.format must carry the path through')
+
     def test_stacked_launderers_still_report(self):
         """torrentinfo carried both at once: textwrap.fill(file_found.strip(), ...)."""
         found = findings_for("""

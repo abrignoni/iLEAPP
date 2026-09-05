@@ -200,8 +200,9 @@ class FunctionScan:
         if isinstance(func, ast.Attribute):
             if name in TAINT_ATTR_CALLS and receiver_name(func) in TAINT_ATTR_CALLS[name]:
                 return True
-            if name == 'join':
-                # os.path.join(tainted, ...) is still a full path.
+            if name in ('join', 'format'):
+                # os.path.join(tainted, ...) is still a full path, and a path
+                # interpolated by str.format is still inside the string returned.
                 return any(self.is_tainted(a) for a in node.args)
             # Any other method called ON a path returns something derived from that path,
             # so the taint survives. Only PATH_REDUCING_METHODS above cuts it down.
