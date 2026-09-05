@@ -122,6 +122,42 @@ class ShapesThatOnceHidALeak(unittest.TestCase):
         ''')
         self.assertEqual(len(found), 1, 'an initializer must not clear container taint')
 
+    def test_a_formatter_passes_taint_through(self):
+        """torrentResumeinfo: textwrap.fill(file_found, width=25) published the path."""
+        found = findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append((textwrap.fill(file_found, width=25), 'b'))
+                return (), data_list, ''
+        """)
+        self.assertEqual(len(found), 1, 'a formatter must not launder a path')
+
+    def test_strip_does_not_reduce_a_path(self):
+        """strip() hands back the whole path, so it cannot clear the taint."""
+        found = findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append((file_found.strip(), 'b'))
+                return (), data_list, ''
+        """)
+        self.assertEqual(len(found), 1, 'strip() must not clear the taint')
+
+    def test_stacked_launderers_still_report(self):
+        """torrentinfo carried both at once: textwrap.fill(file_found.strip(), ...)."""
+        found = findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append((textwrap.fill(file_found.strip(), width=25), 'b'))
+                return (), data_list, ''
+        """)
+        self.assertEqual(len(found), 1, 'stacked launderers must not hide a path')
+
 
 class LocatedAt(unittest.TestCase):
     def test_flags_a_staged_path_handed_to_the_report_writer(self):
@@ -170,6 +206,17 @@ class MustStaySilent(unittest.TestCase):
                     data_list.append((user, 'b'))
                 return (), data_list, ''
         '''), [])
+
+    def test_a_split_component_is_still_accepted(self):
+        """split() genuinely returns a piece of the string, so it stays silent."""
+        self.assertEqual(findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append((file_found.split('/')[-1], 'b'))
+                return (), data_list, ''
+        """), [])
 
     def test_an_email_message_walk_is_not_os_walk(self):
         """mailprotect: message.walk() yields MIME parts, not filesystem paths."""
