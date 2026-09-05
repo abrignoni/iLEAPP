@@ -1,9 +1,9 @@
 __artifacts_v2__ = {
     "signalLogLaunches": {
         "name": "Signal - App Launches (logs)",
-        "description": "One row per version block the Signal app, its notification service extension or its "
-                       "share extension wrote to its debug log at launch: first, previous and current app "
-                       "versions, iOS version, device model and locale as stored.",
+        "description": "One row per version block the Signal app, its notification service extension or its share "
+                       "extension wrote to its debug log at launch: first, last and current app versions, iOS version, "
+                       "device model and locale, where the block carries them, as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
@@ -70,9 +70,9 @@ __artifacts_v2__ = {
     },
     "signalLogCallEvents": {
         "name": "Signal - Call Events (logs)",
-        "description": "Call signalling events from Signal's debug logs: call messages received and sent (offer, "
-                       "answer, ICE updates, hangup, busy), call status changes and RingRTC events, with the "
-                       "partially redacted call id and phone number the app logged.",
+        "description": "Call signalling events from Signal's debug logs: call messages received and sent with their type "
+                       "as stored, call context and status lines and RingRTC events, with the call id and phone number "
+                       "tokens as the app logged them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
