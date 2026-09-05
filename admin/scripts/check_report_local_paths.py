@@ -45,6 +45,12 @@ Found by auditing all five cores in 2026-08: 38 sites across 31 artifacts, inclu
 16 Chromium artifacts in iLEAPP's chrome.py (which build their own per-browser reports and
 so bypass the wrapper) and a 1,085-row LAVA column in appGrouplisting.
 
+Two shapes hid a path from this check until 2026-09, and both have to keep failing here.
+A path handed to a formatter came back untracked, so `textwrap.fill(file_found)` reported
+clean while publishing the absolute path. And `strip` sat among the methods treated as
+reducing a path, though it hands back the whole string, so `file_found.strip()` cleared
+the taint too. ALEAPP's torrentinfo carried both at once.
+
 Usage:
   check_report_local_paths.py [--root REPO_ROOT] [--verbose]
 
@@ -90,6 +96,10 @@ PASSTHROUGH_CALLS = {
     'sorted', 'set', 'list', 'tuple', 'abspath', 'realpath', 'normpath',
 }
 
+# Formatters that hand back a rewrapped copy of what they were given. A path put through
+# one of these is still that path, so the taint has to survive the call.
+REFORMATTING_CALLS = {'fill', 'shorten', 'indent', 'dedent'}
+
 # Calls and attributes that reduce a full path to something publishable.
 SANITIZERS = {
     'basename', 'get_relative_path', 'relative_to', 'sanitize_report_name',
@@ -98,8 +108,9 @@ SANITIZERS = {
 # Attributes that yield a NAME or a component rather than a path. `parents` is
 # deliberately absent: `Path(p).parents[1]` is a full directory path and has leaked.
 SAFE_ATTRS = {'name', 'stem', 'suffix', 'parts'}
-# Methods whose result is a piece of the string, not the whole path.
-SAFE_METHODS = {'split', 'rsplit', 'partition', 'rpartition', 'replace', 'strip'}
+# Methods whose result is a PIECE of the string. `strip` and `replace` are deliberately
+# absent: both hand back the whole path, so neither reduces it to anything publishable.
+PATH_REDUCING_METHODS = {'split', 'rsplit', 'partition', 'rpartition'}
 
 ROW_VARS = ('data_list', 'data_rows', 'rows', 'records', 'entries')
 
@@ -171,7 +182,7 @@ class FunctionScan:
         if isinstance(node, ast.Call):
             func = node.func
             name = func.attr if isinstance(func, ast.Attribute) else getattr(func, 'id', '')
-            return name in SANITIZERS or name in SAFE_METHODS
+            return name in SANITIZERS or name in PATH_REDUCING_METHODS
         if isinstance(node, ast.Attribute):
             return node.attr in SAFE_ATTRS
         return False
@@ -179,19 +190,23 @@ class FunctionScan:
     def _call_tainted(self, node):
         func = node.func
         name = func.attr if isinstance(func, ast.Attribute) else getattr(func, 'id', '')
-        if name in SANITIZERS or name in SAFE_METHODS:
+        if name in SANITIZERS or name in PATH_REDUCING_METHODS:
             return False
-        # Wrappers that hand back whatever they were given. Reached as a bare name
-        # (`Path(x)`) or through a module (`pathlib.Path(x)`, `os.path.abspath(x)`).
-        if name in PASSTHROUGH_CALLS:
+        # Wrappers and formatters that hand back whatever they were given. Reached as a
+        # bare name (`Path(x)`) or through a module (`pathlib.Path(x)`,
+        # `os.path.abspath(x)`, `textwrap.fill(x)`).
+        if name in PASSTHROUGH_CALLS or name in REFORMATTING_CALLS:
             return any(self.is_tainted(a) for a in node.args)
         if isinstance(func, ast.Attribute):
             if name in TAINT_ATTR_CALLS and receiver_name(func) in TAINT_ATTR_CALLS[name]:
                 return True
-            if name == 'join':
-                # os.path.join(tainted, ...) is still a full path.
+            if name in ('join', 'format'):
+                # os.path.join(tainted, ...) is still a full path, and a path
+                # interpolated by str.format is still inside the string returned.
                 return any(self.is_tainted(a) for a in node.args)
-            return False
+            # Any other method called ON a path returns something derived from that path,
+            # so the taint survives. Only PATH_REDUCING_METHODS above cuts it down.
+            return self.is_tainted(func.value)
         return name in TAINT_PLAIN_CALLS
 
     def _collect(self):
