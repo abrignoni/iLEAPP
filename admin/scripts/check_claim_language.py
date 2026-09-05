@@ -89,24 +89,9 @@ import sys
 # habitat-related artifact ever lands here, close the stem rather than
 # allowlisting the artifact.
 CLAIM_PATTERN = re.compile(
-    r'\ball\b'
-    r'|\bevery\b'
-    r'|\bcomplete'
-    r'|\bfull list\b'
-    r'|\bentire\b'
-    r'|\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|read|sent'
-    r'|created|hid|chose)\b'
-    r'|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b'
-    r'|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|delet'
-    r'ed|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b'
-    r'|\bmanually\b'
-    r'|\bproves?\b'
-    r'|\bdefinitively\b'
-    r'|\balways\b'
-    r'|\breliable'
-    r'|\bvisited\b'
-    r'|\bhabits?\b',
-    re.IGNORECASE)
+    r"\ball\b|\bevery\b|\bcomplete|\bfull list\b|\bentire\b|\b(?:the|a|an) (?:\w+ )?(?:user|account holder|device owner|subject|owner) (?:searched|typed|viewed|read|entered|created|sent|opened|selected|deleted|visited|chose|chosen|hid|hidden|initiated|follows|saved|added|grouped|submitted|marked|tracked|joined|reacted|installed|removed|configured|voted|opted)\b|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|deleted|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b|\bmanually\b|\bproves?\b|\bdefinitively\b|\balways\b|\breliable|\bvisited\b|\bhabits?\b",
+    re.IGNORECASE,
+)
 
 # `notes` reaches the examiner too, in the report and in the artifact info modal, so
 # the same standard applies to it. It cannot use the same vocabulary, because notes do
@@ -123,19 +108,9 @@ CLAIM_PATTERN = re.compile(
 # What is left is attribution and certainty, which mean the same thing in a note as in
 # a description.
 NOTES_PATTERN = re.compile(
-    r'\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|read|sent'
-    r'|created|hid|chose)\b'
-    r'|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b'
-    r'|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|delet'
-    r'ed|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b'
-    r'|\bmanually\b'
-    r'|\bproves?\b'
-    r'|\bdefinitively\b'
-    r'|\balways\b'
-    r'|\breliable'
-    r'|\bvisited\b'
-    r'|\bhabits?\b',
-    re.IGNORECASE)
+    r"\b(?:the|a|an) (?:\w+ )?(?:user|account holder|device owner|subject|owner) (?:searched|typed|viewed|read|entered|created|sent|opened|selected|deleted|visited|chose|chosen|hid|hidden|initiated|follows|saved|added|grouped|submitted|marked|tracked|joined|reacted|installed|removed|configured|voted|opted)\b|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|deleted|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b|\bmanually\b|\bproves?\b|\bdefinitively\b|\balways\b|\breliable|\bvisited\b|\bhabits?\b",
+    re.IGNORECASE,
+)
 
 # A note that *denies* a claim uses the same words as one that makes it: "not terms the
 # user searched for", "does not establish that the user viewed them". That denial is the

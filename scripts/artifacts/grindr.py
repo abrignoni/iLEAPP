@@ -55,24 +55,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Grindr",
-        "notes": "One row per conversation record in the app's Realm database. This record holds "
-                 "no message text; the messages themselves are reported by the messages "
-                 "artifact and a conversation links to them. Messages Linked, Tap Messages "
-                 "Linked and Members Linked are the lengths of those link lists, which is "
-                 "what lets a conversation be sized without opening it. On the tested device "
-                 "they totalled 118 message links across 17 conversations and 9 tap links "
-                 "across 9, against 129 rows in the messages artifact, so the two do not "
-                 "reconcile exactly and a message can be present without a conversation "
-                 "linking it. Draft Message is text the account holder typed and did not "
-                 "send, and Name is a conversation name; both were empty on every row of the "
-                 "tested device and are carried because either one is significant wherever it "
-                 "is populated. Pinned, Muted and Unread Count are the values the record "
-                 "carries. Type is reported as stored. Some conversation records are created "
-                 "by the app's marketing framework rather than by a person: their identifiers "
-                 "carry that framework's name, and the Marketing column marks them so they "
-                 "are not read as conversations with another user. Field mapping was done "
-                 "against a private sample provided by Mattia; no sample data is recorded "
-                 "for it.",
+        "notes": "One row per conversation record in the app's Realm database. This record holds no message text; the messages themselves are reported by the messages artifact and a conversation links to them. Messages Linked, Tap Messages Linked and Members Linked are the lengths of those link lists, which is what lets a conversation be sized without opening it. On the tested device they totalled 118 message links across 17 conversations and 9 tap links across 9, against 129 rows in the messages artifact, so the two do not reconcile exactly and a message can be present without a conversation linking it. Draft Message is unsent draft text, and Name is a conversation name; both were empty on every row of the tested device and are carried because either one is significant wherever it is populated. Pinned, Muted and Unread Count are the values the record carries. Type is reported as stored. Some conversation records are created by the app's marketing framework rather than by a person: their identifiers carry that framework's name, and the Marketing column marks them so they are not read as conversations with another user. Field mapping was done against a private sample provided by Mattia; no sample data is recorded for it.",
         "paths": ('*/Documents/DataContainer/Data/*/PersistenceStore.bin',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "users"

@@ -23,8 +23,7 @@ __artifacts_v2__ = {
     },
     "ornet_browser_settings": {
         "name": "OrNET Browser - Settings",
-        "description": "Connection, privacy and clean-up settings from OrNET Browser, including the "
-                       "Tor connection mode and any custom bridge the user configured",
+        "description": "Connection, privacy and clean-up settings from OrNET Browser, including the Tor connection mode and any custom bridge set in the app",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-29",
