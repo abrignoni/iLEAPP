@@ -1,8 +1,7 @@
 __artifacts_v2__ = {
     "what3words_saved_places": {
         "name": "what3words - Saved Places",
-        "description": "Places the user saved in what3words, with the three word address, the label "
-                       "given to it, the nearest place and the coordinates",
+        "description": "Places saved in what3words, with the three word address, the label given to it, the nearest place and the coordinates",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
