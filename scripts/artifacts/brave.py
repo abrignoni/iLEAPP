@@ -12,16 +12,18 @@ __artifacts_v2__ = {
                  "one per row of ZTABMO where a store carries that older table instead. The "
                  "Source Table column says which a row came from: three of the four tested images "
                  "use ZSESSIONTAB and the iOS 15 image uses ZTABMO. Last Updated is a Core Data "
-                 "time, seconds since 2001, reported in UTC. Thumbnail is a JPEG the browser "
-                 "stored inside the row, and one is attached to every ZSESSIONTAB row, twelve of "
-                 "twelve across the three images. A ZTABMO row stores no bytes and instead names "
-                 "its thumbnail by identifier, so those two rows carry that identifier in the "
-                 "Window ID or Thumbnail ID column and no picture, and whether the file it names "
-                 "survives elsewhere in the container was not established. Private read No on "
-                 "every row of all four images, so no private tab was recorded on any of them, "
-                 "which is not evidence that none was ever opened. Exactly one row per image is "
-                 "marked Selected. Tab ID, and the window identifier a ZSESSIONTAB row points at, "
-                 "are stored as sixteen byte values and are rendered as UUIDs.",
+                 "time, seconds since 2001, reported in UTC, and read that way every value falls "
+                 "inside the period its own image covers. Thumbnail is a JPEG, checked by its own "
+                 "leading bytes, stored inside the row, and one is attached to every ZSESSIONTAB "
+                 "row, twelve of twelve across the three images. A ZTABMO row stores no image "
+                 "bytes and carries a screenshot identifier instead, so those two rows show that "
+                 "identifier in the Window ID or Thumbnail ID column and no picture, and whether "
+                 "a file named by it survives elsewhere in the container was not established. "
+                 "Private read No on every row of all four images, so no private tab was recorded "
+                 "on any of them, which is not evidence that none was ever opened. Exactly one "
+                 "row per image is marked Selected. Tab ID, and the window identifier a "
+                 "ZSESSIONTAB row points at, are stored as sixteen byte values and are rendered "
+                 "as UUIDs.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Brave.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "layers",
@@ -42,13 +44,13 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Brave",
         "notes": "One row per row of ZRECENTLYCLOSED in Library/Application Support/Brave.sqlite. "
-                 "A row records a tab the browser kept in its reopen list after it was closed, "
-                 "with the page it was showing. Date Added is a Core Data time, seconds since "
-                 "2001, reported in UTC. Two of the four tested images held rows, nine and one, "
-                 "and the other two held none, so an absent row is not evidence that no tab was "
-                 "ever closed. The row also carries an interaction state blob, which is the "
-                 "browser's own session state and is not read here. History Index is reported as "
-                 "stored.",
+                 "The table is named for closed tabs and each row carries a title, an address, a "
+                 "date and a history index. Date Added is a Core Data time, seconds since 2001, "
+                 "reported in UTC, and read that way every value falls inside the period its own "
+                 "image covers. Two of the four tested images held rows, nine and one, and the "
+                 "other two held none, so an absent row is not evidence that no tab was ever "
+                 "closed. The row also carries an interaction state blob, which is not read here. "
+                 "History Index is reported as stored.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Brave.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "x-square",
@@ -68,9 +70,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Brave",
-        "notes": "One row per row of ZRECENTSEARCH in Library/Application Support/Brave.sqlite. "
-                 "The text is what the browser offers back in its recent search list. Date Added "
-                 "is a Core Data time, seconds since 2001, reported in UTC. Three of the four "
+        "notes": "One row per row of ZRECENTSEARCH in Library/Application Support/Brave.sqlite, "
+                 "which is the list the browser keeps of recent searches. Each row carries the "
+                 "text, a type, an optional website address and the time it was added. Date Added "
+                 "is a Core Data time, seconds since 2001, reported in UTC, and read that way "
+                 "every value falls inside the period its own image covers. Three of the four "
                  "tested images held exactly one term each and the fourth held none. Search Type "
                  "held the value 1 on all three rows and Website URL was empty on all three, so "
                  "neither field has enough values here to say what it distinguishes, and both are "
@@ -96,19 +100,24 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Brave",
         "notes": "One row per row of ZBOOKMARK in Library/Application Support/Brave.sqlite, which "
-                 "holds both the bookmark tree and the favourites shown on the new tab page. "
+                 "carries a favourite flag and a folder flag beside the title and the address. "
                  "Created and Last Visit are Core Data times, seconds since 2001, reported in "
                  "UTC. On all four tested images every row has Favorite set to Yes, an empty "
-                 "Custom Title, a Visits (as stored) value of 0, and Created equal to Last Visit, "
-                 "and the titles are the set the app ships: ESPN, Reddit, Wikipedia and YouTube "
-                 "on the two newer images, and Amazon, Brave Support, Reddit, Twitter, Wikipedia "
-                 "and YouTube on the two older ones. So no row on any tested image is a bookmark "
-                 "somebody saved, and a row here is not by itself evidence that one was. Custom "
-                 "Title is what the app stores when an entry is renamed, and it was blank on "
-                 "every row. Folder marks a folder rather than a page and was blank on every row. "
-                 "Favorite and Visits (as stored) hold one value each across every tested image, "
-                 "which is what a shipped set of favourites with no visit recorded against it "
-                 "looks like.",
+                 "Custom Title, a Visits (as stored) value of 0, and Created equal to Last Visit. "
+                 "On the two older images the six addresses match, one for one, the preloaded "
+                 "favourites Brave's published source defines, so those rows are the set the app "
+                 "installs and not bookmarks somebody saved. Reference: Brave, "
+                 "'PreloadedFavorites.swift', https://github.com/brave/brave-ios/blob/0d693d2d909 "
+                 "3dfc975e5c645beedd533c0a4c9e8/Sources/Brave/Frontend/Browser/Favorites/Preloade "
+                 "dFavorites.swift. On the two newer images the four addresses are a different "
+                 "set that is not in that file, so what created them was not established; their "
+                 "four rows were written within 7.4 milliseconds of each other, which is not how "
+                 "entries added one at a time would look. Taken together, no row on any tested "
+                 "image shows a mark of having been saved by hand, and a row here is not by "
+                 "itself evidence that one was. Custom Title is what the app stores when an entry "
+                 "is renamed, and it was blank on every row. Folder marks a folder rather than a "
+                 "page and was blank on every row. Favorite and Visits (as stored) hold one value "
+                 "each across every tested image.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Brave.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "bookmark",
@@ -129,21 +138,21 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Brave",
         "notes": "One row per row of ZBLOCKEDRESOURCE in Library/Application "
-                 "Support/Brave.sqlite. A row records that the browser blocked a request to one "
-                 "host while loading a page on another site, so it places that site on the device "
-                 "even where nothing else in this store names it. Site Domain is the site the "
-                 "page belonged to, Blocked Host is the host that was blocked, and Page URL is "
-                 "the address the row carries. ZDOMAIN in this table holds the site's domain as "
-                 "text rather than a reference to the separate site entry table, so nothing is "
-                 "joined. Timestamp is a Core Data time, seconds since 2001, reported in UTC, and "
-                 "it is present on 35 of 54, 39 of 39 and 14 of 14 rows on three images and on "
-                 "none of the 19 rows of the fourth, so a blank there is the store not recording "
-                 "one. Rows span 2 to 5 distinct sites per image. Three tables in this store are "
-                 "read by nothing here and are named so the omission is visible: the site entry "
-                 "table, whose visit count was 0 and whose per site protection settings were "
-                 "unset on every row of every tested image; the filter list table, which is the "
-                 "browser's blocking configuration; and the playlist folder table, which held one "
-                 "default folder on each image.",
+                 "Support/Brave.sqlite. Site Domain is the site the page belonged to, Blocked "
+                 "Host is the host that was blocked, and Page URL is the address the row carries. "
+                 "ZDOMAIN in this table holds the site's domain as text rather than a reference "
+                 "to the separate site entry table, so nothing is joined. Timestamp is a Core "
+                 "Data time, seconds since 2001, reported in UTC, and it is present on 35 of 54, "
+                 "39 of 39 and 14 of 14 rows on three images and on none of the 19 rows of the "
+                 "fourth, so a blank there is the store not recording one. Rows span 2 to 5 "
+                 "distinct sites per image. On all four tested images every site named here is "
+                 "also named by a tab, a closed tab or a bookmark in the same store, so on this "
+                 "data the table corroborates those rather than adding a site of its own. Three "
+                 "tables in this store are read by nothing here and are named so the omission is "
+                 "visible: the site entry table, whose visit count was 0 and whose per site "
+                 "protection settings were unset on every row of every tested image; the filter "
+                 "list table, which is the browser's blocking configuration; and the playlist "
+                 "folder table, which held one default folder on each image.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Brave.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "shield",
@@ -170,8 +179,12 @@ __artifacts_v2__ = {
                  "One of the four tested images had rows, 17 of them, across 16 chain identifiers "
                  "and 16 groups, and one of them carries a contract address; all 17 were marked "
                  "visible, none was marked spam, none was an NFT, and Deletion Flag read No on "
-                 "all 17. Chain ID, Coin and Decimals are reported as stored. The presence of "
-                 "rows shows the wallet had been set up on that device.",
+                 "all 17. Those 17 are the native token of each chain plus Brave's own token, "
+                 "which is the one carrying a contract address, so they look like a starting list "
+                 "rather than a set somebody chose. Whether the app writes them when the wallet "
+                 "is first opened or ships with them was not established, so their presence is "
+                 "not by itself evidence that a wallet was created or used. Chain ID, Coin and "
+                 "Decimals are reported as stored.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/Brave.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "dollar-sign",

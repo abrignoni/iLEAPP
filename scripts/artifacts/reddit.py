@@ -161,23 +161,23 @@ __artifacts_v2__ = {
                  "id>/chat/<version>/chat.sqlite, which is the app's own chat store. It is a "
                  "different store from the one the Reddit Chats artifact reports, which reads the "
                  "newer Matrix rooms cache, so a device can carry either, both or neither. "
-                 "Timestamp is Unix milliseconds, reported in UTC. Direction is recorded rather "
-                 "than inferred: the channel row names the account's own identifier, and a "
-                 "message whose sender identifier equals it is outgoing. That identifier also "
-                 "matches the accountData folder the file sits in, which is a second source for "
-                 "the same value. On the one tested image that holds messages the split is 13 "
-                 "outgoing and 13 incoming, and all 26 sit in one conversation, so Channel URL "
-                 "holds a single value there. Sender Username is joined from the Contact table in "
-                 "the same store and resolved on all 26 rows. Image URL and GIF URL are the "
-                 "columns the store keeps for a picture or animation message, and both were empty "
-                 "on every row of every tested image, so no message here carried media and "
-                 "nothing was attached; a message with media would name it by remote address "
-                 "rather than store the bytes. Message Type and State held 0 on every row, which "
-                 "is too few values to say what either distinguishes, and both are reported as "
-                 "stored. The store's SubredditChannel table is read by nothing here: on the "
-                 "image that has rows it holds 36 subreddit chat channels with joined, invited, "
-                 "moderator and popular all 0 and a created time of 0, which is a list the app "
-                 "downloaded rather than a record of channels the account was in.",
+                 "Timestamp is Unix milliseconds, reported in UTC, and read that way the values "
+                 "fall in 2021 and 2022 on the one tested image that holds messages. Direction is "
+                 "recorded rather than inferred: the channel row names the account's own "
+                 "identifier, and a message whose sender identifier equals it is outgoing. That "
+                 "identifier also matches the accountData folder the file sits in, which is a "
+                 "second source for the same value. On that image the split is 13 outgoing and 13 "
+                 "incoming, and all 26 sit in one conversation, so Channel URL holds a single "
+                 "value there. Sender Username is joined from the Contact table in the same store "
+                 "and resolved on all 26 rows. Image URL and GIF URL are the two columns the "
+                 "store keeps for a picture or animation message; both were empty on every row of "
+                 "every tested image, so no message here carried either and nothing was attached. "
+                 "Message Type and State held 0 on every row, which is too few values to say what "
+                 "either distinguishes, and both are reported as stored. The store's "
+                 "SubredditChannel table is read by nothing here: on the image that has rows it "
+                 "holds 36 subreddit chat channels, and joined, invited, moderator and popular "
+                 "are 0 on every one of them with a created time of 0, so nothing there records "
+                 "the account having been in any of those channels.",
         "paths": ('*/Documents/release02/accountData/*/chat/*/chat.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-square",
@@ -212,14 +212,14 @@ __artifacts_v2__ = {
                  "image that has rows there are two, the signed in account itself and the one "
                  "account it exchanged messages with, so this table is the chat store's own "
                  "participant list and not the device address book. Created is Unix seconds, "
-                 "reported in UTC, and the two rows fall in 2020 and 2021. Link Karma and Comment "
-                 "Karma held 0 on both rows and are reported as stored, so neither carries a "
-                 "usable figure here. Blocked and Profile NSFW read NO on both rows. Username and "
-                 "Real Name held the same value on both rows, so the display name the store keeps "
-                 "matched the account name on this device, which two rows cannot show to be the "
-                 "general case. Profile Thumbnail URL is a remote address the app would fetch and "
-                 "on both rows it is one of the app's default avatars; the picture itself is not "
-                 "in this store, so nothing is attached.",
+                 "reported in UTC, and read that way the two rows fall in 2020 and 2021. Link "
+                 "Karma and Comment Karma held 0 on both rows and are reported as stored, so "
+                 "neither carries a usable figure here. Blocked and Profile NSFW read NO on both "
+                 "rows. Username and Real Name held the same value on both rows, so the display "
+                 "name the store keeps matched the account name on this device, which two rows "
+                 "cannot show to be the general case. Profile Thumbnail URL is a remote address, "
+                 "and on both rows it is one of the app's default avatar images; the picture "
+                 "itself is not in this store, so nothing is attached.",
         "paths": ('*/Documents/release02/accountData/*/chat/*/chat.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
