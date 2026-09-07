@@ -5,12 +5,20 @@ removed, so a one-byte change anywhere below the banner has to fail, a banner-on
 change has to pass, and a banner the script cannot read has to fail rather than
 be skipped. Everything here runs against a local upstream directory, never the
 network, so it holds on every CI runner.
+
+It also pins the split between the two outcomes. "The upstream could not be read"
+is not evidence that this copy drifted, so it is reported under its own headline
+and its own exit code, and it still has to be non-zero: an unreachable upstream
+must never read as a pass.
 """
 import importlib.util
+import io
 import pathlib
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from unittest import mock
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 SCRIPT = REPO_ROOT / 'admin' / 'scripts' / 'check_vendored.py'
@@ -61,7 +69,8 @@ class CheckVendoredTest(unittest.TestCase):
         self.vendored.write_bytes(BANNER + BODY.replace(b'VALUE = 1', b'VALUE = 2'))
         problems = self._check()
         self.assertEqual(len(problems), 1)
-        self.assertIn('does not match the upstream file', problems[0])
+        self.assertEqual(problems[0].kind, check_vendored.DRIFT)
+        self.assertIn('does not match the upstream file', problems[0].text)
 
     def test_trailing_newline_counts(self):
         self.vendored.write_bytes(BANNER + BODY.rstrip(b'\n'))
@@ -72,13 +81,84 @@ class CheckVendoredTest(unittest.TestCase):
         self.vendored.write_bytes(broken + BODY)
         problems = self._check()
         self.assertEqual(len(problems), 1)
-        self.assertIn('upstream commit <sha>', problems[0])
+        self.assertEqual(problems[0].kind, check_vendored.DRIFT)
+        self.assertIn('upstream commit <sha>', problems[0].text)
 
     def test_file_without_a_banner_fails(self):
         self.vendored.write_bytes(BODY)
         problems = self._check()
         self.assertEqual(len(problems), 1)
-        self.assertIn('rule line', problems[0])
+        self.assertEqual(problems[0].kind, check_vendored.DRIFT)
+        self.assertIn('rule line', problems[0].text)
+
+    # ---- "could not check" is not "has drifted" -------------------------------
+
+    def _run_main(self, argv):
+        """Run main() with VENDORED narrowed to the temp file; return (rc, output)."""
+        buf = io.StringIO()
+        with mock.patch.object(check_vendored, 'VENDORED', ['scripts/module.py']):
+            with redirect_stdout(buf):
+                rc = check_vendored.main(argv)
+        return rc, buf.getvalue()
+
+    def test_unreadable_upstream_is_blocked_not_drift(self):
+        """The upstream being unreachable says nothing about this copy."""
+        self.vendored.write_bytes(BANNER + BODY)
+        problems = check_vendored.check_file('scripts/module.py',
+                                             str(self.root / 'no-such-checkout'))
+        self.assertEqual(len(problems), 1)
+        self.assertEqual(problems[0].kind, check_vendored.BLOCKED)
+        self.assertIn('could not read the upstream file', problems[0].text)
+
+    def test_fetch_failure_is_blocked_not_drift(self):
+        """A verify failure or an outage is the reported bug: it read as drift."""
+        self.vendored.write_bytes(BANNER + BODY)
+        boom = check_vendored.urllib.error.URLError('[SSL: CERTIFICATE_VERIFY_FAILED]')
+        with mock.patch.object(check_vendored.urllib.request, 'urlopen', side_effect=boom):
+            problems = check_vendored.check_file('scripts/module.py')
+        self.assertEqual(len(problems), 1)
+        self.assertEqual(problems[0].kind, check_vendored.BLOCKED)
+
+    def test_blocked_run_does_not_print_the_drift_headline(self):
+        self.vendored.write_bytes(BANNER + BODY)
+        rc, out = self._run_main(['--upstream', str(self.root / 'no-such-checkout')])
+        self.assertNotIn('have drifted', out)
+        self.assertIn('could not be checked', out)
+        self.assertEqual(rc, 2)
+
+    def test_blocked_run_is_never_a_pass(self):
+        """Exit 0 here would let a broken network silently stop guarding the file."""
+        self.vendored.write_bytes(BANNER + BODY)
+        rc, _ = self._run_main(['--upstream', str(self.root / 'no-such-checkout')])
+        self.assertNotEqual(rc, 0)
+
+    def test_drift_still_exits_1_under_its_own_headline(self):
+        self.vendored.write_bytes(BANNER + BODY.replace(b'VALUE = 1', b'VALUE = 2'))
+        rc, out = self._run_main(['--upstream', str(self.root / 'upstream')])
+        self.assertIn('have drifted', out)
+        self.assertNotIn('could not be checked', out)
+        self.assertEqual(rc, 1)
+
+    def test_matching_run_exits_0(self):
+        self.vendored.write_bytes(BANNER + BODY)
+        rc, out = self._run_main(['--upstream', str(self.root / 'upstream')])
+        self.assertIn('all matching the pinned upstream commit', out)
+        self.assertEqual(rc, 0)
+
+    def test_drift_outranks_blocked_when_both_happen(self):
+        """Two guarded files, one drifted and one unreachable: report both, exit 1."""
+        (self.root / 'scripts' / 'other.py').write_bytes(
+            BANNER.replace(b'pkg/module.py', b'pkg/missing.py') + BODY)
+        self.vendored.write_bytes(BANNER + BODY.replace(b'VALUE = 1', b'VALUE = 2'))
+        buf = io.StringIO()
+        with mock.patch.object(check_vendored, 'VENDORED',
+                               ['scripts/module.py', 'scripts/other.py']):
+            with redirect_stdout(buf):
+                rc = check_vendored.main(['--upstream', str(self.root / 'upstream')])
+        out = buf.getvalue()
+        self.assertIn('have drifted', out)
+        self.assertIn('could not be checked', out)
+        self.assertEqual(rc, 1)
 
     def test_banner_fields_are_read_as_written(self):
         info = check_vendored.parse_banner(BANNER)
