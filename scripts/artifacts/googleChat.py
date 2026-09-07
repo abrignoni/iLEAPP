@@ -7,8 +7,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Google Chats",
-        "notes": "Group-type value mapping observed in testing; unrecognized values reported as stored. "
-                 "Reaction protobuf field positions established through testing.",
+        "notes": "Group Type reads the stored group_type value as Group Message for 1 and 1-to-1 "
+                 "Message for 2; that mapping was not sourced and any other value is reported as "
+                 "stored. Reaction and Reaction User are read from the reactions protobuf by "
+                 "field position; the positions were not sourced.",
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',
                   '*/Documents/user_accounts/*/tmp/*'),
         "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]

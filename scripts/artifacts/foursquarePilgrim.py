@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "foursquare_pilgrim_visits": {
         "name": "Foursquare Pilgrim - Location Visits",
-        "description": "Visits the Foursquare Pilgrim SDK recorded in the background, with the "
+        "description": "Visits recorded in the Foursquare Pilgrim SDK store, with the "
                        "arrival and departure fix of each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
@@ -11,28 +11,26 @@ __artifacts_v2__ = {
         "notes": "One row per row of PilgrimLocationVisit in Library/pilgrim-database.sqlite. "
                  "Arrival and Departure are stored as JSON holding a single location fix each: "
                  "latitude, longitude, altitude, speed, heading, floor, horizontal and vertical "
-                 "accuracy, and a Unix timestamp in seconds, which is the form CoreLocation "
-                 "reports. The reported coordinates are the arrival fix, and the departure fix "
-                 "is carried in its own columns, so a row that moved between the two is visible. "
-                 "Dwell is the difference between the two timestamps and is computed here, not "
-                 "stored. Every one of the 755 rows across the three tested stores carried both "
-                 "an arrival and a departure and no departure preceded its arrival. Stop "
-                 "Detection Algorithm is reported as stored; the tested stores hold clientEma "
-                 "and clientEmaMallMode and nothing available defines either. These rows are "
-                 "collected in the background by the SDK rather than entered by a person, so a "
-                 "row is not a check-in and does not establish that anyone used the app at that "
-                 "moment. Arrival Floor (as stored) held no value on any row of either tested "
-                 "image: it is the floor a fix carries only where the operating system resolved "
-                 "one indoors, and it is kept because a store from a device that spent time in a "
-                 "mapped building can hold it. Pilgrim is a licensable SDK, so Container App names the app whose data "
-                 "container held the store, read from that container's own metadata plist, and "
-                 "no row is attributed to Foursquare by assumption. On the iOS 17.5.1 image two "
-                 "containers each held a store and their visit sets overlap without matching: 60 "
-                 "of the rows agree on arrival time, coordinates and departure time while 107 "
-                 "appear only in one and 104 only in the other, so the stores are reported "
-                 "separately and are not merged. The store is pruned by the SDK's own "
-                 "PruneLocationVisitsJob, so the window a store covers is bounded by that job "
-                 "rather than by the acquisition.",
+                 "accuracy, and a Unix timestamp in seconds. The reported coordinates are the "
+                 "arrival fix, and the departure fix is carried in its own columns, so a row "
+                 "that moved between the two is visible. Dwell is the difference between the two "
+                 "timestamps and is computed here, not stored. Every one of the 755 rows across "
+                 "the three tested stores carried both an arrival and a departure and no "
+                 "departure preceded its arrival. Stop Detection Algorithm is reported as "
+                 "stored; the tested stores hold clientEma and clientEmaMallMode and nothing "
+                 "available defines either. Nothing in a row records that a person entered it, "
+                 "so a row is not a check-in and does not establish that anyone used the app at "
+                 "that moment. Arrival Floor (as stored) held no value on any row of either "
+                 "tested image and is kept because the store declares the field. Pilgrim is a "
+                 "licensable SDK, so Container App names the app whose data container held the "
+                 "store, read from that container's own metadata plist, and no row is attributed "
+                 "to Foursquare by assumption. On the iOS 17.5.1 image two containers each held "
+                 "a store and their visit sets overlap without matching: 60 of the rows agree on "
+                 "arrival time, coordinates and departure time while 107 appear only in one and "
+                 "104 only in the other, so the stores are reported separately and are not "
+                 "merged. The database names a job PruneLocationVisitsJob; the window a store "
+                 "covers is not established, and an absent visit is not evidence that none "
+                 "occurred.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
@@ -62,23 +60,22 @@ __artifacts_v2__ = {
                  "UTC on one of the tested images, measured rather than assumed: 359 rows there "
                  "also carry the app's rendering of the same moment in a named local zone, and "
                  "converting that rendering to UTC agreed with the column to within a minute "
-                 "on 357 of them, the difference being the lag between the fix and the write. "
-                 "The two that did not are rows whose own event text records an old fix being "
-                 "logged, one of them stating that a very old location was ignored, so the gap "
-                 "there is the age of the fix rather than a zone difference. The other two "
-                 "stores carry no such rendering, so the same reading is applied to them "
-                 "without that corroboration. Local Time and Local Time Zone are the app's own "
-                 "text where it is present, reported as stored. Speed State is reported as "
-                 "stored; the tested stores hold stopped, moving, honing and unknown, and nothing "
-                 "available defines them. Speed State (as stored) and Current Speed (as stored) "
-                 "are blank on the rows that record a monitored region rather than a fix, since "
-                 "those rows carry no movement state. Type (as stored) held the single value 2 "
-                 "on every reported row of both tested images, so only one of the log's types "
-                 "carries a coordinate, which is why this artifact reports far fewer rows than "
-                 "the table holds; Level (as stored) varies. Container App held one value on the "
-                 "iOS 16.5 image, where a single app embedded the SDK, and two on the iOS 17.5.1 "
-                 "image. Purged by the SDK's own PurgeOldLogsJob, so the window "
-                 "is bounded by that job.",
+                 "on 357 of them. The two that did not are rows whose own event text records an "
+                 "old fix being logged, one of them stating that a very old location was "
+                 "ignored, so the gap there is the age of the fix rather than a zone difference. "
+                 "The other two stores carry no such rendering, so the same reading is applied "
+                 "to them without that corroboration. Local Time and Local Time Zone are the "
+                 "app's own text where it is present, reported as stored. Speed State is "
+                 "reported as stored; the tested stores hold stopped, moving, honing and "
+                 "unknown, and nothing available defines them. Speed State (as stored) and "
+                 "Current Speed (as stored) are blank on the rows that record a monitored region "
+                 "rather than a fix, since those rows carry no movement state. Type (as stored) "
+                 "held the single value 2 on every reported row of both tested images, so only "
+                 "one of the log's types carries a coordinate, which is why this artifact "
+                 "reports far fewer rows than the table holds; Level (as stored) varies. "
+                 "Container App held one value on the iOS 16.5 image, where a single app "
+                 "embedded the SDK, and two on the iOS 17.5.1 image. The database names a job "
+                 "PurgeOldLogsJob; the window a store covers is not established.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
@@ -99,8 +96,8 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "One row per row of PilgrimLastVisit and PilgrimBackFillVisit, which share a "
                  "schema and are told apart by the Source Table column. Departure Time was blank on every "
-                 "row of both tested images, which is what a visit the device had not yet left "
-                 "looks like: the embedded visit carries an arrival and a null departure. Venue "
+                 "row of both tested images: the embedded visit carries an arrival and a null "
+                 "departure, and the reason is not established here. Venue "
                  "Name, Venue ID, Venue Categories and Venue Address were each blank on the iOS "
                  "16.5 image, whose row resolved to a location type with no venue attached, and "
                  "carry values on the iOS 17.5.1 image. Region Latitude and Region Longitude "
@@ -141,7 +138,7 @@ __artifacts_v2__ = {
                  "and there was one in each tested store. Probability, Type and Secondary Type "
                  "are reported as stored: the tested rows hold type 1 with secondary type 0 or 2, "
                  "and nothing available defines either number, so no meaning is given to them "
-                 "here. The SDK runs a job named HomeWorkJob in the same database, which is "
+                 "here. The database names a job HomeWorkJob, which is "
                  "recorded here only as an observation about the store and is not evidence that "
                  "any particular row is a home or a work location.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
@@ -169,8 +166,8 @@ __artifacts_v2__ = {
                  "Unix seconds, which is the form the visit rows use. This table was empty in all "
                  "three tested stores, so the reader is code present and unexercised and the "
                  "timestamp reading is taken from the sibling tables rather than observed here. "
-                 "The database contains a job named TrailPruningJob, so a store is expected to "
-                 "hold only a recent window of trail rows, and an empty table is not evidence "
+                 "The database contains a job named TrailPruningJob, and an empty table is not "
+                 "evidence "
                  "that the device did not move.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -192,8 +189,9 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "One row per row of PilgrimCLVisit, whose columns the store declares as an "
                  "arrival date, a departure date, a latitude, a longitude, a horizontal accuracy "
-                 "and a visit identifier. The table name and those columns follow the visit "
-                 "object the operating system's own location framework hands an app, which is a "
+                 "and a visit identifier. The table name and those columns match the shape of "
+                 "the operating system's CLVisit object, which is not sourced here; the rows are "
+                 "a "
                  "different source from the SDK's own stop detection in the Location Visits "
                  "artifact, so the two can disagree and neither confirms the other. This table "
                  "was empty in all three tested stores, so the reader is code present and "

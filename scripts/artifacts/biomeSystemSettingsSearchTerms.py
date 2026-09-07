@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
     "get_biomeSystemSettingsSearchTerms": {
         "name": "Biome - System Settings Search Terms",
-        "description": "Parses searches typed in the Settings app from the "
-                       "SystemSettings.SearchTerms biome stream, including result URIs and "
+        "description": "Parses search terms from the SystemSettings.SearchTerms biome stream in "
+                       "the Settings app, including result URIs and "
                        "labels recorded with the search.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",

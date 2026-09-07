@@ -7,8 +7,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Mail",
-        "notes": ("Supports iOS 13 and later. The recipients.type = 1 = To mapping was "
-                  "established through testing; other type values are not decoded."),
+        "notes": ("Supports iOS 13 and later. Rows with recipients.type = 1 are reported as To "
+                  "recipients; no published source for that mapping is cited and other type "
+                  "values are not decoded."),
         "paths": ('*/mobile/Library/Mail/* Index*',),
         "output_types": "standard",
         "artifact_icon": "mail",

@@ -44,13 +44,16 @@ __artifacts_v2__ = {
     },
     'truthSocialAccounts': {
         'name': 'Truth Social - Accounts',
-        'description': 'Truth Social accounts cached by the chat database, including the account holder',
+        'description': "Truth Social accounts cached by the chat database, including the account "
+                       "ID recorded as the chat owner",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Truth Social',
-        'notes': 'The signed-in account ID is taken from the chat ownership column.',
+        'notes': "An account ID that appears only in the chat ZOWNEDBYACCOUNTID column and not "
+                 "in ZMANAGEDACCOUNT is reported from that column as stored; that it is the "
+                 "signed-in account is not established.",
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/chat/v1/*/ChatModel.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'user',

@@ -8,14 +8,14 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Media Library",
         "notes": (
-            "Media-kind value mapping observed in testing; not documented by a published source; "
-            "unrecognized values are reported as stored. An item that carries more than one "
-            "artwork_token row is reported once per token, so the row count can exceed the number "
-            "of media items: on one tested iOS 18.3.2 image 1099 items produced 1339 rows, 240 of "
-            "them having two tokens each. Date Purchased is left blank when "
-            "item_store.date_purchased is 0, which is how the column reads for items with no "
-            "stored purchase date; it was 0 on 3822 of 3826 rows across the seven tested images "
-            "that hold media items."),
+            "The media-kind value mapping is not documented by a published source and was read "
+            "from the tested images; unrecognized values are reported as stored. An item that "
+            "carries more than one artwork_token row is reported once per token, so the row "
+            "count can exceed the number of media items: on one tested iOS 18.3.2 image 1099 "
+            "items produced 1339 rows, 240 of them having two tokens each. Date Purchased is "
+            "left blank when item_store.date_purchased is 0; it was 0 on 3822 of 3826 rows "
+            "across the seven tested images that hold media items, and the meaning of a 0 value "
+            "is not sourced."),
         "paths": ('**/[Mm]edia[Ll]ibrary.sqlitedb*',),
         "output_types": "standard",
         "artifact_icon": "music",

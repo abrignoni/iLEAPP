@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Kijiji Conversations",
         "notes": "Kijiji.ca is a Canadian online classified advertising site. Message timestamps are "
-                 "Cocoa/Mac absolute time (seconds since 2001-01-01 UTC), converted to UTC.",
+                 "read as Cocoa/Mac absolute time (seconds since 2001-01-01 UTC) and rendered in "
+                 "UTC.",
         "paths": ('*/Library/Caches/conversation_cache',),
         "output_types": "standard",
         "artifact_icon": "message-circle"

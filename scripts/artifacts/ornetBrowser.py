@@ -95,7 +95,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "OrNET Browser",
         "notes": "Read from the class_BrowsingHistoryItem table of the app's Realm store. The date "
-                 "and time are the display strings the app stored, in device local time. The "
+                 "and time are the display strings the app stored and are reported as stored; "
+                 "their zone is not established. The "
                  "app with bundle id ch.b-eng.tor names itself OrNET Browser in its bundle's "
                  "Info.plist, read from the tested image; iLEAPP releases up to v2026.3.0 "
                  "labelled these artifacts Onion Browser, which is a different app.",

@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Discord - Account",
         "description": "The Discord accounts signed in on the device, with the user name, "
                        "discriminator, email address, verification and two-factor state the "
-                       "app cached for each, and the profile text the account published.",
+                       "app cached for each, and the profile text stored for the account.",
         "author": "@abrignoni, Claude",
         "creation_date": "2020-09-15",
         "last_update_date": "2026-09-04",
@@ -14,8 +14,8 @@ __artifacts_v2__ = {
                  "path pattern matches every app's mmkv.default because an iOS data container is "
                  "named by a GUID, so a store is read only when it carries Discord's own keys "
                  "(user_id_cache, MultiAccountStore or UserStore-snapshot) and is skipped "
-                 "otherwise. One row per account in MultiAccountStore, which lists every account "
-                 "signed in on the device, joined to the fuller record in UserStore-snapshot and "
+                 "otherwise. One row per account in MultiAccountStore, joined to the fuller "
+                 "record in UserStore-snapshot and "
                  "UserProfileStore-snapshot where the same id appears; an account present only in "
                  "the older user_id_cache and email_cache keys is still reported from those. "
                  "Token Status is reported as stored. The account's authentication tokens and "
@@ -48,8 +48,8 @@ __artifacts_v2__ = {
     "discordDevice": {
         "name": "Discord - Device and Sessions",
         "description": "The device and app identity Discord recorded, when the app was first run "
-                       "and last synced, the most recent session, and the voice region the app "
-                       "measured as nearest.",
+                       "and last synced, the most recent session, and the voice region recorded "
+                       "in RTCRegionStore.",
         "author": "@abrignoni, Claude",
         "creation_date": "2026-09-03",
         "last_update_date": "2026-09-04",
@@ -67,8 +67,8 @@ __artifacts_v2__ = {
                  "Device fields come from the deviceProperties JSON as stored: OS, client, device "
                  "model, system locale, client version, release channel and the device vendor "
                  "identifier. Preferred Voice Region and Region Test At come from RTCRegionStore; "
-                 "the region is the one the app measured as nearest at that time and is a coarse "
-                 "indication, not a location. Camera and Microphone Permission are the app's "
+                 "the region value is reported as stored and is not a location. Camera and "
+                 "Microphone Permission are the app's "
                  "recorded permission states as stored. Values are what the app cached and are "
                  "reported without interpretation.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default',),
@@ -129,9 +129,8 @@ __artifacts_v2__ = {
     },
     "discordDrafts": {
         "name": "Discord - Message Drafts",
-        "description": "Draft text the app saved for a channel's message box and had not sent at "
-                       "the time of the save, with the time of each save, including superseded "
-                       "saves that show how the text changed.",
+        "description": "Draft text the app saved for a channel's message box, with the time of "
+                       "each save, including superseded saves.",
         "author": "@abrignoni, Claude",
         "creation_date": "2026-09-03",
         "last_update_date": "2026-09-04",
@@ -184,7 +183,8 @@ __artifacts_v2__ = {
                  "and mostRecentSelectedTextChannelIds, plus the top-level selectedChannelId, "
                  "selectedVoiceChannelId and lastConnectedTime. Superseded Write is True for "
                  "entries older than the newest write of that key. A guild id of null in the "
-                 "store denotes direct messages and is reported as stored. Guild and channel ids "
+                 "store is reported as stored; its meaning is not established here. Guild and "
+                 "channel ids "
                  "are Discord snowflakes and are not resolved to names here.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/mmkv/mmkv.default',),
         "output_types": "standard",

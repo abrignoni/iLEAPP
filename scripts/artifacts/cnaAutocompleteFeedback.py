@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "Biome - Contact Autocomplete Feedback (CNA)",
         "description": "Parses contact autocomplete feedback records (stream _PSCNAutocompleteFeedback) from the "
                        "SEGB stream files at CoreDuet/People/Feedback/CNA. Each record is a feedback event from the "
-                       "recipient autocomplete facility used by apps such as Messages and FaceTime, and can include "
+                       "recipient autocomplete facility and can include "
                        "suggested contact names, handles (phone numbers), conversation identifiers, and the stated "
                        "suggestion reason.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",

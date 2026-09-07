@@ -8,29 +8,27 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Notion",
-        "notes": "One row per row of the block table in Library/LocalDatabase/notion.db. A block "
-                 "is Notion's unit of content, so a page and each paragraph, heading, list item "
-                 "or image inside it are separate rows joined by Parent ID, and Type says which "
-                 "kind a row is. Text is read from the row's properties field, which holds the "
-                 "block's rich text as nested JSON arrays; the text segments are joined and the "
-                 "formatting is dropped. 760 of the 949 rows on the tested image carried "
-                 "properties, so a blank Text is a block that stores its content elsewhere, such "
-                 "as an image, rather than an empty one. Created Time, Last Edited Time and Last "
-                 "Access Time are Unix milliseconds. Created By and Last Edited By are resolved "
-                 "against the notion_user table in the same store and fall back to the stored "
-                 "identifier when no user row matches; 890 of the rows recorded a creating user. "
-                 "Alive is the flag the row carries and was 0 on 3 rows of the tested image, and "
-                 "Moved To Trash Time was set on 1: a row that is not alive is content the store "
-                 "still holds after it was removed from view. This store is the device's cached "
-                 "copy of a workspace it synchronised, so a row is not evidence that the content "
-                 "was authored on this device, and Created By names the account credited in the "
-                 "workspace rather than the person at the keyboard. The store keeps a "
-                 "write-ahead log that is load-bearing in both directions on the tested image: "
-                 "reading with the log gives 949 blocks and reading the database alone gives "
-                 "945, while the transactions table holds 5 rows without the log and none with "
-                 "it, so the log must travel with the database. "
-                 "Deleted From Trash Time held no value on any row of the tested image, which "
-                 "is what a store holds while nothing has been emptied out of the trash.",
+        "notes": "One row per row of the block table in Library/LocalDatabase/notion.db. In the "
+                 "block table a page and each paragraph, heading, list item or image inside it "
+                 "are separate rows joined by Parent ID, and Type says which kind a row is. Text "
+                 "is read from the row's properties field, which holds the block's rich text as "
+                 "nested JSON arrays; the text segments are joined and the formatting is "
+                 "dropped. 760 of the 949 rows on the tested image carried properties; a blank "
+                 "Text is a row whose properties field held no text, and whether such a block "
+                 "holds content elsewhere is not established. Created Time, Last Edited Time and "
+                 "Last Access Time are Unix milliseconds. Created By and Last Edited By are "
+                 "resolved against the notion_user table in the same store and fall back to the "
+                 "stored identifier when no user row matches; 890 of the rows recorded a "
+                 "creating user. Alive is the flag the row carries and was 0 on 3 rows of the "
+                 "tested image, and Moved To Trash Time was set on 1; the meaning of a 0 Alive "
+                 "value is not sourced. A row is not evidence that the content was authored on "
+                 "this device, and Created By names the account the record credits rather than "
+                 "the person at the keyboard. The store keeps a write-ahead log that is "
+                 "load-bearing in both directions on the tested image: reading with the log "
+                 "gives 949 blocks and reading the database alone gives 945, while the "
+                 "transactions table holds 5 rows without the log and none with it, so the log "
+                 "must travel with the database. Deleted From Trash Time held no value on any "
+                 "row of the tested image.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/LocalDatabase/notion.db*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "file-text",
@@ -47,20 +45,16 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Notion",
         "notes": "One row per row of the records table whose record_table field is page_visit or "
-                 "page_exit, which is the app's own queue of events it holds for the server. "
-                 "Timestamp is the row's own timestamp in Unix milliseconds and Event Time "
-                 "is a second time the record's JSON carries, present on the page_visit rows. "
-                 "Page Title is joined from the block the record's parent_id names, so a visit to "
-                 "a page whose block row is absent still reports its identifier with the title "
-                 "left blank; that join resolved on 12 of the 12 visits and 11 of the 16 exits "
-                 "on the tested image. User is resolved against the notion_user table in the same "
-                 "store. A visit row records that the app opened the page on this device, which "
-                 "an edit time on the page itself does not, so the two answer different "
-                 "questions. This queue is drained as it is sent, so it holds recent activity "
-                 "rather than a history, and the rows present are bounded by that rather than by "
-                 "the acquisition. "
-                 "Space ID held one value on all 28 rows of the tested image, which is what a "
-                 "device signed in to a single workspace looks like.",
+                 "page_exit. Timestamp is the row's own timestamp in Unix milliseconds and Event "
+                 "Time is a second time the record's JSON carries, present on the page_visit "
+                 "rows. Page Title is joined from the block the record's parent_id names, so a "
+                 "visit to a page whose block row is absent still reports its identifier with "
+                 "the title left blank; that join resolved on 12 of the 12 visits and 11 of the "
+                 "16 exits on the tested image. User is resolved against the notion_user table "
+                 "in the same store. A page_visit row is a record the app wrote naming a page; "
+                 "what it establishes about a person is not sourced. Whether the table is pruned "
+                 "is not established, so absence of a row is not evidence that a page was not "
+                 "visited. Space ID held one value on all 28 rows of the tested image.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/LocalDatabase/notion.db*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "eye",
@@ -80,14 +74,11 @@ __artifacts_v2__ = {
         "notes": "One row per row of the notion_user table. Every one of the 16 rows on the "
                  "tested image carried an email address and a display name; the separate given "
                  "name and family name fields were empty on all of them, and 9 carried a profile "
-                 "photo address. These are the accounts the device cached because they appear in "
-                 "the workspace it synchronised, so a row is not evidence that the person used "
-                 "this device, and the signed-in account is not distinguished here from the "
-                 "others; the space_user and user_root tables in the same store name the account "
-                 "the app was signed in as and are not reported by this artifact. Profile Photo "
-                 "is the address the record holds and is not fetched. "
-                 "Banned (as stored) and Suspended Time held no value on any of the 16 rows, "
-                 "which is what a workspace with no restricted account looks like.",
+                 "photo address. A row is not evidence that the person used this device, and the "
+                 "signed-in account is not distinguished here from the others; the space_user "
+                 "and user_root tables in the same store are not reported by this artifact. "
+                 "Profile Photo is the address the record holds and is not fetched. Banned (as "
+                 "stored) and Suspended Time held no value on any of the 16 rows.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/LocalDatabase/notion.db*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "users",
@@ -104,18 +95,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Notion",
-        "notes": "One row per row of the collection table, which is what Notion calls a database: "
-                 "a set of pages sharing a column schema. Name and Description hold rich text in "
-                 "the same nested JSON arrays the blocks use and are joined into plain text here. "
-                 "15 of the 17 rows on the tested image carried a name. Column Names is read from "
-                 "the row's schema field, which maps an internal column key to that column's name "
-                 "and type; the names are listed and the types are not, and a collection whose "
-                 "schema does not parse reports a blank. The rows of a collection are blocks and "
-                 "are reported by the Blocks artifact, where the collection is named by Parent "
-                 "ID, so this artifact describes the containers rather than their contents. "
-                 "Alive (as stored) held the single value 1 and Parent Table the single value "
-                 "block on all 17 rows of the tested image, so nothing there had been removed "
-                 "and every collection sat inside a page.",
+        "notes": "One row per row of the collection table. Name and Description hold rich text "
+                 "in the same nested JSON arrays the blocks use and are joined into plain text "
+                 "here. 15 of the 17 rows on the tested image carried a name. Column Names is "
+                 "read from the row's schema field, which maps an internal column key to that "
+                 "column's name and type; the names are listed and the types are not, and a "
+                 "collection whose schema does not parse reports a blank. The rows of a "
+                 "collection are blocks and are reported by the Blocks artifact, where the "
+                 "collection is named by Parent ID, so this artifact describes the containers "
+                 "rather than their contents. Alive (as stored) held the single value 1 and "
+                 "Parent Table the single value block on all 17 rows of the tested image.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/LocalDatabase/notion.db*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "database",

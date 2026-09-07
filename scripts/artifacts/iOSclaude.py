@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Claude",
         "notes": "Timestamp stored as ISO 8601 combined date-time format. "
-                 "Update time accurate with name changes tested. "
+                 "On the test data created with iOS 26, the update time changed when the account "
+                 "name was changed. "
                  "Test data created with iOS 26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/bootstrap/*.json'),
         "output_types": "standard",
@@ -27,7 +28,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Claude",
-        "notes": "Data marked as incognito conversation will not reference a conversation name, will remain blank. "
+        "notes": "On the test data, conversations marked incognito carried no conversation name, "
+                 "so that column is blank for them. "
                  "Test data created with iOS 26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
         "output_types": "standard",
@@ -46,12 +48,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Claude",
-        "notes": "json_each is utilized in circumstances where background searches by the AI were performed; "
-                 "each source utilized in the final response is stored within json. "
-                 "The final response is shown as a message by assistant. "
-                 "The path containing uploaded image files remained empty. "
-                 "The conversation title is joined to give context when messages cannot be followed in order "
-                 "as the user switches between stored conversations. "
+        "notes": "json_each is used to expand the JSON array of sources stored with a message. "
+                 "The final response is stored as a message from assistant. The path containing "
+                 "uploaded image files was empty on the test data. The conversation title is "
+                 "joined to each message for context. "
                  "Test data created with iOS 26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
         "output_types": "standard",
@@ -81,8 +81,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Claude",
-        "notes": "The user can add previous chats to a project to further store their work. "
-                 "Documents added to a project will store the file name. "
+        "notes": "Project rows can reference chats added to the project. Where a document was "
+                 "added to a project, the file name is stored. "
                  "Test data created with iOS 26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
         "output_types": "standard",

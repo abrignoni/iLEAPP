@@ -18,8 +18,7 @@ __artifacts_v2__ = {
             "Is Current App User is the value's own is_current flag; on the tested image "
             "exactly one of the four rows carried it. Updated Date is Unix milliseconds "
             "from the value, while Access Date and Update Date are the row's Core Data "
-            "Apple absolute timestamps, which record when the app touched the cache "
-            "rather than when the account changed.\n"
+            "Apple absolute timestamps, reported as stored.\n"
             "The reference documents this store at a redditAccount/RedditUsers-* path "
             "holding user identity JSON. On the tested image that path holds a different "
             "database (see Reddit Users) and this content sits under "
@@ -61,7 +60,7 @@ __artifacts_v2__ = {
             "accepting-chats flags are reported as stored; a cached row records what the "
             "app knew about the account, not a current state.\n"
             "Access Date and Update Date are the row's Core Data Apple absolute "
-            "timestamps and record when the app wrote the cache entry.\n"
+            "timestamps, reported as stored.\n"
             "Reference: Arun Kalackattu Hari, 'Forensic Analysis of Reddit App: iOS and "
             "Android', dfdive.com, 06 April 2026, https://dfdive.com/articles/"
         ),
@@ -91,14 +90,13 @@ __artifacts_v2__ = {
             "Documents/release02/accountData/<reddit id>/SubredditSubscriptions is an "
             "NSKeyedArchiver property list holding one entry per community, deserialised "
             "before reading. The account folder name is the Reddit id without its t2_ "
-            "prefix and is reported as the Account column; an 'anonymous' folder is the "
-            "logged-out store.\n"
-            "Community ID is the t5_ identifier the reference documents as the value that "
-            "links a community across the app's other stores. Subscribed, Favourite, Muted "
-            "and NSFW come from the entry's own boolean fields. Subreddit Type is reported "
-            "as stored because no source for the integer was verified.\n"
-            "Subscriber and active counts are values the app cached from the server at "
-            "some point before extraction, not measurements made here.\n"
+            "prefix and is reported as the Account column; a folder named 'anonymous' is "
+            "reported under that name.\nCommunity ID is the t5_ identifier the reference "
+            "documents as the value that links a community across the app's other stores. "
+            "Subscribed, Favourite, Muted and NSFW come from the entry's own boolean fields. "
+            "Subreddit Type is reported as stored because no source for the integer was "
+            "verified.\nSubscriber and active counts are reported as stored in the archive, not "
+            "measurements made here.\n"
             "Reference: Arun Kalackattu Hari, 'Forensic Analysis of Reddit App: iOS and "
             "Android', dfdive.com, 06 April 2026, https://dfdive.com/articles/"
         ),
@@ -176,8 +174,7 @@ __artifacts_v2__ = {
                  "either distinguishes, and both are reported as stored. The store's "
                  "SubredditChannel table is read by nothing here: on the image that has rows it "
                  "holds 36 subreddit chat channels, and joined, invited, moderator and popular "
-                 "are 0 on every one of them with a created time of 0, so nothing there records "
-                 "the account having been in any of those channels.",
+                 "are 0 on every one of them with a created time of 0.",
         "paths": ('*/Documents/release02/accountData/*/chat/*/chat.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-square",
@@ -210,8 +207,8 @@ __artifacts_v2__ = {
                  "Documents/release02/accountData/<account id>/chat/<version>/chat.sqlite. A row "
                  "records an account the chat store holds a contact record for. On the one tested "
                  "image that has rows there are two, the signed in account itself and the one "
-                 "account it exchanged messages with, so this table is the chat store's own "
-                 "participant list and not the device address book. Created is Unix seconds, "
+                 "account it exchanged messages with; on that image the table held only chat "
+                 "participants and no device address book entries. Created is Unix seconds, "
                  "reported in UTC, and read that way the two rows fall in 2020 and 2021. Link "
                  "Karma and Comment Karma held 0 on both rows and are reported as stored, so "
                  "neither carries a usable figure here. Blocked and Profile NSFW read NO on both "

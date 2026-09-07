@@ -1,9 +1,9 @@
 __artifacts_v2__ = {
     "mobilebackupplist": {
         "name": "Mobile Backup Plist Settings com-apple-MobileBackup-plist",
-        "description": "Parses basic data from */mobile/Library/Preferences/com.apple.MobileBackup.plist which"
-                       " contains some important data related to a device Backup, device restore from iCloud Backup,"
-                       " and or Quick Start Data Transfer.",
+        "description": "Keys from */mobile/Library/Preferences/com.apple.MobileBackup.plist "
+                       "relating to device backup, restore from iCloud Backup and Quick Start "
+                       "data transfer, reported as stored",
         "author": "Other Unknown contributors and Scott Koenig",
         "creation_date": "2024-06-11",
         "last_update_date": "2026-07-22",

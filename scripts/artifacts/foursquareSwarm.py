@@ -48,7 +48,7 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_address_book": {
         "name": "Foursquare Swarm - Address Book",
-        "description": "Parses and extracts device address book contacts harvested by Swarm",
+        "description": "Parses and extracts device address book contacts stored by Swarm",
         "author": "@djangofaiola",
         "creation_date": "2026-04-16",
         "last_update_date": "2026-06-01",
@@ -247,7 +247,7 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_saved_lists": {
         "name": "Foursquare Swarm - Saved Lists",
-        "description": "Parses and extracts user-created lists and saved venues (items)",
+        "description": "Parses and extracts Foursquare Swarm lists and saved venues (items)",
         "author": "@djangofaiola",
         "creation_date": "2026-04-20",
         "last_update_date": "2026-06-01",

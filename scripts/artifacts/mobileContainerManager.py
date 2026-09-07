@@ -11,8 +11,8 @@ __artifacts_v2__ = {
                  "MCMGroupManager _cleanupUnreferencedGroupContainers... is observed on the iOS 15 "
                  "test image. 'Last reference to group container' from MCMGroupManager "
                  "_removeGroupContainersIfNeeded... appears in no local corpus log (iOS 12-17) and "
-                 "is kept for older logs (unexercised path). These logs rotate and mostly hold "
-                 "boot-time chatter, so most captures contain no removal lines at all.",
+                 "is kept for older logs (unexercised path). An absence of removal lines in a "
+                 "capture is not evidence that no group container was removed.",
         "paths": ('**/containermanagerd*.log.*',),
         "output_types": "standard",
         "artifact_icon": "trash",

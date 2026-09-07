@@ -58,7 +58,7 @@ __artifacts_v2__ = {
     },
     "skout_ios_cached_users": {
         "name": "Skout - Cached Users",
-        "description": "Profiles the Skout app cached for the accounts it holds a chat with, with "
+        "description": "Profiles cached in the Skout app's SKCache store, with "
                        "the place and distance each profile carries.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",

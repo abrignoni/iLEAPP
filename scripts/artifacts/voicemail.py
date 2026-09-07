@@ -7,7 +7,8 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': "none",
         'category': 'Call History',
-        'notes': "Reference: A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' (Syngress, 2011) — voicemail.db flags: 67 = old, 75 = deleted, 3 = recent.",
+        'notes': "Reference: A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' (Syngress, "
+                 "2011), voicemail.db flags: 67 = old, 75 = deleted, 3 = recent.",
         'paths': (
             '*/mobile/Library/Voicemail/voicemail.db*',
             '*/mobile/Library/Voicemail/*.amr',

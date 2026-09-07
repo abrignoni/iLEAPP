@@ -7,7 +7,20 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. State is set only by an installer-reported outcome: an 'Install successful' line, an 'Uninstalling identifier' line, or a 'Destroying container' line. In the tested corpora every 'Destroying container' line was written by MIUninstaller or MIUninstallNotifier. Container bookkeeping ('Made container live', written by makeContainerLiveReplacingContainer, and 'Data container moved', written by _refreshUUIDForContainer) is emitted during installs, updates and cleanup alike, so it is kept in Apps - Historical Combined and does not place a bundle here. A bundle whose install predates the retained log window has no 'Install successful' line and will not appear; absence here is not evidence that an app was never installed. The Source Event column names the line that set the state. The install kind is reported as written: Placeholder is the download stub the installer writes before the app itself installs, and Customer, System and Developer accompany the installed bundle.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone "
+                 "marker; in tested corpora the values were consistent with device-local time. "
+                 "State is set only by an installer-reported outcome: an 'Install successful' "
+                 "line, an 'Uninstalling identifier' line, or a 'Destroying container' line. In "
+                 "the tested corpora every 'Destroying container' line was written by "
+                 "MIUninstaller or MIUninstallNotifier. Container bookkeeping ('Made container "
+                 "live', written by makeContainerLiveReplacingContainer, and 'Data container "
+                 "moved', written by _refreshUUIDForContainer) is not an installer-reported "
+                 "outcome, so it is kept in Apps - Historical Combined and does not place a "
+                 "bundle here. A bundle whose install predates the retained log window has no "
+                 "'Install successful' line and will not appear; absence here is not evidence "
+                 "that an app was never installed. The Source Event column names the line that "
+                 "set the state. The install kind (Placeholder, Customer, System or Developer) "
+                 "is reported as written; the meaning of those values is not sourced.",
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "download",
@@ -38,7 +51,20 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. State is set only by an installer-reported outcome: an 'Install successful' line, an 'Uninstalling identifier' line, or a 'Destroying container' line. In the tested corpora every 'Destroying container' line was written by MIUninstaller or MIUninstallNotifier. Container bookkeeping ('Made container live', written by makeContainerLiveReplacingContainer, and 'Data container moved', written by _refreshUUIDForContainer) is emitted during installs, updates and cleanup alike, so it is kept in Apps - Historical Combined and does not place a bundle here. A bundle whose install predates the retained log window has no 'Install successful' line and will not appear; absence here is not evidence that an app was never installed. The Source Event column names the line that set the state. The install kind is reported as written: Placeholder is the download stub the installer writes before the app itself installs, and Customer, System and Developer accompany the installed bundle.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone "
+                 "marker; in tested corpora the values were consistent with device-local time. "
+                 "State is set only by an installer-reported outcome: an 'Install successful' "
+                 "line, an 'Uninstalling identifier' line, or a 'Destroying container' line. In "
+                 "the tested corpora every 'Destroying container' line was written by "
+                 "MIUninstaller or MIUninstallNotifier. Container bookkeeping ('Made container "
+                 "live', written by makeContainerLiveReplacingContainer, and 'Data container "
+                 "moved', written by _refreshUUIDForContainer) is not an installer-reported "
+                 "outcome, so it is kept in Apps - Historical Combined and does not place a "
+                 "bundle here. A bundle whose install predates the retained log window has no "
+                 "'Install successful' line and will not appear; absence here is not evidence "
+                 "that an app was never installed. The Source Event column names the line that "
+                 "set the state. The install kind (Placeholder, Customer, System or Developer) "
+                 "is reported as written; the meaning of those values is not sourced.",
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "trash",
@@ -131,7 +157,20 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. These bundle IDs appear in the log but never in an 'Install successful', 'Uninstalling identifier' or 'Destroying container' line, so Apps - Installed and Apps - Uninstalled do not list them. That happens when the install predates the retained log window. Presence here shows the log mentioned the bundle; it does not establish that the app was installed, and absence of an install line is not evidence that it was not. App extension bundle IDs appear here because extensions have their own containers. Parent Bundle ID (by prefix) is filled in when another bundle ID in the same log is a dotted prefix of this one, which is Apple's convention for an extension and its host app; it is read from the identifier strings, not from a relationship the log records. The Source Event column names the most recent line that mentioned the bundle.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone "
+                 "marker; in tested corpora the values were consistent with device-local time. "
+                 "These bundle IDs appear in the log but never in an 'Install successful', "
+                 "'Uninstalling identifier' or 'Destroying container' line, so Apps - Installed "
+                 "and Apps - Uninstalled do not list them. One cause is an install that predates "
+                 "the retained log window; the cause for a given bundle is not established. "
+                 "Presence here shows the log mentioned the bundle; it does not establish that "
+                 "the app was installed, and absence of an install line is not evidence that it "
+                 "was not. App extension bundle IDs can appear here. Parent Bundle ID (by "
+                 "prefix) is filled in when another bundle ID in the same log is a dotted prefix "
+                 "of this one; it is read from the identifier strings, not from a relationship "
+                 "the log records, and a prefix match does not establish that the two are an "
+                 "extension and its host app. The Source Event column names the most recent line "
+                 "that mentioned the bundle.",
         "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "box",

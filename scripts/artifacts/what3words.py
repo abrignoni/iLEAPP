@@ -8,8 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "what3words",
         "notes": "Read from the class_DataPlace table of the app's Realm store (Documents/default.realm) "
-                 "using the vendored realm_parser. Each three word address maps to a fixed 3m square; "
-                 "the latitude and longitude are the square's coordinates as the app stored them.",
+                 "using the vendored realm_parser. The latitude and longitude are reported as "
+                 "the app stored them.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -36,8 +36,9 @@ __artifacts_v2__ = {
     },
     "what3words_account": {
         "name": "what3words - Account",
-        "description": "The signed-in what3words account from the app's Realm store, with the email, "
-                       "name, country and the provider the account signed in with",
+        "description": "The what3words account profile from the app's Realm store "
+                       "class_DataProfile table, with the email, name, country and the stored "
+                       "sign-in provider",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",

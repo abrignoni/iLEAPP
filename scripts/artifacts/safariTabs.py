@@ -57,7 +57,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Safari Browser",
-        "notes": "Public and LocalProfile are normal browsing; private is private browsing. "
+        "notes": "Profile values Public, LocalProfile and private are reported as stored; rows "
+                 "under the private profile are marked Private and the others Normal, a mapping "
+                 "for which no source was located. "
                  "The bookmarks.last_modified and date_closed columns are NULL on every image "
                  "tested (iOS 18.7 and 26.5.2); the per-tab timestamps and state live in the "
                  "extra_attributes / local_attributes binary plists instead.",

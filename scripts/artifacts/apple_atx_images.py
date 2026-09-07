@@ -20,8 +20,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "Images",
-        "notes": "ATX files are AAPL texture containers wrapping ASTC image data. These files "
-                 "can appear in wallpapers, PosterBoard snapshots, avatars, and other Apple "
+        "notes": "ATX files are decoded as texture containers wrapping ASTC image data; that "
+                 "layout was derived from observed files and is not vendor-documented. Such "
+                 "files were found under wallpapers, PosterBoard snapshots, avatars and other "
+                 "Apple "
                  "UI image caches. Decoding uses observed Apple ATX layouts and a best-effort "
                  "tile-order heuristic. If an image appears scrambled or fails to decode, please "
                  "open an issue and provide sample ATX files when possible.",

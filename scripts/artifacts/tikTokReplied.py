@@ -2,8 +2,8 @@ __artifacts_v2__ = {
     "tiktok_replied": {
         "name": "TikTok - Replied Messages",
         "description": (
-            'Extracts "Replied" message remnants left in the TikTok database which '
-            "may no longer exist in the native message table"
+            "Extracts \"Replied\" message remnants left in the TikTok database that are held "
+            "separately from the native message table"
         ),
         "author": "John Hyla http://www.bluecrewforensics.com/",
         "creation_date": "2024-11-08",
@@ -12,8 +12,8 @@ __artifacts_v2__ = {
         "category": "TikTok",
         "notes": (
             "This artifact is extracted from TIMMessageKVORM or TIMMessageNewPropertyORM. "
-            "It appears that a copy of the message being replied to is placed into these "
-            "tables and may remain after the actual referenced message or reply is deleted. "
+            "These tables hold a copy of the message being replied to; whether that copy "
+            "persists after the referenced message or reply is deleted is not established. "
             "An iOS app container is a GUID directory, so the database names alone do not "
             "identify the owning app. Each matched database is attributed to the app named "
             "by its container's own .com.apple.mobile_container_manager.metadata.plist (a "

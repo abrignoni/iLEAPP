@@ -17,8 +17,9 @@ OS History",
         'last_update_date': '2025-09-29',
         "requirements": "none",
         "category": "Device Information",
-        "notes": "Queries from research conducted by Metadata Forensics, LLC \
-Apple product identification, common name, OS, and timeframe of use",
+        "notes": "Queries derived from research by Metadata Forensics, LLC; no published "
+                 "reference is cited. Rows give the product type, model, OS build and the first "
+                 "and last sample time per source.",
         "paths": ('*Health/healthdb_secure.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -51,8 +52,9 @@ History",
         'last_update_date': '2025-09-29',
         "requirements": "none",
         "category": "Device Information",
-        "notes": "Queries from research conducted by Metadata Forensics, LLC \
-Apple product grouped for starting and ending timeframe of use",
+        "notes": "Queries derived from research by Metadata Forensics, LLC; no published "
+                 "reference is cited. Rows are grouped by product type and model with the first "
+                 "and last sample time each wrote.",
         "paths": ('*Health/healthdb_secure.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -83,8 +85,8 @@ Apple product grouped for starting and ending timeframe of use",
         'last_update_date': '2025-09-29',
         "requirements": "none",
         "category": "Device Information",
-        "notes": "Queries from reserach conducted by Metadata Forensics, LLC \
-Current Apple Device and OS Information",
+        "notes": "Queries derived from research by Metadata Forensics, LLC; no published "
+                 "reference is cited.",
         "paths": ('*Health/healthdb.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",

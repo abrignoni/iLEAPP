@@ -44,7 +44,8 @@ __artifacts_v2__ = {
     },
     'googleVoiceVoicemails': {
         'name': 'Google Voice - Voicemails',
-        'description': 'Voicemails left on the Google Voice number, including the machine transcription',
+        'description': "Voicemails left on the Google Voice number, including the transcript "
+                       "text stored with each",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',

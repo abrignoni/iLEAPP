@@ -27,8 +27,9 @@ __artifacts_v2__ = {
     },
     "iftttApplets": {
         "name": "IFTTT - Applets",
-        "description": "Applets the account had connected, with the name of each, the service "
-                       "it runs on, who published it and when the app first recorded it.",
+        "description": "Applets held in the IFTTT account's Realm store, with the name of each, "
+                       "the service it runs on, the author recorded for it and the creation time "
+                       "stored with it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
         "last_update_date": "2026-09-04",
@@ -38,13 +39,11 @@ __artifacts_v2__ = {
                  "the connected applets are held on the tested extraction; class_AppletRecord, "
                  "which the name suggests would carry them, held no rows. The service name is "
                  "joined from class_LiveServiceRecord through the row's own primaryService link. "
-                 "Author is the applet's publisher as the service supplied it, not the account on "
-                 "this device: an applet published by someone else and switched on by this "
-                 "account shows that publisher. Created At is when the app first recorded the "
-                 "applet locally, which is not the same as when the applet last ran; no run "
-                 "history was present, see the Activity note below. Status and Kind are reported "
-                 "as stored. The store's installsCount is a service-supplied count for the applet "
-                 "that says nothing about this device, so it is not reported. Activity: "
+                 "Author is the applet's author value as stored and is not necessarily the "
+                 "account on this device. Created At is the row's creation value as stored; it "
+                 "is not a record of when the applet ran, and no run history was present, see "
+                 "the Activity note below. Status and Kind are reported as stored. The store's "
+                 "installsCount is not reported. Activity: "
                  "class_ActivityItemRecord, class_WidgetRunRecord and class_RegionEvent were "
                  "present in the schema and held no rows on the tested extraction, so no applet "
                  "run, widget run or geofence event was recovered.",
@@ -71,8 +70,7 @@ __artifacts_v2__ = {
                  "distinguished. class_ServiceFragmentRecord holds the same three services with "
                  "a subset of these fields and is not reported separately for that reason. "
                  "Requires Authentication, Offline, Hidden and Auto Activated are reported as "
-                 "stored. The service description the store keeps is catalogue text supplied by "
-                 "IFTTT and is not reported.",
+                 "stored. The service description the store keeps is not reported.",
         "paths": ('*/Documents/default.realm',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "grid",

@@ -1,8 +1,9 @@
 __artifacts_v2__ = {
     "life360Locations": {
         "name": "Life360 - Locations",
-        "description": "Location fixes Life360 sent to its servers, read from the X-UserContext header the app "
-                       "logs with each upload, with the fix time, coordinates, altitude, speed, heading, "
+        "description": "Location fixes Life360 prepared for upload, read from the X-UserContext "
+                       "header the app logs, with the fix time, coordinates, altitude, speed, "
+                       "heading, "
                        "accuracy and the device activity and location mode at the time.",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
@@ -58,7 +59,8 @@ __artifacts_v2__ = {
     },
     "life360DeviceBattery": {
         "name": "Life360 - Device Battery",
-        "description": "The battery level and charging state Life360 logged with each location upload, with "
+        "description": "The battery level and charging state Life360 logged in each "
+                       "X-UserContext header, with "
                        "the time of the fix it accompanied.",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
@@ -225,7 +227,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Life360",
-        "notes": "Sent-status value mapping observed in testing; unrecognized values reported as stored",
+        "notes": "Sent Status maps ZSENTSTATUSASINTEGER 2 to Sent and 3 to Failed; the mapping "
+                 "is not sourced from Life360 and was assigned from tested data with no count "
+                 "recorded here. Unrecognized values are reported as stored.",
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),
         "output_types": "all",
         "artifact_icon": "message-circle",

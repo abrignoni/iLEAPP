@@ -9,8 +9,8 @@
 __artifacts_v2__ = {
     "get_coreAccessories": {
         "name": "Core Accessories - AccessoryD",
-        "description": "Parses records found in the plists located in the accessoryd database related \
-            to accessories that are connected.",
+        "description": "Parses accessory records found in the plists located in the accessoryd "
+                       "database.",
         "author": "John Hyla",
         "creation_date": "2023-08-01",
         "last_update_date": "2025-11-21",

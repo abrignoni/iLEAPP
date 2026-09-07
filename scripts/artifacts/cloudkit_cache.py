@@ -38,7 +38,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "CloudKit",
-        "notes": "File-type value mapping observed in testing; unrecognized values reported as stored.",
+        "notes": "The File Type labels File and Folder are assigned to stored fileType values 0 "
+                 "and 1 without a vendor source; unrecognized values are reported as stored.",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
         "artifact_icon": "file-text",

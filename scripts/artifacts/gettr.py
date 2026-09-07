@@ -8,15 +8,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "GETTR",
-        "notes": "The chat database is Documents/db_u<account id>.sqlite, one per signed in "
-                 "account, and its schema is the Stream Chat client's rather than GETTR's own. "
+        "notes": "The chat database is Documents/db_u<account id>.sqlite, one per account; its "
+                 "table names match the Stream Chat client schema, which is not sourced here. "
                  "Message Direction is derived by comparing each message's user id against the "
                  "account id the same database records in connection_events.own_user, so it "
                  "comes from a value the app stored rather than from the file name, and it is "
                  "left blank when that row is absent. Sender is the username the users table "
                  "carries for that id and falls back to the raw id when no users row matches. "
-                 "The timestamps are Unix seconds. A message deleted in the app keeps its row "
-                 "with Message Type deleted and no longer holds what it said, so the row still "
+                 "The timestamps are Unix seconds. Rows with Message Type deleted carried no "
+                 "text, so such a row still "
                  "shows when it was sent and by whom: 3 of the 32 messages on the tested image "
                  "were in that state, and 28 of the 32 carried text. Attachments holds the "
                  "descriptor JSON as stored. Those descriptors name remote URLs rather than "
@@ -103,8 +103,8 @@ __artifacts_v2__ = {
     },
     "gettr_ios_app_state": {
         "name": "GETTR - App State",
-        "description": "Key and value rows from the app's two key value stores, which hold the "
-                       "signed in account record and the device identifier.",
+        "description": "Key and value rows from the app's two key value stores, including an "
+                       "account record and a device identifier.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
@@ -116,10 +116,9 @@ __artifacts_v2__ = {
                  "in the Account column; g.db is not per account and its Account column is "
                  "blank. Values are reported as stored, because the store mixes plain strings, "
                  "JSON documents and cached page content under one column and nothing separates "
-                 "them but the key. The keys worth an examiner's attention on the tested image "
-                 "were user_me and auth_device_id in g.db, which hold the signed in account "
-                 "record and the identifier the app assigned the device, and in the per account "
-                 "file a cached copy of the timeline the app had shown, a cached user search "
+                 "them but the key. On the tested image the keys user_me and auth_device_id in "
+                 "g.db held an account record and a device identifier, and the per account file "
+                 "held a cached timeline, a cached user search "
                  "result list and a direct message chat identifier. 20 rows were present in g.db "
                  "and 19 in the per account file.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/g.db*',
@@ -147,8 +146,8 @@ __artifacts_v2__ = {
                  "paired with the database from its own app container, so two containers holding "
                  "a file of the same name are never confused. Touched and Valid Until are Unix "
                  "milliseconds. A row records that the app fetched the address, which is not by "
-                 "itself evidence that a person chose to look at it: an image on a timeline the "
-                 "app loaded is cached the same way as one that was opened. All 12 rows on the "
+                 "itself evidence that a person chose to look at it; the cache does not record "
+                 "whether the picture was opened. All 12 rows on the "
                  "tested image resolved to a file and every one of them was a picture. "
                  "URL and Cache Key held the same value on all 12 rows of the tested image, so "
                  "the app keyed this cache on the address it requested. Both are kept because "

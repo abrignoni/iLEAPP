@@ -14,8 +14,9 @@ __artifacts_v2__ = {
                  "8601 carrying an explicit UTC offset. Device Event and Event Type are the strings "
                  "the service returned and are reported as stored. Attributed To Name and Attributed "
                  "To Source come from the event_by object the service returns, and both were absent on "
-                 "some events in the tested sample, so an empty value means the service attributed the "
-                 "event to nobody rather than that it was unattributed by the device. An event records "
+                 "some events in the tested sample; an empty value records that the cached "
+                 "response carried no event_by object for that event, and what that signifies is "
+                 "not established. An event records "
                  "that the service logged a door state change; it does not establish who was "
                  "physically present. The local database the app keeps beside this cache has an "
                  "ApiEvent table, but it was empty on the tested sample and the events are recovered "
@@ -47,13 +48,13 @@ __artifacts_v2__ = {
                  "by this endpoint and with an explicit +00:00 offset by the gateways endpoint for the "
                  "same device, and the two agreed to the millisecond on the tested sample, so the "
                  "value is read as UTC on that evidence rather than by assumption. The remaining "
-                 "timestamps carry an explicit offset. Absolute Cycle Count is the lifetime count the "
-                 "service holds for the opener; it was zero on the tested sample. Door State is the "
-                 "state at the time of the cached response, not a history. Device Type and Device "
-                 "Model held the same value on every row in the tested sample, and Absolute Cycle "
-                 "Count equalled Service Cycle Count because both were zero on the opener and absent "
-                 "on the gateway. Both pairs are kept because the service defines them separately and "
-                 "a device with cycles recorded would separate them. The app's data container was "
+                 "timestamps carry an explicit offset. Absolute Cycle Count is reported as "
+                 "stored; it was zero on the tested sample. Door State is the state at the time "
+                 "of the cached response, not a history. Device Type and Device Model held the "
+                 "same value on every row in the tested sample, and Absolute Cycle Count "
+                 "equalled Service Cycle Count because both were zero on the opener and absent "
+                 "on the gateway. Both pairs are kept because the service returns them as "
+                 "separate fields. The app's data container was "
                  "present on 1 of the 26 registered iOS corpora swept for it, so every count recorded "
                  "here comes from that one extraction.",
         "paths": ('*/Library/Caches/com.myliftmaster.myq/Cache.db*',
@@ -97,8 +98,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "myQ",
-        "notes": "Read from the cached profiles.myq-cloud.com profile response. The service returns a "
-                 "postal code and country rather than a street address, and only those are reported. "
+        "notes": "Read from the cached profiles.myq-cloud.com profile response. The cached "
+                 "response on the tested sample held a postal code and country and no street "
+                 "address; only those are reported. "
                  "Linked external identity providers are reported by name and count only. The app's "
                  "data container was present on 1 of the 26 registered iOS corpora swept for it, so "
                  "every count recorded here comes from that one extraction.",
