@@ -81,8 +81,8 @@ __artifacts_v2__ = {
                  "evidence that the lock was operated with it. House Name holds one value on every row "
                  "in the tested sample because that device had a single house, and it is kept so a "
                  "device with more than one house shows which house each key belongs to. A key that "
-                 "the service had moved into the deleted group is reported with its group as stored "
-                 "and with Key Material Present false, which is how a revoked credential appears.",
+                 "the service listed in the deleted group is reported with its group as stored "
+                 "and with Key Material Present false.",
         "paths": ('*/Library/Caches/com.august.yale.app/nscache/Cache.db*',
                   '*/Library/Caches/com.august.yale.app/nscache/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -174,7 +174,7 @@ __artifacts_v2__ = {
         "notes": "Read from the cached per-lock battery responses and from the batteryInfo "
                  "object inside the cached lock bodies, one row per lock from the newest body. "
                  "Last Change Date is the date the service recorded the batteries as last "
-                 "changed, which is a physical interaction with the lock. Projected Death Date "
+                 "changed. Projected Death Date "
                  "is a forward-looking estimate the service returned, not an observed event, "
                  "and on the tested sample it fell three months after the last change date. "
                  "Warning State is reported as stored. Timestamps are ISO 8601 carrying an "
@@ -198,8 +198,8 @@ __artifacts_v2__ = {
         "category": "August",
         "notes": "Read from the cached apps/mine response. A row records that the service "
                  "listed the named integration for this account. The partners catalogue the app "
-                 "also caches lists every integration the vendor offers rather than the ones "
-                 "this account uses, so it is deliberately not reported here.",
+                 "also caches is deliberately not reported here; on the tested sample it listed "
+                 "integrations beyond the ones the apps/mine response tied to this account.",
         "paths": ('*/Library/Caches/com.august.yale.app/nscache/Cache.db*',
                   '*/Library/Caches/com.august.yale.app/nscache/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava"],

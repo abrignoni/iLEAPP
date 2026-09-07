@@ -5,7 +5,7 @@ __artifacts_v2__ = {
             "Media items recorded in the write-ahead logs of KeepSafe's RocksDB store "
             "(Documents/rdb), matched to the encrypted file each item's id names under "
             "Documents/<table>/, with the item's name, timestamps, album, GPS and "
-            "SHA-1/dimensions as KeepSafe recorded them for the original file before encryption; "
+            "SHA-1/dimensions as recorded in the log entry; "
             "items held only in the .sst tables are not read."
         ),
         "author": "@Gear-I, Claude",
@@ -18,8 +18,8 @@ __artifacts_v2__ = {
             "write-ahead log(s) is reported, so a count here is a floor, not a ceiling, on what "
             "the vault has ever held. 'breakin_alert' and 'fake' were empty directories with no "
             "live records in the validation image, so their field mapping is unexercised - see "
-            "module docstring for the tier of each claim. Newer builds shard each table into "
-            "two-letter folders (primary/<xx>/<item-id>_100 on the iOS 17.3 image); the folder "
+            "module docstring for the tier of each claim. On the iOS 17.3 image each table is "
+            "sharded into two-letter folders (primary/<xx>/<item-id>_100); the folder "
             "entries the file search returns beside the files, and the rdb_backups/<timestamp> "
             "folder itself, are skipped. The KeepSafe version recorded in sample_data is the "
             "app's own initialVersionInstalled preference, the version first installed rather "

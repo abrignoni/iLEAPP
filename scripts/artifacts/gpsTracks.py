@@ -9,18 +9,18 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "GPS Tracks",
         "notes": "One row per row of ZTRACK and of ZCURRENTTRACK in Library/GPS_Tracks.sqlite, "
-                 "told apart by the Source Table column. ZCURRENTTRACK is the recording the app "
-                 "had open rather than a finished one, and on the tested image its row carried a "
-                 "later date than any saved track and no points of its own. Date, Sync Date and "
-                 "the point times are Core Data seconds since 2001 and are rendered in UTC. "
-                 "Distance, Time, Calories and Type are reported as stored: the store carries no "
-                 "unit for the first three and nothing available maps the type number to a "
-                 "meaning, so none is given here. Track ID is the identifier the app assigns, and "
-                 "the same identifier names the per track files under Library/Assets, so a track "
-                 "row can be tied to those files by name. Saved and Recovered come from "
-                 "ZCURRENTTRACK only and are blank for a saved track. Notes and Favorite (as stored) held "
-                 "no value on any row of the tested image: both are fields a person fills in "
-                 "on a track and neither had been used there.",
+                 "told apart by the Source Table column. ZCURRENTTRACK is a separate table; on "
+                 "the tested image its row carried a later date than any saved track and no "
+                 "points of its own, and whether it records the recording the app had open is "
+                 "not established. Date, Sync Date and the point times are Core Data seconds "
+                 "since 2001 and are rendered in UTC. Distance, Time, Calories and Type are "
+                 "reported as stored: the store carries no unit for the first three and nothing "
+                 "available maps the type number to a meaning, so none is given here. Track ID "
+                 "is the identifier the app assigns, and the same identifier names the per track "
+                 "files under Library/Assets, so a track row can be tied to those files by name. "
+                 "Saved and Recovered come from ZCURRENTTRACK only and are blank for a saved "
+                 "track. Notes and Favorite (as stored) held no value on any row of the tested "
+                 "image.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/GPS_Tracks.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "map",
@@ -44,9 +44,9 @@ __artifacts_v2__ = {
                  "Speed, Average Speed, Distance, Distance Elapsed, Course, True Heading, "
                  "Magnetic Heading and Glide Ratio are reported as stored, because the store "
                  "carries no unit for any of them. Heart Rate is a column of this table and held "
-                 "no value on any row of the tested image; it is kept because a track recorded "
-                 "with a paired heart rate monitor can carry it. This table is large by nature, "
-                 "one row every few seconds of recording, so the artifact is correspondingly "
+                 "no value on any row of the tested image; it is kept because the store defines "
+                 "it. This table is large, 170,418 rows on the tested image, so the artifact is "
+                 "correspondingly "
                  "large. A separate table, ZSPEEDALTITUDEPOINT, holds a second series of 253,819 "
                  "rows carrying only a date, a speed and an altitude with no coordinates; it is "
                  "not reported here because the points in this artifact already carry speed and "
@@ -72,13 +72,12 @@ __artifacts_v2__ = {
                  "the second kind marks a position along a recorded track. Both carry a name, a "
                  "note, an address and an alert radius in the same shape, and all twelve rows on "
                  "the tested image carried coordinates and eleven of them carried a name. Sync Date "
-                 "held no value on any of the twelve, which is what a waypoint that has not "
-                 "synced looks like. Address is the text the row "
-                 "holds and is not resolved here; it was present on one row of the tested image "
-                 "and blank on the rest, so a blank address is not evidence about where the point "
-                 "is. Alert Radius, Position and Type are reported as stored. A waypoint records "
-                 "a place the app held, which is not by itself evidence that the device was "
-                 "there: a waypoint can be typed in or imported as well as marked in place.",
+                 "held no value on any of the twelve. Address is the text the row holds and is "
+                 "not resolved here; it was present on one row of the tested image and blank on "
+                 "the rest, so a blank address is not evidence about where the point is. Alert "
+                 "Radius, Position and Type are reported as stored. A waypoint records a place "
+                 "the app held, which is not by itself evidence that the device was there; the "
+                 "row does not record how the waypoint was created.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/GPS_Tracks.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "map-pin",

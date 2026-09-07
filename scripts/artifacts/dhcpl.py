@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "DHCP",
-        "notes": "LeaseStartDate is stored as UTC.",
+        "notes": "LeaseStartDate is a plist date value and is reported as UTC without a zone shift.",
         "paths": ('*/db/dhcpclient/leases/en*',),
         "output_types": "standard",
         "artifact_icon": "wifi",

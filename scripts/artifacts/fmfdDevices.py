@@ -9,7 +9,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Find My",
-        "notes": "Located in the NotBackedUp preferences area. Device list stored under kFMFDDevicesListKey by fmfd (Find My Friends daemon); tested plists contained the account's own devices (isThisDevice/isCompanionDevice keys).",
+        "notes": "Located in the NotBackedUp preferences area. Device list stored under "
+                 "kFMFDDevicesListKey in the fmfd preferences; entries in tested plists carried "
+                 "isThisDevice and isCompanionDevice keys.",
         "paths": ('*/Library/Preferences/com.apple.icloud.fmfd.notbackedup.plist',),
         "output_types": "all",
         "artifact_icon": "map-pin",

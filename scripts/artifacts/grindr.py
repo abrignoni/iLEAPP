@@ -55,7 +55,22 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Grindr",
-        "notes": "One row per conversation record in the app's Realm database. This record holds no message text; the messages themselves are reported by the messages artifact and a conversation links to them. Messages Linked, Tap Messages Linked and Members Linked are the lengths of those link lists, which is what lets a conversation be sized without opening it. On the tested device they totalled 118 message links across 17 conversations and 9 tap links across 9, against 129 rows in the messages artifact, so the two do not reconcile exactly and a message can be present without a conversation linking it. Draft Message is unsent draft text, and Name is a conversation name; both were empty on every row of the tested device and are carried because either one is significant wherever it is populated. Pinned, Muted and Unread Count are the values the record carries. Type is reported as stored. Some conversation records are created by the app's marketing framework rather than by a person: their identifiers carry that framework's name, and the Marketing column marks them so they are not read as conversations with another user. Field mapping was done against a private sample provided by Mattia; no sample data is recorded for it.",
+        "notes": "One row per conversation record in the app's Realm database. This record holds "
+                 "no message text; the messages themselves are reported by the messages artifact "
+                 "and a conversation links to them. Messages Linked, Tap Messages Linked and "
+                 "Members Linked are the lengths of those link lists, which is what lets a "
+                 "conversation be sized without opening it. On the tested device they totalled "
+                 "118 message links across 17 conversations and 9 tap links across 9, against "
+                 "129 rows in the messages artifact, so the two do not reconcile exactly and a "
+                 "message can be present without a conversation linking it. Draft Message is "
+                 "unsent draft text, and Name is a conversation name; both were empty on every "
+                 "row of the tested device and are carried because either one is significant "
+                 "wherever it is populated. Pinned, Muted and Unread Count are the values the "
+                 "record carries. Type is reported as stored. Some conversation records carry an "
+                 "identifier naming a marketing framework rather than another user, and the "
+                 "Marketing column marks them so they are not read as conversations with another "
+                 "user. Field mapping was done against a private sample provided by Mattia; no "
+                 "sample data is recorded for it.",
         "paths": ('*/Documents/DataContainer/Data/*/PersistenceStore.bin',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "users"
@@ -71,17 +86,15 @@ __artifacts_v2__ = {
         "category": "Grindr",
         "notes": "One row per cached profile. **These are profiles the app received, not "
                  "profiles the account holder chose to look at.** The app's own session "
-                 "preferences keep a list it calls a cascade cache, which is the grid of "
-                 "nearby profiles the service delivers, and on the tested device the store "
-                 "held 2,178 profiles against 23 conversations, so the presence of a profile "
-                 "is not evidence of contact. Columns that do record an interaction are "
+                 "preferences keep a list it calls a cascade cache, and on the tested device the "
+                 "store held 2,178 profiles against 23 conversations, so the presence of a "
+                 "profile is not evidence of contact. Columns that do record an interaction are "
                  "reported separately: Favourite was set on 1 profile and Last Viewed Me on "
                  "1,634. Last Chat Date is the value the profile record carries and was "
-                 "populated on 1,869 profiles, far more than the account had conversations "
-                 "with, so it is reported as stored and must not be read as a chat with this "
-                 "account. Distance is the value the record carries, populated on 382 "
-                 "profiles, and describes where the profile was relative to the device when "
-                 "the app received it. Ethnicity, Body Type, Relationship Status, Sexual "
+                 "populated on 1,869 profiles, far more than the account had conversations with, "
+                 "so it is reported as stored and must not be read as a chat with this account. "
+                 "Distance is the value the record carries, populated on 382 profiles, and is "
+                 "reported as stored. Ethnicity, Body Type, Relationship Status, Sexual "
                  "Position, HIV Status and the tribe, meeting and looking-for sets are "
                  "integer codes or code sets and are reported as stored: the extraction "
                  "carries no app binary and nothing in it maps them to a meaning. Field "

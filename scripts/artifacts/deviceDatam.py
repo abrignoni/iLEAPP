@@ -7,7 +7,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Device Information",
-        "notes": "Timestamp epoch choices (days-since-Unix-epoch for kCKUploadDate, Apple epoch for others) were established through testing; raw values are preserved inline.",
+        "notes": "Timestamps are read as days since the Unix epoch for kCKUploadDate and as "
+                 "Apple epoch values for the others; no vendor source documents these units, and "
+                 "raw values are preserved inline.",
         "paths": ('*wireless/Library/Preferences/com.apple.commcenter.device_specific_nobackup.plist',),
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "device-mobile",

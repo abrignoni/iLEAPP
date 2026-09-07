@@ -138,8 +138,7 @@ __artifacts_v2__ = {
         "category": "Line",
         "notes": "One row per row of ZE2EECHAT and of ZE2EEKEY in the per account private store's "
                  "Messages/E2EEData.sqlite, told apart by the Source Table column. A row records "
-                 "that the app held encryption state for a chat, which tells an examiner why "
-                 "message content for that chat may be absent or unreadable elsewhere. **No key "
+                 "that the app held encryption state for a chat. **No key "
                  "material is reported.** The ZKEYDATA column holds the key bytes and is read by "
                  "nothing here; the artifact reports only that a key exists, its identifier and "
                  "the creation time the row carries, and an examiner who needs the bytes can go "

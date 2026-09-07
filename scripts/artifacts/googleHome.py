@@ -18,8 +18,8 @@ __artifacts_v2__ = {
                  "readings of the same coordinate. Version Timestamp is Unix milliseconds, a different "
                  "epoch from the Core Data seconds used elsewhere in the same store. Coordinates "
                  "describe the home the account configured and are not evidence of a person's "
-                 "location. Concierge Owner Email was empty in the tested sample, where that "
-                 "subscription was not held; the column is kept because the store defines it. The "
+                 "location. Concierge Owner Email was empty in the tested sample; the column is "
+                 "kept because the store defines it. The "
                  "app's data container was present on 1 of the 26 registered iOS corpora swept for it, "
                  "so every count recorded here comes from that one extraction.",
         "paths": ('*/Documents/*_HomeGraphModel*',),
@@ -41,8 +41,8 @@ __artifacts_v2__ = {
         "category": "Google Home",
         "notes": "Read from ZDEVICE, with the device type resolved through ZDEVICETYPE and the "
                  "assigned room through the Z_3SPACES join table to ZSPACE. A device with no row in "
-                 "that join table is reported with an empty Room, which is how an unassigned device "
-                 "appears; 12 of the 14 devices were assigned on the tested sample. Link Timestamp is "
+                 "that join table is reported with an empty Room; 12 of the 14 devices on the "
+                 "tested sample had a row in that table. Link Timestamp is "
                  "Core Data seconds since 2001-01-01. Display Name, User Defined Name and Agent "
                  "Defined Name are reported separately because the store holds all three and they need "
                  "not agree. SSID Suffix is the value the store holds for the device and is reported "
@@ -65,11 +65,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Home",
         "notes": "Read from ZSPACE, with the room type resolved through ZSPACETYPE to its localized "
-                 "name. These are the rooms the account created in this home, which is distinct from "
-                 "the ZSPACETYPE table itself: that table is the catalogue of room types the app ships "
-                 "and is the same on every device, so it is deliberately not reported. The same "
-                 "applies to ZDEVICETYPE and ZTRAIT, which are shipped catalogues rather than user "
-                 "data. Structure ID holds one value on every row in the tested sample because that "
+                 "name. These are the rooms recorded for this home, which is distinct from the "
+                 "ZSPACETYPE table itself: that table lists room types rather than rooms and is "
+                 "not reported. The same applies to ZDEVICETYPE and ZTRAIT, which list types "
+                 "rather than rows tied to this home. Structure ID holds one value on every row "
+                 "in the tested sample because that "
                  "account had a single home, and it is kept so an account with more than one home "
                  "shows which home each room belongs to. The app's data container was present on 1 of "
                  "the 26 registered iOS corpora swept for it, so every count recorded here comes from "
@@ -91,8 +91,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Home",
         "notes": "Read from ZAUTOMATION. Starter Description and Action Description are the summary "
-                 "strings the app stores for the automation rather than its full definition, and the "
-                 "store holds no record of an automation having run, so a row is evidence that an "
+                 "strings the app stores for the automation rather than its full definition, and "
+                 "no table in the tested store records an automation having run, so a row is "
+                 "evidence that an "
                  "automation was configured and not that it fired. Automation Type, Starter Type and "
                  "Automation Source are reported as stored; no mapping from those integers to a name "
                  "was sourced. Enabled, Valid and Executable were true and Scripted was false on every "
@@ -127,7 +128,8 @@ __artifacts_v2__ = {
                  "Google Photos, Google Home, Disney+, ESPN, CNN, Facebook, NHL, MSNBC and "
                  "Twitch; the Google Home app itself was on one of them. A row records that the "
                  "SDK inside that app knew of a receiver; it does not establish that the user "
-                 "cast to it, and the store holds no playback history. Friendly Name and Model "
+                 "cast to it, and no table in the tested stores records playback. Friendly Name "
+                 "and Model "
                  "Name are the receiver's own strings as stored, present on 9 of the 31 device "
                  "rows across the tested images. A device is reached from ZGCKDBDEVICEINFO "
                  "through ZGCKDBLOCALCONNECTIONINFO (ZGCKDBDISCOVERYINFO.ZDEVICEINFO was null on "

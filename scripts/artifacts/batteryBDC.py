@@ -43,9 +43,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "One row per battery pack (first boot with a new pack, or after a data reset). "
-                 "A new BatterySerialNumber and a fresh BDC_Once file signal a battery "
-                 "replacement. GasGaugeFirmwareVersion appears from schema version 1.7. "
+        "notes": "One row per BDC_Once file. BatterySerialNumber is reported as stored; when the "
+                 "file is written, and whether a new serial number means the battery was "
+                 "replaced, are not sourced here. GasGaugeFirmwareVersion is present in the "
+                 "files whose header carries it and was seen from schema version 1.7 in tested "
+                 "files. "
                  "Columns are read by header name, so older narrower-schema files still parse.",
         "paths": ('*/Battery/BDC/BDC_Once_*.csv', '*/BatteryBDC/BDC_Once_*.csv'),
         "output_types": "standard",
@@ -59,9 +61,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "Roughly two rows per day. NominalChargeCapacity over DesignCapacity (from "
-                 "BDC_Once) gives the user-visible Maximum Capacity percentage. TimeAtHighSoc "
-                 "is a little-endian uint32 blob left as its raw hex token here.",
+        "notes": "Row cadence in tested files was roughly two per day. NominalChargeCapacity and "
+                 "DesignCapacity (from BDC_Once) are reported as stored; that their ratio is the "
+                 "Maximum Capacity percentage shown in Settings is not sourced here. "
+                 "TimeAtHighSoc is left as its raw hex token here; its encoding is not "
+                 "established.",
         "paths": ('*/Battery/BDC/BDC_Daily_*.csv', '*/BatteryBDC/BDC_Daily_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -74,9 +78,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "One row every seven days. RaTableRaw0 is the raw Impedance Track Ra table "
-                 "(big-endian uint16 words) left as its raw hex token here; rising values "
-                 "over months indicate cell aging.",
+        "notes": "Row cadence in tested files was one per seven days. RaTableRaw0 is left as its "
+                 "raw hex token here; its encoding and meaning are not established.",
         "paths": ('*/Battery/BDC/BDC_Weekly_*.csv', '*/BatteryBDC/BDC_Weekly_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -89,10 +92,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "Event driven, one row per attach/detach/charge-state change. FamilyCode is a "
-                 "signed 32-bit IOPS adapter family code; the hex column recovers the "
-                 "0xE0004xxx form used by IOKit. NotChargingReason is a bitmask (0 means "
-                 "charging normally).",
+        "notes": "One row per logged event. FamilyCode is reported as stored and as a hex value; "
+                 "its correspondence to IOKit adapter family codes is not sourced here. "
+                 "NotChargingReason is reported as stored; the meaning of its values is not "
+                 "established.",
         "paths": ('*/Battery/BDC/BDC_OBC_*.csv', '*/BatteryBDC/BDC_OBC_*.csv'),
         "output_types": "standard",
         "artifact_icon": "plug",
@@ -105,8 +108,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "Event driven. ChargeLimit drops to 80 when the 80 percent hold is engaged, and "
-                 "ChargingState 0 marks a paused/held charge. DecisionMaker was added in schema "
+        "notes": "One row per logged event. ChargeLimit and ChargingState are reported as "
+                 "stored; their meaning is not sourced here. DecisionMaker was first seen in "
+                 "tested files at schema "
                  "version 2.6, so columns are read by header name to stay aligned across versions.",
         "paths": ('*/Battery/BDC/BDC_SmartCharging_*.csv', '*/BatteryBDC/BDC_SmartCharging_*.csv'),
         "output_types": "standard",
@@ -120,10 +124,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "Daily cadence. Series resistance plus four RC branches (fast to slow time "
-                 "constants). Header units read as mojibake when the file is decoded as "
-                 "Latin-1, so the CSV is read as UTF-8. Not present in the local test images, "
-                 "so parsing is header-driven off the documented column names.",
+        "notes": "Series resistance plus four RC branch columns, reported as stored. Header "
+                 "units read as mojibake when the file is decoded as Latin-1, so the CSV is read "
+                 "as UTF-8. No tested image carries this file, so the cadence and column "
+                 "meanings are not exercised; parsing is header-driven from column names taken "
+                 "from the reference cited under the Battery Data Collection (BDC) artifact.",
         "paths": ('*/Battery/BDC/BDC_CPMSRC_*.csv', '*/BatteryBDC/BDC_CPMSRC_*.csv'),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -136,9 +141,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "Each row records a system-clock set event against the monotonic RTC tick "
-                 "counter, which is forensically useful for spotting power-loss events, battery "
-                 "pulls and clock changes. Times are UTC.",
+        "notes": "Each row pairs a system time with an RTC tick value as stored; what event "
+                 "writes a row is not sourced here. Times are UTC.",
         "paths": ('*/Battery/BDC/BDC_Timestamps_*.csv', '*/BatteryBDC/BDC_Timestamps_*.csv'),
         "output_types": "standard",
         "artifact_icon": "clock",

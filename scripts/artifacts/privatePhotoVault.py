@@ -19,8 +19,7 @@ __artifacts_v2__ = {
                  "five across both images. **The password bytes themselves are read by nothing "
                  "here.** Album Type, Cover Type and Sort Position are reported as stored. "
                  "Biometric Login Allowed read No on every row of both images, and Marked Deleted "
-                 "read No on every row, so no album row on either image records one having been "
-                 "removed.",
+                 "read No on every row; both are reported as stored.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PPVCoreData.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "folder",
@@ -52,8 +51,8 @@ __artifacts_v2__ = {
                  "rows. On one of the two images the app's own preferences plist was read and "
                  "carries no value that looks like key material, and no key is read from anywhere "
                  "else either, so the files are reported by name, presence and size and are not "
-                 "decoded. Trashed was empty on every row, so no row here records an item sent to "
-                 "the app's trash. File Type held photo on three rows and livePhoto on one. "
+                 "decoded. Trashed was empty on every row and is reported as stored. File Type "
+                 "held photo on three rows and livePhoto on one. "
                  "Downloaded, Thumbnail Downloaded, Uploaded and Marked Deleted are the app's own "
                  "flags and are reported as stored; Uploaded read No on one image and was empty "
                  "on the other.",
@@ -77,8 +76,9 @@ __artifacts_v2__ = {
         "category": "Private Photo Vault",
         "notes": "One row per row of ZTRESSPASSRECORD in Library/Application "
                  "Support/PPVCoreData.sqlite. The table's columns are a date, a login type, a "
-                 "device name, a latitude, a longitude and two file names, which is the shape of "
-                 "the record the app keeps when an unlock is refused. **It was empty on both "
+                 "device name, a latitude, a longitude and two file names; what event causes the "
+                 "app to write a row is not established here, since the table was empty on every "
+                 "tested image. **It was empty on both "
                  "images that carry the store, so this reader is code present and was not "
                  "exercised**, and its columns are the ones the table declares rather than ones "
                  "observed carrying values. Date is read as a Core Data time, seconds since 2001, "

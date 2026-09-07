@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Appears to be the modern counterpart of the _DKEvent.System.AirplaneMode "
+        "notes": "See also the _DKEvent.System.AirplaneMode "
                  "stream parsed by Biome - Airplane Mode DKEvent.",
         "paths": ('*/streams/*/Device.Wireless.AirplaneMode/local/*',),
         "output_types": "standard",
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Appears to be the modern counterpart of the _DKEvent.Carplay.IsConnected "
+        "notes": "See also the _DKEvent.Carplay.IsConnected "
                  "stream parsed by Biome - Carplay.",
         "paths": ('*/streams/*/CarPlay.Connected/local/*',),
         "output_types": "standard",
@@ -171,7 +171,7 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "Lock polarity validated against the _DKEvent.Keybag.IsLocked stream on the "
                  "same device: 124 of 128 overlapping records agree, the exceptions falling on "
-                 "interval boundaries. Modern counterpart of that stream, parsed by "
+                 "interval boundaries. See also that stream, parsed by "
                  "Biome - Keybag. Reference: Apple Platform Security, 'Keybags for Data "
                  "Protection', https://support.apple.com/guide/security/sec6483d5760/web",
         "paths": ('*/streams/*/Device.KeybagLocked/local/*',),
@@ -192,7 +192,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "The level is a percentage stored as a double (observed range 1.0 to 100.0). "
-                 "Appears to be the modern counterpart of the _DKEvent.Device.BatteryPercentage "
+                 "See also the _DKEvent.Device.BatteryPercentage "
                  "stream parsed by Biome - Battery Percentage.",
         "paths": ('*/streams/*/Device.Power.BatteryLevel/local/*',),
         "output_types": "standard",
@@ -215,7 +215,7 @@ __artifacts_v2__ = {
                  "not, and absent on the records that carry none; it is reported raw as its "
                  "meaning is not confirmed. A record is written whenever the device is charging, "
                  "which includes wireless charging as well as a physical cable connection "
-                 "(observation by Ian Whiffin). Modern counterpart of the "
+                 "(observation by Ian Whiffin). See also the "
                  "_DKEvent.Device.IsPluggedIn stream parsed by Biome - Device Plugged In. "
                  "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",

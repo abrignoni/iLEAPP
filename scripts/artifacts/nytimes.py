@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
     "nytimes_recently_viewed": {
         "name": "New York Times - Recently Viewed Articles",
-        "description": "Articles opened in the New York Times app, with the time each was read "
-                       "and its headline.",
+        "description": "Entries of the New York Times app's recently viewed list, with the "
+                       "stored time and headline of each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
@@ -13,27 +13,23 @@ __artifacts_v2__ = {
                  "a YapDatabase, so its rows are a collection name, a key and a serialised "
                  "value, and the list is the single row of the RecentlyViewedList collection; "
                  "the value is an NSKeyedArchiver archive and is resolved with the reader "
-                 "vendored at scripts/nska_deserialize.py. Each entry carries the moment the "
-                 "article was read along with the headline, byline, summary and address the app "
-                 "held for it, so a row records that this device opened that article at that "
-                 "time. The stored dates are NSDate values, which are seconds since 2001 in UTC, "
-                 "and are reported as UTC. The list is capped by the app's own "
-                 "maximumNumberOfRecentEntries value, which the artifact reports on each row: it "
-                 "was 200 on the tested image, so a device that has read more than that holds "
-                 "only the most recent, and the oldest row is not the first article ever read. "
-                 "The tested image held one entry, so this artifact is proven on a single row "
-                 "and its columns are otherwise the ones the archive declares. Everything else "
-                 "in the same database is content the app downloaded rather than a record of "
-                 "reading, and none of it is reported here: 3,265 rows in the Resource "
-                 "collection, 250 in Article, 263 in ImageContent and 7 in Video on the tested "
-                 "image are the articles and assets the app cached for offline use, which are "
-                 "present whether or not any of them was opened, and the Section, "
-                 "FeedSectionItems, FeedCollection, ChannelGroups and configuration collections "
-                 "describe the feed the app was showing. The sibling userSettingsDatabase.sqlite "
-                 "holds display preferences such as the theme and the font size and is not "
-                 "reported either. "
-                 "Kicker held no value on the single entry of the tested image: it is the "
-                 "short label a newsroom puts above a headline and the article carried none.",
+                 "vendored at scripts/nska_deserialize.py. Each entry carries a stored date "
+                 "along with the headline, byline, summary and address the app held for it; a "
+                 "row records an entry in the app's recently viewed list with that date. The "
+                 "stored dates are NSDate values, which are seconds since 2001 in UTC, and are "
+                 "reported as UTC. The archive carries a maximumNumberOfRecentEntries value, "
+                 "which the artifact reports on each row; it was 200 on the tested image. "
+                 "Capping was not exercised on a tested image, and the oldest row is not "
+                 "established as the first article ever read. The tested image held one entry, "
+                 "so this artifact is proven on a single row and its columns are otherwise the "
+                 "ones the archive declares. Nothing else in the same database is reported here: "
+                 "the Resource (3,265 rows), Article (250), ImageContent (263) and Video (7) "
+                 "collections on the tested image hold article and asset content rather than a "
+                 "record of reading, and the Section, FeedSectionItems, FeedCollection, "
+                 "ChannelGroups and configuration collections hold feed and configuration data. "
+                 "The sibling userSettingsDatabase.sqlite holds display preferences such as the "
+                 "theme and the font size and is not reported either. Kicker held no value on "
+                 "the single entry of the tested image and is reported as stored.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/productionNewsreaderDatabase.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "book-open",

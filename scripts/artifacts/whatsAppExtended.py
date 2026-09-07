@@ -97,8 +97,7 @@ __artifacts_v2__ = {
         "category": "WhatsApp",
         "notes": "Rows in ZWAMESSAGE whose ZGROUPEVENTTYPE is set and non-zero. The value "
                  "is an integer with no lookup table in the database and is reported as "
-                 "stored. ZTEXT on these rows is usually empty; where present it is "
-                 "reported verbatim.",
+                 "stored. ZTEXT on these rows is reported verbatim where present.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "activity",

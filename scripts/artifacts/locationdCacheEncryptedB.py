@@ -7,11 +7,12 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('These are positions the location service reported for access points. A row '
-                  'is the position of the access point, not of the device, and does not mean '
-                  'the device connected to it. Accuracy is coarse: treat the coordinates as '
-                  'an area rather than a point. Speed and course of -1 mean no value was '
-                  'recorded. AlsQueryTimestamp arrived with iOS 26; what distinguishes it '
+        'notes': ("These are access point positions as the cache stores them. A row is the "
+                  "position of the access point, not of the device, and does not mean the device "
+                  "connected to it. Horizontal Accuracy is reported as stored. Speed and course "
+                  "values of -1 are reported as stored and are not converted; their meaning is "
+                  "not documented. AlsQueryTimestamp was present on the iOS 26 tested image; "
+                  "what distinguishes it "
                   'from Timestamp is not documented, so both are reported as stored.'),
         'paths': ('*/root/Library/Caches/locationd/cache_encryptedB.db*',),
         'output_types': 'all',
@@ -25,8 +26,8 @@ __artifacts_v2__ = {
     },
     'locationdWifiHarvest': {
         'name': 'Locationd Cache - Associated Wi-Fi Harvest',
-        'description': 'Access points the device associated with, harvested by locationd with '
-                       'a position and signal strength at the time of the scan',
+        'description': "Rows from locationd's associated Wi-Fi harvest table, with the BSSID, "
+                       "position, signal strength and scan time as stored",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
@@ -36,9 +37,9 @@ __artifacts_v2__ = {
                   'device associated with, per the name of the source table. Whether the '
                   'coordinates are the position of the device at that time or of the access '
                   'point is not documented. Two timestamps are kept: the '
-                  'scan and the harvest record. A scan timestamp of -1 means locationd '
-                  'recorded none, and is reported empty rather than converted to a real '
-                  'looking date in 2000. The LoiType column is an integer code whose values '
+                  "scan and the harvest record. A scan timestamp of -1 is reported empty rather "
+                  "than converted to a real looking date in 2000; what the value means is not "
+                  "documented. The LoiType column is an integer code whose values "
                   'are not documented.'),
         'paths': ('*/root/Library/Caches/locationd/cache_encryptedB.db*',),
         'output_types': 'all',
@@ -59,9 +60,9 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('As with the Wi-Fi table, a row is the position the location service '
-                  'reported for a cell, not a device position, and the accuracy is coarse: '
-                  'often a kilometre or more. The Radio column names the table a row came '
+        'notes': ("As with the Wi-Fi table, a row is a cell position as the cache stores it, not "
+                  "a device position; Horizontal Accuracy is reported as stored. The Radio "
+                  "column names the table a row came "
                   'from. Tables whose name ends in Local are reported separately because the '
                   'difference from their counterparts is not documented. Rows are folded into '
                   'shared columns, so Area Code holds LAC or TAC depending on the radio, and '
@@ -86,8 +87,9 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('A tile row shows that the device held Wi-Fi location data covering an area '
-                  'and when it last used it. The reported latitude and longitude are the '
+        'notes': ("A tile row shows that the device held Wi-Fi location data covering an area, "
+                  "with the generated and last-accessed timestamps as stored. The reported "
+                  "latitude and longitude are the "
                   'southwest corner; the delta columns give the size of the covered box, so '
                   'the coordinates are a corner rather than a centre.'),
         'paths': ('*/root/Library/Caches/locationd/cache_encryptedB.db*',),

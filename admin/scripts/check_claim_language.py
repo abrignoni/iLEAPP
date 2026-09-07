@@ -186,7 +186,6 @@ ALLOWLIST = {
 
     # A Foursquare list is user-created by the definition of the feature, and
     # the artifact reads the account holder's own list table.
-    ('foursquareSwarm.py', 'foursquare_swarm_saved_lists', 'description', 'user-created'),
 
     # "enumerated beside an account reads as something the user chose" is the reason
     # the downloaded catalogue is summarised rather than listed. The denial follows

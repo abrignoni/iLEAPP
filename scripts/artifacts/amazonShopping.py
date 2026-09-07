@@ -43,8 +43,8 @@ __artifacts_v2__ = {
             "Values are read from the preference plist the app names for its own bundle "
             "identifier under Library/Preferences; com.amazon.Amazon and com.amazon.AmazonUK "
             "are the spellings observed in tested images. Only keys "
-            "on an explicit list are reported; the store holds several hundred further keys, "
-            "most of them A/B test treatment codes. Timestamp units were established per key "
+            "on an explicit list are reported; the store holds several hundred further keys that "
+            "are not reported. Timestamp units were established per key "
             "by decoding the stored value against each candidate epoch and keeping the only "
             "reading that falls inside the app's observed lifetime; the app binary is not "
             "present in a Data container, so no producing call site could be read. Keys "
@@ -80,11 +80,11 @@ __artifacts_v2__ = {
             "Profile rows come from the pandaStore sub-store of persist:root in "
             "Documents/RCTAsyncLocalStorage_V1/manifest.json, which records accountId, fullName, "
             "primaryAccountClaim and primaryAccountClaimType per account. lastActive and "
-            "lastUpdated decode as Unix milliseconds. That manifest path is the standard React "
-            "Native AsyncStorage location and is not unique to this app, so rows are emitted only "
-            "when the file carries an Amazon account identifier. Account rows without a profile "
-            "come from the names of Library/Preferences/amzn1.account.*.plist files; the identifier "
-            "is the file name, and the file contents are Alexa wakeword settings. Presence of an "
+            "lastUpdated decode as Unix milliseconds. That manifest path is not unique to this "
+            "app, so rows are emitted only when the file carries an Amazon account identifier. "
+            "Account rows without a profile come from the names of "
+            "Library/Preferences/amzn1.account.*.plist files; the identifier is the file name; "
+            "the file contents are not reported. Presence of an "
             "account identifier records that the account was known to the app on this device; it "
             "does not establish that the account was signed in at acquisition."),
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
@@ -108,10 +108,10 @@ __artifacts_v2__ = {
         "category": "Amazon Shopping",
         "notes": (
             "Rows are parsed from the JSON body cached in the app's NSURLCache for requests to "
-            "appx.transient.amazon.*/api/orders/v1. This is the order list the app last fetched "
-            "for the tab that displays it, not a complete order history; the request URL caps the "
-            "response with maxOrders and asinsPerOrder parameters, and the cached copy is replaced "
-            "on the next fetch. orderDate decodes as Unix seconds. Cached is the NSURLCache entry "
+            "appx.transient.amazon.*/api/orders/v1. This is a cached order list response, not a "
+            "complete order history; the request URL carries maxOrders and asinsPerOrder "
+            "parameters that limit the response. orderDate decodes as Unix seconds. Cached is "
+            "the NSURLCache entry "
             "time_stamp, stored by SQLite as UTC text. Line item images are linked by taking the "
             "image identifier from the line item imageUrl, matching it against the url column of "
             "the SSNAP image cache registry, and resolving that row's recorded filePath by file "
@@ -156,7 +156,7 @@ __artifacts_v2__ = {
             "the number of physicalId values in the product-images part. A cached product response "
             "records that the app requested detail for that ASIN, which is not the same as the "
             "user opening the product page. Documents/asins/*.plist in the same container holds "
-            "tens of thousands of ASINs and is a deep-link lookup table fetched from the server; "
+            "tens of thousands of ASINs; "
             "it is not parsed here and must not be read as products the user viewed. A "
             "response body the cache stored as a separate file under fsCachedData is resolved "
             "through the file name recorded in the cache row before decoding; this path is "
@@ -187,10 +187,10 @@ __artifacts_v2__ = {
             "Rows are parsed from JSON bodies cached in the app's NSURLCache for requests to "
             "*/portal-migration/hz/glow/get-location-label. The customerIntent object carries "
             "city, zipCode, state, countryCode and an addressSource value that is reported as "
-            "stored. The values describe the delivery destination the storefront had selected for "
-            "the session that made the request. They are not a device position fix and carry no "
-            "coordinates. Page Type is the pageType parameter of the request URL, which records "
-            "the app screen that triggered the lookup. The address identifier and delivery "
+            "stored. The values are the delivery location label the service returned for that "
+            "request; how the location was selected is not established. They are not a device "
+            "position fix and carry no coordinates. Page Type is the pageType parameter of the "
+            "request URL, reported as stored. The address identifier and delivery "
             "line fields populate only when the cached response carries them; the address "
             "identifiers were empty on every corpus image tested. A response body the cache "
             "stored as a separate file under fsCachedData is resolved through the file name "
@@ -310,9 +310,10 @@ __artifacts_v2__ = {
             "queued for longer before being written, the widest gap being about fifteen hours. "
             "Page Type, Sub Page Type, Ref Marker, Customer ID and Session ID are "
             "lifted from the event's own key strings where present and left empty otherwise. "
-            "Remaining keys are joined into Attributes as stored. These batches are queued for "
-            "upload, so their presence records what the client recorded, not what the server "
-            "received. Other Amazon applications use the same metric format, so confirm the "
+            "Remaining keys are joined into Attributes as stored. Whether a batch was uploaded "
+            "is not established; a row records what the client wrote, not what the server "
+            "received. The path pattern matches these folders in any application container, so "
+            "confirm the "
             "container the Source File belongs to before attributing a row to this app."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/METRICS_CRITICAL/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_HIGH/*',
@@ -338,11 +339,10 @@ __artifacts_v2__ = {
         "notes": (
             "One row per metric batch file. The context values are the key/value pairs the batch "
             "carries in field 4, reported under their own key names. Batch Time is taken from the "
-            "batch file name, which is a Unix millisecond value. The user agent string carries an "
-            "Amazon device serial and the app and OS versions in the form the client sent them. "
-            "Event Count is the number of events the batch holds. See the Metric Events artifact "
-            "for the format notes; the same caution applies that other Amazon applications write "
-            "this format."),
+            "batch file name, which is a Unix millisecond value. The user agent string is "
+            "reported as stored. Event Count is the number of events the batch holds. See the "
+            "Metric Events artifact for the format notes; the same caution applies that the path "
+            "pattern matches these folders in any application container."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/METRICS_CRITICAL/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_HIGH/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_NORMAL/*',),

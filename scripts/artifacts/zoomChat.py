@@ -107,7 +107,7 @@ __artifacts_v2__ = {
     },
     "zoom_ios_giphy": {
         "name": "Zoom - Giphy Images",
-        "description": "Animations the Zoom app recorded from the Giphy picker, with the address "
+        "description": "Animations recorded in the Zoom store giphy table, with the address "
                        "and the copy stored on the device where there is one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
@@ -115,7 +115,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Zoom",
         "notes": "One row per row of the giphy table in the account's own store. A row records an "
-                 "animation the app kept from its Giphy picker, with the page address, the mobile "
+                 "animation held in the giphy table, with the page address, the mobile "
                  "and full size addresses, and the path it wrote a copy to. All eight rows on the "
                  "one tested image that holds the store were found on the device and are "
                  "attached, looked for by the recorded name inside the account's own folder in "

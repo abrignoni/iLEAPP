@@ -4,9 +4,9 @@ __artifacts_v2__ = {
         "name": "ParseCD Cache",
         "description": (
             "Parses Spotlight search completion from ParseCD Cache "
-            "database. Completions that are bundle IDs are engagement "
-            "records for that application (per the EngagedCompletions "
-            "store name); whether the app was opened is not established"
+            "database. Completions that are bundle IDs come from the EngagedCompletions store; "
+            "what an engagement record establishes, including whether the app was opened, is not "
+            "established"
         ),
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",

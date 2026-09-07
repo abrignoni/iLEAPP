@@ -15,18 +15,19 @@ __artifacts_v2__ = {
                   'Epifani. Recording is gated by a setting: privacyaccountingd contains the log '
                   'string "Logging disabled, ignoring incoming access" and a '
                   'PASettingsLoggingEnabled key, and in every local test image the stream folders '
-                  'exist with no records. This gating is consistent with the App Privacy Report '
-                  'feature, which is off until enabled. Kind is an integer reported as stored: in '
-                  'the sample data every access identifier appeared exactly twice, kind 2 then '
-                  'kind 3, and privacyaccountingd\'s log strings describe accesses as begin/end '
-                  'intervals, but the kind values themselves are not documented. Records in the '
-                  'location stream carry no service name; in the sample data the tcc stream held '
-                  'kTCCService* names and the oop stream held a numeric value there. Pruned '
-                  'records remain in the live segments as deleted-state SEGB entries whose '
-                  'payload bytes were zeroed in the sample data but whose timestamps survive: '
-                  'they are reported with timestamp, state and stream only, and reached months '
-                  'to years before the earliest written record, showing that access events '
-                  'occurred at those times without identifying the client or service.'),
+                  "exist with no records. Which user-facing feature or setting controls this "
+                  "gating is not established here. Kind is an integer reported as stored: in the "
+                  "sample data every access identifier appeared exactly twice, kind 2 then kind "
+                  "3, and privacyaccountingd's log strings describe accesses as begin/end "
+                  "intervals, but the kind values themselves are not documented. Records in the "
+                  "location stream carry no service name; in the sample data the tcc stream held "
+                  "kTCCService* names and the oop stream held a numeric value there. "
+                  "Deleted-state SEGB entries remain in the live segments; in the sample data "
+                  "their payload bytes were zeroed and their timestamps survive. They are "
+                  "reported with timestamp, state and stream only, and their timestamps reached "
+                  "months to years before the earliest written record. Whether each such entry "
+                  "records an access event, and which client or service it involved, is not "
+                  "established from a zeroed payload."),
         'paths': ('*/mobile/Library/PrivacyAccounting/Biome/com.apple.privacy.accounting.stream*/local/*',),
         'output_types': 'standard',
         'artifact_icon': 'shield-lock',
@@ -45,16 +46,17 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-20',
         'requirements': 'none',
         'category': 'App Permissions',
-        'notes': ('Tombstone entries accompany pruning of the access streams: privacyaccountingd '
-                  'holds a com.apple.PrivacyAccounting.prune activity and is the process named '
-                  'in every sample entry. Referenced segment names decode as Apple absolute '
-                  'timestamps in microseconds (the Referenced Segment Name Time column); in '
-                  'unpruned segments observed, that time matched the earliest record. Referenced '
-                  'segments may no longer exist or may have been rewritten since an entry was '
-                  'made. Fields 2, 3, 4 and 6 are integers whose meaning is not documented and '
-                  'are reported as stored. In the sample data, tombstone entries existed for '
-                  'segments dating back well before the earliest surviving stream records, '
-                  'documenting that older data existed and was removed.'),
+        'notes': ("privacyaccountingd holds a com.apple.PrivacyAccounting.prune activity string "
+                  "and is the process named in every sample entry; whether tombstone entries are "
+                  "written by that pruning activity is not established here. Referenced segment "
+                  "names decode as Apple absolute timestamps in microseconds (the Referenced "
+                  "Segment Name Time column); in unpruned segments observed, that time matched "
+                  "the earliest record. Referenced segments may no longer exist or may have been "
+                  "rewritten since an entry was made. Fields 2, 3, 4 and 6 are integers whose "
+                  "meaning is not documented and are reported as stored. In the sample data, "
+                  "tombstone entries named segments dating back well before the earliest "
+                  "surviving stream records. Whether those segments held records, and why they "
+                  "are absent, is not established from the tombstone alone."),
         'paths': ('*/mobile/Library/PrivacyAccounting/Biome/com.apple.privacy.accounting.stream*/local/*',),
         'output_types': 'standard',
         'artifact_icon': 'trash',

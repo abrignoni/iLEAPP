@@ -31,7 +31,7 @@ __artifacts_v2__ = {
                  "name. WhatsApp is closed source; nothing here is interpreted beyond the labels the log itself "
                  "carries, and the body lines (network, storage, call-manager and notification tags) are not "
                  "parsed. A row records that the named process started writing a log at Log Start with that "
-                 "account signed in; it does not by itself say who used the device.",
+                 "account JID in its header; it does not by itself say who used the device.",
         "paths": ('*/Logs/*whatsapp-*.log',),
         "output_types": "standard",
         "artifact_icon": "file-text",

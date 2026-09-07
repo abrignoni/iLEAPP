@@ -60,7 +60,7 @@ __artifacts_v2__ = {
     },
     'meWeGroups': {
         'name': 'MeWe - Groups',
-        'description': 'Social groups the MeWe account belongs to or has viewed',
+        'description': "Social groups recorded in the MeWe application's store",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',

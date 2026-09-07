@@ -13,8 +13,8 @@ __artifacts_v2__ = {
         "creation_date": "2026-08-16", "last_update_date": "2026-08-16",
         "requirements": "blackboxprotobuf", "category": "Snapchat",
         "notes": "iOS Snapchat keeps conversations in "
-                 "Documents/user_scoped/<account hash>/arroyo/arroyo.db, the same store the "
-                 "Android app uses; the schema ships the developers' own column comments and "
+                 "Documents/user_scoped/<account hash>/arroyo/arroyo.db; the schema ships the "
+                 "developers' own column comments and "
                  "they are quoted where relied on.\n"
                  "Record Origin. Live rows come back from a normal read. Recovered rows do not: "
                  "they sit in the database file as of its last checkpoint and are gone once the "
@@ -168,7 +168,8 @@ __artifacts_v2__ = {
                  "86 rows passed the layout self-check.\n"
                  "No timestamps are reported: none were identified in the SQL columns, and "
                  "none in the document were established. Friend-relationship state (added, "
-                 "blocked, best-friend) is not parsed. The local account appears as a row.",
+                 "blocked, best-friend) is not parsed. On the tested images the local account "
+                 "appeared as a row.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/DocObjects/primary.docobjects*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -196,8 +197,8 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16", "last_update_date": "2026-08-16",
         "requirements": "none", "category": "Snapchat",
-        "notes": "search.sqlite3 (Documents/gallery_search/<n>/<account hash>/) is the "
-                 "index the app builds over Memories snaps so they can be searched. All "
+        "notes": "search.sqlite3 (Documents/gallery_search/<n>/<account hash>/) is an index the "
+                 "app keeps over Memories snaps. All "
                  "values are app-generated tags reported as stored, not observations about "
                  "the media itself: location tags are place-name strings (down to street "
                  "level on the tested image), visual tags and concepts are the app's "
