@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses SMS and iMessage chats",
         "author": "@AlexisBrignoni, @XperyLab, @ydkhatri, @tobraha, @snoop168",
         "creation_date": "2020-04-30",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-09-07",
         "requirements": "none",
         "category": "SMS & iMessage",
         "notes": "Sender is the handle joined to a received row through message.handle_id, which "
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
                 "directionColumn": "From Me",
                 "directionSentValue": 1,
                 "timeColumn": "Message Timestamp",
-                "senderColumn": "Chat Contact ID",
+                "senderColumn": "Sender",
                 "sentMessageLabelColumn": "Destination Caller ID",
                 "mediaColumn": "Attachment File"
             }
@@ -141,6 +141,13 @@ def sms(context):
     message.attributedBody,
     message.date_delivered,
     message.guid as "Message GUID",
+    case when message.is_from_me = 0 then handle.id end as "Sender",
+    chat.display_name as "Chat Name",
+    (select group_concat(id) from
+        (select distinct handle.id as id from chat_handle_join
+         join handle on handle.ROWID = chat_handle_join.handle_id
+         where chat_handle_join.chat_id = chat.ROWID
+         order by id)) as "Chat Participants",
     message.destination_caller_id as "Destination Caller ID"
     from message
     left join handle on message.handle_id = handle.ROWID
@@ -232,7 +239,7 @@ def sms(context):
             record[7],
             record[8],
             record[9],
-            record[22],
+            record[25],
             record[11],
             record[14],
             record[15],
@@ -253,11 +260,31 @@ def sms(context):
     # an empty DataFrame breaks the pandas apply in render_chat.
     if data_list:
         sms_df = pd.DataFrame(data_list,
-                              columns=['data-time', 'Read Timestamp', 'Delivered Timestamp', 'Attachment Timestamp',
-                                       'from_me', 'data-name', 'message', 'Attachment File', 'Service', 'Message Direction',
-                                       'Message Sent', 'Message Delivered', 'Message Read', 'Account', 'Account Login',
-                                       'Destination Caller ID', 'Attachment Name', 'content-type', 'Attachment Size (Bytes)',
-                                       'message-id', 'Message GUID', 'Chat ID'])
+                              columns=['data-time',
+                                       'Read Timestamp',
+                                       'Delivered Timestamp',
+                                       'Attachment Timestamp',
+                                       'from_me',
+                                       'Sender',
+                                       'data-name',
+                                       'message',
+                                       'Attachment File',
+                                       'Chat Name',
+                                       'Chat Participants',
+                                       'Service',
+                                       'Message Direction',
+                                       'Message Sent',
+                                       'Message Delivered',
+                                       'Message Read',
+                                       'Account',
+                                       'Account Login',
+                                       'Destination Caller ID',
+                                       'Attachment Name',
+                                       'content-type',
+                                       'Attachment Size (Bytes)',
+                                       'message-id',
+                                       'Message GUID',
+                                       'Chat ID'])
 
         sms_df["file-path"] = sms_df.apply(copy_attachments, axis=1)
 
