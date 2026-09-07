@@ -3,7 +3,7 @@
     "description": "",
     "maker": "",
     "make_data": {
-      "input_data_path": "/Users/jameshabben/Documents/phone-images/Josh/iOS_15_Public_Image.zip",
+      "input_data_path": "iOS_15_Public_Image.zip",
       "os": "macOS-15.7.4-x86_64-i386-64bit",
       "timestamp": "2026-05-29T14:27:51.432780",
       "last_commit": {

@@ -5,11 +5,12 @@ __artifacts_v2__ = {
                        'Apple Accounts signed in on this device',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Accounts',
-        'notes': ('The list is a cache maintained by akd, so it reflects the last successful '
-                  'refresh rather than the account state at extraction time. Columns dc, clcg, '
+        'notes': ("The list is read from the akd database; when it was last refreshed and "
+                  "whether it matches the account state at extraction time are not established. "
+                  "Columns dc, clcg, "
                   'clbg, clhs and dec are reported with their database names because their '
                   'meaning is not documented.'),
         'paths': ('*/mobile/Library/Application Support/com.apple.akd/devicelist.db*',),
@@ -21,11 +22,11 @@ __artifacts_v2__ = {
     },
     'appleAccountDeletedDeviceList': {
         'name': 'Apple Account - Deleted Device List',
-        'description': 'Devices removed from the Apple Accounts signed in on this device, as '
-                       'recorded by the Apple authentication daemon (akd)',
+        'description': "Rows of the deleted_device_list table in the Apple authentication daemon "
+                       "(akd) database, with deleted date, last updated date and reason as stored",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Accounts',
         'notes': ('The reason column is an integer code whose values are not documented, so it '
@@ -135,7 +136,7 @@ def appleAccountDeletedDeviceList(context):
         ('Deleted', 'datetime'), ('Last Updated', 'datetime'), 'Reason Code',
         'Machine ID (mid)', 'altDSID')
     if not source_path or not does_table_exist_in_db(source_path, 'deleted_device_list'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path
 
     query = '''
     SELECT deleted_date, last_updated_date, reason, mid, altDSID

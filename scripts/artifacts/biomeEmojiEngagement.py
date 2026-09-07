@@ -7,14 +7,15 @@ __artifacts_v2__ = {
                        "joiner sequences stay visible in the report.",
         "author": "@abrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The context field decodes to a four character ASCII string that resembles a "
-                 "trailing locale fragment (values seen: n_US and n-US, consistent with en_US "
-                 "and en-US); it is reported both raw and decoded because that reading is not "
-                 "confirmed. Field 2 was 1 on every record observed and field 4 varied from 1 "
-                 "to 4; both are reported raw.",
+                 "trailing locale fragment (values seen: n_US and n-US, consistent with en_US and "
+                 "en-US); it is reported both raw and decoded because that reading is not "
+                 "confirmed. Field 2 was 1 on every written record of the tested images and field "
+                 "4 varied from 1 to 4; records in the deleted SEGB state carry neither, and both "
+                 "are reported raw.",
         "paths": ('*/streams/*/Emoji.Engagement/local/*',),
         "output_types": "standard",
         "artifact_icon": "smile",
@@ -74,6 +75,7 @@ def _context_ascii(value):
 def get_biomeEmojiEngagement(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -85,6 +87,7 @@ def get_biomeEmojiEngagement(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -116,4 +119,4 @@ def get_biomeEmojiEngagement(context):
                     'Context (decoded)', 'Context (raw)', 'Field 2 (raw)', 'Field 4 (raw)',
                     'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

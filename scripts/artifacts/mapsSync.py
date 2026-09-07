@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     "mapsSync": {
         "name": "Maps Sync",
-        "description": "Apple Maps history — searches, displayed locations and navigation journeys "
+        "description": "Apple Maps history: searches, displayed locations and navigation "
+                       "journeys "
                        "from MapsSync_0.0.1",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
@@ -11,8 +12,9 @@ __artifacts_v2__ = {
         "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "
                  "CheekyForensicsMonkey "
                  "(https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html). "
-                 "Disclaimer: Entries should be corroborated. Locations and searches from other linked "
-                 "devices might show up here. Travel should be confirmed. Medium confidence.",
+                 "Whether an entry was created on this device or synced from another device on "
+                 "the same account is not established here, and an entry is not evidence that "
+                 "travel took place.",
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
         "artifact_icon": "map-pin",

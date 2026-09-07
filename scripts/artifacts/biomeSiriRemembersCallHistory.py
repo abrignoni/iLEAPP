@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "and third party VoIP calls (WhatsApp, Messenger, LINE, imo and others observed).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Direction and call timestamps validated against CallHistory.storedata (ZORIGINATED, "
@@ -114,6 +114,7 @@ def _sync_origin(file_found):
 def get_biomeSiriRemembersCallHistory(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -126,6 +127,7 @@ def get_biomeSiriRemembersCallHistory(context):
             continue
         origin = _sync_origin(file_found)
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
@@ -175,4 +177,4 @@ def get_biomeSiriRemembersCallHistory(context):
                     'Is Group', 'Conversation ID', 'Call GUID', 'Intent Class', 'Sync Origin',
                     'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

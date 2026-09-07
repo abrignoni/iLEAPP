@@ -20,7 +20,7 @@ __artifacts_v2__ = {
                        "Info.plist file of an iTunes backup",
         "author": "@johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "The storeCohort date substring's relationship to install time is "
@@ -113,7 +113,8 @@ def itunes_backup_installed_applications(context):
                 if 'date=' in store_cohort:
                     date_start = store_cohort.find('date=') + 5
                     unix_install_timestamp = store_cohort[date_start:date_start + 10]
-                    install_date = datetime.datetime.fromtimestamp(int(unix_install_timestamp)).strftime('%Y-%m-%d')
+                    install_date = datetime.datetime.fromtimestamp(
+                        int(unix_install_timestamp), datetime.timezone.utc).strftime('%Y-%m-%d')
                 download_info = itunes_metadata.get('com.apple.iTunesStore.downloadInfo', '')
                 if download_info:
                     account_info = download_info.get('accountInfo', '')

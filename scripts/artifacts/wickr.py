@@ -111,7 +111,8 @@ __artifacts_v2__ = {
                  "on a 2019 app version; it is located at run time through Z_PRIMARYKEY rather "
                  "than by name. ZTITLE and ZMIMETYPE are stored as encrypted blobs and are "
                  "not decoded. On the tested image each ZGUID matches the name of a file held in "
-                 "the app group container; those files are encrypted at rest, so they are reported "
+                 "the app group container; those files are not decoded here, so they are "
+                 "reported "
                  "by name and are not checked in as media. Status is the stored ZSTATUS integer.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
@@ -202,8 +203,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from the keychain items in Wickr's access group, which on the tested image "
-                 "is the team identifier W8RC3R952A. These are the only Wickr strings recovered in "
-                 "the clear anywhere: the database itself stores every text-bearing column as an "
+                 "is the team identifier W8RC3R952A. These are the only Wickr account strings "
+                 "recovered in the clear on the tested image: the database itself stores every "
+                 "text-bearing column as an "
                  "encrypted blob, so without a keychain the user is visible only as the hash in "
                  "the Wickr - Users artifact. The items reported are the wickrusername and userID "
                  "accounts, the devid account and the baseURL account. All four were stored with "
@@ -231,8 +233,8 @@ __artifacts_v2__ = {
         "notes": "Read from the plaintext application logs the app writes under its Logs "
                  "directories. The parsed lines are the notification payloads logged as "
                  "'Payload: {\"messageId\"...}' and the 'Download Message with Type' lines, both "
-                 "of which carry identifiers in the clear. These logs are rolling files, so the "
-                 "events present depend on what had not yet been rotated away. Log line "
+                 "of which carry identifiers in the clear. The events present are bounded by the "
+                 "log files held in the extraction. Log line "
                  "timestamps are recorded by the app without a zone and are reported as written.\n"
                  "Where an identifier here also appears in ZWICKR_MESSAGE, the log arrival time "
                  "and the database timestamp agree to within a second, which is what "

@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "module_name": "advertisingID",
+    "artifact_name": "Advertising Identifier",
+    "function_name": "advertisingID",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 0,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/advertisingID/testdata.advertisingID.advertisingID.mvs_ios_2023.zip",
+    "start_time": "2026-08-24T20:07:37.434655+00:00",
+    "end_time": "2026-08-24T20:07:37.509406+00:00",
+    "run_time_seconds": 0.005324125289916992,
+    "last_commit": {
+      "hash": "977de16b4cc2b0ddc565758987a2fc2535a99664",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-11T22:48:20-04:00",
+      "message": "Populate sample_data from 6 older iOS test images (13.3.1-16.5)"
+    }
+  },
+  "headers": [],
+  "data": []
+}

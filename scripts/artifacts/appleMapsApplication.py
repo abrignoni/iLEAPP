@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses the last Apple Maps camera/map location (latitude and longitude) from com.apple.Maps.plist.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
         "notes": "Protobuf field positions interpreted as latitude/longitude based on observed coordinate-range values in testing. In tested images rows are recovered only on iOS 12.4, 13.3.1 and 17.1 (one row each); the plist is present without recoverable coordinates on the other recorded images (iOS 14-26) and on all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so an empty result on current extractions is common.",
@@ -44,7 +44,7 @@ def appleMapsApplication(context):
     
     # Check if plist is valid before processing
     if not plist or not isinstance(plist, dict):
-        return (), [], ''
+        return (), [], source_path
     
     types = {'1': {'type': 'double', 'name': 'Latitude'},
             '2': {'type': 'double', 'name': 'Longitude'}, 

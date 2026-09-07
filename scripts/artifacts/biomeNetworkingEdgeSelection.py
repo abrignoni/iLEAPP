@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "the Device.Networking.EdgeSelection biome stream",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record is a network-edge observation: the values are consistent with a "
@@ -65,6 +65,7 @@ def get_biomeNetworkingEdgeSelection(context):
     }
 
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -73,6 +74,7 @@ def get_biomeNetworkingEdgeSelection(context):
         if 'tombstone' in file_found:  # deletion bookkeeping, not edge observations
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             if record.state != EntryState.Written:
                 continue
@@ -99,4 +101,4 @@ def get_biomeNetworkingEdgeSelection(context):
                     'Prefix Length', 'Interface', 'Radio Technology', 'Field 6', 'Country',
                     'Time Zone', 'Filename')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

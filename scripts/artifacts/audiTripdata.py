@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses trip data cached by the Audi myAudi mobile assistant app.",
         "author": "@abrignoni",
         "creation_date": "2024-06-01",
-        "last_update_date": "2025-10-28",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Audi Trips",
         "notes": "",
@@ -22,11 +22,13 @@ from scripts.ilapfuncs import convert_ts_human_to_utc, artifact_processor
 @artifact_processor
 def get_audiTripdata(context):
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if os.path.isdir(file_found):
             pass
         else:
+            source_dirs.add(os.path.dirname(file_found))
             with open(file_found, "r", encoding="utf-8") as f:
                 data = f.read()
 
@@ -69,4 +71,4 @@ def get_audiTripdata(context):
         "Zero Emission Distance", "Trip Type", "Report Reason", "Source File",
     )
 
-    return data_headers, data_list, "see Source File for more info"
+    return data_headers, data_list, "\n".join(sorted(source_dirs))

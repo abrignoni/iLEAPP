@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "module_name": "dhcpl",
+    "artifact_name": "DHCP Received List",
+    "function_name": "dhcpLeases",
+    "case_number": "belkasoft_ctf6_ios_device1",
+    "number_of_columns": 3,
+    "number_of_rows": 6,
+    "total_data_size_bytes": 408,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/dhcpl/testdata.dhcpl.dhcpLeases.belkasoft_ctf6_ios_device1.zip",
+    "start_time": "2026-08-25T15:39:13.306692+00:00",
+    "end_time": "2026-08-25T15:39:13.357332+00:00",
+    "run_time_seconds": 0.00017714500427246094,
+    "last_commit": {
+      "hash": "327212c47d5f8ea35887d7120ebbe70470d580a7",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-08T00:16:59-04:00",
+      "message": "fix: give every artifact an author, using the GitHub handle that sent it"
+    }
+  },
+  "headers": [
+    "Property Name",
+    "Property Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      "IPAddress",
+      "192.168.9.24",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "LeaseLength",
+      86400,
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "LeaseStartDate",
+      "2024-04-03 07:26:24",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "RouterHardwareAddress",
+      "36:56:ee:50:83:97",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "RouterIPAddress",
+      "192.168.9.1",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "SSID",
+      "UCPLPublicWireless",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ]
+  ]
+}

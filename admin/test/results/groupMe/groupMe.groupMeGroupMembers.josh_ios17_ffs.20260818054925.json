@@ -1,0 +1,92 @@
+{
+  "metadata": {
+    "module_name": "groupMe",
+    "artifact_name": "GroupMe - Group Members",
+    "function_name": "groupMeGroupMembers",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 9,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 726,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/groupMe/testdata.groupMe.groupMeGroupMembers.josh_ios17_ffs.zip",
+    "start_time": "2026-08-18T05:49:25.482730+00:00",
+    "end_time": "2026-08-18T05:49:25.506872+00:00",
+    "run_time_seconds": 0.001165151596069336,
+    "last_commit": {
+      "hash": "c7e10a63063e4daee2d4ce296ef671c508f9f9e2",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-18T01:23:30-04:00",
+      "message": "Report GroupMe message deletion state on iOS"
+    }
+  },
+  "headers": [
+    "Group Name",
+    "Group ID",
+    "Nickname",
+    "Real Name",
+    "User ID",
+    "Member ID",
+    "State",
+    "Auto Kicked",
+    "Avatar URL"
+  ],
+  "data": [
+    [
+      "Forensic Image Data Gen Group",
+      "75479014",
+      "DFIR Two",
+      "DFIR Two",
+      "91071469",
+      "711725859",
+      "active",
+      "",
+      "https://i.groupme.com/450x450.jpeg.cd75f1b6d99f4042931e8864b1506dcc"
+    ],
+    [
+      "Forensic Image Data Gen Group",
+      "75479014",
+      "Liz Dehner",
+      "Liz Dehner",
+      "120533877",
+      "957762792",
+      "active",
+      "",
+      "https://i.groupme.com/1480x1311.png.e99b93b6f23445a6a07ed1b162731473"
+    ],
+    [
+      "Forensic Image Data Gen Group",
+      "75479014",
+      "This Is DFIR",
+      "This Is DFIR",
+      "91071677",
+      "711726043",
+      "active",
+      "",
+      "https://i.groupme.com/1024x1024.jpeg.05d62892f23042ac901a5eb32a0498c3"
+    ],
+    [
+      "iOS 14 Test Group",
+      "66177266",
+      "This Is  DFIR Two",
+      "DFIR Two",
+      "91071469",
+      "626054292",
+      "active",
+      "",
+      "https://i.groupme.com/450x450.jpeg.cd75f1b6d99f4042931e8864b1506dcc"
+    ],
+    [
+      "iOS 14 Test Group",
+      "66177266",
+      "This Is DFIR",
+      "This Is DFIR",
+      "91071677",
+      "626054291",
+      "active",
+      "",
+      "https://i.groupme.com/1024x1024.jpeg.05d62892f23042ac901a5eb32a0498c3"
+    ]
+  ]
+}

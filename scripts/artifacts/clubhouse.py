@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     'clubhouseAccount': {
         'name': 'Clubhouse - Account Information',
-        'description': 'Details of the Clubhouse account signed in on the device',
+        'description': "Clubhouse account details recorded in the app's preferences plist",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
@@ -17,13 +17,17 @@ __artifacts_v2__ = {
     },
     'clubhouseContacts': {
         'name': 'Clubhouse - Suggested Invites',
-        'description': 'Contacts staged in the Clubhouse contact-upload store and offered as suggested invites',
+        'description': "Contacts held under the Clubhouse contact-upload-store-suggested-invites "
+                       "preference key",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Clubhouse',
-        'notes': 'Sourced from the contact-upload-store-suggested-invites key, which holds contacts staged in the app contact-upload store (drawn from the device address book per the cnContactIdentifier keys).',
+        'notes': "Sourced from the contact-upload-store-suggested-invites key, which holds "
+                 "contacts staged in the app contact-upload store (the cnContactIdentifier keys "
+                 "are reported as stored; whether these entries came from the device address "
+                 "book is not established here).",
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Preferences/co.alphaexploration.clubhouse.plist',),
         'output_types': 'standard',
         'artifact_icon': 'address-book',

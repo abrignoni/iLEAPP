@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "category": "App Usage",
         "notes": "App names, bundle IDs and vendors are resolved from the extraction itself: "
                  "storeUser.db current_apps (installed apps) and purchase_history_apps (the "
-                 "account's purchase history, which retains uninstalled apps). Events whose "
+                 "account's purchase history). Events whose "
                  "adamId appears in neither table are labeled Unknown. Earlier versions queried "
                  "itunes.apple.com per adamId; the online lookup was removed so processing stays "
                  "offline. Reference: Kevin Pagano, 'iOS App Storage Usage via AMDSQLite.db', "

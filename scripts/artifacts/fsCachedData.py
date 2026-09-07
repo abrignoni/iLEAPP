@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "description": "Media and other files cached under fsCachedData",
         "author": "@abrignoni & @stark4n6",
         "creation_date": "2023-02-02",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Cache Data",
         "notes": "Source location in the extraction is provided for each item.",
@@ -205,10 +205,12 @@ def fsCachedData(context):
                 guid = app_match.group(1).upper()
                 app_plist_map.setdefault(guid, []).append(file_found)
 
+    source_dirs = set()
     for file_found in files_found:
         if not os.path.isfile(file_found) or file_found.lower().endswith('.plist'):
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         modified_time = convert_unix_ts_to_utc(os.path.getmtime(file_found))
         mime = guess_mime(file_found)
         media_ref = check_in_media(file_found)
@@ -222,4 +224,4 @@ def fsCachedData(context):
             bundle_name,
             context.get_relative_path(file_found)))
 
-    return data_headers, data_list, ''
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

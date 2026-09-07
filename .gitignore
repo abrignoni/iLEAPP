@@ -113,3 +113,6 @@ instance/
 # Personal Claude Code context, not shared with the team
 CLAUDE.local.md
 .claude/settings.local.json
+
+# Per-machine image locations for make_test_data.py, see admin/docs/testing/guide_adding_images.md
+admin/image_manifest.local.json

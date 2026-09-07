@@ -5,7 +5,7 @@ __artifacts_v2__ = {
             Dates and times shown are from file modified timestamps",
         "author": "@maala-nfi",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "Most code copied from appSnapshots.py",
@@ -58,6 +58,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
 @artifact_processor
 def widgets(context):
     data_list = []
+    source_dirs = set()
 
     for file_found in context.get_files_found():
         media_path = Path(file_found)
@@ -79,6 +80,7 @@ def widgets(context):
         if not media_item:
             continue
 
+        source_dirs.add(str(media_path.parent))
         last_modified_date = convert_unix_ts_to_utc(
             lava_get_full_media_info(media_item)[-2])
         data_list.append(
@@ -87,4 +89,4 @@ def widgets(context):
     data_headers = (('Date Modified', 'datetime'), 'App Name',
                     'Source Path', ('Snapshot', 'media'))
 
-    return data_headers, data_list, 'see Source Path for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "donated intents, with the app that donated them.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Shares the intent record schema of the Siri.Remembers.MessageHistory and "
@@ -111,6 +111,7 @@ def _sync_origin(file_found):
 def get_biomeSiriRemembersInteractionHistory(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -123,6 +124,7 @@ def get_biomeSiriRemembersInteractionHistory(context):
             continue
         origin = _sync_origin(file_found)
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -155,4 +157,4 @@ def get_biomeSiriRemembersInteractionHistory(context):
                     'SEGB State', 'Bundle ID', 'Intent Class', 'Domain', 'Parameters',
                     'Intent UUID', 'Item GUID', 'Sync Origin', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

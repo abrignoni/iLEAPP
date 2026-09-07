@@ -8,8 +8,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "Dubox",
-        "notes": "Read from mbox_main.sqlite. Direction is taken from the is_receive column (0 sent, "
-                 "1 received) and the partner is resolved from mbox_friendlist through the message's "
+        "notes": "Read from mbox_main.sqlite. Direction is derived from the is_receive column, "
+                 "reading 0 as sent and 1 as received on the column name alone with no "
+                 "documented source and the partner is resolved from mbox_friendlist through the "
+                 "message's "
                  "msguk. contentType is reported as the stored integer; message text, and for file "
                  "messages the file name, path and md5, are shown where present.",
         "paths": ('*/mbox_main.sqlite*',),
@@ -91,8 +93,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Dubox",
         "notes": "Read from the image_filelist table of imageDB.sqlite. The location columns are "
-                 "populated only for items whose source carried location metadata; they are blank "
-                 "otherwise.",
+                 "blank where the store holds no value for them.",
         "paths": ('*/imageDB.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "image",

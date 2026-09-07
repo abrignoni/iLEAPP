@@ -4,10 +4,11 @@ __artifacts_v2__ = {
         "description": "Examines the ZRTLEARNEDLOCATIONOFINTERESTTRANSITIONMO and ZRTLEARNEDLOCATIONOFINTERESTVISITMO tables from the routined (Significant Locations) cache, not the Apple Maps app. The Google Maps Link are constructed from the coordinates. They DO NOT exist in the evidence. For details: https://doubleblak.com/blogPost.php?k=Locations",
         "author": "ogmini",
         "creation_date": "2026-03-04",
-        "last_update_date": "2026-08-08",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
-        "notes": "Motion-activity value mapping observed in testing; raw column preserved.",
+        "notes": "Motion-activity value mapping is not vendor-documented and was derived from "
+                 "tested data; the raw column is preserved.",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite*',
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
         "output_types": ["html", "tsv", "lava"],
@@ -32,11 +33,15 @@ __artifacts_v2__ = {
         }
     },
     "appleMapsSignificantLocations": {
-        "name": "Apple Maps Significant Locations (routined)",
-        "description": "Location data comes from the routined (Significant Locations) cache, not the Apple Maps app. The Google Maps Link are constructed from the coordinates. They DO NOT exist in the evidence.",
+        "name": "Apple Maps Significant Locations Visits (routined)",
+        "description": "Significant Location visits from the routined caches "
+                       "(ZRTLEARNEDLOCATIONOFINTERESTVISITMO in Local.sqlite and "
+                       "Cloud-V2.sqlite), with entry and exit times, coordinates and uncertainty; "
+                       "the Google Maps link is built from the coordinates and does not exist in "
+                       "the evidence.",
         "author": "ogmini",
         "creation_date": "2026-03-04",
-        "last_update_date": "2026-08-08",
+        "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Locations",
         "notes": "",
@@ -64,11 +69,15 @@ __artifacts_v2__ = {
         }
     },
     "appleMapsSignificantLocationsVisits": {
-        "name": "Apple Maps Significant Locations Visits (routined)",
-        "description": "Location data comes from the routined (Significant Locations) cache, not the Apple Maps app. The Google Maps Link are constructed from the coordinates. They DO NOT exist in the evidence.",
+        "name": "Apple Maps Significant Locations (routined)",
+        "description": "Significant Location places from the routined caches "
+                       "(ZRTLEARNEDLOCATIONOFINTERESTMO with its learned place, map item and "
+                       "address rows), with name, category, address fields and coordinates; the "
+                       "Google Maps link is built from the coordinates and does not exist in the "
+                       "evidence.",
         "author": "ogmini",
         "creation_date": "2026-03-04",
-        "last_update_date": "2026-08-08",
+        "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Locations",
         "notes": "",
@@ -173,7 +182,7 @@ def appleMapsTrips(context):
             data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6], get_google_dir_link(row[2], row[3], row[4], row[5], row[6]), context.get_relative_path(LocalDB)))
 
     data_headers = (('Start DateTime', 'datetime'), ('End DateTime', 'datetime'), 'Origin Latitude','Origin Longitude', 'Destination Latitude', 'Destination Longitude','ZZPREDOMINANTMOTIONACTIVITYTYPE', 'Google Maps Link','Source File')
-    return data_headers, data_list, 'See source file(s) below:'
+    return data_headers, data_list, '\n'.join(LocalDB_found)
 
 @artifact_processor
 def appleMapsSignificantLocationsVisits(context):
@@ -217,7 +226,7 @@ def appleMapsSignificantLocationsVisits(context):
             data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10],row[11], get_google_map_link(row[10], row[11]),row[12],context.get_relative_path(LocalDB)))
 
     data_headers = ('Significant Location Name', 'Category', 'Address','City', 'State', 'State-Abbrev',  'Country', 'Zip Code', 'ZSUBLOCALITY', 'ZAREASOFINTEREST', 'Latitude', 'Longitude', 'Google Maps Link', ('Created DateTime','datetime'), 'Source File')
-    return data_headers, data_list, 'See source file(s) below:'
+    return data_headers, data_list, '\n'.join(LocalDB_found)
 
 @artifact_processor
 def appleMapsSignificantLocations(context):
@@ -250,4 +259,4 @@ def appleMapsSignificantLocations(context):
             data_list.append((row[0],row[1],row[2],row[3],row[4],row[5], get_google_map_link(row[3], row[4]), context.get_relative_path(LocalDB)))
 
     data_headers = (('Vicinity Entry Datetime','datetime'), ('Vicinity Exit Datetime','datetime'), ('Created Datetime','datetime'), 'Latitude', 'Longitude', 'Uncertainty', 'Google Maps Link', 'Source File')
-    return data_headers, data_list, 'See source file(s) below:'
+    return data_headers, data_list, '\n'.join(LocalDB_found)

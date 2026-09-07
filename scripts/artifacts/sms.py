@@ -7,7 +7,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "SMS & iMessage",
-        "notes": "",
+        "notes": "Sender is the handle joined to a received row through message.handle_id, which "
+                 "imessage-exporter documents as the sender handle row ID "
+                 "(imessage-database/src/tables/messages/message.rs at commit 4d90fc8d, line "
+                 "190); it is left blank on sent rows, whose local account is in the Account "
+                 "column, and on received rows that record no handle, such as group participant "
+                 "and title changes. Chat Participants lists the handles joined to the message's "
+                 "chat through chat_handle_join, comma separated. In a direct chat that is the "
+                 "same value as Chat Contact ID; in a group chat, Chat Contact ID holds the chat "
+                 "identifier as stored and Chat Participants is where a phone number or email is "
+                 "found. Chat Name is chat.display_name as stored. A message with no "
+                 "chat_message_join row has blank chat columns, and Sender still resolves for it "
+                 "where a handle is recorded.",
         "paths": ('*/Library/SMS/sms.db*',
                   '*/Library/SMS/Attachments/*'),
         "output_types": "standard",
@@ -132,6 +143,7 @@ def sms(context):
     message.guid as "Message GUID",
     message.destination_caller_id as "Destination Caller ID"
     from message
+    left join handle on message.handle_id = handle.ROWID
     left join message_attachment_join on message.ROWID = message_attachment_join.message_id
     left join attachment on message_attachment_join.attachment_id = attachment.ROWID
     left join chat_message_join on message.ROWID = chat_message_join.message_id
@@ -144,9 +156,12 @@ def sms(context):
         ('Delivered Timestamp', 'datetime'),
         ('Attachment Timestamp', 'datetime'),
         'From Me',
+        'Sender',
         'Chat Contact ID',
         'Message',
         ('Attachment File', 'media'),
+        'Chat Name',
+        'Chat Participants',
         'Service',
         'Message Direction',
         'Message Sent',
@@ -204,9 +219,12 @@ def sms(context):
             delivered_timestamp,
             attachment_timestamp,
             record[18],
+            record[22],
             record[10],
             message_text,
             media_ref_id,
+            record[23],
+            record[24],
             record[3],
             record[4],
             record[5],

@@ -15,6 +15,7 @@ import re  # pylint: disable=unused-import  # re-exported for modules importing 
 import shutil
 import sqlite3
 import sys
+import tarfile
 import xml
 
 from datetime import datetime, timezone, timedelta
@@ -905,6 +906,46 @@ def get_sqlite_db_path(path):
         return "%5C%5C%3F%5C" + quote(remainder, safe=':/')
     else:
         return quote(str(path), safe='/')
+        
+def get_sysdiagnose_files(files_found, target_file, text_mode=True, encoding='utf-8'):
+    """
+    Yields (file_object, source_path) for target_file across standalone matches
+    and active sysdiagnose archives (.tar.gz / .tar).
+    """
+    for file_found in files_found:
+        file_path = str(file_found)
+        filename = os.path.basename(file_path)
+
+        # 1. Direct standalone file match
+        if filename == target_file:
+            try:
+                mode = 'r' if text_mode else 'rb'
+                kwargs = {'encoding': encoding, 'errors': 'replace'} if text_mode else {}
+                with open(file_path, mode, **kwargs) as f:
+                    yield f, file_path
+            except (OSError, IOError) as e:
+                print(f"Error reading standalone file {file_path}: {e}")
+
+        # 2. Sysdiagnose archive match (ignoring incomplete/in-progress dumps)
+        elif "sysdiagnose_" in filename and "IN_PROGRESS_" not in filename and (".tar" in filename):
+            try:
+                with tarfile.open(file_path, 'r:*') as tar:
+                    for member in tar.getmembers():
+                        # Match exact filename or target subpath regardless of root folder name
+                        if member.isreg() and (member.name.endswith(f"/{target_file}") or member.name == target_file):
+                            extracted = tar.extractfile(member)
+                            if extracted is None:
+                                continue
+                            
+                            # Wrap in TextIOWrapper if text mode is requested (e.g., json.load, regex, csv)
+                            stream = io.TextIOWrapper(extracted, encoding=encoding, errors='replace') if text_mode else extracted
+                            try:
+                                yield stream, f"{file_path} >> {member.name}"
+                            finally:
+                                if text_mode:
+                                    stream.detach() # Detach wrapper so tarfile manages underlying stream
+            except (tarfile.TarError, EOFError, OSError) as e:
+                print(f"Error processing archive {file_path}: {e}")
 
 def open_sqlite_db_readonly(path):
     '''Opens a sqlite db in read-only mode, so original db (and -wal/journal are intact)'''
@@ -942,27 +983,6 @@ def get_sqlite_db_records(path, query, attach_query=None):
             logfunc(f"Error with {path}:")
             logfunc(f" - {str(e)}")
     return []
-
-def get_sqlite_multiple_db_records(path_list, query, data_headers):
-    multiple_source_files = len(path_list) > 1
-    source_path = ""
-    data_list = []
-    if multiple_source_files:
-        data_headers = list(data_headers)
-        data_headers.append('Source Path')
-        data_headers = tuple(data_headers)
-        source_path = 'file path in the report below'
-    elif path_list:
-        source_path = path_list[0]
-    for file in path_list:
-        db_records = get_sqlite_db_records(file, query)
-        for record in db_records:
-            if multiple_source_files:
-                modifiable_record = list(record)
-                modifiable_record.append(file)
-                record = tuple(modifiable_record)
-            data_list.append(record)
-    return data_headers, data_list, source_path
 
 def does_column_exist_in_db(path, table_name, col_name):
     '''Checks if a specific col exists'''
@@ -1347,10 +1367,6 @@ def utf8_in_extended_ascii(input_string, *, raise_on_unexpected=False):
     
     return mis_encoded_utf8_present, "".join(output)
 
-def logdevinfo(message=""):
-    with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
-        b.write(message + '<br>' + OutputParameters.nl)
-
 def write_device_info():
     with open(OutputParameters.screen_output_file_path_devinfo, 'a', encoding='utf8') as b:
         for category, values in identifiers.items():
@@ -1384,6 +1400,7 @@ def device_info(category, label, value, source_file=""):
         func_name = 'unknown'
     
     values = identifiers.get(category, {})
+    source_file = Context.get_relative_path(source_file)
     
     # Create value object with both the value and source module
     value_obj = {
@@ -1456,12 +1473,32 @@ def lava_only_info(category, artifact_name, table_name, records):
     lava_only_artifacts[category] = artifacts
 
 ### New timestamp conversion functions
+_UNIX_EPOCH_UTC = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
 def convert_unix_ts_in_seconds(ts):
-    digits = int(math.log10(ts if ts > 0 else -ts))+1
-    if digits > 10:
-        extra_digits = digits - 10
-        ts = ts // 10**extra_digits
-    return int(ts)
+    """A Unix timestamp normalised to whole seconds, whatever sub-second unit it is stored in.
+
+    The unit is taken from the value's magnitude and divided by the matching power of a
+    thousand, keeping this module's long-standing boundary that more than ten digits means
+    sub-second units. Sizing by digit count alone, as this did previously, assumed the value
+    in seconds was itself ten digits, which only holds from 2001-09-09 to 2286. Outside that
+    window a millisecond value was rescaled by the wrong factor, so a 1990 date read as 2170
+    and a 1952 date as 1795.
+
+    Magnitude cannot separate the units close to the epoch: any value standing for an
+    instant within about four months either side of it is read as the next coarser unit,
+    whichever unit it was really in. A caller that knows the unit should convert it itself
+    rather than rely on this.
+    """
+    ts = int(ts)
+    magnitude = abs(ts)
+    if magnitude >= 10**16:
+        return ts // 1_000_000_000  # nanoseconds
+    if magnitude >= 10**13:
+        return ts // 1_000_000      # microseconds
+    if magnitude >= 10**10:
+        return ts // 1_000          # milliseconds
+    return ts
 
 def convert_unix_ts_to_utc(ts):
     if ts:
@@ -1470,14 +1507,16 @@ def convert_unix_ts_to_utc(ts):
         except (ValueError, TypeError, OSError, OverflowError):
             return ts
         ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, tz=timezone.utc)
+        # Added to the epoch rather than passed to datetime.fromtimestamp, to avoid the
+        # gmtime() errors that function raises for values before 1970 on some platforms.
+        return _UNIX_EPOCH_UTC + timedelta(seconds=ts)
     else:
         return ts
 
 def convert_unix_ts_to_str(ts):
     if ts:
         ts = convert_unix_ts_in_seconds(ts)
-        return datetime.fromtimestamp(ts, timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+        return (_UNIX_EPOCH_UTC + timedelta(seconds=ts)).strftime('%Y-%m-%d %H:%M:%S')
     else:
         return ts
 
@@ -1558,15 +1597,14 @@ def convert_ts_human_to_utc(ts): #This is for timestamp in human form
     return timestamp
 
 def convert_ts_int_to_utc(ts): #This int timestamp to human format & utc
-    timestamp = datetime.fromtimestamp(ts, tz=timezone.utc)
+    # Added to the epoch rather than passed to datetime.fromtimestamp, to avoid the
+    # gmtime() errors that function raises for values before 1970 on some platforms.
+    timestamp = _UNIX_EPOCH_UTC + timedelta(seconds=ts)
     return timestamp
 
 def convert_unix_ts_to_timezone(ts, timezone_offset):
     if ts:
-        digits = int(math.log10(ts))+1
-        if digits > 10:
-            extra_digits = digits - 10
-            ts = ts // 10**extra_digits
+        ts = convert_unix_ts_in_seconds(ts)
         return convert_ts_int_to_timezone(ts, timezone_offset)
     else:
         return ts
@@ -1576,22 +1614,21 @@ def convert_ts_human_to_timezone_offset(ts, timezone_offset):
 
 def convert_plist_date_to_timezone_offset(plist_date, timezone_offset):
     if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day,
-            plist_date.hour, plist_date.minute, plist_date.second
-            )
-        iso_date = datetime.fromisoformat(str_date).strftime("%Y-%m-%d %H:%M:%S")
+        # Formatting the value and parsing it back only to drop the sub-second part
+        # cost a round trip and, because the string carried a trailing Z, raised
+        # ValueError on Python 3.10, which datetime.fromisoformat supports from 3.11.
+        iso_date = plist_date.replace(microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
         return convert_ts_human_to_timezone_offset(iso_date, timezone_offset)
     else:
         return plist_date
 
 def convert_plist_date_to_utc(plist_date):
     if plist_date:
-        str_date = '%04d-%02d-%02dT%02d:%02d:%02dZ' % (
-            plist_date.year, plist_date.month, plist_date.day,
-            plist_date.hour, plist_date.minute, plist_date.second
-            )
-        return datetime.fromisoformat(str_date)
+        # A plist date is naive and already UTC, so the timezone is attached directly.
+        # The previous version formatted it with a trailing Z and parsed that back,
+        # which raises ValueError on Python 3.10; datetime.fromisoformat only accepts
+        # Z from 3.11. The sub-second part is still dropped, as it was before.
+        return plist_date.replace(microsecond=0, tzinfo=timezone.utc)
     else:
         return plist_date
 

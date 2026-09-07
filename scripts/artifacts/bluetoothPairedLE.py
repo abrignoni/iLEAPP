@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses paired Bluetooth Low Energy devices, including name, address and last connection time, from com.apple.MobileBluetooth.ledevices.paired.db.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-21",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
@@ -37,9 +37,11 @@ from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 def get_bluetoothPairedLE(context):
 
     data_list = []
+    source_paths = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('.db'):
+            source_paths.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -64,5 +66,5 @@ def get_bluetoothPairedLE(context):
 
     data_headers = ('UUID','Name','Name Origin','Address','Resolved Address','Last Connection Time', 'Source File')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 

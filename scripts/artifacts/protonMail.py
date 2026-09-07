@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "in scripts/keychain/)",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-21",
         "requirements": "pgpy, pycryptodome, ccl_bplist; a keychain plist placed in scripts/keychain/",
         "category": "Proton Mail",
         "notes": "Decryption requires the device keychain plist in scripts/keychain/; without one the "
@@ -100,7 +100,8 @@ def protonMail(context):
             db_name = file_found
     if not (plist_name and db_name):
         logfunc("Proton Mail plist or database not found")
-        return data_headers, data_list, ''
+        return data_headers, data_list, '\n'.join(
+            context.get_relative_path(p) for p in (plist_name, db_name) if p)
 
     with open(keychain_plist_path, 'rb') as f:
         keychain_values = _build_keychain_values(plistlib.load(f))
@@ -108,7 +109,7 @@ def protonMail(context):
         main_key = keychain_values[b'NoneProtection']
     except KeyError:
         logfunc("No Protonmail data in the key chain")
-        return data_headers, data_list, ''
+        return data_headers, data_list, context.get_relative_path(db_name)
 
     def decrypt_with_main_key(encrypted):
         iv = encrypted[:_IV_SIZE]
@@ -122,7 +123,7 @@ def protonMail(context):
         enc_val = keychain_values.get(b'authKeychainStoreKeyProtectedWithMainKey')
     if not enc_val or enc_val == 'empty':
         logfunc('Decryption key not found in the keychain or the application plist.')
-        return data_headers, data_list, ''
+        return data_headers, data_list, context.get_relative_path(db_name)
 
     keychain_store_plist1 = ccl_bplist.load(BytesIO(decrypt_with_main_key(enc_val)))
     keychain_store_plist = ccl_bplist.load(BytesIO(keychain_store_plist1[0]))

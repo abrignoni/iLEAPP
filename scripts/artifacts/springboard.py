@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Home screen layout: apps, folders, widgets and the dock, per screen page",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in their on-screen "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "description": "Rendered image of each home screen page (apps, folders, widgets, dock)",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "A PNG is rendered per screen page from SpringBoard/IconState.plist as a visual "
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "description": "Legacy wallpaper files and thumbnails stored by SpringBoard",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "Legacy cpbitmap wallpaper files are converted to PNG when possible. Image-backed "
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "description": "PosterBoard output.layerStack image layer files",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "PosterBoard output.layerStack image files are reported. HEIC/HEIF image layers "
@@ -112,6 +112,7 @@ __artifacts_v2__ = {
 }
 
 import io
+import os
 import plistlib
 import struct
 from pathlib import Path
@@ -387,10 +388,12 @@ def springboard_wallpaper(context):
         'Source Path',
     )
     data_list = []
+    source_dirs = set()
     ios_version = context.get_installed_os_version()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         source_path = context.get_relative_path(file_found)
         filename = _path_name(file_found)
         suffix = Path(filename).suffix.lower()
@@ -435,7 +438,7 @@ def springboard_wallpaper(context):
             source_path,
         ))
 
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 @artifact_processor
@@ -451,9 +454,11 @@ def posterboard_wallpaper(context):
         'Source Path',
     )
     data_list = []
+    source_dirs = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         source_path = context.get_relative_path(file_found)
         filename = _path_name(file_found)
         suffix = Path(filename).suffix.lower()
@@ -488,4 +493,4 @@ def posterboard_wallpaper(context):
             source_path,
         ))
 
-    return data_headers, data_list, 'See Source Path column'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

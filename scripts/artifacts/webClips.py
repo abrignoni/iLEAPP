@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses home screen web clips (bookmarked web apps), including titles, URLs and icons, from the WebClips directory.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-04-20",
-        "last_update_date": "2026-07-22",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Home Screen",
         "notes": "",
@@ -16,6 +16,8 @@ __artifacts_v2__ = {
         }
     }
 }
+import os
+
 from scripts.ilapfuncs import (
     logfunc,
     artifact_processor,
@@ -29,6 +31,7 @@ def web_clips(context):
     files_found = context.get_files_found()
     webclip_data = {}
     data_list = []
+    source_dirs = set()
     source_path = ''
     for path_val in files_found:
         # Extract the unique identifier
@@ -42,6 +45,7 @@ def web_clips(context):
         except IndexError:
             continue
         if unique_id != "" and unique_id not in webclip_data:
+            source_dirs.add(os.path.dirname(pathstr))
             webclip_data[unique_id] = {
                 "Info": "",
                 "Icon_path": "",
@@ -82,4 +86,4 @@ def web_clips(context):
         'Unique Identifier',
         'Source File'
     )
-    return data_headers, data_list, 'See Source File column'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

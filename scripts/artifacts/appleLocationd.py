@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts location services settings",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-10-03",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",
@@ -43,7 +43,7 @@ def appleLocationd(context):
     
     # Check if plist is valid before processing
     if not pl or not isinstance(pl, dict):
-        return (), [], ''
+        return (), [], source_path
     
     for key, val in pl.items():
         if key == 'LocationServicesEnabledIn8.0':

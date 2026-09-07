@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
         "author": "@stark4n6",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Battery",
         "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
                  "files matches the column positions parsed here. "
                  "Reference: Kevin Pagano, 'BDC - More Battery Temps & Charging Stats', "
                  "https://www.stark4n6.com/2026/03/bdc-more-battery-temps-charging-stats.html",
-        "paths": ('*/Battery/BDC/BDC_SBC_*.csv'),
+        "paths": ('*/Battery/BDC/BDC_SBC_*.csv', '*/BatteryBDC/BDC_SBC_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
         "sample_data": {
@@ -34,15 +34,176 @@ __artifacts_v2__ = {
             "jess_ios15": "iOS 15.0.2 | 550 rows",
             "magnet_ios16": "iOS 16.1.1 | 807 rows",
         }
-    }
+    },
+    "battery_bdc_once": {
+        "name": "Battery Data Collection (BDC) - Once",
+        "description": "Static battery identity written once per battery pack from BDC_Once logs",
+        "author": "@stark4n6, @ChrisJr404",
+        "creation_date": "2026-08-17",
+        "last_update_date": "2026-08-17",
+        "requirements": "none",
+        "category": "Battery",
+        "notes": "One row per BDC_Once file. BatterySerialNumber is reported as stored; when the "
+                 "file is written, and whether a new serial number means the battery was "
+                 "replaced, are not sourced here. GasGaugeFirmwareVersion is present in the "
+                 "files whose header carries it and was seen from schema version 1.7 in tested "
+                 "files. "
+                 "Columns are read by header name, so older narrower-schema files still parse.",
+        "paths": ('*/Battery/BDC/BDC_Once_*.csv', '*/BatteryBDC/BDC_Once_*.csv'),
+        "output_types": "standard",
+        "artifact_icon": "battery",
+    },
+    "battery_bdc_daily": {
+        "name": "Battery Data Collection (BDC) - Daily",
+        "description": "Daily battery health snapshots (capacity, cycle count) from BDC_Daily logs",
+        "author": "@stark4n6, @ChrisJr404",
+        "creation_date": "2026-08-17",
+        "last_update_date": "2026-08-17",
+        "requirements": "none",
+        "category": "Battery",
+        "notes": "Row cadence in tested files was roughly two per day. NominalChargeCapacity and "
+                 "DesignCapacity (from BDC_Once) are reported as stored; that their ratio is the "
+                 "Maximum Capacity percentage shown in Settings is not sourced here. "
+                 "TimeAtHighSoc is left as its raw hex token here; its encoding is not "
+                 "established.",
+        "paths": ('*/Battery/BDC/BDC_Daily_*.csv', '*/BatteryBDC/BDC_Daily_*.csv'),
+        "output_types": "standard",
+        "artifact_icon": "battery",
+    },
+    "battery_bdc_weekly": {
+        "name": "Battery Data Collection (BDC) - Weekly",
+        "description": "Weekly gauge resistance table and operating time from BDC_Weekly logs",
+        "author": "@stark4n6, @ChrisJr404",
+        "creation_date": "2026-08-17",
+        "last_update_date": "2026-08-17",
+        "requirements": "none",
+        "category": "Battery",
+        "notes": "Row cadence in tested files was one per seven days. RaTableRaw0 is left as its "
+                 "raw hex token here; its encoding and meaning are not established.",
+        "paths": ('*/Battery/BDC/BDC_Weekly_*.csv', '*/BatteryBDC/BDC_Weekly_*.csv'),
+        "output_types": "standard",
+        "artifact_icon": "battery",
+    },
+    "battery_bdc_obc": {
+        "name": "Battery Data Collection (BDC) - OBC",
+        "description": "On-charger and external power transition events from BDC_OBC logs",
+        "author": "@stark4n6, @ChrisJr404",
+        "creation_date": "2026-08-17",
+        "last_update_date": "2026-08-17",
+        "requirements": "none",
+        "category": "Battery",
+        "notes": "One row per logged event. FamilyCode is reported as stored and as a hex value; "
+                 "its correspondence to IOKit adapter family codes is not sourced here. "
+                 "NotChargingReason is reported as stored; the meaning of its values is not "
+                 "established.",
+        "paths": ('*/Battery/BDC/BDC_OBC_*.csv', '*/BatteryBDC/BDC_OBC_*.csv'),
+        "output_types": "standard",
+        "artifact_icon": "plug",
+    },
+    "battery_bdc_smartcharging": {
+        "name": "Battery Data Collection (BDC) - SmartCharging",
+        "description": "Optimized Battery Charging policy decisions from BDC_SmartCharging logs",
+        "author": "@stark4n6, @ChrisJr404",
+        "creation_date": "2026-08-17",
+        "last_update_date": "2026-08-17",
+        "requirements": "none",
+        "category": "Battery",
+        "notes": "One row per logged event. ChargeLimit and ChargingState are reported as "
+                 "stored; their meaning is not sourced here. DecisionMaker was first seen in "
+                 "tested files at schema "
+                 "version 2.6, so columns are read by header name to stay aligned across versions.",
+        "paths": ('*/Battery/BDC/BDC_SmartCharging_*.csv', '*/BatteryBDC/BDC_SmartCharging_*.csv'),
+        "output_types": "standard",
+        "artifact_icon": "battery-charging",
+    },
+    "battery_bdc_cpmsrc": {
+        "name": "Battery Data Collection (BDC) - CPMSRC",
+        "description": "Battery RC equivalent-circuit impedance model from BDC_CPMSRC logs",
+        "author": "@stark4n6, @ChrisJr404",
+        "creation_date": "2026-08-17",
+        "last_update_date": "2026-08-17",
+        "requirements": "none",
+        "category": "Battery",
+        "notes": "Series resistance plus four RC branch columns, reported as stored. Header "
+                 "units read as mojibake when the file is decoded as Latin-1, so the CSV is read "
+                 "as UTF-8. No tested image carries this file, so the cadence and column "
+                 "meanings are not exercised; parsing is header-driven from column names taken "
+                 "from the reference cited under the Battery Data Collection (BDC) artifact.",
+        "paths": ('*/Battery/BDC/BDC_CPMSRC_*.csv', '*/BatteryBDC/BDC_CPMSRC_*.csv'),
+        "output_types": "standard",
+        "artifact_icon": "activity",
+    },
+    "battery_bdc_timestamps": {
+        "name": "Battery Data Collection (BDC) - Timestamps",
+        "description": "RTC-to-wall-clock set events for time reconstruction from BDC_Timestamps logs",
+        "author": "@stark4n6, @ChrisJr404",
+        "creation_date": "2026-08-17",
+        "last_update_date": "2026-08-17",
+        "requirements": "none",
+        "category": "Battery",
+        "notes": "Each row pairs a system time with an RTC tick value as stored; what event "
+                 "writes a row is not sourced here. Times are UTC.",
+        "paths": ('*/Battery/BDC/BDC_Timestamps_*.csv', '*/BatteryBDC/BDC_Timestamps_*.csv'),
+        "output_types": "standard",
+        "artifact_icon": "clock",
+    },
 }
 
 import csv
+import os
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 
 def _col(row, index, default=''):
     return row[index] if len(row) > index else default
+
+
+def _header_index(header, key):
+    """Index of the column whose (normalized) name equals or starts with key, else None."""
+    key = key.strip().lower()
+    normed = [h.strip().lower() for h in header]
+    if key in normed:
+        return normed.index(key)
+    for i, name in enumerate(normed):
+        if name.startswith(key):
+            return i
+    return None
+
+
+def _resolve(header, keys):
+    return [_header_index(header, k) for k in keys]
+
+
+def _values(row, indices):
+    return [row[i] if (i is not None and i < len(row)) else '' for i in indices]
+
+
+def _source_dirs(context):
+    """Newline-joined directories of the files this artifact matched."""
+    return '\n'.join(sorted({os.path.dirname(str(f)) for f in context.get_files_found()}))
+
+
+def _iter_bdc_files(context):
+    """Yield (relative_source, header, remaining_rows) for each BDC CSV, header row skipped."""
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        with open(file_found, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f, delimiter=',')
+            header = next(reader, None)
+            if header is None:
+                continue
+            source = context.get_relative_path(file_found)
+            yield source, header, reader
+
+
+def _simple_stream(context, keys):
+    """Resolve keys by header name for every file and flatten rows, appending the source path."""
+    data_list = []
+    for source, header, reader in _iter_bdc_files(context):
+        indices = _resolve(header, keys)
+        for row in reader:
+            data_list.append((*_values(row, indices), source))
+    return data_list
 
 
 @artifact_processor
@@ -105,4 +266,154 @@ def battery_bdc(context):
         'Watts',
         'Source File',
     )
-    return data_headers, data_list, 'See source path(s) below'
+    return data_headers, data_list, _source_dirs(context)
+
+
+@artifact_processor
+def battery_bdc_once(context):
+    """Static per-battery identity from BDC_Once logs"""
+    keys = ['TimeStamp', 'ChemID', 'AlgoChemID', 'EEEE', 'YWW',
+            'DesignCapacity', 'GasGaugeFirmwareVersion']
+    data_list = _simple_stream(context, keys)
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Chem ID',
+        'Algo Chem ID',
+        'EEEE (Factory Code)',
+        'YWW (Mfr Date Code)',
+        'Design Capacity (mAh)',
+        'Gas Gauge Firmware Version',
+        'Source File',
+    )
+    return data_headers, data_list, _source_dirs(context)
+
+
+@artifact_processor
+def battery_bdc_daily(context):
+    """Daily battery health snapshots from BDC_Daily logs"""
+    keys = ['TimeStamp', 'WeightedRa', 'Qmax0', 'CycleCount', 'NominalChargeCapacity',
+            'TimeAtHighSoc', 'ChargingVoltage', 'BHServiceFlags', 'BHCalibrationFlags']
+    data_list = _simple_stream(context, keys)
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Weighted Ra',
+        'Qmax0 (mAh)',
+        'Cycle Count',
+        'Nominal Charge Capacity (mAh)',
+        'Time At High SoC',
+        'Charging Voltage (mV)',
+        'BH Service Flags',
+        'BH Calibration Flags',
+        'Source File',
+    )
+    return data_headers, data_list, _source_dirs(context)
+
+
+@artifact_processor
+def battery_bdc_weekly(context):
+    """Weekly gauge resistance table from BDC_Weekly logs"""
+    keys = ['TimeStamp', 'RaTableRaw0', 'TotalOperatingTime', 'GasGaugeFirmwareVersion']
+    data_list = _simple_stream(context, keys)
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Ra Table Raw0',
+        'Total Operating Time (hrs)',
+        'Gas Gauge Firmware Version',
+        'Source File',
+    )
+    return data_headers, data_list, _source_dirs(context)
+
+
+@artifact_processor
+def battery_bdc_obc(context):
+    """On-charger / external power events from BDC_OBC logs"""
+    keys = ['TimeStamp', 'FamilyCode', 'ExternalConnected', 'AppleRawExternalConnected',
+            'ChargingOverride', 'NotChargingReason', 'VacVoltageLimit']
+    data_list = []
+    for source, header, reader in _iter_bdc_files(context):
+        indices = _resolve(header, keys)
+        for row in reader:
+            vals = _values(row, indices)
+            family = vals[1]
+            family_hex = ''
+            try:
+                fc = int(family)
+                if fc < 0:
+                    fc += 2 ** 32
+                family_hex = f'0x{fc:08X}'
+            except (ValueError, TypeError):
+                family_hex = ''
+            data_list.append((
+                vals[0], vals[1], family_hex, vals[2], vals[3], vals[4], vals[5], vals[6],
+                source,
+            ))
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Family Code',
+        'Family Code (Hex)',
+        'External Connected',
+        'Apple Raw External Connected',
+        'Charging Override',
+        'Not Charging Reason',
+        'Vac Voltage Limit (mV)',
+        'Source File',
+    )
+    return data_headers, data_list, _source_dirs(context)
+
+
+@artifact_processor
+def battery_bdc_smartcharging(context):
+    """Optimized Battery Charging policy decisions from BDC_SmartCharging logs"""
+    keys = ['TimeStamp', 'ChargingState', 'InflowState', 'ChargeLimit', 'CheckPoint',
+            'DecisionMaker', 'ModeOfOperation']
+    data_list = _simple_stream(context, keys)
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Charging State',
+        'Inflow State',
+        'Charge Limit (%)',
+        'Check Point',
+        'Decision Maker',
+        'Mode Of Operation',
+        'Source File',
+    )
+    return data_headers, data_list, _source_dirs(context)
+
+
+@artifact_processor
+def battery_bdc_cpmsrc(context):
+    """Battery RC equivalent-circuit impedance model from BDC_CPMSRC logs"""
+    keys = ['TimeStamp', 'ImpedanceR0PlusRtrace', 'ImpedanceR1', 'ImpedanceR2',
+            'ImpedanceR3', 'ImpedanceR4', 'ImpedanceRCFreq1', 'ImpedanceRCFreq2',
+            'ImpedanceRCFreq3', 'ImpedanceRCFreq4']
+    data_list = _simple_stream(context, keys)
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'R0 + Rtrace (mOhm)',
+        'R1 (mOhm)',
+        'R2 (mOhm)',
+        'R3 (mOhm)',
+        'R4 (mOhm)',
+        'RC Freq1 (Hz)',
+        'RC Freq2 (Hz)',
+        'RC Freq3 (Hz)',
+        'RC Freq4 (Hz)',
+        'Source File',
+    )
+    return data_headers, data_list, _source_dirs(context)
+
+
+@artifact_processor
+def battery_bdc_timestamps(context):
+    """RTC-to-wall-clock set events from BDC_Timestamps logs"""
+    keys = ['reference_system_time', 'set_system_time',
+            'reference_rtc_ticks', 'current_rtc_ticks']
+    data_list = _simple_stream(context, keys)
+    data_headers = (
+        ('Reference System Time', 'datetime'),
+        ('Set System Time', 'datetime'),
+        'Reference RTC Ticks',
+        'Current RTC Ticks',
+        'Source File',
+    )
+    return data_headers, data_list, _source_dirs(context)

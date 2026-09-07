@@ -8,8 +8,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Software Updates",
         "notes": (
-            "The database stores date as text without a UTC offset; it is reported as device-"
-            "local time. SoftwareUpdateServices limits the table to the 25 newest records. "
+            "The database stores date as text without a UTC offset; it is reported without "
+            "conversion in the 'Timestamp (Device Local, No Offset)' column and the zone is not "
+            "established. SoftwareUpdateServices limits the table to the 25 newest records. "
             "Observed operationType semantics in a reverse-engineered iOS 26.1 "
             "SoftwareUpdateServices implementation are 303 = successful rollback completed and "
             "304 = successful install completed. Unknown values are preserved and not inferred. "

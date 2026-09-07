@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts computer and user names recorded in iTunesPrefs (FRPD)",
         "author": "@JamesHabben",
         "creation_date": "2024-10-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Connected Devices",
         "notes": "Reference: Jack Farley, 'Forensic Analysis of iTunes Backups', https://farleyforensics.com/2019/04/14/forensic-analysis-of-itunes-backups/ (FRPD records hold the computers and computer user names the device paired/backed up with).",
@@ -33,6 +33,7 @@ NAME_OFFSET = 157
 def conDev(context):
     data_list = []
     data_headers = ('User Name', 'Computer Name', 'File Offset', 'Source File')
+    source_files = set()
 
     for file_found in context.get_files_found():
         with open(file_found, "rb") as f:
@@ -44,6 +45,8 @@ def conDev(context):
         if magic_index == -1:
             #logfunc("Magic bytes not found in iTunes Prefs FRPD")
             continue
+
+        source_files.add(str(file_found))
 
         #logfunc("Found magic bytes in iTunes Prefs FRPD... Finding Usernames and Desktop names now")
         
@@ -79,4 +82,4 @@ def conDev(context):
                     os.path.basename(file_found)
                 ))
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

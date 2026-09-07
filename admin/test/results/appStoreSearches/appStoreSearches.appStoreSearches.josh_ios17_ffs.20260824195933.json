@@ -1,0 +1,306 @@
+{
+  "metadata": {
+    "module_name": "appStoreSearches",
+    "artifact_name": "App Store - Searches",
+    "function_name": "appStoreSearches",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 8,
+    "number_of_rows": 27,
+    "total_data_size_bytes": 7634,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appStoreSearches/testdata.appStoreSearches.appStoreSearches.josh_ios17_ffs.zip",
+    "start_time": "2026-08-24T19:59:33.197227+00:00",
+    "end_time": "2026-08-24T19:59:33.247858+00:00",
+    "run_time_seconds": 0.0020270347595214844,
+    "last_commit": {
+      "hash": "e675a8d498bce51583cda2dde3ba0ba88ba6c87f",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-10T19:19:47-04:00",
+      "message": "fix: consolidate sample_data corpus keys onto the registry vocabulary"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Search Term",
+    "Request Kind",
+    "Storefront",
+    "Platform",
+    "Language",
+    "Request URL",
+    "Entry ID"
+  ],
+  "data": [
+    [
+      1704571705,
+      "l",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=l&with=appEvents",
+      298
+    ],
+    [
+      1704571705,
+      "li",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=li&with=appEvents",
+      299
+    ],
+    [
+      1704571706,
+      "lif",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=lif&with=appEvents",
+      300
+    ],
+    [
+      1704571706,
+      "life",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=life&with=appEvents",
+      301
+    ],
+    [
+      1704571707,
+      "life3",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=life3&with=appEvents",
+      302
+    ],
+    [
+      1704571707,
+      "life36",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=life36&with=appEvents",
+      303
+    ],
+    [
+      1704571707,
+      "life360",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=life360&with=appEvents",
+      304
+    ],
+    [
+      1704571709,
+      "life360",
+      "Search endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search?additionalPlatforms=appletv%2Cipad%2Cmac%2Cwatch&associate%5Bapps%5D=app-events&bubble%5Bsearch%5D=apps%2Cdevelopers%2Cgroupings%2Ceditorial-items%2Capp-bundles%2Cin-apps&extend=customArtwork%2CcustomScreenshotsByType%2CcustomScreenshotsByTypeForAd%2CcustomVideoPreviewsByType%2CcustomVideoPreviewsByTypeForAd%2CeditorialBadgeInfo%2CeditorialVideo%2CmessagesScreenshots%2CminimumOSVersion%2CremoteControllerRequirement%2CrequiredCapabilities%2CsupportsFunCamera&extend%5Bapp-events%5D=description%2CproductArtwork%2CproductVideo&extend%5Beditorial-items%5D=showLabelInSearch&include=apps%2Ctop-apps&include%5Beditorial-items%5D=marketing-items%2Cprimary-content&l=en-US&limit%5Bads-result%5D=4&meta%5Bmarketing-items%5D=metrics&platform=iphone&term=life360&with=guidedSearch%2CspellCheck",
+      305
+    ],
+    [
+      1704836734,
+      "t",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=t&with=appEvents",
+      387
+    ],
+    [
+      1704836734,
+      "tel",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=tel&with=appEvents",
+      388
+    ],
+    [
+      1704836734,
+      "te",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=te&with=appEvents",
+      389
+    ],
+    [
+      1704836734,
+      "tele",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=tele&with=appEvents",
+      390
+    ],
+    [
+      1704836735,
+      "teleg",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=teleg&with=appEvents",
+      391
+    ],
+    [
+      1704836735,
+      "telegu",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=telegu&with=appEvents",
+      392
+    ],
+    [
+      1704836735,
+      "teleguq",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=teleguq&with=appEvents",
+      393
+    ],
+    [
+      1704836735,
+      "teleguqr",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=teleguqr&with=appEvents",
+      394
+    ],
+    [
+      1704836735,
+      "teleguqrd",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=teleguqrd&with=appEvents",
+      395
+    ],
+    [
+      1704836737,
+      "telegua",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=telegua&with=appEvents",
+      396
+    ],
+    [
+      1704836738,
+      "teleguar",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=teleguar&with=appEvents",
+      397
+    ],
+    [
+      1704836738,
+      "teleguard",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?kinds=terms&l=en-US&limit=10&platform=iphone&term=teleguard&with=appEvents",
+      398
+    ],
+    [
+      1704836739,
+      "teleguard",
+      "Search endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search?additionalPlatforms=appletv%2Cipad%2Cmac%2Cwatch&associate%5Bapps%5D=app-events&bubble%5Bsearch%5D=apps%2Cdevelopers%2Cgroupings%2Ceditorial-items%2Capp-bundles%2Cin-apps&extend=customArtwork%2CcustomScreenshotsByType%2CcustomScreenshotsByTypeForAd%2CcustomVideoPreviewsByType%2CcustomVideoPreviewsByTypeForAd%2CeditorialBadgeInfo%2CeditorialVideo%2CmessagesScreenshots%2CminimumOSVersion%2CremoteControllerRequirement%2CrequiredCapabilities%2CsupportsFunCamera&extend%5Bapp-events%5D=description%2CproductArtwork%2CproductVideo&extend%5Beditorial-items%5D=showLabelInSearch&include=apps%2Ctop-apps&include%5Beditorial-items%5D=marketing-items%2Cprimary-content&l=en-US&limit%5Bads-result%5D=4&meta%5Bmarketing-items%5D=metrics&platform=iphone&term=teleguard&with=guidedSearch%2CspellCheck",
+      399
+    ],
+    [
+      1707488400,
+      "ge",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?extend%5Bapps%5D=appBinaryTraits&kinds=terms&l=en-US&limit=10&platform=iphone&term=ge&with=appEvents",
+      764
+    ],
+    [
+      1707488400,
+      "g",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?extend%5Bapps%5D=appBinaryTraits&kinds=terms&l=en-US&limit=10&platform=iphone&term=g&with=appEvents",
+      765
+    ],
+    [
+      1707488400,
+      "get",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?extend%5Bapps%5D=appBinaryTraits&kinds=terms&l=en-US&limit=10&platform=iphone&term=get&with=appEvents",
+      766
+    ],
+    [
+      1707488401,
+      "gett",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?extend%5Bapps%5D=appBinaryTraits&kinds=terms&l=en-US&limit=10&platform=iphone&term=gett&with=appEvents",
+      767
+    ],
+    [
+      1707488401,
+      "gette",
+      "Suggestions endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search/suggestions?extend%5Bapps%5D=appBinaryTraits&kinds=terms&l=en-US&limit=10&platform=iphone&term=gette&with=appEvents",
+      768
+    ],
+    [
+      1707488403,
+      "getter",
+      "Search endpoint",
+      "us",
+      "iphone",
+      "en-US",
+      "https://amp-api-search-edge.apps.apple.com/v1/catalog/us/search?additionalPlatforms=appletv%2Cipad%2Cmac%2CrealityDevice%2Cwatch&associate%5Bapps%5D=app-events&bubble%5Bsearch%5D=apps%2Cdevelopers%2Cgroupings%2Ceditorial-items%2Capp-bundles%2Cin-apps&extend=customArtwork%2CcustomScreenshotsByType%2CcustomScreenshotsByTypeForAd%2CcustomVideoPreviewsByType%2CcustomVideoPreviewsByTypeForAd%2CeditorialBadgeInfo%2CeditorialVideo%2CmessagesScreenshots%2CminimumOSVersion%2CremoteControllerRequirement%2CrequiredCapabilities%2CsupportsFunCamera&extend%5Bapp-events%5D=description%2CproductArtwork%2CproductVideo&extend%5Bapps%5D=appBinaryTraits&extend%5Beditorial-items%5D=showLabelInSearch&include=apps%2Ctop-apps&include%5Beditorial-items%5D=marketing-items%2Cprimary-content&l=en-US&limit%5Bads-result%5D=4&meta%5Bmarketing-items%5D=metrics&platform=iphone&src=hint&term=getter&with=guidedSearch%2CspellCheck",
+      769
+    ]
+  ]
+}

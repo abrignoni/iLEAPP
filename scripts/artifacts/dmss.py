@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extract PINs from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2025-11-25",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "",
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
         "description": "Extract channels from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2025-11-25",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "",
@@ -30,7 +30,7 @@ __artifacts_v2__ = {
         "description": "Extract info from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2025-11-25",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "",
@@ -43,7 +43,7 @@ __artifacts_v2__ = {
         "description": "Extract registered sensors from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2025-11-25",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "",
@@ -56,7 +56,7 @@ __artifacts_v2__ = {
         "description": "Extract registered devices from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2025-11-25",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "",
@@ -69,7 +69,7 @@ __artifacts_v2__ = {
         "description": "Extract notifications from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2025-11-25",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "",
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
         "description": "Extract created media from Dahua Technology (DMSS) Application",
         "author": "@theAtropos4n6",
         "creation_date": "2023-11-21",
-        "last_update_date": "2025-11-25",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Dahua Technology (DMSS)",
         "notes": "",
@@ -128,8 +128,10 @@ from scripts.ilapfuncs import logfunc, open_sqlite_db_readonly, check_in_media, 
 @artifact_processor
 def get_dmss_pin(context):
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         #-Dahua App's PIN
         pin_code = "No Pass"
         with open(file_found,'rb') as f:
@@ -145,14 +147,16 @@ def get_dmss_pin(context):
             data_list.append((pin_code, context.get_relative_path(file_found)))
         
     data_headers = ('PIN', 'Source File')
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 @artifact_processor
 def get_dmss_channels(context):
-    data_headers = ('Device Name','Channel ID','Channel Name', 'Source file') 
+    data_headers = ('Device Name','Channel ID','Channel Name', 'Source file')
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
         
@@ -169,16 +173,18 @@ def get_dmss_channels(context):
         for row in all_rows:
             data_list.append((row[0],row[1],row[2], context.get_relative_path(file_found)))
         db.close()
-        
-    return data_headers, data_list, 'see Source File for more info'
+
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 @artifact_processor
 def get_dmss_info(context):
     data_headers = ('Name', 'IP/SN/Domain', 'Port', 'User', 'Password (Enc.)', 'DDNS Enabled', 'DDNS Address', 'DDNS Domain',
-                    'DDNS Server Port', 'DDNS Username', 'DDNS Password (Enc.)', 'DDNS Type', 'DDNS Alias', 'Source File') 
+                    'DDNS Server Port', 'DDNS Username', 'DDNS Password (Enc.)', 'DDNS Type', 'DDNS Alias', 'Source File')
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
         
@@ -210,8 +216,8 @@ def get_dmss_info(context):
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10],
                                 row[11], row[12], context.get_relative_path(file_found)))
         db.close()
-        
-    return data_headers, data_list, 'see Source File for more info'
+
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 @artifact_processor
 def get_dmss_registered_sensors(context):
@@ -220,10 +226,12 @@ def get_dmss_registered_sensors(context):
     dmss_db_file_list = []
     
     data_headers = ('Device Name', 'Device Model', 'Device SN', 'Device Type', 'Alarm State', 'Battery Percent',
-                    'Associated Hub SN', 'Online State', 'Door State Sensor', 'Full Day Alarm', 'Tamper Status', 'Owner', 'Source File') 
+                    'Associated Hub SN', 'Online State', 'Door State Sensor', 'Full Day Alarm', 'Tamper Status', 'Owner', 'Source File')
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         try:
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
@@ -267,8 +275,8 @@ def get_dmss_registered_sensors(context):
             db.close()
         except sqlite3.OperationalError as e:
             logfunc(f'Error - {e}')
-        
-    return data_headers, data_list, 'see Source File for more info'
+
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 @artifact_processor
 def get_dmss_registered_devices(context):
@@ -277,10 +285,12 @@ def get_dmss_registered_devices(context):
     dmss_db_file_list = []
     data_headers = ('Device Name', 'Device Model', 'Device SN', 'Device Type', 'Channels', 'Online', 'Receive Share From',
                     'Send Share To', 'Username', 'Device Capabilities', 'Sup. Capabilities', 'Channels Capabilities', 'Port',
-                    'RTSP Port', 'Hardware ID', 'Owner', 'Source File') 
+                    'RTSP Port', 'Hardware ID', 'Owner', 'Source File')
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         try:
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
@@ -319,8 +329,8 @@ def get_dmss_registered_devices(context):
             db.close()
         except sqlite3.OperationalError as e:
             logfunc(f'Error - {e}')
-    
-    return data_headers, data_list, 'see Source File for more info'
+
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 @artifact_processor
 def get_dmss_notifications(context):
@@ -329,10 +339,12 @@ def get_dmss_notifications(context):
     dmss_db_file_list = []
     data_headers = (('Timestamp (Local)', 'datetime'), 'Sensor/Area/Nick Name', 'Sensor SN', 'Area Name', 'Nickname',
                     'Associated Device Name', 'Associated Device SN', 'Associated Device Type', 'Alarm Message ID',
-                    'Alarm Notification', 'Checked', 'Owner', 'Source File') 
+                    'Alarm Notification', 'Checked', 'Owner', 'Source File')
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_dirs.add(os.path.dirname(file_found))
         try:
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
@@ -385,7 +397,7 @@ def get_dmss_notifications(context):
         except sqlite3.OperationalError as e:
             logfunc(f'Error - {e}')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 @artifact_processor
 def get_dmss_created_media(context):
@@ -408,9 +420,11 @@ def get_dmss_created_media(context):
                 media_data_list.append(temp_tuple)
             
     data_list = []
-    for mfile in media_data_list:          
+    source_dirs = set()
+    for mfile in media_data_list:
         if mfile[1] is not None:
             media = check_in_media(mfile[2], mfile[0])
             data_list.append((mfile[0],media, context.get_relative_path(mfile[2])))
- 
-    return data_headers, data_list, 'see Source File for more info'
+            source_dirs.add(os.path.dirname(mfile[2]))
+
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

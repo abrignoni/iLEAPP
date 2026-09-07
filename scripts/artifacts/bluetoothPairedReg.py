@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses known Bluetooth devices recorded in com.apple.MobileBluetooth.devices.plist and their last-seen times.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-21",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
@@ -30,11 +30,13 @@ from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, get_pl
 @artifact_processor
 def get_bluetoothPairedReg(context):
     data_list = []
+    source_paths = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
-        
+
         plist = get_plist_file_content(file_found)
         if plist and isinstance(plist, dict):
+            source_paths.add(file_found)
             for x in plist.items():
                 macaddress = x[0]
                 if 'LastSeenTime' in x[1]:
@@ -63,4 +65,4 @@ def get_bluetoothPairedReg(context):
 
     data_headers = (('Last Seen Time', 'datetime'), 'MAC Address', 'Name Key', 'Name', 'Device Product ID', 'Default Name', 'Source File')     
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

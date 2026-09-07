@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "(PLAppTimeService_Aggregate_AppRunTime table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-01",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -16,8 +16,10 @@ __artifacts_v2__ = {
             "before its raw timestamp (rows older than the oldest retained entry use that "
             "oldest entry) and the applied offset is reported in its own column. Checked "
             "against test images: raw values lagged an iOS 18.7 acquisition date by ~32 "
-            "days and led an iOS 12.4 acquisition by 69 seconds; corrected values align "
-            "with the acquisition dates. ScreenOnTime/BackgroundTime read as seconds are "
+            "days, led an iOS 12.4 acquisition by 69 seconds, and on an iOS 26.5.2 "
+            "sysdiagnose ran on an internal clock reading 1971, about 54.7 years (1.73 "
+            "billion seconds) behind wall time; corrected values align with the "
+            "acquisition dates. ScreenOnTime/BackgroundTime read as seconds are "
             "consistent with the sampling-window durations in test data. Gzipped rotated "
             "logs (*.PLSQL.gz) are decompressed to a temporary location and parsed; the "
             "Source File column carries the archive path. InCallScreenOnTime and "
@@ -295,12 +297,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "BundleId and Level are reported as stored; Level was 0 in every "
-            "test-image row (iOS 12.4-26), so other values are unobserved. Rows are "
-            "sparse: the test images held at most a few entries each. Timestamps are "
-            "adjusted using PowerLog's time-offset table and the applied offset is "
-            "reported per row; see the PowerLog - Application Runtime notes for the "
-            "mechanism."
+            "BundleId and Level are reported as stored; Level was 0 on 114 of the 120 tested rows "
+            "(iOS 12.4-26) and 1 on 6 rows of two images. Rows are sparse: the test images held "
+            "at most a few entries each. Timestamps are adjusted using PowerLog's time-offset "
+            "table and the applied offset is reported per row; see the PowerLog - Application "
+            "Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -391,8 +392,9 @@ __artifacts_v2__ = {
             "ActiveRoute and OutputCategory are text values reported verbatim; observed "
             "in test images (iOS 12.4-26): routes Speaker, Receiver, HeadphonesBT, "
             "CarAudioOutput, INVALID and categories Alarm, Ringtone, PhoneCall, "
-            "Audio/Video, FindMyPhone, VoiceCommand. Active holds 0/1. ActivePID is "
-            "absent from iOS 18+ schemas and BTEndpointType is absent before iOS 17; "
+            "Audio/Video, FindMyPhone, VoiceCommand. Active holds 0/1. ActivePID was absent from "
+            "the iOS 18 and later test images and BTEndpointType from the test images before iOS "
+            "17; "
             "where absent the columns are reported empty. Timestamps are adjusted using "
             "PowerLog's time-offset table and the applied offset is reported per row; "
             "see the PowerLog - Application Runtime notes for the mechanism."
@@ -884,8 +886,8 @@ __artifacts_v2__ = {
         "notes": (
             "CycleCount, MaxCapacityPercent, NominalChargeCapacity, and "
             "ChargingVoltage are reported as stored; no units are asserted. "
-            "MaxCapacityPercent is absent from iOS 15/16 schemas and reported "
-            "empty there. In test data rows spanned more than a year on one "
+            "MaxCapacityPercent was absent from the iOS 15 and 16 test images and is reported "
+            "empty where absent. In test data rows spanned more than a year on one "
             "device. "
             "Raw timestamp values are adjusted using the time-offset table in "
             "this log (PPTStorageOperator_TimeOffset; its retention suffix "
@@ -934,8 +936,8 @@ __artifacts_v2__ = {
         "notes": (
             "ChargeLimit, ChargingState, CheckPoint, DecisionMaker, InflowState, "
             "and ModeOfOperation are integer codes reported as stored; their "
-            "meanings are not decoded here. DecisionMaker is absent from iOS 16 "
-            "schemas and reported empty there. "
+            "meanings are not decoded here. DecisionMaker was absent from the iOS 16 test images "
+            "and is reported empty where absent. "
             "Raw timestamp values are adjusted using the time-offset table in "
             "this log (PPTStorageOperator_TimeOffset; its retention suffix "
             "varies by iOS version) and the applied offset is reported per row; "

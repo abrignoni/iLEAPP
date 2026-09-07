@@ -23,16 +23,15 @@ __artifacts_v2__ = {
     },
     "ornet_browser_settings": {
         "name": "OrNET Browser - Settings",
-        "description": "Connection, privacy and clean-up settings from OrNET Browser, including the "
-                       "Tor connection mode and any custom bridge the user configured",
+        "description": "Connection, privacy and clean-up settings from OrNET Browser, including the Tor connection mode and any custom bridge set in the app",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "OrNET Browser",
         "notes": "Values are read directly from the app preferences plist. Each configured custom "
                  "bridge is reported on its own row; a bridge line contains the transport, the "
-                 "relay address and its fingerprint as the user entered them. The app with "
+                 "relay address and its fingerprint, reported as stored. The app with "
                  "bundle id ch.b-eng.tor names itself OrNET Browser in its bundle's Info.plist, "
                  "read from the tested image; iLEAPP releases up to v2026.3.0 labelled these "
                  "artifacts Onion Browser, which is a different app.",
@@ -96,7 +95,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "OrNET Browser",
         "notes": "Read from the class_BrowsingHistoryItem table of the app's Realm store. The date "
-                 "and time are the display strings the app stored, in device local time. The "
+                 "and time are the display strings the app stored and are reported as stored; "
+                 "their zone is not established. The "
                  "app with bundle id ch.b-eng.tor names itself OrNET Browser in its bundle's "
                  "Info.plist, read from the tested image; iLEAPP releases up to v2026.3.0 "
                  "labelled these artifacts Onion Browser, which is a different app.",

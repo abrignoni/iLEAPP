@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses airplane mode entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2020-04-30",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -81,6 +81,7 @@ def get_biomeAirpMode(context):
     }
 
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -92,6 +93,7 @@ def get_biomeAirpMode(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             offset = record.data_start_offset
             ts = record.timestamp1
@@ -112,6 +114,6 @@ def get_biomeAirpMode(context):
     data_headers = (('SEGB Timestamp', 'datetime'), ('Timestamp', 'datetime'), ('Timestamp2', 'datetime'), 'SEGB State'
                     , 'Event', 'GUID', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 

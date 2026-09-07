@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses cached location coordinates from the Apple Maps app group preferences (group.com.apple.Maps.plist).",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
         "notes": "Protobuf field positions interpreted as latitude/longitude based on observed coordinate-range values in testing. In tested images a row is recovered only on iOS 12.4; the group plist is present without recoverable coordinates on the other recorded images (iOS 13-26) and on all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so an empty result on current extractions is common.",
@@ -43,7 +43,7 @@ def appleMapsGroup(context):
     pl = get_plist_file_content(source_path)
     # Check if plist is valid before processing
     if not pl or not isinstance(pl, dict):
-        return (), [], ''
+        return (), [], source_path
     maps_activity = pl.get('MapsActivity', None)
     if maps_activity:
         types = {'1': {'type': 'message', 'message_typedef': 

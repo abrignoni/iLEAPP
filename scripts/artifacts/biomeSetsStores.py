@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
         "description": "Contact name records from the Contacts.Contact Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
                        "Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
@@ -67,7 +67,7 @@ __artifacts_v2__ = {
                        "Location.SignificantLocation Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
                        "(one store per source application).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
@@ -108,7 +108,7 @@ __artifacts_v2__ = {
                        "Biome Set.db stores (can include user content names such as note titles and board names).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
@@ -292,15 +292,17 @@ def biomeSetsShortcutPhrases(context):
     data_headers = (('Modified', 'datetime'), 'Source App', 'Phrase', 'Phrase Template', 'Intent URL',
                     'Source File')
     data_list = []
+    source_paths = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Set.db'):
             continue
+        source_paths.add(file_found)
         source_app = _source_app(file_found)
         for modified, message in _set_records(file_found):
             data_list.append((modified, source_app, _text(message, '1'), _text(message, '2'),
                               _text(message, '4'), context.get_relative_path(file_found)))
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
@@ -308,13 +310,15 @@ def biomeSetsShortcutEntities(context):
     data_headers = (('Modified', 'datetime'), 'Source App', 'Entity Name', 'Entity Identifier', 'Entity Type',
                     'Query Provider', 'Source File')
     data_list = []
+    source_paths = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('Set.db'):
             continue
+        source_paths.add(file_found)
         source_app = _source_app(file_found)
         for modified, message in _set_records(file_found):
             data_list.append((modified, source_app, _text(message, '1'), _text(message, '2'),
                               _text(message, '3'), _text(message, '4'),
                               context.get_relative_path(file_found)))
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

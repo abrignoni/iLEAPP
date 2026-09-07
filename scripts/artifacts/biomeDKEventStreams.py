@@ -14,7 +14,7 @@ __artifacts_v2__ = {
                        "Bluetooth device) from the _DKEvent.Audio.InputRoute biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
                        "Bluetooth routes carry the device MAC address and name.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
                        "Clock.Alarm stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Raw state values observed: 0, 1, 2 and 4. Published research states this "
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
                        "_DKEvent.Device.IsLockedImputed biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "This is the imputed variant of the screen lock stream: the stream name "
@@ -94,7 +94,7 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -112,7 +112,7 @@ __artifacts_v2__ = {
                        "biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Value follows the UIDeviceOrientation enumeration (UIKit, defined in "
@@ -144,7 +144,7 @@ __artifacts_v2__ = {
                        "for each Siri interface session.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The event detail is carried in the metadata entries rather than the value "
@@ -168,7 +168,7 @@ __artifacts_v2__ = {
                        "_DKEvent.Settings.DoNotDisturb biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -283,6 +283,7 @@ def _parse(context, label, value_map):
                     ('End Timestamp', 'datetime'), 'SEGB State', 'Value', 'Value (raw)',
                     'Metadata', 'Event', 'GUID', 'Device UTC Offset', 'Filename', 'Offset')
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -294,6 +295,7 @@ def _parse(context, label, value_map):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
@@ -322,7 +324,7 @@ def _parse(context, label, value_map):
                 data_list.append((ts, None, None, record.state.name, None, None, None, None,
                                   None, None, filename, record.data_start_offset))
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 
 @artifact_processor

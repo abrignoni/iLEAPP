@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "module_name": "addressBook",
+    "artifact_name": "Address Book",
+    "function_name": "addressBook",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 5,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/addressBook/testdata.addressBook.addressBook.mvs_ios_2023.zip",
+    "start_time": "2026-08-24T18:36:31.560023+00:00",
+    "end_time": "2026-08-24T18:36:31.626181+00:00",
+    "run_time_seconds": 0.0025479793548583984,
+    "last_commit": {
+      "hash": "a41db0bd024be3642b91116ceae52544b0a44f13",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-31T23:25:48-04:00",
+      "message": "docs: hold all remaining iLEAPP artifact claims to the sourced-evidence standard"
+    }
+  },
+  "headers": [
+    "Creation Date",
+    "Modification Date",
+    "First Name",
+    "Last Name",
+    "Storage Place"
+  ],
+  "data": []
+}

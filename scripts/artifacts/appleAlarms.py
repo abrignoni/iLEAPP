@@ -4,10 +4,11 @@ __artifacts_v2__ = {
         "description": "Extraction of alarms set",
         "author": "Anna-Mariya Mateyna",
         "creation_date": "2021-01-17",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Clock",
-        "notes": "Repeat-schedule bitmask mapping observed in testing; not vendor-documented.",
+        "notes": "Repeat-schedule bitmask mapping (bits 1 to 64 for Monday to Sunday, 127 Every "
+                 "Day, 0 Never) is not vendor-documented and was derived from tested data.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",
@@ -90,7 +91,7 @@ def alarms(context):
     
     # Check if plist is valid before processing
     if not pl or not isinstance(pl, dict):
-        return (), [], ''
+        return (), [], source_path
         
     if 'MTAlarms' in pl:
         if 'MTAlarms' in pl['MTAlarms']:

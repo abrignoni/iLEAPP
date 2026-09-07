@@ -36,7 +36,9 @@ __artifacts_v2__ = {
         "name": "Slack - Channel Data (ModelDatabase)",
         "description": "Slack channels/DMs from the newer ModelDatabase schema",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "Channel-type value mapping observed in testing; unrecognized values reported as stored.",
+        "category": "Slack", "notes": "Channel-type values are mapped from values seen on tested "
+                                      "data with no published source; unrecognized values are "
+                                      "reported as stored.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "hash",
         "sample_data": {

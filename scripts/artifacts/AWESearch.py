@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses TikTok in-app search terms and timestamps from the AWESearchHistory file.",
         "author": "@gforce4n6",
         "creation_date": "2023-02-25",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": "",
@@ -20,14 +20,18 @@ __artifacts_v2__ = {
     }
 }
 
+import os
+
 from scripts.ilapfuncs import convert_cocoa_core_data_ts_to_utc, get_plist_file_content ,artifact_processor
 
 @artifact_processor
 def get_AWESearch(context):
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
-        
+        source_dirs.add(os.path.dirname(file_found))
+
         pl = get_plist_file_content(file_found)
         # Older TikTok versions store a list of search entries at the root;
         # newer versions wrap the same entries in a dict under 'historyList'.
@@ -44,6 +48,6 @@ def get_AWESearch(context):
             data_list.append((timestamp, kword, context.get_relative_path(file_found)))
             
     data_headers = (('Time', 'datetime'), 'Keyword', 'Source File')
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 
 

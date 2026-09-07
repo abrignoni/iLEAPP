@@ -5,13 +5,13 @@ __artifacts_v2__ = {
                        'centroid coordinates the location service reported for each one',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-30',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('ThreeBars caches tiles of Wi-Fi location data that the device downloaded. '
-                  'A row records what the location service reported '
-                  'about a network, not that this device connected to it or observed it, and '
-                  'the coordinates are the network position rather than a device position. '
+        'notes': ("ThreeBars holds Wi-Fi network records with coordinates stored against each "
+                  "network. A row does not establish that this device connected to or observed "
+                  "the network, and the coordinates are stored against the network rather than "
+                  "as a device position; how the cache is populated is not sourced here. "
                   'The venue, type, authentication mask and score columns are integer codes '
                   'whose values are not documented and are reported as stored. A row whose '
                   'latitude and longitude are both exactly zero holds no position and is '
@@ -32,11 +32,12 @@ __artifacts_v2__ = {
                        'their BSSID and reported coordinates',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('Same caveat as the networks artifact: these are access points the location '
-                  'service reported for the area, not access points this device connected to. '
+        'notes': ("Same caveat as the networks artifact: a row does not establish that this "
+                  "device connected to the access point, and how the cache is populated is not "
+                  "sourced here. "
                   'Each row is joined to its parent network through ZNETWORK. A row whose '
                   'latitude and longitude are both exactly zero holds no position and is '
                   'reported with empty coordinates rather than plotted at 0/0.'),
@@ -51,15 +52,16 @@ __artifacts_v2__ = {
     },
     'threeBarsTiles': {
         'name': 'Wi-Fi ThreeBars - Downloaded Tiles',
-        'description': 'Map tiles of Wi-Fi location data downloaded by the Wi-Fi daemon, with '
-                       'the time of each download',
+        'description': "Tile records in the Wi-Fi daemon ThreeBars cache, with the timestamp "
+                       "stored against each",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-07-29',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('A tile row records that the device requested Wi-Fi location data covering '
-                  'an area at a given time. The tile key is not decoded here because its '
+        'notes': ("A tile row carries a key and a timestamp, both reported as stored; what event "
+                  "writes a tile row is not sourced here. The tile key is not decoded here "
+                  "because its "
                   'mapping to a geographic area is not documented; the networks and access '
                   'points belonging to a tile carry the coordinates.'),
         'paths': ('*/root/Library/Caches/com.apple.wifid/ThreeBars.sqlite*',),
@@ -110,7 +112,7 @@ def threeBarsNetworks(context):
         'Quality Score', 'Popularity Score', 'Auth Mask', 'Type', 'Venue Group', 'Venue Type',
         'Tile Key', 'Record ID')
     if not source_path or not does_table_exist_in_db(source_path, 'ZNETWORK'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     query = '''
     SELECT ZCREATED, ZCENTROIDLAT, ZCENTROIDLNG, ZNAME, ZIDENTIFIER, ZACCESSPOINTCOUNT,
@@ -156,7 +158,7 @@ def threeBarsAccessPoints(context):
         'Network Identifier', 'Edge', 'TCP Good', 'Quality Score', 'Popularity Score',
         'Record ID')
     if not source_path or not does_table_exist_in_db(source_path, 'ZACCESSPOINT'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     join = ''
     columns = ''
@@ -201,7 +203,7 @@ def threeBarsTiles(context):
     data_headers = (
         ('Created', 'datetime'), 'Tile Key', 'Network Count', 'ETag', 'Record ID')
     if not source_path or not does_table_exist_in_db(source_path, 'ZTILE'):
-        return data_headers, data_list, ''
+        return data_headers, data_list, source_path or ''
 
     query = '''
     SELECT ZCREATED, ZKEY, ZNETWORKCOUNT, ZETAG, Z_PK

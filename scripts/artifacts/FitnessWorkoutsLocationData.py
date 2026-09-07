@@ -5,10 +5,11 @@ __artifacts_v2__ = {
                        "(point counts vs expected, capture timespan/average, workout type and times)",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-08-10",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Fitness",
-        "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
+        "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC, 'Apple "
+                 "Fitness "
                  "Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
                  "(https://tinyurl.com/4zyd6z9n). Timestamps are UTC. Elapsed/Workout/Timespan columns are "
                  "HH:MM:SS durations, not absolute times. The 'Duration x Avg Interval (computed)' column "
@@ -37,14 +38,16 @@ __artifacts_v2__ = {
     },
     "fitnessWorkoutsLocation": {
         "name": "Fitness Workouts Location Data",
-        "description": "Per-point GPS location data captured during Apple Fitness workouts "
+        "description": "Per-point location data recorded against Apple Fitness workouts in the "
+                       "location_series_data table "
                        "(healthdb_secure.sqlite)",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-07-28",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Fitness",
-        "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC — 'Apple Fitness "
+        "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC, 'Apple "
+                 "Fitness "
                  "Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
                  "(https://tinyurl.com/4zyd6z9n). Timestamps are UTC. Vertical, Speed, and Course Accuracy "
                  "values also exist in the table but are not surfaced.",
@@ -177,7 +180,7 @@ def fitnessWorkoutsAnalysis(context):
     data_list = []
     db_path = _find_healthdb(context)
     if not db_path or not _has_required_tables(db_path):
-        return data_headers, data_list, ''
+        return data_headers, data_list, db_path
 
     associations_child_id_exists = does_column_exist_in_db(db_path, 'associations', 'child_id')
 
@@ -238,7 +241,7 @@ def fitnessWorkoutsLocation(context):
     data_list = []
     db_path = _find_healthdb(context)
     if not db_path or not _has_required_tables(db_path):
-        return data_headers, data_list, ''
+        return data_headers, data_list, db_path
 
     associations_child_id_exists = does_column_exist_in_db(db_path, 'associations', 'child_id')
     

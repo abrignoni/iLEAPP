@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -45,7 +45,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-02",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
         "author": "@djangofaiola",
         "version": "0.3",
         "creation_date": "2024-03-05",
-        "last_update_date": "2025-05-13",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Burner Cache",
         "notes": "https://djangofaiola.blogspot.com",
@@ -101,9 +101,10 @@ from pathlib import Path
 from scripts.ilapfuncs import get_file_path, open_sqlite_db_readonly, lava_get_full_media_info, \
     convert_unix_ts_to_utc, check_in_media, check_in_embedded_media, artifact_processor, logfunc
 from scripts.html_safe import esc, safe_join, safe_url
+from scripts.context import Context
 
 
-# <id, phone number (display name)> shared across the artifacts below.
+# <id or phone number, phone number (display name)> shared across the artifacts below.
 # NOTE: accounts/contacts/numbers populate entries that numbers/messages read,
 # so ID-to-number resolution is richer when artifacts run in file order;
 # readers fall back to raw IDs when an entry is missing.
@@ -170,25 +171,43 @@ def get_json_content(data):
         return {}
 
 
+def _device_relative(path):
+    """A path as it sat on the device: extraction relative, no leading slash.
+
+    The seeker stages every file under <report folder>/data/<extraction relative
+    path>, whatever the input type, so stripping that prefix is what makes this
+    work the same for a zip, a tar, an iTunes backup and a directory.
+
+    The slice from '/private/' is a fallback for the one input this cannot
+    reduce: the directory and single-file seekers record an absolute path on the
+    examiner's machine in file_infos, and only the seeker knows the input root.
+    It stops firing once those seekers record an extraction relative path.
+    """
+    text = Context.get_relative_path(Path(str(path)).as_posix()).replace('\\', '/')
+    if text.startswith('/'):
+        index = text.find('/private/')
+        if index > 0:
+            text = text[index:]
+    return text.lstrip('/')
+
+
 # device path/local path
 def get_device_file_path(file_path, seeker):
-    device_path = file_path
+    """Where this file lived on the device, for the Location column.
 
-    if bool(file_path):
-        file_info = seeker.file_infos.get(file_path) if file_path else None
-        # data folder: /path/to/report/data
-        if file_info:
-            source_path = file_info.source_path
-        # extraction folder: /path/to/directory
-        else:
-            source_path = file_path
-        source_path = Path(source_path).as_posix()
+    Callers pass either a staged path or a media item's recorded source_path.
+    file_infos is keyed by the staged path, so a hit means the first kind and a
+    miss means the second; both reduce the same way.
 
-        index_private = source_path.find('/private/')
-        if index_private > 0:
-            device_path = source_path[index_private:]
-    
-    return device_path
+    Previously this returned the staged path whenever it could not find
+    '/private/', which published the examiner's own report folder in the report
+    and never fired at all on an image whose root is not /private.
+    """
+    if not file_path:
+        return file_path
+
+    file_info = seeker.file_infos.get(file_path) if seeker else None
+    return _device_relative(file_info.source_path if file_info else file_path)
 
 
 def get_cache_db_fs_path(data, file_found, seeker):
@@ -343,7 +362,7 @@ def burnerCache_accounts(context):
             # lava row
             data_list.append((last_updated, created, phone_number, country_code, carrier_name, total_number_burners, user_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # contacts
@@ -463,7 +482,7 @@ def burnerCache_contacts(context):
             # lava row
             data_list.append((created, phone_number, display_name, notes, verified, blocked, muted, burner_ids, contact_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # numbers
@@ -640,7 +659,7 @@ def burnerCache_numbers(context):
             data_list.append((created, burner_number, display_name, expires, version, notifications, inbound_caller_id, voip, auto_reply_enabled, auto_reply_text,
                               rt_minutes, rt_texts, user_phone_number, user_id, burner_id, source_file_name, location))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found
 
 
 # messages
@@ -690,10 +709,12 @@ def burnerCache_messages(context):
         burner_id = message.get('burnerId', '')
         # burner number
         burner_number = burner_uid_map.get(burner_id)
-        # contact id
+        # contact id, falling back to the phone-number key the contacts artifact also stores
         contact_id = message.get('contactId', '')
         contact_temp = burner_uid_map.get(contact_id)
-        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')       
+        if not bool(contact_temp):
+            contact_temp = burner_uid_map.get(message.get('contactPhoneNumber'))
+        contact_phone_number = contact_temp if bool(contact_temp) else message.get('contactPhoneNumber')
         # sender, recipient
         if dir_val == 1:
             sender = contact_phone_number
@@ -731,7 +752,7 @@ def burnerCache_messages(context):
                 else:
                     media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
-                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                if media_item: device_file_paths.append(get_device_file_path(media_item['source_path'], seeker))
                 break
         # message type
         message_type = message.get('messageType')
@@ -811,7 +832,7 @@ def burnerCache_messages(context):
                 else:
                     media_ref_id = check_in_embedded_media(file_found, m_record[3])
                 media_item = lava_get_full_media_info(media_ref_id)
-                if media_item: device_file_paths.append(get_device_file_path(media_item[5], seeker))
+                if media_item: device_file_paths.append(get_device_file_path(media_item['source_path'], seeker))
                 break
         # message type
         message_type = conversation.get('messageType')
@@ -969,4 +990,4 @@ def burnerCache_messages(context):
                 location,
             ))
 
-    return data_headers, (data_list, data_list_html), ' '
+    return data_headers, (data_list, data_list_html), file_found

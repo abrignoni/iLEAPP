@@ -19,15 +19,20 @@ Timestamps are Unix seconds. Folder names come from the app's own labels table
 __artifacts_v2__ = {
     "protonMailInboxMessages": {
         "name": "Proton Mail - Inbox Messages",
-        "description": "Messages cached by the Proton Mail iOS Inbox app, including decrypted subject, body, sender and recipients",
+        "description": "Messages cached by the Proton Mail iOS Inbox app, with the subject, "
+                       "body, sender and recipients as cached",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-14",
-        "last_update_date": "2026-08-14",
-        "requirements": "none",
+        "last_update_date": "2026-08-24",
+        "requirements": "BeautifulSoup",
         "category": "Proton Mail",
-        "notes": "Reads the group.me.proton.mail cache used by Proton Mail 7.x (Inbox). In the tested "
+        "notes": "Reads the group.me.proton.mail cache (Proton Mail Inbox); the tested image ran "
+                 "Proton Mail 7.9.2. In the tested "
                  "image the cached subject, body, sender and recipient values are stored in clear "
-                 "text; the body is the HTML the app rendered. Folder is resolved from the app's own "
+                 "text; the store holds the HTML the app rendered, and Body is the readable text "
+                 "extracted from it (tags, styling and repeated whitespace removed). Links lists the "
+                 "distinct link targets the same body carries, in document order, as stored; the "
+                 "unmodified HTML stays in the source database. Folder is resolved from the app's own "
                  "labels table. From Me is derived by comparing the message sender to the account's "
                  "own addresses. The Attachment column shows the first cached attachment file for the "
                  "message when it is present in the extraction; the Inbox Attachments artifact lists "
@@ -81,9 +86,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Proton Mail",
-        "notes": "Contact email rows from the Inbox cache. A proton-autosave uid marks a contact the "
-                 "app created automatically from a sent or received message rather than one the user "
-                 "saved.",
+        "notes": "Contact email rows from the Inbox cache. A uid beginning proton-autosave is "
+                 "reported as stored; what distinguishes those rows from other contact rows is "
+                 "not established here.",
         "paths": ('*/Shared/AppGroup/*/support/*.db*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -113,11 +118,31 @@ __artifacts_v2__ = {
 import json
 import re
 
+from bs4 import BeautifulSoup
+
 from scripts.ilapfuncs import (artifact_processor, get_sqlite_db_records,
                                does_table_exist_in_db, convert_unix_ts_to_utc,
                                check_in_media)
 
 _ATTACHMENT_ID_RE = re.compile(r'/mail-cache/attachments/(\d+)/')
+# whitespace plus the invisible padding characters observed in marketing preheaders
+_WHITESPACE_RUN = re.compile(r'[\s\u00ad\u034f\u200b\u200c\u200d\ufeff]+')
+
+
+def _body_text(html_body):
+    """The readable text of an HTML body: tags dropped, whitespace runs collapsed."""
+    if not html_body:
+        return ''
+    text = BeautifulSoup(html_body, 'html.parser').get_text(separator=' ')
+    return _WHITESPACE_RUN.sub(' ', text).strip()
+
+
+def _body_links(html_body):
+    """The distinct link targets an HTML body carries, in document order, as stored."""
+    if not html_body:
+        return ''
+    hrefs = (a.get('href') for a in BeautifulSoup(html_body, 'html.parser').find_all('a', href=True))
+    return ' '.join(dict.fromkeys(h for h in hrefs if h))
 
 
 def _is_mail_cache(file_found):
@@ -194,6 +219,7 @@ def protonMailInboxMessages(context):
         'Conversation Subject',
         'Body',
         ('Attachment', 'media'),
+        'Links',
         'Folder',
         'Conversation ID',
         'Subject',
@@ -261,8 +287,9 @@ def protonMailInboxMessages(context):
                 from_me,
                 _format_addresses(row[3]),
                 row[15],
-                row[7],
+                _body_text(row[7]),
                 media_ref,
+                _body_links(row[7]),
                 folders.get(row[0], ''),
                 row[14],
                 row[2],

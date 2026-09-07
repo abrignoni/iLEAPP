@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extract Apple podcasts shows.",
         "author": "@stark4n6",
         "creation_date": "2021-07-21",
-        "last_update_date": "2025-10-22",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Podcasts",
         "notes": "",
@@ -28,7 +28,7 @@ __artifacts_v2__ = {
         "description": "Extract Apple podcasts episodes.",
         "author": "@stark4n6",
         "creation_date": "2021-07-21",
-        "last_update_date": "2025-10-22",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Podcasts",
         "notes": "",
@@ -65,12 +65,14 @@ def get_applePodcastsShows(context):
                 'Description',
                 'Web Page URL',
                 'Source File']
-    
+    source_files = set()
+
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('.sqlite'):
             continue # Skip all other files
-    
+
+        source_files.add(file_found)
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
         cursor.execute('''
@@ -98,7 +100,7 @@ def get_applePodcastsShows(context):
             
             data_list.append((timestampadded,timestampdateplayed,timestampdupdate,timestampdowndate,row[4],row[5],row[6],row[7],row[8], context.get_relative_path(file_found)))
     
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
         
 @artifact_processor
 def get_applePodcastsEpisodes(context):
@@ -118,13 +120,15 @@ def get_applePodcastsEpisodes(context):
                 'Duration',
                 'Size',
                 'Play State',
-                'Source File'] 
-    
+                'Source File']
+    source_files = set()
+
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('.sqlite'):
             continue # Skip all other files
-    
+
+        source_files.add(file_found)
         db = open_sqlite_db_readonly(file_found)
         cursor = db.cursor()
         
@@ -163,4 +167,4 @@ def get_applePodcastsEpisodes(context):
 
             data_list.append((timestampimport,timestampmeta,timestamplastplay,timestamplastmod,timestampdowndate,row[5],row[6],row[7],row[8],row[9],row[10],row[11],row[12],row[13], context.get_relative_path(file_found)))
     
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

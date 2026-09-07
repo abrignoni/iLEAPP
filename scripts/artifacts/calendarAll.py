@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "List of calendar events",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2023-11-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Calendar",
         "notes": "Participant status is reported as stored. Apple's public EKParticipantStatus enum defines Pending=1, Accepted=2, Declined=3, Tentative=4; whether the Calendar database column follows that enum is unverified. Reference: Apple EventKit, EKParticipantStatus, https://developer.apple.com/documentation/eventkit/ekparticipantstatus",
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
         "description": "Calendar items on the gregorian birthday calendar scale (commonly Contacts birthdays)",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2024-10-30",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Calendar",
         "notes": "",
@@ -66,7 +66,7 @@ __artifacts_v2__ = {
         "description": "List of calendars",
         "author": "@JohannPLW, @JohnHyla",
         "creation_date": "2023-11-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Calendar",
         "notes": "Sharing status and access level value mappings observed in testing; unrecognized values reported as stored.",
@@ -203,11 +203,13 @@ def calendarEvents(context):
     data_headers = (('Start Time', 'datetime'), ('End Time', 'datetime'), 'Timezone', 'Calendar Name', 'Account Name', 'Event Title',
                     'Location Name', 'Location Address', 'Location Coordinates', 'Invitation From', 'Invitees',
                     'Conference URL', 'Attachments', 'Notes', ('Creation Time', 'datetime'), ('Last Modification Time', 'datetime'), 'Source File')
+    source_files = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
+            source_files.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -316,7 +318,7 @@ def calendarEvents(context):
                                       row[17], creation_time, modification_time, context.get_relative_path(file_found)))
                     
 
-    return data_headers, (data_list, data_list_html), 'see Source File for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_files))
 
 
 @artifact_processor
@@ -325,11 +327,13 @@ def calendarBirthdays(context):
     data_list_html = []
     data_list = []
     data_headers = ('Start Date', 'Event Title', 'Calendar Name', 'Account Name', 'Source File')
+    source_files = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
+            source_files.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -359,7 +363,7 @@ def calendarBirthdays(context):
                 data_list_html.append((birthdate, row[0], calendar_name_tag, row[4], context.get_relative_path(file_found)))
                 data_list.append((birthdate, row[0], calendar_name, row[4], context.get_relative_path(file_found)))
 
-    return data_headers, (data_list, data_list_html), 'see Source File for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_files))
 
 
 @artifact_processor
@@ -368,11 +372,13 @@ def calendarList(context):
     data_list = []
     data_headers = ('Calendar Name', 'Account Name', 'Account Email', 'Owner Name',
                     'Owner Email', 'Sharing Status', 'Sharing Participants', 'Notes', 'Source File')
+    source_files = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
 
         if file_found.endswith('.sqlitedb'):
+            source_files.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -422,4 +428,4 @@ def calendarList(context):
                         data_list_html.append((calendar_name_tag, row[3], row[4], row[5], owner_email, row[7], None, row[8], context.get_relative_path(file_found)))
                         data_list.append((calendar_name, row[3], row[4], row[5], owner_email, row[7], None, row[8], context.get_relative_path(file_found)))
                 
-    return data_headers, (data_list, data_list_html), 'see Source File for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_files))

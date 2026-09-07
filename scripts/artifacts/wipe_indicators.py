@@ -1,12 +1,15 @@
 __artifacts_v2__ = {
     "wipe_indicators": {
         "name": "Wipe Indicators",
-        "description": "Reports the last-modified time of /root/.obliterated and /root/.bootstrapped, files created when the device is wiped; the timestamp reflects the first boot after reset.",
+        "description": "Reports the last-modified time of /root/.obliterated and "
+                       "/root/.bootstrapped; the cited reference describes .obliterated as "
+                       "created on the first boot after a wipe, and .bootstrapped is not covered "
+                       "by it",
         "author": "@JohnHyla",
         "creation_date": "2026-08-06",
-        "version": "0.0.2",
+        "version": "0.0.3",
         "date": "2024-10-17",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "The file is not present in every extraction and extraction handling can disturb file times; corroborate with containermanagerd logs. Reference: Cellebrite, 'Upgrade From Null: Detecting iOS Wipe Artifacts', https://cellebrite.com/en/blog/upgrade-from-null-detecting-ios-wipe-artifacts/",
@@ -30,10 +33,8 @@ __artifacts_v2__ = {
     }
 }
 
-import datetime
-from datetime import timezone
 import os
-from scripts.ilapfuncs import logdevinfo, artifact_processor, convert_unix_ts_to_utc
+from scripts.ilapfuncs import device_info, artifact_processor, convert_unix_ts_to_utc
 
 @artifact_processor
 def wipe_indicators(context):
@@ -43,12 +44,12 @@ def wipe_indicators(context):
     
     for source_path in files_found:
         source_name = str(context.get_relative_path(source_path))
-        source_name_log = source_name.rsplit('\\', 1)[-1]
+        source_name_log = os.path.basename(source_name.replace('\\', '/'))
         utc_modified_date = convert_unix_ts_to_utc(os.path.getmtime(source_path))
     
-        logdevinfo(f'<b>{source_name_log} Timestamp: </b>{utc_modified_date}')
+        device_info("Wipe Indicators", f"{source_name_log}", utc_modified_date, source_name)
     
         data_list.append((utc_modified_date, source_name_log, source_name))
 
     data_headers = (('Timestamp', 'datetime'),'Source File','Source Path')
-    return data_headers, data_list, 'See source file below'
+    return data_headers, data_list, '\n'.join(sorted(str(file_found) for file_found in files_found))

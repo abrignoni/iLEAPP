@@ -105,6 +105,68 @@ Artifact modules live in `scripts/artifacts/` and are loaded dynamically at runt
 - [Updating Complex Modules to Include LAVA Output](admin/docs/module_updates_advanced.md)
 - [Testing Modules](admin/docs/testing/readme.md)
 
+## Test data and sample_data for your PR
+
+A PR that adds or changes an artifact is easiest to review and merge when it arrives with
+two things: a small test fixture cut from a real extraction, and `sample_data` values that
+record what the module produced. Scripts generate both. Here is the whole flow.
+
+One rule before anything else: whatever you commit here becomes public. Only use data you
+are allowed to share, like a test device you populated yourself, a public research image,
+or a file you sanitized by hand. Never casework.
+
+**1. Cut a fixture from your extraction**
+
+```
+python admin/test/scripts/make_test_data.py <module> --case 1 --input <extraction.zip>
+```
+
+This pulls the files your module's `paths` patterns match out of the extraction and writes
+the case file `admin/test/cases/testdata.<module>.json` plus one small zip per artifact
+under `admin/test/cases/data/<module>/`.
+
+Size rules: under 10 MB per zip, commit it with the PR. Between 10 and 25 MB, commit the
+case file and attach the zip to a PR comment. Bigger than that, say so in the PR and a
+maintainer will arrange a handoff.
+
+**2. Record the expected output**
+
+```
+TZ=UTC python admin/test/scripts/test_module.py <module> -a all -c all
+```
+
+This runs the module against the fixture and writes a snapshot of the output under
+`admin/test/results/<module>/`. Commit the snapshot too. It becomes the baseline that
+guards the module after merge. Keep the `TZ=UTC` part: the committed snapshots are UTC
+and CI runs UTC.
+
+**3. Run the same comparison CI will run**
+
+```
+python admin/test/scripts/run_test_cases.py --module <module>
+```
+
+**4. Generate the sample_data values**
+
+```
+python admin/scripts/validate_sample_data.py --emit <extraction.zip> --key <image_name>
+```
+
+This runs iLEAPP end to end on your extraction and prints ready-to-paste `sample_data`
+blocks for the modules changed on your branch. Paste them into your module's
+`__artifacts_v2__` and add the app name and version you saw on the image. If a count is
+zero, check the source file really is empty before recording it.
+
+**5. Commit it all and open the PR**
+
+Commit the module, the case file, the fixture zips, and the recorded snapshot together.
+More detail lives in
+[admin/docs/testing/create_module_test_cases.md](admin/docs/testing/create_module_test_cases.md).
+
+If your extraction cannot be shared, open the PR anyway and say so. A fixture can often be
+cut from a public research image instead, or the real file can be sanitized by hand. The
+review does not stop while we work that out.
+
 ## Running from Source
 
 Releases are the easiest way to run iLEAPP. Use source if you are developing modules or need unreleased changes from `main`.

@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts cellular wireless information from device preferences",
         "author": "@abrignoni",
         "creation_date": "2024-10-22",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Cellular",
         "notes": "",
@@ -38,9 +38,11 @@ from scripts.ilapfuncs import device_info, artifact_processor, get_plist_file_co
 @artifact_processor
 def celWireless(context):
     data_list = []
+    source_files = set()
     for filepath in context.get_files_found():
         basename = os.path.basename(filepath)
         if basename in ["com.apple.commcenter.device_specific_nobackup.plist", "com.apple.commcenter.plist"]:
+            source_files.add(str(filepath))
             plist = get_plist_file_content(filepath)
             for key, val in plist.items():
                 data_list.append((key, str(val), context.get_relative_path(filepath)))
@@ -57,4 +59,4 @@ def celWireless(context):
     
     data_headers = ('Data Key', 'Data Value', 'Source File')
     
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

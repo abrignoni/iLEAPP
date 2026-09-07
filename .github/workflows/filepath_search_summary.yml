@@ -3,6 +3,9 @@ name: Run Filepath Search List
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   run-filepath-search:
     runs-on: ubuntu-latest

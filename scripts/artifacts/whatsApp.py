@@ -7,7 +7,9 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-09',
         'requirements': 'none',
         'category': 'WhatsApp',
-        'notes': 'Call outcome value mapping observed in testing; unrecognized values reported as stored.',
+        'notes': "The ZOUTCOME values 0, 1 and 4 are labelled Ended, Missed and Rejected; that "
+                 "mapping has no vendor source and no recorded count, and unrecognized values "
+                 "are reported as stored.",
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -37,7 +39,9 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'WhatsApp',
-        'notes': 'Metadata protobuf field meanings established through testing. Coordinates are emitted only for message type 5, the type observed to carry locations in testing.',
+        'notes': "Metadata protobuf field meanings have no vendor source and no recorded "
+                 "measurement here. Coordinates are emitted only for rows whose ZMESSAGETYPE is "
+                 "5; the ZMESSAGETYPE value mapping is not sourced.",
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',

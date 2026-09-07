@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses WiFi connection data for known networks",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-21",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "WiFi Connections",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
         "description": "Parses time-related data for known WiFi networks",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-21",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "WiFi Connections",
         "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
@@ -68,7 +68,7 @@ __artifacts_v2__ = {
         "description": "Parses WiFi connection data for networks scanned while using private MAC address",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-05-24",
-        "last_update_date": "2023-05-24",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "WiFi Connections",
         "notes": "",
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "description": "Parses BSS (Basic Service Set) information for known WiFi networks",
         "author": "@JamesHabben",
         "creation_date": "2023-05-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "WiFi Connections",
         "notes": "Extracts detailed BSS information from the com.apple.wifi.known-networks.plist file",
@@ -143,6 +143,7 @@ def _decode_ssid(ssid_bytes):
 @artifact_processor
 def appleWifiKnownNetworks(context):
     data_list = []
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         deserialized = get_plist_file_content(file_found)
@@ -151,6 +152,7 @@ def appleWifiKnownNetworks(context):
         if not deserialized or not isinstance(deserialized, dict):
             continue
         
+        source_files.add(file_found)
         if 'KeepWiFiPoweredAirplaneMode' in deserialized:
             val = (deserialized['KeepWiFiPoweredAirplaneMode'])
             device_info('WiFi', 'Keep Wifi Powered Airplane Mode', val, file_found)
@@ -202,11 +204,12 @@ def appleWifiKnownNetworks(context):
                     'Serial Number', 'Model Name', 'Enabled', 'Carplay Network', 'Hidden', 
                     'Captive Network', 'User Portal URL', 'Add Reason', 'Bundle ID', 'Source File')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 @artifact_processor
 def appleWifiKnownNetworksTimes(context):
     data_list = []
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         deserialized = get_plist_file_content(file_found)
@@ -214,6 +217,7 @@ def appleWifiKnownNetworksTimes(context):
         if not deserialized or not isinstance(deserialized, dict):
             continue
         
+        source_files.add(file_found)
         if 'List of known networks' in deserialized:
             for known_network in deserialized['List of known networks']:
                 ssid = _decode_ssid(known_network.get('SSID_STR', b''))
@@ -254,11 +258,12 @@ def appleWifiKnownNetworksTimes(context):
                     ('Added At', 'datetime'), ('Whitelisted Captive Network Probe Date', 'datetime'),
                     ('Captive Web Sheet Login Date', 'datetime'), ('Previous Joined', 'datetime'), 'Source File')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 @artifact_processor
 def appleWifiScannedPrivate(context):
     data_list = []
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         deserialized = get_plist_file_content(file_found)
@@ -266,6 +271,7 @@ def appleWifiScannedPrivate(context):
         if not deserialized or not isinstance(deserialized, dict):
             continue
         
+        source_files.add(file_found)
         if 'List of scanned networks with private mac' in deserialized:
             for scanned_network in deserialized['List of scanned networks with private mac']:
                 ssid = scanned_network.get('SSID_STR', '')
@@ -294,11 +300,12 @@ def appleWifiScannedPrivate(context):
                     'SSID', 'BSSID', 'MAC Used For Network', 'Private MAC Computed For Network', 'MAC Valid', 
                     'In Known Networks', 'Source File')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 @artifact_processor
 def appleWifiBSSList(context):
     data_list = []
+    source_files = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         deserialized = get_plist_file_content(file_found)
@@ -306,6 +313,7 @@ def appleWifiBSSList(context):
         if not deserialized or not isinstance(deserialized, dict):
             continue
         
+        source_files.add(file_found)
         if 'com.apple.wifi.known-networks.plist' in file_found:
             for _, known_network in deserialized.items():
                 ssid = _decode_ssid(known_network.get('SSID', b''))
@@ -348,4 +356,4 @@ def appleWifiBSSList(context):
         'Source File'
     )
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

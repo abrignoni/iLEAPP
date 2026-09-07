@@ -5,20 +5,31 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok message data from the ChatFiles databases",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
             "Messages are extracted from TIMMessageORM. Contact details are joined from "
             "AwemeContacts tables when available. The Account ID column is the ChatFiles "
             "folder name (the local account uid, which also appears in AwemeIM.db); messages "
-            "whose sender matches the Account ID are marked Outgoing. "
+            "whose sender matches the Account ID are marked Outgoing. An iOS app container "
+            "is a GUID directory, so the database names alone do not identify the owning "
+            "app. Each matched database is attributed to the app named by its container's "
+            "own .com.apple.mobile_container_manager.metadata.plist (a path reconstructed "
+            "from an iTunes backup names the container by its AppDomain bundle id), and "
+            "only containers owned by com.zhiliaoapp.musically are parsed. Databases in "
+            "containers owned by any other app, or whose owning app cannot be established, "
+            "are skipped and logged. "
+            "On the tested images every matched database is in a TikTok-owned container; "
+            "the exclusion of foreign and unattributable containers is proven with "
+            "constructed test data. "
             "Reference: G. Horsman & L. Shou, 'Case Study: Forensic Analysis of TikTok on iOS', "
             "DFIR Review 2022, https://dfir.pubpub.org/pub/h6vyh33u"
         ),
         "paths": (
             "*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*",
             "*AwemeIM.db*",
+            "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
         ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -52,11 +63,25 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok contact data from AwemeIM.db",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-06-18",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "TikTok",
-        "notes": "Timestamp corresponds to latest chat if available.",
-        "paths": ("*AwemeIM.db*",),
+        "notes": (
+            "Timestamp is reported as stored. An iOS app container is a "
+            "GUID directory, so the AwemeIM.db name alone does not identify the owning app. "
+            "Each matched database is attributed to the app named by its container's own "
+            ".com.apple.mobile_container_manager.metadata.plist (a path reconstructed from "
+            "an iTunes backup names the container by its AppDomain bundle id), and only "
+            "containers owned by com.zhiliaoapp.musically are parsed. Databases in "
+            "containers owned by any other app, or whose owning app cannot be established, "
+            "are skipped and logged. On the tested images every matched database is in a "
+            "TikTok-owned container; the exclusion of foreign and unattributable "
+            "containers is proven with constructed test data."
+        ),
+        "paths": (
+            "*AwemeIM.db*",
+            "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+        ),
         "output_types": "standard",
         "artifact_icon": "users",
         "sample_data": {
@@ -81,7 +106,7 @@ __artifacts_v2__ = {
                        "own key names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -116,7 +141,7 @@ __artifacts_v2__ = {
                        "id the companion plist maps it to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -151,7 +176,7 @@ __artifacts_v2__ = {
                        "launch flag and duration as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -163,12 +188,23 @@ __artifacts_v2__ = {
             "Hu and Karabiyik describe the feature_engineering.db of an earlier app "
             "generation as recording user interaction events with millisecond "
             "timestamps; the event table they document is absent from the tested build, "
-            "which carries this session table instead. "
+            "which carries this session table instead. An iOS app container is a GUID "
+            "directory, so the database path alone does not identify the owning app. "
+            "Each matched database is attributed to the app named by its container's "
+            "own .com.apple.mobile_container_manager.metadata.plist (a path "
+            "reconstructed from an iTunes backup names the container by its AppDomain "
+            "bundle id), and only containers owned by com.zhiliaoapp.musically are "
+            "parsed. Databases in containers owned by any other app, or whose owning "
+            "app cannot be established, are skipped and logged. On the tested images "
+            "every matched database is in a TikTok-owned container; the exclusion of "
+            "foreign and unattributable containers is proven with constructed test "
+            "data. "
             "Reference: Xiao Hu and Umit Karabiyik, 'Shopping while Watching: An Updated "
             "Forensic Analysis of TikTok on Android and iOS', ISNCC 2024, "
             "https://doi.org/10.1109/ISNCC62547.2024.10759027"
         ),
-        "paths": ("*/mobile/Containers/Data/Application/*/Library/Pitaya/FE/*/DB/feature_engineering.db*",),
+        "paths": ("*/mobile/Containers/Data/Application/*/Library/Pitaya/FE/*/DB/feature_engineering.db*",
+                  "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
         "output_types": "standard",
         "artifact_icon": "activity",
         "sample_data": {
@@ -188,7 +224,7 @@ __artifacts_v2__ = {
                        "timestamp, reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-16",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -202,9 +238,19 @@ __artifacts_v2__ = {
             "id. Whether an entry means the video was viewed or prefetched is not "
             "established here. The Account ID column is the file name's numeric prefix, "
             "which on the tested image matches the ChatFiles account folder name (the "
-            "local account uid)."
+            "local account uid). An iOS app container is a GUID directory, so the store's "
+            "path alone does not identify the owning app. Each matched database is "
+            "attributed to the app named by its container's own "
+            ".com.apple.mobile_container_manager.metadata.plist (a path reconstructed "
+            "from an iTunes backup names the container by its AppDomain bundle id), and "
+            "only containers owned by com.zhiliaoapp.musically are parsed. Databases in "
+            "containers owned by any other app, or whose owning app cannot be "
+            "established, are skipped and logged. On the tested images every matched "
+            "database is in a TikTok-owned container; the exclusion of foreign and "
+            "unattributable containers is proven with constructed test data."
         ),
-        "paths": ("*/mobile/Containers/Data/Application/*/Documents/WatchHistory/*_history_WCDB.sqlite*",),
+        "paths": ("*/mobile/Containers/Data/Application/*/Documents/WatchHistory/*_history_WCDB.sqlite*",
+                  "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
         "output_types": "standard",
         "artifact_icon": "eye",
         "sample_data": {
@@ -212,10 +258,15 @@ __artifacts_v2__ = {
             "otto_ios17": "iOS 17.5.1 | TikTok 35.6.0 | 1044 rows",
             "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 1562 rows",
             "hickman_ios15": "iOS 15.3.1 | 8 rows",
+            "dexter_ios18": "iOS 18.3.2 | no WatchHistory store found",
+            "iphone12_ios18": "iOS 18.7 | no WatchHistory store found",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | no WatchHistory store found",
+            "hickman_ios13": "iOS 13.3.1 | no WatchHistory store found",
         },
     },
 }
 
+import re
 from datetime import datetime, timezone
 from os.path import basename, dirname, getmtime, getsize, isfile, normcase, normpath
 
@@ -231,6 +282,64 @@ from scripts.ilapfuncs import (
 )
 
 _TIKTOK_ACCOUNT_KEY = "com.toutiao.account.userdefault.user"
+
+# An iOS app container is a GUID directory, so a matched file's path does not
+# name the owning app. Stores matched by name (IM databases, Pitaya
+# feature_engineering.db, WatchHistory) are only parsed when the app that owns
+# their container is TikTok.
+_TIKTOK_BUNDLE_IDS = ("com.zhiliaoapp.musically",)
+_CONTAINER_METADATA_SUFFIX = ".com.apple.mobile_container_manager.metadata.plist"
+_CONTAINER_SEGMENT_RE = re.compile(r"/Containers/Data/Application/([^/]+)/", re.I)
+
+
+def _container_owners(files_found):
+    """Container directory name mapped to the bundle id its own metadata plist
+    records. The plists are declared in the artifact's paths so they are staged
+    with the databases regardless of the order artifacts run in."""
+    owners = {}
+    for file_found in files_found:
+        file_found = str(file_found)
+        if not file_found.endswith(_CONTAINER_METADATA_SUFFIX):
+            continue
+        parsed = get_plist_file_content(file_found)
+        if not isinstance(parsed, dict):
+            continue
+        identifier = parsed.get("MCMMetadataIdentifier")
+        if identifier:
+            owners[basename(dirname(file_found))] = identifier
+    return owners
+
+
+def _container_owner(path, owners):
+    """Bundle id of the app owning the container the file sits in, or '' when
+    it cannot be established. The backup seeker reconstructs an AppDomain path
+    with the bundle id itself as the container segment, so a dotted segment
+    with no metadata plist is that recorded bundle id."""
+    match = _CONTAINER_SEGMENT_RE.search(str(path).replace("\\", "/"))
+    if not match:
+        return ""
+    segment = match.group(1)
+    if segment in owners:
+        return owners[segment]
+    if "." in segment:
+        return segment
+    return ""
+
+
+def _tiktok_owned(paths, owners):
+    """The subset of paths whose containers TikTok owns; every exclusion is
+    logged with the reason."""
+    kept = []
+    for path in paths:
+        owner = _container_owner(path, owners)
+        if owner in _TIKTOK_BUNDLE_IDS:
+            kept.append(path)
+        elif owner:
+            logfunc(f"Skipping {path}; its container's metadata records the owning "
+                    f"app {owner}, which is not a TikTok bundle id")
+        else:
+            logfunc(f"Skipping {path}; the app owning its container could not be established")
+    return kept
 
 
 def _quote_identifier(identifier):
@@ -378,14 +487,16 @@ def _source_file_text(context, *paths):
 def tiktok_messages(context):
     """ see artifact description """
     files_found = context.get_files_found()
-    aweme_dbs = _aweme_im_dbs(files_found)
+    owners = _container_owners(files_found)
+    aweme_dbs = _tiktok_owned(_aweme_im_dbs(files_found), owners)
     data_list = []
+    source_paths = set()
 
     if not aweme_dbs:
-        logfunc("AwemeIM.db not found. TikTok messages cannot be parsed.")
+        logfunc("No TikTok-owned AwemeIM.db found. TikTok messages cannot be parsed.")
         return (), [], ""
 
-    for chat_db in _chat_databases(files_found):
+    for chat_db in _tiktok_owned(_chat_databases(files_found), owners):
         aweme_im_db = _aweme_for_chat_db(chat_db, aweme_dbs)
         account_id = basename(dirname(chat_db))
         attach_query = attach_sqlite_db_readonly(aweme_im_db, "AwemeIM")
@@ -403,6 +514,9 @@ def tiktok_messages(context):
             logfunc(f"Table TIMMessageORM not found in {chat_db}")
             continue
 
+        source_paths.add(chat_db)
+        if aweme_im_db:
+            source_paths.add(aweme_im_db)
         contact_tables = _contact_tables(
             chat_db,
             attach_query,
@@ -476,18 +590,19 @@ def tiktok_messages(context):
         "Conversation ID",
     )
 
-    return data_headers, data_list, "see Source File column"
+    return data_headers, data_list, "\n".join(sorted(source_paths))
 
 
 @artifact_processor
 def tiktok_contacts(context):
     """ see artifact description """
     files_found = context.get_files_found()
-    aweme_dbs = _aweme_im_dbs(files_found)
+    aweme_dbs = _tiktok_owned(_aweme_im_dbs(files_found), _container_owners(files_found))
     data_list = []
+    source_paths = set()
 
     if not aweme_dbs:
-        logfunc("AwemeIM.db not found. TikTok contacts cannot be parsed.")
+        logfunc("No TikTok-owned AwemeIM.db found. TikTok contacts cannot be parsed.")
         return (), [], ""
 
     for aweme_im_db in aweme_dbs:
@@ -499,6 +614,7 @@ def tiktok_contacts(context):
             logfunc(f"No AwemeContacts tables found in {aweme_im_db}.")
             continue
 
+        source_paths.add(aweme_im_db)
         contacts_query = []
         for table in contact_tables:
             table_name = _quote_literal(table)
@@ -538,7 +654,7 @@ def tiktok_contacts(context):
         "Source File",
     )
 
-    return data_headers, data_list, "see Source File column"
+    return data_headers, data_list, "\n".join(sorted(source_paths))
 
 
 @artifact_processor
@@ -579,13 +695,12 @@ def tiktok_account(context):
 def tiktok_watch_history(context):
     """ see artifact description """
     files_found = context.get_files_found()
+    history_dbs = [str(file_found) for file_found in files_found
+                   if str(file_found).endswith("_history_WCDB.sqlite")]
     data_list = []
     source_path = ""
 
-    for file_found in files_found:
-        file_found = str(file_found)
-        if not file_found.endswith("_history_WCDB.sqlite"):
-            continue
+    for file_found in _tiktok_owned(history_dbs, _container_owners(files_found)):
         source_path = source_path or file_found
         account_id = basename(file_found).split("_", 1)[0]
         source_file = context.get_relative_path(file_found)
@@ -653,13 +768,12 @@ def tiktok_published_videos(context):
 def tiktok_app_sessions(context):
     """ see artifact description """
     files_found = context.get_files_found()
+    session_dbs = [str(file_found) for file_found in files_found
+                   if str(file_found).endswith("feature_engineering.db")]
     data_list = []
     source_path = ""
 
-    for file_found in files_found:
-        file_found = str(file_found)
-        if not file_found.endswith("feature_engineering.db"):
-            continue
+    for file_found in _tiktok_owned(session_dbs, _container_owners(files_found)):
         has_table = list(get_sqlite_db_records(
             file_found,
             "SELECT name FROM sqlite_master WHERE type = 'table' "

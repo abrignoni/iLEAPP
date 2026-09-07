@@ -3,12 +3,12 @@ __artifacts_v2__ = {
         "name": "Biome - Contact Autocomplete Feedback (CNA)",
         "description": "Parses contact autocomplete feedback records (stream _PSCNAutocompleteFeedback) from the "
                        "SEGB stream files at CoreDuet/People/Feedback/CNA. Each record is a feedback event from the "
-                       "recipient autocomplete facility used by apps such as Messages and FaceTime, and can include "
+                       "recipient autocomplete facility and can include "
                        "suggested contact names, handles (phone numbers), conversation identifiers, and the stated "
                        "suggestion reason.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-30",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Biome-format SEGB stream stored outside the Biome folder; location reported by Mattia Epifani. "
@@ -65,6 +65,7 @@ def _compact(value):
 def get_cnaAutocompleteFeedback(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -76,6 +77,7 @@ def get_cnaAutocompleteFeedback(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
@@ -145,4 +147,4 @@ def get_cnaAutocompleteFeedback(context):
                     'Recipient Identifier', 'Conversation ID', 'Suggestion Reason', 'Group Name',
                     'Family Suggestion', 'Interaction Detail', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

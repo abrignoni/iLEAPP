@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses notes entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -48,6 +48,7 @@ def get_biomeNotes(context):
     data_list = []
     data_list_html = []
     record_counter = 0
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -58,7 +59,8 @@ def get_biomeNotes(context):
                 continue
         else:
             continue
-        
+
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
@@ -80,4 +82,4 @@ def get_biomeNotes(context):
                 data_list_html.append((ts, None, record.state.name, None, None, None, None, filename,
                                             record.data_start_offset))
 
-    return data_headers, (data_list, data_list_html), 'see Source File for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))

@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct message conversations cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it holds the trusted, untrusted and low quality timelines.',
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         'description': 'Twitter X accounts cached alongside the direct message inbox',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         'description': 'Posts (tweets) cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'Cached objects are gzip compressed JSON stored in the Items table.',
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         'description': 'User profiles cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         'description': 'In-app notifications cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -267,7 +267,7 @@ def twitterDirectMessages(context):
                         account_id,
                     ))
 
-    return data_headers, data_list, ', '.join(source_paths)
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 @artifact_processor
@@ -308,7 +308,7 @@ def twitterDMUsers(context):
                 profile_image.get('url') if isinstance(profile_image, dict) else '',
             ))
 
-    return data_headers, data_list, ', '.join(source_paths)
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 def _iter_cached_models(source_path, model_type):

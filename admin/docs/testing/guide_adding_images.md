@@ -24,11 +24,9 @@ This guide outlines the process of adding a new test image to the LEAPP project'
 ```json
 {
   "image_name": "unique_image_name",
+  "sample_data_key": "corpus_key_used_in_sample_data",
   "description": "Brief description of the image and its contents",
-  "local_image_paths": [
-    "~/path/to/image/on/your/system.tar.gz",
-    "/alternative/path/to/image.zip"
-  ],
+  "published_file": "Image-Filename-As-Published.zip",
   "file_path_list": "admin/data/filepath-lists/your-image-name.csv.zip",
   "download_url": "https://example.com/download/link/for/image",
   "author": {
@@ -51,9 +49,31 @@ This guide outlines the process of adding a new test image to the LEAPP project'
 }
 ```
 
-5. **Verify Local Paths**:
-   - Ensure that at least one of the `local_image_paths` exists on your system.
-   - Add multiple paths to accommodate different contributor environments.
+   - `sample_data_key` is the corpus key artifacts cite in `sample_data` and in
+     [public_corpus_images.md](public_corpus_images.md). For new entries make it the same
+     string as `image_name`.
+   - `published_file` is the exact filename the publisher distributes, with no path.
+   - Manifest entries carry no machine-specific paths. Older entries still list
+     `local_image_paths` and those keep working, but do not add that field to new entries.
+
+5. **Record Your Local Path**:
+   - Machine-specific locations live in `admin/image_manifest.local.json`, which is
+     git-ignored. Map the image directly, or name folders to search for `published_file`:
+
+```json
+{
+  "image_paths": {
+    "unique_image_name": "~/phone-images/Image-Filename-As-Published.zip"
+  },
+  "search_roots": [
+    "~/phone-images"
+  ]
+}
+```
+
+   - `image_paths` keys can be either the `image_name` or the `sample_data_key`.
+   - A direct `image_paths` mapping is checked first and is the reliable option when your
+     copy is renamed or is the un-nested inner image rather than the published wrapper.
 
 6. **Commit Changes**:
    - Commit the updated `image_manifest.json` file to the repository.
@@ -66,6 +86,6 @@ This guide outlines the process of adding a new test image to the LEAPP project'
 
 ## Troubleshooting
 
-- If the `make_test_data.py` script fails to locate your image, check that at least one of the `local_image_paths` is correct for your system.
+- If the `make_test_data.py` script fails to locate your image, check your mapping in `admin/image_manifest.local.json`, and that the mapped file exists.
 - Ensure that the `file_path_list` points to a valid CSV zip file in the correct directory.
 

@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - '**.py' # only trigger on python files
+
+permissions:
+  contents: read
+
 jobs:
   lint-changed-files:
     runs-on: ubuntu-latest
@@ -13,6 +17,12 @@ jobs:
         with:
           # Required to fetch the base branch for comparison
           fetch-depth: 0
+          # Blob-less fetch; materialize everything except the committed test
+          # fixtures under admin/test/cases/data, which no step here reads.
+          sparse-checkout: |
+            /*
+            !/admin/test/cases/data
+          sparse-checkout-cone-mode: false
 
       - name: Get changed Python files
         id: changed-files-py
@@ -46,12 +56,37 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_claim_language.py
 
+      # An artifact's description is the one line the report, the LAVA manifest and
+      # casework quote for it. One that is missing, runs to several lines, only repeats
+      # the name, or duplicates a sibling's in the same module says nothing about the
+      # rows it fronts. Whether a description claims past its own notes is a judgement
+      # the script cannot make; its --review mode lays the pair out for that pass.
+      - name: Guard against an artifact description that says nothing
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_artifact_descriptions.py
+
       # A conversation artifact's columns are ordered from the roles it declares in
       # data_views: timestamp, other dates, direction, sender, conversation label,
       # message text, media, then the rest. See admin/docs/conversation_column_order.md.
       - name: Check conversation artifact column order
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_conversation_column_order.py
+      # os.path.normcase folds case on Windows, so two paths patterns differing only in
+      # case are one pattern there: the artifact reports one file twice and can leave the
+      # other file unread entirely. Use a single bracket class. See the script's docstring.
+      - name: Guard against colliding artifact paths patterns
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_artifact_paths.py
+
+      # An artifact reading a directory named for a third party library accepts a file only
+      # when its container also holds a marker file the application itself writes.
+      # files_found is built per artifact, so those marker patterns must sit in that
+      # artifact's own paths; otherwise its marker set is always empty and a guard that
+      # fails closed reports nothing on exactly the images where the app is installed.
+      # See the script's docstring.
+      - name: Guard against container-scoped artifacts with no marker pattern
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_container_markers.py
 
       # html_columns cells are written to the report without html.escape, so evidence
       # placed there can inject markup, and any remote href/src makes opening a report
@@ -60,6 +95,32 @@ jobs:
       - name: Guard report output against injection and remote destinations
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_html_safety.py
+
+      # The seeker stages evidence under <report folder>/data, so every files_found entry
+      # is an absolute path on the examiner's machine. artifact_processor normalizes only
+      # the third element of the return tuple; a path put in a data row or handed to
+      # write_artifact_data_table is published verbatim. The column is never empty and the
+      # row count is always right, so nothing else catches it. See the script's docstring.
+      - name: Guard report output against local filesystem paths
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_report_local_paths.py
+
+      # The third element of an artifact's return tuple becomes the report's
+      # "located at" line and the LAVA manifest source_path, so it has to be real
+      # paths. Prose standing in for one points the examiner at a column that often
+      # holds a basename, and the location ends up nowhere in the report.
+      - name: Guard against prose returned as a source path
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_source_path.py
+
+      # scripts/mmkv_parser.py is copied verbatim from its own repository, so it drifts
+      # in two directions and both are silent: an edit here looks like a fix until the
+      # next re-vendor reverts it, and an upstream release leaves this copy quietly old.
+      # The file's banner names the upstream commit; this fetches that file and fails
+      # when anything below the banner differs. Unconditional rather than gated on
+      # changed Python files, because the banner and the body can go stale together.
+      - name: Check vendored files match the pinned upstream commit
+        run: python admin/scripts/check_vendored.py
 
       # Fails only on warnings this pull request introduces. Long-lived modules carry
       # deliberate pre-existing warnings (ileapp.py's wildcard imports, ilapfuncs.py's

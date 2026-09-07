@@ -38,8 +38,7 @@ __artifacts_v2__ = {
 'name': 'Ph003.2-Removed from Camera Roll-SyndPL',
 'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite'
 ' for syndication PL asserts remvoed from camera roll and supports supports various iOS versions.'
-' These assets may have been displayed in the camera roll, then deleted from'
-' the camera roll view. The results for this script will contain one row per asset.'
+" The results for this script will contain one row per asset."
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',

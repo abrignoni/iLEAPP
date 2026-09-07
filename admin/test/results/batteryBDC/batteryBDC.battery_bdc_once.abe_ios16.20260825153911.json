@@ -1,0 +1,46 @@
+{
+  "metadata": {
+    "module_name": "batteryBDC",
+    "artifact_name": "Battery Data Collection (BDC) - Once",
+    "function_name": "battery_bdc_once",
+    "case_number": "abe_ios16",
+    "number_of_columns": 8,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 112,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/batteryBDC/testdata.batteryBDC.battery_bdc_once.abe_ios16.zip",
+    "start_time": "2026-08-25T15:39:11.456240+00:00",
+    "end_time": "2026-08-25T15:39:11.474065+00:00",
+    "run_time_seconds": 9.918212890625e-05,
+    "last_commit": {
+      "hash": "293328aaa7138520af1b86b7ab9323798cc3508f",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-25T00:44:38-05:00",
+      "message": "Merge main, applying its source-path change to all eight BDC parsers"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Chem ID",
+    "Algo Chem ID",
+    "EEEE (Factory Code)",
+    "YWW (Mfr Date Code)",
+    "Design Capacity (mAh)",
+    "Gas Gauge Firmware Version",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2023-02-20 01:36:12",
+      "5640",
+      "5640",
+      "HXRR",
+      "748",
+      "2701",
+      "1538",
+      "filesystem2/db/Battery/BDC/BDC_Once_version2.0_2023-02-20_01:36:12.csv"
+    ]
+  ]
+}

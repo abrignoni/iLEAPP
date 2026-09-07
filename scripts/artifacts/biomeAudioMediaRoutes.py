@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                        "Microphone / MicrophoneBuiltIn / iPhone Microphone).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Field 6 distinguishes input from output routes in observed data (1 with "
@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                        "Bluetooth and AirPlay routes carry the accessory identifier and name.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -81,17 +81,23 @@ def _to_str(value):
     return str(value)
 
 
+def _stream_files(context):
+    """Non-hidden, non-tombstone stream files from the artifact's matched paths."""
+    for file_found in sorted(map(str, context.get_files_found())):
+        if os.path.basename(file_found).startswith('.'):
+            continue
+        if not os.path.isfile(file_found) or 'tombstone' in file_found:
+            continue
+        yield file_found
+
+
+def _source_path(context):
+    return '\n'.join(sorted({os.path.dirname(f) for f in _stream_files(context)}))
+
+
 def _iter_records(context, label, typess=None):
-    for file_found in sorted(context.get_files_found()):
-        file_found = str(file_found)
+    for file_found in _stream_files(context):
         filename = os.path.basename(file_found)
-        if filename.startswith('.'):
-            continue
-        if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
-                continue
-        else:
-            continue
 
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
@@ -123,7 +129,7 @@ def get_biomeAudioRoute(context):
                           _to_str(protostuff.get('3', b'')), _to_str(protostuff.get('4', b'')),
                           protostuff.get('1', ''), protostuff.get('5', ''),
                           protostuff.get('6', ''), filename, record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -144,4 +150,4 @@ def get_biomeMediaRoute(context):
                           _to_str(detail.get('1', b'')), detail.get('2', ''),
                           detail.get('3', ''), protostuff.get('1', ''), filename,
                           record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)

@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "complements Safari.Navigations and App.WebUsage.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Like Safari.Navigations, the second timestamp is rounded up to the next 30 "
@@ -64,6 +64,7 @@ def _unix_double(value):
 def get_biomeSafariWebPagePerformance(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -75,6 +76,7 @@ def get_biomeSafariWebPagePerformance(context):
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -101,4 +103,4 @@ def get_biomeSafariWebPagePerformance(context):
                     'SEGB State', 'Detail (raw)', 'Field 3 (raw)', 'Field 4 (raw)',
                     'Field 5 (raw)', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

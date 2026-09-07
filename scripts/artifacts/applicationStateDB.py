@@ -37,10 +37,15 @@ __artifacts_v2__ = {
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni - @mxkrt",
         "creation_date": "2025-08-27",
-        "last_update_date": "2025-10-24",
+        "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The bundle identifier is read from each application identifier's compatibilityInfo "
+                 "blob, so an application identifier whose compatibilityInfo is absent or unparseable "
+                 "is logged and left out of this table. Absence of a bundle identifier here therefore "
+                 "means the mapping this parser needs was not available in applicationState.db. It is "
+                 "not evidence that the application was never installed, and other sources such as the "
+                 "Mobile Installation logs may still carry its install and uninstall history.",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": ["html","tsv","lava"],
         "artifact_icon": "package",
@@ -69,7 +74,7 @@ __artifacts_v2__ = {
                        "not by itself prove foreground application use or that the user viewed the image contents.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "SplashBoard runtime headers expose creationDate and lastUsedDate properties on "
@@ -107,7 +112,7 @@ __artifacts_v2__ = {
                        "at that time.",
         "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Device Usage",
         "notes": "The property name is sourced from the runtime-derived SplashBoard header. Its forensic meaning is "
@@ -188,7 +193,7 @@ def get_installed_apps(context):
     # get the records grouped by application identifier
     applications = _do_query(file_found)
     if applications is None:
-        return (), [], ''
+        return (), [], file_found
 
     data_headers = ('Bundle ID','Bundle Path','Sandbox Path')
     data_list = []
