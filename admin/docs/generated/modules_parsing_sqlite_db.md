@@ -78,6 +78,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | cloudkit_cache |
 | cnn |
 | coinbaseWallet |
+| coverMe |
 | discordChats |
 | discord_a |
 | dubox |
