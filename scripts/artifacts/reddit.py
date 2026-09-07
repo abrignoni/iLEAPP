@@ -147,14 +147,96 @@ __artifacts_v2__ = {
                 "mediaColumn": "Attachment"
             }
         },
+    },
+    "reddit_chat_messages": {
+        "name": "Reddit Chat Messages",
+        "description": "Direct chat messages held in the app's own chat database, with the "
+                       "account that sent each one.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-06",
+        "last_update_date": "2026-09-06",
+        "requirements": "none",
+        "category": "Reddit",
+        "notes": "One row per row of ChatMessage in Documents/release02/accountData/<account "
+                 "id>/chat/<version>/chat.sqlite, which is the app's own chat store. It is a "
+                 "different store from the one the Reddit Chats artifact reports, which reads the "
+                 "newer Matrix rooms cache, so a device can carry either, both or neither. "
+                 "Timestamp is Unix milliseconds, reported in UTC. Direction is recorded rather "
+                 "than inferred: the channel row names the account's own identifier, and a "
+                 "message whose sender identifier equals it is outgoing. That identifier also "
+                 "matches the accountData folder the file sits in, which is a second source for "
+                 "the same value. On the one tested image that holds messages the split is 13 "
+                 "outgoing and 13 incoming, and all 26 sit in one conversation, so Channel URL "
+                 "holds a single value there. Sender Username is joined from the Contact table in "
+                 "the same store and resolved on all 26 rows. Image URL and GIF URL are the "
+                 "columns the store keeps for a picture or animation message, and both were empty "
+                 "on every row of every tested image, so no message here carried media and "
+                 "nothing was attached; a message with media would name it by remote address "
+                 "rather than store the bytes. Message Type and State held 0 on every row, which "
+                 "is too few values to say what either distinguishes, and both are reported as "
+                 "stored. The store's SubredditChannel table is read by nothing here: on the "
+                 "image that has rows it holds 36 subreddit chat channels with joined, invited, "
+                 "moderator and popular all 0 and a created time of 0, which is a list the app "
+                 "downloaded rather than a record of channels the account was in.",
+        "paths": ('*/Documents/release02/accountData/*/chat/*/chat.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "message-square",
+        "sample_data": {
+                           "ctf2020_ios12": "iOS 12.4 | Reddit | 0 rows",
+                           "hickman_ios15": "iOS 15.3.1 | Reddit | 26 rows",
+                           "jess_ios15": "iOS 15.0.2 | Reddit | 0 rows",
+                       },
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Channel URL",
+                "textColumn": "Message",
+                "directionColumn": "Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Timestamp",
+                "senderColumn": "Sender Username",
+            }
+        },
+    },
+    "reddit_chat_contacts": {
+        "name": "Reddit Chat Contacts",
+        "description": "Accounts the app's own chat database holds a contact record for, with "
+                       "the karma and profile flags stored against each.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-06",
+        "last_update_date": "2026-09-06",
+        "requirements": "none",
+        "category": "Reddit",
+        "notes": "One row per row of Contact in the app's own chat store, "
+                 "Documents/release02/accountData/<account id>/chat/<version>/chat.sqlite. A row "
+                 "records an account the chat store holds a contact record for. On the one tested "
+                 "image that has rows there are two, the signed in account itself and the one "
+                 "account it exchanged messages with, so this table is the chat store's own "
+                 "participant list and not the device address book. Created is Unix seconds, "
+                 "reported in UTC, and the two rows fall in 2020 and 2021. Link Karma and Comment "
+                 "Karma held 0 on both rows and are reported as stored, so neither carries a "
+                 "usable figure here. Blocked and Profile NSFW read NO on both rows. Username and "
+                 "Real Name held the same value on both rows, so the display name the store keeps "
+                 "matched the account name on this device, which two rows cannot show to be the "
+                 "general case. Profile Thumbnail URL is a remote address the app would fetch and "
+                 "on both rows it is one of the app's default avatars; the picture itself is not "
+                 "in this store, so nothing is attached.",
+        "paths": ('*/Documents/release02/accountData/*/chat/*/chat.sqlite*',),
+        "output_types": "standard",
+        "artifact_icon": "users",
+        "sample_data": {
+                           "ctf2020_ios12": "iOS 12.4 | Reddit | 0 rows",
+                           "hickman_ios15": "iOS 15.3.1 | Reddit | 2 rows",
+                           "jess_ios15": "iOS 15.0.2 | Reddit | 0 rows",
+                       },
     }
 }
 
 import json
 
-from os.path import basename, dirname
+from os.path import basename, dirname, isdir
+from re import search
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, check_in_media, get_plist_file_content, convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, attach_sqlite_db_readonly, check_in_media, get_plist_file_content, convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, does_table_exist_in_db, logfunc
 
 
 def _reddit_owner_id(source_path):
@@ -425,3 +507,111 @@ def reddit_subreddit_subscriptions(context):
         'Source File',
     )
     return data_headers, data_list, source_path
+
+
+def _chat_stores(files_found):
+    '''Every chat.sqlite among the matches, directories and sidecars skipped.'''
+    seen = []
+    for found in files_found:
+        path = str(found)
+        if isdir(path) or path.endswith(('-wal', '-shm')):
+            continue
+        if basename(path) == 'chat.sqlite' and path not in seen:
+            seen.append(path)
+    return seen
+
+
+def _chat_account(path):
+    '''The account the accountData folder in the path is named for, or ''.'''
+    match = search(r'/accountData/([^/]+)/', str(path).replace('\\', '/'))
+    return match.group(1) if match else ''
+
+
+def _chat_rows(path, table, columns):
+    '''Rows of a table in the chat store, or nothing when it does not have it.'''
+    if not does_table_exist_in_db(path, table):
+        return []
+    try:
+        return list(get_sqlite_db_records(path, f'SELECT {columns} FROM {table}'))
+    except Exception as error:                   # pylint: disable=broad-except
+        logfunc(f'Reddit: could not read {table}: {error}')
+        return []
+
+
+@artifact_processor
+def reddit_chat_messages(context):
+    data_list = []
+    sources = []
+    for source_path in _chat_stores(context.get_files_found()):
+        sources.append(source_path)
+        account = _chat_account(source_path)
+        channels = {}
+        owners = {}
+        for (unique_id, url, own) in _chat_rows(
+                source_path, 'DirectChannel', 'uniqueID, channelUrl, currentUserId'):
+            channels[unique_id] = '' if url is None else str(url)
+            owners[unique_id] = '' if own is None else str(own)
+        names = {}
+        for (user_id, username) in _chat_rows(source_path, 'Contact', 'userID, username'):
+            if user_id is not None:
+                names[str(user_id)] = '' if username is None else str(username)
+        for (stamp, user_id, body, channel, kind, state, message_id,
+             image_url, gif_url) in _chat_rows(
+                source_path, 'ChatMessage',
+                'timestamp, userID, messageBody, channelID, type, state, sendbirdMessageId, '
+                'imageURL, gifURL'):
+            sender = '' if user_id is None else str(user_id)
+            own = owners.get(channel, '')
+            direction = ''
+            if own:
+                direction = 'Outgoing' if sender == own else 'Incoming'
+            data_list.append((
+                convert_unix_ts_to_utc(int(stamp) // 1000) if stamp else '',
+                direction, names.get(sender, ''), '' if body is None else str(body),
+                channels.get(channel, ''), sender,
+                '' if image_url is None else str(image_url),
+                '' if gif_url is None else str(gif_url),
+                '' if message_id is None else str(message_id),
+                '' if kind is None else str(kind), '' if state is None else str(state),
+                account,
+            ))
+
+    data_list.sort(key=lambda row: str(row[0]), reverse=True)
+    data_headers = (
+        ('Timestamp', 'datetime'), 'Direction', 'Sender Username', 'Message', 'Channel URL',
+        'Sender ID', 'Image URL', 'GIF URL', 'Message ID (as stored)',
+        'Message Type (as stored)', 'State (as stored)', 'Account ID',
+    )
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def reddit_chat_contacts(context):
+    data_list = []
+    sources = []
+    for source_path in _chat_stores(context.get_files_found()):
+        sources.append(source_path)
+        account = _chat_account(source_path)
+        for (created, username, user_id, real_name, link_karma, comment_karma,
+             blocked, nsfw, thumb) in _chat_rows(
+                source_path, 'Contact',
+                'createdAt, username, userID, realName, linkKarma, commentKarma, '
+                'blockedByMe, profileNSFW, profileThumbnailUrl'):
+            data_list.append((
+                convert_unix_ts_to_utc(created) if created else '',
+                '' if username is None else str(username),
+                '' if user_id is None else str(user_id),
+                '' if real_name is None else str(real_name),
+                '' if link_karma is None else str(link_karma),
+                '' if comment_karma is None else str(comment_karma),
+                _yes_no(blocked), _yes_no(nsfw),
+                '' if thumb is None else str(thumb), account,
+            ))
+
+    data_list.sort(key=lambda row: str(row[1]))
+    data_headers = (
+        ('Created', 'datetime'), 'Username', 'User ID', 'Real Name', 'Link Karma (as stored)',
+        'Comment Karma (as stored)', 'Blocked', 'Profile NSFW', 'Profile Thumbnail URL',
+        'Account ID',
+    )
+    return data_headers, data_list, '\n'.join(sources)
