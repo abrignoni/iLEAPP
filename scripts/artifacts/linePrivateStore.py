@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "line_message_attachments": {
         "name": "Line - Message Attachments",
-        "description": "Files sent or received in Line chats, joined to the message each belongs "
+        "description": "Files the app kept for Line messages, joined to the message each belongs "
                        "to and shown where the file is present.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
@@ -100,8 +100,8 @@ __artifacts_v2__ = {
     },
     "line_browser_history": {
         "name": "Line - In-App Browser History",
-        "description": "Page records the browser built into the Line app keeps, with the address "
-                       "and title of each.",
+        "description": "Page records from the browser built into the Line app, read from a store "
+                       "that held no rows on any tested image.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
