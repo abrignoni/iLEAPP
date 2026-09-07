@@ -13,10 +13,10 @@ __artifacts_v2__ = {
                  "UTC, and read that way they fall in the period each image covers. Two of the 26 "
                  "registered iOS corpora carry the store, with 2 and 3 rows. On both, two rows "
                  "are titled Main Album and exactly one of that pair has Decoy Album set to Yes, "
-                 "which is the album the app shows when the decoy entry is used; the third row on "
-                 "the second image is a separate album with its own title. Password Stored says "
-                 "only whether the row carries a stored password value, and it was Yes on one row "
-                 "of five across both images. **The password bytes themselves are read by nothing "
+                 "which is the app's own flag and is reported as stored; the third row on the "
+                 "second image is a separate album with its own title. Password Stored says only "
+                 "whether the row carries a stored password value, and it was Yes on one row of "
+                 "five across both images. **The password bytes themselves are read by nothing "
                  "here.** Album Type, Cover Type and Sort Position are reported as stored. "
                  "Biometric Login Allowed read No on every row of both images, and Marked Deleted "
                  "read No on every row, so no album row on either image records one having been "
@@ -49,12 +49,14 @@ __artifacts_v2__ = {
                  "is shown, because the stored files are encrypted.** Every file staged from that "
                  "folder begins with the bytes 03 00 and none carries the signature of the format "
                  "its name claims, which agrees with the Encrypted column reading Yes on all four "
-                 "rows. The app's own preferences were checked for key material and hold none, so "
-                 "the files are reported by name, presence and size and are not decoded. Trashed "
-                 "was empty on every row, so no row here records an item sent to the app's trash. "
-                 "File Type held photo on three rows and livePhoto on one. Downloaded, Thumbnail "
-                 "Downloaded, Uploaded and Marked Deleted are the app's own flags and are "
-                 "reported as stored; Uploaded read No on one image and was empty on the other.",
+                 "rows. On one of the two images the app's own preferences plist was read and "
+                 "carries no value that looks like key material, and no key is read from anywhere "
+                 "else either, so the files are reported by name, presence and size and are not "
+                 "decoded. Trashed was empty on every row, so no row here records an item sent to "
+                 "the app's trash. File Type held photo on three rows and livePhoto on one. "
+                 "Downloaded, Thumbnail Downloaded, Uploaded and Marked Deleted are the app's own "
+                 "flags and are reported as stored; Uploaded read No on one image and was empty "
+                 "on the other.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PPVCoreData.sqlite*',
                   '*/Containers/Data/Application/*/Library/PPV_Pics/*'),
         "output_types": "standard",
