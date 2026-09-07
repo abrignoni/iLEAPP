@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "line_message_attachments": {
         "name": "Line - Message Attachments",
-        "description": "Files sent or received in Line chats, joined to the message each belongs "
+        "description": "Files the app kept for Line messages, joined to the message each belongs "
                        "to and shown where the file is present.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
@@ -21,7 +21,8 @@ __artifacts_v2__ = {
                  "for a message identifier with an extension added, which is what lets a file "
                  "with no database row still be joined to its message. A file whose name matches "
                  "no message is not reported. The message text, chat and direction are joined "
-                 "from Line.sqlite, which the separate Line Artifacts artifact reports in full. "
+                 "from Line.sqlite, which the separate Line - Messages artifact reports in full, and "
+                 "that artifact now shows each of these files on its own message row. "
                  "Direction is the same inference that module makes and states: a row with no "
                  "sender reference is read as outgoing. The files sit in the app's own container "
                  "while the databases sit in the app group container, so the two are paired on "
@@ -99,8 +100,8 @@ __artifacts_v2__ = {
     },
     "line_browser_history": {
         "name": "Line - In-App Browser History",
-        "description": "Page records the browser built into the Line app keeps, with the address "
-                       "and title of each.",
+        "description": "Page records from the browser built into the Line app, read from a store "
+                       "that held no rows on any tested image.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
