@@ -196,6 +196,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | wickr |
 | wifiAnalytics |
 | wire |
+| zoomChat |
 <!-- GET_RECORDS_END -->
 
 ### open_sqlite_db_readonly() Usage
