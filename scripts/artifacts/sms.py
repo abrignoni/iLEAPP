@@ -9,16 +9,27 @@ __artifacts_v2__ = {
         "category": "SMS & iMessage",
         "notes": "Sender is the handle joined to a received row through message.handle_id, which "
                  "imessage-exporter documents as the sender handle row ID "
-                 "(imessage-database/src/tables/messages/message.rs at commit 4d90fc8d, line "
-                 "190); it is left blank on sent rows, whose local account is in the Account "
-                 "column, and on received rows that record no handle, such as group participant "
-                 "and title changes. Chat Participants lists the handles joined to the message's "
-                 "chat through chat_handle_join, comma separated. In a direct chat that is the "
-                 "same value as Chat Contact ID; in a group chat, Chat Contact ID holds the chat "
-                 "identifier as stored and Chat Participants is where a phone number or email is "
-                 "found. Chat Name is chat.display_name as stored. A message with no "
-                 "chat_message_join row has blank chat columns, and Sender still resolves for it "
-                 "where a handle is recorded.",
+                 "(imessage-database/src/tables/messages/message.rs at commit 4d90fc8d, line 190); it is "
+                 "left blank on sent rows, whose local account is in the Account column, and on received "
+                 "rows that record no handle. Across the tested images those were announcement rows, "
+                 "most often a shared location start or stop and less often a group participant or name "
+                 "change (item_type and group_action_type, "
+                 "imessage-database/src/tables/messages/models/group_action.rs at commit 4d90fc8d, lines "
+                 "41 to 51). Chat Participants lists the handles joined to the message's chat through "
+                 "chat_handle_join, comma separated. In a direct chat that is the same value as Chat "
+                 "Contact ID; in a group chat, Chat Contact ID holds the chat identifier as stored and "
+                 "Chat Participants is where a phone number or email is found. Chat Name is "
+                 "chat.display_name as stored. A message with no chat_message_join row has blank chat "
+                 "columns, and Sender still resolves for it where a handle is recorded. Destination "
+                 "Caller ID is message.destination_caller_id as stored, documented by Josh Hickman as "
+                 "the number of the account used to send or receive the message, which is what separates "
+                 "the lines on a dual SIM device (thebinaryhick.blog, Mo' SIMs, Mo' Problems: Examining "
+                 "Phones with Dual SIMs, 6 December 2022). It was filled on all 737 sent rows and on "
+                 "1,257 of 1,281 received rows across the tested images, and 7 of the 18 that hold "
+                 "messages carried more than one identity in it. It is not always a phone number: one "
+                 "image stores an email address and another a UUID. One line can appear in more than one "
+                 "spelling, as bare digits, +E.164, or with a tel: prefix, so two values that differ as "
+                 "text can be the same line.",
         "paths": ('*/Library/SMS/sms.db*',
                   '*/Library/SMS/Attachments/*'),
         "output_types": "standard",
