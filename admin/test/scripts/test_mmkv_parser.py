@@ -18,8 +18,10 @@ The other trap is varint width. Lengths in these files are small, so a reader th
 varint walk at the five bytes a 32-bit value needs will pass every test written against string
 keys and then silently mis-read a millisecond epoch, which needs six.
 
-The encryption tell lives in the sibling .crc meta file: a non-zero AES vector at bytes 12 to
-28 means the data region is ciphertext, and a reader that walks it anyway returns garbage keys.
+Whether a region is ciphertext is answered by reading it, not by the AES vector at bytes 12 to
+28 of the sibling .crc file. MMKV::clearAll writes that vector for plaintext stores too and
+nothing zeroes it again, so it is an initialisation vector and never an encryption flag. A
+region whose records account for every byte of the recorded size is plaintext.
 
 Buffers are built by hand rather than taken from an extraction, so this test carries no
 sample data.
@@ -44,6 +46,21 @@ from scripts.mmkv_parser import (  # pylint: disable=wrong-import-position
 # 0x00ffffff. Written out here as a literal, not derived from the reader, so the test cannot
 # inherit the reader's own idea of the layout.
 _APPEND_HOLDER = b'\xff\xff\xff\x07'
+
+
+def _meta_with_vector(vector=bytes(range(1, 17)), actual_size=None):
+    """A .crc meta file carrying a non-zero AES vector.
+
+    MMKV::clearAll fills the vector with random bytes for every store it clears,
+    encrypted or not, and nothing zeroes it again, so this is the ordinary shape of a
+    plaintext store that has been cleared at some point. It is not an encryption flag.
+    """
+    out = bytearray(32)
+    struct.pack_into('<I', out, 4, 4)                 # meta version
+    out[12:28] = vector
+    if actual_size is not None:
+        struct.pack_into('<I', out, 28, actual_size)
+    return bytes(out)
 
 
 def _varint(value):
@@ -165,13 +182,68 @@ class MMKVParserTest(unittest.TestCase):
     def test_empty_store_reads_as_no_entries(self):
         self.assertEqual(read_entries(self._write(struct.pack('<I', 0))), [])
 
-    def test_encrypted_store_is_refused_rather_than_returning_garbage(self):
-        """A non-zero AES vector in the .crc meta file means the region is ciphertext."""
+    def test_a_reset_store_keeps_its_records_and_recover_reads_them(self):
+        """A cleared or CRC-failed store keeps its region; MMKV only zeroes the size."""
+        payload = bytearray(_store(
+            _entry('channel', _string_value('googleplay')),
+            _entry('count', _varint(7)),
+        ))
+        struct.pack_into('<I', payload, 0, 0)          # what clearAll and a failed CRC leave
+        path = self._write(bytes(payload))
+        self.assertEqual(read_entries(path), [])       # default is unchanged: the app sees nothing
+        self.assertEqual(read_dict(path, recover=True),
+                         {'channel': 'googleplay', 'count': 7})
+
+    def test_recover_returns_nothing_when_the_region_does_not_account_for_itself(self):
+        """Leftovers of a rewrite need a carve, not this walk, so nothing is claimed."""
+        payload = bytearray(_store(_entry('channel', _string_value('googleplay'))))
+        struct.pack_into('<I', payload, 0, 0)
+        payload[-8:] = b'\x91\x44\x2c\x77\x03\xd1\x60\x1a'   # non-zero tail past the entries
+        self.assertEqual(read_entries(self._write(bytes(payload)), recover=True), [])
+
+    def test_recover_on_a_genuinely_empty_store_returns_nothing(self):
+        self.assertEqual(
+            read_entries(self._write(struct.pack('<I', 0) + b'\x00' * 64), recover=True), [])
+
+    def test_recover_changes_nothing_for_a_store_with_a_recorded_size(self):
+        path = self._write(_store(_entry('channel', _string_value('googleplay'))))
+        self.assertEqual(read_entries(path, recover=True), read_entries(path))
+
+    def test_recover_reads_a_cleared_plaintext_store_that_carries_a_vector(self):
+        """clearAll zeroes the size and writes a vector, for plaintext stores too.
+
+        That pair is the ordinary shape of a cleared store, so refusing on the vector
+        refused precisely the stores recover exists to read.
+        """
+        payload = bytearray(_store(
+            _entry('channel', _string_value('googleplay')),
+            _entry('count', _varint(7)),
+        ))
+        struct.pack_into('<I', payload, 0, 0)
+        path = self._write(bytes(payload), crc=_meta_with_vector())
+        self.assertEqual(read_dict(path, recover=True),
+                         {'channel': 'googleplay', 'count': 7})
+
+    def test_a_cleared_plaintext_store_reads_despite_its_random_vector(self):
+        """The region accounts for itself, so it is plaintext whatever the vector holds."""
         payload = _store(_entry('a', _string_value('b')))
-        meta = bytearray(32)
-        meta[12:28] = bytes(range(1, 17))               # crc, version, sequence, then a vector
-        with self.assertRaises(MMKVError):
-            read_entries(self._write(payload, crc=bytes(meta)))
+        path = self._write(payload, crc=_meta_with_vector(actual_size=struct.unpack_from('<I', payload, 0)[0]))
+        self.assertEqual(read_dict(path), {'a': 'b'})
+
+    def test_a_region_that_does_not_read_and_carries_a_vector_is_refused(self):
+        """The refusal is earned by the region failing to account for itself."""
+        region = bytes(range(120, 256)) * 3
+        payload = struct.pack('<I', len(region)) + region
+        with self.assertRaises(MMKVError) as caught:
+            read_entries(self._write(payload, crc=_meta_with_vector(actual_size=len(region))))
+        self.assertIn('encrypted or damaged', str(caught.exception))
+
+    def test_a_region_that_does_not_read_without_a_vector_keeps_what_was_read(self):
+        """Encryption always writes a vector, so a zero vector rules it out."""
+        good = _entry('first', _string_value('kept'))
+        region = _varint(len(good)) + good + b'\x7f\x7f\x7f\x7f'
+        payload = struct.pack('<I', len(region)) + region
+        self.assertEqual(read_dict(self._write(payload, crc=bytes(32))), {'first': 'kept'})
 
     def test_zero_vector_meta_is_not_treated_as_encryption(self):
         payload = _store(_entry('a', _string_value('b')))
