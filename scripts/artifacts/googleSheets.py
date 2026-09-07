@@ -528,7 +528,7 @@ def google_sheets_documents(context):
                 _text(record[11]),
                 account,
                 thumbnail,
-                db_path,
+                context.get_relative_path(db_path),
             ))
 
     data_headers = (
@@ -619,7 +619,7 @@ def google_sheets_tabs(context):
                     ('Yes' if active == tab_id else 'No') if active else '',
                     code,
                     account,
-                    db_path,
+                    context.get_relative_path(db_path),
                 ))
         if rows_for_db:
             data_list.extend(rows_for_db)
@@ -681,7 +681,7 @@ def google_sheets_templates(context):
             ', '.join(sorted(types)),
             ', '.join(sorted(locales)),
             account,
-            db_path,
+            context.get_relative_path(db_path),
         ))
 
     data_headers = (
@@ -760,7 +760,7 @@ def google_sheets_accounts(context):
                 _yes_no(state.get('createSheetsDisabled')),
                 _yes_no(state.get('createDocsDisabled')),
                 _yes_no(state.get('createSlidesDisabled')),
-                prefs_path,
+                context.get_relative_path(prefs_path),
             ))
 
     data_headers = (
@@ -817,7 +817,7 @@ def google_sheets_document_view_state(context):
                     _number(state.get('kScrollOffsetYKey')),
                     _number(state.get('kZoomScaleKey')),
                     key,
-                    prefs_path,
+                    context.get_relative_path(prefs_path),
                 ))
                 added = True
         if added:
@@ -863,7 +863,7 @@ def google_sheets_synced_settings(context):
             ', '.join(sorted(groups)),
             _number(fonts[0][0]) if fonts else '',
             account,
-            db_path,
+            context.get_relative_path(db_path),
         ))
 
     data_headers = (
