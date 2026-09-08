@@ -1,9 +1,8 @@
 __artifacts_v2__ = {
     "lgThinqDevices": {
         "name": "LG ThinQ - Devices",
-        "description": "LG appliances registered to the ThinQ account, with the name the "
-                       "account gave each one, its model and serial number, the Wi-Fi network "
-                       "it reported and the room it is assigned to.",
+        "description": "LG appliances held in the ThinQ app's Realm store, with the name, model, "
+                       "serial number, SSID and room recorded for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-01",
         "last_update_date": "2026-09-01",
@@ -14,17 +13,17 @@ __artifacts_v2__ = {
                  "on the product identifier and the room name joined from class_Room. The store's file "
                  "name carries the account and environment, so the path pattern matches on the "
                  "environment suffix and every candidate is then required to carry a class_Product "
-                 "table before it is read; a file without one is skipped and logged. The app keeps two "
-                 "further Realm files beside this one: shared-prd-op-op.realm holds only interface "
-                 "layout and feature JSON, and the tv- prefixed file held nothing but its schema "
-                 "version on the tested sample, so neither is reported. SSID is the wireless network "
-                 "the appliance reported to the service, which places the appliance on that network "
-                 "and is not evidence of the phone's own connection. Registered is a 17 digit packed "
-                 "value of the form YYYYMMDDHHMMSSmmm; it is reformatted for reading but no time zone "
-                 "is recorded anywhere in the store for it, so it is reported as stored in a text "
-                 "column rather than rendered as UTC. Device Type, Platform Type and Network Type are "
-                 "reported as stored. Online held one value on every appliance in the tested sample, "
-                 "where all three were connected when the store was last written; it is kept because "
+                 "table before it is read; a file without one is skipped and logged. Two further "
+                 "Realm files sat beside this one on the tested sample: shared-prd-op-op.realm "
+                 "held only interface layout and feature JSON and the tv- prefixed file held "
+                 "nothing but its schema version, so neither is reported. SSID is the network "
+                 "name stored against the appliance; it is not evidence of the phone's own "
+                 "connection. Registered is a 17 digit packed value of the form "
+                 "YYYYMMDDHHMMSSmmm; it is reformatted for reading but no time zone is recorded "
+                 "anywhere in the store for it, so it is reported as stored in a text column "
+                 "rather than rendered as UTC. Device Type, Platform Type and Network Type are "
+                 "reported as stored. Online held one value on every appliance in the tested "
+                 "sample; it is kept because "
                  "an offline appliance is exactly what an examiner would want distinguished. The app's "
                  "data container was present on 1 of the 26 registered iOS corpora swept for it, so "
                  "every count recorded here comes from that one extraction.",
@@ -48,8 +47,8 @@ __artifacts_v2__ = {
                  "two different shapes in the same column on the tested sample, an 8 digit YYYYMMDD "
                  "date on one row and a 14 digit YYYYMMDDHHMMSS value on another, so it is reformatted "
                  "from whichever shape is present and reported as stored in a text column; no time "
-                 "zone is recorded for it. Is Default marks the room the app creates itself rather "
-                 "than one the account added. The app's data container was present on 1 of the 26 "
+                 "zone is recorded for it. Is Default is the store's flag as stored. The app's "
+                 "data container was present on 1 of the 26 "
                  "registered iOS corpora swept for it, so every count recorded here comes from that "
                  "one extraction.",
         "paths": ('*/Documents/*-op-op.realm*',),

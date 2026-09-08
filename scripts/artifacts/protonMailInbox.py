@@ -19,13 +19,15 @@ Timestamps are Unix seconds. Folder names come from the app's own labels table
 __artifacts_v2__ = {
     "protonMailInboxMessages": {
         "name": "Proton Mail - Inbox Messages",
-        "description": "Messages cached by the Proton Mail iOS Inbox app, including decrypted subject, body, sender and recipients",
+        "description": "Messages cached by the Proton Mail iOS Inbox app, with the subject, "
+                       "body, sender and recipients as cached",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-24",
         "requirements": "BeautifulSoup",
         "category": "Proton Mail",
-        "notes": "Reads the group.me.proton.mail cache used by Proton Mail 7.x (Inbox). In the tested "
+        "notes": "Reads the group.me.proton.mail cache (Proton Mail Inbox); the tested image ran "
+                 "Proton Mail 7.9.2. In the tested "
                  "image the cached subject, body, sender and recipient values are stored in clear "
                  "text; the store holds the HTML the app rendered, and Body is the readable text "
                  "extracted from it (tags, styling and repeated whitespace removed). Links lists the "
@@ -84,9 +86,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Proton Mail",
-        "notes": "Contact email rows from the Inbox cache. A proton-autosave uid marks a contact the "
-                 "app created automatically from a sent or received message rather than one the user "
-                 "saved.",
+        "notes": "Contact email rows from the Inbox cache. A uid beginning proton-autosave is "
+                 "reported as stored; what distinguishes those rows from other contact rows is "
+                 "not established here.",
         "paths": ('*/Shared/AppGroup/*/support/*.db*',),
         "output_types": "standard",
         "artifact_icon": "user",

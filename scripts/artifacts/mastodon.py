@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Mastodon',
-        'notes': 'Mastodon models direct messages as statuses with a visibility of "direct".',
+        'notes': "Rows are statuses whose stored ZVISIBILITYRAW value is \"direct\".",
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Databases/shared.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'message',

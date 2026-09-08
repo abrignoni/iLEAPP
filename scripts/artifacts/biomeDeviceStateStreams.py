@@ -17,21 +17,21 @@ __artifacts_v2__ = {
         "notes": "Value follows the UIInterfaceOrientation enumeration (UIKit, defined in "
                  "UIApplication.h); the raw value is reported alongside the label. Read the "
                  "landscape labels carefully: Apple crosses the two landscape cases against "
-                 "UIDeviceOrientation, so under UIInterfaceOrientation 3 is Landscape Right "
-                 "and 4 is Landscape Left, the opposite of the values in the "
+                 "UIDeviceOrientation, so under UIInterfaceOrientation 3 is Landscape Right and 4 "
+                 "is Landscape Left, the opposite of the values in the "
                  "_DKEvent.Display.Orientation stream parsed by Biome - Display Orientation "
                  "DKEvent. Header text: UIInterfaceOrientationLandscapeLeft = "
                  "UIDeviceOrientationLandscapeRight and UIInterfaceOrientationLandscapeRight = "
-                 "UIDeviceOrientationLandscapeLeft. Only values 0, 1 and 2 have been observed "
-                 "in sample data so far, and those three are identical in both enumerations, so "
-                 "the choice of enumeration is not yet confirmed by data: the stream name says "
+                 "UIDeviceOrientationLandscapeLeft. Only values 0, 1 and 2 have been observed on "
+                 "the written records of the tested images (records in the deleted SEGB state "
+                 "carry no value), and those three are identical in both enumerations, so the "
+                 "choice of enumeration is not yet confirmed by data: the stream name says "
                  "interface orientation while the System Events plist describes it as capturing "
-                 "device orientation. A value of 5 or 6 appearing here would indicate the "
-                 "device enumeration instead, since UIInterfaceOrientation has no Face Up or "
-                 "Face Down case. Enumeration source: Apple UIKit headers UIApplication.h and "
-                 "UIDevice.h, mirrored at "
-                 "https://github.com/silent0123/OSXDev/blob/c943c2158bcd3a6caa3023e396e653cbe3832ae1/"
-                 "uSav-Mac/usavMac/UIKit.framework/Headers/UIApplication.h "
+                 "device orientation. A value of 5 or 6 appearing here would indicate the device "
+                 "enumeration instead, since UIInterfaceOrientation has no Face Up or Face Down "
+                 "case. Enumeration source: Apple UIKit headers UIApplication.h and UIDevice.h, "
+                 "mirrored at "
+                 "https://github.com/silent0123/OSXDev/blob/c943c2158bcd3a6caa3023e396e653cbe3832ae1/uSav-Mac/usavMac/UIKit.framework/Headers/UIApplication.h "
                  "Stream reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
                  "Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Appears to be the modern counterpart of the _DKEvent.System.AirplaneMode "
+        "notes": "See also the _DKEvent.System.AirplaneMode "
                  "stream parsed by Biome - Airplane Mode DKEvent.",
         "paths": ('*/streams/*/Device.Wireless.AirplaneMode/local/*',),
         "output_types": "standard",
@@ -107,7 +107,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Appears to be the modern counterpart of the _DKEvent.Carplay.IsConnected "
+        "notes": "See also the _DKEvent.Carplay.IsConnected "
                  "stream parsed by Biome - Carplay.",
         "paths": ('*/streams/*/CarPlay.Connected/local/*',),
         "output_types": "standard",
@@ -126,9 +126,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The raw value is temperature in hundredths of a degree Celsius (observed "
-                 "range 1900-3700, i.e. 19.00-37.00 C); both the converted and raw values are "
-                 "reported. Field 2 is reported raw as its meaning is not confirmed.",
+        "notes": "The raw value is temperature in hundredths of a degree Celsius (observed range "
+                 "600-4300 across the four tested images, i.e. 6.00-43.00 C); both the converted "
+                 "and raw values are reported. Field 2 is reported raw as its meaning is not "
+                 "confirmed.",
         "paths": ('*/streams/*/Device.Thermals.BatteryTemperature/local/*',),
         "output_types": "standard",
         "artifact_icon": "thermometer",
@@ -170,7 +171,7 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "Lock polarity validated against the _DKEvent.Keybag.IsLocked stream on the "
                  "same device: 124 of 128 overlapping records agree, the exceptions falling on "
-                 "interval boundaries. Modern counterpart of that stream, parsed by "
+                 "interval boundaries. See also that stream, parsed by "
                  "Biome - Keybag. Reference: Apple Platform Security, 'Keybags for Data "
                  "Protection', https://support.apple.com/guide/security/sec6483d5760/web",
         "paths": ('*/streams/*/Device.KeybagLocked/local/*',),
@@ -191,7 +192,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "The level is a percentage stored as a double (observed range 1.0 to 100.0). "
-                 "Appears to be the modern counterpart of the _DKEvent.Device.BatteryPercentage "
+                 "See also the _DKEvent.Device.BatteryPercentage "
                  "stream parsed by Biome - Battery Percentage.",
         "paths": ('*/streams/*/Device.Power.BatteryLevel/local/*',),
         "output_types": "standard",
@@ -210,10 +211,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field 3 is populated only while plugged in and is reported raw as its "
-                 "meaning is not confirmed. A record is written whenever the device is "
-                 "charging, which includes wireless charging as well as a physical cable "
-                 "connection (observation by Ian Whiffin). Modern counterpart of the "
+        "notes": "Field 3 is populated on every record that carries a power state, plugged in or "
+                 "not, and absent on the records that carry none; it is reported raw as its "
+                 "meaning is not confirmed. A record is written whenever the device is charging, "
+                 "which includes wireless charging as well as a physical cable connection "
+                 "(observation by Ian Whiffin). See also the "
                  "_DKEvent.Device.IsPluggedIn stream parsed by Biome - Device Plugged In. "
                  "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",

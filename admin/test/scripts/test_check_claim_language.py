@@ -36,23 +36,10 @@ _spec.loader.exec_module(ccl)
 
 # The vocabulary every core is expected to enforce, written out rather than imported.
 EXPECTED_CLAIM = (
-    r'\ball\b|\bevery\b|\bcomplete|\bfull list\b|\bentire\b|'
-    r'\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|'
-    r'read|sent|created|hid|chose)\b|\buser[- ](?:created|entered|typed|'
-    r'searched|selected|initiated)\b|\b(?:searched|typed|viewed|read|'
-    r'entered|created|sent|opened|selected|deleted|visited|chosen|hidden|'
-    r'initiated) by (?:the |a |an )?(?:user|account holder|device owner|'
-    r'subject|owner)\b|\bmanually\b|\bproves?\b|\bdefinitively\b|'
-    r'\balways\b|\breliable|\bvisited\b|\bhabits?\b'
+    r"\ball\b|\bevery\b|\bcomplete|\bfull list\b|\bentire\b|\b(?:the|a|an) (?:\w+ )?(?:user|account holder|device owner|subject|owner) (?:searched|typed|viewed|read|entered|created|sent|opened|selected|deleted|visited|chose|chosen|hid|hidden|initiated|follows|saved|added|grouped|submitted|marked|tracked|joined|reacted|installed|removed|configured|voted|opted)\b|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|deleted|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b|\bmanually\b|\bproves?\b|\bdefinitively\b|\balways\b|\breliable|\bvisited\b|\bhabits?\b"
 )
 EXPECTED_NOTES = (
-    r'\bthe user (?:searched|typed|viewed|visited|opened|selected|deleted|'
-    r'read|sent|created|hid|chose)\b|\buser[- ](?:created|entered|typed|'
-    r'searched|selected|initiated)\b|\b(?:searched|typed|viewed|read|'
-    r'entered|created|sent|opened|selected|deleted|visited|chosen|hidden|'
-    r'initiated) by (?:the |a |an )?(?:user|account holder|device owner|'
-    r'subject|owner)\b|\bmanually\b|\bproves?\b|\bdefinitively\b|'
-    r'\balways\b|\breliable|\bvisited\b|\bhabits?\b'
+    r"\b(?:the|a|an) (?:\w+ )?(?:user|account holder|device owner|subject|owner) (?:searched|typed|viewed|read|entered|created|sent|opened|selected|deleted|visited|chose|chosen|hid|hidden|initiated|follows|saved|added|grouped|submitted|marked|tracked|joined|reacted|installed|removed|configured|voted|opted)\b|\buser[- ](?:created|entered|typed|searched|selected|initiated)\b|\b(?:searched|typed|viewed|read|entered|created|sent|opened|selected|deleted|visited|chosen|hidden|initiated) by (?:the |a |an )?(?:user|account holder|device owner|subject|owner)\b|\bmanually\b|\bproves?\b|\bdefinitively\b|\balways\b|\breliable|\bvisited\b|\bhabits?\b"
 )
 EXPECTED_NEGATION = (
     r'\b(not|no|never|nor|neither|without|cannot|rather than|instead of|'
@@ -257,6 +244,48 @@ class PassiveFormsAreAnchoredOnAPerson(unittest.TestCase):
             with self.subTest(verb=verb):
                 self.assertEqual(bool(ccl.CLAIM_PATTERN.search(probe)),
                                  bool(ccl.NOTES_PATTERN.search(probe)))
+
+class ActiveFormsAreAnchoredOnAPerson(unittest.TestCase):
+    """The active family must fire on a person subject however it is worded, and stay
+    silent when the subject is not a person.
+
+    Anchored only on the literal "the user", the check was evadable by naming the app in
+    front of the noun ("the Flipboard user follows", "the Hinge account holder selected")
+    or by a different determiner ("a user tracked"), with nothing about the attribution
+    changed. The subject now takes the same determiners and person-noun set as the
+    passive family, plus an optional descriptor, and the verb set adds the conduct words
+    that recur in these descriptions.
+    """
+
+    PERSON_SUBJECTS = ('the user', 'a user', 'the Flipboard user',
+                       'the Hinge account holder', 'the device owner', 'an account owner')
+    CONDUCT = ('follows', 'saved', 'added', 'grouped', 'submitted', 'marked',
+               'tracked', 'joined', 'reacted', 'selected', 'typed', 'visited')
+
+    def test_a_person_subject_fires_however_worded(self):
+        for subject in self.PERSON_SUBJECTS:
+            for field in ('description', 'notes'):
+                with self.subTest(subject=subject, field=field):
+                    self.assertTrue(fires(field, f'items {subject} added to the list'))
+
+    def test_each_conduct_verb_fires_after_a_person(self):
+        for verb in self.CONDUCT:
+            for field in ('description', 'notes'):
+                with self.subTest(verb=verb, field=field):
+                    self.assertTrue(fires(field, f'things the user {verb}'))
+
+    def test_a_non_person_subject_in_the_active_voice_stays_silent(self):
+        for text in ('the app added a row', 'the parser opened the file',
+                     'the sync service created a record', 'the indexer marked it read',
+                     'the calling app submitted the query'):
+            for field in ('description', 'notes'):
+                with self.subTest(text=text, field=field):
+                    self.assertFalse(fires(field, text))
+
+    def test_the_motivating_case_is_caught(self):
+        # ALEAPP #1332 corrected this description; the anchoring is what stops the class.
+        self.assertTrue(fires('description',
+                              'Topics and magazines the Flipboard user follows'))
 
 
 if __name__ == '__main__':

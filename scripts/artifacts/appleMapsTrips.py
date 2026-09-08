@@ -7,7 +7,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
-        "notes": "Motion-activity value mapping observed in testing; raw column preserved.",
+        "notes": "Motion-activity value mapping is not vendor-documented and was derived from "
+                 "tested data; the raw column is preserved.",
         "paths": ('*/Library/Caches/com.apple.routined/Local.sqlite*',
                   '*/Library/Caches/com.apple.routined/Cloud-V2.sqlite*'),
         "output_types": ["html", "tsv", "lava"],
@@ -32,11 +33,15 @@ __artifacts_v2__ = {
         }
     },
     "appleMapsSignificantLocations": {
-        "name": "Apple Maps Significant Locations (routined)",
-        "description": "Location data comes from the routined (Significant Locations) cache, not the Apple Maps app. The Google Maps Link are constructed from the coordinates. They DO NOT exist in the evidence.",
+        "name": "Apple Maps Significant Locations Visits (routined)",
+        "description": "Significant Location visits from the routined caches "
+                       "(ZRTLEARNEDLOCATIONOFINTERESTVISITMO in Local.sqlite and "
+                       "Cloud-V2.sqlite), with entry and exit times, coordinates and uncertainty; "
+                       "the Google Maps link is built from the coordinates and does not exist in "
+                       "the evidence.",
         "author": "ogmini",
         "creation_date": "2026-03-04",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Locations",
         "notes": "",
@@ -64,11 +69,15 @@ __artifacts_v2__ = {
         }
     },
     "appleMapsSignificantLocationsVisits": {
-        "name": "Apple Maps Significant Locations Visits (routined)",
-        "description": "Location data comes from the routined (Significant Locations) cache, not the Apple Maps app. The Google Maps Link are constructed from the coordinates. They DO NOT exist in the evidence.",
+        "name": "Apple Maps Significant Locations (routined)",
+        "description": "Significant Location places from the routined caches "
+                       "(ZRTLEARNEDLOCATIONOFINTERESTMO with its learned place, map item and "
+                       "address rows), with name, category, address fields and coordinates; the "
+                       "Google Maps link is built from the coordinates and does not exist in the "
+                       "evidence.",
         "author": "ogmini",
         "creation_date": "2026-03-04",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Locations",
         "notes": "",

@@ -242,7 +242,7 @@ __artifacts_v2__ = {
                  "and observed on iOS 18.7. The open-request entries name the process that "
                  "asked for the call UI (touch, Siri, or a Bluetooth accessory). Keypad tone "
                  "entries come from mediaserverd in the cited research and from audiomxd on "
-                 "iOS 18.7, and only appear when keypad sounds are enabled. The number "
+                 "iOS 18.7. The number "
                  "payloads in these particular entries are redacted to <private>; the "
                  "dialed numbers artifact collects the CommCenter call.provider block that "
                  "carries the number in the clear.",
@@ -310,7 +310,7 @@ __artifacts_v2__ = {
                  "(subsystem UIKitCore there; com.apple.TextInput on iOS 18.7). Sound-request "
                  "actionID mapping documented at "
                  "https://www.ios-unifiedlogs.com/post/ios-unified-logs-typing-and-sending-a-message-in-whatsapp; "
-                 "those entries require keyboard sounds to be enabled and name the client "
+                 "those entries name the client "
                  "app. Text content is not recorded. High volume: over 200k signpost rows "
                  "were observed in a single iOS 18.7 image, so this artifact is LAVA-only.",
         "paths": None,
@@ -358,8 +358,8 @@ __artifacts_v2__ = {
         "notes": "Documented by Ian Whiffin (https://doubleblak.com/blogPost.php?k=doppler) "
                  "and Lionel Notari "
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
-                 "observed on iOS 18.7. Indicates the front sensor was obstructed (device "
-                 "face-down or stowed) versus clear; the cited research reports bursts of "
+                 "observed on iOS 18.7. The entries record the pocket state the sensor reported, "
+                 "detected or cleared; the cited research reports bursts of "
                  "entries per obstruction period.",
         "paths": None,
         "output_types": "standard",
@@ -466,10 +466,9 @@ __artifacts_v2__ = {
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-unlock and "
                  "https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
                  "observed on iOS 18.7. 'Bootstrapping ... with intent "
-                 "foreground-interactive' indicates a launch from a fully closed state; the "
-                 "iOS 16 form is 'Bootstrapping application<bundle>' and iOS 17+ is "
-                 "'Bootstrapping app<bundle>'. An empty inFocus value indicates return to "
-                 "the home screen. Complements the logarchive executed apps artifact.",
+                 "foreground-interactive' entries are collected in both the 'Bootstrapping "
+                 "application<bundle>' and 'Bootstrapping app<bundle>' forms. An empty inFocus "
+                 "value is reported as stored. Complements the logarchive executed apps artifact.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "layers",
@@ -545,8 +544,9 @@ __artifacts_v2__ = {
         "category": "Unified Logs",
         "notes": "Documented at "
                  "https://www.ios-unifiedlogs.com/post/ios-unified-logs-the-use-of-the-dictaphone; "
-                 "observed on iOS 18.7. The CSAudioRecordTypeDictation entries distinguish "
-                 "keyboard dictation from Siri requests. Dictated content is not recorded.",
+                 "observed on iOS 18.7. The CSAudioRecordTypeDictation entries are the "
+                 "assistantd audio record preparations carrying the dictation record type. "
+                 "Dictated content is not recorded.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "mic",
@@ -599,8 +599,8 @@ __artifacts_v2__ = {
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
-                 "observed on iOS 18.7. These entries record deliberate interface "
-                 "interaction between app launches.",
+                 "observed on iOS 18.7. These entries record interface transitions between app "
+                 "launches.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "grid",
@@ -623,7 +623,7 @@ __artifacts_v2__ = {
         "notes": "Documented at https://www.ios-unifiedlogs.com/post/ios-unified-logs-driving; "
                  "observed on iOS 16.5 and 17.1. The cited research cautions that these "
                  "entries do not distinguish driver from passenger and that their absence "
-                 "shows nothing. The motion classification also fires on other transport. "
+                 "shows nothing. "
                  "Complements the motion state transitions artifact.",
         "paths": None,
         "output_types": "standard",

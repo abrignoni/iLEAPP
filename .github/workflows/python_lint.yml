@@ -56,6 +56,15 @@ jobs:
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_claim_language.py
 
+      # An artifact's description is the one line the report, the LAVA manifest and
+      # casework quote for it. One that is missing, runs to several lines, only repeats
+      # the name, or duplicates a sibling's in the same module says nothing about the
+      # rows it fronts. Whether a description claims past its own notes is a judgement
+      # the script cannot make; its --review mode lays the pair out for that pass.
+      - name: Guard against an artifact description that says nothing
+        if: steps.changed-files-py.outputs.any_changed == 'true'
+        run: python admin/scripts/check_artifact_descriptions.py
+
       # A conversation artifact's columns are ordered from the roles it declares in
       # data_views: timestamp, other dates, direction, sender, conversation label,
       # message text, media, then the rest. See admin/docs/conversation_column_order.md.
@@ -103,6 +112,15 @@ jobs:
       - name: Guard against prose returned as a source path
         if: steps.changed-files-py.outputs.any_changed == 'true'
         run: python admin/scripts/check_source_path.py
+
+      # scripts/mmkv_parser.py is copied verbatim from its own repository, so it drifts
+      # in two directions and both are silent: an edit here looks like a fix until the
+      # next re-vendor reverts it, and an upstream release leaves this copy quietly old.
+      # The file's banner names the upstream commit; this fetches that file and fails
+      # when anything below the banner differs. Unconditional rather than gated on
+      # changed Python files, because the banner and the body can go stale together.
+      - name: Check vendored files match the pinned upstream commit
+        run: python admin/scripts/check_vendored.py
 
       # Fails only on warnings this pull request introduces. Long-lived modules carry
       # deliberate pre-existing warnings (ileapp.py's wildcard imports, ilapfuncs.py's

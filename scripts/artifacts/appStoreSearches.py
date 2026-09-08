@@ -1,7 +1,9 @@
 __artifacts_v2__ = {
     'appStoreSearches': {
         'name': 'App Store - Searches',
-        'description': 'Search terms submitted in the App Store, recovered from the cached search API requests',
+        'description': "Search terms the App Store app sent to its search API, recovered from the "
+                       "cached search and suggestion requests; a cached request does not "
+                       "establish that the term was submitted by the user",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',

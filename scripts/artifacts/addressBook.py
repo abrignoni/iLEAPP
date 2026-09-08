@@ -7,7 +7,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         'requirements': 'none',
         'category': 'Contacts',
-        'notes': 'ABMultiValue property numeric IDs follow the observed AddressBook.sqlitedb schema; Apple does not publish numeric values for these constants. Values are additionally corroborated by the per-value labels stored in the database.',
+        'notes': "ABMultiValue property numeric IDs follow the observed AddressBook.sqlitedb "
+                 "schema; No published Apple source for the numeric values of these constants "
+                 "was found. Values are additionally corroborated by the per-value labels stored "
+                 "in the database.",
         'paths': ('*/mobile/Library/AddressBook/AddressBook*.sqlitedb*',),
         'output_types': 'standard',
         'artifact_icon': 'user',

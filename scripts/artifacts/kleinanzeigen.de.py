@@ -20,7 +20,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
-        "notes": "The sender=0 = local account mapping was established through testing; the OUTBOUND boundness branch is self-describing.",
+        "notes": "sender=0 is read as the local account; no source for that mapping is given "
+                 "here and it was not measured on a counted sample. The OUTBOUND boundness value "
+                 "is read as the store spells it.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/conversation_cache', ),
         "output_types": "standard",
         "artifact_icon": "message-circle",

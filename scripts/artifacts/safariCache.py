@@ -9,9 +9,8 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Safari Browser',
         'notes': ('An entry records that Safari fetched and cached a URL, not that the user '
-                  'navigated to it: pages pull subresources, and Safari fetches configuration '
-                  'files on its own. Payloads above a size threshold are written to the '
-                  'sibling fsCachedData directory instead of the database, in which case '
+                  "navigated to it. Where the isDataOnFS flag is set, the payload is a file in "
+                  "the sibling fsCachedData directory and "
                   'receiver_data holds the file name rather than the content.'),
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.mobilesafari/Cache.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.mobilesafari/fsCachedData/*'),

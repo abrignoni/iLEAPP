@@ -7,7 +7,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Clock",
-        "notes": "Repeat-schedule bitmask mapping observed in testing; not vendor-documented.",
+        "notes": "Repeat-schedule bitmask mapping (bits 1 to 64 for Monday to Sunday, 127 Every "
+                 "Day, 0 Never) is not vendor-documented and was derived from tested data.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",

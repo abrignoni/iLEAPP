@@ -15,6 +15,11 @@ caught either:
 Both shapes are pinned below, so an edit that reintroduces either fails here instead of
 shipping a checker that quietly passes everything.
 
+A third audit (2026-09-06) scanned real report output and found 122 leaking cells the
+checker had passed, through `unique_files()`, `or`, and paths handed back by module
+helpers. Those shapes, and the correct forms that must stay silent, are pinned in
+ThirdAuditShapes.
+
 The false-negative cases matter as much as the positives: a checker wired into CI that
 flags correct code gets disabled, so the shapes that must stay silent are pinned too.
 """
@@ -122,6 +127,54 @@ class ShapesThatOnceHidALeak(unittest.TestCase):
         ''')
         self.assertEqual(len(found), 1, 'an initializer must not clear container taint')
 
+    def test_a_formatter_passes_taint_through(self):
+        """torrentResumeinfo: textwrap.fill(file_found, width=25) published the path."""
+        found = findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append((textwrap.fill(file_found, width=25), 'b'))
+                return (), data_list, ''
+        """)
+        self.assertEqual(len(found), 1, 'a formatter must not launder a path')
+
+    def test_strip_does_not_reduce_a_path(self):
+        """strip() hands back the whole path, so it cannot clear the taint."""
+        found = findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append((file_found.strip(), 'b'))
+                return (), data_list, ''
+        """)
+        self.assertEqual(len(found), 1, 'strip() must not clear the taint')
+
+    def test_str_format_carries_the_path_into_the_result(self):
+        """A constant receiver means the path arrives as an argument, not a receiver."""
+        found = findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append(('{}'.format(file_found), 'b'))
+                return (), data_list, ''
+        """)
+        self.assertEqual(len(found), 1, 'str.format must carry the path through')
+
+    def test_stacked_launderers_still_report(self):
+        """torrentinfo carried both at once: textwrap.fill(file_found.strip(), ...)."""
+        found = findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append((textwrap.fill(file_found.strip(), width=25), 'b'))
+                return (), data_list, ''
+        """)
+        self.assertEqual(len(found), 1, 'stacked launderers must not hide a path')
+
 
 class LocatedAt(unittest.TestCase):
     def test_flags_a_staged_path_handed_to_the_report_writer(self):
@@ -171,6 +224,17 @@ class MustStaySilent(unittest.TestCase):
                 return (), data_list, ''
         '''), [])
 
+    def test_a_split_component_is_still_accepted(self):
+        """split() genuinely returns a piece of the string, so it stays silent."""
+        self.assertEqual(findings_for("""
+            @artifact_processor
+            def demo(context):
+                data_list = []
+                for file_found in context.get_files_found():
+                    data_list.append((file_found.split('/')[-1], 'b'))
+                return (), data_list, ''
+        """), [])
+
     def test_an_email_message_walk_is_not_os_walk(self):
         """mailprotect: message.walk() yields MIME parts, not filesystem paths."""
         self.assertEqual(findings_for('''
@@ -200,6 +264,213 @@ class Allowlist(unittest.TestCase):
             self.assertEqual(findings_for(source), [])
         finally:
             del crlp.ALLOWLIST['sample.py:demo:file_found']
+
+
+class ThirdAuditShapes(unittest.TestCase):
+    """Shapes a 2026-09-06 scan of real report output found leaking while this check
+    reported clean: 122 cells in four ALEAPP modules. Each positive here is one of those
+    shapes or a sibling of it, and each negative is the correct form that must stay
+    silent, because a checker that flags correct code gets disabled."""
+
+    def _cols(self, source):
+        return sorted((f, col) for _m, f, _l, _k, _e, col in findings_for(source))
+
+    def test_unique_files_is_a_taint_source(self):
+        """torThumbs and xiaohongshu leaked through the repo's own dedupe helper."""
+        self.assertEqual(self._cols('''
+            @artifact_processor
+            def leak(context):
+                data_list = []
+                for file_found in unique_files(context):
+                    data_list.append(('a', file_found))
+                return (), data_list, ''
+        '''), [('leak', 1)])
+
+    def test_unique_files_reduced_is_accepted(self):
+        self.assertEqual(findings_for('''
+            @artifact_processor
+            def fine(context):
+                data_list = []
+                for file_found in unique_files(context):
+                    data_list.append(('a', context.get_relative_path(file_found)))
+                return (), data_list, ''
+        '''), [])
+
+    def test_or_and_and_pass_the_path_through(self):
+        """xiaohongshu's account artifact leaked through `source = source or file_found`."""
+        self.assertEqual(self._cols('''
+            @artifact_processor
+            def leak(files_found, seeker, report_folder):
+                data_list = []
+                source = ''
+                for file_found in files_found:
+                    source = source or file_found
+                    both = file_found and file_found
+                    data_list.append((source, both))
+                return (), data_list, source
+        '''), [('leak', 0), ('leak', 1)])
+
+    def test_a_conditional_expression_passes_the_path_through(self):
+        self.assertEqual(self._cols('''
+            @artifact_processor
+            def leak(files_found, seeker, report_folder):
+                data_list = []
+                for file_found in files_found:
+                    data_list.append(('a', file_found if file_found else ''))
+                return (), data_list, ''
+        '''), [('leak', 1)])
+
+    def test_tuple_unpacking_binds_only_the_path_position(self):
+        """`a, b = file_found, 1` taints a and not b, in the loop and in the assignment."""
+        self.assertEqual(self._cols('''
+            @artifact_processor
+            def leak(files_found, seeker, report_folder):
+                data_list = []
+                pairs = [(f, 1) for f in files_found]
+                for path, num in pairs:
+                    a, b = path, num
+                    data_list.append((num, b, a, path))
+                return (), data_list, ''
+        '''), [('leak', 2), ('leak', 3)])
+
+    def test_dict_store_walrus_and_augmented_assignment_propagate(self):
+        self.assertEqual(self._cols('''
+            @artifact_processor
+            def leak(files_found, seeker, report_folder):
+                data_list = []
+                store = {}
+                acc = ''
+                for file_found in files_found:
+                    store['p'] = file_found
+                    acc += file_found
+                    if (p := file_found):
+                        data_list.append((store['p'], acc, p))
+                return (), data_list, ''
+        '''), [('leak', 0), ('leak', 1), ('leak', 2)])
+
+    def test_a_helper_returning_paths_is_a_source(self):
+        self.assertEqual(self._cols('''
+            def _paths(context):
+                return [str(p) for p in unique_files(context)]
+
+            @artifact_processor
+            def leak(context):
+                data_list = []
+                for p in _paths(context):
+                    data_list.append(('a', p))
+                return (), data_list, ''
+        '''), [('leak', 1)])
+
+    def test_a_helper_returning_records_is_tracked_by_position(self):
+        """The path field of a record is tainted; its other fields are not."""
+        self.assertEqual(self._cols('''
+            def _stores(context):
+                out = []
+                for file_found in unique_files(context):
+                    out.append((file_found, 'parsed', 3))
+                return out
+
+            @artifact_processor
+            def leak(context):
+                data_list = []
+                for path, parsed, count in _stores(context):
+                    data_list.append((parsed, count, path))
+                return (), data_list, ''
+
+            @artifact_processor
+            def fine(context):
+                data_list = []
+                for path, parsed, count in _stores(context):
+                    data_list.append((parsed, count, context.get_relative_path(path)))
+                return (), data_list, ''
+        '''), [('leak', 2)])
+
+    def test_a_helper_returning_reduced_paths_is_not_a_source(self):
+        """A comprehension is judged by its element, not by what it iterates."""
+        self.assertEqual(findings_for('''
+            def _reduced(context):
+                return [context.get_relative_path(p) for p in unique_files(context)]
+
+            @artifact_processor
+            def fine(context):
+                data_list = []
+                for p in _reduced(context):
+                    data_list.append(('a', p))
+                return (), data_list, ''
+        '''), [])
+
+    def test_a_database_row_read_from_a_store_is_not_a_path(self):
+        """Fields unpacked from a record whose path position is unknown stay silent.
+        weChat, hldPrivacySafe and keychain rows would otherwise all be reported."""
+        self.assertEqual(findings_for('''
+            def _rows(context):
+                out = []
+                for file_found in unique_files(context):
+                    for row in query(file_found):
+                        out.append((row, file_found))
+                return out
+
+            @artifact_processor
+            def fine(context):
+                data_list = []
+                for row, path in _rows(context):
+                    name, value, count = row
+                    data_list.append((name or '', value if value else '', count,
+                                      context.get_relative_path(path)))
+                return (), data_list, ''
+        '''), [])
+
+    def test_replacing_the_data_folder_out_of_a_path_reduces_it(self):
+        """get_relative_path written by hand, as FacebookMessenger once did."""
+        self.assertEqual(findings_for('''
+            @artifact_processor
+            def fine(files_found, seeker, report_folder):
+                data_list = []
+                for file_found in files_found:
+                    data_list.append(('a', file_found.replace(seeker.data_folder, '')))
+                return (), data_list, ''
+        '''), [])
+
+    def test_a_slice_of_a_path_is_a_piece_of_it(self):
+        self.assertEqual(findings_for('''
+            def _user(file_found):
+                start = file_found.find('/user/') + 6
+                return file_found[start:start + 3]
+
+            @artifact_processor
+            def fine(files_found, seeker, report_folder):
+                data_list = []
+                for file_found in files_found:
+                    data_list.append((_user(file_found), 'a'))
+                return (), data_list, ''
+        '''), [])
+
+    def test_a_working_list_that_never_reaches_the_report_is_not_a_row_list(self):
+        """dmss collects (name, name, path) records under a *_data_list name, then
+        builds the real rows from them with the path reduced."""
+        self.assertEqual(findings_for('''
+            @artifact_processor
+            def fine(files_found, seeker, report_folder, context):
+                media_data_list = []
+                for file_found in files_found:
+                    record = ('n', 'n', file_found)
+                    media_data_list.append(record)
+                data_list = []
+                for item in media_data_list:
+                    data_list.append((item[0], context.get_relative_path(item[2])))
+                return (), data_list, ''
+        '''), [])
+
+    def test_a_record_appended_by_name_reports_its_path_position(self):
+        self.assertEqual(self._cols('''
+            @artifact_processor
+            def leak(files_found, seeker, report_folder):
+                data_list = []
+                for file_found in files_found:
+                    record = ('n', file_found)
+                    data_list.append(record)
+                return (), data_list, ''
+        '''), [('leak', 1)])
 
 
 class TheRepoItself(unittest.TestCase):

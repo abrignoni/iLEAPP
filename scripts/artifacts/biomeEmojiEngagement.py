@@ -11,10 +11,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "The context field decodes to a four character ASCII string that resembles a "
-                 "trailing locale fragment (values seen: n_US and n-US, consistent with en_US "
-                 "and en-US); it is reported both raw and decoded because that reading is not "
-                 "confirmed. Field 2 was 1 on every record observed and field 4 varied from 1 "
-                 "to 4; both are reported raw.",
+                 "trailing locale fragment (values seen: n_US and n-US, consistent with en_US and "
+                 "en-US); it is reported both raw and decoded because that reading is not "
+                 "confirmed. Field 2 was 1 on every written record of the tested images and field "
+                 "4 varied from 1 to 4; records in the deleted SEGB state carry neither, and both "
+                 "are reported raw.",
         "paths": ('*/streams/*/Emoji.Engagement/local/*',),
         "output_types": "standard",
         "artifact_icon": "smile",

@@ -6,7 +6,9 @@ __artifacts_v2__ = {
     
     "zangi_messages": {
         "name": "Zangi Messenger - Messages",
-        "description": "Zangi Messenger - Messages",
+        "description": "Messages from the Zangi Messenger database (ZZANGIMESSAGE joined to its "
+                       "conversation, group and contact tables), with direction, sender, chat "
+                       "name, text, message type and the attachment file where the app kept one.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
@@ -42,7 +44,9 @@ __artifacts_v2__ = {
     },
     "zangi_contacts": {
         "name": "Zangi Messenger - Contacts",
-        "description": "Zangi Messenger - Contacts",
+        "description": "Contacts from the Zangi Messenger database (ZCONTACT with its numbers), "
+                       "with names, number, email, registration type, blocked and favourite flags "
+                       "and modification and activity times.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
@@ -59,7 +63,9 @@ __artifacts_v2__ = {
     },
     "zangi_accounts": {
         "name": "Zangi Messenger - Accounts",
-        "description": "Zangi Messenger - Accounts",
+        "description": "Account rows from the ZUSER table of the Zangi Messenger database, with "
+                       "account id, names, email, status, registration status, country and the "
+                       "passcode, password and PIN fields as stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",

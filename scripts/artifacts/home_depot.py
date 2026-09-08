@@ -43,7 +43,8 @@ __artifacts_v2__ = {
     },
     "home_depot_saved_searches": {
         "name": "Home Depot - Saved Searches",
-        "description": "Saved search terms and last-used timestamps",
+        "description": "Saved search terms and the dates stored with them (savedSearches and "
+                       "savedSearchesdates keys)",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
         "last_update_date": "2026-06-26",

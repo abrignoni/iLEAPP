@@ -1,9 +1,10 @@
 __artifacts_v2__ = {
     "get_cashApp": {
         "name": "Cash App",
-        "description": "Parses Cash App customer and payment records from the CCEntitySync SQLite stores, "
-                       "decoding the ZSYNCCUSTOMER and ZSYNCPAYMENT protobuf blobs and the JSON payloads "
-                       "they carry.",
+        "description": "Parses Cash App payment records joined to their customer records from the "
+                       "CCEntitySync SQLite stores, decoding the ZSYNCPAYMENT and ZSYNCCUSTOMER "
+                       "protobuf blobs and the JSON payloads they carry; a customer with no "
+                       "payment is not reported.",
         "author": "@gforce4n6, @AlexisBrignoni, @charpy4n6, Claude",
         "creation_date": "2021-10-06",
         "last_update_date": "2026-08-25",

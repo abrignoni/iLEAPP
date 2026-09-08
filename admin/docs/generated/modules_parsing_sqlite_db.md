@@ -70,12 +70,15 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | biomeSync |
 | booking |
 | box |
+| brave |
 | bumble |
 | burner |
 | callHistory |
 | cashApp |
 | cloudkit_cache |
 | cnn |
+| coinbaseWallet |
+| coverMe |
 | discordChats |
 | discord_a |
 | dubox |
@@ -86,9 +89,11 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | filesApp |
 | firefoxIOS |
 | fitbitIOS |
+| foursquarePilgrim |
 | foursquareSwarm |
 | geodApplications |
 | geodPDPlaceCache |
+| gettr |
 | googleCalendar |
 | googleDocs |
 | googleDrive |
@@ -99,6 +104,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | googleSheets |
 | googleTranslate |
 | googleVoice |
+| gpsTracks |
 | groupMe |
 | health |
 | hikvision |
@@ -112,6 +118,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | keychain |
 | life360 |
 | line |
+| linePrivateStore |
 | locationdCacheEncryptedB |
 | logarchive |
 | mailprotect |
@@ -125,7 +132,9 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | netusage |
 | notes |
 | notesPasswordProtected |
+| notion |
 | nsVault |
+| nytimes |
 | oneDrive |
 | ooklaSpeedtestData |
 | parsecdCache |
@@ -137,6 +146,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | pingertextfree |
 | potatoChat |
 | powerlog |
+| privatePhotoVault |
 | protonMail |
 | protonMailInbox |
 | queryPredictions |
@@ -152,15 +162,18 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | safariWebsearch |
 | sbbmobile |
 | secretCalculator |
+| skout |
 | slack |
 | sms |
 | splitwise |
+| spotify |
 | storeSystem |
 | storeUser |
 | subscriberInfo |
 | swissmeteo |
 | tcc |
 | teleguard |
+| textNow |
 | threeBars |
 | tikTok |
 | tikTokReplied |
@@ -185,6 +198,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | wickr |
 | wifiAnalytics |
 | wire |
+| zoomChat |
 <!-- GET_RECORDS_END -->
 
 ### open_sqlite_db_readonly() Usage
@@ -215,6 +229,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | discord_cache |
 | dmss |
 | easy4ip |
+| familyHub |
 | foursquareSwarm |
 | geodMapTiles |
 | gmail |

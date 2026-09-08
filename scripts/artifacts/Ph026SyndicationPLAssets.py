@@ -1,19 +1,9 @@
 __artifacts_v2__ = {
 'Ph026_1SyndicationIDAssetsPhDaPsql': {
 'name': 'Ph026.1-Syndication ID Assets-PhDaPsql',
-'description': 'Parses Syndication ID and Syndication Photos Library assets which includes'
-' Shared with You Conversation assets from PhotoData-Photos.sqlite and'
-' Syndication.photoslibrary-database-Photos.sqlite'
-' and supports iOS 15-18. Parses assets that have a ZADDITIONALASSETATTRIBUTES'
-' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields'
-' can be used to filter those results: ZASSET ZSYNDICATIONSTATE:'
-' 0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0 1-SyndPs-Sent-SWY_Synd_Asset-1'
-' 2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
-' 8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
-' 9-SyndPs-STILLTESTING_Sent_SWY-9'
-' 10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
-' ZASSET ZSAVEDASSETTYPE: 12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Assets carrying a Syndication Identifier in PhotoData/Photos.sqlite (Shared with "
+               "You conversation assets, iOS 15 to 18), with their conversation album dates, "
+               "import session, file names, syndication state and saved asset type.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'version': '6.0',
@@ -45,19 +35,10 @@ __artifacts_v2__ = {
 },
 'Ph026_2SyndicationPLAssetsSyndPL': {
 'name': 'Ph026.2-Syndication PL Assets-SyndPL',
-'description': 'Parses Syndication ID and Syndication Photos Library assets which includes'
-' Shared with You Conversation assets from PhotoData-Photos.sqlite and'
-' Syndication.photoslibrary-database-Photos.sqlite'
-' and supports iOS 15-18. Parses assets that have a ZADDITIONALASSETATTRIBUTES'
-' ZSYNDICATIONIDENTIFIER value. ZASSET ZSAVEDASSETTYPE and ZASSET ZSYNDICATIONSTATE fields'
-' can be used to filter those results: ZASSET ZSYNDICATIONSTATE:'
-' 0-PhDaPs-NA_or_SyndPs-Received-SWY_Synd_Asset-0 1-SyndPs-Sent-SWY_Synd_Asset-1'
-' 2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
-' 8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
-' 9-SyndPs-STILLTESTING_Sent_SWY-9'
-' 10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
-' ZASSET ZSAVEDASSETTYPE: 12-SyndPs-SWY-Asset_Auto-Display_In_CameraRoll-12'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Assets carrying a Syndication Identifier in the Syndication.photoslibrary "
+               "Photos.sqlite (Shared with You conversation assets, iOS 15 to 18), with their "
+               "conversation album dates, import session, file names, syndication state and saved "
+               "asset type.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'version': '6.0',

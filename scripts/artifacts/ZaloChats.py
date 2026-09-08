@@ -8,7 +8,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "pillow",
         "category": "Zalo",
-        "notes": "Message type mappings were established through testing and are not vendor-documented; unrecognized types are reported as Unknown with the raw Type ID column.",
+        "notes": "Message type mappings are not vendor-documented and were derived from tested "
+                 "data without a published source; unrecognized types are reported as Unknown "
+                 "with the raw Type ID column.",
         "paths": (  
             '*/mobile/Containers/Data/Application/*/Documents/chat_dbs/*/*',
             '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite*',

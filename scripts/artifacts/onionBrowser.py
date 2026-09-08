@@ -1,8 +1,9 @@
 __artifacts_v2__ = {
     "onion_browser_bookmarks": {
         "name": "Onion Browser - Bookmarks",
-        "description": "Bookmarks saved in Onion Browser, with the page name, the URL and the "
-                       "stored site icon",
+        "description": "Bookmarks held in Onion Browser's bookmark store, including the defaults "
+                       "the app seeds on first run, with the page name, the URL and the stored "
+                       "site icon",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
         "last_update_date": "2026-08-21",
@@ -46,7 +47,8 @@ __artifacts_v2__ = {
                  "not that the user opened it as a page. Older app versions also persisted the "
                  "bundled preload list into this file, flagged preloaded, with a synthetic "
                  "expiration one year from when the app loaded the cache; an iOS 13-era store "
-                 "held 67,303 entries of which 9 were unflagged. Current versions write only "
+                 "held 67,303 entries of which 9 were unflagged. The source at the cited commit "
+                 "writes only "
                  "received entries. References in the app's published source: "
                  "github.com/OnionBrowser/OnionBrowser/blob/"
                  "9a17dd4f2ee61697a8c65af5b09380b3d32646a8/OnionBrowser/HstsCache.swift "

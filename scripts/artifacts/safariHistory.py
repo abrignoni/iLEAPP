@@ -8,7 +8,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Safari Browser",
         "notes": (
-            "Starting with iOS 17 Safari supports multiple profiles, each with its own "
+            "Where Safari profiles are present, each has its own "
             "History.db under Safari/Profiles/. The Profile column carries the profile "
             "directory name for those records and Default for the main history database."
         ),

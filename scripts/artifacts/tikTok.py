@@ -67,7 +67,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "TikTok",
         "notes": (
-            "Timestamp corresponds to latest chat if available. An iOS app container is a "
+            "Timestamp is reported as stored. An iOS app container is a "
             "GUID directory, so the AwemeIM.db name alone does not identify the owning app. "
             "Each matched database is attributed to the app named by its container's own "
             ".com.apple.mobile_container_manager.metadata.plist (a path reconstructed from "

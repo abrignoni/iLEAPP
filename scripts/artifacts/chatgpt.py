@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "chatgptConversationsMetadata": {
         "name": "ChatGPT - Conversations Metadata",
         "description": "Metadata from ChatGPT conversations. Based on a research project; "
-                       "validated up to the app's 1.2024.178 version.",
+                       "covers the app up to version 1.2024.178.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
         "last_update_date": "2026-08-21",
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
     "chatgptConversations": {
         "name": "ChatGPT - Conversations",
         "description": "User conversations with ChatGPT. Based on a research project; "
-                       "validated up to the app's 1.2024.178 version.",
+                       "covers the app up to version 1.2024.178.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
         "last_update_date": "2026-08-21",

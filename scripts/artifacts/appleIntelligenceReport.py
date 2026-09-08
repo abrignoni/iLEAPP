@@ -13,9 +13,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Apple Intelligence",
         "notes": (
-            "Parses the report a user exports via Settings > Privacy & Security > Apple "
-            "Intelligence Report on iOS 18.4+ / macOS 15.4+; the file does not exist on a "
-            "device image unless the user exported it, so the examiner supplies it. "
+            "Parses the report exported from Settings > Privacy & Security > Apple Intelligence "
+            "Report; no such file was found on any registered corpus image, so the examiner "
+            "supplies it. "
             "Distinguishes on-device Model Requests from Private Cloud Compute (PCC) requests. "
             "The User Trigger and Source App columns are convenience labels derived from the "
             "use-case and client identifiers; the raw values are reported beside them. "

@@ -2,10 +2,11 @@ __artifacts_v2__ = {
     "keepsafe_vault_items": {
         "name": "KeepSafe - Vault Items",
         "description": (
-            "Media items recorded in KeepSafe's RocksDB store (Documents/rdb), matched "
-            "to the encrypted file each item's id names under Documents/<table>/. "
-            "Reports the item's name, timestamps, album, GPS, and SHA-1/dimensions as "
-            "KeepSafe itself recorded them for the original file, before encryption."
+            "Media items recorded in the write-ahead logs of KeepSafe's RocksDB store "
+            "(Documents/rdb), matched to the encrypted file each item's id names under "
+            "Documents/<table>/, with the item's name, timestamps, album, GPS and "
+            "SHA-1/dimensions as recorded in the log entry; "
+            "items held only in the .sst tables are not read."
         ),
         "author": "@Gear-I, Claude",
         "creation_date": "2026-08-23",
@@ -13,12 +14,17 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
-            "RocksDB *.sst tables are not read (see module docstring); only what is "
-            "still in the write-ahead log(s) is reported, so a count here is a floor, "
-            "not a ceiling, on what the vault has ever held. 'breakin_alert' and 'fake' "
-            "were empty directories with no live records in the validation image, so "
-            "their field mapping is unexercised - see module docstring for the tier of "
-            "each claim."
+            "RocksDB *.sst tables are not read (see module docstring); only what is still in the "
+            "write-ahead log(s) is reported, so a count here is a floor, not a ceiling, on what "
+            "the vault has ever held. 'breakin_alert' and 'fake' were empty directories with no "
+            "live records in the validation image, so their field mapping is unexercised - see "
+            "module docstring for the tier of each claim. On the iOS 17.3 image each table is "
+            "sharded into two-letter folders (primary/<xx>/<item-id>_100); the folder "
+            "entries the file search returns beside the files, and the rdb_backups/<timestamp> "
+            "folder itself, are skipped. The KeepSafe version recorded in sample_data is the "
+            "app's own initialVersionInstalled preference, the version first installed rather "
+            "than the one running at acquisition. On the iOS 17.5.1 image the container held the "
+            "rdb stores and no table directory, so no item is reported there."
         ),
         "paths": (
             "*/mobile/Containers/Data/Application/*/Documents/rdb/*",
@@ -34,6 +40,15 @@ __artifacts_v2__ = {
             "hickman_ios14": (
                 "iOS 14.3 | KeepSafe 10.2.4 | 5 rows, all from the 'primary' table; "
                 "'breakin_alert' and 'fake' present as empty directories, 0 rows"
+            ),
+            "hickman_ios15": "iOS 15.3.1 | KeepSafe 11.7.3 (initial install version) | 7 rows, all from the 'primary' table",
+            "iphone11_ios17": (
+                "iOS 17.3 | KeepSafe 11.10.1 (initial install version) | 9 rows, all from the 'primary' table, "
+                "sharded into two-letter folders"
+            ),
+            "cookbook_ios1751": (
+                "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 0 rows: the container holds the rdb "
+                "stores and no table directory"
             ),
         },
     },
@@ -56,6 +71,9 @@ __artifacts_v2__ = {
         "artifact_icon": "folder",
         "sample_data": {
             "hickman_ios14": "iOS 14.3 | KeepSafe 10.2.4 | 5 rows: Main Album, Videos, Cards & ID, Significant Other, My Private Album",
+            "hickman_ios15": "iOS 15.3.1 | KeepSafe 11.7.3 (initial install version) | 5 rows",
+            "iphone11_ios17": "iOS 17.3 | KeepSafe 11.10.1 (initial install version) | 5 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 1 row",
         },
     },
     "keepsafe_account_security": {
@@ -85,6 +103,9 @@ __artifacts_v2__ = {
         "artifact_icon": "shield-lock",
         "sample_data": {
             "hickman_ios14": "iOS 14.3 | KeepSafe 10.2.4 | 1 row",
+            "hickman_ios15": "iOS 15.3.1 | KeepSafe 11.7.3 (initial install version) | 1 row",
+            "iphone11_ios17": "iOS 17.3 | KeepSafe 11.10.1 (initial install version) | 1 row",
+            "cookbook_ios1751": "iOS 17.5.1 | KeepSafe 11.13.1 (initial install version) | 1 row",
         },
     },
 }
@@ -202,6 +223,11 @@ def _rdb_store_dirs(files_found):
     live_dirs = set()
     backup_dirs = {}
     for path in files_found:
+        if os.path.isdir(path):
+            # the seekers hand back a matched directory (rdb_backups/<ts> itself) as well as
+            # its files; a directory entry has no store to contribute and, walked upward,
+            # never meets its own name
+            continue
         norm = str(path).replace("\\", "/")
         parent = os.path.dirname(norm)
         if "/Documents/rdb_backups/" in norm:
@@ -209,8 +235,13 @@ def _rdb_store_dirs(files_found):
             after = norm.split(marker, 1)[1]
             ts_name = after.split("/", 1)[0]
             store_dir = parent
-            while os.path.basename(store_dir) != ts_name and store_dir:
-                store_dir = os.path.dirname(store_dir)
+            while store_dir and os.path.basename(store_dir) != ts_name:
+                up = os.path.dirname(store_dir)
+                if up == store_dir:
+                    # reached the filesystem root without meeting the backup name
+                    store_dir = ""
+                    break
+                store_dir = up
             if store_dir:
                 try:
                     ts_val = int(ts_name)
@@ -349,6 +380,10 @@ def _item_files(files_found):
     """Yields (table, item_id, encrypted_file_path) for each on-disk vault content
     file (excludes .thumb/.preview/.md sidecars)."""
     for path in files_found:
+        if os.path.isdir(path):
+            # newer builds shard a table into two-letter folders (primary/5z/5zxGR_100) and the
+            # seekers return those folders too; a folder is not an item
+            continue
         norm = str(path).replace("\\", "/")
         for table in _VAULT_TABLES:
             marker = f"/Documents/{table}/"

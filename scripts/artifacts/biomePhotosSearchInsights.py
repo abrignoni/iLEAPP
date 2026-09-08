@@ -3,8 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Photos Search Insights",
         "description": "Parses Photos search terms from the "
                        "AeroML.Insights.PhotosSearchInsights biome stream, along with the "
-                       "language and region the search was made in. The search term is text "
-                       "entered in the Photos app search.",
+                       "language and region the search was made in. The search term is the text "
+                       "stored for the Photos app search.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",

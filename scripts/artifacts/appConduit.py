@@ -6,9 +6,8 @@ interactions between iPhone and other iOS devices (e.g., Apple Watch).
 __artifacts_v2__ = {
     'app_conduit': {
         'name': 'App Conduit',
-        'description': 'The AppConduit log file stores information about \
-            interactions between iPhone and other iOS devices, \
-            i.e. Apple Watch',
+        'description': "Device connection and disconnection entries parsed from the AppConduit "
+                       "log files",
         'author': '@ydkhatri',
         'creation_date': '2020-08-05',
         "last_update_date": "2025-10-08",

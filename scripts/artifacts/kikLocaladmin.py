@@ -1,7 +1,9 @@
 __artifacts_v2__ = {
     "kikLocaladmin": {
         "name": "Kik Local Account",
-        "description": "Kik user rows with populated name fields; in testing this includes the account holder. Published research identifies the account-holder row via ZKIKUSER.ZFLAGS = 258.",
+        "description": "Kik user rows with a populated first or last name. Published research "
+                       "identifies the account-holder row via ZKIKUSER.ZFLAGS = 258; this "
+                       "artifact does not filter on that flag.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
         "last_update_date": "2026-07-31",

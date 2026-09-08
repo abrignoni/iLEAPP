@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "System Activity",
         "notes": (
-            "Timestamps are stored without a UTC offset and are reported as device-local time. "
+            "Timestamps are stored without a UTC offset and are reported without conversion in "
+            "the 'Timestamp (Device Local, No Offset)' column; the zone is not established. "
             "A lockdownd startup record shows that the daemon started; it is not, by itself, "
             "proof that the device booted. Event selection is based on research by Ian Whiffin: "
             "https://doubleblak.com/blogPost.php?k=knowledgec"

@@ -1,13 +1,22 @@
 __artifacts_v2__ = {
     "applewalletcards": {
         "name": "Apple Wallet Cards",
-        "description": "Apple Wallet Cards",
+        "description": "Card number, expiry and card type strings pattern-matched from cached "
+                       "Passbook API responses in the Wallet app's Cache.db, with the cache entry "
+                       "time; heuristic matches that need verification.",
         "author": "@any333",
         "creation_date": "2021-02-05",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Apple Wallet",
-        "notes": "Card values are pattern-matched from cached API responses and the type heuristic uses only the first digit; values require verification. Cache timestamps reflect response caching, not card enrollment. In tested images only iOS 13.3.1 yields a card row: the Passbook Cache.db is present but yields no card entries on the 13 other recorded corpus images (iOS 12-18) and on all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2). Wallet passes on current images are parsed by the Apple Wallet - Nano Passes and Apple Wallet Transactions artifacts.",
+        "notes": "Card values are pattern-matched from cached API responses and the type "
+                 "heuristic uses only the first digit; values require verification. Cache "
+                 "timestamps reflect response caching, not card enrollment. In tested images only "
+                 "iOS 13.3.1 yields a card row: the Passbook Cache.db is present but yields no "
+                 "card entries on the 20 other tested images that carry it (iOS 12-26) and on all "
+                 "21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions "
+                 "(iOS 16.1.1-26.5.2). Wallet passes on current images are parsed by the Apple "
+                 "Wallet - Nano Passes and Apple Wallet Transactions artifacts.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.apple.Passbook/Cache.db*'),
         "output_types": "standard",
         "artifact_icon": "credit-card",

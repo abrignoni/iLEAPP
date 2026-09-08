@@ -10,7 +10,20 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "iOS <=16 / iOS 17+ key naming per tested corpora. This directory can hold com.apple.MobileSMS.plist and com.apple.mobileSMS.plist as two different files; 6 of 20 tested images carry both, iOS 14.3 through 26.5.2. Every found file is read and each row's Setting names the source spelling it was read from. Where the report folder is on a case-insensitive volume, the file seeker preserves the second copy under a name tagged ~case- and the row's path points at the copy holding the bytes it reports; the run log records which source each tagged copy came from. On all 6 of those images the lowercase-spelled file held the same three IMDCKBackupController* keys and no retention key, so it is reported as 'No value'. Row counts are from runs on macOS. A directory input sitting on a case-insensitive volume holds only the single file that extraction kept, so both spellings can only arrive from archive or case-sensitive inputs. Reference: Apple Support, 'Delete messages and attachments', https://support.apple.com/guide/iphone/delete-messages-and-attachments-iph2c9c4bfcb/ios",
+        "notes": "iOS <=16 / iOS 17+ key naming per tested corpora. This directory can hold "
+                 "com.apple.MobileSMS.plist and com.apple.mobileSMS.plist as two different files; "
+                 "6 of 23 tested images carry both, iOS 14.3 through 26.5.2. Every found file is "
+                 "read and each row's Setting names the source spelling it was read from. Where "
+                 "the report folder is on a case-insensitive volume, the file seeker preserves "
+                 "the second copy under a name tagged ~case- and the row's path points at the "
+                 "copy holding the bytes it reports; the run log records which source each tagged "
+                 "copy came from. On all 6 of those images the lowercase-spelled file held the "
+                 "same three IMDCKBackupController* keys and no retention key, so it is reported "
+                 "as 'No value'. Row counts are from runs on macOS. A directory input sitting on "
+                 "a case-insensitive volume holds only the single file that extraction kept, so "
+                 "both spellings can only arrive from archive or case-sensitive inputs. "
+                 "Reference: Apple Support, 'Delete messages and attachments', "
+                 "https://support.apple.com/guide/iphone/delete-messages-and-attachments-iph2c9c4bfcb/ios",
         "paths": ('*/mobile/Library/Preferences/com.apple.[Mm]obileSMS.plist',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "message-circle",

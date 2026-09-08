@@ -18,8 +18,8 @@ __artifacts_v2__ = {
                  "readings of the same coordinate. Version Timestamp is Unix milliseconds, a different "
                  "epoch from the Core Data seconds used elsewhere in the same store. Coordinates "
                  "describe the home the account configured and are not evidence of a person's "
-                 "location. Concierge Owner Email was empty in the tested sample, where that "
-                 "subscription was not held; the column is kept because the store defines it. The "
+                 "location. Concierge Owner Email was empty in the tested sample; the column is "
+                 "kept because the store defines it. The "
                  "app's data container was present on 1 of the 26 registered iOS corpora swept for it, "
                  "so every count recorded here comes from that one extraction.",
         "paths": ('*/Documents/*_HomeGraphModel*',),
@@ -41,8 +41,8 @@ __artifacts_v2__ = {
         "category": "Google Home",
         "notes": "Read from ZDEVICE, with the device type resolved through ZDEVICETYPE and the "
                  "assigned room through the Z_3SPACES join table to ZSPACE. A device with no row in "
-                 "that join table is reported with an empty Room, which is how an unassigned device "
-                 "appears; 12 of the 14 devices were assigned on the tested sample. Link Timestamp is "
+                 "that join table is reported with an empty Room; 12 of the 14 devices on the "
+                 "tested sample had a row in that table. Link Timestamp is "
                  "Core Data seconds since 2001-01-01. Display Name, User Defined Name and Agent "
                  "Defined Name are reported separately because the store holds all three and they need "
                  "not agree. SSID Suffix is the value the store holds for the device and is reported "
@@ -65,11 +65,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Home",
         "notes": "Read from ZSPACE, with the room type resolved through ZSPACETYPE to its localized "
-                 "name. These are the rooms the account created in this home, which is distinct from "
-                 "the ZSPACETYPE table itself: that table is the catalogue of room types the app ships "
-                 "and is the same on every device, so it is deliberately not reported. The same "
-                 "applies to ZDEVICETYPE and ZTRAIT, which are shipped catalogues rather than user "
-                 "data. Structure ID holds one value on every row in the tested sample because that "
+                 "name. These are the rooms recorded for this home, which is distinct from the "
+                 "ZSPACETYPE table itself: that table lists room types rather than rooms and is "
+                 "not reported. The same applies to ZDEVICETYPE and ZTRAIT, which list types "
+                 "rather than rows tied to this home. Structure ID holds one value on every row "
+                 "in the tested sample because that "
                  "account had a single home, and it is kept so an account with more than one home "
                  "shows which home each room belongs to. The app's data container was present on 1 of "
                  "the 26 registered iOS corpora swept for it, so every count recorded here comes from "
@@ -91,8 +91,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Home",
         "notes": "Read from ZAUTOMATION. Starter Description and Action Description are the summary "
-                 "strings the app stores for the automation rather than its full definition, and the "
-                 "store holds no record of an automation having run, so a row is evidence that an "
+                 "strings the app stores for the automation rather than its full definition, and "
+                 "no table in the tested store records an automation having run, so a row is "
+                 "evidence that an "
                  "automation was configured and not that it fired. Automation Type, Starter Type and "
                  "Automation Source are reported as stored; no mapping from those integers to a name "
                  "was sourced. Enabled, Valid and Executable were true and Scripted was false on every "
@@ -109,59 +110,108 @@ __artifacts_v2__ = {
         },
     },
     "googleCastDevices": {
-        "name": "Google Home - Cast Devices",
-        "description": "Cast devices the app discovered on the local network, with the IP "
-                       "address, port and the last discovered, accessed and published times.",
+        "name": "Google Cast Framework - Devices",
+        "description": "Cast receivers recorded in the Google Cast SDK's CastFrameworkDB.sqlite "
+                       "inside an app's container, with the app that owns the container, the "
+                       "receiver's friendly name and model where the store holds them, IP address "
+                       "and port, and the last accessed and last discovered times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Google Home",
-        "notes": "Read from CastFrameworkDB.sqlite, one row per device in ZGCKDBDEVICEINFO. "
-                 "ZGCKDBDISCOVERYINFO.ZDEVICEINFO is null on every row, so the device is reached "
-                 "through ZGCKDBLOCALCONNECTIONINFO instead, and each device owns two discovery "
-                 "records that reference it through either ZLOCALCONNECTIONINFO or "
-                 "ZLOCALCONNECTIONINFO1; both are followed, the newest discovery time is reported and "
-                 "Discovery Records gives how many were found. All timestamps in this store are Core "
-                 "Data seconds since 2001-01-01. IP Address is a private network address in the tested "
-                 "sample, so it places the device on its own network rather than on the internet. "
-                 "Discovery is the app observing a device on the network it was joined to, which is "
-                 "not the same as the user casting to it, and the store holds no playback history. The "
-                 "relay access token this store also holds is deliberately not reported. Last "
-                 "Published Time and Device Config Change Time were empty on both devices in the "
-                 "tested sample; the columns are kept because the store defines them and another "
-                 "device may carry them. The app's data container was present on 1 of the 26 "
-                 "registered iOS corpora swept for it, so every count recorded here comes from that "
-                 "one extraction.",
-        "paths": ('*/Library/Caches/CastFrameworkDB.sqlite*',),
+        "notes": "Read from ZGCKDBDEVICEINFO in every Library/Caches/CastFrameworkDB.sqlite the "
+                 "extraction holds. The file is written by Google's Cast SDK, which many apps "
+                 "embed, so a store sits in the container of whichever app embeds it: Container "
+                 "App is the bundle id from that container's metadata plist, and on the 12 tested "
+                 "images holding the store the containers belonged to YouTube, Spotify, Netflix, "
+                 "Google Photos, Google Home, Disney+, ESPN, CNN, Facebook, NHL, MSNBC and "
+                 "Twitch; the Google Home app itself was on one of them. A row records that the "
+                 "SDK inside that app knew of a receiver; it does not establish that the user "
+                 "cast to it, and no table in the tested stores records playback. Friendly Name "
+                 "and Model "
+                 "Name are the receiver's own strings as stored, present on 9 of the 31 device "
+                 "rows across the tested images. A device is reached from ZGCKDBDEVICEINFO "
+                 "through ZGCKDBLOCALCONNECTIONINFO (ZGCKDBDISCOVERYINFO.ZDEVICEINFO was null on "
+                 "every row), each device owning up to two discovery records that reference it "
+                 "through ZLOCALCONNECTIONINFO or ZLOCALCONNECTIONINFO1; both are followed, the "
+                 "newest discovery time is reported and Discovery Records gives how many were "
+                 "found. A device with no local connection record, 22 of the 31 rows, has blank "
+                 "IP Address, Port, Service Instance Name and Last Discovered Time and a Device "
+                 "Version and Capabilities of 0, which is why Last Accessed Time, present on "
+                 "every row, leads the table. All timestamps in this store are Core Data seconds "
+                 "since 2001-01-01. IP Address was a private network address on every row that "
+                 "carried one, so it places the receiver on its own network rather than on the "
+                 "internet. Older SDK stores lack the ZDEVICECONFIGCHANGETIMESTAMP and "
+                 "ZINTERNALSTATUS columns (the iOS 12 to 16 images); they are read as empty "
+                 "rather than failing the query, which until this change returned no device on 11 "
+                 "of the 12 images. Last Published Time and Device Config Change Time were empty "
+                 "on all 31 rows and Internal Status on all but 2; the columns are kept because "
+                 "the store defines them. Endpoint Device ID held the literal guestModeDeviceID "
+                 "on 21 of the 31 rows. The ZMANUFACTURER column was empty on every row of every "
+                 "tested image and is not reported. The relay access token this store also holds "
+                 "is deliberately not reported.",
+        "paths": ('*/Library/Caches/CastFrameworkDB.sqlite*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
+                  '*/mobile/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cast",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 3 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 2 rows",
+            "belkactf6": "iOS 16.3 | 1 row",
+            "ctf2020_ios12": "iOS 12.4 | 6 rows",
+            "dexter_ios18": "iOS 18.3.2 | 7 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 1 row",
+            "hickman_ios14": "iOS 14.3 | 1 row",
+            "hickman_ios15": "iOS 15.3.1 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 5 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows (no CastFrameworkDB.sqlite in the extraction)",
         },
     },
     "googleCastNetwork": {
-        "name": "Google Home - Cast Network",
-        "description": "Networks the cast framework recorded, with the last connected and last "
-                       "query times.",
+        "name": "Google Cast Framework - Networks",
+        "description": "Networks recorded in the Google Cast SDK's CastFrameworkDB.sqlite inside "
+                       "an app's container, with the app that owns the container and the last "
+                       "connected and last query times.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Google Home",
-        "notes": "Read from ZGCKDBNETWORKINFO in CastFrameworkDB.sqlite. Network ID is the value the "
-                 "framework stored to identify the network and on the tested sample it is an IPv4 "
-                 "address rather than a network name, so it is reported as stored and must not be read "
-                 "as an SSID. Timestamps are Core Data seconds since 2001-01-01. Type and Analytics "
-                 "Enabled are reported as stored. Last Query Time was empty on the single network row "
-                 "in the tested sample; the column is kept because the store defines it. The app's "
-                 "data container was present on 1 of the 26 registered iOS corpora swept for it, so "
-                 "every count recorded here comes from that one extraction.",
-        "paths": ('*/Library/Caches/CastFrameworkDB.sqlite*',),
+        "notes": "Read from ZGCKDBNETWORKINFO in every Library/Caches/CastFrameworkDB.sqlite the "
+                 "extraction holds. The file is written by Google's Cast SDK, which many apps "
+                 "embed, so Container App names the app whose container the store sits in, from "
+                 "that container's metadata plist; the apps seen on the 12 tested images are "
+                 "listed in the Devices artifact's notes. Network ID is the value the SDK stored "
+                 "to identify the network: an IPv4 address on 34 of the 38 tested rows and an "
+                 "IPv6 address on the other 4, never a network name, so it is reported as stored "
+                 "and must not be read as an SSID. Timestamps are Core Data seconds since "
+                 "2001-01-01. Type and Analytics Enabled are reported as stored. Last Query Time "
+                 "was empty on all 38 tested rows; the column is kept because the store defines "
+                 "it.",
+        "paths": ('*/Library/Caches/CastFrameworkDB.sqlite*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
+                  '*/mobile/Containers/Data/PluginKitPlugin/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "wifi",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | 5 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 1 row",
+            "belkactf6": "iOS 16.3 | 1 row",
+            "ctf2020_ios12": "iOS 12.4 | 5 rows",
+            "dexter_ios18": "iOS 18.3.2 | 3 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 4 rows",
+            "hickman_ios13": "iOS 13.3.1 | 3 rows",
+            "hickman_ios14": "iOS 14.3 | 9 rows",
+            "hickman_ios15": "iOS 15.3.1 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "magnet_ios16": "iOS 16.1.1 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 3 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows (no CastFrameworkDB.sqlite in the extraction)",
         },
     },
 }
@@ -176,8 +226,39 @@ from scripts.ilapfuncs import (
     artifact_processor,
     get_sqlite_db_records,
     logfunc,
+    null_absent_columns,
     open_sqlite_db_readonly,
 )
+
+_METADATA_NAME = '.com.apple.mobile_container_manager.metadata.plist'
+
+
+def _container_apps(files_found):
+    """Map a container directory to the bundle id its metadata plist records.
+
+    Built from this artifact's own matched files, so it does not depend on the order
+    artifacts run in."""
+    apps = {}
+    for found in files_found:
+        found = str(found)
+        if os.path.basename(found) != _METADATA_NAME:
+            continue
+        try:
+            with open(found, 'rb') as handle:
+                plist = plistlib.load(handle)
+        except (plistlib.InvalidFileException, OSError, ValueError) as error:
+            logfunc(f'Google Cast: could not read a container metadata plist: {error}')
+            continue
+        bundle_id = plist.get('MCMMetadataIdentifier')
+        if bundle_id:
+            apps[os.path.dirname(found).replace('\\', '/')] = bundle_id
+    return apps
+
+
+def _container_app(store, apps):
+    """Bundle id of the app owning <container>/Library/Caches/CastFrameworkDB.sqlite, or ''."""
+    container = os.path.dirname(os.path.dirname(os.path.dirname(str(store)))).replace('\\', '/')
+    return apps.get(container, '')
 
 _UNIX_EPOCH_UTC = datetime(1970, 1, 1, tzinfo=timezone.utc)
 _CORE_DATA_EPOCH_UTC = datetime(2001, 1, 1, tzinfo=timezone.utc)
@@ -482,10 +563,13 @@ def googleHomeAutomations(context):
 @artifact_processor
 def googleCastDevices(context):
     data_headers = (
-        ('Last Discovered Time', 'datetime'),
         ('Last Accessed Time', 'datetime'),
+        ('Last Discovered Time', 'datetime'),
         ('Last Published Time', 'datetime'),
         ('Device Config Change Time', 'datetime'),
+        'Container App',
+        'Friendly Name',
+        'Model Name',
         'Service Instance Name',
         'IP Address',
         'Port',
@@ -511,6 +595,8 @@ def googleCastDevices(context):
         I.ZLASTACCESSEDTIME,
         I.ZLASTPUBLISHEDTIME,
         I.ZDEVICECONFIGCHANGETIMESTAMP,
+        I.ZFRIENDLYNAME,
+        I.ZMODELNAME,
         (SELECT D.ZSERVICEINSTANCENAME FROM ZGCKDBDISCOVERYINFO AS D
           WHERE (D.ZLOCALCONNECTIONINFO = LC.Z_PK OR D.ZLOCALCONNECTIONINFO1 = LC.Z_PK)
             AND D.ZSERVICEINSTANCENAME IS NOT NULL LIMIT 1),
@@ -526,19 +612,24 @@ def googleCastDevices(context):
     FROM ZGCKDBDEVICEINFO AS I
     LEFT JOIN ZGCKDBLOCALCONNECTIONINFO AS LC ON LC.ZDEVICEINFO = I.Z_PK
     LEFT JOIN ZGCKDBNETWORKADDRESS AS NA ON NA.ZLOCALCONNECTIONINFO = LC.Z_PK
-    ORDER BY 1
+    ORDER BY I.ZLASTACCESSEDTIME
     '''
-    for database in _cast_stores(context.get_files_found()):
+    files_found = context.get_files_found()
+    apps = _container_apps(files_found)
+    for database in _cast_stores(files_found):
         rows = 0
-        for record in get_sqlite_db_records(database, query):
+        # older Cast SDK stores lack ZDEVICECONFIGCHANGETIMESTAMP and ZINTERNALSTATUS; read them as NULL
+        for record in get_sqlite_db_records(database, null_absent_columns(database, query)):
             rows += 1
             data_list.append((
-                _core_data_to_utc(record[0]),
                 _core_data_to_utc(record[1]),
+                _core_data_to_utc(record[0]),
                 _core_data_to_utc(record[2]),
                 _core_data_to_utc(record[3]),
-                record[4], record[5], record[6], record[7], record[8], record[9],
-                record[10], record[11], record[12],
+                _container_app(database, apps),
+                record[4], record[5],
+                record[6], record[7], record[8], record[9], record[10], record[11],
+                record[12], record[13], record[14],
                 context.get_relative_path(database),
             ))
         if rows:
@@ -552,6 +643,7 @@ def googleCastNetwork(context):
     data_headers = (
         ('Last Connected Time', 'datetime'),
         ('Last Query Time', 'datetime'),
+        'Container App',
         'Network ID (as stored)',
         'Type (as stored)',
         'Analytics Enabled',
@@ -565,13 +657,16 @@ def googleCastNetwork(context):
     FROM ZGCKDBNETWORKINFO
     ORDER BY ZLASTCONNECTEDTIME
     '''
-    for database in _cast_stores(context.get_files_found()):
+    files_found = context.get_files_found()
+    apps = _container_apps(files_found)
+    for database in _cast_stores(files_found):
         rows = 0
         for record in get_sqlite_db_records(database, query):
             rows += 1
             data_list.append((
                 _core_data_to_utc(record[0]),
                 _core_data_to_utc(record[1]),
+                _container_app(database, apps),
                 record[2], record[3],
                 bool(record[4]) if record[4] is not None else '',
                 context.get_relative_path(database),

@@ -2,7 +2,7 @@
 __artifacts_v2__ = {
     "trusted_peers": {
         "name": "Trusted Peers",
-        "description": "Peer records from TrustedPeersHelper.db (Apple trust-circle data)",
+        "description": "Peer records from TrustedPeersHelper.db",
         "author": "Heather Charpentier",
         "creation_date": "2024-12-13",
         "last_update_date": "2026-08-10",

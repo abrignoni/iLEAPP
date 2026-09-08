@@ -1,12 +1,13 @@
 __artifacts_v2__ = {
     "teleguardMessages": {
         "name": "Teleguard Messages",
-        "description": "TeleGuard chat messages and shared media",
+        "description": "TeleGuard chat messages, with the shared media file where the extraction "
+                       "holds it",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Teleguard",
         "notes": "Timestamps are UTC (epoch milliseconds). Is Edited? held 0 on every message row of "
-                 "the tested extraction, so no message in it had been edited; the column is reported "
-                 "so an edited message is visible on an extraction that has one. Media was empty on "
+                 "the tested extraction and is reported as stored, so an extraction where the "
+                 "flag is set will show it. Media was empty on "
                  "every row: each item is resolved by the server file id a message records in its "
                  "metadata, and the tested extraction carried no files under the app's "
                  "Library/Caches/images directory, so its media messages have no bytes to show and "
@@ -50,9 +51,8 @@ __artifacts_v2__ = {
         "notes": "Timestamps are UTC (epoch milliseconds). Personal ID is an optional identifier "
                  "separate from the Server ID the app issues. The app's own binary labels it "
                  "'Personal TeleGuard ID', carries a 'Change personal ID' action and a buyPersonalId "
-                 "endpoint, and adds the column to this table in a migration, so a contact has one "
-                 "only where that feature was used. It was null on every contact row of the tested "
-                 "extraction, meaning none of those contacts had one recorded.",
+                 "endpoint, and adds the column to this table in a migration. It was null on "
+                 "every contact row of the tested extraction.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -61,7 +61,9 @@ __artifacts_v2__ = {
     },
     "teleguardChannels": {
         "name": "Teleguard Channels",
-        "description": "TeleGuard channels",
+        "description": "Channels from the channels table of the TeleGuard database, with alias, "
+                       "description, category, subscriber and post counts, admin, deleted flag, "
+                       "language and type.",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
@@ -84,8 +86,8 @@ __artifacts_v2__ = {
                  "app's own English event label on every call row in the tested extraction. Duration "
                  "and outcome are reported as stored: subtext is a localised display string "
                  "giving either a spelled out minutes and seconds count or a word for why the call "
-                 "did not connect, not a numeric duration, and no numeric duration is "
-                 "stored for these rows. The messages table's userTime column is not reported here "
+                 "did not connect, not a numeric duration; no numeric duration column was found "
+                 "for these rows. The messages table's userTime column is not reported here "
                  "because it held exactly the same value as createDate on every call row, unlike the "
                  "text rows of the same table where the two differ. The database also carries an "
                  "empty sipcalls table with number, name, duration, date and cost columns; it held no "
@@ -128,10 +130,8 @@ __artifacts_v2__ = {
                  "is not written to the report; the columns record whether each key was present and a "
                  "SHA-256 fingerprint of the DER body, which is enough to correlate the account "
                  "across extractions without copying a private key into report output. Personal ID "
-                 "and Current Phone were empty on the tested extraction: TeleGuard issues the Server "
-                 "ID itself and requires no telephone number, and a personal ID is set by the account "
-                 "holder only if they choose one, so both columns being blank is a result about the "
-                 "account rather than a column that is never populated. The settings key holding the "
+                 "and Current Phone were empty on the tested extraction and are reported as "
+                 "stored. The settings key holding the "
                  "phone value was spelled 'currentPhone' on iOS and '_currentPhone' on Android in the "
                  "tested extractions and both spellings are read.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
@@ -150,9 +150,9 @@ __artifacts_v2__ = {
                  "teleguard_database.db. The draft table is keyed on the recipient's serverId, which "
                  "is resolved to a contact alias from the contacts table of the main database in the "
                  "same app group container. The Draft Text column was an empty string, not null, on "
-                 "every row of the tested extraction: the app keeps a draft row per conversation and "
-                 "clears the text when the message is sent, so a row records that a draft existed for "
-                 "that conversation and the tested device held no recoverable draft text. The same "
+                 "every row of the tested extraction, so the tested device held no recoverable "
+                 "draft text; what causes a row to exist with empty text is not established "
+                 "here. The same "
                  "database carries a messages_buffer table, which held no rows in the tested "
                  "extraction and is not reported.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_temp.db*',
@@ -170,8 +170,8 @@ __artifacts_v2__ = {
         "category": "Teleguard",
         "notes": "Hide Push Content, Hide Push Author, Channel Notifications Enabled and Unread Count "
                  "are read from the app group's own preferences plist, "
-                 "group.ch.swisscows.messenger.teleguardapp.plist. The two hide settings govern what "
-                 "the app places in a notification and are reported as stored; they are a statement "
+                 "group.ch.swisscows.messenger.teleguardapp.plist. The two hide settings are "
+                 "reported as stored; they are a statement "
                  "about the app's configuration, not about what any particular notification "
                  "contained. Last Cache Clearing is the flutter.lastCacheClearing value from the "
                  "app's own preferences plist in its data container, stored as a Unix millisecond "

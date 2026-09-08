@@ -15,9 +15,9 @@ __artifacts_v2__ = {
                  "the keychain entry, decrypted here with the shared pure-python reader.\n"
                  "Message Type and Direction are taken from the interaction variant, per the "
                  "Session-iOS Interaction.Variant definition: 0 is an incoming standard message "
-                 "and 1 an outgoing one, which the data bears out (variant 1 rows are authored "
-                 "by one constant account, the local user, and variant 0 rows by the remote "
-                 "party). The remaining variants are Session's info and control messages, "
+                 "and 1 an outgoing one, and on the tested data variant 1 rows were authored by "
+                 "one constant account and variant 0 rows by the other party. The remaining "
+                 "variants are Session's info and control messages, "
                  "reported with their type: a call (with its direction taken from the call "
                  "state and the sender), a screenshot or media-saved notification, a message "
                  "request acceptance, a disappearing-messages change, a group event, or a "
@@ -54,7 +54,7 @@ __artifacts_v2__ = {
         "artifact_icon": "message-circle",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 51 rows",
-            "hickman_ios15": "iOS 15.0.2 | 24 rows",
+            "hickman_ios15": "iOS 15.3.1 | 24 rows",
             "dexter_ios18": "iOS 18.3.2 | 10 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
@@ -84,7 +84,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 3 rows",
             "dexter_ios18": "iOS 18.3.2 | 2 rows",
             "felix_ios17": "iOS 17.6.1 | 1 row",
-            "hickman_ios15": "iOS 15.0.2 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows (no keychain in the extraction)",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows (no keychain in the extraction)",

@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     "get_spotlightIndexCache": {
         "name": "Spotlight Index Cache V2",
-        "description": "Spotlight Index Cache V2",
+        "description": "Text content of the CoreSpotlight index.spotlightV2 cache text files, "
+                       "with each file's modified time, cache folder and file name.",
         "author": "@snoop168",
         "creation_date": "2025-10-09",
         "last_update_date": "2025-10-09",

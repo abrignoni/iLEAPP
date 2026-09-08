@@ -260,7 +260,8 @@ def process_archive(input_file, all_patterns, filepath_list=None):
     Args:
         input_file (str): The path to the archive file.
         all_patterns (dict): A dictionary where keys are artifact names and
-                             values are lists of glob patterns.
+                             values are a sequence of glob patterns, or a
+                             single pattern string.
         filepath_list (list, optional): A pre-compiled list of file paths
                                         within the archive. Defaults to None.
 
@@ -272,6 +273,12 @@ def process_archive(input_file, all_patterns, filepath_list=None):
     Raises:
         ValueError: If the input file is not a supported archive format.
     """
+    # A single-pattern `paths` written without its trailing comma is a str, not a
+    # one-element tuple. Iterating it yields characters, and a leading '*' then
+    # matches every member of the archive. Normalize once here, the way
+    # match_files_from_list and the main loop already do.
+    all_patterns = {name: (patterns,) if isinstance(patterns, str) else patterns
+                    for name, patterns in all_patterns.items()}
     matching_files = defaultdict(list if filepath_list else dict)
     file_count = 0
     start_time = time.time()
