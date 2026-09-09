@@ -21,21 +21,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-09",
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "SMS & iMessage",
-        "notes": "iOS caches preview thumbnails for Messages attachments under "
-                 "com.apple.MobileSMS/Previews/Attachments. Some of these files use a .ktx "
-                 "extension but the container is Apple's ATX format (AAPL magic followed by "
-                 "HEAD/astc/LZFS chunks), not Khronos KTX1. The ATX layout was derived from "
-                 "observed files and is not vendor-documented. Decoding reuses the shared "
-                 "leapp_functions/parsers/apple_atx parser and its best-effort ASTC 4x4 "
-                 "tile-order heuristic, the same as the Apple ATX Images artifact. A file "
-                 "that is genuinely KTX1, or not a texture at all, is still listed with "
-                 "whatever metadata parsed plus a Status note, but no image. The presence of "
-                 "a preview here indicates an attachment was received or sent in Messages and "
-                 "rendered on the device; it does not prove the original attachment is still "
-                 "present. Tile-order heuristic caveat: if an image looks scrambled, capture "
-                 "the source file for the parser maintainers. Run against the HC iPhone XS "
-                 "(iOS 18.7.8) extraction; per-corpus row counts have not been recorded in "
-                 "sample_data yet.",
+        "notes": "Scans files with a .ktx extension under the Messages app path com.apple.MobileSMS/Previews/Attachments/. Some of these are AAPL ATX texture containers (AAPL magic, then HEAD/astc/LZFS chunks) rather than Khronos KTX1; the shared leapp_functions/parsers/apple_atx parser identifies the container by its magic bytes and decodes ASTC 4x4 payloads with a best-effort tile-order heuristic, the same code the Apple ATX Images artifact uses. That ATX layout was derived from observed files and is not vendor-documented. A file that is KTX1, or not a texture, is still listed with whatever header and payload fields parsed plus a Status note, but no decoded image.  Cached preview images from the Messages app's attachment-preview cache. This artifact decodes the images and reports file timestamps and texture metadata only; it does not link a preview to a specific message, contact, direction, or send/receive time.",
         "paths": (
             '*/com.apple.MobileSMS/Previews/Attachments/*.ktx',
         ),
