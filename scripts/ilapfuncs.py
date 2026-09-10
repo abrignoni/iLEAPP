@@ -122,6 +122,17 @@ class GuiWindow:
     message_queue = None
 
     @staticmethod
+    def end_worker_run():
+        '''Called on the main thread once the worker is finished.
+
+        logfunc points sys.stdout.write at queue_logs for as long as message_queue is set.
+        Clearing the queue on its own leaves that binding in place, so the next print()
+        that does not go through logfunc raises AttributeError on a queue that is gone.
+        '''
+        GuiWindow.message_queue = None
+        sys.stdout.write = _console_write
+
+    @staticmethod
     def SetProgressBar(n, total):  # pylint: disable=unused-argument
         if GuiWindow.message_queue is not None:
             GuiWindow.message_queue.put(('progress', n))
