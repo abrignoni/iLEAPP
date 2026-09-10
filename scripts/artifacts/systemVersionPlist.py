@@ -36,7 +36,7 @@ __artifacts_v2__ = {
     }
 }
 
-from scripts.ilapfuncs import artifact_processor, get_plist_file_content, logfunc, \
+from scripts.ilapfuncs import artifact_processor, get_plist_file_content, \
     device_info, iOS, get_sysdiagnose_files
 
 @artifact_processor
