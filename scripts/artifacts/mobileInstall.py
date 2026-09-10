@@ -21,7 +21,7 @@ __artifacts_v2__ = {
                  "that an app was never installed. The Source Event column names the line that "
                  "set the state. The install kind (Placeholder, Customer, System or Developer) "
                  "is reported as written; the meaning of those values is not sourced.",
-        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "download",
         "sample_data": {
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
                  "that an app was never installed. The Source Event column names the line that "
                  "set the state. The install kind (Placeholder, Customer, System or Developer) "
                  "is reported as written; the meaning of those values is not sourced.",
-        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "trash",
         "sample_data": {
@@ -96,7 +96,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt.",
-        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "list",
         "sample_data": {
@@ -127,7 +127,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time.",
-        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "refresh",
         "sample_data": {
@@ -171,7 +171,7 @@ __artifacts_v2__ = {
                  "the log records, and a prefix match does not establish that the two are an "
                  "extension and its host app. The Source Event column names the most recent line "
                  "that mentioned the bundle.",
-        "paths": ('**/mobile_installation.log.*', '**/sysdiagnose_*.tar.gz'),
+        "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "box",
         "sample_data": {
@@ -195,14 +195,13 @@ __artifacts_v2__ = {
     }
 }
 
-import io
 import re
-import tarfile
-
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 
 _MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-_TAR_MEMBER_RE = re.compile(r"logs/MobileInstallation/mobile_installation\.log(\.\d+)?$")
+
+# Replaces _TAR_MEMBER_RE to work universally with the helper function
+_LOG_MATCH_RE = re.compile(r"mobile_installation\.log(\.\d+)?$")
 
 # Only an installer-reported outcome sets a bundle's state. Container bookkeeping is
 # written during installs, updates and cleanup alike, so it stays history only.
@@ -310,44 +309,26 @@ def _parse_events(lines):
                            match.group('version'), match.group('short'), '', ''))
     return events
 
-
-def _iter_log_lines(files_found):
-    """Yield (lines, source_full_path) for mobile_installation.log files and those inside sysdiagnose tars."""
-    for filename in files_found:
-        filename = str(filename)
-        if 'mobile_installation' in filename:
-            try:
-                with open(filename, 'r', encoding='utf8', errors='ignore') as fp:
-                    yield fp.readlines(), filename
-            except OSError:
-                continue
-        elif 'sysdiagnose_' in filename and 'IN_PROGRESS_' not in filename:
-            try:
-                tar = tarfile.open(filename)
-            except (tarfile.TarError, OSError):
-                continue
-            try:
-                for member in tar.getmembers():
-                    if not _TAR_MEMBER_RE.search(member.name):
-                        continue
-                    extracted = tar.extractfile(member)
-                    if extracted is not None:
-                        with io.TextIOWrapper(extracted, encoding='utf-8', errors='ignore') as tfp:
-                            yield tfp.readlines(), filename
-            finally:
-                tar.close()
-
-
 def _events_and_source(context):
     events = []
     sources = []
+    
     # Sorting the log files fixes the order events are read in, which is what breaks
     # ties between two state-setting events written in the same second.
-    for lines, source in _iter_log_lines(sorted(str(f) for f in context.get_files_found())):
-        rel = context.get_relative_path(source)
+    files_sorted = sorted(str(f) for f in context.get_files_found())
+    
+    for file_obj, source in get_sysdiagnose_files(files_sorted, _LOG_MATCH_RE):
+        # The helper may append ' >> member.name' for tar archives; 
+        # split it so get_relative_path still operates on the base archive name
+        base_source = source.split(' >> ')[0]
+        rel = context.get_relative_path(base_source)
+        
         if rel not in sources:
             sources.append(rel)
-        events.extend(_parse_events(lines))
+            
+        # Pass the file_obj directly; _parse_events iterates over lines natively
+        events.extend(_parse_events(file_obj))
+        
     return events, ', '.join(sources)
 
 

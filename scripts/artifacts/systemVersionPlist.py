@@ -3,12 +3,12 @@
 __artifacts_v2__ = {
     "system_version_plist": {
         "name": "System Version plist",
-        "description": "Parses basic data from */System/Library/CoreServices/SystemVersion.plist "
+        "description": "Parses basic data from SystemVersion.plist "
                        "which is a plist in GK Logical Plus extractions and sysdiagnose archives "
                        "that will contain the iOS version. Previously named Ph99SystemVersionPlist.py",
         "author": "Scott Koenig",
         "creation_date": "2025-06-02",
-        "last_update_date": "2025-10-14",
+        "last_update_date": "2026-09-10",
         "requirements": "Acquisition that contains SystemVersion.plist",
         "category": "IOS Build",
         "notes": "Added parsing of SystemVersion.plist in a sysdiagnose archive by C_Peter",
@@ -36,54 +36,54 @@ __artifacts_v2__ = {
     }
 }
 
-import tarfile
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content, logfunc, \
-    device_info, iOS
-
+    device_info, iOS, get_sysdiagnose_files
 
 @artifact_processor
 def system_version_plist(context):
     """ See artifact description """
     data_list = []
-    data_source = ""
-    pl = None
+    data_sources = []  # Changed to a list to aggregate multiple sources
 
-    plist_file = context.get_source_file_path("SystemVersion.plist")
-    sysdiagnose_archive = context.get_source_file_path("sysdiagnose_*.tar.gz")
+    # Process ALL matching standalone files and tar archives found
+    for file_obj, source_path in get_sysdiagnose_files(context.get_files_found(), "SystemVersion.plist", text_mode=False):
+        source_name = context.get_relative_path(source_path)
+        # Exclude Rapid Security Response (Splat) plists to prevent duplicate/conflicting version reports
+        if "/Splat/" in source_path or "logs/Splat" in source_path:
+            continue
+        
+        # Because we updated get_plist_file_content in ilapfuncs, 
+        # it will natively handle the ExFileObject stream without throwing a TypeError.
+        pl = get_plist_file_content(file_obj)
+        
+        # If the plist is valid/populated, process and append its data
+        if pl:
+            if source_path not in data_sources:
+                data_sources.append(source_path)
+                
+            for key, val in pl.items():
+                data_list.append((key, val, source_name))
+                
+                if key == "Product Build Version":
+                    device_info("Device Information", "Product Build Version", val, source_name)
 
-    if plist_file:
-        data_source = plist_file
-        pl = get_plist_file_content(data_source)
-    elif sysdiagnose_archive and 'sysdiagnose_' in sysdiagnose_archive and "IN_PROGRESS_" not in sysdiagnose_archive:
-        tar = tarfile.open(sysdiagnose_archive)
-        root = tar.getmembers()[0].name.split('/')[0]
-        try:
-            data_source = tar.extractfile(f"{root}/logs/SystemVersion/SystemVersion.plist")
-            pl = get_plist_file_content(data_source)
-        except KeyError:
-            pl = None
+                if key == "ProductVersion":
+                    iOS.set_version(val)
+                    context.set_installed_os_version(val)
+                    device_info("Device Information", "iOS Version", val, source_name)
 
-    if pl is not None:
-        for key, val in pl.items():
-            data_list.append((key, val))
-            if key == "Product Build Version":
-                device_info("Device Information", "Product Build Version", val, data_source)
+                if key == "ProductName":
+                    device_info("Device Information", "Product Name", val, source_name)
 
-            if key == "ProductVersion":
-                iOS.set_version(val)
-                context.set_installed_os_version(val)
-                logfunc(f"iOS Version: {val}")
-                device_info("Device Information", "iOS Version", val, data_source)
+                if key == "BuildID":
+                    device_info("Device Information", "Build ID", val, source_name)
 
-            if key == "ProductName":
-                device_info("Device Information", "Product Name", val, data_source)
+                if key == "SystemImageID":
+                    device_info("Device Information", "System Image ID", val, source_name)
 
-            if key == "BuildID":
-                device_info("Device Information", "Build ID", val, data_source)
+    data_headers = ('Property', 'Property Value', 'Source File')
 
-            if key == "SystemImageID":
-                device_info("Device Information", "System Image ID", val, data_source)
+    # Join the sources list into a single string for the final artifact return
+    data_source_str = ", ".join(data_sources)
 
-    data_headers = ('Property', 'Property Value')
-
-    return data_headers, data_list, data_source
+    return data_headers, data_list, data_source_str

@@ -16,6 +16,7 @@ import shutil
 import sqlite3
 import sys
 import tarfile
+import tempfile
 import xml
 
 from datetime import datetime, timezone, timedelta
@@ -878,6 +879,28 @@ def _read_binary_plist_tolerantly(file_path):
 
 
 def get_plist_file_content(file_path):
+    is_stream = hasattr(file_path, 'read')
+    temp_path = None
+    
+    # If the input is a stream (like an ExFileObject from a tar archive),
+    # write it to a temporary file so the path-based open() and fallback 
+    # functions can handle it natively without throwing TypeErrors.
+    if is_stream:
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".plist") as temp_file:
+                content = file_path.read()
+                # Ensure we are writing bytes
+                if isinstance(content, str):
+                    content = content.encode('utf-8')
+                temp_file.write(content)
+                temp_path = temp_file.name
+            
+            # Reassign file_path to the temp file string for the rest of the function
+            file_path = temp_path
+        except Exception as e:
+            logfunc(f"Error creating temp file for stream: {str(e)}")
+            return {}
+
     try:
         with open(file_path, 'rb') as file:
             plist_content = plistlib.load(file)
@@ -905,6 +928,14 @@ def get_plist_file_content(file_path):
         logfunc(f"Error: {file_path} is not a valid NSKeyedArchive plist file")
     except Exception as e:  # pylint: disable=broad-exception-caught
         logfunc(f"Unexpected error reading plist file {file_path}: {str(e)}")
+    finally:
+        # Always clean up the temporary file if one was generated
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
+                
     return {}
 
 def get_sqlite_db_path(path):
@@ -932,43 +963,52 @@ def get_sqlite_db_path(path):
     else:
         return quote(str(path), safe='/')
         
-def get_sysdiagnose_files(files_found, target_file, text_mode=True, encoding='utf-8'):
+def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8'):
     """
-    Yields (file_object, source_path) for target_file across standalone matches
-    and active sysdiagnose archives (.tar.gz / .tar).
+    Yields (file_object, source_path) for target (string or compiled regex)
+    across standalone matches and active sysdiagnose archives.
     """
+    is_regex = isinstance(target, re.Pattern)
+
     for file_found in files_found:
         file_path = str(file_found)
         filename = os.path.basename(file_path)
 
         # 1. Direct standalone file match
-        if filename == target_file:
+        match_standalone = target.search(filename) if is_regex else (target == filename)
+        
+        # Ensure it's not a tar file being falsely processed as standalone
+        if match_standalone and not ("sysdiagnose_" in filename and ".tar" in filename):
             try:
                 mode = 'r' if text_mode else 'rb'
-                kwargs = {'encoding': encoding, 'errors': 'replace'} if text_mode else {}
+                kwargs = {'encoding': encoding, 'errors': 'ignore'} if text_mode else {}
                 with open(file_path, mode, **kwargs) as f:
                     yield f, file_path
-            except (OSError, IOError) as e:
+            except OSError as e:
                 print(f"Error reading standalone file {file_path}: {e}")
 
-        # 2. Sysdiagnose archive match (ignoring incomplete/in-progress dumps)
+        # 2. Sysdiagnose archive match
         elif "sysdiagnose_" in filename and "IN_PROGRESS_" not in filename and (".tar" in filename):
             try:
                 with tarfile.open(file_path, 'r:*') as tar:
                     for member in tar.getmembers():
-                        # Match exact filename or target subpath regardless of root folder name
-                        if member.isreg() and (member.name.endswith(f"/{target_file}") or member.name == target_file):
+                        if not member.isreg():
+                            continue
+                        
+                        # Match regex or exact string
+                        match_tar = target.search(member.name) if is_regex else (member.name.endswith(f"/{target}") or member.name == target)
+                        
+                        if match_tar:
                             extracted = tar.extractfile(member)
                             if extracted is None:
                                 continue
                             
-                            # Wrap in TextIOWrapper if text mode is requested (e.g., json.load, regex, csv)
-                            stream = io.TextIOWrapper(extracted, encoding=encoding, errors='replace') if text_mode else extracted
+                            stream = io.TextIOWrapper(extracted, encoding=encoding, errors='ignore') if text_mode else extracted
                             try:
                                 yield stream, f"{file_path} >> {member.name}"
                             finally:
                                 if text_mode:
-                                    stream.detach() # Detach wrapper so tarfile manages underlying stream
+                                    stream.detach()
             except (tarfile.TarError, EOFError, OSError) as e:
                 print(f"Error processing archive {file_path}: {e}")
 
