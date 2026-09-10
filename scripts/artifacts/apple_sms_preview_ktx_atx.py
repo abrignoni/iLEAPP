@@ -1,7 +1,9 @@
-"""Apple Messages preview cache: ATX and KTX textures plus cached PNG and JPEG previews."""
+"""Apple Messages preview cache: ATX and KTX textures, cached PNG and JPEG previews,
+and the contact card and location shares recorded beside them."""
 
 import io
 import os
+import plistlib
 import struct
 from pathlib import Path
 
@@ -26,11 +28,11 @@ __artifacts_v2__ = {
     "apple_sms_preview_ktx_atx": {
         "name": "Apple SMS Preview Cache",
         "description": "Preview images Messages cached under com.apple.MobileSMS, covering the "
-                       "attachment, sticker, location and search preview folders, decoded to "
-                       "images where the container is supported",
+                       "attachment, sticker, location and search preview folders, plus the name "
+                       "recorded when a contact card or location was shared",
         "author": "@charpy4n6, Claude",
         "creation_date": "2026-09-09",
-        "last_update_date": "2026-09-09",
+        "last_update_date": "2026-09-10",
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "SMS & iMessage",
         "notes": "Reads the .ktx, .jpeg and .png files Messages caches under "
@@ -48,31 +50,42 @@ __artifacts_v2__ = {
                  "the App Snapshots artifact uses. PNG and JPEG files are reported as stored "
                  "without conversion. A file whose container is not recognised, or that a "
                  "decoder rejects, is still listed with whatever fields parsed plus a Status "
-                 "note, but no image. This artifact reports file timestamps, container and "
+                 "note, but no image. Messages also writes a plist beside a preview when a "
+                 "contact card or a location is shared, and the Shared Name column carries the "
+                 "title the app composed for it, copied onto the other files in the same "
+                 "folder. That names what was shared, not who sent it. A location share is "
+                 "titled Current Location on every tested image, so it establishes that a "
+                 "location was shared and not where. Plists in this cache that carry no "
+                 "contact fields, which on the tested images were Live Photo complement "
+                 "metadata and an asset flag, record no share and are not reported. "
+                 "Beyond that name this artifact reports file timestamps, container and "
                  "texture metadata only; it does not link a preview to a specific message, "
-                 "contact, direction, or send or receive time.",
+                 "direction, or send or receive time. The cache also holds copies of some "
+                 "attachments; the Messages artifact reports those from Library/SMS/Attachments "
+                 "with their message context.",
         "paths": (
             '*/com.apple.MobileSMS/Previews/*.ktx',
             '*/com.apple.MobileSMS/Previews/*.jpeg',
             '*/com.apple.MobileSMS/Previews/*.png',
+            '*/com.apple.MobileSMS/Previews/*.plist',
         ),
         "output_types": "standard",
         "artifact_icon": "photo",
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 29 rows",
-            "otto_ios17": "iOS 17.5.1 | 28 rows",
-            "iphone11_ios17": "iOS 17.3 | 23 rows",
+            "otto_ios17": "iOS 17.5.1 | 29 rows",
+            "iphone11_ios17": "iOS 17.3 | 26 rows",
             "dexter_ios18": "iOS 18.3.2 | 18 rows",
-            "hickman_ios15": "iOS 15.3.1 | 15 rows",
-            "felix23_ios16": "iOS 16.5 | 13 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 11 rows",
+            "hickman_ios15": "iOS 15.3.1 | 17 rows",
+            "felix23_ios16": "iOS 16.5 | 14 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 12 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 7 rows",
             "ctf2020_ios12": "iOS 12.4 | 7 rows",
             "hickman_ios14": "iOS 14.3 | 6 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 4 rows",
+            "fsfull002_ios17": "iOS 17.1 | 4 rows",
+            "hc_ios26": "iOS 26.5.2 | 4 rows",
             "hickman_ios13": "iOS 13.3.1 | 4 rows",
-            "fsfull002_ios17": "iOS 17.1 | 3 rows",
-            "hc_ios26": "iOS 26.5.2 | 3 rows",
             "felix_ios17": "iOS 17.6.1 | 2 rows",
             "iphone12_ios18": "iOS 18.7 | 1 row",
             "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
@@ -174,6 +187,21 @@ def _decode_ktx(file_found, container):
     return image, reader.pixelWidth, reader.pixelHeight, reader.numberOfMipmapLevels, ''
 
 
+def _shared_name(file_found):
+    """The display title Messages composed for a shared contact card or location.
+    Returns '' for the plists in this cache that carry no contact fields."""
+    try:
+        with open(file_found, 'rb') as plist_file:
+            parsed = plistlib.load(plist_file)
+    except (OSError, ValueError, plistlib.InvalidFileException) as ex:
+        logfunc(f'Failed to read SMS preview plist {file_found}: {ex}')
+        return ''
+
+    if not isinstance(parsed, dict):
+        return ''
+    return str(parsed.get('contactFormatterTitle') or '')
+
+
 def _native_dimensions(file_found):
     try:
         with Image.open(file_found) as image:
@@ -192,6 +220,7 @@ def apple_sms_preview_ktx_atx(context):
         'Filename',
         'Preview Type',
         'Container',
+        'Shared Name',
         'Width',
         'Height',
         'Depth',
@@ -208,26 +237,45 @@ def apple_sms_preview_ktx_atx(context):
     )
     data_list = []
     source_roots = set()
+    blank = ('',) * 11
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if os.path.isdir(file_found):
-            continue
+    files_found = [str(found) for found in context.get_files_found()
+                   if not os.path.isdir(str(found))]
 
+    # A share plist names the contact or location for everything in its own folder,
+    # so read those first and let the preview beside them carry the name too.
+    shared_names = {}
+    for file_found in files_found:
+        if file_found.lower().endswith('.plist'):
+            name = _shared_name(file_found)
+            if name:
+                shared_names[os.path.dirname(file_found)] = name
+
+    for file_found in files_found:
         source_roots.add(_previews_root(file_found))
         source_path = context.get_relative_path(file_found)
         filename = _path_name(file_found)
         preview_type = _preview_type(file_found)
+        shared = shared_names.get(os.path.dirname(file_found), '')
         created_at, modified_at = _file_timestamps(context, file_found)
 
-        blank = ('',) * 11
+        if file_found.lower().endswith('.plist'):
+            if not shared:
+                # The rest are Live Photo complement metadata and a single asset
+                # flag; they record no share, so there is nothing to report.
+                continue
+            data_list.append((created_at, modified_at, None, filename, preview_type,
+                              'plist', shared, *blank,
+                              'Contact card or location share', source_path))
+            continue
+
         try:
             with open(file_found, 'rb') as probe:
                 head = probe.read(32)
         except OSError as ex:
             logfunc(f'Failed to read SMS preview {file_found}: {ex}')
             data_list.append((created_at, modified_at, None, filename, preview_type,
-                              '', *blank, f'Failed to read file: {ex}', source_path))
+                              '', shared, *blank, f'Failed to read file: {ex}', source_path))
             continue
 
         container = _sniff_container(head)
@@ -238,8 +286,8 @@ def apple_sms_preview_ktx_atx(context):
                                        force_type=f'image/{container.lower()}',
                                        force_extension=container.lower())
             data_list.append((created_at, modified_at, media_ref, filename, preview_type,
-                              container, width, height, '', '', '', '', '', '', '', '', '',
-                              'Cached image reported as stored', source_path))
+                              container, shared, width, height, '', '', '', '', '', '', '',
+                              '', '', 'Cached image reported as stored', source_path))
             continue
 
         if container.startswith('KTX1'):
@@ -262,8 +310,8 @@ def apple_sms_preview_ktx_atx(context):
                 logfunc(f'Failed to decode SMS preview KTX {file_found}: {ex}')
                 status = f'KTX decode failed: {ex}'
             data_list.append((created_at, modified_at, media_ref, filename, preview_type,
-                              container, width, height, '', '', mipmaps, pixel_format, '', '',
-                              '', '', '', status, source_path))
+                              container, shared, width, height, '', '', mipmaps, pixel_format,
+                              '', '', '', '', '', status, source_path))
             continue
 
         media_ref = None
@@ -272,7 +320,8 @@ def apple_sms_preview_ktx_atx(context):
         except OSError as ex:
             logfunc(f'Failed to read SMS preview ATX {file_found}: {ex}')
             data_list.append((created_at, modified_at, None, filename, preview_type,
-                              container, *blank, f'Failed to read file: {ex}', source_path))
+                              container, shared, *blank, f'Failed to read file: {ex}',
+                              source_path))
             continue
 
         header = result.header
@@ -302,6 +351,7 @@ def apple_sms_preview_ktx_atx(context):
             filename,
             preview_type,
             container,
+            shared,
             header.width if header else '',
             header.height if header else '',
             header.depth if header else '',
