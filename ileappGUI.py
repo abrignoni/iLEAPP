@@ -614,7 +614,7 @@ def poll_crunch(message_queue, out_params):
         main_window.after(CRUNCH_POLL_MS, poll_crunch, message_queue, out_params)
         return
 
-    GuiWindow.message_queue = None  # logfunc goes back to writing straight to the widget
+    GuiWindow.end_worker_run()  # queue cleared, and print() put back on the console
     kind, payload = finished
     if kind == 'failed':
         logfunc('Processing failed with an unhandled error:')
@@ -685,6 +685,29 @@ def finish_crunch(crunch_successful, out_params):
             title='Error',
             message=f'Processing failed  :( \nSee log for error details..\nLog file located at {log_path}',
             parent=main_window)
+
+
+def close_main_window():
+    '''Handle the window's close button.
+
+    The GUI stays responsive during a run now, so this is reachable while the worker is
+    still going. The worker is a daemon thread: quitting kills it wherever it is, leaving
+    a part-written report, an unfinalised LAVA project, and any staging files the run
+    created. Ask first rather than losing a run to a stray click.
+    '''
+    if GuiWindow.message_queue is not None:
+        close_anyway = tk_msgbox.askokcancel(
+            title='Processing still running',
+            message='A run is still in progress.\n\n'
+                    'Closing now stops it where it is. The report and the LAVA project '
+                    'will be incomplete, and temporary files may be left behind.\n\n'
+                    'Close anyway?',
+            icon=tk_msgbox.WARNING,
+            default=tk_msgbox.CANCEL,
+            parent=main_window)
+        if not close_anyway:
+            return
+    main_window.quit()
 
 
 def select_input(button_type):
@@ -1178,6 +1201,7 @@ def center_main_window_macos(window, width, height):
 main_window.attributes('-topmost', True)
 main_window.focus_force()
 main_window.bind('<FocusIn>', OnFocusIn)
+main_window.protocol('WM_DELETE_WINDOW', close_main_window)
 
 if is_platform_macos():
     center_main_window_macos(main_window, 890, 690)
