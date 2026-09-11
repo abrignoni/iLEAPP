@@ -945,6 +945,8 @@
     "23G71": "iOS 26.6",
     "23G82": "iOS 26.6.1 RC",
     "23G83": "iOS 26.6.1",
+    "23G90": "iOS 26.6.2",
+    "23H24": "iOS 26.7 RC",
     "24A5355q": "iOS 27.0 beta 1",
     "24A5370h": "iOS 27.0 beta 2",
     "24A5380h": "iOS 27.0 beta 3",
@@ -952,7 +954,8 @@
     "24A5408d": "iOS 27.0 beta 5",
     "24A5418b": "iOS 27.0 beta 6",
     "24A5424a": "iOS 27.0 beta 7",
-    "24A5430a": "iOS 27.0 beta 8"
+    "24A5430a": "iOS 27.0 beta 8",
+    "24A435": "iOS 27.0 RC"
   },
   "macOS": {
     "4K78": "Mac OS X 10.0",
@@ -2396,6 +2399,7 @@
     "24H16": "macOS 15.8 RC",
     "24H20": "macOS 15.8 RC 2",
     "24H22": "macOS 15.8 RC 3",
+    "24H23": "macOS 15.8 RC 4",
     "25A5279m": "macOS 26.0 beta 1",
     "25A5295e": "macOS 26.0 beta 2",
     "25A5306g": "macOS 26.0 beta 3",
@@ -2462,6 +2466,7 @@
     "25G220": "macOS 26.7 RC",
     "25G224": "macOS 26.7 RC 2",
     "25G227": "macOS 26.7 RC 3",
+    "25G229": "macOS 26.7 RC 4",
     "26A5353q": "macOS 27.0 beta 1",
     "26A5368g": "macOS 27.0 beta 2",
     "26A5378j": "macOS 27.0 beta 3",
@@ -2469,7 +2474,8 @@
     "26A5406e": "macOS 27.0 beta 5",
     "26A5416b": "macOS 27.0 beta 6",
     "26A5421a": "macOS 27.0 beta 7",
-    "26A5425a": "macOS 27.0 beta 8"
+    "26A5425a": "macOS 27.0 beta 8",
+    "26A428": "macOS 27.0 RC"
   },
   "visionOS": {
     "21N5165g": "visionOS 1.0 beta 1",
@@ -2605,7 +2611,8 @@
     "24M5348b": "visionOS 27.0 beta 5",
     "24M5355a": "visionOS 27.0 beta 6",
     "24M5359a": "visionOS 27.0 beta 7",
-    "24M5361a": "visionOS 27.0 beta 8"
+    "24M5361a": "visionOS 27.0 beta 8",
+    "24M362": "visionOS 27.0 RC"
   },
   "watchOS": {
     "12S507": "watchOS 1.0",
@@ -3104,7 +3111,8 @@
     "24R5347a": "watchOS 27.0 beta 5",
     "24R5353a": "watchOS 27.0 beta 6",
     "24R5358a": "watchOS 27.0 beta 7",
-    "24R5360a": "watchOS 27.0 beta 8"
+    "24R5360a": "watchOS 27.0 beta 8",
+    "24R363": "watchOS 27.0 RC"
   },
   "tvOS": {
     "8M89": "Apple TV Software 4.0",
@@ -3626,7 +3634,8 @@
     "24J5346a": "tvOS 27.0 beta 5",
     "24J5353b": "tvOS 27.0 beta 6",
     "24J5358a": "tvOS 27.0 beta 7",
-    "24J5360a": "tvOS 27.0 beta 8"
+    "24J5360a": "tvOS 27.0 beta 8",
+    "24J360": "tvOS 27.0 RC"
   },
   "Windows": {
     "6002": "Windows Vista",

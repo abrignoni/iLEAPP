@@ -3,6 +3,9 @@
 import tkinter as tk
 import typing
 import json
+import queue
+import threading
+import traceback
 import ileapp
 import webbrowser
 import base64
@@ -28,6 +31,11 @@ from leapp_functions.app.platform import sanitize_file_name
 from leapp_functions.app.output import default_output_folder_name, validate_output_folder_available
 from scripts.context import Context
 from scripts.lavafuncs import lava_json_name
+
+
+# How often the main thread drains the worker's queue. Short enough that the log still
+# scrolls smoothly, long enough that polling is not itself the load.
+CRUNCH_POLL_MS = 50
 
 
 def allow_output_folder_name_chars(proposed):
@@ -543,77 +551,163 @@ def process(casedata):
         logtext_frame.pack(padx=8, pady=4, expand=True, fill='both')
         progress_bar_frame.pack(padx=2, pady=2, ipady=2, fill='x')
 
-        initialize_lava(input_path, out_params.output_folder_base, extracttype, profile_filename)
-
         # Record history if enabled
         history.record_input_path(input_path)
         history.record_output_path(output_folder)
 
+        # crunch_artifacts blocks for the length of the run. Called here it blocks the Tk
+        # event loop too, and the only thing pumping that loop was log_text.update() inside
+        # logfunc, so Windows paints "(Not Responding)" over a run that is perfectly healthy.
+        # Run it on a worker thread and poll for its output instead.
+        GuiWindow.message_queue = queue.Queue()
+        worker = threading.Thread(
+            target=run_crunch,
+            args=(GuiWindow.message_queue, selected_modules, extracttype, input_path,
+                  out_params, wrap_text, casedata, time_offset, decryption_keys),
+            daemon=True)
+        worker.start()
+        main_window.after(CRUNCH_POLL_MS, poll_crunch, GuiWindow.message_queue, out_params)
+
+
+def run_crunch(message_queue, selected_modules, extracttype, input_path, out_params, wrap_text,
+               case_info, time_offset, decryption_keys):
+    '''Do the processing off the main thread. Touches no widget; reports on the queue.'''
+    try:
+        # LAVA's SQLite connection is opened here rather than in process(): a sqlite3
+        # object may only be used by the thread that created it, so a connection opened
+        # on the main thread is unusable by the artifacts running on this one.
+        initialize_lava(input_path, out_params.output_folder_base, extracttype, profile_filename)
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
-            loader, casedata, time_offset, profile_filename, None, decryption_keys)
-
+            loader, case_info, time_offset, profile_filename, None, decryption_keys)
         lava_finalize_output(out_params.output_folder_base)
+    except Exception:  # pylint: disable=broad-exception-caught
+        # Without this the GUI would poll an empty queue forever and look hung for real.
+        message_queue.put(('failed', traceback.format_exc()))
+    else:
+        message_queue.put(('done', crunch_successful))
 
-        if crunch_successful:
-            # Record the run in history
-            report_path = os.path.join(out_params.output_folder_base, 'index.html')
-            lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
-            history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
-            output_folder_path = out_params.output_folder_base
-            if report_path.startswith('\\\\?\\'):  # windows
-                report_path = report_path[4:]
-                lava_project_path = lava_project_path[4:]
-                output_folder_path = output_folder_path[4:]
-            if report_path.startswith('\\\\'):  # UNC path
-                report_path = report_path[2:]
-                lava_project_path = lava_project_path[2:]
-                output_folder_path = output_folder_path[2:]
-            if lava_only_artifacts:
-                message = "You have selected artifacts that are likely to return too much data "
-                message += "to be viewed in a Web browser.\n\n"
-                message += "Please see the 'LAVA only artifacts' tab in the HTML report for a list of these artifacts "
-                message += "and instructions on how to view them."
-                tk_msgbox.showwarning(
-                    title="Important information",
-                    message=message,
-                    parent=main_window)
-            progress_bar.pack_forget()
-            completion_button_frame = ttk.Frame(progress_bar_frame)
-            completion_button_frame.place(relx=0.5, rely=0.5, anchor='center')
-            open_report_button = ttk.Button(
-                completion_button_frame,
-                text='Open HTML in Browser & Close',
-                command=lambda: open_report(report_path))
-            open_report_button.pack(side='left', padx=5)
-
-            lava_launcher = find_lava_launcher(lava_project_path)
-            if lava_launcher:
-                lava_button = ttk.Button(
-                    completion_button_frame,
-                    text='Open Project in LAVA & Close',
-                    command=lambda: open_lava(lava_project_path, lava_launcher))
-            else:
-                lava_button = ttk.Button(
-                    completion_button_frame,
-                    text='Explore LAVA',
-                    command=explore_lava)
-            lava_button.pack(side='left', padx=5)
-
-            open_folder_button = ttk.Button(
-                completion_button_frame,
-                text='Open Output Folder',
-                command=lambda: open_folder(output_folder_path))
-            open_folder_button.pack(side='left', padx=5)
+def poll_crunch(message_queue, out_params):
+    '''Drain the worker's messages onto the widgets. The only place Tk is touched.'''
+    pending_logs = []
+    finished = None
+    while finished is None:
+        try:
+            kind, payload = message_queue.get_nowait()
+        except queue.Empty:
+            break
+        if kind == 'log':
+            pending_logs.append(payload)
+        elif kind == 'progress':
+            progress_bar.config(value=payload)
         else:
-            log_path = out_params.screen_output_file_path
-            if log_path.startswith('\\\\?\\'):  # windows
-                log_path = log_path[4:]
-            tk_msgbox.showerror(
-                title='Error',
-                message=f'Processing failed  :( \nSee log for error details..\nLog file located at {log_path}',
+            finished = (kind, payload)
+
+    if pending_logs:
+        # One insert per poll, not one per line: a chatty artifact queues thousands, and
+        # inserting each separately costs more than the run it is reporting on.
+        log_text.insert('end', ''.join(pending_logs))
+        log_text.see('end')
+
+    if finished is None:
+        main_window.after(CRUNCH_POLL_MS, poll_crunch, message_queue, out_params)
+        return
+
+    GuiWindow.end_worker_run()  # queue cleared, and print() put back on the console
+    kind, payload = finished
+    if kind == 'failed':
+        logfunc('Processing failed with an unhandled error:')
+        logfunc(payload)
+        finish_crunch(False, out_params)
+    else:
+        finish_crunch(payload, out_params)
+
+
+def finish_crunch(crunch_successful, out_params):
+    '''Report the outcome. Runs on the main thread once the worker is done.'''
+    if crunch_successful:
+        # Record the run in history
+        report_path = os.path.join(out_params.output_folder_base, 'index.html')
+        lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
+        history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
+
+        output_folder_path = out_params.output_folder_base
+        if report_path.startswith('\\\\?\\'):  # windows
+            report_path = report_path[4:]
+            lava_project_path = lava_project_path[4:]
+            output_folder_path = output_folder_path[4:]
+        if report_path.startswith('\\\\'):  # UNC path
+            report_path = report_path[2:]
+            lava_project_path = lava_project_path[2:]
+            output_folder_path = output_folder_path[2:]
+        if lava_only_artifacts:
+            message = "You have selected artifacts that are likely to return too much data "
+            message += "to be viewed in a Web browser.\n\n"
+            message += "Please see the 'LAVA only artifacts' tab in the HTML report for a list of these artifacts "
+            message += "and instructions on how to view them."
+            tk_msgbox.showwarning(
+                title="Important information",
+                message=message,
                 parent=main_window)
+        progress_bar.pack_forget()
+        completion_button_frame = ttk.Frame(progress_bar_frame)
+        completion_button_frame.place(relx=0.5, rely=0.5, anchor='center')
+        open_report_button = ttk.Button(
+            completion_button_frame,
+            text='Open HTML in Browser & Close',
+            command=lambda: open_report(report_path))
+        open_report_button.pack(side='left', padx=5)
+
+        lava_launcher = find_lava_launcher(lava_project_path)
+        if lava_launcher:
+            lava_button = ttk.Button(
+                completion_button_frame,
+                text='Open Project in LAVA & Close',
+                command=lambda: open_lava(lava_project_path, lava_launcher))
+        else:
+            lava_button = ttk.Button(
+                completion_button_frame,
+                text='Explore LAVA',
+                command=explore_lava)
+        lava_button.pack(side='left', padx=5)
+
+        open_folder_button = ttk.Button(
+            completion_button_frame,
+            text='Open Output Folder',
+            command=lambda: open_folder(output_folder_path))
+        open_folder_button.pack(side='left', padx=5)
+    else:
+        log_path = out_params.screen_output_file_path
+        if log_path.startswith('\\\\?\\'):  # windows
+            log_path = log_path[4:]
+        tk_msgbox.showerror(
+            title='Error',
+            message=f'Processing failed  :( \nSee log for error details..\nLog file located at {log_path}',
+            parent=main_window)
+
+
+def close_main_window():
+    '''Handle the window's close button.
+
+    The GUI stays responsive during a run now, so this is reachable while the worker is
+    still going. The worker is a daemon thread: quitting kills it wherever it is, leaving
+    a part-written report, an unfinalised LAVA project, and any staging files the run
+    created. Ask first rather than losing a run to a stray click.
+    '''
+    if GuiWindow.message_queue is not None:
+        close_anyway = tk_msgbox.askokcancel(
+            title='Processing still running',
+            message='A run is still in progress.\n\n'
+                    'Closing now stops it where it is. The report and the LAVA project '
+                    'will be incomplete, and temporary files may be left behind.\n\n'
+                    'Close anyway?',
+            icon=tk_msgbox.WARNING,
+            default=tk_msgbox.CANCEL,
+            parent=main_window)
+        if not close_anyway:
+            return
+    main_window.quit()
 
 
 def select_input(button_type):
@@ -1107,6 +1201,7 @@ def center_main_window_macos(window, width, height):
 main_window.attributes('-topmost', True)
 main_window.focus_force()
 main_window.bind('<FocusIn>', OnFocusIn)
+main_window.protocol('WM_DELETE_WINDOW', close_main_window)
 
 if is_platform_macos():
     center_main_window_macos(main_window, 890, 690)

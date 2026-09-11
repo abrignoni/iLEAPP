@@ -116,10 +116,27 @@ class OutputParameters:
 class GuiWindow:
     '''This only exists to hold window handle if script is run from GUI'''
     window_handle = None  # static variable
+    # Set to a queue.Queue by the GUI while a run is on a worker thread, and back to None
+    # when it finishes. Tk is not thread-safe: while this is set, nothing below may touch a
+    # widget, so progress and log lines are handed to the GUI's poller instead.
+    message_queue = None
+
+    @staticmethod
+    def end_worker_run():
+        '''Called on the main thread once the worker is finished.
+
+        logfunc points sys.stdout.write at queue_logs for as long as message_queue is set.
+        Clearing the queue on its own leaves that binding in place, so the next print()
+        that does not go through logfunc raises AttributeError on a queue that is gone.
+        '''
+        GuiWindow.message_queue = None
+        sys.stdout.write = _console_write
 
     @staticmethod
     def SetProgressBar(n, total):  # pylint: disable=unused-argument
-        if GuiWindow.window_handle:
+        if GuiWindow.message_queue is not None:
+            GuiWindow.message_queue.put(('progress', n))
+        elif GuiWindow.window_handle:
             progress_bar = GuiWindow.window_handle.nametowidget('progress_bar_frame.progress_bar')
             progress_bar.config(value=n)
 
@@ -167,7 +184,15 @@ def logfunc(message=""):
         log_text.see('end')
         log_text.update()
 
-    if GuiWindow.window_handle:
+    def queue_logs(string):
+        _console_write(string)
+        GuiWindow.message_queue.put(('log', string))
+
+    if GuiWindow.message_queue is not None:
+        # On a worker thread. The poller on the main thread does the insert, so the run no
+        # longer depends on log_text.update() to keep the event loop alive.
+        sys.stdout.write = queue_logs
+    elif GuiWindow.window_handle:
         log_text = GuiWindow.window_handle.nametowidget('logs_frame.log_text')
         sys.stdout.write = redirect_logs
 
