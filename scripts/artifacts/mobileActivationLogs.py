@@ -51,11 +51,20 @@ def mobileActivationLogs(context):
     source_files = []
 
     for file_obj, source in get_sysdiagnose_files(context.get_files_found(), _LOG_MATCH_RE):
-        if source not in source_files:
-            source_files.append(source)
+        # 1. Separate base path and member name to correctly apply relative paths
+        if ' >> ' in source:
+            base_source, member = source.split(' >> ', 1)
+            rel_source = f"{context.get_relative_path(base_source)} >> {member}"
+            log_name = member
+        else:
+            rel_source = context.get_relative_path(source)
+            log_name = Path(source).name
             
-        log_name = source.split(' >> ')[-1] if ' >> ' in source else Path(source).name
+        # 2. Deduplicate on the full string (Relative Archive >> Member)
+        if rel_source not in source_files:
+            source_files.append(rel_source)
         
+        # 3. Process the file
         for linecount, line in enumerate(file_obj, 1):
             match = _DATE_RE.match(line)
             if not match:
@@ -74,5 +83,6 @@ def mobileActivationLogs(context):
             if _STARTUP in values:
                 data_list.append((dtime_obj, f'Mobile Activation Startup at line: {linecount}', log_name))
 
-    source_path = ', '.join(context.get_relative_path(s.split(' >> ')[0]) for s in source_files)
+    # 4. Join the fully prepared, deduplicated strings
+    source_path = ', '.join(source_files)
     return data_headers, data_list, source_path

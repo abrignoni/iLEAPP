@@ -318,13 +318,16 @@ def _events_and_source(context):
     files_sorted = sorted(str(f) for f in context.get_files_found())
     
     for file_obj, source in get_sysdiagnose_files(files_sorted, _LOG_MATCH_RE):
-        # The helper may append ' >> member.name' for tar archives; 
-        # split it so get_relative_path still operates on the base archive name
-        base_source = source.split(' >> ')[0]
-        rel = context.get_relative_path(base_source)
-        
-        if rel not in sources:
-            sources.append(rel)
+        # 1. Separate base path and member name to correctly apply relative paths
+        if ' >> ' in source:
+            base_source, member = source.split(' >> ', 1)
+            rel_source = f"{context.get_relative_path(base_source)} >> {member}"
+        else:
+            rel_source = context.get_relative_path(source)
+            
+        # 2. Deduplicate on the full string (Relative Archive >> Member)
+        if rel_source not in sources:
+            sources.append(rel_source)
             
         # Pass the file_obj directly; _parse_events iterates over lines natively
         events.extend(_parse_events(file_obj))
