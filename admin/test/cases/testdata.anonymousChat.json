@@ -1,0 +1,128 @@
+{
+  "case1": {
+    "description": "Synthetic metadata-only coverage for the iOS app Anonymous Chat & Fun (App Store ID 1483337394; bundle ID com.anonimchat.app), including container discovery, messages, direction, media metadata, and Photos references. No casework or media payloads are included.",
+    "maker": "Darren Rooney",
+    "image_info": {
+      "os_name": "iOS",
+      "os_version": "26.0-synthetic"
+    },
+    "make_data": {
+      "input_data_path": "anonymousChat_synthetic_extraction.zip",
+      "os": "Windows-10-10.0.26200-SP0",
+      "timestamp": "2026-09-11T15:10:36.564613",
+      "last_commit": {
+        "hash": "Uncommitted",
+        "author_name": "N/A",
+        "author_email": "N/A",
+        "date": "2026-09-11T15:10:36.513612",
+        "message": "File not yet committed to git"
+      }
+    },
+    "artifacts": {
+      "anonymousChat_appInfo": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 7,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_accounts": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 7,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_conversations": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 7,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_messages": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist",
+          "*/Media/PhotoData/Photos.sqlite*",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 8,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_blocked": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 7,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "anonymousChat_media": {
+        "search_patterns": [
+          "*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*",
+          "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist",
+          "*/Containers/Data/Application/*/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist",
+          "*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist",
+          "*/Media/PhotoData/Photos.sqlite*",
+          "*/Containers/Shared/AppGroup/*/.com.apple.mobile_container_manager.metadata.plist"
+        ],
+        "file_count": 8,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  }
+}
