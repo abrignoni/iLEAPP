@@ -17,6 +17,7 @@ from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
 from scripts.search_files import *
+from scripts.raw_image import RAW_IMAGE_LABEL, RAW_IMAGE_SUFFIXES
 from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
 from scripts.modules_to_exclude import modules_to_exclude
@@ -264,7 +265,15 @@ def ValidateInput():
         else:
             ext_type = 'fs'
     else:
+        # one segment of a split raw image (.001 beside .002) is accepted as it
+        # is: the vendored reader joins the set and the run log says so
         ext_type = Path(i_path).suffix[1:].lower()
+        # A raw disk image has no type of its own, only a conventional extension,
+        # so the suffix taken literally ('img', 'bin') matches no branch in
+        # crunch_artifacts and the run stops with nothing parsed. Map the
+        # conventional ones onto the input type that reads them.
+        if ext_type in RAW_IMAGE_SUFFIXES:
+            ext_type = 'raw'
 
     # check output now
     if len(o_path) == 0:  # output path
@@ -715,9 +724,11 @@ def select_input(button_type):
     if button_type == 'file':
         input_filename = tk_filedialog.askopenfilename(parent=main_window,
                                                        title='Select a file',
-                                                       filetypes=(('All supported files', '*.tar *.zip *.gz'),
+                                                       filetypes=(('All supported files',
+                                                                   '*.tar *.zip *.gz *.img *.bin *.dd *.raw *.001 *.E01'),
                                                                   ('tar file', '*.tar'), ('zip file', '*.zip'),
-                                                                  ('gz file', '*.gz')))
+                                                                  ('gz file', '*.gz'),
+                                                                  (RAW_IMAGE_LABEL, '*.img *.bin *.dd *.raw *.001 *.E01')))
     else:
         input_filename = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
     input_entry.delete(0, 'end')
@@ -1025,7 +1036,7 @@ leapps_logo_label.bind("<Button-1>", lambda e: open_website("https://leapps.org"
 ### Input output selection
 input_frame = ttk.LabelFrame(
     main_window,
-    text=' Select the file (tar/zip/gz) or directory of the target iOS full file system extraction for parsing: ')
+    text=' Select the file (tar, zip, gz, raw image, .E01 acquisition) or directory of the target iOS full file system extraction for parsing: ')
 input_frame.pack(padx=14, pady=2, fill='x')
 input_entry = ttk.Entry(input_frame)
 input_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)

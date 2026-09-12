@@ -17,6 +17,7 @@ import leapp_functions.app.history as history
 from shutil import copy2
 from getpass import getpass
 from scripts.search_files import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from scripts.raw_image import FileSeekerRaw
 from scripts.ilapfuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from leapp_functions.app.output import validate_output_folder_available
 from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
@@ -181,11 +182,15 @@ def create_casedata(path):
 def main():
     check_runtime_dependencies()
     parser = argparse.ArgumentParser(description=f'iLEAPP v{leapp_version}: iOS Logs, Events, And Plists Parser.')
-    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'file'], required=False, action="store",
+    parser.add_argument('-t', choices=['fs', 'tar', 'zip', 'gz', 'itunes', 'file', 'raw'], required=False, action="store",
                         help=("Specify the input type. "
                               "'fs' for a folder containing extracted files with normal paths and names, "
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
                               "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
+                              "'raw' for a disk image (.img, .dd, .bin, or any numbered .001 segment of a split "
+                              "set) or an EnCase/EWF .E01 acquisition, read in place without mounting: its "
+                              "NTFS, FAT32, exFAT, ext2/3/4, HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS "
+                              "volumes are searched directly, "
                               "'file' for a single file input."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
@@ -397,6 +402,9 @@ def crunch_artifacts(
         elif extracttype == 'zip':
             seeker = FileSeekerZip(input_path, out_params.data_folder)
 
+        elif extracttype == 'raw':
+            seeker = FileSeekerRaw(input_path, out_params.data_folder)
+
         elif extracttype == 'itunes':
             itunes_backup_type = get_itunes_backup_type(input_path)
             if itunes_backup_type:
@@ -430,204 +438,210 @@ def crunch_artifacts(
         temp_file.close()
         return False
 
-    # Now ready to run
-    # add last_build at the start except for iTunes backups
-    if extracttype != 'itunes':
-        plugins.insert(0, loader["last_build"])
+    try:
+        # Now ready to run
+        # add last_build at the start except for iTunes backups
+        if extracttype != 'itunes':
+            plugins.insert(0, loader["last_build"])
 
-    logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding last_build and iTunesBackupInfo
-    if profile_filename:
-        logfunc(f'Loaded profile: {profile_filename}')
-    logfunc(f'Artifact to parse: {len(plugins)}')
-    logfunc(f'File/Directory selected: {input_path}')
-    logfunc('\n--------------------------------------------------------------------------------------')
+        logfunc(f'Info: {len(loader) - 2} modules loaded.') # excluding last_build and iTunesBackupInfo
+        if profile_filename:
+            logfunc(f'Loaded profile: {profile_filename}')
+        logfunc(f'Artifact to parse: {len(plugins)}')
+        logfunc(f'File/Directory selected: {input_path}')
+        logfunc('\n--------------------------------------------------------------------------------------')
 
-    log = open(os.path.join(out_params.output_folder_base, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
-    log.write(f'Extraction/Path selected: {input_path}<br><br>')
-    log.write(f'Timezone selected: {time_offset}<br><br>')
+        log = open(os.path.join(out_params.output_folder_base, '_HTML', '_Script_Logs', 'ProcessedFilesLog.html'), 'w+', encoding='utf8')
+        log.write(f'Extraction/Path selected: {input_path}<br><br>')
+        log.write(f'Timezone selected: {time_offset}<br><br>')
 
-    # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
-    if extracttype == 'itunes':
-        info_plist_path = os.path.join(input_path, 'Info.plist')
-        if os.path.exists(info_plist_path):
-            # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.output_folder_base)
-            #plugin.method([info_plist_path], out_params.output_folder_base, seeker, wrap_text)
-            report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'iTunes Backup')
-            if not os.path.exists(report_folder):
+        # Special processing for iTunesBackup Info.plist as it is a seperate entity, not part of the Manifest.db. Seeker won't find it
+        if extracttype == 'itunes':
+            info_plist_path = os.path.join(input_path, 'Info.plist')
+            if os.path.exists(info_plist_path):
+                # process_artifact([info_plist_path], 'iTunesBackupInfo', 'Device Info', seeker, out_params.output_folder_base)
+                #plugin.method([info_plist_path], out_params.output_folder_base, seeker, wrap_text)
+                report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'iTunes Backup')
+                if not os.path.exists(report_folder):
+                    try:
+                        os.makedirs(report_folder)
+                    except (FileExistsError, FileNotFoundError) as ex:
+                        logfunc('Error creating report directory at path {}'.format(report_folder))
+                        logfunc('Error was {}'.format(str(ex)))
+                loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+                report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'Installed Apps')
+                if not os.path.exists(report_folder):
+                    try:
+                        os.makedirs(report_folder)
+                    except (FileExistsError, FileNotFoundError) as ex:
+                        logfunc('Error creating report directory at path {}'.format(report_folder))
+                        logfunc('Error was {}'.format(str(ex)))
+                loader["itunes_backup_installed_applications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
+                #del search_list['last_build'] # removing last_build as this takes its place
+                print([info_plist_path])  # Future: remove special consideration for itunes? Merge into main search
+            else:
+                logfunc('Info.plist not found for iTunes Backup!')
+                log.write('Info.plist not found for iTunes Backup!')
+
+        # Search for the files per the arguments
+        parsed_modules = 0
+        plugin_run_times = []
+        lava_only = False
+        artifact_search_pattern_id = 0
+        file_path_ids = set()
+
+        for plugin_number, plugin in enumerate(plugins, start=1):
+            # Timed from here, before the file search, because the search runs after the
+            # "artifact started" line is printed and is itself a place a run can sit.
+            plugin_start = perf_counter()
+            logfunc()
+            logfunc('[{}/{}] {} [{}] artifact started at {} UTC'.format(plugin_number, len(plugins),
+                                                                  plugin.name, plugin.module_name,
+                                                                  strftime('%H:%M:%S', gmtime())))
+            output_types = plugin.artifact_info.get('output_types', '')
+            if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
+                search_regexes = plugin.search
+            elif plugin.search is None:
+                search_regexes = plugin.search
+            else:
+                search_regexes = [plugin.search]
+            files_found = []
+            log.write(f'<b>For {plugin.name} artifact</b>')
+            if search_regexes is None:
+                log.write(f'<ul><li>No search regexes provided for {plugin.name} artifact.')
+                log.write("<ul><li><i>'_lava_artifacts.db'</i> used as source file.</li></ul></li></ul>")
+                files_found = [os.path.join(out_params.output_folder_base, '_lava_artifacts.db')]
+            else:
+                for artifact_search_regex in search_regexes:
+                    artifact_search_pattern_id += 1
+                    lava_insert_sqlite_artifact_search_pattern(
+                        artifact_search_pattern_id, plugin.module_name, plugin.name, artifact_search_regex)
+                    pattern_already_searched = artifact_search_regex in seeker.searched
+                    found = seeker.search(artifact_search_regex)
+                    if not found:
+                        if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':
+                            src = os.path.join(os.path.dirname(input_path), "logarchive.json")
+                            dst = os.path.join(out_params.data_folder, "logarchive.json")
+                            # The artifact declares several search patterns, so this branch is
+                            # reached once per pattern that misses; only pick the export up once.
+                            if os.path.exists(src) and dst not in files_found:
+                                copy2(src, dst)
+                                files_found.append(dst)
+                        log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
+                    else:
+                        log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
+                        for pathh in found:
+                            # Strip \\?\ only for log display; file_infos is keyed with the
+                            # original long-path form on Windows.
+                            display_path = pathh[4:] if pathh.startswith('\\\\?\\') else pathh
+                            log.write(f'<ul><li>{Context.get_relative_path(display_path)}</li></ul>')
+                            if seeker.file_infos.get(pathh):
+                                file_path_id = id(seeker.file_infos.get(pathh))
+                                if not pattern_already_searched and file_path_id not in file_path_ids:
+                                    lava_insert_sqlite_file_path(file_path_id, seeker.file_infos.get(pathh).source_path)
+                                    file_path_ids.add(file_path_id)
+                                lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, file_path_id)
+                        log.write('</li></ul>')
+                        files_found.extend(found)
+            if files_found:
+                if not lava_only and 'lava_only' in output_types:
+                    lava_only = True
+                category_folder = os.path.join(out_params.output_folder_base, '_HTML',
+                                               sanitize_report_name(plugin.category, 'category'))
+                if not os.path.exists(category_folder):
+                    try:
+                        os.makedirs(category_folder)
+                    except (FileExistsError, FileNotFoundError) as ex:
+                        logfunc('Error creating {} report directory at path {}'.format(plugin.name, category_folder))
+                        logfunc('Error was {}'.format(str(ex)))
+                        lava_add_module(plugin.module_name, "Error", len(files_found), plugin.name)
+                        continue  # cannot do work
                 try:
-                    os.makedirs(report_folder)
-                except (FileExistsError, FileNotFoundError) as ex:
-                    logfunc('Error creating report directory at path {}'.format(report_folder))
+                    plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                    if plugin.name == 'logarchive':
+                        lava_db_path = os.path.join(out_params.output_folder_base, '_lava_artifacts.db')
+                        if does_table_exist_in_db(lava_db_path, 'logarchive'):
+                            loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                        if does_table_exist_in_db(lava_db_path, 'logarchive_artifacts'):
+                            unifed_logs_artifacts = []
+                            unifed_logs_artifacts = [plugin.name for plugin in loader.plugins
+                                                     if plugin.module_name=='logarchive'
+                                                     and plugin.name != 'logarchive'
+                                                     and plugin.name != 'logarchive_artifacts']
+                            for unifed_log_artifact in unifed_logs_artifacts:
+                                loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
+                except Exception as ex:  # pylint: disable=broad-exception-caught
+                    logfunc('Reading {} artifact had errors!'.format(plugin.name))
                     logfunc('Error was {}'.format(str(ex)))
-            loader["itunes_backup_info"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
-            report_folder = os.path.join(out_params.output_folder_base, '_HTML', 'Installed Apps')
-            if not os.path.exists(report_folder):
-                try:
-                    os.makedirs(report_folder)
-                except (FileExistsError, FileNotFoundError) as ex:
-                    logfunc('Error creating report directory at path {}'.format(report_folder))
-                    logfunc('Error was {}'.format(str(ex)))
-            loader["itunes_backup_installed_applications"].method([info_plist_path], report_folder, seeker, wrap_text, time_offset)
-            #del search_list['last_build'] # removing last_build as this takes its place
-            print([info_plist_path])  # Future: remove special consideration for itunes? Merge into main search
-        else:
-            logfunc('Info.plist not found for iTunes Backup!')
-            log.write('Info.plist not found for iTunes Backup!')
-
-    # Search for the files per the arguments
-    parsed_modules = 0
-    plugin_run_times = []
-    lava_only = False
-    artifact_search_pattern_id = 0
-    file_path_ids = set()
-
-    for plugin_number, plugin in enumerate(plugins, start=1):
-        # Timed from here, before the file search, because the search runs after the
-        # "artifact started" line is printed and is itself a place a run can sit.
-        plugin_start = perf_counter()
-        logfunc()
-        logfunc('[{}/{}] {} [{}] artifact started at {} UTC'.format(plugin_number, len(plugins),
-                                                              plugin.name, plugin.module_name,
-                                                              strftime('%H:%M:%S', gmtime())))
-        output_types = plugin.artifact_info.get('output_types', '')
-        if isinstance(plugin.search, list) or isinstance(plugin.search, tuple):
-            search_regexes = plugin.search
-        elif plugin.search is None:
-            search_regexes = plugin.search
-        else:
-            search_regexes = [plugin.search]
-        files_found = []
-        log.write(f'<b>For {plugin.name} artifact</b>')
-        if search_regexes is None:
-            log.write(f'<ul><li>No search regexes provided for {plugin.name} artifact.')
-            log.write("<ul><li><i>'_lava_artifacts.db'</i> used as source file.</li></ul></li></ul>")
-            files_found = [os.path.join(out_params.output_folder_base, '_lava_artifacts.db')]
-        else:
-            for artifact_search_regex in search_regexes:
-                artifact_search_pattern_id += 1
-                lava_insert_sqlite_artifact_search_pattern(
-                    artifact_search_pattern_id, plugin.module_name, plugin.name, artifact_search_regex)
-                pattern_already_searched = artifact_search_regex in seeker.searched
-                found = seeker.search(artifact_search_regex)
-                if not found:
-                    if plugin.name == 'logarchive' and extracttype != 'fs' and extracttype != 'file':
-                        src = os.path.join(os.path.dirname(input_path), "logarchive.json")
-                        dst = os.path.join(out_params.data_folder, "logarchive.json")
-                        # The artifact declares several search patterns, so this branch is
-                        # reached once per pattern that misses; only pick the export up once.
-                        if os.path.exists(src) and dst not in files_found:
-                            copy2(src, dst)
-                            files_found.append(dst)
-                    log.write(f'<ul><li>No file found for regex <i>{artifact_search_regex}</i></li></ul>')
-                else:
-                    log.write(f'<ul><li>{len(found)} {"files" if len(found) > 1 else "file"} for regex <i>{artifact_search_regex}</i> located at:')
-                    for pathh in found:
-                        # Strip \\?\ only for log display; file_infos is keyed with the
-                        # original long-path form on Windows.
-                        display_path = pathh[4:] if pathh.startswith('\\\\?\\') else pathh
-                        log.write(f'<ul><li>{Context.get_relative_path(display_path)}</li></ul>')
-                        if seeker.file_infos.get(pathh):
-                            file_path_id = id(seeker.file_infos.get(pathh))
-                            if not pattern_already_searched and file_path_id not in file_path_ids:
-                                lava_insert_sqlite_file_path(file_path_id, seeker.file_infos.get(pathh).source_path)
-                                file_path_ids.add(file_path_id)
-                            lava_insert_sqlite_artifact_link_pattern_to_file(artifact_search_pattern_id, file_path_id)
-                    log.write('</li></ul>')
-                    files_found.extend(found)
-        if files_found:
-            if not lava_only and 'lava_only' in output_types:
-                lava_only = True
-            category_folder = os.path.join(out_params.output_folder_base, '_HTML',
-                                           sanitize_report_name(plugin.category, 'category'))
-            if not os.path.exists(category_folder):
-                try:
-                    os.makedirs(category_folder)
-                except (FileExistsError, FileNotFoundError) as ex:
-                    logfunc('Error creating {} report directory at path {}'.format(plugin.name, category_folder))
-                    logfunc('Error was {}'.format(str(ex)))
+                    logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
+                    plugin_elapsed = perf_counter() - plugin_start
+                    plugin_run_times.append((plugin.name, plugin_elapsed))
+                    logfunc('{} [{}] artifact failed after {:.1f}s'.format(
+                        plugin.name, plugin.module_name, plugin_elapsed))
                     lava_add_module(plugin.module_name, "Error", len(files_found), plugin.name)
-                    continue  # cannot do work
-            try:
-                plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
-                if plugin.name == 'logarchive':
-                    lava_db_path = os.path.join(out_params.output_folder_base, '_lava_artifacts.db')
-                    if does_table_exist_in_db(lava_db_path, 'logarchive'):
-                        loader["logarchive_artifacts"].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
-                    if does_table_exist_in_db(lava_db_path, 'logarchive_artifacts'):
-                        unifed_logs_artifacts = []
-                        unifed_logs_artifacts = [plugin.name for plugin in loader.plugins
-                                                 if plugin.module_name=='logarchive'
-                                                 and plugin.name != 'logarchive'
-                                                 and plugin.name != 'logarchive_artifacts']
-                        for unifed_log_artifact in unifed_logs_artifacts:
-                            loader[unifed_log_artifact].method([lava_db_path], category_folder, seeker, wrap_text, time_offset)
-            except Exception as ex:  # pylint: disable=broad-exception-caught
-                logfunc('Reading {} artifact had errors!'.format(plugin.name))
-                logfunc('Error was {}'.format(str(ex)))
-                logfunc('Exception Traceback: {}'.format(traceback.format_exc()))
-                plugin_elapsed = perf_counter() - plugin_start
-                plugin_run_times.append((plugin.name, plugin_elapsed))
-                logfunc('{} [{}] artifact failed after {:.1f}s'.format(
-                    plugin.name, plugin.module_name, plugin_elapsed))
-                lava_add_module(plugin.module_name, "Error", len(files_found), plugin.name)
-                continue  # nope
-            lava_add_module(plugin.module_name, "Complete", len(files_found), plugin.name)
-        else:
-            lava_add_module(plugin.module_name, "No files found", 0, plugin.name)
-            logfunc("No file found")
-        plugin_elapsed = perf_counter() - plugin_start
-        plugin_run_times.append((plugin.name, plugin_elapsed))
-        logfunc('{} [{}] artifact completed in {:.1f}s'.format(
-            plugin.name, plugin.module_name, plugin_elapsed))
-        parsed_modules += 1
-        GuiWindow.SetProgressBar(parsed_modules, len(plugins))
-        log.flush()
-    log.close()
+                    continue  # nope
+                lava_add_module(plugin.module_name, "Complete", len(files_found), plugin.name)
+            else:
+                lava_add_module(plugin.module_name, "No files found", 0, plugin.name)
+                logfunc("No file found")
+            plugin_elapsed = perf_counter() - plugin_start
+            plugin_run_times.append((plugin.name, plugin_elapsed))
+            logfunc('{} [{}] artifact completed in {:.1f}s'.format(
+                plugin.name, plugin.module_name, plugin_elapsed))
+            parsed_modules += 1
+            GuiWindow.SetProgressBar(parsed_modules, len(plugins))
+            log.flush()
+        log.close()
 
-    write_device_info()
-    if lava_only:
-        write_lava_only_log()
-    logfunc('')
-    logfunc('Processes completed.')
-    end = process_time()
-    end_wall = perf_counter()
-    run_time_secs =  end - start
-    run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
-    logfunc("Processing time (CPU) = {}".format(run_time_HMS))
-    run_time_secs =  end_wall - start_wall
-    run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
-    logfunc("Run time (wall clock) = {}".format(run_time_HMS))
-
-    # Filtered on the rounded value so the list holds exactly what the per-artifact
-    # lines showed as 1.0s or more, with no artifact visible above the cut but missing here.
-    slowest = sorted((entry for entry in plugin_run_times if round(entry[1], 1) >= 1.0),
-                     key=lambda item: item[1], reverse=True)[:SLOWEST_ARTIFACTS_TO_REPORT]
-    if slowest:
+        write_device_info()
+        if lava_only:
+            write_lava_only_log()
         logfunc('')
-        logfunc('Slowest artifacts:')
-        for artifact_name, elapsed in slowest:
-            logfunc('  {:>8.1f}s  {}'.format(elapsed, artifact_name))
+        logfunc('Processes completed.')
+        end = process_time()
+        end_wall = perf_counter()
+        run_time_secs =  end - start
+        run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
+        logfunc("Processing time (CPU) = {}".format(run_time_HMS))
+        run_time_secs =  end_wall - start_wall
+        run_time_HMS = strftime('%H:%M:%S', gmtime(run_time_secs))
+        logfunc("Run time (wall clock) = {}".format(run_time_HMS))
 
-    logfunc('')
-    logfunc('Report generation started.')
-    # remove the \\?\ prefix we added to input and output paths, so it does not reflect in report
-    if is_platform_windows():
-        if out_params.output_folder_base.startswith('\\\\?\\'):
-            out_params.output_folder_base = out_params.output_folder_base[4:]
-        if input_path.startswith('\\\\?\\'):
-            input_path = input_path[4:]
+        # Filtered on the rounded value so the list holds exactly what the per-artifact
+        # lines showed as 1.0s or more, with no artifact visible above the cut but missing here.
+        slowest = sorted((entry for entry in plugin_run_times if round(entry[1], 1) >= 1.0),
+                         key=lambda item: item[1], reverse=True)[:SLOWEST_ARTIFACTS_TO_REPORT]
+        if slowest:
+            logfunc('')
+            logfunc('Slowest artifacts:')
+            for artifact_name, elapsed in slowest:
+                logfunc('  {:>8.1f}s  {}'.format(elapsed, artifact_name))
 
-    report.generate_report(out_params.output_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
-    logfunc('Report generation Completed.')
+        logfunc('')
+        logfunc('Report generation started.')
+        # remove the \\?\ prefix we added to input and output paths, so it does not reflect in report
+        if is_platform_windows():
+            if out_params.output_folder_base.startswith('\\\\?\\'):
+                out_params.output_folder_base = out_params.output_folder_base[4:]
+            if input_path.startswith('\\\\?\\'):
+                input_path = input_path[4:]
 
-    # Record the run in history
-    lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
-    history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
+        report.generate_report(out_params.output_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
+        logfunc('Report generation Completed.')
 
-    logfunc('')
-    logfunc(f'Report location: {out_params.output_folder_base}')
+        # Record the run in history
+        lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
+        history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
-    return True
+        logfunc('')
+        logfunc(f'Report location: {out_params.output_folder_base}')
+
+        return True
+    finally:
+        # A raw image seeker holds the image open and the other seekers hold an
+        # archive handle; cleanup() releases whatever the seeker holds. Nothing
+        # else does, so run it on every exit path, not just the success return.
+        seeker.cleanup()
 
 if __name__ == '__main__':
     main()
