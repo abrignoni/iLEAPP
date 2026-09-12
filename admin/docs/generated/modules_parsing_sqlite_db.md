@@ -126,6 +126,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | meWe |
 | mediaLibrary |
 | mega |
+| megaCloud |
 | myq |
 | nest |
 | netflix |
