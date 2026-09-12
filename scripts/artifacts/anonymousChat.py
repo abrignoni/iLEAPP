@@ -1184,7 +1184,7 @@ def _media_entry_type(entry, references):
     for reference in references:
         if not _reference_in_scope(entry, reference):
             continue
-        matched, method = _entry_matches_reference(path, reference['reference'])
+        matched, _method = _entry_matches_reference(path, reference['reference'])
         if matched:
             mime_type, category = _mime_classification(reference['mime'])
             if mime_type:
@@ -1298,7 +1298,8 @@ def _register_staged_media(context, staged):
         files_found.append(staged)
     # Context caches its basename lookup.  Invalidate it after adding a path.
     if hasattr(context, '_filename_lookup_map'):
-        context._filename_lookup_map = {}
+        # Context exposes no public cache invalidation method.
+        context._filename_lookup_map = {}  # pylint: disable=protected-access
     return True
 
 
@@ -1745,7 +1746,7 @@ def _media_rows(db_paths, context):
         media_ref = _media_reference(context, entry, detected_type, matches) if matches else ''
         # One row per association preserves typed timestamps and participant pairs.
         # A file with no surviving reference still receives one inventory row.
-        for _index, reference, method in matches or [(None, {}, '')]:
+        for _, reference, method in matches or [(None, {}, '')]:
             key = None
             if reference.get('kind') == 'Message Attachment Reference':
                 key = _message_key(

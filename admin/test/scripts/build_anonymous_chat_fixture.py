@@ -31,7 +31,7 @@ BUNDLE_ROOT = Path(
 def write_plist(path: Path, values: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open('wb') as handle:
-        plistlib.dump(values, handle, fmt=plistlib.FMT_XML, sort_keys=True)
+        plistlib.dump(values, handle, sort_keys=True)
 
 
 def build_database(path: Path) -> None:

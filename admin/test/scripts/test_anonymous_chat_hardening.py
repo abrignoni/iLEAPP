@@ -5,6 +5,9 @@ media entries are dictionaries; signature and Media Manager calls are mocked.
 SQLite tests create fresh disposable databases, never take a casework input.
 """
 
+# These tests intentionally exercise private correlation helpers and data builders.
+# pylint: disable=protected-access
+
 import fnmatch
 import hashlib
 import json
