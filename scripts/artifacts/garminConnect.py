@@ -202,12 +202,13 @@ __artifacts_v2__ = {
                  "images. Training Method and Sport are reported as stored; both held 0 on every "
                  "row of both images. The User Profile ID on every row of both images equalled "
                  "the user profile id the Account artifact reports for the signed-in account. The "
-                 "store also holds a movement list and an event list per day; both were empty on "
-                 "every day of both images, so nothing is reported from them. On the iOS 14.3 "
-                 "image the file was present and held only a cache bookkeeping key with no day, "
-                 "and on the iOS 26.2.1 image the app kept no such file, so neither produced a "
-                 "row. The app container is identified from its own "
-                 ".com.apple.mobile_container_manager.metadata.plist, and a file is read only "
+                 "same day record also carries a heart rate series, a per-minute movement series "
+                 "and a sleep event list, which the Heart Rate Samples, Movement Samples and "
+                 "Sleep Events artifacts report. The record's own listOfEvents was empty on every "
+                 "day of both images. On the iOS 14.3 image the file was present and held only a "
+                 "cache bookkeeping key with no day, and on the iOS 26.2.1 image the app kept no "
+                 "such file, so neither produced a row. The app container is identified from its "
+                 "own .com.apple.mobile_container_manager.metadata.plist, and a file is read only "
                  "when it sits inside a container whose plist names com.garmin.connect.mobile or "
                  "group.com.garmin.connect, so a file matched in another app's container is not "
                  "read. That guard is exercised by the tested images rather than only present: "
@@ -223,6 +224,150 @@ __artifacts_v2__ = {
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | Garmin Connect 4.74.3 | 8 rows",
             "hickman_ios15": "iOS 15.3.1 | Garmin Connect 4.65 | 7 rows",
+            "hickman_ios14": "iOS 14.3 | Garmin Connect 4.38 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | Garmin Connect 5.21.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Garmin Connect not installed | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | Garmin Connect not installed | 0 rows",
+        },
+    },
+    "garmin_ios_heart_rate_samples": {
+        "name": "Garmin Connect - Heart Rate Samples",
+        "description": "Heart rate readings the app cached through the day, from its Move IQ "
+                       "store.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-11",
+        "last_update_date": "2026-09-11",
+        "requirements": "none",
+        "category": "Health & Fitness",
+        "notes": "One row per entry of the heart rate series a day's record carries, from its "
+                 "allDayHRData hrDetail heartRateArray. The store is "
+                 "Library/Caches/DataCache/GCMCacheManagerMoveIQCachePath/GCMCacheManagerMoveIQCacheFile, "
+                 "an NSKeyedArchiver plist holding one record per calendar day. The Daily Heart "
+                 "Rate artifact reports the rest of that record. Sample Time is the entry's own "
+                 "startGMT, a Cocoa absolute time, so it is an instant and not a wall clock "
+                 "reading. Heart Rate is reported as stored and the store gives no unit; 2,940 "
+                 "entries across 5 days were reported on the iOS 15.3.1 image and 6 of them "
+                 "carried no value, which is the entry holding none rather than a reading of "
+                 "zero. The gap between consecutive entries within a day was 120 seconds on 2,929 "
+                 "of the 2,935 gaps and longer on the other 6, so the series has breaks where the "
+                 "app cached no reading and a row is not evidence that the next reading is 120 "
+                 "seconds later. The iOS 17.3 image kept day records whose heart rate series was "
+                 "empty, so it reported nothing here while still reporting the day rows in Daily "
+                 "Heart Rate, and the iOS 14.3 and 26.2.1 images hold no day record at all. A row "
+                 "records what the app cached for that moment. It does not establish that a "
+                 "particular person was wearing the device. User Profile ID is the id the record "
+                 "itself carries and held the one value 89370933 across every reported row of "
+                 "both images, which is the single account the app was signed in as; it is kept "
+                 "so a row carries its own account rather than taking one from the artifact it "
+                 "sits in. The app container is identified from its own "
+                 ".com.apple.mobile_container_manager.metadata.plist, and a file is read only "
+                 "when it sits inside a container whose plist names com.garmin.connect.mobile or "
+                 "group.com.garmin.connect, so a file matched in another app's container is not "
+                 "read.",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/DataCache/*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "activity",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Garmin Connect 4.74.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Garmin Connect 4.65 | 2940 rows",
+            "hickman_ios14": "iOS 14.3 | Garmin Connect 4.38 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | Garmin Connect 5.21.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Garmin Connect not installed | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | Garmin Connect not installed | 0 rows",
+        },
+    },
+    "garmin_ios_movement_samples": {
+        "name": "Garmin Connect - Movement Samples",
+        "description": "Per-minute movement readings the app cached through the day, from its "
+                       "Move IQ store.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-11",
+        "last_update_date": "2026-09-11",
+        "requirements": "none",
+        "category": "Health & Fitness",
+        "notes": "One row per entry of the movement series a day's record carries, from its "
+                 "movementDetail movementArray. The store is "
+                 "Library/Caches/DataCache/GCMCacheManagerMoveIQCachePath/GCMCacheManagerMoveIQCacheFile, "
+                 "an NSKeyedArchiver plist holding one record per calendar day. The Daily Heart "
+                 "Rate artifact reports the rest of that record. Sample Time is the entry's own "
+                 "startGMT, a Cocoa absolute time. Movement Value is reported as stored: the "
+                 "store gives no unit and nothing available defines the scale, so the column is "
+                 "the number the app cached and not a distance, a step count or an intensity in "
+                 "any named unit. 6,630 entries across 5 days were reported on the iOS 15.3.1 "
+                 "image, 3,645 of them zero, and a zero entry is reported rather than dropped so "
+                 "that the series is not read as continuous movement. The gap between consecutive "
+                 "entries within a day was 60 seconds on every one of the 6,625 gaps, so a full "
+                 "day is 1,440 entries and one of the 5 days is short at 870. The iOS 17.3 image "
+                 "kept day records whose movement series was empty, so it reported nothing here, "
+                 "and the iOS 14.3 and 26.2.1 images hold no day record at all. A row records "
+                 "what the app cached for that minute. It does not establish that a particular "
+                 "person was carrying or wearing the device. User Profile ID is the id the record "
+                 "itself carries and held the one value 89370933 across every reported row of "
+                 "both images, which is the single account the app was signed in as; it is kept "
+                 "so a row carries its own account rather than taking one from the artifact it "
+                 "sits in. The app container is identified from its own "
+                 ".com.apple.mobile_container_manager.metadata.plist, and a file is read only "
+                 "when it sits inside a container whose plist names com.garmin.connect.mobile or "
+                 "group.com.garmin.connect, so a file matched in another app's container is not "
+                 "read.",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/DataCache/*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "trending-up",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Garmin Connect 4.74.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Garmin Connect 4.65 | 6630 rows",
+            "hickman_ios14": "iOS 14.3 | Garmin Connect 4.38 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | Garmin Connect 5.21.1 | 0 rows",
+            "abe_ios16": "iOS 16.5 | Garmin Connect not installed | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | Garmin Connect not installed | 0 rows",
+        },
+    },
+    "garmin_ios_sleep_events": {
+        "name": "Garmin Connect - Sleep Events",
+        "description": "Instants the app cached in the sleep event list of its Move IQ store, "
+                       "with the type it recorded for each.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-11",
+        "last_update_date": "2026-09-11",
+        "requirements": "none",
+        "category": "Health & Fitness",
+        "notes": "One row per entry of the sleep event list a day's record carries, from its "
+                 "allDayHRData sleepEventList. The store is "
+                 "Library/Caches/DataCache/GCMCacheManagerMoveIQCachePath/GCMCacheManagerMoveIQCacheFile, "
+                 "an NSKeyedArchiver plist holding one record per calendar day. The Daily Heart "
+                 "Rate artifact reports the rest of that record. Event Time is the entry's own "
+                 "timeStamp, a Cocoa absolute time. Event Type is reported as stored; the tested "
+                 "images hold 0 and 1 and 2 and 3 and nothing available defines them, so no "
+                 "meaning is given to the numbers here and none should be read into the "
+                 "artifact's name beyond the list the app calls a sleep event list. What the data "
+                 "does show, measured on both images: a day's record carries up to four entries, "
+                 "and on all 15 pairs the entry typed 1 came before the entry typed 0 and the "
+                 "entry typed 3 came before the entry typed 2, with the gap within a pair running "
+                 "from 6.08 to 10.73 hours. The same instants repeat across neighbouring days "
+                 "under a different type: the iOS 15.3.1 image reported 20 rows holding 14 "
+                 "distinct instants, while the iOS 17.3 image reported 10 rows holding 10 "
+                 "distinct instants because its day records are not consecutive. Every row is "
+                 "reported because each is a stored entry, and Calendar Date Of The Record is the "
+                 "day whose record held it rather than the day the instant falls on. The iOS 14.3 "
+                 "and 26.2.1 images hold no day record, so neither produced a row. A row records "
+                 "an instant the app cached. It does not establish that a particular person was "
+                 "asleep or awake. User Profile ID is the id the record itself carries and held "
+                 "the one value 89370933 across every reported row of both images, which is the "
+                 "single account the app was signed in as; it is kept so a row carries its own "
+                 "account rather than taking one from the artifact it sits in. The app container "
+                 "is identified from its own .com.apple.mobile_container_manager.metadata.plist, "
+                 "and a file is read only when it sits inside a container whose plist names "
+                 "com.garmin.connect.mobile or group.com.garmin.connect, so a file matched in "
+                 "another app's container is not read.",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/DataCache/*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
+        "output_types": ["html", "tsv", "timeline", "lava"],
+        "artifact_icon": "moon",
+        "sample_data": {
+            "iphone11_ios17": "iOS 17.3 | Garmin Connect 4.74.3 | 10 rows",
+            "hickman_ios15": "iOS 15.3.1 | Garmin Connect 4.65 | 20 rows",
             "hickman_ios14": "iOS 14.3 | Garmin Connect 4.38 | 0 rows",
             "falken_ios26": "iOS 26.2.1 | Garmin Connect 5.21.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | Garmin Connect not installed | 0 rows",
@@ -460,6 +605,7 @@ _IMAGE_CACHE_DIR = 'com.pinterest.PINDiskCache.PINRemoteImageManagerCache'
 _GROUP_PREFS = 'group.com.garmin.connect.plist'
 _PROFILE_KEY = 'com.garmin.ConnectProfileCache.UserProfile'
 _CUSTOMER_KEY = 'com.garmin.ConnectProfileCache.CustomerInfo'
+_DAY = re.compile(r'^\d{4}-\d{2}-\d{2}$')
 _PROFILE_IMAGE_URL = re.compile(r'/profile_images/[0-9a-f-]+-(\d+)\.png', re.I)
 _BADGE_URL = re.compile(r'/images/badges/', re.I)
 _PRODUCT_IMAGE_URL = re.compile(r'/device-images/|/products/', re.I)
@@ -900,6 +1046,115 @@ def garmin_ios_daily_heart_rate(context):
         'Device ID',
     )
     return data_headers, data_list, '\n'.join(sources)
+
+
+def _move_iq_days(garmin_files):
+    '''(source path, calendar day, day record) for every day in the Move IQ store.'''
+    days = []
+    for _container, path in _named(garmin_files, _MOVE_IQ):
+        root = _plist_root(path)
+        if not isinstance(root, dict):
+            continue
+        for day, record in sorted(root.items()):
+            if isinstance(record, dict) and _DAY.match(str(day)):
+                days.append((path, str(day), record))
+    return days
+
+
+@artifact_processor
+def garmin_ios_heart_rate_samples(context):
+    files_found = context.get_files_found()
+    containers = _containers(files_found)
+    garmin_files = _garmin_files(files_found, containers)
+    data_list = []
+    sources = []
+
+    for path, day, record in _move_iq_days(garmin_files):
+        heart = record.get('allDayHRData') if isinstance(record.get('allDayHRData'), dict) else {}
+        detail = heart.get('hrDetail') if isinstance(heart.get('hrDetail'), dict) else {}
+        for sample in detail.get('heartRateArray') or []:
+            if not isinstance(sample, dict):
+                continue
+            if path not in sources:
+                sources.append(path)
+            data_list.append((
+                _utc(sample.get('startGMT')),
+                day,
+                _stored(sample.get('value')),
+                _stored(detail.get('userProfileId')),
+            ))
+
+    data_headers = (
+        ('Sample Time (UTC)', 'datetime'),
+        'Calendar Date',
+        'Heart Rate (as stored)',
+        'User Profile ID',
+    )
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def garmin_ios_movement_samples(context):
+    files_found = context.get_files_found()
+    containers = _containers(files_found)
+    garmin_files = _garmin_files(files_found, containers)
+    data_list = []
+    sources = []
+
+    for path, day, record in _move_iq_days(garmin_files):
+        detail = record.get('movementDetail') if isinstance(record.get('movementDetail'), dict) else {}
+        for sample in detail.get('movementArray') or []:
+            if not isinstance(sample, dict):
+                continue
+            if path not in sources:
+                sources.append(path)
+            data_list.append((
+                _utc(sample.get('startGMT')),
+                day,
+                _stored(sample.get('value')),
+                _stored(detail.get('userProfileId')),
+            ))
+
+    data_headers = (
+        ('Sample Time (UTC)', 'datetime'),
+        'Calendar Date',
+        'Movement Value (as stored)',
+        'User Profile ID',
+    )
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def garmin_ios_sleep_events(context):
+    files_found = context.get_files_found()
+    containers = _containers(files_found)
+    garmin_files = _garmin_files(files_found, containers)
+    data_list = []
+    sources = []
+
+    for path, day, record in _move_iq_days(garmin_files):
+        heart = record.get('allDayHRData') if isinstance(record.get('allDayHRData'), dict) else {}
+        detail = heart.get('hrDetail') if isinstance(heart.get('hrDetail'), dict) else {}
+        for event in heart.get('sleepEventList') or []:
+            if not isinstance(event, dict):
+                continue
+            if path not in sources:
+                sources.append(path)
+            data_list.append((
+                _utc(event.get('timeStamp')),
+                day,
+                _stored(event.get('type')),
+                _stored(detail.get('userProfileId')),
+            ))
+
+    data_headers = (
+        ('Event Time (UTC)', 'datetime'),
+        'Calendar Date Of The Record',
+        'Event Type (as stored)',
+        'User Profile ID',
+    )
+    return data_headers, data_list, '\n'.join(sources)
+
 
 
 def _device_records(garmin_files):
