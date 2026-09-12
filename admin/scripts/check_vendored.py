@@ -1,34 +1,40 @@
 #!/usr/bin/env python3
-"""Confirm a vendored file still matches the upstream commit its banner names.
+"""Confirm the vendored third-party files still match what was vendored.
 
 Vendored code is a copy, so it drifts in two directions and both are silent. A
 local edit looks like a fix until the next re-vendor reverts it, and an upstream
 release leaves this copy quietly old. Neither shows up in a diff of this repo.
 
-Each vendored file opens with a banner that records where it came from: the
-upstream repository, the file inside it, and the commit it was copied at. This
-script reads that banner, fetches the upstream file at that exact commit, and
-fails when anything below the banner differs from it. Only the banner is
-ignored; the rest has to match byte for byte.
+Every vendored file is recorded in scripts/vendor/vendored.json: its path in this
+repository, the upstream repository and file, the upstream commit it was copied
+at, and the sha256 of the copy. Two checks run per entry:
+
+  1. the file on disk hashes to what the manifest records, which needs nothing
+     but the checkout, and catches an edit made here;
+  2. the file's body equals the upstream file at the pinned commit, fetched
+     from GitHub, or read from a checkout named with --upstream, which catches a
+     re-vendor whose commit line was not updated, or a copy that was edited and
+     then had its hash re-recorded.
+
+A file whose copy opens with a vendoring banner (a block from the first ``# ----``
+rule line to the next) is marked ``"banner": true`` in the manifest; the banner
+is this repository's, so the body below it is what has to match upstream. The
+recorded sha256 still covers the whole file.
 
 "Could not check" is reported separately from "has drifted", and they are not the
-same result. A failed fetch says nothing about this copy, so printing it as drift
-asserts a finding nothing measured. Both still exit non-zero: an unreachable
-upstream must not read as a pass, or a broken network silently stops guarding the
-file. Drift exits 1, an unreadable upstream exits 2.
+same result. An upstream that cannot be read was never compared, so calling it
+drift asserts a finding nothing measured. Both still exit non-zero: an unreadable
+upstream must not read as a pass. Drift exits 1, an unreadable upstream exits 2.
 
-    python3 admin/scripts/check_vendored.py                    # CI: fetch and compare
-    python3 admin/scripts/check_vendored.py --upstream ../mmkv-parser
-                                                                # offline: compare against a
-                                                                # local checkout instead
+    python3 admin/scripts/check_vendored.py                     # CI: hashes and the pinned upstream
+    python3 admin/scripts/check_vendored.py --offline           # hashes only
+    python3 admin/scripts/check_vendored.py --upstream ../qnxprobe
+    python3 admin/scripts/check_vendored.py --upstream qnxprobe=../qnxprobe --upstream ewfprobe=../ewfprobe
+    python3 admin/scripts/check_vendored.py --update            # after a deliberate re-vendor
 
-To re-vendor: copy the upstream file over the body below the banner, set the
-banner's upstream commit line to the commit you copied from, and run this script
-before pushing.
-
-The banner is the block from the first line of the file through the next rule
-line (``# ----``). Inside it the script looks for ``github.com/<owner>/<repo>``,
-``upstream commit <40 hex>`` and ``upstream file <path>``.
+--update rewrites the recorded hashes from the files on disk and nothing else:
+the upstream commit and date are what say which version a copy is, so set those
+by hand from the upstream's log before running it.
 """
 
 from __future__ import annotations
@@ -36,6 +42,8 @@ from __future__ import annotations
 import argparse
 import collections
 import difflib
+import hashlib
+import json
 import os
 import re
 import sys
@@ -43,22 +51,14 @@ import urllib.error
 import urllib.request
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Every file this guards, relative to the repository root. Each one carries its
-# own banner naming the upstream it was copied from.
-VENDORED = [
-    'scripts/mmkv_parser.py',
-]
+MANIFEST = os.path.join(REPO, 'scripts', 'vendor', 'vendored.json')
 
 RAW_URL = 'https://raw.githubusercontent.com/{owner}/{repo}/{commit}/{path}'
 _RULE = re.compile(rb'^# -{20,}\s*$')
-_REPO = re.compile(r'github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)')
-_COMMIT = re.compile(r'upstream commit ([0-9a-f]{40})\b')
-_FILE = re.compile(r'upstream file (\S+?)[.,]?(?:\s|$)')
+_REPO = re.compile(r'github\.com/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?/?$')
 
-
-DRIFT = 'drift'      # compared against the upstream, and it differs
-BLOCKED = 'blocked'  # the upstream could not be read, so nothing was compared
+DRIFT = 'drift'      # compared, and the bytes differ
+BLOCKED = 'blocked'  # nothing was compared, so this says nothing about the copy
 
 Problem = collections.namedtuple('Problem', 'kind text')
 
@@ -67,8 +67,12 @@ class BannerError(Exception):
     """The vendored file does not open with a banner this script can read."""
 
 
+def sha256(data):
+    return hashlib.sha256(data).hexdigest()
+
+
 def split_banner(data):
-    """Return (banner_bytes, body_bytes) for a vendored file's contents."""
+    """Return (banner_bytes, body_bytes) for a file that opens with a banner block."""
     lines = data.splitlines(keepends=True)
     if not lines or not _RULE.match(lines[0]):
         raise BannerError('does not open with a "# ----" rule line')
@@ -79,98 +83,148 @@ def split_banner(data):
     raise BannerError('banner has no closing "# ----" rule line')
 
 
-def parse_banner(banner):
-    """Return {'owner', 'repo', 'commit', 'file'} read out of the banner text."""
-    text = banner.decode('utf-8', errors='replace')
-    repo = _REPO.search(text)
-    commit = _COMMIT.search(text)
-    upstream_file = _FILE.search(text)
-    missing = [name for name, found in (('github.com/<owner>/<repo>', repo),
-                                        ('upstream commit <sha>', commit),
-                                        ('upstream file <path>', upstream_file))
-               if not found]
-    if missing:
-        raise BannerError('banner is missing ' + ', '.join(missing))
-    return {'owner': repo.group(1), 'repo': repo.group(2),
-            'commit': commit.group(1), 'file': upstream_file.group(1)}
+def body_of(entry, data):
+    """The part of a vendored copy that has to equal the upstream file."""
+    if entry.get('banner'):
+        return split_banner(data)[1]
+    return data
 
 
-def fetch_upstream(info, timeout=30):
-    """Return the bytes of the upstream file at the pinned commit."""
-    url = RAW_URL.format(owner=info['owner'], repo=info['repo'],
-                         commit=info['commit'], path=info['file'])
+def fetch_upstream(entry, timeout=30):
+    """Return the bytes of the upstream file at the pinned commit, from GitHub."""
+    match = _REPO.search(entry['upstream'])
+    if not match:
+        raise urllib.error.URLError(f"cannot read an owner/repo out of {entry['upstream']!r}")
+    url = RAW_URL.format(owner=match.group(1), repo=match.group(2),
+                         commit=entry['commit'], path=entry['upstream_file'])
     with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec: fixed https host
         return response.read()
 
 
-def read_local_upstream(info, upstream_dir):
-    """Return the bytes of the upstream file from a local checkout."""
-    path = os.path.join(upstream_dir, info['file'])
-    with open(path, 'rb') as handle:
-        return handle.read()
+def parse_upstream_args(values):
+    """{name or '*': directory} from repeated --upstream NAME=DIR or DIR values."""
+    out = {}
+    for value in values or ():
+        name, sep, folder = value.partition('=')
+        if sep and name and folder:
+            out[name] = folder
+        else:
+            out['*'] = value
+    return out
 
 
-def compare(rel_path, body, upstream):
-    """Return a list of DRIFT problems; empty when body matches upstream."""
+def upstream_bytes(entry, upstreams):
+    """(bytes, description, from_checkout) for the upstream file, or raise OSError/URLError."""
+    folder = upstreams.get(entry['name']) or upstreams.get('*')
+    if folder:
+        path = os.path.join(folder, entry['upstream_file'])
+        with open(path, 'rb') as handle:
+            return handle.read(), path, True
+    return (fetch_upstream(entry),
+            f"{entry['upstream']}@{entry['commit'][:7]}:{entry['upstream_file']}", False)
+
+
+def compare(rel_path, body, upstream, source, from_checkout):
+    """A DRIFT problem describing how body differs from upstream, or None.
+
+    A checkout is whatever it has checked out, which may be ahead of or behind
+    the pinned commit, so a difference against one is worded as the checkout
+    differing rather than as the copy being wrong; both are worth knowing and
+    both exit 1. A fetch is the pinned commit itself, so a difference there is
+    the copy's.
+    """
     if body == upstream:
-        return []
+        return None
     diff = difflib.unified_diff(
         upstream.decode('utf-8', errors='replace').splitlines(keepends=True),
         body.decode('utf-8', errors='replace').splitlines(keepends=True),
-        fromfile='upstream', tofile=rel_path, n=1)
+        fromfile=source, tofile=rel_path, n=1)
     excerpt = ''.join(list(diff)[:40])
-    return [Problem(DRIFT,
-                    f'{rel_path}: does not match the upstream file at the pinned commit\n'
-                    f'    Either it was edited here, which is not the place to fix it, or it was\n'
-                    f'    re-vendored without updating the banner\'s upstream commit line.\n'
-                    + ''.join('    ' + line for line in excerpt.splitlines(keepends=True)))]
+    if from_checkout:
+        head = (f'{rel_path}: differs from the checkout at {source}\n'
+                f'    The checkout may be ahead of the commit this copy was vendored at, in\n'
+                f'    which case re-vendor if the upstream change is wanted here; or the copy\n'
+                f'    was edited, which is not the place to fix it.\n')
+    else:
+        head = (f'{rel_path}: does not match the upstream file at the pinned commit\n'
+                f'    Either it was edited here, which is not the place to fix it, or it was\n'
+                f'    re-vendored without updating the manifest\'s commit.\n')
+    return Problem(DRIFT, head + ''.join('    ' + line for line in excerpt.splitlines(keepends=True)))
 
 
-def check_file(rel_path, upstream_dir=None):
-    """Return a list of Problems for one vendored file; empty means it matches.
-
-    A missing file or an unreadable banner is a DRIFT problem: both are statements
-    about this repository's copy. An upstream that cannot be read is BLOCKED, because
-    no comparison happened and nothing was learned about the copy either way.
-    """
-    path = os.path.join(REPO, rel_path)
+def check_entry(entry, upstreams, offline):
+    """Return a list of Problems for one manifest entry; empty means it matches."""
+    path = os.path.join(REPO, entry['path'])
     if not os.path.isfile(path):
-        return [Problem(DRIFT, f'{rel_path}: listed in VENDORED but not on disk')]
+        return [Problem(DRIFT, f"{entry['path']}: recorded in the manifest but not on disk")]
     with open(path, 'rb') as handle:
         data = handle.read()
+    actual = sha256(data)
+    if actual != entry['sha256']:
+        return [Problem(
+            DRIFT,
+            f"{entry['path']}: does not match what was vendored\n"
+            f"    recorded {entry['sha256']}\n"
+            f"    on disk  {actual}\n"
+            f"    Either it was edited here, which is not the place to fix it, or it was\n"
+            f"    re-vendored without running --update.")]
+    print(f"  {entry['path']}  matches {entry['name']} {entry['version']} "
+          f"({entry['commit'][:7]})")
+    if offline:
+        return []
     try:
-        banner, body = split_banner(data)
-        info = parse_banner(banner)
+        body = body_of(entry, data)
     except BannerError as exc:
-        return [Problem(DRIFT, f'{rel_path}: {exc}')]
+        return [Problem(DRIFT, f"{entry['path']}: {exc}")]
     try:
-        if upstream_dir:
-            upstream = read_local_upstream(info, upstream_dir)
-            source = os.path.join(upstream_dir, info['file'])
-        else:
-            upstream = fetch_upstream(info)
-            source = f"{info['owner']}/{info['repo']}@{info['commit'][:7]}:{info['file']}"
+        upstream, source, from_checkout = upstream_bytes(entry, upstreams)
     except (OSError, urllib.error.URLError) as exc:
         return [Problem(BLOCKED,
-                        f'{rel_path}: could not read the upstream file ({exc}); '
-                        f'pass --upstream <checkout> to compare offline')]
-    problems = compare(rel_path, body, upstream)
-    if not problems:
-        print(f'  {rel_path}  matches {source}')
-    return problems
+                        f"{entry['path']}: could not read the upstream file ({exc}); "
+                        f"pass --upstream <checkout> to compare offline, or --offline "
+                        f"to check the recorded hashes alone")]
+    problem = compare(entry['path'], body, upstream, source, from_checkout)
+    if problem:
+        return [problem]
+    print(f'    and matches {source}')
+    return []
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--upstream', metavar='DIR',
-                        help='a local checkout of the upstream repository, compared against '
-                             'instead of fetching the pinned commit from GitHub')
+    parser.add_argument('--upstream', metavar='[NAME=]DIR', action='append',
+                        help='a checkout of an upstream repo to compare against instead '
+                             'of fetching; NAME= limits it to that manifest entry name')
+    parser.add_argument('--offline', action='store_true',
+                        help='check only the recorded hashes; do not read any upstream')
+    parser.add_argument('--update', action='store_true',
+                        help='rewrite the recorded hashes from the files on disk, '
+                             'for use only after a deliberate re-vendor')
     args = parser.parse_args(argv)
 
+    with open(MANIFEST, encoding='utf-8') as handle:
+        manifest = json.load(handle)
+
+    if args.update:
+        for entry in manifest['vendored']:
+            path = os.path.join(REPO, entry['path'])
+            if not os.path.isfile(path):
+                print(f"  {entry['path']}: recorded in the manifest but not on disk")
+                return 1
+            with open(path, 'rb') as handle:
+                entry['sha256'] = sha256(handle.read())
+            print(f"  recorded {entry['path']} at {entry['sha256']}")
+        with open(MANIFEST, 'w', encoding='utf-8') as handle:
+            json.dump(manifest, handle, indent=2)
+            handle.write('\n')
+        print('manifest updated')
+        return 0
+
+    upstreams = parse_upstream_args(args.upstream)
     problems = []
-    for rel_path in VENDORED:
-        problems.extend(check_file(rel_path, args.upstream))
+    for entry in manifest['vendored']:
+        problems.extend(check_entry(entry, upstreams, args.offline))
 
     drifted = [p.text for p in problems if p.kind == DRIFT]
     blocked = [p.text for p in problems if p.kind == BLOCKED]
@@ -190,7 +244,9 @@ def main(argv=None):
         return 1
     if blocked:
         return 2
-    print(f'\n{len(VENDORED)} vendored file(s), all matching the pinned upstream commit.')
+
+    what = 'what was recorded' if args.offline else 'what was recorded and the pinned upstream'
+    print(f"\n{len(manifest['vendored'])} vendored file(s), all matching {what}.")
     return 0
 
 

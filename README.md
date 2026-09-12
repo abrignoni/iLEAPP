@@ -205,7 +205,15 @@ The output folder must exist before running. Source builds report a `-dev` versi
 
 ```
 python ileapp.py -t zip -i /path/to/extraction.zip -o /path/to/output/
+python ileapp.py -t raw -i /path/to/acquisition.E01 -o /path/to/output/
 ```
+
+`raw` reads a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001` segment of
+a split set), or an EnCase/EWF `.E01` acquisition and the segments beside it, in
+place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
+HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS volumes are searched directly, and
+only the files an artifact asks for are read out of the image. The GUI picks
+`raw` on its own for those extensions. See `admin/docs/raw_image_input.md`.
 
 **GUI:**
 

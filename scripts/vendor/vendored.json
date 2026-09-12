@@ -1,0 +1,44 @@
+{
+  "vendored": [
+    {
+      "path": "scripts/vendor/qnxprobe.py",
+      "name": "qnxprobe",
+      "version": "1.27",
+      "upstream": "https://github.com/abrignoni/qnxprobe",
+      "upstream_file": "qnxprobe.py",
+      "commit": "d7c5e9f3382bb5afdc9d371f864ccbe16fb053f7",
+      "commit_date": "2026-09-12T12:32:54-04:00",
+      "sha256": "f01a04823407302728eb7a5334f00f9e02eb37ae2c9a2eb68b59fe88e89b194d",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-qnxprobe",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/vendor/ewfprobe.py",
+      "name": "ewfprobe",
+      "version": "0.1.0",
+      "upstream": "https://github.com/abrignoni/ewfprobe",
+      "upstream_file": "ewfprobe.py",
+      "commit": "f1ee155a612eeb78561cdb538e856252d4c8f68e",
+      "commit_date": "2026-09-08T21:58:07-04:00",
+      "sha256": "304616fcdd362339c6890a100eeaba824822f518a09831eb50ed75692f3e52b8",
+      "licence": "MIT",
+      "licence_file": "scripts/vendor/LICENSE-ewfprobe",
+      "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    },
+    {
+      "path": "scripts/mmkv_parser.py",
+      "name": "mmkv-parser",
+      "version": "unreleased",
+      "upstream": "https://github.com/abrignoni/mmkv-parser",
+      "upstream_file": "mmkv_parser/__init__.py",
+      "commit": "05deada3d8f93000c85f4bc399b6c6f463c13e68",
+      "commit_date": "2026-09-07",
+      "sha256": "e43a0c679efb4bedfcab9dfac2527ebc01637c2d83033ca71ead1eb489a849b9",
+      "licence": "MIT",
+      "licence_file": "",
+      "banner": true,
+      "note": "Copied verbatim below its banner. Fix upstream and re-vendor; edits here are reverted by the next sync."
+    }
+  ]
+}
