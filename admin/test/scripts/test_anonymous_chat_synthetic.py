@@ -5,6 +5,9 @@ exercise correlation and LAVA field wiring without opening, hashing, or uploadin
 casework media payload.
 """
 
+# These tests intentionally exercise private parser helpers and data builders.
+# pylint: disable=protected-access
+
 import hashlib
 import unittest
 from datetime import datetime, timezone

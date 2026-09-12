@@ -47,7 +47,8 @@ class AnonymousChatCliTests(unittest.TestCase):
             '-i', str(input_path),
             '-o', str(self.root), '-m', str(self.profile), '-tz', 'UTC',
             '--custom_output_folder', 'synthetic-report',
-        ], capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=60)
+        ], capture_output=True, text=True, encoding='utf-8', errors='replace',
+            timeout=60, check=False)
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         report = self.root / 'synthetic-report'
         manifest = json.loads((report / '_lava_data.lava').read_text(encoding='utf-8'))
