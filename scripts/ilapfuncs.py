@@ -897,7 +897,7 @@ def get_plist_file_content(file_path):
             
             # Reassign file_path to the temp file string for the rest of the function
             file_path = temp_path
-        except Exception as e:
+        except Exception as e: # pylint: disable=broad-exception-caught
             logfunc(f"Error creating temp file for stream: {str(e)}")
             return {}
 
@@ -981,7 +981,7 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
         if match_standalone and not ("sysdiagnose_" in filename and ".tar" in filename):
             try:
                 mode = 'r' if text_mode else 'rb'
-                kwargs = {'encoding': encoding, 'errors': 'ignore'} if text_mode else {}
+                kwargs = {'encoding': encoding, 'errors': 'replace'} if text_mode else {}
                 with open(file_path, mode, **kwargs) as f:
                     yield f, file_path
             except OSError as e:
@@ -1003,7 +1003,7 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
                             if extracted is None:
                                 continue
                             
-                            stream = io.TextIOWrapper(extracted, encoding=encoding, errors='ignore') if text_mode else extracted
+                            stream = io.TextIOWrapper(extracted, encoding=encoding, errors='replace') if text_mode else extracted
                             try:
                                 yield stream, f"{file_path} >> {member.name}"
                             finally:
