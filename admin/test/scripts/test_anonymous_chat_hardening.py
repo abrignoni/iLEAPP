@@ -13,6 +13,7 @@ import hashlib
 import json
 import plistlib
 import sqlite3
+import stat
 import tempfile
 import unittest
 from contextlib import ExitStack
@@ -206,6 +207,9 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         key_a = module._message_key(DB_A, 'message-1', 'chat-1', 'synthetic-uuid-1')
         with patch.object(module, '_target_db_paths', return_value=[DB_A, DB_B]), \
                 patch.object(module, '_message_rows', return_value=[message()]), \
+                patch.object(module, '_manifest_account_identifiers',
+                             return_value={DATA_A: {'local.synthetic'},
+                                           DATA_B: {'local.synthetic'}}), \
                 patch.object(module, '_message_media_references',
                              return_value={key_a: {'media_ref': 'mock:only-A'}}):
             rows, _ = report_dicts(module.anonymousChat_messages.__wrapped__(MetadataContext()))
@@ -221,11 +225,66 @@ class AnonymousChatHardeningTests(unittest.TestCase):
                          [DB_A, 'conversation', 'chat-1'])
 
     def test_incoming_and_outgoing_recipient_are_opposite_sender(self):
-        self.assertEqual(module._recipient(message()), 'local.synthetic')
+        accounts = {'local.synthetic'}
+        self.assertEqual(module._recipient(message(), accounts), 'local.synthetic')
         self.assertEqual(module._recipient(message(sender_flag=0,
-                                                  sender_name='local.synthetic')),
+                                                  sender_name='local.synthetic'), accounts),
                          'remote.synthetic')
-        self.assertEqual(module._recipient(message(sender_flag=99)), '')
+        self.assertEqual(module._recipient(message(sender_flag=99), accounts), '')
+
+    def test_account_conflict_cannot_fall_back_to_sender_flag_or_owner_label(self):
+        row = message(sender_flag=0, sender_name='remote.synthetic',
+                      from_username='remote.synthetic', to_username='local.synthetic')
+        accounts = {'local.synthetic'}
+        self.assertEqual(module._direction(row, accounts), '')
+        self.assertEqual(module._recipient(row, accounts), '')
+        self.assertEqual(module._other_party(row, accounts), 'remote.synthetic')
+        # The sender and flag can agree even when the stored endpoints are reversed.
+        row['sender_flag'] = 1
+        self.assertEqual(module._direction(row, accounts), 'Incoming')
+        self.assertEqual(module._recipient(row, accounts), 'local.synthetic')
+
+    def test_direction_requires_one_confirmed_local_endpoint(self):
+        for accounts in ((), {'unrelated.synthetic'}, {'local.synthetic', 'remote.synthetic'}):
+            with self.subTest(accounts=accounts):
+                self.assertEqual(module._direction(message(), accounts), '')
+                self.assertEqual(module._recipient(message(), accounts), '')
+                self.assertEqual(module._other_party(message(), accounts),
+                                 'Participants: local.synthetic, remote.synthetic')
+        self.assertEqual(module._direction(message(sender_name='REMOTE.SYNTHETIC'),
+                                           {'LOCAL.SYNTHETIC'}), 'Incoming')
+
+    def test_cached_contact_usernames_are_not_signed_in_evidence(self):
+        manifest = {'username': 'local.synthetic',
+                    'contacts': [{'username': 'remote.synthetic'}],
+                    'messages': json.dumps([{'user': {'username': 'another.synthetic'}}]),
+                    'session': json.dumps({'username': 'session.synthetic'})}
+        self.assertEqual(module._manifest_usernames(manifest),
+                         {'local.synthetic', 'session.synthetic'})
+        self.assertEqual(module._manifest_usernames({'signedInUsername': ' local.synthetic '}),
+                         {'local.synthetic'})
+
+    def test_manifest_evidence_cannot_cross_container_or_input_root(self):
+        suffix = ('/Library/Application Support/com.anonimchat.app/'
+                  'RCTAsyncLocalStorage_V1/manifest.json')
+        manifests = {DATA_A + suffix: {'signedInUsername': 'local.synthetic'},
+                     DATA_B + suffix: {'signedInUsername': 'other.synthetic'},
+                     'copy/' + DATA_A + suffix: {'signedInUsername': 'copy.synthetic'},
+                     DATA_A + '/Library/Caches/manifest.json': {'signedInUsername': 'decoy'}}
+        context = MetadataContext(manifests)
+        with patch.object(module, '_target_containers',
+                          return_value=(set(), {UUID_A, UUID_B}, set(), {})), \
+                patch.object(module, '_read_json', side_effect=manifests.get):
+            accounts = module._manifest_account_identifiers(context)
+        self.assertEqual(accounts, {DATA_A: {'local.synthetic'}, DATA_B: {'other.synthetic'},
+                                    'copy/' + DATA_A: {'copy.synthetic'}})
+        with patch.object(module, '_target_db_paths', return_value=[DB_A, DB_B]), \
+                patch.object(module, '_manifest_account_identifiers', return_value=accounts), \
+                patch.object(module, '_message_rows', return_value=[message()]), \
+                patch.object(module, '_message_media_references', return_value={}):
+            rows, _ = report_dicts(module.anonymousChat_messages.__wrapped__(context))
+        self.assertEqual([row['Direction'] for row in rows], ['Incoming', ''])
+        self.assertEqual(rows[1]['Other Party'], 'Participants: local.synthetic, remote.synthetic')
 
     def test_malformed_url_is_retained_without_crashing_or_linking(self):
         malformed = 'https://[invalid/image.jpg'
@@ -538,6 +597,134 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         self.assertEqual(module._stage_media_entry(context, rows[0]),
                          'C:/synthetic/staged-image.jpg')
         seeker.search.assert_called()
+
+    def seeker_media_rows(self, context, references):
+        with patch.object(module, '_target_containers',
+                          return_value=(set(), {UUID_A, UUID_B, module._BUNDLE_ID.upper()},
+                                        set(), {})), \
+                patch.object(module, '_attachment_references', return_value=references), \
+                patch.object(module, '_photos_asset_paths', return_value={}), \
+                patch.object(module, 'check_in_media', return_value='mock:registered') as checkin:
+            rows = module._media_rows([ref['source'] for ref in references], context)
+        return rows, checkin
+
+    def test_raw_extensionless_cache_links_via_url_mime_without_header_reads(self):
+        key = hashlib.md5(URL.encode(), usedforsecurity=False).hexdigest()
+        path = 'lba0/' + DATA_A + '/Library/Caches/com.hackemist.sdimagecache/default/' + key
+        context = MetadataContext()
+        context.seeker = SimpleNamespace(
+            name_list=[path],
+            _entries={path: SimpleNamespace(size=1234, mtime=WHEN.timestamp(), reading='')},
+            search=Mock(return_value='C:/synthetic/staged/' + key))
+        rows, checkin = self.seeker_media_rows(context, [reference()])
+        media = [row for row in rows if row['kind'] == 'Filesystem Media']
+        self.assertEqual(len(media), 1)
+        self.assertEqual(media[0]['message_id'], 'message-1')
+        self.assertEqual(media[0]['media_ref'], 'mock:registered')
+        self.assertIn('SDImageCache URL', media[0]['identification'])
+        self.assertEqual(checkin.call_args.kwargs['force_type'], 'image/jpeg')
+        context.seeker.search.assert_called_once()
+        self.signature.assert_not_called()
+
+    def test_raw_unknown_cache_is_an_unlinked_candidate_not_silently_dropped(self):
+        path = 'lba0/' + DATA_A + '/Library/Caches/unknown-cache-object'
+        context = MetadataContext()
+        context.seeker = SimpleNamespace(
+            name_list=[path],
+            _entries={path: SimpleNamespace(size=1234, mtime=0, reading='')}, search=Mock())
+        rows, checkin = self.seeker_media_rows(context, [])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['kind'], 'Filesystem Candidate')
+        self.assertEqual(rows[0]['detected_type'], 'Unknown')
+        self.assertEqual(rows[0]['database_referenced'], 'No')
+        self.assertEqual(rows[0]['media_ref'], '')
+        checkin.assert_not_called()
+        context.seeker.search.assert_not_called()
+        self.signature.assert_not_called()
+
+    def test_itunes_dictionary_inventory_links_cache_and_uses_manifest_times(self):
+        key = hashlib.md5(URL.encode(), usedforsecurity=False).hexdigest()
+        root = 'private/var/mobile/Containers/Data/Application/com.anonimchat.app'
+        path = root + '/Library/Caches/com.hackemist.sdimagecache/default/' + key
+        for backup_type, encrypted in (('db', False), ('db', True), ('mbdb', False)):
+            with self.subTest(backup_type=backup_type, encrypted=encrypted):
+                # A real seeker class with invented listing/property metadata.
+                # Neither the original nor staged media files exist in this test.
+                seeker = object.__new__(FileSeekerItunes)
+                seeker.directory = 'C:/synthetic/backup'
+                seeker.backup_type = backup_type
+                seeker.decryption_keys = ['synthetic-key'] if encrypted else []
+                seeker._all_files = {path: 'a' * 40}
+                seeker._all_file_meta = {}
+                seeker.files_metadata = {'a' * 40: plistlib.dumps({
+                    'Size': 1234, 'Birth': int(WHEN.timestamp()),
+                    'LastModified': int(WHEN.timestamp()) + 60})}
+                seeker.search = Mock(return_value='C:/synthetic/staged/' + key)
+                context = MetadataContext()
+                context.seeker = seeker
+                file_stat = SimpleNamespace(st_mode=stat.S_IFREG,
+                                            st_size=1248 if encrypted else 1234)
+                with patch.object(module.os, 'stat', return_value=file_stat) as stat_call:
+                    rows, checkin = self.seeker_media_rows(
+                        context, [reference(source=root + '/Library/LocalDatabase/anonimchat.db')])
+                media = next(row for row in rows if row['kind'] == 'Filesystem Media')
+                self.assertEqual(media['media_ref'], 'mock:registered')
+                self.assertEqual(media['filesystem_size'], 1234)
+                self.assertIn('2030-01-01 00:00:00', media['created'])
+                self.assertIn('2030-01-01 00:01:00', media['modified'])
+                self.assertEqual(media['accessed'], '')
+                expected_hash_path = ('aa/' if backup_type == 'db' else '') + 'a' * 40
+                self.assertTrue(str(stat_call.call_args.args[0]).replace('\\', '/')
+                                .endswith(expected_hash_path))
+                self.assertEqual(checkin.call_args.kwargs['force_type'], 'image/jpeg')
+                seeker.search.assert_called_once()
+        self.signature.assert_not_called()
+
+    def test_itunes_missing_properties_do_not_report_backup_copy_times(self):
+        path = DATA_A + '/Library/Caches/image.jpg'
+        seeker = SimpleNamespace(directory='C:/synthetic', _all_files={path: 'a' * 40},
+                                 backup_type='db', files_metadata={}, decryption_keys=[])
+        context = MetadataContext()
+        context.seeker = seeker
+        file_stat = SimpleNamespace(st_mode=stat.S_IFREG, st_size=1234)
+        with patch.object(module.os, 'stat', return_value=file_stat):
+            rows = list(module._iter_source_entries(context))
+        self.assertEqual(rows[0]['size'], 1234)
+        self.assertEqual([rows[0][key] for key in ('created', 'modified', 'accessed')], ['', '', ''])
+        with patch.object(module.os, 'stat', side_effect=FileNotFoundError):
+            self.assertEqual(list(module._iter_source_entries(context)), [])
+        with patch.object(module.os, 'stat', side_effect=AssertionError('Unrelated stat')):
+            self.assertEqual(list(module._iter_source_entries(context, include=lambda _: False)), [])
+
+    def test_extensionless_classification_does_not_scan_every_reference(self):
+        urls = [f'https://example.invalid/synthetic/{index}.jpg' for index in range(120)]
+        references = [reference(reference=url, message_id=f'message-{index}')
+                      for index, url in enumerate(urls[:80])]
+        entries = [entry(DATA_A + '/Library/Caches/com.hackemist.sdimagecache/default/' +
+                         hashlib.md5(url.encode(), usedforsecurity=False).hexdigest(), kind='raw')
+                   for url in urls]
+        with patch.object(module, '_entry_matches_reference',
+                          wraps=module._entry_matches_reference) as comparisons:
+            rows = self.media_rows(entries, references)
+        self.assertEqual(sum(bool(row['media_ref']) for row in rows), 80)
+        self.assertLessEqual(comparisons.call_count, 2 * (len(entries) + len(references)))
+        self.signature.assert_not_called()
+
+    def test_media_analysis_is_shared_but_registration_is_per_artifact(self):
+        path = DATA_A + '/Library/Caches/image.jpg'
+        context = MetadataContext()
+        context.seeker = SimpleNamespace(
+            name_list=[path], _entries={path: SimpleNamespace(size=1234, mtime=0, reading='')},
+            search=Mock(return_value='C:/synthetic/staged/image.jpg'))
+        references = [reference(reference='Library/Caches/image.jpg')]
+        with patch.object(module, '_iter_source_entries',
+                          wraps=module._iter_source_entries) as inventory:
+            for name in ('Messages', 'Media'):
+                with patch.object(context, 'get_artifact_name', return_value=name):
+                    rows, checkin = self.seeker_media_rows(context, references)
+                self.assertTrue(any(row['media_ref'] == 'mock:registered' for row in rows))
+                checkin.assert_called_once()
+        inventory.assert_called_once()
 
     def test_raw_unknown_mtime_preserves_filesystem_reading_without_utc_epoch(self):
         path = 'lba0/' + DATA_A + '/Library/Caches/image.jpg'

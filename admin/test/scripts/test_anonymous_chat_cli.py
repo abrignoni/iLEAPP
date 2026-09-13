@@ -35,7 +35,7 @@ class AnonymousChatCliTests(unittest.TestCase):
             'plugins': list(module.__artifacts_v2__),
         }), encoding='utf-8')
 
-    def run_report(self, input_type, tenants=1):
+    def run_report(self, input_type, tenants=1, confirmed_account=True):
         input_path = self.archive if input_type == 'zip' else self.extraction
         if input_type == 'tar':
             input_path = self.root / 'synthetic.tar'
@@ -78,22 +78,28 @@ class AnonymousChatCliTests(unittest.TestCase):
                              sorted(['message-1', 'message-2', 'message-3'] * tenants))
             self.assertEqual(len({row[1] for row in rows}), tenants)
             others = {'remote.synthetic'} if tenants == 1 else {'remote.synthetic', 'remote.synthetic.second'}
+            if not confirmed_account:
+                others = {'Participants: local.synthetic, remote.synthetic'}
             self.assertEqual({row[2] for row in rows}, others)
-            self.assertEqual([row[3] for row in rows], ['Outgoing'] * tenants + ['Incoming'] * (2 * tenants))
+            expected_directions = (['Outgoing'] * tenants + ['Incoming'] * (2 * tenants)
+                                   if confirmed_account else [''] * (3 * tenants))
+            self.assertEqual([row[3] for row in rows], expected_directions)
             self.assertTrue(all(not row[4] for row in rows))
             account_rows = db.execute(
                 'SELECT account_identifier, evidence FROM anonymouschat_accounts').fetchall()
             evidence_by_account = dict(account_rows)
-            self.assertIn('app manifest signed-in username',
-                          evidence_by_account['local.synthetic'])
+            self.assertEqual('app manifest signed-in username' in
+                             evidence_by_account['local.synthetic'], confirmed_account)
             if tenants == 2:
-                self.assertNotIn('app manifest signed-in username',
-                                 evidence_by_account['local.synthetic.second'])
+                self.assertIn('app manifest signed-in username',
+                              evidence_by_account['local.synthetic.second'])
             self.assertEqual(db.execute('SELECT COUNT(1) FROM _lava_media_items').fetchone()[0], 0)
             self.assertEqual(db.execute('SELECT COUNT(1) FROM _lava_media_references').fetchone()[0], 0)
             recipients = db.execute('SELECT recipient_username FROM anonymouschat_media '
                                     'WHERE message_id = ?', ('message-3',)).fetchall()
             expected = {'local.synthetic'} if tenants == 1 else {'local.synthetic', 'local.synthetic.second'}
+            if not confirmed_account:
+                expected = {''}
             self.assertEqual({row[0] for row in recipients}, expected)
         finally:
             db.close()
@@ -151,7 +157,24 @@ class AnonymousChatCliTests(unittest.TestCase):
             db.commit()
         finally:
             db.close()
+        manifest = (second / 'Library/Application Support/com.anonimchat.app/'
+                    'RCTAsyncLocalStorage_V1/manifest.json')
+        manifest.write_bytes(json.dumps({'signedInUsername': 'local.synthetic.second'}).encode())
         self.run_report('fs', tenants=2)
+
+    def test_directory_missing_manifest_leaves_direction_unconfirmed(self):
+        manifest = (self.extraction / BUILDER.DATA_ROOT /
+                    'Library/Application Support/com.anonimchat.app/'
+                    'RCTAsyncLocalStorage_V1/manifest.json')
+        manifest.unlink()
+        self.run_report('fs', confirmed_account=False)
+
+    def test_directory_conflicting_manifest_leaves_direction_unconfirmed(self):
+        manifest = (self.extraction / BUILDER.DATA_ROOT /
+                    'Library/Application Support/com.anonimchat.app/'
+                    'RCTAsyncLocalStorage_V1/manifest.json')
+        manifest.write_bytes(json.dumps({'signedInUsername': 'unrelated.synthetic'}).encode())
+        self.run_report('fs', confirmed_account=False)
 
     def test_directory_cli_escapes_hostile_metadata_in_html(self):
         payload = '<img src="https://example.invalid/never-fetched" onerror="alert(1)">'

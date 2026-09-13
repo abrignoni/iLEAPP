@@ -93,10 +93,11 @@ class AnonymousChatSyntheticTests(unittest.TestCase):
             'to_username': 'remote.synthetic',
         }
 
-        self.assertEqual(module._direction(outgoing), 'Outgoing')
-        self.assertEqual(module._direction(incoming), 'Incoming')
-        self.assertEqual(module._other_party(outgoing), 'remote.synthetic')
-        self.assertEqual(module._other_party(incoming), 'remote.synthetic')
+        accounts = {'local.synthetic'}
+        self.assertEqual(module._direction(outgoing, accounts), 'Outgoing')
+        self.assertEqual(module._direction(incoming, accounts), 'Incoming')
+        self.assertEqual(module._other_party(outgoing, accounts), 'remote.synthetic')
+        self.assertEqual(module._other_party(incoming, accounts), 'remote.synthetic')
 
     def test_mocked_media_correlation_checks_in_cache_and_photos_files(self):
         cache_reference = _reference(
