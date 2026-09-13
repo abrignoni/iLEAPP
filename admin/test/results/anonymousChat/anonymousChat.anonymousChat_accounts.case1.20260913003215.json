@@ -6,19 +6,19 @@
     "case_number": "case1",
     "number_of_columns": 10,
     "number_of_rows": 1,
-    "total_data_size_bytes": 290,
+    "total_data_size_bytes": 345,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\anonymousChat\\testdata.anonymousChat.anonymousChat_accounts.case1.zip",
-    "start_time": "2026-09-12T18:06:52.194603+00:00",
-    "end_time": "2026-09-12T18:06:52.241606+00:00",
-    "run_time_seconds": 0.002001047134399414,
+    "start_time": "2026-09-13T00:32:15.676123+00:00",
+    "end_time": "2026-09-13T00:32:15.732123+00:00",
+    "run_time_seconds": 0.0030007362365722656,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-09-12T19:06:52.230606",
-      "message": "File not yet committed to git"
+      "hash": "deffba633ac65c8783ae9fb31289cfd07ce8c714",
+      "author_name": "Darren",
+      "author_email": "darrenrooney55@gmail.com",
+      "date": "2026-09-13T01:28:11+01:00",
+      "message": "Address Anonymous Chat maintainer review"
     }
   },
   "headers": [
@@ -43,7 +43,7 @@
       1770000000,
       1770000002,
       "Candidate local account identifier; owner not established",
-      "from_username; sender/name relationship supports direction for 3 message(s)",
+      "from_username; sender/name relationship supports direction for 3 message(s); app manifest signed-in username matches from_username",
       "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
     ]
   ]

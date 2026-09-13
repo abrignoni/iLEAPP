@@ -6,19 +6,19 @@
     "case_number": "case1",
     "number_of_columns": 32,
     "number_of_rows": 3,
-    "total_data_size_bytes": 863,
+    "total_data_size_bytes": 1127,
     "media_checkins": 0,
     "media_embedded_checkins": 0,
     "input_zip_path": "admin\\test\\cases\\data\\anonymousChat\\testdata.anonymousChat.anonymousChat_media.case1.zip",
-    "start_time": "2026-09-12T18:06:52.391187+00:00",
-    "end_time": "2026-09-12T18:06:52.448372+00:00",
-    "run_time_seconds": 0.0029990673065185547,
+    "start_time": "2026-09-13T00:32:15.900329+00:00",
+    "end_time": "2026-09-13T00:32:15.952331+00:00",
+    "run_time_seconds": 0.004999399185180664,
     "last_commit": {
-      "hash": "Uncommitted",
-      "author_name": "N/A",
-      "author_email": "N/A",
-      "date": "2026-09-12T19:06:52.435184",
-      "message": "File not yet committed to git"
+      "hash": "deffba633ac65c8783ae9fb31289cfd07ce8c714",
+      "author_name": "Darren",
+      "author_email": "darrenrooney55@gmail.com",
+      "date": "2026-09-13T01:28:11+01:00",
+      "message": "Address Anonymous Chat maintainer review"
     }
   },
   "headers": [
@@ -87,7 +87,7 @@
       "",
       "Yes",
       "No",
-      "",
+      "Unlinked: no stored app-to-file relationship; size/timestamp/name-only matching not used",
       "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
     ],
     [
@@ -121,7 +121,7 @@
       "",
       "Yes",
       "No",
-      "",
+      "Unlinked: no stored app-to-file relationship; size/timestamp/name-only matching not used",
       "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
     ],
     [
@@ -155,7 +155,7 @@
       "",
       "Yes",
       "No",
-      "",
+      "Unlinked: no stored app-to-file relationship; size/timestamp/name-only matching not used",
       "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
     ]
   ]
