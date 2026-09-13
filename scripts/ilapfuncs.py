@@ -639,6 +639,7 @@ def artifact_processor(func):
             data_list, html_data_list = data_list
         else:
             html_data_list = data_list
+        txt_data_list = data_list
 
         try:
             if data_list:

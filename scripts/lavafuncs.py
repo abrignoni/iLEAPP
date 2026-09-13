@@ -549,10 +549,10 @@ def lava_insert_sqlite_data(
         data,
         object_columns,
         headers,
-        column_map,
+        column_map,  # pylint: disable=unused-argument
         batch_size=10000,
         async_write=False,
-        queue_size=5000):  # pylint: disable=unused-argument
+        queue_size=5000):
     """
     Insert data into a SQLite database table with automatic column sanitization and type conversion.
     This function handles the insertion of multiple rows of data into a specified SQLite table,
@@ -631,10 +631,8 @@ def _lava_insert_sqlite_data_async(query, data, prepare_row, batch_size, queue_s
         raise RuntimeError("LAVA database has not been initialized")
 
     batch_queue = queue.Queue(maxsize=queue_size)
-    state = {
-        "error": None,
-        "inserted_count": 0,
-    }
+    state = {"inserted_count": 0}
+    errors = []
 
     def writer():
         db = sqlite3.connect(lava_db_path)
@@ -650,7 +648,7 @@ def _lava_insert_sqlite_data_async(query, data, prepare_row, batch_size, queue_s
 
             db.commit()
         except (sqlite3.Error, TypeError, ValueError) as ex:
-            state["error"] = ex
+            errors.append(ex)
             db.rollback()
         finally:
             db.close()
@@ -660,8 +658,8 @@ def _lava_insert_sqlite_data_async(query, data, prepare_row, batch_size, queue_s
 
     def put_or_raise(item):
         while True:
-            if state["error"]:
-                raise state["error"]
+            if errors:
+                raise errors[0]
             try:
                 batch_queue.put(item, timeout=0.1)
                 return
@@ -679,8 +677,8 @@ def _lava_insert_sqlite_data_async(query, data, prepare_row, batch_size, queue_s
             put_or_raise(batch)
         put_or_raise(_QUEUE_STOP)
         thread.join()
-        if state["error"]:
-            raise state["error"]
+        if errors:
+            raise errors[0]
         return state["inserted_count"]
     finally:
         if thread.is_alive():

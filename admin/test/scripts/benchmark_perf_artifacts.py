@@ -90,7 +90,7 @@ def get_windows_process_tree_pids(root_pid):
     parent_map = {}
     try:
         entry = ProcessEntry32()
-        entry.dwSize = ctypes.sizeof(entry)
+        entry.dwSize = ctypes.sizeof(entry)  # pylint: disable=attribute-defined-outside-init
         if process_first(snapshot, ctypes.byref(entry)):
             while True:
                 parent_map[int(entry.th32ProcessID)] = int(entry.th32ParentProcessID)
@@ -141,7 +141,7 @@ def get_windows_working_set_bytes(pid):
         return None
 
     counters = ProcessMemoryCounters()
-    counters.cb = ctypes.sizeof(counters)
+    counters.cb = ctypes.sizeof(counters)  # pylint: disable=attribute-defined-outside-init
     get_process_memory_info = ctypes.windll.psapi.GetProcessMemoryInfo
     get_process_memory_info.argtypes = [
         wintypes.HANDLE,
