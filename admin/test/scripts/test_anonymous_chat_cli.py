@@ -6,6 +6,7 @@ synthetic SQLite/plist/JSON files produced by the fixture builder.
 """
 
 import html
+import hashlib
 import json
 import shutil
 import sqlite3
@@ -42,6 +43,8 @@ class AnonymousChatCliTests(unittest.TestCase):
                 for path in sorted(self.extraction.rglob('*')):
                     if path.is_file():
                         archive.add(path, arcname=path.relative_to(self.extraction).as_posix())
+        if input_type == 'itunes':
+            input_path = self.build_itunes_backup()
         completed = subprocess.run([
             sys.executable, 'ileapp.py', '-t', input_type,
             '-i', str(input_path),
@@ -78,6 +81,14 @@ class AnonymousChatCliTests(unittest.TestCase):
             self.assertEqual({row[2] for row in rows}, others)
             self.assertEqual([row[3] for row in rows], ['Outgoing'] * tenants + ['Incoming'] * (2 * tenants))
             self.assertTrue(all(not row[4] for row in rows))
+            account_rows = db.execute(
+                'SELECT account_identifier, evidence FROM anonymouschat_accounts').fetchall()
+            evidence_by_account = dict(account_rows)
+            self.assertIn('app manifest signed-in username',
+                          evidence_by_account['local.synthetic'])
+            if tenants == 2:
+                self.assertNotIn('app manifest signed-in username',
+                                 evidence_by_account['local.synthetic.second'])
             self.assertEqual(db.execute('SELECT COUNT(1) FROM _lava_media_items').fetchone()[0], 0)
             self.assertEqual(db.execute('SELECT COUNT(1) FROM _lava_media_references').fetchone()[0], 0)
             recipients = db.execute('SELECT recipient_username FROM anonymouschat_media '
@@ -88,11 +99,45 @@ class AnonymousChatCliTests(unittest.TestCase):
             db.close()
         return report
 
+    def build_itunes_backup(self):
+        """Build an iTunes-style backup from the synthetic data container."""
+        backup = self.root / 'itunes-backup'
+        backup.mkdir()
+        data_root = self.extraction / BUILDER.DATA_ROOT
+        manifest = sqlite3.connect(backup / 'Manifest.db')
+        try:
+            manifest.execute('''
+                CREATE TABLE Files (
+                    fileID TEXT, domain TEXT, relativePath TEXT,
+                    flags INTEGER, file BLOB
+                )
+            ''')
+            domain = 'AppDomain-com.anonimchat.app'
+            for path in sorted(data_root.rglob('*')):
+                if not path.is_file():
+                    continue
+                relative = path.relative_to(data_root).as_posix()
+                file_id = hashlib.sha1(
+                    f'{domain}-{relative}'.encode('utf-8')).hexdigest()
+                destination = backup / file_id[:2] / file_id
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(path.read_bytes())
+                manifest.execute(
+                    'INSERT INTO Files VALUES (?, ?, ?, ?, ?)',
+                    (file_id, domain, relative, 1, b''))
+            manifest.commit()
+        finally:
+            manifest.close()
+        return backup
+
     def test_zip_cli_produces_all_six_lava_artifacts_and_no_media(self):
         self.run_report('zip')
 
     def test_tar_cli_produces_all_six_lava_artifacts_and_no_media(self):
         self.run_report('tar')
+
+    def test_itunes_cli_discovers_bundle_id_data_domain(self):
+        self.run_report('itunes')
 
     def test_two_app_containers_do_not_merge_reused_conversation_ids(self):
         second = self.extraction / BUILDER.DATA_ROOT.parent / '33333333-3333-4333-8333-333333333333'
