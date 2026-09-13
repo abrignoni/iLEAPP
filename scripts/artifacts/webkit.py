@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Extracts detailed information from WebKit Network Cache record files",
         "author": "@JamesHabben",
         "creation_date": "2024-10-24",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Browser",
-        "notes": "",
+        "notes": "The cache record layout (timestamp, hash, response-code positions) was established through reverse engineering and is unverified against WebKit source; undeciphered fields are reported as U1-U8.",
         "paths": (
             '*/Library/Caches/WebKit/NetworkCache/Version*/salt',
             '*/Library/Caches/WebKit/NetworkCache/Version*/Records/*/Resource/*',
@@ -41,6 +41,20 @@ import json
 from datetime import datetime, timezone
 from collections import OrderedDict
 from scripts.ilapfuncs import logfunc, artifact_processor, check_in_media, check_in_embedded_media
+
+def cache_record_timestamp(timestamp):
+    """Convert a cache record's double timestamp, tolerating garbage values.
+
+    Corrupt or overwritten records carry doubles far outside the platform's
+    time_t range; fromtimestamp() then raises (OverflowError/OSError/ValueError
+    depending on platform) and a single bad record used to abort the whole
+    artifact. Out-of-range values are reported as no timestamp instead.
+    """
+    try:
+        return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+    except (OverflowError, OSError, ValueError):
+        return None
+
 
 def read_vf(file):
     """Read a variable-length field from a file"""
@@ -92,6 +106,7 @@ SALT_MAP = {}
 
 @artifact_processor
 def webkit_cache_records(context):
+    source_dirs = set()
     research_mode = context.get_artifact_info().get("research_mode", False)
     data_headers = (
         'Application GUID', 'Records GUID', 'File', 'Salt', 'URI', ('Timestamp', 'datetime'), 
@@ -103,7 +118,6 @@ def webkit_cache_records(context):
 
     results = context.create_artifact_result(
         headers=data_headers,
-        source_path='see column data',
     )
 
     for file_found in context.get_files_found():
@@ -118,6 +132,7 @@ def webkit_cache_records(context):
             continue
         if file_found.endswith('-blob'):
             continue
+        source_dirs.add(os.path.dirname(file_found))
         if research_mode:
             logfunc(f"Processing {file_found}")
         app_guid, records_guid = extract_path_info(file_found)
@@ -129,105 +144,105 @@ def webkit_cache_records(context):
         }
         try:
             with open(file_found, 'rb') as f:
-                    file_data['Header'] = struct.unpack('<I', f.read(4))[0]
-                    file_data['Partition'], file_data['Partition Flag'] = read_vf(f)
-                    file_data['Type'], file_data['Type Flag'] = read_vf(f)
-                    file_data['URI'], file_data['URI Flag'] = read_vf(f)
-                    file_data['Salt'] = SALT_MAP.get(app_guid, '').hex()
-                    file_data['Marker'] = struct.unpack('<i', f.read(4))[0]
-                    file_data['Filename'] = f.read(20).hex()
-                    file_data['Foldername'] = f.read(20).hex()
-                    timestamp = struct.unpack('<d', f.read(8))[0]
-                    file_data['Timestamp'] = datetime.fromtimestamp(timestamp, tz=timezone.utc)
-                    file_data['Meta SHA1'] = f.read(20).hex()
-                    file_data['Meta Size'] = struct.unpack('<Q', f.read(8))[0]
-                    file_data['Body SHA1'] = f.read(20).hex()
-                    file_data['Body Size'] = struct.unpack('<Q', f.read(8))[0]
-                    file_data['Is Body Inline'] = "Yes" if f.read(1) == b'\x01' else "No"
-                    file_data['Unknown Hash'] = f.read(20).hex()
-    
-                    # Metadata Block
-                    start_of_meta_pos = f.tell()
-                    file_data['Start of Meta'] = f.read(1).hex()
-                    file_data['Meta URI'], file_data['Meta URI Flag'] = read_vf(f)
-    
-                    file_data['Marker Content Type'] = struct.unpack('<I', f.read(4))[0]
-                    if file_data['Marker Content Type'] < 0xFFFFFFFF:
-                        f.seek(-4, 1)  # Move back 4 bytes
-                        file_data['Content Type'], file_data['Content Type Flag'] = read_vf(f)
+                file_data['Header'] = struct.unpack('<I', f.read(4))[0]
+                file_data['Partition'], file_data['Partition Flag'] = read_vf(f)
+                file_data['Type'], file_data['Type Flag'] = read_vf(f)
+                file_data['URI'], file_data['URI Flag'] = read_vf(f)
+                file_data['Salt'] = SALT_MAP.get(app_guid, '').hex()
+                file_data['Marker'] = struct.unpack('<i', f.read(4))[0]
+                file_data['Filename'] = f.read(20).hex()
+                file_data['Foldername'] = f.read(20).hex()
+                timestamp = struct.unpack('<d', f.read(8))[0]
+                file_data['Timestamp'] = cache_record_timestamp(timestamp)
+                file_data['Meta SHA1'] = f.read(20).hex()
+                file_data['Meta Size'] = struct.unpack('<Q', f.read(8))[0]
+                file_data['Body SHA1'] = f.read(20).hex()
+                file_data['Body Size'] = struct.unpack('<Q', f.read(8))[0]
+                file_data['Is Body Inline'] = "Yes" if f.read(1) == b'\x01' else "No"
+                file_data['Unknown Hash'] = f.read(20).hex()
+
+                # Metadata Block
+                start_of_meta_pos = f.tell()
+                file_data['Start of Meta'] = f.read(1).hex()
+                file_data['Meta URI'], file_data['Meta URI Flag'] = read_vf(f)
+
+                file_data['Marker Content Type'] = struct.unpack('<I', f.read(4))[0]
+                if file_data['Marker Content Type'] < 0xFFFFFFFF:
+                    f.seek(-4, 1)  # Move back 4 bytes
+                    file_data['Content Type'], file_data['Content Type Flag'] = read_vf(f)
+                else:
+                    file_data['Content Type'], file_data['Content Type Flag'] = '', ''
+
+                file_data['Body Size 2'] = struct.unpack('<Q', f.read(8))[0]
+                if file_data['Body Size 2'] == 0xFFFFFFFFFFFFFFFF:
+                    file_data['Body Size 2'] = -1
+                file_data['Marker2'] = struct.unpack('<I', f.read(4))[0]
+
+                if file_data['Marker2'] < 0xFFFFFFFF:
+                    f.seek(-4, 1)  # Move back 4 bytes
+                    file_data['Encoding Type'], file_data['Encoding Type Flag'] = read_vf(f)
+                else:
+                    file_data['Encoding Type'], file_data['Encoding Type Flag'] = '', ''
+
+                file_data['Encoding Pad'], file_data['Encoding Pad Flag'] = read_vf(f)
+                file_data['HTTP Type'], file_data['HTTP Type Flag'] = read_vf(f)
+                file_data['HTTP Header Count'] = struct.unpack('<Q', f.read(8))[0]
+
+                if file_data['HTTP Header Count'] <= 100:
+                    http_headers = {}
+                    has_cookie = False
+                    for _ in range(file_data['HTTP Header Count']):
+                        header, _ = read_vf(f)
+                        value, _ = read_vf(f)
+                        if header is not None and value is not None:
+                            http_headers[header] = value
+                            if 'cookie' in header.lower():
+                                has_cookie = True
+                    # Sort the HTTP headers alphabetically
+                    sorted_http_headers = OrderedDict(sorted(http_headers.items()))
+                    file_data['HTTP Headers'] = json.dumps(sorted_http_headers)
+                    file_data['Has Cookie'] = 'Yes' if has_cookie else 'No'
+                    headers_read = True
+                else:
+                    file_data['HTTP Headers'] = 'Skipped due to high header count'
+                    file_data['Has Cookie'] = 'Unknown'
+                    headers_read = False
+
+                # Read trailing data
+                if headers_read:
+                    remaining_bytes = file_data['Meta Size'] + start_of_meta_pos - f.tell() - 20
+                    other_trailing_data = f.read(remaining_bytes)
+                else:
+                    f.seek(start_of_meta_pos + file_data['Meta Size'] - 92)
+                    other_trailing_data = f.read(72)
+
+                # Extract response code and unknown bytes from trailing data
+                file_data['Response Code'] = struct.unpack('<H', other_trailing_data[:2])[0]
+                file_data['U1'] = other_trailing_data[2]
+                file_data['U2'] = other_trailing_data[3]
+                file_data['U3'] = other_trailing_data[4:11].hex()
+                file_data['U4'] = other_trailing_data[11]
+                file_data['U5'] = other_trailing_data[12:19].hex()
+                file_data['U6'] = other_trailing_data[19]
+                file_data['U7'] = other_trailing_data[20:27].hex()
+                file_data['U8'] = other_trailing_data[27]
+                file_data['Other Trailing Data'] = f'"{other_trailing_data[28:].hex()}"'
+                file_data['Trailing Size'] = len(other_trailing_data)
+
+                file_data['Trailing Hash'] = f.read(20).hex()
+
+                if file_data['Content Type'].startswith('image/'):
+                    if file_data['Is Body Inline'] == 'Yes':
+                        file_data['Thumbnail'] = check_in_embedded_media(file_found,
+                                                                         f.read(),
+                                                                         name=file_data['URI'].split('/')[-1],
+                                                                         force_type=file_data['Content Type'],
+                                                                         force_extension=file_data['URI'].split('.')[-1])
                     else:
-                        file_data['Content Type'], file_data['Content Type Flag'] = '', ''
-    
-                    file_data['Body Size 2'] = struct.unpack('<Q', f.read(8))[0]
-                    if file_data['Body Size 2'] == 0xFFFFFFFFFFFFFFFF:
-                        file_data['Body Size 2'] = -1
-                    file_data['Marker2'] = struct.unpack('<I', f.read(4))[0]
-    
-                    if file_data['Marker2'] < 0xFFFFFFFF:
-                        f.seek(-4, 1)  # Move back 4 bytes
-                        file_data['Encoding Type'], file_data['Encoding Type Flag'] = read_vf(f)
-                    else:
-                        file_data['Encoding Type'], file_data['Encoding Type Flag'] = '', ''
-    
-                    file_data['Encoding Pad'], file_data['Encoding Pad Flag'] = read_vf(f)
-                    file_data['HTTP Type'], file_data['HTTP Type Flag'] = read_vf(f)
-                    file_data['HTTP Header Count'] = struct.unpack('<Q', f.read(8))[0]
-    
-                    if file_data['HTTP Header Count'] <= 100:
-                        http_headers = {}
-                        has_cookie = False
-                        for _ in range(file_data['HTTP Header Count']):
-                            header, _ = read_vf(f)
-                            value, _ = read_vf(f)
-                            if header is not None and value is not None:
-                                http_headers[header] = value
-                                if 'cookie' in header.lower():
-                                    has_cookie = True
-                        # Sort the HTTP headers alphabetically
-                        sorted_http_headers = OrderedDict(sorted(http_headers.items()))
-                        file_data['HTTP Headers'] = json.dumps(sorted_http_headers)
-                        file_data['Has Cookie'] = 'Yes' if has_cookie else 'No'
-                        headers_read = True
-                    else:
-                        file_data['HTTP Headers'] = 'Skipped due to high header count'
-                        file_data['Has Cookie'] = 'Unknown'
-                        headers_read = False
-    
-                    # Read trailing data
-                    if headers_read:
-                        remaining_bytes = file_data['Meta Size'] + start_of_meta_pos - f.tell() - 20
-                        other_trailing_data = f.read(remaining_bytes)
-                    else:
-                        f.seek(start_of_meta_pos + file_data['Meta Size'] - 92)
-                        other_trailing_data = f.read(72)
-    
-                    # Extract response code and unknown bytes from trailing data
-                    file_data['Response Code'] = struct.unpack('<H', other_trailing_data[:2])[0]
-                    file_data['U1'] = other_trailing_data[2]
-                    file_data['U2'] = other_trailing_data[3]
-                    file_data['U3'] = other_trailing_data[4:11].hex()
-                    file_data['U4'] = other_trailing_data[11]
-                    file_data['U5'] = other_trailing_data[12:19].hex()
-                    file_data['U6'] = other_trailing_data[19]
-                    file_data['U7'] = other_trailing_data[20:27].hex()
-                    file_data['U8'] = other_trailing_data[27]
-                    file_data['Other Trailing Data'] = f'"{other_trailing_data[28:].hex()}"'
-                    file_data['Trailing Size'] = len(other_trailing_data)
-    
-                    file_data['Trailing Hash'] = f.read(20).hex()
-    
-                    if file_data['Content Type'].startswith('image/'):
-                        if file_data['Is Body Inline'] == 'Yes':
-                            file_data['Thumbnail'] = check_in_embedded_media(file_found,
-                                                                             f.read(),
-                                                                             name=file_data['URI'].split('/')[-1],
-                                                                             force_type=file_data['Content Type'],
-                                                                             force_extension=file_data['URI'].split('.')[-1])
-                        else:
-                            file_data['Thumbnail'] = check_in_media(file_found+"-blob",
-                                                                   name=file_data['URI'].split('/')[-1],
-                                                                   force_type=file_data['Content Type'],
-                                                                   force_extension=file_data['URI'].split('.')[-1])
+                        file_data['Thumbnail'] = check_in_media(file_found+"-blob",
+                                                               name=file_data['URI'].split('/')[-1],
+                                                               force_type=file_data['Content Type'],
+                                                               force_extension=file_data['URI'].split('.')[-1])
 
         except (FileNotFoundError, PermissionError, OSError, struct.error, ValueError, IndexError) as e:
             if research_mode:
@@ -238,4 +253,5 @@ def webkit_cache_records(context):
             results.add_row(tuple(file_data.get(header[0] if isinstance(header, tuple) else header, '')
                                    for header in data_headers))
 
+    results.set_source_path('\n'.join(sorted(source_dirs)))
     return results

@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses cached Google Maps route data and timestamps from the app CachedRoutes plists.",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-08-03",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
-        "notes": "",
+        "notes": "The plist filename is interpreted as a millisecond Unix timestamp based on observed values; app attribution rests on tested extractions.",
         "paths": ('*/Library/Application Support/CachedRoutes/*.plist',),
         "output_types": "all",
         "artifact_icon": "route",
@@ -28,6 +28,7 @@ from scripts.ilapfuncs import artifact_processor
 @artifact_processor
 def get_cacheRoutesGmap(context):
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         noext = os.path.splitext(os.path.basename(file_found))[0]
@@ -52,6 +53,7 @@ def get_cacheRoutesGmap(context):
         objects = deserialized.get('$objects')
         if not isinstance(objects, list):
             continue  # not an NSKeyedArchiver archive
+        source_dirs.add(os.path.dirname(file_found))
         for entry in objects:
             try:
                 lat = entry['_coordinateLat']
@@ -60,6 +62,6 @@ def get_cacheRoutesGmap(context):
             except (KeyError, TypeError):
                 pass
 
-    data_headers = (('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Source File')
+    data_headers = (('Timestamp (from filename)', 'datetime'), 'Latitude', 'Longitude', 'Source File')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

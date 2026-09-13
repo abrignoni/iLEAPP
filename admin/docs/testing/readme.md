@@ -29,9 +29,17 @@ This documentation provides an overview of the testing processes and components 
    - Step-by-step guide for adding new test images to the project
    - Best practices for maintaining the [image manifest](../../image_manifest.json)
 
-7. [File Path Analysis](filepath_analysis.md)
+7. [Testing Against Non-Public Images](local_corpus_tests.md)
+   - Using `test_local_corpus_artifacts.py` for artifacts absent from the manifest images
+   - Structure-only assertions that keep image content out of the repository and test logs
+
+8. [File Path Analysis](filepath_analysis.md)
    - Overview of the file path search process
    - Explanation of [filepath_results.csv](../filepath_results.csv) and [filepath_search_summary.md](../filepath_search_summary.md)
+
+9. [Public Images Behind `sample_data`](public_corpus_images.md)
+   - Which downloadable image each `sample_data` corpus key names, with the publisher's MD5
+   - Which keys name images that are not distributed, and how strong each identification is
 
 ## Getting Started
 

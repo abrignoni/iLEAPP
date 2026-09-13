@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "simInfoUUID": {
         "name": "SIM - UUID",
         "description": "SIM personal wallet entries from com.apple.commcenter.data.plist",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "SIM Info", "notes": "Timestamps are Unix epoch seconds (UTC).",
         "paths": ('*/com.apple.commcenter.data.plist',),
         "output_types": "standard", "artifact_icon": "credit-card",
@@ -25,7 +25,7 @@ __artifacts_v2__ = {
     "simInfoLabelStore": {
         "name": "SIM - Unique Label Store",
         "description": "SIM unique label store from com.apple.commcenter.data.plist",
-        "author": "", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "SIM Info", "notes": "Timestamps are Unix epoch seconds (UTC).",
         "paths": ('*/com.apple.commcenter.data.plist',),
         "output_types": "standard", "artifact_icon": "tag",

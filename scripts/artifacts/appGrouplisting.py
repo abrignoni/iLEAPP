@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "appGrouplisting": {
         "name": "Bundle ID by AppGroup & PluginKit IDs",
-        "description": "List can included once installed but not present apps. Each file is named .com.apple.mobile_container_manager.metadata.plist",
+        "description": "In tested images the listing retained entries for apps no longer present. Each file is named .com.apple.mobile_container_manager.metadata.plist",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-09-22",
-        "last_update_date": "2025-10-08",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "",
@@ -39,12 +39,11 @@ from scripts.ilapfuncs import artifact_processor, get_plist_file_content
 
 @artifact_processor
 def appGrouplisting(context):
-    source_path = 'Path column in the report'
+    source_paths = set()
     data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
 
     results = context.create_artifact_result(
         headers=data_headers,
-        source_path=source_path,
         estimated_row_count=len(context.get_files_found()),
     )
 
@@ -53,14 +52,15 @@ def appGrouplisting(context):
         # Check if plist is a valid parseable object
         if not plist or not isinstance(plist, dict):
             continue
+        source_paths.add(str(file_found))
         bundleid = plist['MCMMetadataIdentifier']
 
         p = pathlib.Path(file_found)
         appgroupid = p.parent.name
-        fileloc = str(p.parents[1])
+        fileloc = context.get_relative_path(str(p.parents[1]))
         typedir = str(p.parents[1].name)
 
         results.add_row((bundleid, typedir, appgroupid, fileloc))
 
+    results.set_source_path('\n'.join(sorted(source_paths)))
     return results
-    

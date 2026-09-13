@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct message conversations cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'The direct message cache is an NSKeyedArchiver archive of the app inbox; it holds the trusted, untrusted and low quality timelines.',
@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'message',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 72 rows across 4 conversations',
+            'iphone11_ios17': 'iOS 17.3 | 72 rows across 4 conversations',
         },
         'data_views': {
             'conversation': {
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         'description': 'Twitter X accounts cached alongside the direct message inbox',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -39,7 +39,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 5 rows',
+            'iphone11_ios17': 'iOS 17.3 | 5 rows',
         },
     },
     'twitterTweets': {
@@ -47,7 +47,7 @@ __artifacts_v2__ = {
         'description': 'Posts (tweets) cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': 'Cached objects are gzip compressed JSON stored in the Items table.',
@@ -55,7 +55,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'brand-twitter',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 523 rows',
+            'iphone11_ios17': 'iOS 17.3 | 523 rows',
         },
     },
     'twitterCachedUsers': {
@@ -63,7 +63,7 @@ __artifacts_v2__ = {
         'description': 'User profiles cached in the Twitter X model cache database',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'users',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 340 rows',
+            'iphone11_ios17': 'iOS 17.3 | 340 rows',
         },
     },
     'twitterNotifications': {
@@ -79,7 +79,7 @@ __artifacts_v2__ = {
         'description': 'In-app notifications cached by the Twitter X application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Twitter X',
         'notes': '',
@@ -87,7 +87,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'bell',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 119 rows',
+            'iphone11_ios17': 'iOS 17.3 | 119 rows',
         },
     },
 }
@@ -102,8 +102,9 @@ from scripts.ilapfuncs import artifact_processor, logfunc, \
     get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc, \
     convert_unix_ts_to_utc
 
-# The three inbox timelines the app keeps. Conversations that were never
-# accepted land in the untrusted or low quality lists rather than the main one.
+# The three inbox timelines the app keeps. Per X's message-request behavior as
+# observed in testing, conversations that were never accepted land in the
+# untrusted or low quality lists rather than the main one.
 INBOX_TIMELINES = (
     ('trusted_conversations_timeline', 'Trusted'),
     ('untrusted_conversations_timeline', 'Untrusted'),
@@ -189,12 +190,24 @@ def _attachment_urls(entry):
 def twitterDirectMessages(context):
     data_list = []
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Conversation ID', 'Timeline',
-        'Sender', 'Sender User ID', 'Message', 'Attachment Media URL',
-        'Attachment Display URL', 'Marked As Spam', 'Marked As Abuse',
-        'In Reply To Message ID', 'Message ID', 'Account ID', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        'Sender',
+        'Conversation',
+        'Message',
+        'Conversation ID',
+        'Timeline',
+        'Sender User ID',
+        'Attachment Media URL',
+        'Attachment Display URL',
+        'Marked As Spam',
+        'Marked As Abuse',
+        'In Reply To Message ID',
+        'Message ID',
+        'Account ID',
+    )
 
-    # The cache directory holds one archive per signed-in account, so every
+    # One archive per signed-in account was observed in test data, so every
     # matched file is parsed rather than only the first.
     source_paths = _dm_cache_paths(context)
     if not source_paths:
@@ -238,12 +251,13 @@ def twitterDirectMessages(context):
 
                     data_list.append((
                         entry.get('time'),
+                        1 if local_user_id and sender_id == local_user_id else 0,
+                        _user_label(sender),
                         conversation_label,
+                        entry.get('displayText') or entry.get('originalText'),
                         conversation_id,
                         timeline_label,
-                        _user_label(sender),
                         sender_id,
-                        entry.get('displayText') or entry.get('originalText'),
                         media_url,
                         display_url,
                         'Yes' if entry.get('marked_as_spam') else '',
@@ -251,10 +265,9 @@ def twitterDirectMessages(context):
                         reply_to_id,
                         (entry.get('identifier') or {}).get('canonicalID', ''),
                         account_id,
-                        1 if local_user_id and sender_id == local_user_id else 0,
                     ))
 
-    return data_headers, data_list, ', '.join(source_paths)
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 @artifact_processor
@@ -295,7 +308,7 @@ def twitterDMUsers(context):
                 profile_image.get('url') if isinstance(profile_image, dict) else '',
             ))
 
-    return data_headers, data_list, ', '.join(source_paths)
+    return data_headers, data_list, '\n'.join(source_paths)
 
 
 def _iter_cached_models(source_path, model_type):
@@ -332,7 +345,7 @@ def _iter_cached_models(source_path, model_type):
 
     if evicted:
         logfunc(f'Twitter X {model_type}: {evicted} cache key(s) had no stored '
-                f'object (evicted from cache) and are not reported.')
+                f'object (possibly evicted) and are not reported.')
     if undecodable:
         logfunc(f'Twitter X {model_type}: {undecodable} cached object(s) could '
                 f'not be decoded.')

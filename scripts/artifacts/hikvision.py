@@ -10,7 +10,7 @@ following information can be interpreted:
 - Hikvision - CCTV Info: information about the CCTV system.
 - Hikvision - CCTV Activity: user interaction with the app. User actions are not easy
   to attribute but can indirectly indicate remote live view/play back of CCTV footage.
-- Hikvision - User Created Media: media files the user created while viewing CCTV footage.
+- Hikvision - CCTV Media: media files stored under Documents/YYYY/MM/DD in the app container.
 """
 __artifacts_v2__ = {
     "hikvisionChannels": {
@@ -41,7 +41,8 @@ __artifacts_v2__ = {
     },
     "hikvisionActivity": {
         "name": "Hikvision - CCTV Activity",
-        "description": "User interaction with the Hikvision app (live view / play back)",
+        "description": "Log records from the Hikvision app's YSDCLogItem.sqlite, with the system "
+                       "name and data of each as stored",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
         "last_update_date": "2026-06-24",
@@ -53,11 +54,11 @@ __artifacts_v2__ = {
         "artifact_icon": "activity"
     },
     "hikvisionMedia": {
-        "name": "Hikvision - User Created Media",
-        "description": "Media files the user created while viewing CCTV footage",
+        "name": "Hikvision - CCTV Media",
+        "description": "Media files stored under Documents/YYYY/MM/DD in the Hikvision app container",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Hikvision",
         "notes": "Media are stored under Documents/YYYY/MM/DD within the app container.",

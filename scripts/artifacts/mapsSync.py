@@ -1,18 +1,20 @@
 __artifacts_v2__ = {
     "mapsSync": {
         "name": "Maps Sync",
-        "description": "Apple Maps history — searches, displayed locations and navigation journeys "
+        "description": "Apple Maps history: searches, displayed locations and navigation "
+                       "journeys "
                        "from MapsSync_0.0.1",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Location",
         "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "
                  "CheekyForensicsMonkey "
                  "(https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html). "
-                 "Disclaimer: Entries should be corroborated. Locations and searches from other linked "
-                 "devices might show up here. Travel should be confirmed. Medium confidence.",
+                 "Whether an entry was created on this device or synced from another device on "
+                 "the same account is not established here, and an entry is not evidence that "
+                 "travel took place.",
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -189,7 +191,7 @@ def _build_query(file_found):
 def mapsSync(context):
     data_headers = (
         ('Timestamp', 'datetime'), ('Modified Time', 'datetime'), 'Item Number', 'Type',
-        'Location Search', 'Location City', 'Latitude', 'Longitude', 'Latitude1', 'Longitude1',
+        'Location Search', 'Location Display', 'Latitude', 'Longitude', 'Latitude1', 'Longitude1',
         'Journey Destination Address', 'Map Item Storage BLOB Address')
     data_list = []
     sources = []

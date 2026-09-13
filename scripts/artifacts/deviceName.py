@@ -3,6 +3,8 @@ __artifacts_v2__ = {
         "name": "Device Name",
         "description": "Extracts the device name from data_ark.plist",
         "author": "@AlexisBrignoni",
+        "creation_date": "2023-10-02",
+        "last_update_date": "2026-08-21",
         "version": "1.0",
         "date": "2024-10-29",
         "requirements": "none",
@@ -27,4 +29,4 @@ def deviceName(context):
                 break
     
     # Return empty data since this artifact only collects device info
-    return (), [], ''
+    return (), [], file_found

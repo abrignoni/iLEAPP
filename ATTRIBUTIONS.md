@@ -1,5 +1,11 @@
 # Attributions
 
+- Realm database parsing (`scripts/realm_parser.py`) adapted from `crush/parsers/realm_parser.py` in
+  [`crush-forensics`](https://github.com/kalink0/crush-forensics) by Marco Neumann (kalink0).
+  Licensed under [Apache-2.0](https://github.com/kalink0/crush-forensics/blob/main/LICENSE).
+  Vendored with the framework-specific imports replaced by local shims and a `parse_realm_file()`
+  entry point added; the upstream copyright and SPDX header are preserved in the file.
+
 - Preferences options setting ui Icon by Yaicon on <a href="https://icon-icons.com/authors/1220-yaicon">Icon-Icons.com</a>.
   Licensed under [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/).
 
@@ -8,3 +14,8 @@
 
 - Apple ATX container and decode details adapted from `atx_reader` by galba-arueira.
   Licensed under [MIT or Apache-2.0](https://github.com/galba-arueira/atx_reader).
+
+- Apple Unified Log `.tracev3` parsing provided by the `unifiedlog_iterator` binary from
+  [`macos-UnifiedLogs`](https://github.com/mandiant/macos-UnifiedLogs) by Mandiant.
+  Licensed under [Apache-2.0](https://github.com/mandiant/macos-UnifiedLogs/blob/main/LICENSE).
+  Redistributed unmodified in builds that include it; see `bin/PROVENANCE.md`.

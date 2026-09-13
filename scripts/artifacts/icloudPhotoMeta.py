@@ -3,7 +3,7 @@ __artifacts_v2__ = {
         "name": "iCloud Photos Metadata",
         "description": "Parses photo metadata returned by iCloud (cloudphotolibrary Metadata.txt), "
                        "including decoded filenames, timestamps, GPS and embedded EXIF/TIFF.",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",

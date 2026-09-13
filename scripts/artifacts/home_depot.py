@@ -43,7 +43,8 @@ __artifacts_v2__ = {
     },
     "home_depot_saved_searches": {
         "name": "Home Depot - Saved Searches",
-        "description": "Saved search terms and last-used timestamps",
+        "description": "Saved search terms and the dates stored with them (savedSearches and "
+                       "savedSearchesdates keys)",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
         "last_update_date": "2026-06-26",
@@ -68,11 +69,11 @@ __artifacts_v2__ = {
         "artifact_icon": "search",
     },
     "home_depot_products_viewed": {
-        "name": "Home Depot - Products Viewed",
+        "name": "Home Depot - Cached Products",
         "description": "Cached product details from THDConsumer Core Data store",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": "2026-07-31",
         "requirements": "nska_deserialize",
         "category": "Home Depot",
         "notes": "",
@@ -95,10 +96,10 @@ __artifacts_v2__ = {
     },
     "home_depot_last_location": {
         "name": "Home Depot - Last Known Location",
-        "description": "Last known GPS location from Home Depot app preferences",
+        "description": "Last known location (CLLocation) from Home Depot app preferences",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": "2026-07-31",
         "requirements": "nska_deserialize",
         "category": "Home Depot",
         "notes": "Parsed from currentLocationKey CLLocation blob.",
@@ -111,7 +112,7 @@ __artifacts_v2__ = {
         "description": "Cached product image URLs and HTTP Last-Modified timestamps",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Home Depot",
         "notes": "",
@@ -121,10 +122,10 @@ __artifacts_v2__ = {
     },
     "home_depot_search_url_cache": {
         "name": "Home Depot - Search URL Cache",
-        "description": "Cached thdws.com search API URLs (deduplicated keystroke chains)",
+        "description": "Cached thdws.com search API URLs (prefix-progression search URLs deduplicated to the longest term)",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Home Depot",
         "notes": "",
@@ -332,9 +333,15 @@ def _parse_http_date(value):
     if not value:
         return ''
     try:
-        return parsedate_to_datetime(value)
+        parsed = parsedate_to_datetime(value)
     except (TypeError, ValueError):
         return value
+    if parsed.tzinfo is None:
+        # A '-0000' or unrecognized zone parses to a naive datetime. RFC 5322
+        # (3.3, 4.3) reads both as Universal Time with the sender's zone
+        # unknown, so pin UTC here.
+        return parsed.replace(tzinfo=datetime.timezone.utc)
+    return parsed.astimezone(datetime.timezone.utc)
 
 
 def _stringify(value):

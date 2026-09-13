@@ -17,14 +17,24 @@ ILLEGAL_FILENAME_CHARS = {
     '\n': '\\n newline',
 }
 
+# ASCII control characters (0x00-0x1F, 0x7F): Windows rejects them in paths
+# with EINVAL, so they must be sanitized alongside the printable illegal set.
+# iOS extractions really do contain them, e.g. chronod icon files named
+# '╞¼\x01\x0e::com.apple.siri.heic'.
+_CONTROL_CHARS_PATTERN = '\\x00-\\x1f\\x7f'
+
+
+def _is_control_char(char):
+    return ord(char) < 0x20 or ord(char) == 0x7f
+
 
 def _illegal_filename_char_pattern():
-    return '[' + re.escape(''.join(ILLEGAL_FILENAME_CHARS)) + ']'
+    return '[' + re.escape(''.join(ILLEGAL_FILENAME_CHARS)) + _CONTROL_CHARS_PATTERN + ']'
 
 
 def _illegal_filepath_char_pattern():
     chars = ''.join(c for c in ILLEGAL_FILENAME_CHARS if c not in '\\/')
-    return '[' + re.escape(chars) + ']'
+    return '[' + re.escape(chars) + _CONTROL_CHARS_PATTERN + ']'
 
 
 def format_illegal_filename_chars(chars):
@@ -36,8 +46,10 @@ def format_illegal_filename_chars(chars):
 
 def illegal_chars_in_filename(filename):
     '''Return sorted illegal characters present in filename.'''
-    return sorted({c for c in filename if c in ILLEGAL_FILENAME_CHARS},
-                  key=lambda c: list(ILLEGAL_FILENAME_CHARS).index(c))
+    order = {char: index for index, char in enumerate(ILLEGAL_FILENAME_CHARS)}
+    return sorted({c for c in filename
+                   if c in ILLEGAL_FILENAME_CHARS or _is_control_char(c)},
+                  key=lambda c: order.get(c, len(order)))
 
 
 def sanitize_file_path(filename, replacement_char='_'):

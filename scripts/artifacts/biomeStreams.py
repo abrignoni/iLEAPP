@@ -5,13 +5,12 @@ __artifacts_v2__ = {
                        "(harvest time, the message date, subject, sender and recipient).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The message date comes from an embedded CFAbsoluteTime value; the harvest time is the SEGB "
                  "record timestamp.",
-        "paths": ('*/Biome/streams/restricted/ProactiveHarvesting.Mail/local/*',
-                  '*/biome/streams/restricted/ProactiveHarvesting.Mail/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',),
         "output_types": "standard",
         "artifact_icon": "mail",
         "sample_data": {
@@ -31,12 +30,11 @@ __artifacts_v2__ = {
                        "stream (service and handle, message text, sender).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/restricted/ProactiveHarvesting.Messages/local/*',
-                  '*/biome/streams/restricted/ProactiveHarvesting.Messages/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Messages/local/*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "sample_data": {
@@ -56,12 +54,12 @@ __artifacts_v2__ = {
                        "time it was read).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
-        "paths": ('*/Biome/streams/restricted/Messages.Read/local/*',
-                  '*/biome/streams/restricted/Messages.Read/local/*'),
+        "notes": "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+        "paths": ('*/[Bb]iome/streams/restricted/Messages.Read/local/*',),
         "output_types": "standard",
         "artifact_icon": "check",
         "sample_data": {
@@ -77,15 +75,16 @@ __artifacts_v2__ = {
     },
     "biomeScreenTimeAppUsage": {
         "name": "Biome - ScreenTime App Usage",
-        "description": "Per-app foreground start/end events from the ScreenTime.AppUsage biome stream.",
+        "description": "Per-app usage events from the ScreenTime.AppUsage biome stream; the event code's "
+                       "meaning is not documented and is reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The SEGB record timestamp is used; an embedded timestamp field in this stream is unreliable.",
-        "paths": ('*/Biome/streams/restricted/ScreenTime.AppUsage/local/*',
-                  '*/biome/streams/restricted/ScreenTime.AppUsage/local/*'),
+        "notes": "The SEGB record timestamp is used; an embedded timestamp field in this stream is unreliable. "
+                 "The event code's meaning is not documented; its value is reported as stored.",
+        "paths": ('*/[Bb]iome/streams/restricted/ScreenTime.AppUsage/local/*',),
         "output_types": "standard",
         "artifact_icon": "clock",
         "sample_data": {
@@ -103,12 +102,13 @@ __artifacts_v2__ = {
                        "with their frequency.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Some tokens are stored in a non-text form and appear blank.",
-        "paths": ('*/Biome/streams/restricted/Keyboard.TokenFrequency/local/*',
-                  '*/biome/streams/restricted/Keyboard.TokenFrequency/local/*'),
+        "notes": "Some tokens are stored in a non-text form and appear blank. Reference: Mattia Epifani, "
+                 "'84 Streams Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
+        "paths": ('*/[Bb]iome/streams/restricted/Keyboard.TokenFrequency/local/*',),
         "output_types": "standard",
         "artifact_icon": "keyboard",
         "sample_data": {
@@ -171,16 +171,25 @@ def _cf_double_to_utc(value):
     return convert_cocoa_core_data_ts_to_utc(seconds)
 
 
+def _stream_files(context):
+    """Non-hidden, non-tombstone stream files from the artifact's matched paths."""
+    for file_found in map(str, context.get_files_found()):
+        if os.path.basename(file_found).startswith('.'):
+            continue
+        if not os.path.isfile(file_found) or 'tombstone' in context.get_relative_path(file_found):
+            continue
+        yield file_found
+
+
+def _source_path(context):
+    return '\n'.join(sorted({os.path.dirname(f) for f in _stream_files(context)}))
+
+
 def _records(context):
     """Yields (segb_ts_utc, state_name, decoded_message_or_None, filename, offset)
     for each non-tombstone SEGB record across the matched stream files."""
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
+    for file_found in _stream_files(context):
         filename = os.path.basename(file_found)
-        if filename.startswith('.'):
-            continue
-        if not os.path.isfile(file_found) or 'tombstone' in file_found:
-            continue
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
             if record.state == EntryState.Written and record.data:
@@ -207,7 +216,7 @@ def biomeProactiveMail(context):
         data_list.append((ts, state, _cf_double_to_utc(message.get('3')), _txt(message.get('11')),
                           _header(message, 'from'), _header(message, 'to'), _txt(message.get('2')),
                           filename, offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -223,7 +232,7 @@ def biomeProactiveMessages(context):
         sender = _txt(sender.get('1')) if isinstance(sender, dict) else ''
         data_list.append((ts, state, _txt(message.get('2')), _txt(message.get('10')), sender,
                           _txt(message.get('1')), filename, offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -233,21 +242,21 @@ def biomeMessagesRead(context):
     for ts, state, message, filename, offset in _records(context):
         message_id = _txt(message.get('1')) if message else ''
         data_list.append((ts, state, message_id, filename, offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
 def biomeScreenTimeAppUsage(context):
-    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Event', 'Filename', 'Offset')
+    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Event (as stored)', 'Filename',
+                    'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context):
         if message is None:
             data_list.append((ts, state, '', '', filename, offset))
             continue
-        event = message.get('1')
-        event = 'Start' if event == 1 else 'End' if event == 0 else _txt(event)
+        event = _txt(message.get('1'))
         data_list.append((ts, state, _txt(message.get('3')), event, filename, offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -261,4 +270,4 @@ def biomeKeyboardTokens(context):
         token_field = message.get('1', {})
         token = _txt(token_field.get('1')) if isinstance(token_field, dict) else ''
         data_list.append((ts, state, token, _txt(message.get('3')), filename, offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)

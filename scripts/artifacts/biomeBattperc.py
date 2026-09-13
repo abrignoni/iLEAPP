@@ -4,11 +4,11 @@ __artifacts_v2__ = {
         "description": "Parses battery percentage entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2025-10-31",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.Device.BatteryPercentage/local/*',),
         "output_types": "standard",
         "artifact_icon": "battery",
         "sample_data": {
@@ -78,17 +78,19 @@ def get_biomeBattperc(context):
     }
 
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
@@ -116,5 +118,5 @@ def get_biomeBattperc(context):
                     ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Battery Percentage', 'Action GUID',
                     'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))
 

@@ -2,7 +2,8 @@ __artifacts_v2__ = {
     "teamsMessages": {
         "name": "Teams Messages",
         "description": "Microsoft Teams messages and shared media",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -33,7 +34,8 @@ __artifacts_v2__ = {
     "teamsContacts": {
         "name": "Teams Contacts",
         "description": "Microsoft Teams contact list",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -49,7 +51,8 @@ __artifacts_v2__ = {
     "teamsUser": {
         "name": "Teams User Information",
         "description": "Microsoft Teams user profile and sync data",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -65,7 +68,8 @@ __artifacts_v2__ = {
     "teamsCalls": {
         "name": "Teams Call Logs",
         "description": "Microsoft Teams call history",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -81,7 +85,8 @@ __artifacts_v2__ = {
     "teamsLocations": {
         "name": "Teams Shared Locations",
         "description": "Microsoft Teams shared location data",
-        "author": "",
+        "author": "@abrignoni",
+        "creation_date": "2021-03-05",
         "last_update_date": "2026-06-12",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
@@ -247,38 +252,38 @@ def teamsMessages(context):
         
         data_list.append((
             timestamp,
+            row['ZTS_ISSENTBYME'],
             row['ZIMDISPLAYNAME'] or '',
+            row['thread_name'] or '',
             display_message,
+            media_ref,
             raw_message,
             row['ZFROM'] or '',
             row['ZTHREADID'] or '',
             row['ZTHREADTYPE'] or '',
             row['ZTHREADTOPIC'] or '',
             row['ZTSID'] or '',
-            row['thread_name'] or '',
             row['ZTS_MESSAGEBASETYPE'] or '',
             row['ZTS_MESSAGECONTENTTYPE'] or '',
-			row['ZTS_ISSENTBYME'],
-            media_ref
         ))
     
     db.close()
     
     data_headers = (
         ('Timestamp', 'datetime'),
+        'Sent By Me',
         'Display Name',
+        'Thread Name',
         'Message',
+        ('Media', 'media'),
         'Raw Message',
         'Sender',
         'Thread ID',
         'Thread Type',
         'Thread Topic',
         'Thread TSID',
-        'Thread Name',
         'Message Base Type',
         'Message Content Type',
-        'Sent By Me',
-        ('Media', 'media')
     )
     
     return data_headers, data_list, db_file

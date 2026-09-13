@@ -4,14 +4,16 @@ __artifacts_v2__ = {
         "description": "Parses app intent entries from biomes",
         "author": "@JohnHyla, @mattiaepi (Mattia Epifani)",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record is parsed independently: a record that cannot be decoded is "
                  "logged with its file and offset and skipped, so one malformed entry no "
                  "longer discards the rest of the stream. Intent payloads are app-authored "
                  "and their inner shape varies by app and iOS version, so an app branch that "
-                 "cannot read its own payload still emits the record metadata.",
+                 "cannot read its own payload still emits the record metadata. Labels inside "
+                 "the Data column (thread, sender, number) are inferred from observed record "
+                 "content; the underlying protobuf fields are not documented.",
         "paths": (
             '*/AppIntent/local/*',
             '*/streams/*/App.Intent/local/*',
@@ -260,17 +262,19 @@ def get_biomeIntents(context):
 
     data_list_html = []
     data_list = []
+    source_dirs = set()
     for file_found in files_found:
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             if record.state != EntryState.Written:
                 continue
@@ -288,4 +292,4 @@ def get_biomeIntents(context):
             data_list.append(row)
             data_list_html.append(row_html)
 
-    return data_headers, (data_list, data_list_html), 'see Filename for more info'
+    return data_headers, (data_list, data_list_html), '\n'.join(sorted(source_dirs))

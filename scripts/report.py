@@ -236,8 +236,8 @@ def create_index_html(reportfolderbase, time_in_secs, time_hms, extraction_type,
     filename = 'index.html'
     page_title = 'iLEAPP Report'
     body_heading = 'iOS Logs, Events, And Plists Parser'
-    body_description = 'iLEAPP is an open source project that aims to parse "\
-        "every known iOS artifact for the purpose of forensic analysis.'
+    body_description = 'iLEAPP is an open source project that aims to parse '\
+        'every known iOS artifact for the purpose of forensic analysis.'
     active_nav_list_data = mark_item_active(nav_list_data, filename) + nav_bar_script
 
     html_reportfolderbase = Path(reportfolderbase).joinpath('_HTML')

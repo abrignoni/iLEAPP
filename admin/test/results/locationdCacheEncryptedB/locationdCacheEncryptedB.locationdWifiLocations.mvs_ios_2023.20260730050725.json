@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "module_name": "locationdCacheEncryptedB",
+    "artifact_name": "Locationd Cache - Wi-Fi Locations",
+    "function_name": "locationdWifiLocations",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 15,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/locationdCacheEncryptedB/testdata.locationdCacheEncryptedB.locationdWifiLocations.mvs_ios_2023.zip",
+    "start_time": "2026-07-30T05:07:25.680642+00:00",
+    "end_time": "2026-07-30T05:07:25.707678+00:00",
+    "run_time_seconds": 0.002053976058959961,
+    "last_commit": {
+      "hash": "51c9b15415bf31b9aa2277b0e4296ccd75c2e5ab",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-29T22:58:33-05:00",
+      "message": "feat: parse locationd cache_encryptedB location caches"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "ALS Query Timestamp",
+    "Latitude",
+    "Longitude",
+    "BSSID",
+    "Horizontal Accuracy",
+    "Altitude",
+    "Vertical Accuracy",
+    "Speed",
+    "Course",
+    "Channel",
+    "Confidence",
+    "Score",
+    "Reach",
+    "Info Mask"
+  ],
+  "data": []
+}

@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "safariRecentWebSearches": {
         "name": "Safari Browser - Recent Web Searches",
         "description": "Recent Safari web searches from com.apple.mobilesafari.plist",
-        "author": "",
+        "author": "@ydkhatri",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",

@@ -4,10 +4,13 @@ __artifacts_v2__ = {
         "description": "Parses google chats",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Google Chats",
-        "notes": "",
+        "notes": "Group Type reads the stored group_type value as Group Message for 1 and 1-to-1 "
+                 "Message for 2; that mapping was not sourced and any other value is reported as "
+                 "stored. Reaction and Reaction User are read from the reactions protobuf by "
+                 "field position; the positions were not sourced.",
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',
                   '*/Documents/user_accounts/*/tmp/*'),
         "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]
@@ -41,6 +44,7 @@ from scripts.ilapfuncs import (
     utf8_in_extended_ascii,
     check_in_media,
     convert_ts_human_to_utc,
+    logfunc,
 )
 
 _FLATTEN_ERRORS = (TypeError, AttributeError, KeyError, ValueError)
@@ -65,6 +69,11 @@ class ProtectedDict(dict):
 class ProtectedSet(set):
     pass
 
+
+
+GUID_RE = re.compile(
+    r"[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}",
+    re.IGNORECASE)
 
 def aa_flatten_dict_tu(
         v,
@@ -237,8 +246,19 @@ def fla_tu(
 
 @artifact_processor
 def google_chat(context):
-    data_headers = (('Timestamp', 'datetime'), 'Group Type', 'Conversation Name', 'Message Author', 'Message',
-                    'Is Sent', 'Filename', ('Media', 'media'), 'Reaction', 'Reaction User', 'Account ID')
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Is Sent',
+        'Message Author',
+        'Message',
+        ('Media', 'media'),
+        'Group Type',
+        'Conversation Name',
+        'Filename',
+        'Reaction',
+        'Reaction User',
+        'Account ID',
+    )
     data_list = []
     source_path = ''
 
@@ -249,10 +269,24 @@ def google_chat(context):
             continue
 
         source_path = file_found
-        result = re.findall(
-            r"([0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}+)",
-            file_found)
-        guid = result[0]
+        # The container as iOS lays it out, .../Application/<GUID>/. Taking the first
+        # match anywhere in the path meant an output directory or case folder whose
+        # name looks like a GUID could be picked instead, and the media lookup below
+        # would then search a directory that does not exist and quietly find nothing.
+        parts = os.path.normpath(file_found).split(os.sep)
+        guid = ''
+        for index in range(len(parts) - 1, 0, -1):
+            if GUID_RE.fullmatch(parts[index]) and parts[index - 1] == 'Application':
+                guid = parts[index]
+                break
+        else:
+            for part in reversed(parts):
+                if GUID_RE.fullmatch(part):
+                    guid = part
+                    break
+        if not guid:
+            logfunc(f'Google Chat: no app container GUID in {file_found}; '
+                    'attachments cannot be matched for this database')
         account_id = os.path.basename(os.path.dirname(file_found))
 
         db = open_sqlite_db_readonly(file_found)
@@ -334,8 +368,17 @@ def google_chat(context):
             timestamp = convert_ts_human_to_utc(row[0]) if row[0] else row[0]
 
             data_list.append((
-                timestamp, row[1], row[2], row[3], row[4], row[7],
-                mediafilename, media_ref_id, reaction, reactionuser, account_id,
+                timestamp,
+                row[7],
+                row[3],
+                row[4],
+                media_ref_id,
+                row[1],
+                row[2],
+                mediafilename,
+                reaction,
+                reactionuser,
+                account_id,
             ))
 
         break

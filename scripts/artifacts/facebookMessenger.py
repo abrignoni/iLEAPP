@@ -21,7 +21,9 @@ __artifacts_v2__ = {
     },
     "facebookMessengerChats": {
         "name": "Facebook Messenger - Chats",
-        "description": "Extract messages from Facebook Messenger.",
+        "description": "Messages from the thread_messages table of the Facebook Messenger "
+                       "lightspeed user database, with direction, sender, text, attachment name "
+                       "and size and the thread id.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
         "last_update_date": "2025-08-27",
@@ -51,7 +53,9 @@ __artifacts_v2__ = {
     },
     "facebook_messenger_client_chats": {
         "name": "Facebook Messenger - Client Messages",
-        "description": "Extract messages from Facebook Messenger.",
+        "description": "Messages from the client_messages table of the Facebook Messenger "
+                       "lightspeed user database, with direction, sender, text and the attachment "
+                       "image where its persisted file is present in the media bank.",
         "author": "Sukochev",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
@@ -278,10 +282,10 @@ def facebookMessengerChats(context):
 
     data_headers = (
         ("Timestamp", "datetime"),
-        "Sender Name",
-        "Sender ID",
         "Message Direction",
+        "Sender Name",
         "Message",
+        "Sender ID",
         "Attachment",
         "Attachment Name",
         "Attachment Size",
@@ -363,10 +367,10 @@ def facebookMessengerChats(context):
                 data_list.append(
                     (
                         timestamp,
-                        sender_name,
-                        sender_id,
                         message_direction,
+                        sender_name,
                         message,
+                        sender_id,
                         attachment,
                         attachment_name,
                         attachment_size,
@@ -392,16 +396,16 @@ def facebook_messenger_client_chats(context):
 
     data_headers = (
         ("Timestamp", "datetime"),
-        "Thread ID",
-        "Sender Name",
-        "Sender ID",
         "Message Direction",
+        "Sender Name",
         "Message",
+        ("Image", "media"),
+        "Thread ID",
+        "Sender ID",
         "Attachment-Image",
         "Attachment Name",
         "Attachment Size",
         "Attachment Persisted Path",
-        ("Image", "media"),
     )
 
     query = """
@@ -486,16 +490,16 @@ def facebook_messenger_client_chats(context):
                 data_list.append(
                     (
                         timestamp,
-                        thread_id,
-                        sender_name,
-                        sender_id,
                         message_direction,
+                        sender_name,
                         message,
+                        media_file_found,
+                        thread_id,
+                        sender_id,
                         is_attachment_image,
                         attachment_name,
                         attachment_size,
                         attachment_persisted_path,
-                        media_file_found,
                     )
                 )
 

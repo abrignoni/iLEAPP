@@ -7,6 +7,8 @@ __artifacts_v2__ = {
 ' keys-fields might be found with research and published blogs written by Scott Koenig'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-27',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains camera_smart_sharing_metadata.plist',

@@ -2,12 +2,12 @@ __artifacts_v2__ = {
     "icloudmeta": {
         "name": "iCloud - File Metadata",
         "description": "iCloud Drive file metadata parsed from Metadata.txt (iCloud Returns)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "iCloud Returns",
-        "notes": "btime/ctime/mtime are epoch milliseconds, stored as UTC.",
+        "notes": "btime/ctime/mtime are read as epoch milliseconds and rendered in UTC.",
         "paths": ('*/iclouddrive/Metadata.txt',),
         "output_types": "standard",
         "artifact_icon": "cloud"

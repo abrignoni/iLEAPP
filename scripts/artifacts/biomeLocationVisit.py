@@ -4,8 +4,9 @@ __artifacts_v2__ = {
         "description": "Parses visited places from the Location.Visit biome stream: coordinates "
                        "with horizontal accuracy, arrival and departure times, and the matched "
                        "point of interest (name, address and category) when iOS identified one. "
-                       "TIMESTAMP CAUTION: the coordinates in this stream are reliable but the "
-                       "timestamps are not. Records are written to the stream in batches long "
+                       "TIMESTAMP CAUTION: in tested samples the coordinates, accuracy and "
+                       "point of interest details decoded consistently; the timestamps require "
+                       "caution. Records are written to the stream in batches long "
                        "after the visit, so the SEGB record time is a write time, not a visit "
                        "time, and the detection timestamp does not consistently line up with "
                        "the arrival and departure pair. Treat every time in this artifact as "
@@ -13,7 +14,7 @@ __artifacts_v2__ = {
                        "is relied on.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-29",
         "requirements": "none",
         "category": "Biome",
         "notes": "Timestamp reliability, observed in the sample data: every record in a stream "
@@ -21,14 +22,23 @@ __artifacts_v2__ = {
                  "weeks, so the whole batch was flushed at once. The detection timestamp "
                  "(field 1) ran from hours to more than a day after the recorded departure and "
                  "up to 28 days before the SEGB write. Arrival and departure are internally "
-                 "consistent (arrival always precedes departure, spans from about half an hour "
+                 "consistent (arrival precedes departure, spans from about half an hour "
                  "to just over a day) and are the most usable pair, but they are still not "
-                 "independently verified. The coordinates, accuracy and point of interest "
-                 "details are reliable. Latitude, longitude, horizontal accuracy in metres and "
-                 "confidence are stored as doubles; vertical accuracy of -1 means unavailable.",
+                 "independently verified. In tested samples the coordinates, accuracy and "
+                 "point of interest details decoded consistently. Latitude, longitude, "
+                 "horizontal accuracy in metres and confidence are stored as doubles; vertical "
+                 "accuracy of -1 means unavailable. Reference: Mattia Epifani, '84 Streams "
+                 "Later, Part 2: Inside Apple Biome', "
+                 "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/Location.Visit/local/*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "map-pin",
+        "sample_data": {
+            "dexter_ios18": "378 rows",
+            "hc_ios18_7": "43 rows",
+            "hc_ios26": "26.5.2 | 35 rows",
+            "iphone14plus_ios18": "3 rows",
+        },
     }
 }
 
@@ -85,17 +95,19 @@ def _rounded(value, digits):
 def get_biomeLocationVisit(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -145,4 +157,4 @@ def get_biomeLocationVisit(context):
         'Vertical Accuracy', 'Confidence', 'Place Name', 'Place Address', 'Place Category',
         'Place ID', 'Visit ID', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

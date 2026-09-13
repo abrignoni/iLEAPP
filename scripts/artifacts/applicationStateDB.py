@@ -6,18 +6,15 @@ bundleIdentifier, bundlePath and sandboxPath. This new version includes a
 refactored version of the original plugin and adds support for
 XBApplicationSnapshotManifest BLOBs in applicationState.db records.
 
-Initial experiments on an iPhone 8 with iOS version 16.7.7 indicate that the
-timestamps in these BLOBs are only stored or updated at a moment when a user
-interacts with a device, for example when switching between apps using the app
-selector. Note that the timestamps do not necessarily reflect the moment at
-which the corresponding app was actively used in the foreground, so be careful
-with the interpretation of these records.
-
-When the device in our experiment was left untouched for a period of hours or
-days, the timestamps were not updated. This indicates that the timestamps can
-be used to investigate hypothesis concerning user-activity at the specific time
-periods. A write-up of our experiments will be published online at which point
-a link will be added to this plugin.
+SplashBoard names the two persisted timestamp properties creationDate and
+lastUsedDate. Runtime-derived SplashBoard headers expose both properties but do
+not document their forensic meaning. Where source file timestamps were available
+in the tested iOS 18 and iOS 26 extractions, creationDate agreed with the
+corresponding snapshot file's UTC modified time to the precision available in
+the extraction ZIP. In contrast, lastUsedDate is sparse and may be updated well
+after creationDate. Neither field by itself proves that the application was
+active in the foreground or that the user viewed the image contents at that
+time.
 
 The XBApplicationSnapshotManifest BLOBs in applicationState.db are
 related to .ktx files, for which support is also already available in iLEAPP in
@@ -29,6 +26,8 @@ Related work:
 
     https://abrignoni.blogspot.com/2019/09/ios-snapshots-triage-parser-working.html
     https://gforce4n6.blogspot.com/2019/09/a-quick-look-into-ios-snapshots.html
+    https://github.com/nst/iOS-Runtime-Headers/blob/fbb634c78269b0169efdead80955ba64eaaa2f21/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h
+    https://developer.apple.com/documentation/uikit/preparing-your-ui-to-run-in-the-background
 '''
 
 
@@ -38,10 +37,15 @@ __artifacts_v2__ = {
         "description": "Extract information about bundle container path and data path for Applications",
         "author": "@AlexisBrignoni - @mxkrt",
         "creation_date": "2025-08-27",
-        "last_update_date": "2025-10-24",
+        "last_update_date": "2026-08-25",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The bundle identifier is read from each application identifier's compatibilityInfo "
+                 "blob, so an application identifier whose compatibilityInfo is absent or unparseable "
+                 "is logged and left out of this table. Absence of a bundle identifier here therefore "
+                 "means the mapping this parser needs was not available in applicationState.db. It is "
+                 "not evidence that the application was never installed, and other sources such as the "
+                 "Mobile Installation logs may still carry its install and uninstall history.",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": ["html","tsv","lava"],
         "artifact_icon": "package",
@@ -65,17 +69,19 @@ __artifacts_v2__ = {
     },
     "get_snapshot_creationDate": {
         "name": "Application Snapshot",
-        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db. "
-                       "NOTE: these timestamps do not always indicate application usage "
-                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these "
-                       "timestamps do indicate user-interaction with the "
-                       "device, such as switching between apps.",
-        "author": "@mxkrt",
+        "description": "Extract XBApplicationSnapshotManifest records from applicationState.db, using the stored "
+                       "creationDate as the primary timestamp. The value records snapshot-object creation; it does "
+                       "not by itself prove foreground application use or that the user viewed the image contents.",
+        "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2025-10-24",
+        "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Device Usage",
-        "notes": "",
+        "notes": "SplashBoard runtime headers expose creationDate and lastUsedDate properties on "
+                 "XBApplicationSnapshot. Apple documents that UIKit creates app-switcher snapshots after a scene "
+                 "enters the background and that applications may hide sensitive content before capture. Sources: "
+                 "https://github.com/nst/iOS-Runtime-Headers/blob/fbb634c78269b0169efdead80955ba64eaaa2f21/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h ; "
+                 "https://developer.apple.com/documentation/uikit/preparing-your-ui-to-run-in-the-background",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -100,17 +106,18 @@ __artifacts_v2__ = {
     "get_snapshot_lastUsedDate": {
         "name": "Application Snapshot lastUsedDate",
         "description": "Extract XBApplicationSnapshotManifest records with a "
-                       "lastUsedDate from applicationState.db. "
-                       "NOTE: these timestamps do not always indicate application usage "
-                       "but experiments on an iPhone 8 with iOS 16.7.7 suggest that these "
-                       "timestamps do indicate user-interaction with the "
-                       "device, such as switching between apps.",
-        "author": "@mxkrt",
+                       "lastUsedDate from applicationState.db. The property belongs to SplashBoard's snapshot object, "
+                       "but its update event is not publicly documented. It is sparse and must not be treated as "
+                       "proof that the application was in the foreground or that the user viewed the image contents "
+                       "at that time.",
+        "author": "@mxkrt - @AlexisBrignoni",
         "creation_date": "2025-08-04",
-        "last_update_date": "2025-10-24",
+        "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Device Usage",
-        "notes": "",
+        "notes": "The property name is sourced from the runtime-derived SplashBoard header. Its forensic meaning is "
+                 "not documented by Apple. Corroborate with independent device-usage artifacts and report the field "
+                 "as stored. Source: https://github.com/nst/iOS-Runtime-Headers/blob/fbb634c78269b0169efdead80955ba64eaaa2f21/PrivateFrameworks/SplashBoard.framework/XBApplicationSnapshot.h",
         "paths": ('*/mobile/Library/FrontBoard/applicationState.db*'),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -166,8 +173,8 @@ _snapshot = _nt('snapshot', 'creationDate bundleID snapshot_group '
                             'contentType imageOpaque requiredOSVersion')
 
 # display headers for the snapshot analysis results
-_snapshot_headers = ('Creation Date', 'Bundle ID', 'Snapshot Group',
-                     'Snapshot Index', 'Expiration Date', 'Last Used Date',
+_snapshot_headers = (('Creation Date', 'datetime'), 'Bundle ID', 'Snapshot Group',
+                     'Snapshot Index', ('Expiration Date', 'datetime'), ('Last Used Date', 'datetime'),
                      'Launch Interface Identifier', 'Relative Path',
                      'Group ID', 'Image Scale', 'Fullscreen', 'Name',
                      'Interface Orientation', 'File Location',
@@ -186,7 +193,7 @@ def get_installed_apps(context):
     # get the records grouped by application identifier
     applications = _do_query(file_found)
     if applications is None:
-        return (), [], ''
+        return (), [], file_found
 
     data_headers = ('Bundle ID','Bundle Path','Sandbox Path')
     data_list = []
@@ -241,8 +248,9 @@ def get_snapshot_lastUsedDate(context):
         new_data_list.append(new_entry)
 
     # swap Last Used Date and Creation Date in headers as well
-    last_idx = _snapshot_headers.index('Last Used Date')
-    new_headers = [hdr for hdr in _snapshot_headers[1:] if hdr != 'Last Used Date']
+    names = [hdr[0] if isinstance(hdr, tuple) else hdr for hdr in _snapshot_headers]
+    last_idx = names.index('Last Used Date')
+    new_headers = [hdr for hdr, name in zip(_snapshot_headers[1:], names[1:]) if name != 'Last Used Date']
     new_headers.insert(0, ('Last Used Date', 'datetime'))
     new_headers.insert(last_idx, ('Creation Date', 'datetime'))
 

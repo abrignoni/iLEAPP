@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "geodpdplacecache": {
         "name": "Geolocation - PD Place Cache",
         "description": "Cached place lookups from the geod PDPlaceCache.db",
-        "author": "",
+        "author": "@flamusdiu",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",

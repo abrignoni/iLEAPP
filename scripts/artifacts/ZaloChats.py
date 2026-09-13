@@ -5,14 +5,16 @@ __artifacts_v2__ = {
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-21",
         "requirements": "pillow",
         "category": "Zalo",
-        "notes": "",
+        "notes": "Message type mappings are not vendor-documented and were derived from tested "
+                 "data without a published source; unrecognized types are reported as Unknown "
+                 "with the raw Type ID column.",
         "paths": (  
             '*/mobile/Containers/Data/Application/*/Documents/chat_dbs/*/*',
-            '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite',
-            '*/mobile/Containers/Data/Application/*/Documents/chatgroup.sqlite',
+            '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite*',
+            '*/mobile/Containers/Data/Application/*/Documents/chatgroup.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/Files/*/*',
             '*/mobile/Containers/Data/Application/*/Documents/Sticker/Snapshot/*/*/*',
             '*/mobile/Containers/Data/Application/*/Documents/[0-9]*[0-9]/[0-9]*[0-9]/*/*.*',
@@ -39,18 +41,19 @@ __artifacts_v2__ = {
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
-        "last_update_date": "2026-06-01",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Zalo",
         "notes": "",
         "paths": (  
-            '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite'
+            '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite*'
         ),
         "output_types": "standard",
         "artifact_icon": "users"
     }
 }
 
+import os
 import re
 import json
 from io import BytesIO
@@ -58,7 +61,7 @@ from pathlib import Path
 from PIL import Image
 
 from scripts.ilapfuncs import artifact_processor, \
-    convert_unix_ts_to_utc, get_sqlite_db_records, \
+    convert_unix_ts_to_utc, get_sqlite_db_records, does_column_exist_in_db, \
     check_in_media, check_in_embedded_media, get_file_path
 
 def extract_last_url(blob) -> str | None:
@@ -104,26 +107,43 @@ def zalo_users(context):
     data_list = []
     source_path = get_file_path(files_found, 'profile.sqlite')
 
-    user_query = '''
-        SELECT
-            pe.userid,
-            pe.displayname,
-            be.mobile,
-            ge.globalid
-        FROM
-            ProfileEntity pe
-        LEFT JOIN BuddyEntity be
-            ON pe.userid=be.zaloid
-        LEFT JOIN GlobalIdEntity ge
-            ON pe.userid=ge.rawid
-        '''
+    rawid = does_column_exist_in_db(source_path, 'GlobalIdEntity', 'rawid')
+
+    if rawid:
+        user_query = '''
+            SELECT
+                pe.userid,
+                pe.displayname,
+                be.mobile,
+                ge.globalid
+            FROM
+                ProfileEntity pe
+            LEFT JOIN BuddyEntity be
+                ON pe.userid=be.zaloid
+            LEFT JOIN GlobalIdEntity ge
+                ON pe.userid=ge.rawid
+            '''
+    else:
+        user_query = '''
+            SELECT
+                pe.userid,
+                pe.displayname,
+                be.mobile
+            FROM
+                ProfileEntity pe
+            LEFT JOIN BuddyEntity be
+                ON pe.userid=be.zaloid
+            '''
 
     user_records = get_sqlite_db_records(source_path, user_query)
     for record in user_records:
         uid = record["userid"]
         uname = record["displayname"]
         umobile = record["mobile"]
-        uglobal = record["globalid"]
+        if rawid:
+            uglobal = record["globalid"]
+        else:
+            uglobal = None
 
         data_list.append([uid, uname, umobile, uglobal])
 
@@ -191,6 +211,7 @@ def zalo_messages(context):
             ChatContent
     '''
 
+    source_dirs = set()
     user_dict = {}
     user_records = get_sqlite_db_records(chat_info, user_query)
     for record in user_records:
@@ -207,6 +228,7 @@ def zalo_messages(context):
 
     for db_file in chat_dbs:
         source_file = db_file
+        source_dirs.add(os.path.dirname(db_file))
         isgroup = False
         if "group_" in db_file:
             isgroup = True
@@ -405,8 +427,8 @@ def zalo_messages(context):
                     if message in [None, "", " "]:
                         message = f"geo:{latitude},{longitude}"
 
-            data_list.append([message_date, chat_name, sender_id, sender_name, msg_type, print_type, message, attach_file, latitude, longitude, outgoing, isgroup, context.get_relative_path(source_file)])
+            data_list.append([message_date, outgoing, sender_name, chat_name, message, attach_file, sender_id, msg_type, print_type, latitude, longitude, isgroup, context.get_relative_path(source_file)])
 
-    data_headers = (('Timestamp', 'datetime'), "Chat Name", "Sender-ID", "Sender", "Type ID", "Message Type", "Message", ('Attachment File', 'media'), "Latitude", "Longitude", "Outgoing", "Group Chat", "Source File")
+    data_headers = (('Timestamp', 'datetime'), "Outgoing", "Sender", "Chat Name", "Message", ('Attachment File', 'media'), "Sender-ID", "Type ID", "Message Type", "Latitude", "Longitude", "Group Chat", "Source File")
 
-    return data_headers, data_list, 'See Table for Source DB'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

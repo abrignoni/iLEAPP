@@ -40,10 +40,10 @@ __artifacts_v2__ = {
     },
     "box_previews": {
         "name": "Box - Previews",
-        "description": "Parses and extracts all Previews and Original media files",
+        "description": "Parses preview and original media files referenced in PreviewItem.db",
         "author": "@djangofaiola",
         "creation_date": "2025-12-05",
-        "last_update_date": "2026-03-30",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Box",
         "notes": "https://djangofaiola.blogspot.com",
@@ -195,14 +195,10 @@ def format_url(str_url : str | None, html_format : bool = False) -> str:
         return s
 
     if html_format:
-        # Escape both the href and the visible text to prevent XSS
-        safe_href = html.escape(normalized, quote=True)
-        safe_text = html.escape(normalized, quote=False)
-        # Add rel="noopener noreferrer" with target="_blank" to prevent tabnabbing
-        return (
-            f'<a href="{safe_href}" target="_blank" '
-            f'rel="noopener noreferrer">{safe_text}</a>'
-        )
+        # Escaped text, never an anchor: the host in a Box URL comes from the
+        # evidence, and a report must not reach a destination outside its own
+        # folder. The URL is preserved verbatim for the examiner to read and copy.
+        return html.escape(normalized, quote=False)
 
     return normalized
 

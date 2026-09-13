@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Kik chat messages with attachments (kik.sqlite)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-07-03",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Kik",
-        "notes": "",
+        "notes": "Reference: K. Ovens & G. Morison, 'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, 2016), https://researchonline.gcu.ac.uk/ws/files/24282895/K.Ovens_revisedKMOvensManuscript3_2.pdf",
         "paths": ('**/kik.sqlite*',
                   '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
         "output_types": "standard",
@@ -83,8 +83,17 @@ def _find_db(files_found):
 
 @artifact_processor
 def kikMessages(context):
-    data_headers = (('Received Time', 'datetime'), ('Timestamp', 'datetime'), 'Message', 'Type',
-                    'User', 'Display Name', 'User Name', 'Attachment Name', ('Attachment', 'media'))
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        ('Received Time', 'datetime'),
+        'Type',
+        'Display Name',
+        'Message',
+        ('Attachment', 'media'),
+        'User',
+        'User Name',
+        'Attachment Name',
+    )
     data_list = []
     source_path = _find_db(context.get_files_found())
     if not source_path:
@@ -98,8 +107,8 @@ def kikMessages(context):
         datetime(ZKIKMESSAGE.ZTIMESTAMP +978307200,'UNIXEPOCH'),
         ZKIKMESSAGE.ZBODY,
         CASE ZKIKMESSAGE.ZTYPE
-            WHEN 1 THEN 'Received' WHEN 2 THEN 'Sent' WHEN 3 THEN 'Group Admin'
-            WHEN 4 THEN 'Group Message' ELSE 'Unknown' END,
+            WHEN 1 THEN 'Received' WHEN 2 THEN 'Sent' WHEN 3 THEN 'Group Housekeeping (Admin)'
+            WHEN 4 THEN 'Group Housekeeping' ELSE ZKIKMESSAGE.ZTYPE END,
         ZKIKMESSAGE.ZUSER,
         ZKIKUSER.ZDISPLAYNAME,
         ZKIKUSER.ZUSERNAME,
@@ -113,8 +122,17 @@ def kikMessages(context):
         media = ''
         if row[7]:
             media = check_in_media(str(row[7])) or ''
-        data_list.append((_str_to_utc(row[0]), _str_to_utc(row[1]), row[2], row[3], row[4], row[5],
-                          row[6], row[7], media))
+        data_list.append((
+            _str_to_utc(row[1]),
+            _str_to_utc(row[0]),
+            row[3],
+            row[5],
+            row[2],
+            media,
+            row[4],
+            row[6],
+            row[7],
+        ))
     db.close()
 
     return data_headers, data_list, source_path

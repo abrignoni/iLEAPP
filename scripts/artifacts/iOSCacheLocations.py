@@ -4,10 +4,14 @@ __artifacts_v2__ = {
         'description': 'Parses Cache.sqlite Routined Location Records',
         'author': 'Heather Charpentier',
         'creation_date': '2026-05-12',
-        'last_update_date': '2026-05-12',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': 'Parses latitude, longitude, accuracy, and speeds from Cache.sqlite',
+        'notes': 'Parses latitude, longitude, accuracy, and speeds from Cache.sqlite. '
+                 'Reference: Apple CoreLocation documentation, '
+                 'CLLocation.horizontalAccuracy and CLLocation.speed, '
+                 'https://developer.apple.com/documentation/corelocation/cllocation/horizontalaccuracy '
+                 'and https://developer.apple.com/documentation/corelocation/cllocation/speed',
         'paths': ('*/Library/Caches/com.apple.routined/Cache.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'map-pin',

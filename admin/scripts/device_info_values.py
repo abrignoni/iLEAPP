@@ -1,17 +1,16 @@
 """
-Parses artifact modules to find usage of device_info and logdevinfo.
+Parses artifact modules to find usage of device_info.
 
 This script scans all Python files in the scripts/artifacts directory to
-identify calls to the `device_info` and `logdevinfo` functions. It extracts
-the arguments passed to these functions and aggregates them to create a summary
-of what device information is being logged and by which modules.
+identify calls to the `device_info` function. It extracts the arguments passed
+to it and aggregates them to create a summary of what device information is
+being recorded and by which modules.
 
-The aggregated data is then formatted into two Markdown tables:
-1. `device_info` usage, showing Category, Label, and Source Modules.
-2. `logdevinfo` usage, showing the Key and Source Modules.
+The aggregated data is then formatted into a Markdown table showing Category,
+Label, and Source Modules.
 
 Finally, the script updates the 'admin/docs/generated/device_info_values.md'
-file by replacing placeholder sections with the newly generated tables. This
+file by replacing the placeholder section with the newly generated table. This
 provides an up-to-date reference of device info usage across all artifacts.
 """
 import os
@@ -34,13 +33,11 @@ def find_function_calls(file_path, function_name):
 
     Args:
         file_path (str or Path): The path to the Python file to analyze.
-        function_name (str): The name of the function to search for
-                             ('device_info' or 'logdevinfo').
+        function_name (str): The name of the function to search for.
 
     Returns:
-        list[tuple]: A list of tuples containing the captured arguments.
-                     For 'device_info', it's (category, label).
-                     For 'logdevinfo', it's (key,).
+        list[tuple]: A list of (category, label) tuples, one per call whose
+                     first two arguments are string literals.
     """
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -51,40 +48,24 @@ def find_function_calls(file_path, function_name):
         for node in ast.walk(tree):
             if isinstance(node, ast.Call):
                 if isinstance(node.func, ast.Name) and node.func.id == function_name:
-                    if function_name == 'device_info' and len(node.args) >= 2:
+                    if len(node.args) >= 2:
                         # Get the string values if they're string literals
                         if isinstance(node.args[0], ast.Constant) and isinstance(node.args[1], ast.Constant):
                             calls.append((node.args[0].value, node.args[1].value))
-                    elif function_name == 'logdevinfo' and len(node.args) >= 1:
-                        # For logdevinfo, try to extract the message without HTML tags
-                        if isinstance(node.args[0], (ast.Constant, ast.JoinedStr)):
-                            # Convert the argument to string and strip HTML
-                            arg_str = ast.unparse(node.args[0])
-                            # Remove f-string prefix if present
-                            arg_str = arg_str.strip('f').strip('"\'')
-                            # Basic HTML tag removal (can be enhanced if needed)
-                            clean_str = re.sub(r'<[^>]+>', '', arg_str)
-                            calls.append((clean_str,))
     except:
         # If parsing fails, try regex as fallback
-        if function_name == 'device_info':
-            pattern = r'device_info\([\'"]([^\'"]+)[\'"],\s*[\'"]([^\'"]+)[\'"]\s*,'
-            calls.extend(re.findall(pattern, content))
-        else:
-            # Updated pattern to handle f-strings and HTML tags
-            pattern = r'logdevinfo\(f?[\'"].*?<b>([^<]+)</b>'
-            matches = re.findall(pattern, content)
-            calls.extend([(m.strip(),) for m in matches])
+        pattern = rf'{function_name}\([\'"]([^\'"]+)[\'"],\s*[\'"]([^\'"]+)[\'"]\s*,'
+        calls.extend(re.findall(pattern, content))
     
     return calls
 
 
 def generate_markdown():
     """
-    Generate markdown documentation for device_info and logdevinfo usage.
+    Generate markdown documentation for device_info usage.
 
     This function orchestrates the process of scanning artifact files,
-    collecting usage data, formatting it into markdown tables, and
+    collecting usage data, formatting it into a markdown table, and
     updating the documentation file.
     """
     script_dir = Path(__file__).parent
@@ -92,7 +73,6 @@ def generate_markdown():
     
     artifacts_dir = Path(root_dir, ARTIFACTS_DIR_NAME)
     device_info_usage = {}
-    logdevinfo_usage = {}
     
     # Scan all Python files in artifacts directory
     for file_path in artifacts_dir.glob('*.py'):
@@ -107,14 +87,6 @@ def generate_markdown():
                 if label not in device_info_usage[category]:
                     device_info_usage[category][label] = []
                 device_info_usage[category][label].append(module_name)
-        
-        # Find logdevinfo calls
-        log_calls = find_function_calls(file_path, 'logdevinfo')
-        if log_calls:
-            for (key,) in log_calls:
-                if key not in logdevinfo_usage:
-                    logdevinfo_usage[key] = []
-                logdevinfo_usage[key].append(module_name)
     
     # Generate markdown content
     device_info_md = "| Category | Label | Source Modules |\n|-----------|-------|----------------|\n"
@@ -122,11 +94,6 @@ def generate_markdown():
         for label in sorted(device_info_usage[category].keys()):
             modules = ", ".join(sorted(set(device_info_usage[category][label])))
             device_info_md += f"| {category} | {label} | {modules} |\n"
-    
-    logdevinfo_md = "| Key | Source Modules |\n|-----|----------------|\n"
-    for key in sorted(logdevinfo_usage.keys()):
-        modules = ", ".join(sorted(set(logdevinfo_usage[key])))
-        logdevinfo_md += f"| {key} | {modules} |\n"
     
     # Read the existing markdown file
     doc_path = Path(root_dir, DEVICE_INFO_DOC_PATH)
@@ -137,12 +104,6 @@ def generate_markdown():
     content = re.sub(
         r'<!-- DEVICE_INFO_START -->.*<!-- DEVICE_INFO_END -->',
         f'<!-- DEVICE_INFO_START -->\n{device_info_md}<!-- DEVICE_INFO_END -->',
-        content,
-        flags=re.DOTALL
-    )
-    content = re.sub(
-        r'<!-- LOGDEVINFO_START -->.*<!-- LOGDEVINFO_END -->',
-        f'<!-- LOGDEVINFO_START -->\n{logdevinfo_md}<!-- LOGDEVINFO_END -->',
         content,
         flags=re.DOTALL
     )

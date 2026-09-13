@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Uber locations extracted from LevelDB storage.",
         "author": "Alexis Brignoni",
         "creation_date": "2024-04-08",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-08-21",
         "requirements": "",
         "category": "Uber",
         "notes": "Thanks to Alex Caithness for the ccc_leveldb libraries",
@@ -30,6 +30,7 @@ from scripts.ilapfuncs import (
 def uber_locations(context):
     files_found = context.get_files_found()
     data_list = []
+    source_dirs = set()
 
     in_dirs = set(pathlib.Path(x).parent for x in files_found)
 
@@ -39,6 +40,8 @@ def uber_locations(context):
         except (OSError, ValueError) as ex:
             logfunc(f"Error opening LevelDB at {in_db_dir}: {ex}")
             continue
+
+        source_dirs.add(str(in_db_dir))
 
         for record in leveldb_records.iterate_records_raw():
             record_sequence = record.seq
@@ -135,4 +138,4 @@ def uber_locations(context):
         'Source File'
     )
 
-    return data_headers, data_list, 'see Source File column'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

@@ -4,10 +4,10 @@ __artifacts_v2__ = {
         "description": "Parses messages from the encrypted Signal database, including direction, author, conversation and body.",
         "author": "Alexis Brignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Signal",
-        "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain is captured separately from the file system extraction, so supply it with --keychain or the keychain field in the GUI.",
+        "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain is captured separately from the file system extraction, so supply it with --keychain or the keychain field in the GUI. Reference: Signal-iOS, 'SDSRecordType.swift (incomingMessage = 19, outgoingMessage = 21)', https://github.com/signalapp/Signal-iOS/blob/a9f55ea599561e6d3bcee87d4f1540a7191b28dc/SignalServiceKit/Storage/Database/SDSRecordType.swift Reference: SQLCipher documentation, 'cipher_plaintext_header_size', https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
         "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
                   # attachments are stored in the clear, so they only need locating
                   '*/AppGroup/*/Attachments/*',
@@ -28,6 +28,12 @@ __artifacts_v2__ = {
             }
         },
         "artifact_icon": "message-circle",
+        "sample_data": {
+            "abe_ios16": "151 rows",
+            "felix23_ios16": "16 rows",
+            "iphone11_ios17": "52 rows",
+            "otto_ios17": "32 rows",
+        },
     },
     "get_signalIOSContacts": {
         "name": "Signal - Contacts",
@@ -44,6 +50,14 @@ __artifacts_v2__ = {
                   '*/keychain-backup.plist'),
         "output_types": "standard",
         "artifact_icon": "users",
+        "sample_data": {
+            "abe_ios16": "582 rows",
+            "dexter_ios18": "5 rows",
+            "felix23_ios16": "7 rows",
+            "felix_ios17": "6 rows",
+            "iphone11_ios17": "7 rows",
+            "otto_ios17": "39 rows",
+        },
     },
     "get_signalIOSThreads": {
         "name": "Signal - Conversations",
@@ -60,6 +74,14 @@ __artifacts_v2__ = {
                   '*/keychain-backup.plist'),
         "output_types": "standard",
         "artifact_icon": "message-square",
+        "sample_data": {
+            "abe_ios16": "17 rows",
+            "dexter_ios18": "3 rows",
+            "felix23_ios16": "4 rows",
+            "felix_ios17": "2 rows",
+            "iphone11_ios17": "6 rows",
+            "otto_ios17": "32 rows",
+        },
     },
 }
 
@@ -79,13 +101,14 @@ KEY_SPEC_ACCOUNT = 'GRDBDatabaseCipherKeySpec'
 KEY_SPEC_LENGTH = 48
 
 # Signal for iOS keeps the first 32 bytes readable so the file still identifies
-# as SQLite, which displaces the salt into the keychain entry above. It also
-# uses the SQLCipher 4 defaults of SHA512 for the HMAC and the KDF.
+# as SQLite; the application must store the salt externally, and Signal keeps
+# it in the keychain entry above. It also uses the SQLCipher 4 defaults of
+# SHA512 for the HMAC and the KDF.
 PLAINTEXT_HEADER_SIZE = 32
 SIGNAL_HMAC = 'sha512'
 
 # SDSRecordType values seen in model_TSInteraction. Incoming rows carry an
-# author; outgoing rows do not, because the author is the device owner.
+# author; outgoing rows do not, because the author is the signed-in account.
 RECORD_TYPE_INCOMING = 19
 RECORD_TYPE_OUTGOING = 21
 MESSAGE_DIRECTIONS = {RECORD_TYPE_INCOMING: 'Incoming', RECORD_TYPE_OUTGOING: 'Outgoing'}
@@ -248,13 +271,14 @@ def get_signalIOSMessages(context):
         ''')
         for row in cursor:
             direction = MESSAGE_DIRECTIONS.get(row[2], f'Other (record type {row[2]})')
-            # Outgoing rows have no author: the device owner sent them
-            author = row[4] or row[5] or ('Device owner' if row[2] == RECORD_TYPE_OUTGOING else '')
+            # Outgoing rows have no author: the signed-in account sent them
+            author = row[4] or row[5] or ('Signed-in account' if row[2] == RECORD_TYPE_OUTGOING else '')
             # A message can carry several attachments, so the media cell takes a list
             attachments = attachments_by_message.get(row[15], [])
             data_list.append((
                 convert_unix_ts_to_utc(row[0]),
                 convert_unix_ts_to_utc(row[1]),
+                convert_unix_ts_to_utc(row[12]) if row[12] else '',
                 direction,
                 author,
                 row[16] or row[17] or '',
@@ -266,7 +290,6 @@ def get_signalIOSMessages(context):
                 'Yes' if row[9] else 'No',
                 'Yes' if row[10] else 'No',
                 row[11] or '',
-                convert_unix_ts_to_utc(row[12]) if row[12] else '',
                 row[6] or '',
                 row[14],
             ))
@@ -275,6 +298,7 @@ def get_signalIOSMessages(context):
     data_headers = (
         ('Timestamp', 'datetime'),
         ('Received Timestamp', 'datetime'),
+        ('Server Timestamp', 'datetime'),
         'Direction',
         'Author',
         'Conversation With',
@@ -286,7 +310,6 @@ def get_signalIOSMessages(context):
         'View Once',
         'Remotely Deleted',
         'Disappearing Timer (Seconds)',
-        ('Server Timestamp', 'datetime'),
         'Thread ID',
         'Row ID',
     )

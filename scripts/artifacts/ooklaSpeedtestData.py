@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "ooklaSpeedtestData": {
         "name": "Ookla Speedtest",
         "description": "Ookla Speedtest results including network details and test location",
-        "author": "",
+        "author": "@mastenp",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",

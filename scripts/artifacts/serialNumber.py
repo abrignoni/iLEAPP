@@ -3,6 +3,8 @@ __artifacts_v2__ = {
         "name": "Serial Number",
         "description": "Serial Number of the device",
         "author": "@AlexisBrignoni",
+        "creation_date": "2023-09-29",
+        "last_update_date": "2026-07-13",
         "version": "0.2",
         "date": "2023-09-30",
         "requirements": "none",

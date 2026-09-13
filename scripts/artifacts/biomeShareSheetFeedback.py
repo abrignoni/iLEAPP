@@ -2,17 +2,18 @@ __artifacts_v2__ = {
     "get_biomeShareSheetFeedback": {
         "name": "Biome - Share Sheet Feedback",
         "description": "Parses share sheet activity from the ShareSheet.Feedback biome stream: "
-                       "the app the content was shared from, the activity the user chose (for "
-                       "example copy to pasteboard, save photo, open in Safari) and the full "
+                       "the app the content was shared from, the activity recorded as chosen "
+                       "(for example copy to pasteboard, save photo, open in Safari) and the "
                        "list of share targets that were offered.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The offered candidates list names third party apps installed at the time of "
-                 "the share, which can evidence app presence even after removal. Field 4 holds "
-                 "an NSKeyedArchiver plist that is not currently parsed.",
+        "notes": "In tested data the candidate list contained bundle IDs of apps installed on "
+                 "the device; if that holds generally, entries can indicate an app's past "
+                 "presence. Field 4 holds an NSKeyedArchiver plist that is not currently "
+                 "parsed.",
         "paths": ('*/streams/*/ShareSheet.Feedback/local/*',),
         "output_types": "standard",
         "artifact_icon": "share-2",
@@ -63,17 +64,19 @@ def _to_str(value):
 def get_biomeShareSheetFeedback(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -105,4 +108,4 @@ def get_biomeShareSheetFeedback(context):
                     'Chosen Activity', 'Activity Type', 'Offered Candidates', 'Event UUID',
                     'Session ID', 'Field 17 (raw)', 'Field 20 (raw)', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

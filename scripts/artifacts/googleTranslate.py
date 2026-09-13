@@ -53,6 +53,7 @@ __artifacts_v2__ = {
 import os
 from pathlib import Path
 from scripts.filetype import audio_match
+from scripts.html_safe import safe_local_path
 from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, does_table_exist_in_db, convert_unix_ts_to_utc
 
 @artifact_processor
@@ -146,6 +147,7 @@ def googleTranslateTts(context):
     for record in db_records:
         # audio
         audio_html = ''
+        audio_ref = ''
         audio = record[3]
         if bool(audio):
             mimetype = audio_match(audio)
@@ -155,12 +157,16 @@ def googleTranslateTts(context):
                 audio_path = os.path.join(report_folder, audio_filename)
                 with open(audio_path, "wb") as audio_file:
                     audio_file.write(audio)
-                audio_path_html = Path(report_folder).name + '/' + audio_filename                       
+                # Report-relative path to the audio written beside the report.
+                # safe_local_path() percent-encodes it and refuses anything that
+                # would leave the report folder.
+                audio_ref = Path(report_folder).name + '/' + audio_filename
+                audio_path_html = safe_local_path(audio_ref)
                 audio_html = f'<audio controls><source src="{audio_path_html}" type="audio/ogg"><source src="{audio_path_html}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
 
         location = f'tts (ROWID: {record[0]})'  # location
 
-        data_list.append((record[1], record[2], audio_path, location))
+        data_list.append((record[1], record[2], audio_ref, location))
         data_list_html.append((record[1], record[2], audio_html, location))
 
     return data_headers, (data_list, data_list_html), source_path

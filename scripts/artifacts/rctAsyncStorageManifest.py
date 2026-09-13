@@ -3,8 +3,9 @@ __artifacts_v2__ = {
         "name": "React Native Async Storage Manifest",
         "description": "Parses React Native AsyncStorage manifest files",
         "author": "@Gear-I",
-        "creation_date": "",
-        "last_updated": "2026-06-19",
+        "last_update_date": "2026-08-21",
+        "creation_date": "2026-06-19",
+        "last_updated": "2026-08-06",
         "requirements": "none",
         "category": "React Native",
         "notes": "Manifest files may belong to any React Native app. Use Source File to identify the app container.",
@@ -12,7 +13,7 @@ __artifacts_v2__ = {
             "*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json",
             "*/mobile/Containers/Data/Application/*/Library/Application Support/RCTAsyncLocalStorage_V1/manifest.json",
         ),
-        "output_types": "standard",
+        "output_types": ["html", "lava", "tsv"],
         "artifact_icon": "database",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | com.facebook.Facebook, com.punchh.moes | 3 rows",
@@ -30,6 +31,7 @@ from scripts.ilapfuncs import artifact_processor
 @artifact_processor
 def get_rctAsyncStorageManifest(context):
     data_list = []
+    source_paths = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
@@ -45,6 +47,8 @@ def get_rctAsyncStorageManifest(context):
 
         if not isinstance(json_data, dict):
             continue
+
+        source_paths.add(file_found)
 
         for key, value in json_data.items():
             if isinstance(value, (dict, list)):
@@ -62,4 +66,4 @@ def get_rctAsyncStorageManifest(context):
         "Source File",
     )
 
-    return data_headers, data_list, "see Source File for more"
+    return data_headers, data_list, "\n".join(sorted(source_paths))

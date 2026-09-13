@@ -1,0 +1,5 @@
+# The parser executable and its license are fetched per build, not committed.
+# See PROVENANCE.md and admin/scripts/fetch_unifiedlog_iterator.py
+unifiedlog_iterator
+unifiedlog_iterator.exe
+LICENSE-unifiedlog_iterator

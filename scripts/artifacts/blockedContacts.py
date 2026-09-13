@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extract blocked contacts",
         "author": "@JohannPLW",
         "creation_date": "2023-12-08",
-        "last_update_date": "2025-11-03",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Contacts",
         "notes": "",
@@ -28,7 +28,7 @@ def blockedContacts(context):
 
     pl = get_plist_file_content(source_path)
     if not pl or not isinstance(pl, dict):
-        return (), [], ''
+        return (), [], source_path or ''
     StoreArrayKey = pl.get('__kCMFBlockListStoreTopLevelKey', {}).get('__kCMFBlockListStoreArrayKey', {})
     for item in StoreArrayKey:
         type_key = item.get('__kCMFItemTypeKey', '')

@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "module_name": "storeSystem",
+    "artifact_name": "Installed Apps - App Store Download Packages",
+    "function_name": "storeSystemAppPackages",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 13,
+    "number_of_rows": 0,
+    "total_data_size_bytes": 0,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/storeSystem/testdata.storeSystem.storeSystemAppPackages.josh_ios17_ffs.zip",
+    "start_time": "2026-07-30T05:07:25.415970+00:00",
+    "end_time": "2026-07-30T05:07:25.441005+00:00",
+    "run_time_seconds": 0.0017478466033935547,
+    "last_commit": {
+      "hash": "ac54a35d9b06f76a444950ebac7583642765b2aa",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-07-29T22:12:22-05:00",
+      "message": "feat: parse installed app records from storeSystem.db"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Bundle ID",
+    "App Name",
+    "Package Type",
+    "Bytes Total",
+    "Disk Usage",
+    "Extracted Content Size",
+    "Variant ID",
+    "Compression",
+    "Delta Algorithm",
+    "Archive Type",
+    "Request Count",
+    "Package URL"
+  ],
+  "data": []
+}

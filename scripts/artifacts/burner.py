@@ -319,9 +319,23 @@ def get_burner_numbers(context):
 
 @artifact_processor
 def get_burner_messages(context):
-    data_headers = (('Sent', 'datetime'), 'Thread', 'Direction', 'Read', 'Sender', 'Recipient',
-                    'Message', 'Message type', ('Image', 'media'), ('Thumbnail', 'media'),
-                    'Media URL', 'Voicemail URL', 'Message ID', 'Burner ID', 'Thread ID')
+    data_headers = (
+        ('Sent', 'datetime'),
+        'Direction',
+        'Sender',
+        'Message',
+        ('Image', 'media'),
+        'Thread',
+        'Read',
+        'Recipient',
+        'Message type',
+        ('Thumbnail', 'media'),
+        'Media URL',
+        'Voicemail URL',
+        'Message ID',
+        'Burner ID',
+        'Thread ID',
+    )
     data_list = []
 
     media_paths = []
@@ -406,7 +420,22 @@ def get_burner_messages(context):
     for row in get_sqlite_db_records(source_path, query):
         image_ref = _checkin_asset(row[12], media_paths, source_path)
         thumb_ref = _checkin_asset(row[13], media_paths, source_path)
-        data_list.append((_to_utc(row[5]), row[4], row[6], row[7], row[8], row[9], row[10],
-                          row[11], image_ref, thumb_ref, row[14], row[15], row[16], row[17], row[18]))
+        data_list.append((
+            _to_utc(row[5]),
+            row[6],
+            row[8],
+            row[10],
+            image_ref,
+            row[4],
+            row[7],
+            row[9],
+            row[11],
+            thumb_ref,
+            row[14],
+            row[15],
+            row[16],
+            row[17],
+            row[18],
+        ))
 
     return data_headers, data_list, context.get_relative_path(source_path)

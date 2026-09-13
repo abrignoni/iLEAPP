@@ -3,11 +3,11 @@ __artifacts_v2__ = {
         "name": "Biome - App Intents Transcript",
         "description": "Parses donated App Intents from the App.Intents.Transcript biome "
                        "stream: the donating app, the intent class, the intent parameter and "
-                       "the human readable entity title shown to the user (for example a "
-                       "Settings destination or a Focus filter target).",
+                       "the human readable entity title associated with the intent (for "
+                       "example a Settings destination or a Focus filter target).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record also embeds an NSKeyedArchiver plist holding the full entity "
@@ -102,17 +102,19 @@ def _intent_details(intent):
 def get_biomeAppIntentsTranscript(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -157,4 +159,4 @@ def get_biomeAppIntentsTranscript(context):
                     'SEGB State', 'Bundle ID', 'Intent Class', 'Parameters', 'Entity Types',
                     'Entity Titles', 'Phrase Template', 'App URL', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

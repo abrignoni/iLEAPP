@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "module_name": "safariCache",
+    "artifact_name": "Safari Browser - Cache Records",
+    "function_name": "safariCache",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 20,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 315,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/safariCache/testdata.safariCache.safariCache.mvs_ios_2023.zip",
+    "start_time": "2026-07-30T03:21:25.069974+00:00",
+    "end_time": "2026-07-30T03:21:25.170583+00:00",
+    "run_time_seconds": 0.0010602474212646484,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-07-29T22:21:25.163703",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Request URL",
+    "HTTP Status",
+    "Request Method",
+    "MIME Type",
+    "Cached Payload",
+    "Payload Location",
+    "Cache File Name",
+    "Payload Size",
+    "Payload Type",
+    "Content Type",
+    "Content Length",
+    "Date",
+    "Expires",
+    "Last Modified",
+    "Cache Control",
+    "Server",
+    "Partition",
+    "Storage Policy",
+    "Entry ID"
+  ],
+  "data": [
+    [
+      1669062122,
+      "https://configuration.apple.com/configurations/internetservices/safari/AutoFillQuirks-1.plist",
+      200,
+      "GET",
+      "text/xml",
+      null,
+      "File system",
+      "C59437F6-C2B2-4F0B-BF90-177ACBB893C0",
+      124730,
+      "application/x-plist",
+      "text/xml",
+      "11312",
+      "Mon, 21 Nov 2022 20:22:02 GMT",
+      "Mon, 21 Nov 2022 20:22:52 GMT",
+      "Wed, 19 Oct 2022 21:03:41 GMT",
+      "max-age=50",
+      "Apache",
+      null,
+      0,
+      1
+    ]
+  ]
+}

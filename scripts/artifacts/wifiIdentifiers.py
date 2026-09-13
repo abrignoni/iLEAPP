@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "wifiIdentifiers": {
-        "name": "WIFI Identifiers",
-        "description": "Extracts Wi-Fi MAC addresses",
+        "name": "Network Interface Identifiers",
+        "description": "Extracts MAC addresses of all interfaces listed in NetworkInterfaces.plist (Wi-Fi, Bluetooth, cellular and others)",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-30",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "",

@@ -3,11 +3,11 @@ __artifacts_v2__ = {
         "name": "Discord - Chats",
         "description": "Parses Discord chat messages from fsCachedData and the local KV storage database",
         "author": "Original Unknown, John Hyla & @stark4n6",
-        "creation_date": "",
-        "last_update_date": "2026-06-18",
+        "creation_date": "2025-06-23",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Discord",
-        "notes": "",
+        "notes": "Reference: Discord Developer Documentation, 'Message Resource', https://docs.discord.com/developers/resources/message",
         "paths": (
             "*/activation_record.plist",
             "*/com.hammerandchisel.discord/fsCachedData/*",
@@ -29,7 +29,7 @@ __artifacts_v2__ = {
             }
         },
         "sample_data": {
-            "josh_ios_15": "204 rows from fsCachedData and KV storage; 30 attachment rows; 11 cached media matches",
+            "hickman_ios15": "204 rows from fsCachedData and KV storage; 30 attachment rows; 11 cached media matches",
             "ctf2020_ios12": "iOS 12.4 | com.disney.MyDisneyExperience, com.nordstrom.shopping, com.plainvanillacorp.quizup | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 127 rows",
             "felix_ios17": "iOS 17.6.1 | AppLock - photo lock 1.2.6 | 0 rows",
@@ -54,7 +54,7 @@ import json
 import math
 import re
 from datetime import datetime
-from os.path import basename, isfile, normcase, normpath
+from os.path import basename, dirname, isfile, normcase, normpath
 
 import biplist
 
@@ -259,20 +259,20 @@ def _message_rows(message, files_found, resolution, source_type, source_file, co
         rows.append((
             timestamp,
             edited_timestamp,
-            author.get("username", ""),
-            author.get("global_name") or author.get("globalName") or author.get("display_name") or "",
+            call_ended,
+            _direction(author_id, account_id),
             sender,
-            author.get("bot", ""),
+            message.get("channel_id", ""),
             message.get("content", ""),
             media_ref,
+            author.get("username", ""),
+            author.get("global_name") or author.get("globalName") or author.get("display_name") or "",
+            author.get("bot", ""),
             attachment_filename,
             attachment_link,
             author_id,
             account_id,
-            _direction(author_id, account_id),
-            message.get("channel_id", ""),
             _message_type(message.get("type")),
-            call_ended,
             message.get("id", ""),
             *embed_values,
             source_type,
@@ -336,7 +336,9 @@ def discordChats(context):
 
     account_ids = _account_ids_by_container(files_found)
     data_list = []
+    source_dirs = set()
     for source_file, message in _fs_cache_messages(files_found):
+        source_dirs.add(dirname(source_file))
         account_id = _account_id_for_file(source_file, account_ids)
         data_list.extend(
             _message_rows(
@@ -352,6 +354,7 @@ def discordChats(context):
 
     for db_file in _kv_storage_dbs(files_found):
         for source_file, message in _kv_storage_messages(db_file):
+            source_dirs.add(dirname(source_file))
             account_id = _account_id_for_file(source_file, account_ids)
             data_list.extend(
                 _message_rows(
@@ -368,20 +371,20 @@ def discordChats(context):
     data_headers = (
         ("Timestamp", "datetime"),
         ("Edited Timestamp", "datetime"),
-        "Username",
-        "Global Name",
+        ("Call Ended", "datetime"),
+        "Direction",
         "Sender",
-        "Bot?",
+        "Channel ID",
         "Content",
         ("Attachment", "media"),
+        "Username",
+        "Global Name",
+        "Bot?",
         "Attachment Filename",
         "Attachment Link",
         "User ID",
         "Account ID",
-        "Direction",
-        "Channel ID",
         "Message Type",
-        ("Call Ended", "datetime"),
         "Message ID",
         "Embedded Author",
         "Author URL",
@@ -394,4 +397,4 @@ def discordChats(context):
         "Source File",
     )
 
-    return data_headers, data_list, "see Source File column"
+    return data_headers, data_list, "\n".join(sorted(source_dirs))

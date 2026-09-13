@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses transaction.log file in Call History Transactions",
         "author": "@JohnHyla",
         "creation_date": "2024-12-11",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Call History",
         "notes": "",
@@ -43,9 +43,11 @@ def _safe_plist_date(value):
 @artifact_processor
 def callHistoryTransactions(context):
     data_list = []
+    source_files = set()
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        source_files.add(file_found)
         with open(file_found, 'rb') as file:
             file.seek(0, 2)
             file_size = file.tell()
@@ -65,6 +67,6 @@ def callHistoryTransactions(context):
     data_headers = (('Date', 'datetime'), 'handleType', 'callStatus', 'duration', 'remoteParticipantHandle', 'callerId',
                     'timeToEstablish', 'disconnectedCause', 'uniqueId', 'Source File')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_files))
 
 

@@ -20,10 +20,11 @@ __artifacts_v2__ = {
                        "Info.plist file of an iTunes backup",
         "author": "@johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-10-14",
+        "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The storeCohort date substring's relationship to install time is "
+                 "not documented; the value is reported as decoded.",
         "paths": ("info.plist",),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package"
@@ -112,7 +113,8 @@ def itunes_backup_installed_applications(context):
                 if 'date=' in store_cohort:
                     date_start = store_cohort.find('date=') + 5
                     unix_install_timestamp = store_cohort[date_start:date_start + 10]
-                    install_date = datetime.datetime.fromtimestamp(int(unix_install_timestamp)).strftime('%Y-%m-%d')
+                    install_date = datetime.datetime.fromtimestamp(
+                        int(unix_install_timestamp), datetime.timezone.utc).strftime('%Y-%m-%d')
                 download_info = itunes_metadata.get('com.apple.iTunesStore.downloadInfo', '')
                 if download_info:
                     account_info = download_info.get('accountInfo', '')
@@ -147,7 +149,7 @@ def itunes_backup_installed_applications(context):
                 data_list.append(app_info)
 
     data_headers = ('Bundle ID', ('App Icon', 'media', 'width: 60px;'), 'Item Name',
-                    'Artist Name', 'Version', 'Genre', ('Install Date', 'date'),
+                    'Artist Name', 'Version', 'Genre', ('storeCohort Date (as stored)', 'date'),
                     'Downloaded by', ('Purchase Date', 'datetime'),
                     ('Release Date', 'datetime'), 'Source App', 'Auto Download',
                     'Purchased Redownload', 'Factory Install', 'Side Loaded',

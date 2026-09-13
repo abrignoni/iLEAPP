@@ -60,6 +60,26 @@ The `paths` tuple uses **glob-like** wildcards, but matching is performed by Pyt
 - **Patterns are permissive.** A single `*` in a path pattern may match more than one directory level. Do not assume `*` is limited to one path component.
 - **Case sensitivity depends on platform.** For filesystem, tar, and zip extractions, paths are normalized with `os.path.normcase` before matching. On Windows this makes matching case-insensitive; on macOS and Linux it is case-sensitive. iTunes backup matching (`FileSeekerItunes`) does not apply `normcase`, so it is always case-sensitive.
 - **Leading `**/` is common.** Patterns such as `**/Safari/History.db` match the suffix of a full extraction path. This works because the seeker prepends a synthetic `root/` prefix to absolute paths before matching.
+- **Never write two patterns that differ only in case.** Use one bracket class instead:
+
+    ```python
+    "paths": ('*/Library/Preferences/com.apple.[Mm]obileSMS.plist',)                      # correct
+    "paths": ('.../com.apple.MobileSMS.plist', '.../com.apple.mobileSMS.plist')           # wrong
+    ```
+
+    Because `normcase` folds case on Windows, two case-variant patterns are one pattern
+    there. The entry point extends `files_found` once per declared pattern with no dedup,
+    and an artifact that calls `seeker.search()` once per spelling gets the same first
+    match back from both calls, so one file is reported twice. Worse, the second file the
+    duplicate pattern was added for is never read, so a value present on the device is
+    reported as absent. That shipped in `messageRetention` until PR #1946: both spellings
+    of `com.apple.MobileSMS.plist` exist as different files on 6 of 20 tested images, and
+    on Windows the artifact read the wrong one twice and reported "No value" for a device
+    that had a retention setting. A bracket class matches every spelling under both
+    `normcase` regimes and matches each file exactly once.
+
+    `admin/scripts/check_artifact_paths.py` enforces this in CI. It also fails on the same
+    pattern repeated verbatim in one tuple, which double-counts on every platform.
 
 ### Output Types Details
 

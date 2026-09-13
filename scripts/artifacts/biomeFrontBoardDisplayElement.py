@@ -2,16 +2,18 @@ __artifacts_v2__ = {
     "get_biomeFrontBoardDisplayElement": {
         "name": "Biome - FrontBoard Display Element",
         "description": "Parses app scene display events from the FrontBoard.DisplayElement "
-                       "biome stream: which app scene was shown on which display and when. "
-                       "This is a high volume stream that can reconstruct fine grained app "
-                       "foreground activity.",
+                       "biome stream: which app scene was recorded against which display and "
+                       "when. This is a high volume stream that may assist in reconstructing "
+                       "app display activity; whether a record corresponds to on-screen "
+                       "presentation is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Records with an empty bundle id are system or home screen scenes. Numeric "
-                 "state fields are reported raw as their semantics are not confirmed.",
+        "notes": "In sample data, records with an empty bundle id corresponded to system or "
+                 "home screen scenes. Numeric state fields are reported raw as their semantics "
+                 "are not confirmed.",
         "paths": ('*/streams/*/FrontBoard.DisplayElement/local/*',),
         "output_types": "standard",
         "artifact_icon": "layers",
@@ -77,10 +79,8 @@ def get_biomeFrontBoardDisplayElement(context):
                     'Field 4 (raw)', 'Field 5 (raw)', 'Field 6 (raw)', 'Field 7 (raw)',
                     'Field 8 (raw)', 'Field 10 (raw)', 'Filename', 'Offset')
 
-    results = context.create_artifact_result(
-        headers=data_headers,
-        source_path='see Filename for more info',
-    )
+    source_dirs = set()
+    results = context.create_artifact_result(headers=data_headers)
 
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
@@ -88,11 +88,12 @@ def get_biomeFrontBoardDisplayElement(context):
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -123,4 +124,5 @@ def get_biomeFrontBoardDisplayElement(context):
                                   None, None, None, None, None, filename,
                                   record.data_start_offset))
 
+    results.set_source_path('\n'.join(sorted(source_dirs)))
     return results

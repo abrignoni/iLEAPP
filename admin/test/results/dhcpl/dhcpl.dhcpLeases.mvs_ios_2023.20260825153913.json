@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "module_name": "dhcpl",
+    "artifact_name": "DHCP Received List",
+    "function_name": "dhcpLeases",
+    "case_number": "mvs_ios_2023",
+    "number_of_columns": 3,
+    "number_of_rows": 6,
+    "total_data_size_bytes": 401,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/dhcpl/testdata.dhcpl.dhcpLeases.mvs_ios_2023.zip",
+    "start_time": "2026-08-25T15:39:13.453193+00:00",
+    "end_time": "2026-08-25T15:39:13.502863+00:00",
+    "run_time_seconds": 0.0001671314239501953,
+    "last_commit": {
+      "hash": "327212c47d5f8ea35887d7120ebbe70470d580a7",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-08T00:16:59-04:00",
+      "message": "fix: give every artifact an author, using the GitHub handle that sent it"
+    }
+  },
+  "headers": [
+    "Property Name",
+    "Property Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      "IPAddress",
+      "100.64.0.236",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "LeaseLength",
+      7200,
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "LeaseStartDate",
+      "2023-01-08 16:39:17",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "RouterHardwareAddress",
+      "ac:1f:6b:6e:20:9d",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "RouterIPAddress",
+      "100.64.0.1",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ],
+    [
+      "SSID",
+      "Spinner Place",
+      "private/var/db/dhcpclient/leases/en0.plist"
+    ]
+  ]
+}

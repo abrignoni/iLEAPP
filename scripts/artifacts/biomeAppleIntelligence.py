@@ -13,7 +13,7 @@ __artifacts_v2__ = {
                        "the feature was evaluated for.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The three state fields are reported raw; the sample does not establish which "
@@ -21,6 +21,11 @@ __artifacts_v2__ = {
         "paths": ('*/streams/*/AppleIntelligence.Availability/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios18_7": "478 rows",
+            "hc_ios26": "26.5.2 | 41 rows",
+            "iphone12_ios18": "64 rows",
+        },
     },
     "get_biomeAIAssetAvailability": {
         "name": "Biome - Apple Intelligence Asset Availability",
@@ -30,13 +35,16 @@ __artifacts_v2__ = {
                        "and the OS build at the time.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.Availability/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 96 rows",
+        },
     },
     "get_biomeAIModelCatalog": {
         "name": "Biome - Apple Intelligence Model Catalog",
@@ -44,17 +52,21 @@ __artifacts_v2__ = {
                        "AppleIntelligence.Reporting.AssetDeliveryLog.ModelCatalog biome "
                        "stream. Each record names the Apple Intelligence feature whose model "
                        "was requested, for example a text composition or summarisation "
-                       "feature, and the language it was requested for, which evidences which "
-                       "AI features were exercised on the device and when.",
+                       "feature, and the language it was requested for, showing which "
+                       "features' models were requested on the device and when; user exercise "
+                       "of the feature is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "This is the highest volume stream of the Apple Intelligence family.",
+        "notes": "In test data, this is the highest volume stream of the Apple Intelligence family.",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.ModelCatalog/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 206 rows",
+        },
     },
     "get_biomeAISoftwareUpdate": {
         "name": "Biome - Apple Intelligence Software Update",
@@ -63,13 +75,16 @@ __artifacts_v2__ = {
                        "SoftwareUpdateController biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.SoftwareUpdateController/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 9 rows",
+        },
     },
     "get_biomeAISafetyOverrides": {
         "name": "Biome - Apple Intelligence Safety Overrides",
@@ -79,7 +94,7 @@ __artifacts_v2__ = {
                        "even where the payload itself no longer survives.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "The sample for this stream held only deleted records, so the written record "
@@ -89,7 +104,7 @@ __artifacts_v2__ = {
                  "sample shows a different layout the detail columns will be empty while the "
                  "timestamps stay correct. Deleted payloads in the sample were largely "
                  "overwritten and did not decode, but their SEGB timestamps are intact and "
-                 "still evidence that reporting occurred at those times.",
+                 "consistent with reporting having occurred at those times.",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.SafetyOverrides/local/*',),
         "output_types": "standard",
         "artifact_icon": "shield",
@@ -102,13 +117,16 @@ __artifacts_v2__ = {
                        "the user id it was requested under.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
         "paths": ('*/streams/*/AppleIntelligence.Reporting.AssetDeliveryLog.UnifiedAssetFramework/local/*',),
         "output_types": "standard",
         "artifact_icon": "cpu",
+        "sample_data": {
+            "hc_ios26": "26.5.2 | 14 rows",
+        },
     },
 }
 
@@ -148,17 +166,23 @@ def _unix_double(value):
         return None
 
 
+def _stream_files(context):
+    """Non-hidden, non-tombstone stream files from the artifact's matched paths."""
+    for file_found in sorted(map(str, context.get_files_found())):
+        if os.path.basename(file_found).startswith('.'):
+            continue
+        if not os.path.isfile(file_found) or 'tombstone' in context.get_relative_path(file_found):
+            continue
+        yield file_found
+
+
+def _source_path(context):
+    return '\n'.join(sorted({os.path.dirname(f) for f in _stream_files(context)}))
+
+
 def _iter_records(context, label):
-    for file_found in sorted(context.get_files_found()):
-        file_found = str(file_found)
+    for file_found in _stream_files(context):
         filename = os.path.basename(file_found)
-        if filename.startswith('.'):
-            continue
-        if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
-                continue
-        else:
-            continue
 
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
@@ -205,7 +229,7 @@ def _delivery_log(context, label):
                           _to_str(event.get('7')), event.get('10', ''),
                           event.get('2', ''), str(result) if result else '',
                           filename, record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor
@@ -225,7 +249,7 @@ def get_biomeAppleIntelligenceAvailability(context):
                           first.get('1', '') if isinstance(first, dict) else first,
                           second.get('1', '') if isinstance(second, dict) else second,
                           protostuff.get('3', ''), filename, record.data_start_offset))
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, _source_path(context)
 
 
 @artifact_processor

@@ -10,7 +10,7 @@
 __artifacts_v2__ = {    
     "linkedin_account": {
         "name": "LinkedIn - Account",
-        "description": "Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[Public Identifier])",
+        "description": "Existing account in LinkedIn App, with the Public Identifier as stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-10-01",
         "last_update_date": "2026-06-15",
@@ -179,15 +179,15 @@ def linkedin_conversations(context):
         sender_name = record[1]
 
 
-        data_list.append((delivery_date, conversation_urn, conversation_label, message, sent, sender_name))
+        data_list.append((delivery_date, sent, sender_name, conversation_label, message, conversation_urn))
 
     data_headers = (
         ('Timestamp', 'datetime'),
-        'Conversation-ID',
+        'Sent',
+        'Sender Name',
         'Conversation Name',
         'Message',
-        'Sent',
-        'Sender Name'
+        'Conversation-ID',
     )
 
     return data_headers, data_list, source_path

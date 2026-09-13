@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses Zangi Chat database",
         "author": "Matt Beers",
         "creation_date": "2024-04-16",
-        "last_update_date": "2026-07-03",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Chats",
         "notes": "",
@@ -36,10 +36,12 @@ from scripts.ilapfuncs import (
 @artifact_processor
 def get_zangichats(context):  # your def variable should match what you have after function on line 13.
     data_list = []
+    source_files = set()
     files_found = context.get_files_found()
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('zangidb.sqlite'):  # put the database name here
+            source_files.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
             cursor.execute('''
@@ -72,23 +74,23 @@ def get_zangichats(context):  # your def variable should match what you have aft
                     timestamp = convert_cocoa_core_data_ts_to_utc(row[0])
                     data_list.append((
                         timestamp,
-                        row[1],
-                        row[2],
-                        row[3],
                         row[4],
+                        row[1],
+                        row[3],
+                        row[2],
                         row[5],
-                        context.get_relative_path(file_found)
+                        context.get_relative_path(file_found),
                         ))
             db.close()
         else:
             continue
     data_headers = (
         ('Timestamp', 'datetime'),
-        'First Name',
-        'Last Name',
-        'Message Text',
         'Direction',
+        'First Name',
+        'Message Text',
+        'Last Name',
         'Number',
         'Filename',
         )
-    return data_headers, data_list, 'See filename column for source database'
+    return data_headers, data_list, '\n'.join(sorted(source_files))

@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     'clubhouseAccount': {
         'name': 'Clubhouse - Account Information',
-        'description': 'Details of the Clubhouse account signed in on the device',
+        'description': "Clubhouse account details recorded in the app's preferences plist",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Clubhouse',
         'notes': '',
@@ -12,23 +12,27 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'user',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
     'clubhouseContacts': {
         'name': 'Clubhouse - Suggested Invites',
-        'description': 'Address book contacts uploaded to Clubhouse and offered as suggested invites',
+        'description': "Contacts held under the Clubhouse contact-upload-store-suggested-invites "
+                       "preference key",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Clubhouse',
-        'notes': 'Sourced from the contact-upload-store-suggested-invites key, which holds contacts the app uploaded from the device address book.',
+        'notes': "Sourced from the contact-upload-store-suggested-invites key, which holds "
+                 "contacts staged in the app contact-upload store (the cnContactIdentifier keys "
+                 "are reported as stored; whether these entries came from the device address "
+                 "book is not established here).",
         'paths': ('*/mobile/Containers/Data/Application/*/Library/Preferences/co.alphaexploration.clubhouse.plist',),
         'output_types': 'standard',
         'artifact_icon': 'address-book',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 7 rows',
+            'iphone11_ios17': 'iOS 17.3 | 7 rows',
         },
     },
     'clubhouseConversations': {
@@ -36,15 +40,15 @@ __artifacts_v2__ = {
         'description': 'Recent Clubhouse conversations cached for the home screen widget',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Clubhouse',
-        'notes': 'Clubhouse does not persist message bodies on device; only the conversation participants are cached.',
+        'notes': 'Only participant names/IDs were present in the examined widget cache; message bodies were not observed in this store.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.alphaexploration.clubhouse.plist',),
         'output_types': 'standard',
         'artifact_icon': 'messages',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
     'clubhouseNotifications': {
@@ -60,7 +64,7 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'bell',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 1 row',
+            'iphone11_ios17': 'iOS 17.3 | 1 row',
         },
     },
 }
@@ -81,7 +85,7 @@ ACCOUNT_FIELDS = (
     ('kStorageKeyMyPhotoUrl', 'Photo URL'),
     ('kStorageKeyDeviceId', 'Device ID'),
     ('kStorageKeyMyIsAdmin', 'Is Admin'),
-    ('kStorageKeyNumInvites', 'Invites Remaining'),
+    ('kStorageKeyNumInvites', 'Num Invites'),
     ('kNumCofollows', 'Co-follows'),
     ('kIsBlindInviteUser', 'Blind Invite User'),
     ('kStorageKeyIsUpgradedFromV1', 'Upgraded From V1'),
@@ -95,7 +99,7 @@ def clubhouseAccount(context):
     data_list = []
     data_headers = (
         'Name', 'Username', 'User Server ID', ('Phone Number', 'phonenumber'),
-        'Photo URL', 'Device ID', 'Is Admin', 'Invites Remaining', 'Co-follows',
+        'Photo URL', 'Device ID', 'Is Admin', 'Num Invites', 'Co-follows',
         'Blind Invite User', 'Upgraded From V1', 'Has Seen Onboarding',
         ('Last Sync', 'datetime'), 'Following User IDs', 'Blocked User IDs')
     if not source_path:
@@ -122,8 +126,8 @@ def clubhouseContacts(context):
     source_path = get_file_path(context.get_files_found(), 'co.alphaexploration.clubhouse.plist')
     data_list = []
     data_headers = (
-        ('Contacts Last Uploaded', 'datetime'), 'Name', ('Phone Number', 'phonenumber'),
-        'Already On Clubhouse', 'Popularity Score', 'Address Book Identifier',
+        ('Store Last Updated', 'datetime'), 'Name', ('Phone Number', 'phonenumber'),
+        'In App', 'pop (score)', 'Address Book Identifier',
         'Contact Hash', 'Image Path')
     if not source_path:
         return data_headers, data_list, ''

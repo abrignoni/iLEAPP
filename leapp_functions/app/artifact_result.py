@@ -189,13 +189,13 @@ class ArtifactResult:
             return
         self.flush()
         if self._is_lava_backed:
-            from scripts.lavafuncs import lava_update_artifact_record_count
+            from scripts.lavafuncs import lava_update_record_count, lava_update_source_path
 
-            lava_update_artifact_record_count(
-                self._writer_metadata.get("category", ""),
-                self._table_name,
-                self.row_count,
-            )
+            category = self._writer_metadata.get("category", "")
+            lava_update_record_count(category, self._table_name, self.row_count)
+            # The table was registered at the first row. A source path set after that, by a
+            # module that only knows its files once its loop is over, reaches the manifest here.
+            lava_update_source_path(category, self._table_name, self.source_path)
         self._closed = True
 
     def cleanup(self):

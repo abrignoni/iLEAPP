@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "findMy": {
         "name": "Find My iPhone Settings",
         "description": "Find My iPhone account settings (FMIPAccounts.plist)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",

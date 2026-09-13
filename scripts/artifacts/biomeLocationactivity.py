@@ -4,11 +4,11 @@ __artifacts_v2__ = {
         "description": "Parses location activity entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
-        "paths": ('*/Biome/streams/restricted/_DKEvent.App.LocationActivity/local/*'),
+        "paths": ('*/[Bb]iome/streams/restricted/_DKEvent.App.LocationActivity/local/*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
         "sample_data": {
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
             "iphone14plus_ios18": "iOS 18.0 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | 32 rows",
             "iphone12_ios18": "iOS 18.7 | 92 rows",
-            "abe_ios16": "iOS 16.5 | 73 rows",
+            "abe_ios16": "iOS 16.5 | 79 rows",
             "felix23_ios16": "iOS 16.5 | 44 rows",
             "magnet_ios16": "iOS 16.1.1 | 8 rows",
         }
@@ -117,17 +117,19 @@ def get_biomeLocationactivity(context):
     }
 
     data_list = []
+    source_dirs = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1
             ts = ts.replace(tzinfo=timezone.utc)
@@ -204,4 +206,4 @@ def get_biomeLocationactivity(context):
                     ('Time Write', 'datetime'), 'SEGB State', 'Activity', 'Bundle ID','Bundle ID 2', 'Data 0', 'Data 1',
                     'Data 2', 'Data 3', 'Data 4', 'Data 5', 'Data 6', 'Action GUID', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

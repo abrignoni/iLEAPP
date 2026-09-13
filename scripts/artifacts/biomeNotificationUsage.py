@@ -3,6 +3,8 @@ __artifacts_v2__ = {
         "name": "Biome - Notification Usage",
         "description": "Parses the Notification Usage biome",
         "author": "Thijs van Meurs",
+        "creation_date": "2026-07-01",
+        "last_update_date": "2026-07-22",
         "version": "0.0.1",
         "date": "2026-06-29",
         "requirements": "none",
@@ -49,7 +51,7 @@ def get_biomeNotificationUsage(context):
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
-        if not os.path.isfile(file_found) or 'tombstone' in file_found:
+        if not os.path.isfile(file_found) or 'tombstone' in context.get_relative_path(file_found):
             continue
         report_file = os.path.dirname(file_found)
 

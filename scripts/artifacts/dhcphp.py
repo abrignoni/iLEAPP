@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "dhcpHotspotClients": {
-        "name": "DHCP Hotspot Clients",
-        "description": "Information about devices that connected to the hotspot",
+        "name": "DHCP Hotspot Leases",
+        "description": "DHCP leases issued by the device (Personal Hotspot clients)",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-29",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "DHCP",
         "notes": "",

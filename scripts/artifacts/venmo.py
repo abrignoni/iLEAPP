@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Extracts transaction history from Venmo feed files.",
         "author": "@jfarley248",
         "creation_date": "2021-09-25",
-        "last_update_date": "2025-11-28",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Venmo",
         "notes": "",
@@ -21,7 +21,7 @@ __artifacts_v2__ = {
         "description": "Extracts user information found in Venmo transaction history.",
         "author": "@jfarley248",
         "creation_date": "2021-09-25",
-        "last_update_date": "2025-11-28",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Venmo",
         "notes": "",
@@ -77,6 +77,7 @@ def process_user(users, user_data, source_file):
 def venmo_transactions(context):
     files_found = context.get_files_found()
     data_list = []
+    source_paths = set()
 
     data_headers = (
         ('Date Created', 'datetime'),
@@ -94,6 +95,8 @@ def venmo_transactions(context):
 
         if not isinstance(plist_data, dict):
             continue
+
+        source_paths.add(file_found)
 
         for row in plist_data.get('stories', []):
             if not isinstance(row, dict):
@@ -167,15 +170,16 @@ def venmo_transactions(context):
 
     if not data_list:
         logfunc('No Venmo transactions found.')
-        return data_headers, [], 'Source files listed in report'
+        return data_headers, [], '\n'.join(sorted(source_paths))
 
-    return data_headers, data_list, 'Source files listed in report'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
 def venmo_users(context):
     files_found = context.get_files_found()
     data_list = []
+    source_paths = set()
 
     data_headers = (
         'User ID',
@@ -196,6 +200,8 @@ def venmo_users(context):
         if not isinstance(plist_data, dict):
             continue
 
+        source_paths.add(file_found)
+
         for row in plist_data.get('stories', []):
             if not isinstance(row, dict):
                 continue
@@ -215,6 +221,6 @@ def venmo_users(context):
 
     if not data_list:
         logfunc('No Venmo users found.')
-        return data_headers, [], 'Source files listed in report'
+        return data_headers, [], '\n'.join(sorted(source_paths))
 
-    return data_headers, data_list, 'Source files listed in report'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))

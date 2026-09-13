@@ -47,6 +47,24 @@ class Context:
         Context._data_folder = getattr(output_params, 'data_folder', None)
 
     @staticmethod
+    def set_data_folder(data_folder):
+        """
+        Sets the folder the seeker stages evidence into, without the rest of the
+        output parameters.
+
+        A normal run gets this from set_output_params. The test harness has no
+        OutputParameters: it extracts a case zip into its own temporary directory
+        and runs artifacts against that. Without this, _data_folder stays None and
+        get_relative_path returns every path unchanged, so an artifact that leaks
+        an absolute path and one that reports a relative path record identical
+        output and no fixture can tell them apart.
+
+        Args:
+            data_folder (str): The folder evidence is staged into.
+        """
+        Context._data_folder = data_folder
+
+    @staticmethod
     def set_report_folder(report_folder):
         """
         Sets the report folder path in the Context.
@@ -530,9 +548,14 @@ class Context:
         if not full_path or not Context._data_folder:
             return full_path
 
-        if full_path.startswith(Context._data_folder):
-            # Strip the base path and any leading separators
-            return full_path[len(Context._data_folder):].lstrip('/\\')
+        if Context._data_folder in full_path:
+            # Strip the base path everywhere it appears, including inside path
+            # strings concatenated with arbitrary separators (', ', '; ', ...)
+            base = Context._data_folder
+            return (full_path.replace(base + '/', '')
+                             .replace(base + '\\', '')
+                             .replace(base, '')
+                             .lstrip('/\\'))
 
         return full_path
 

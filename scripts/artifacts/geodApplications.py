@@ -2,12 +2,14 @@ __artifacts_v2__ = {
     "geodapplications": {
         "name": "Geolocation - Applications",
         "description": "Per-application location count entries from the geod AP.db (mkcount/dailycounts)",
-        "author": "",
+        "author": "@flamusdiu",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-10",
         "requirements": "none",
         "category": "Location",
-        "notes": "createtime is stored either as Mac absolute time (Cocoa, seconds since 2001-01-01 UTC) or as a 'YYYY-MM-DD HH:MM:SS' text value assumed to be UTC.",
+        "notes": "createtime is stored either as Mac absolute time (Cocoa, seconds since "
+                 "2001-01-01 UTC) or as a 'YYYY-MM-DD HH:MM:SS' text value that carries no zone "
+                 "and is read as UTC.",
         "paths": ('**/AP.db*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",

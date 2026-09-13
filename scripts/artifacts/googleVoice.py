@@ -44,7 +44,8 @@ __artifacts_v2__ = {
     },
     'googleVoiceVoicemails': {
         'name': 'Google Voice - Voicemails',
-        'description': 'Voicemails left on the Google Voice number, including the machine transcription',
+        'description': "Voicemails left on the Google Voice number, including the transcript "
+                       "text stored with each",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
@@ -60,10 +61,10 @@ __artifacts_v2__ = {
     },
     'googleVoiceContacts': {
         'name': 'Google Voice - Contacts',
-        'description': 'Phone numbers the Google Voice account exchanged messages or calls with',
+        'description': 'Phone numbers stored in the Google Voice threading database (participants)',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Google Voice',
         'notes': '',
@@ -135,22 +136,31 @@ def googleVoiceMessages(context):
         from_me = 1 if record['itemType'] in OUTGOING_ITEM_TYPES else 0
         data_list.append((
             convert_unix_ts_to_utc(record['timestamp']),
+            from_me,
+            record['senderPhoneNumber'],
             record['conversation'],
+            record['messageText'],
             record['threadKey'],
             'Outgoing' if from_me else 'Incoming',
-            record['senderPhoneNumber'],
-            record['messageText'],
             record['attachmentCount'],
             record['isUnread'],
             record['isDeleted'],
             record['isSystemMessage'],
-            from_me,
         ))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Thread Key', 'Direction',
-        ('Sender', 'phonenumber'), 'Message', 'Attachment Count', 'Unread',
-        'Deleted', 'System Message', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        ('Sender', 'phonenumber'),
+        'Conversation',
+        'Message',
+        'Thread Key',
+        'Direction',
+        'Attachment Count',
+        'Unread',
+        'Deleted',
+        'System Message',
+    )
 
     return data_headers, data_list, source_path
 

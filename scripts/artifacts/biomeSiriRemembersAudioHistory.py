@@ -3,25 +3,31 @@ __artifacts_v2__ = {
         "name": "Biome - Siri Remembers Audio History",
         "description": "Parses media playback intents from the Siri.Remembers.AudioHistory "
                        "biome stream: the app that played the media, the title, artist and "
-                       "media type of what was played, and the app's own identifier for it. "
-                       "Audiobook and music playback both appear.",
+                       "media type of what was played, and a media identifier. "
+                       "Audiobook and music playback were both observed in test data.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Shares the intent record shape of the other Siri.Remembers streams. The "
                  "media details come from a JSON attribute on the item entity; title, artist "
                  "and media type were present on every record in the sample, with mediaName "
-                 "appearing on some. The media identifier is the playing app's own catalogue "
-                 "id, so for Audible it is the ASIN. The stream syncs between devices, so the "
-                 "Sync Origin column separates local records from ones received elsewhere.",
+                 "appearing on some. In the sample data the media identifier matched the "
+                 "playing app's catalogue id; for Audible items it was the ASIN. Records are "
+                 "read from both the local and remote subfolders; the Sync Origin column "
+                 "reports which one a record came from. The local/remote naming is the "
+                 "stream's own folder layout; cross-device sync semantics are not documented.",
         "paths": (
             '*/streams/*/Siri.Remembers.AudioHistory/local/*',
             '*/streams/*/Siri.Remembers.AudioHistory/remote/*',
         ),
         "output_types": "standard",
         "artifact_icon": "headphones",
+        "sample_data": {
+            "dexter_ios18": "73 rows",
+            "otto_ios17": "1 row",
+        },
     }
 }
 
@@ -112,18 +118,20 @@ def _sync_origin(file_found):
 def get_biomeSiriRemembersAudioHistory(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
         origin = _sync_origin(file_found)
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -157,4 +165,4 @@ def get_biomeSiriRemembersAudioHistory(context):
                     'Item ID', 'Intent Class', 'Intent UUID', 'Sync Origin', 'Filename',
                     'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

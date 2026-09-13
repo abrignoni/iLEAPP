@@ -4,11 +4,14 @@ __artifacts_v2__ = {
         'description': 'HTTP cookies stored by Safari and by individual applications in Cookies.binarycookies files',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Cookies',
         'notes': ('Apple binarycookies format. Each application container keeps its own file, so the '
-                  'container path identifies which application the cookie belongs to.'),
+                  'container path identifies which application the cookie belongs to. '
+                  "Reference: Satish B., 'BinaryCookieReader', "
+                  'https://github.com/as0ler/BinaryCookieReader/blob/'
+                  'd77e0f9eda49b9422211356027dca744363082a5/BinaryCookieReader.py'),
         'paths': (
             '*/mobile/Library/Cookies/Cookies.binarycookies',
             '*/mobile/Containers/Data/Application/*/Library/Cookies/Cookies.binarycookies',
@@ -18,11 +21,12 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'cookie',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 409 cookies across 33 container files',
+            'iphone11_ios17': 'iOS 17.3 | 409 cookies across 33 container files',
         },
     },
 }
 
+import os
 import struct
 
 from scripts.ilapfuncs import artifact_processor, logfunc, convert_cocoa_core_data_ts_to_utc
@@ -116,6 +120,7 @@ def _safe_cocoa(value):
 @artifact_processor
 def appCookies(context):
     data_list = []
+    source_dirs = set()
     data_headers = (
         ('Created', 'datetime'), ('Expires', 'datetime'), 'Host', 'Cookie Name',
         'Path', 'Value', 'Flags', 'Source File')
@@ -138,6 +143,7 @@ def appCookies(context):
             logfunc(f'Malformed binarycookies file {relative_path}: {ex}')
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for cookie in cookies:
             data_list.append((
                 _safe_cocoa(cookie['creation']),
@@ -150,4 +156,4 @@ def appCookies(context):
                 relative_path,
             ))
 
-    return data_headers, data_list, ''
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

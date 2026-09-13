@@ -4,18 +4,19 @@ __artifacts_v2__ = {
         "description": "Parses boot session records from the Device.BootSession biome stream. "
                        "Each boot closes the previous session identifier and opens a new one, "
                        "so the stream reconstructs when the device started and stopped running "
-                       "and, where a close and the following open are separated in time, how "
-                       "long the device was powered off.",
+                       "and, where a close and the following open are separated in time, a "
+                       "gap consistent with the device being powered off.",
         "author": "@abrignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Session state 1 is the opening of a session and 0 its close, established by "
                  "the record pattern across four test images: a close and an open share a "
                  "timestamp at a reboot, and each session identifier appears exactly twice, "
                  "once opened and once closed. A close with no open at the same instant marks "
-                 "a shutdown, and the gap to the next open is the period the device was off. "
+                 "a shutdown, and the gap to the next open is consistent with the device "
+                 "being powered off during that period. "
                  "Sort by timestamp and pair on Session ID to measure uptime.",
         "paths": ('*/streams/*/Device.BootSession/local/*',),
         "output_types": "standard",
@@ -65,17 +66,19 @@ def _session_id(value):
 def get_biomeBootSession(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -99,4 +102,4 @@ def get_biomeBootSession(context):
     data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'Session State',
                     'Session State (raw)', 'Session ID', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

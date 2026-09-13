@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         'description': 'Direct messages and chat events from the Truth Social application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Truth Social',
         'notes': 'Message bodies are stored as HTML fragments; the text is extracted alongside the raw content.',
@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         'output_types': 'all',
         'artifact_icon': 'message',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 13 message rows, 5 chat events',
+            'iphone11_ios17': 'iOS 17.3 | 13 message rows, 5 chat events',
         },
         'data_views': {
             'conversation': {
@@ -31,7 +31,7 @@ __artifacts_v2__ = {
         'description': 'Chat threads and channels known to the Truth Social application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Truth Social',
         'notes': '',
@@ -39,23 +39,26 @@ __artifacts_v2__ = {
         'output_types': 'standard',
         'artifact_icon': 'messages',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 2 rows (1 direct chat, 1 channel)',
+            'iphone11_ios17': 'iOS 17.3 | 2 rows (1 direct chat, 1 channel)',
         },
     },
     'truthSocialAccounts': {
         'name': 'Truth Social - Accounts',
-        'description': 'Truth Social accounts cached by the chat database, including the account holder',
+        'description': "Truth Social accounts cached by the chat database, including the account "
+                       "ID recorded as the chat owner",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Truth Social',
-        'notes': 'The signed-in account ID is taken from the chat ownership column and from the database path.',
+        'notes': "An account ID that appears only in the chat ZOWNEDBYACCOUNTID column and not "
+                 "in ZMANAGEDACCOUNT is reported from that column as stored; that it is the "
+                 "signed-in account is not established.",
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/chat/v1/*/ChatModel.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'user',
         'sample_data': {
-            'josh_ios17_ffs': 'iOS 17.3 | 3 rows',
+            'iphone11_ios17': 'iOS 17.3 | 3 rows',
         },
     },
 }
@@ -64,9 +67,14 @@ import html
 import re
 
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, convert_cocoa_core_data_ts_to_utc
+    get_file_path, get_sqlite_db_records, null_absent_columns, convert_cocoa_core_data_ts_to_utc
 
 HTML_TAG_RE = re.compile(r'<[^>]+>')
+
+CHAT_TYPE_LABELS = {
+    'channel': 'Channel',
+    'direct': 'Direct Message',
+}
 
 # Resolves an account ID to a readable handle. Only accounts the app has cached
 # appear in ZMANAGEDACCOUNT, so the raw ID is kept as a fallback.
@@ -132,7 +140,7 @@ def truthSocialMessages(context):
     ORDER BY e.ZCREATEDAT
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         sender_id = record['senderAccountId']
         owner_id = record['ownerAccountId']
         if sender_id and owner_id:
@@ -145,13 +153,14 @@ def truthSocialMessages(context):
 
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']),
-            conversation,
-            record['chatId'],
-            'Channel' if record['chatType'] == 'channel' else 'Direct Message',
-            record['eventType'],
+            from_me,
             record['senderLabel'] or sender_id,
-            sender_id,
+            conversation,
             _html_to_text(record['content']) or record['eventText'],
+            record['chatId'],
+            CHAT_TYPE_LABELS.get(record['chatType'], record['chatType']),
+            record['eventType'],
+            sender_id,
             record['attachmentType'],
             record['attachmentUrl'],
             record['reactions'],
@@ -166,16 +175,33 @@ def truthSocialMessages(context):
             record['invitedByAccountId'],
             record['content'],
             record['messageId'],
-            from_me,
         ))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Conversation', 'Chat ID', 'Chat Type',
-        'Event Type', 'Sender', 'Sender Account ID', 'Message',
-        'Attachment Type', 'Attachment URL', 'Reactions', 'Unread', 'Hidden',
-        'Failed To Send', 'Message Expiration (Seconds)', 'URL',
-        'Membership Account ID', 'Changed By Account ID', 'Invited Account ID',
-        'Invited By Account ID', 'Raw HTML Content', 'Message ID', 'From Me')
+        ('Timestamp', 'datetime'),
+        'From Me',
+        'Sender',
+        'Conversation',
+        'Message',
+        'Chat ID',
+        'Chat Type',
+        'Event Type',
+        'Sender Account ID',
+        'Attachment Type',
+        'Attachment URL',
+        'Reactions',
+        'Unread',
+        'Hidden',
+        'Failed To Send',
+        'Message Expiration (Seconds)',
+        'URL',
+        'Membership Account ID',
+        'Changed By Account ID',
+        'Invited Account ID',
+        'Invited By Account ID',
+        'Raw HTML Content',
+        'Message ID',
+    )
 
     return data_headers, data_list, source_path
 
@@ -214,13 +240,13 @@ def truthSocialChats(context):
     ORDER BY c.ZCREATEDAT
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             convert_cocoa_core_data_ts_to_utc(record['ZCREATEDAT']) if record['ZCREATEDAT'] else '',
             convert_cocoa_core_data_ts_to_utc(record['ZLASTACTIVITYDATE']) if record['ZLASTACTIVITYDATE'] else '',
             convert_cocoa_core_data_ts_to_utc(record['ZLASTREADAT']) if record['ZLASTREADAT'] else '',
             record['chatId'],
-            'Channel' if record['chatType'] == 'channel' else 'Direct Message',
+            CHAT_TYPE_LABELS.get(record['chatType'], record['chatType']),
             record['otherDisplayName'],
             record['otherAcct'],
             record['otherAccountId'],
@@ -267,7 +293,7 @@ def truthSocialAccounts(context):
     ORDER BY a.ZACCT
     '''
 
-    for record in get_sqlite_db_records(source_path, query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         data_list.append((
             record['accountId'],
             record['handle'],
@@ -278,8 +304,9 @@ def truthSocialAccounts(context):
             record['avatarUrl'],
         ))
 
-    # The signed-in account is not stored in ZMANAGEDACCOUNT; it only appears as
-    # the owner of each chat thread, so surface it from there.
+    # The signed-in account was not present in ZMANAGEDACCOUNT in the examined
+    # database; it only appears as the owner of each chat thread, so surface it
+    # from there.
     owner_query = '''
     SELECT DISTINCT
         c.ZOWNEDBYACCOUNTID AS accountId,
@@ -290,7 +317,7 @@ def truthSocialAccounts(context):
       AND c.ZOWNEDBYACCOUNTID NOT IN (SELECT ZSERVERID FROM ZMANAGEDACCOUNT)
     '''
 
-    for record in get_sqlite_db_records(source_path, owner_query):
+    for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, owner_query)):
         data_list.append((
             record['accountId'],
             '',

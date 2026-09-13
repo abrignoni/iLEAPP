@@ -8,7 +8,9 @@
 __artifacts_v2__ = {
     "get_healthmate_accounts": {
         "name": "Health Mate - Accounts",
-        "description": "Existing account in Health Mate App from Withings.\nThis decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html",
+        "description": "The account recorded in the Health Mate app's Application Support/account "
+                       "file, with user id, names, birthdate and email and its creation and "
+                       "modification times.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-22",
         "last_update_date": "2025-11-12",
@@ -21,7 +23,9 @@ __artifacts_v2__ = {
     },
     "get_healthmate_sleep_tracking": {
         "name": "Health Mate - Sleep Tracking",
-        "description": "Tracked sleep by Withings devices/app.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html",
+        "description": "Sleep sessions from the Health Mate app's Core Data track store, with "
+                       "start and end, sleep stage durations, time to sleep and to get up, "
+                       "wake-up count and the device id.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-23",
         "last_update_date": "2025-11-12",
@@ -34,7 +38,9 @@ __artifacts_v2__ = {
     },
     "get_healthmate_daily_summary": {
         "name": "Health Mate - Daily Summary",
-        "description": "Daily Summary of activities.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html",
+        "description": "Daily activity summaries from the Health Mate app's Core Data track "
+                       "store, with the day's inactive, soft, moderate and intense durations, "
+                       "steps and distance.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-24",
         "last_update_date": "2025-11-12",
@@ -47,7 +53,9 @@ __artifacts_v2__ = {
     },
     "get_healthmate_tracked_activities": {
         "name": "Health Mate - Tracked Activities",
-        "description": "Tracked activities.\n This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html",
+        "description": "Activities tracked in the Health Mate app's Core Data track store, with "
+                       "start and end, type, durations, heart rate, step, distance, speed and "
+                       "temperature values and start, end and region coordinates.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-24",
         "last_update_date": "2025-11-12",
@@ -153,7 +161,8 @@ def get_healthmate_accounts(context):
 @artifact_processor
 def get_healthmate_sleep_tracking(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         ZDEVICEID,
@@ -236,7 +245,8 @@ def get_healthmate_sleep_tracking(context):
 @artifact_processor
 def get_healthmate_daily_summary(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         ZSTARTDATE,
@@ -303,7 +313,8 @@ def get_healthmate_daily_summary(context):
 @artifact_processor
 def get_healthmate_tracked_activities(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         t.ZDEVICEID,
@@ -459,7 +470,8 @@ def get_healthmate_tracked_activities(context):
 @artifact_processor
 def get_healthmate_messages(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
 
     query = ('''
         SELECT
@@ -524,7 +536,8 @@ def get_healthmate_messages(context):
 @artifact_processor
 def get_healthmate_measurements(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         ZCATEGORY [CATEGORYID],
@@ -622,7 +635,8 @@ def get_healthmate_measurements(context):
 @artifact_processor
 def get_healthmate_devices(context):
     files_found = context.get_files_found()
-    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')]
+    files_found = [x for x in files_found if not x.endswith('wal') and not x.endswith('shm')
+                   and not x.endswith('journal')]
     query = ('''
         SELECT
         ZDEVICE_ID,

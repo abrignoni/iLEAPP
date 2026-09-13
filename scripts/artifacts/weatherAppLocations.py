@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses saved locations and update times from the iOS Weather app (group.com.apple.weather.plist).",
         "author": "@Anna-Mariya Mateyna",
         "creation_date": "2021-01-29",
-        "last_update_date": "2025-11-20",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Location",
         "notes": "",
@@ -106,7 +106,7 @@ def weather_app_locations(context):
             update_time = _safe_plist_date(city.get('UpateTime', ''))
             data_list.append((
                 update_time,
-                'Added from User',
+                'Saved City',
                 '',
                 city['Lat'],
                 city['Lon'],

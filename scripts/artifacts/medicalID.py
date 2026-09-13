@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "medicalID": {
         "name": "Medical ID",
-        "description": "User entered Medical ID information about self (MedicalIDData.archive)",
+        "description": "Medical ID information from MedicalIDData.archive. Apple documents Medical ID as entered by the user in the Health app; the contents are not verified as describing the device owner.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "Reference: Apple Support, 'Set up and view your Medical ID', https://support.apple.com/guide/iphone/set-up-and-view-your-medical-id-iph08022b192/ios",
         "paths": ('*/mobile/Library/MedicalID/MedicalIDData.archive',),
         "output_types": "standard",
         "artifact_icon": "heart",

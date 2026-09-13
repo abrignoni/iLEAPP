@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     "safariBookmarks": {
         "name": "Safari Browser - Bookmarks",
         "description": "Safari bookmarks",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-21",
         "requirements": "none",

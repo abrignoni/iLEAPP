@@ -1,25 +1,30 @@
 __artifacts_v2__ = {
     "get_biomeSiriRemembersAssistantSuggestions": {
         "name": "Biome - Siri Remembers Assistant Suggestions",
-        "description": "Parses Siri suggestion events from the "
-                       "Siri.Remembers.AssistantSuggestions biome stream: when Siri offered "
-                       "suggestions and which suggestions were shown, for example reminders "
-                       "due today or unread mail.",
+        "description": "Parses suggestion events recorded in the "
+                       "Siri.Remembers.AssistantSuggestions biome stream, with the suggestion "
+                       "names carried in each record, for example reminders due today or "
+                       "unread mail.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Shares the intent record shape of the other Siri.Remembers streams, with the "
                  "suggestion names carried as a list of entities rather than a single value. "
-                 "The stream syncs between devices, so the Sync Origin column distinguishes "
-                 "records written locally from those received from another device.",
+                 "Records are read from both the local and remote subfolders; the Sync Origin "
+                 "column reports which one a record came from. The local/remote naming is the "
+                 "stream's own folder layout; cross-device sync semantics are not documented.",
         "paths": (
             '*/streams/*/Siri.Remembers.AssistantSuggestions/local/*',
             '*/streams/*/Siri.Remembers.AssistantSuggestions/remote/*',
         ),
         "output_types": "standard",
         "artifact_icon": "zap",
+        "sample_data": {
+            "felix_ios17": "1 row",
+            "otto_ios17": "2 rows",
+        },
     }
 }
 
@@ -99,18 +104,20 @@ def _sync_origin(file_found):
 def get_biomeSiriRemembersAssistantSuggestions(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
         origin = _sync_origin(file_found)
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -142,4 +149,4 @@ def get_biomeSiriRemembersAssistantSuggestions(context):
                     'Intent Class', 'Metadata', 'Event ID', 'Sync Origin', 'Filename',
                     'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

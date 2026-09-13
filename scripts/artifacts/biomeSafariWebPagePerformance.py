@@ -2,17 +2,17 @@ __artifacts_v2__ = {
     "get_biomeSafariWebPagePerformance": {
         "name": "Biome - Safari Web Page Performance",
         "description": "Parses Safari page load performance events from the "
-                       "Safari.WebPagePerformance biome stream. Each record marks Safari web "
-                       "activity in a rounded time bucket and complements Safari.Navigations "
-                       "and App.WebUsage.",
+                       "Safari.WebPagePerformance biome stream. Each record appears to "
+                       "correspond to Safari web activity in a rounded time bucket and "
+                       "complements Safari.Navigations and App.WebUsage.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-07-25",
+        "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
         "notes": "Like Safari.Navigations, the second timestamp is rounded up to the next 30 "
-                 "minute boundary. Remaining fields are performance counters and are reported "
-                 "raw as their units are not confirmed.",
+                 "minute boundary. The remaining integer fields are of unconfirmed meaning "
+                 "and are reported raw.",
         "paths": ('*/streams/*/Safari.WebPagePerformance/local/*',),
         "output_types": "standard",
         "artifact_icon": "compass",
@@ -64,17 +64,19 @@ def _unix_double(value):
 def get_biomeSafariWebPagePerformance(context):
 
     data_list = []
+    source_dirs = set()
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
 
+        source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
             ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
@@ -101,4 +103,4 @@ def get_biomeSafariWebPagePerformance(context):
                     'SEGB State', 'Detail (raw)', 'Field 3 (raw)', 'Field 4 (raw)',
                     'Field 5 (raw)', 'Filename', 'Offset')
 
-    return data_headers, data_list, 'see Filename for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_dirs))

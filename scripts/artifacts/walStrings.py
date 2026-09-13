@@ -69,7 +69,7 @@ from scripts.ilapfuncs import (
     artifact_processor,
     logfunc
     )
-from scripts.html_safe import esc
+from scripts.html_safe import safe_local_link
 
 ASCII_STRINGS_RE = re.compile(rb'[\x20-\x7e]{4,}')
 _extraction_cache = {}
@@ -155,10 +155,10 @@ def process_journal_files(context):
         relative_output_path = (
             f'{os.path.basename(report_folder)}/{output_filename}'
         )
-        report_link = (
-            f'<a href="{esc(relative_output_path)}" target="_blank" '
-            f'style="color:blue">{esc(journal_name)}</a>'
-        )
+        # Report-relative: this points at a file written beside the report, so it
+        # stays clickable. safe_local_link() refuses anything that would leave the
+        # report folder.
+        report_link = safe_local_link(relative_output_path, journal_name)
         summary_row = (
             relative_output_path,
             journal_name,

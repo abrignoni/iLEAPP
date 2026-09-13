@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses non-paired (other) Bluetooth Low Energy devices seen by the device from com.apple.MobileBluetooth.ledevices.other.db.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-21",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
@@ -37,9 +37,11 @@ from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
 def get_bluetoothOtherLE(context):
 
     data_list = []
+    source_paths = set()
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if file_found.endswith('.db'):
+            source_paths.add(file_found)
             db = open_sqlite_db_readonly(file_found)
             cursor = db.cursor()
 
@@ -64,6 +66,6 @@ def get_bluetoothOtherLE(context):
 
     data_headers = ('Name','Address','UUID', 'Source File')
 
-    return data_headers, data_list, 'see Source File for more info'
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 

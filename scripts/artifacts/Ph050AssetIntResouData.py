@@ -10,6 +10,8 @@ __artifacts_v2__ = {
 ' and filter the results.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-31',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -31,9 +33,9 @@ __artifacts_v2__ = {
 'abe_ios16': 'iOS 16.5 | 6630 rows',
 'felix23_ios16': 'iOS 16.5 | 149 rows',
 'hickman_ios13': 'iOS 13.3.1 | 0 rows',
-'hickman_ios14': 'iOS 14.3 | 0 rows',
+'hickman_ios14': 'iOS 14.3 | 336 rows',
 'jess_ios15': 'iOS 15.0.2 | 33 rows',
-'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+'magnet_ios16': 'iOS 16.1.1 | 601 rows',
 }
 },
 'Ph050_2AssetIntResouSyndPL': {
@@ -47,29 +49,31 @@ __artifacts_v2__ = {
 ' to view, search, and filter the results.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
+'last_update_date': '2026-07-31',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',
-'paths': ('*/PhotoData/Photos.sqlite*',),
+'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database",
 'sample_data': {
 'ctf2020_ios12': 'iOS 12.4 | 0 rows',
-'dexter_ios18': 'iOS 18.3.2 | 5009 rows',
-'felix_ios17': 'iOS 17.6.1 | 216 rows',
-'fsfull002_ios17': 'iOS 17.1 | 349 rows',
-'hc_ios18_7': 'iOS 18.7.8 | 145 rows',
-'iphone11_ios17': 'iOS 17.3 | 1521 rows',
-'iphone12_ios18': 'iOS 18.7 | 9704 rows',
-'iphone14plus_ios18': 'iOS 18.0 | 9 rows',
-'otto_ios17': 'iOS 17.5.1 | 2339 rows',
-'abe_ios16': 'iOS 16.5 | 6630 rows',
-'felix23_ios16': 'iOS 16.5 | 149 rows',
+'dexter_ios18': 'iOS 18.3.2 | 68 rows',
+'felix_ios17': 'iOS 17.6.1 | 25 rows',
+'fsfull002_ios17': 'iOS 17.1 | 51 rows',
+'hc_ios18_7': 'iOS 18.7.8 | 0 rows',
+'iphone11_ios17': 'iOS 17.3 | 32 rows',
+'iphone12_ios18': 'iOS 18.7 | 4 rows',
+'iphone14plus_ios18': 'iOS 18.0 | 0 rows',
+'otto_ios17': 'iOS 17.5.1 | 82 rows',
+'abe_ios16': 'iOS 16.5 | 84 rows',
+'felix23_ios16': 'iOS 16.5 | 25 rows',
 'hickman_ios13': 'iOS 13.3.1 | 0 rows',
 'hickman_ios14': 'iOS 14.3 | 0 rows',
-'jess_ios15': 'iOS 15.0.2 | 33 rows',
+'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
 }
 },
@@ -84,6 +88,8 @@ __artifacts_v2__ = {
 ' and filter the results.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
+'creation_date': '2026-05-28',
+'last_update_date': '2026-07-31',
 'version': '2.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -100,7 +106,7 @@ __artifacts_v2__ = {
 
 import os
 from packaging import version
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph050_1AssetIntResouPhDaPsql(context):
@@ -846,7 +852,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 		ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1117,7 +1123,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
         'zMedAnlyAstAttr-zEnt-236',
         'zMedAnlyAstAttr-zOpt-237',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-238')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -1930,7 +1936,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 		ORDER BY zAsset.ZDATECREATED
         '''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2228,7 +2234,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
         'zMedAnlyAstAttr-zEnt-260',
         'zMedAnlyAstAttr-zOpt-261',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-262')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -3075,7 +3081,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -3383,7 +3389,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
         'zMedAnlyAstAttr-zEnt-269',
         'zMedAnlyAstAttr-zOpt-270',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-271')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -4236,7 +4242,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -4547,7 +4553,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
         'zMedAnlyAstAttr-zEnt-272',
         'zMedAnlyAstAttr-zOpt-273',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-274')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -5465,7 +5471,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -5808,7 +5814,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
         'zMedAnlyAstAttr-zEnt-301',
         'zMedAnlyAstAttr-zOpt-302',
         'zMedAnlyAstAttr-Asset= zAsset-Zpk-303')
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -6712,7 +6718,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -7054,7 +7060,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
         'zMedAnlyAstAttr-zOpt-299',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-300')
 
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -7802,7 +7808,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -8073,7 +8079,7 @@ def Ph050_2AssetIntResouSyndPL(context):
         'zMedAnlyAstAttr-zEnt-236',
         'zMedAnlyAstAttr-zOpt-237',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-238')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -8886,7 +8892,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -9184,7 +9190,7 @@ def Ph050_2AssetIntResouSyndPL(context):
         'zMedAnlyAstAttr-zEnt-260',
         'zMedAnlyAstAttr-zOpt-261',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-262')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -10031,7 +10037,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -10339,7 +10345,7 @@ def Ph050_2AssetIntResouSyndPL(context):
         'zMedAnlyAstAttr-zEnt-269',
         'zMedAnlyAstAttr-zOpt-270',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-271')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -11192,7 +11198,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -11503,7 +11509,7 @@ def Ph050_2AssetIntResouSyndPL(context):
         'zMedAnlyAstAttr-zEnt-272',
         'zMedAnlyAstAttr-zOpt-273',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-274')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -12421,7 +12427,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -12764,7 +12770,7 @@ def Ph050_2AssetIntResouSyndPL(context):
         'zMedAnlyAstAttr-zEnt-301',
         'zMedAnlyAstAttr-zOpt-302',
         'zMedAnlyAstAttr-Asset= zAsset-Zpk-303')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -13668,7 +13674,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -14010,7 +14016,7 @@ def Ph050_2AssetIntResouSyndPL(context):
         'zMedAnlyAstAttr-zOpt-299',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-300')
 
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
 
@@ -14945,7 +14951,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -15288,7 +15294,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
         'zMedAnlyAstAttr-zEnt-301',
         'zMedAnlyAstAttr-zOpt-302',
         'zMedAnlyAstAttr-Asset= zAsset-Zpk-303')
-# data_list = get_sqlite_db_records(source_path, query)
+# data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
 
@@ -16192,7 +16198,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
 		ORDER BY zAsset.ZDATECREATED
 		'''
 
-        db_records = get_sqlite_db_records(source_path, query)
+        db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -16534,6 +16540,6 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
         'zMedAnlyAstAttr-zOpt-299',
         'zMedAnlyAstAttr-Asset= zAsset-zPK-300')
 
-        data_list = list(get_sqlite_db_records(source_path, query))
+        data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path

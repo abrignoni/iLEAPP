@@ -1,0 +1,3 @@
+{
+  "twitterX.twitterDirectMessages.josh_ios17_ffs": "output shifts with the host timezone (rows differ between TZ=UTC and America/New_York runs of identical code and data); the artifact converts through a local-timezone-dependent path and needs a fix before it can gate"
+}

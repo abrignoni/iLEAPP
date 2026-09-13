@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "safariFavicons": {
         "name": "Safari Browser - Favicons",
         "description": "Safari favicon cache entries (page URL, icon URL, dimensions)",
-        "author": "",
+        "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": "",
@@ -49,10 +49,11 @@ def safariFavicons(context):
     if not source_path:
         return data_headers, data_list, ''
 
-    # "timestamp" is Apple absolute (Cocoa) time on iOS <= 18, but iOS 26+ may
-    # store a Unix timestamp instead. Cocoa values for realistic dates stay well
-    # below the 978307200 offset (year 2032 in Cocoa time), while Unix values are
-    # always above it, so the magnitude disambiguates the two encodings.
+    # "timestamp" is Apple absolute (Cocoa) time on iOS <= 18. Untested
+    # expectation for iOS 26+: a Unix-epoch value would exceed this threshold.
+    # Cocoa values for realistic dates stay well below the 978307200 offset
+    # (year 2032 in Cocoa time), while Unix values are always above it, so the
+    # magnitude disambiguates the two encodings.
     query = '''
     SELECT
         CASE

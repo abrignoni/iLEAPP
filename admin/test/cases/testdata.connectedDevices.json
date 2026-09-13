@@ -3,7 +3,7 @@
     "description": "",
     "maker": "",
     "make_data": {
-      "input_data_path": "/Users/jameshabben/Documents/phone-images/belkasoft/BelkaCTF_6_CASE240405_D201AP.tar",
+      "input_data_path": "BelkaCTF_6_CASE240405_D201AP.tar",
       "os": "macOS-15.0-x86_64-i386-64bit",
       "timestamp": "2024-10-23T09:45:39.397150",
       "last_commit": {

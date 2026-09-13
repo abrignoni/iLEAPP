@@ -4,12 +4,12 @@ __artifacts_v2__ = {
         "description": "Extraction of stopwatch set",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2024-12-22",
-        "last_update_date": "2025-10-09",
+        "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Clock",
         "notes": "",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
-        "output_types": "standard",
+        "output_types": ["html", "lava", "tsv"],
         "artifact_icon": "clock",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
@@ -42,7 +42,7 @@ def stopwatch(context):
 
     pl = get_plist_file_content(source_path)
     if not pl or not isinstance(pl, dict):
-        return (), [], ''
+        return (), [], source_path
     
     if 'MTStopwatches' in pl:
         if 'MTStopwatches' in pl['MTStopwatches']:

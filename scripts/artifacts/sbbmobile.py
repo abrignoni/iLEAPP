@@ -4,13 +4,12 @@ __artifacts_v2__ = {
         "description": "Parse search history in the SBB Mobile app",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-03-18",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
         "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/ch.sbb.coredata.searchhistory.sqlite*'),
         "output_types": "standard",
-        "html_columns": ['Location of the search (link)'],
         "artifact_icon": "search"
     },
     "sbb_easyride_trips": {
@@ -18,7 +17,7 @@ __artifacts_v2__ = {
         "description": "Parse EasyRide check-in and check-out events",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-23",
-        "last_update_date": "2026-03-23",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
         "notes": "",
@@ -31,10 +30,10 @@ __artifacts_v2__ = {
         "description": "Parse purchased tickets from SbbMobile",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-24",
-        "last_update_date": "2026-03-24",
+        "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
-        "notes": "",
+        "notes": "Refund-state values other than COMPLETE are reported as stored.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SbbMobile.db*'),
         "output_types": "standard",
         "artifact_icon": "star"
@@ -58,7 +57,7 @@ def sbb_searchhistory(context):
 
     query = """
         SELECT	
-            datetime(ZTIMESTAMP / 1000, 'unixepoch', 'localtime'),
+            datetime(ZTIMESTAMP / 1000, 'unixepoch'),
             ZFROM,
             ZFROMTYPE,
             ZTO,
@@ -69,21 +68,21 @@ def sbb_searchhistory(context):
     """
 
     data_headers = (
-        ('Search timestamp (local time)','datetime'), 
+        ('Search timestamp (UTC)','datetime'),
         'Departure', 
         'Departure type', 
         'Target', 
         'Target type', 
-        'Location of search (link)',
+        'Result Coordinates (lat/lon)',
     )
 
     db_records = get_sqlite_db_records(source_path, query)
 
     for record in db_records:
 
-        # Create map link
+        # Coordinates as text
         if record[5] and record[6]:
-            map_link = coordinate_to_osm(record[5]/1_000_000, record[6]/1_000_000)
+            map_link = coordinate_to_text(record[5]/1_000_000, record[6]/1_000_000)
         else:
             map_link = ""
 
@@ -106,14 +105,14 @@ def sbb_easyride_trips(context):
         SELECT 
             ZTIMESTAMP,
             ZMESSAGE,
-            datetime(ZTIMESTAMP + 978307200, 'unixepoch', 'localtime')
+            datetime(ZTIMESTAMP + 978307200, 'unixepoch')
         FROM ZLOGENTRY
         ORDER BY ZTIMESTAMP ASC
     '''
 
     data_headers = (
-        ('Check-in Time (Local time)', 'datetime'), 
-        'Check-out Time (Local time)', 
+        ('Check-in Time (UTC)', 'datetime'),
+        'Check-out Time (UTC)',
         'Duration (min)',
     )
 
@@ -186,8 +185,7 @@ def sbb_purchased_tickets(context):
             traveler,
             validFrom,
             validUntil,
-            CASE	
-                WHEN refundState = 'NORMAL' THEN 'Not Refunded'
+            CASE
                 WHEN refundState = 'COMPLETE' THEN 'Refunded'
                 ELSE refundState
             END AS refundState,
@@ -245,5 +243,10 @@ def parse_ticket_html(html):
     return data
 
 
-def coordinate_to_osm(lat, lon): 
-    return f"https://www.openstreetmap.org/?mlat={lat}&mlon={lon}&zoom=15"
+def coordinate_to_text(lat, lon):
+    """Return the coordinates as text.
+
+    This built an openstreetmap.org URL. A report links to nothing outside its own
+    folder, so the coordinates are reported as the data they are.
+    """
+    return f"{lat}, {lon}"
