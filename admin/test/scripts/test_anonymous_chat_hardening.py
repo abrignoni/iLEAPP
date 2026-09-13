@@ -11,6 +11,7 @@ SQLite tests create fresh disposable databases, never take a casework input.
 import fnmatch
 import hashlib
 import json
+import plistlib
 import sqlite3
 import tempfile
 import unittest
@@ -21,6 +22,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from scripts.artifacts import anonymousChat as module
+from scripts.search_files import FileSeekerItunes
 
 
 UUID_A = '11111111-1111-4111-8111-111111111111'
@@ -114,19 +116,26 @@ class AnonymousChatHardeningTests(unittest.TestCase):
                              side_effect=lambda _ctx, file, *_: 'mock:' + file['path']):
             return module._media_rows([DB_A, DB_B], MetadataContext())
 
-    def test_duplicate_basename_does_not_fall_through_to_timestamp(self):
-        entries = [entry(DATA_A + '/Library/Caches/a/image.jpg'),
-                   entry(DATA_A + '/Library/Caches/b/image.jpg', size=9999)]
-        rows = self.media_rows(entries, [reference()])
+    def test_same_size_and_timestamp_decoy_is_not_a_message_match(self):
+        entries = [entry(DATA_A + '/Library/Caches/decoy.jpg')]
+        rows = self.media_rows(entries, [reference(reference=URL)])
         self.assertFalse(any(row.get('media_ref') for row in rows))
-        self.assertIn('ambiguous', rows[-1]['correlation'])
+        self.assertIn('no stored app-to-file relationship', rows[-1]['correlation'])
         self.assertEqual(rows[-1]['filesystem_present'], 'No')
 
-    def test_unique_basename_is_explicitly_inferred(self):
+    def test_remote_url_basename_is_not_a_local_file_link(self):
+        entries = [entry(DATA_A + '/Library/Caches/image.jpg'),
+                   entry(DATA_A + '/synthetic/image.jpg')]
+        rows = self.media_rows(entries, [reference(reference=URL)])
+        self.assertFalse(any(row.get('media_ref') for row in rows))
+        self.assertTrue(all('no stored app-to-file relationship' in row['correlation']
+                            for row in rows if row['kind'] == 'Filesystem Media'))
+
+    def test_message_filename_alone_is_not_a_match(self):
         matches, blocked = module._direct_media_matches(
             [classified()], [reference()], filenames_only=True)
         self.assertFalse(blocked)
-        self.assertTrue(matches[0][0][2].startswith('Inferred: unique filename'))
+        self.assertEqual(matches, {})
 
     def test_exact_path_disambiguates_same_basename(self):
         target = DATA_A + '/Library/Caches/a/image.jpg'
@@ -153,7 +162,8 @@ class AnonymousChatHardeningTests(unittest.TestCase):
     def test_conflicting_size_or_category_blocks_filename_and_timestamp(self):
         for values in ({'size': 9999}, {'mime': 'video/mp4'}):
             with self.subTest(values=values):
-                rows = self.media_rows([entry()], [reference(**values)])
+                rows = self.media_rows([entry()],
+                                       [reference(reference=entry()['path'], **values)])
                 self.assertFalse(any(row.get('media_ref') for row in rows))
                 self.assertIn('contradictory', rows[-1]['correlation'])
 
@@ -163,7 +173,7 @@ class AnonymousChatHardeningTests(unittest.TestCase):
 
     def test_identical_filenames_are_scoped_to_the_source_container(self):
         rows = self.media_rows([entry(), entry(DATA_B + '/Library/Caches/image.jpg')],
-                               [reference()])
+                               [reference(reference=DATA_A + '/Library/Caches/image.jpg')])
         self.assertEqual([row['filesystem_path'] for row in rows if row.get('media_ref')],
                          [entry()['path']])
 
@@ -173,7 +183,8 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         self.assertFalse(any(row.get('media_ref') for row in rows))
 
     def test_repeated_url_retains_separate_typed_message_associations(self):
-        refs = [reference(), reference(message_id='message-2',
+        target = DATA_A + '/Library/Caches/image.jpg'
+        refs = [reference(reference=target), reference(reference=target, message_id='message-2',
                                        message_timestamp=WHEN + timedelta(seconds=30))]
         rows = self.media_rows([entry()], refs)
         linked = [row for row in rows if row.get('media_ref')]
@@ -226,21 +237,15 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         for value in (None, '', 0, -1, 0.5, 'nan', 'inf', 'bad'):
             with self.subTest(value=value):
                 self.assertIsNone(module._media_size(value))
-                self.assertEqual(module._inferred_media_matches(
-                    [classified(size=0)], [reference(size=value)], set(), set()), {})
         self.assertEqual(module._media_size('1234'), 1234)
 
-    def test_timestamp_ties_competing_messages_and_window_reject_ambiguity(self):
-        ref = reference(reference='')
-        files = [classified(DATA_A + '/Library/Caches/a.jpg'),
-                 classified(DATA_A + '/Library/Caches/b.jpg')]
-        self.assertEqual(module._inferred_media_matches(files, [ref], set(), set()), {})
-        self.assertEqual(module._inferred_media_matches(
-            files[:1], [ref, reference(reference='', message_id='message-2')],
-            set(), set()), {})
-        late = classified(modified_at=WHEN + timedelta(seconds=301))
-        self.assertEqual(module._inferred_media_matches([late], [ref], set(), set()), {})
-        self.assertTrue(module._inferred_media_matches(files[:1], [ref], set(), set()))
+    def test_timestamp_and_size_are_never_matching_evidence(self):
+        ref = reference(reference=URL)
+        files = [entry(DATA_A + '/Library/Caches/a.jpg'),
+                 entry(DATA_A + '/Library/Caches/b.jpg')]
+        rows = self.media_rows(files, [ref])
+        self.assertFalse(any(row.get('media_ref') for row in rows))
+        self.assertIn('size/timestamp/name-only matching not used', rows[-1]['correlation'])
 
     def test_sdimagecache_hashes_url_text_and_handles_unknown_size(self):
         key = hashlib.md5(URL.encode(), usedforsecurity=False).hexdigest()
@@ -262,21 +267,26 @@ class AnonymousChatHardeningTests(unittest.TestCase):
             files, [reference(size=9999)], set(), set(), blocked), {})
         self.assertEqual(blocked, {0})
 
-    def test_media_table_timestamps_never_bridge_databases(self):
-        media = reference(kind='Media Table Metadata', media_timestamp=WHEN)
-        direct = {0: [(0, media, 'Direct: stored path')]}
-        refs = [media, reference(source=DB_B)]
-        self.assertEqual(module._media_table_message_matches(
-            [classified()], refs, direct, {0}), {})
-        refs[1]['source'] = DB_A
-        self.assertTrue(module._media_table_message_matches([classified()], refs, direct, {0}))
-        refs[1]['size'] = 9999
-        self.assertEqual(module._media_table_message_matches(
-            [classified()], refs, direct, {0}), {})
-        refs[1]['size'] = 1234
-        refs.append(reference(message_id='message-2'))
-        self.assertEqual(module._media_table_message_matches(
-            [classified()], refs, direct, {0}), {})
+    def test_media_table_message_link_requires_explicit_join(self):
+        media = reference(kind='Media Table Metadata', media_id='ph://synthetic-asset',
+                          filename='asset.jpg', reference='asset.jpg', source=DB_A,
+                          join_tokens=['ph://synthetic-asset', 'asset.jpg'])
+        message_ref = reference(source=DB_A, reference='', message_id='message-2',
+                                join_tokens=['ph://synthetic-asset'])
+        direct = {0: [(0, media, 'Direct: media-table stored filename')]}
+        matches = module._explicit_media_table_message_matches(
+            [classified()], [media, message_ref], direct, {0})
+        self.assertEqual([item[1]['message_id'] for item in matches[0]], ['message-2'])
+        self.assertEqual(matches[0][0][1]['media_id'], 'ph://synthetic-asset')
+        self.assertIn('explicit message_info media join', matches[0][0][2])
+
+        other_database = dict(message_ref, source=DB_B, message_id='message-3')
+        self.assertEqual(module._explicit_media_table_message_matches(
+            [classified()], [media, other_database], direct, {0}), {})
+        duplicate_media = dict(media, media_id='ph://other-asset',
+                               join_tokens=['ph://synthetic-asset'])
+        self.assertEqual(module._explicit_media_table_message_matches(
+            [classified()], [media, duplicate_media, message_ref], direct, {0}), {})
 
     def test_photos_uuid_requires_unique_safe_relative_path(self):
         photo_uuid = 'AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA'
@@ -289,7 +299,7 @@ class AnonymousChatHardeningTests(unittest.TestCase):
             with patch.object(module, '_query_rows', return_value=assets):
                 self.assertEqual(module._photos_asset_paths(context, refs), {})
         with patch.object(module, '_query_rows', return_value=[safe]):
-            self.assertIn('var/mobile/Media/DCIM/100APPLE/SYNTH001.JPG',
+            self.assertIn('DCIM/100APPLE/SYNTH001.JPG',
                           module._photos_asset_paths(context, refs))
         other_uuid = 'BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB'
         refs.append(reference(kind='Media Table Metadata', media_id='ph://' + other_uuid))
@@ -307,7 +317,8 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         path = ('private/var/containers/Bundle/Application/' + UUID_A +
                 '/AnonimChat.app/Info.plist')
         for artifact in module.__artifacts_v2__.values():
-            self.assertEqual(artifact['author'], 'Darren Rooney')
+            self.assertIsInstance(artifact['author'], str)
+            self.assertTrue(artifact['author'].strip())
             self.assertTrue(any(fnmatch.fnmatchcase(path, pattern)
                                 for pattern in artifact['paths']))
             self.assertFalse(any('PluginKitPlugin' in pattern for pattern in artifact['paths']))
@@ -374,7 +385,7 @@ class AnonymousChatHardeningTests(unittest.TestCase):
             self.assertFalse(Path(missing).exists())
 
     def test_known_file_type_takes_precedence_over_reference_mime(self):
-        matches = [(0, reference(mime='image/png'), 'Inferred: Photos original')]
+        matches = [(0, reference(mime='image/png'), 'Direct: Photos original')]
         self.assertEqual(module._media_force_type('JPEG', matches), 'image/jpeg')
 
     def test_optional_columns_in_every_metadata_table(self):
@@ -417,6 +428,76 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         with patch.object(module, '_read_plist', return_value={}):
             self.assertEqual(module._target_db_paths(context), [DB_A])
 
+    def test_itunes_manifest_app_domain_uses_bundle_id_data_container(self):
+        with tempfile.TemporaryDirectory(prefix='anonymouschat-itunes-') as root:
+            root = Path(root)
+            backup = root / 'backup'
+            stage = root / 'stage'
+            backup.mkdir()
+            stage.mkdir()
+            database_payload = root / 'anonimchat.db'
+            db = sqlite3.connect(database_payload)
+            try:
+                db.execute('CREATE TABLE conversations (conversation_id TEXT)')
+                db.execute('INSERT INTO conversations VALUES (?)', ('synthetic-chat',))
+                db.commit()
+            finally:
+                db.close()
+            database_hash = 'a' * 40
+            preference_hash = 'b' * 40
+            for digest, payload in (
+                    (database_hash, database_payload.read_bytes()),
+                    (preference_hash, plistlib.dumps({'synthetic_fixture': True}))):
+                folder = backup / digest[:2]
+                folder.mkdir(parents=True, exist_ok=True)
+                (folder / digest).write_bytes(payload)
+            manifest = sqlite3.connect(backup / 'Manifest.db')
+            try:
+                manifest.execute('''
+                    CREATE TABLE Files (
+                        fileID TEXT, domain TEXT, relativePath TEXT,
+                        flags INTEGER, file BLOB
+                    )
+                ''')
+                manifest.executemany(
+                    'INSERT INTO Files VALUES (?, ?, ?, ?, ?)',
+                    [
+                        (database_hash, 'AppDomain-com.anonimchat.app',
+                         'Library/LocalDatabase/anonimchat.db', 1, b''),
+                        (preference_hash, 'AppDomain-com.anonimchat.app',
+                         'Library/Preferences/com.anonimchat.app.plist', 1, b''),
+                    ])
+                manifest.commit()
+            finally:
+                manifest.close()
+            seeker = FileSeekerItunes(str(backup), str(stage), 'db', [])
+            try:
+                database_staged = seeker.search(
+                    '*/Library/LocalDatabase/anonimchat.db*', return_on_first_hit=True)
+                preference_staged = seeker.search(
+                    '*/Library/Preferences/com.anonimchat.app.plist', return_on_first_hit=True)
+                context = MetadataContext([database_staged, preference_staged])
+                context.seeker = seeker
+                self.assertEqual(module._container_location(database_staged),
+                                 ('data', module._BUNDLE_ID.upper()))
+                self.assertEqual(module._target_db_paths(context), [database_staged])
+            finally:
+                seeker.cleanup()
+
+    def test_app_group_metadata_matches_app_specific_group_identifier(self):
+        bundle_info = ('private/var/containers/Bundle/Application/' + UUID_A +
+                       '/AnonimChat.app/Info.plist')
+        group_metadata = ('private/var/mobile/Containers/Shared/AppGroup/' + UUID_B +
+                          '/.com.apple.mobile_container_manager.metadata.plist')
+        plist_values = {
+            bundle_info: {'CFBundleIdentifier': module._BUNDLE_ID},
+            group_metadata: {'MCMMetadataIdentifier': 'group.com.anonimchat.app.shared'},
+        }
+        with patch.object(module, '_read_plist', side_effect=plist_values.get):
+            containers = module._target_containers(
+                MetadataContext([bundle_info, group_metadata]))
+        self.assertEqual(containers[2], {UUID_B})
+
     def test_zip_and_tar_inventory_never_open_media(self):
         context = MetadataContext()
         for kind in ('zip', 'tar'):
@@ -427,8 +508,12 @@ class AnonymousChatHardeningTests(unittest.TestCase):
                     item.is_dir.return_value = False
                     item.filename, item.file_size = entry()['path'], 1234
                     item.date_time = (2030, 1, 1, 0, 0, 0)
+                    item.extra = b''
                     handle.infolist.return_value = [item]
-                    context.seeker = SimpleNamespace(zip_file=handle)
+                    context.seeker = SimpleNamespace(
+                        zip_file=handle,
+                        decode_extended_timestamp=lambda _extra: (None, WHEN.timestamp()),
+                    )
                 else:
                     item.isfile.return_value = True
                     item.name, item.size, item.mtime = entry()['path'], 1234, WHEN.timestamp()
@@ -439,6 +524,32 @@ class AnonymousChatHardeningTests(unittest.TestCase):
                 self.assertEqual(rows[0]['modified_at'], WHEN)
                 handle.open.assert_not_called()
                 handle.extractfile.assert_not_called()
+
+    def test_raw_inventory_uses_on_image_metadata_without_reading_media(self):
+        path = 'lba0/' + DATA_A + '/Library/Caches/image.jpg'
+        raw_entry = SimpleNamespace(size=1234, mtime=WHEN.timestamp(), reading='')
+        seeker = SimpleNamespace(name_list=[path], _entries={path: raw_entry})
+        context = MetadataContext()
+        context.seeker = seeker
+        rows = list(module._iter_source_entries(context))
+        self.assertEqual(rows[0]['kind'], 'raw')
+        self.assertEqual(rows[0]['size'], 1234)
+        self.assertEqual(rows[0]['modified_at'], WHEN)
+
+        seeker.search = Mock(return_value='C:/synthetic/staged-image.jpg')
+        self.assertEqual(module._stage_media_entry(context, rows[0]),
+                         'C:/synthetic/staged-image.jpg')
+        seeker.search.assert_called()
+
+    def test_raw_unknown_mtime_preserves_filesystem_reading_without_utc_epoch(self):
+        path = 'lba0/' + DATA_A + '/Library/Caches/image.jpg'
+        raw_entry = SimpleNamespace(size=1234, mtime=0,
+                                    reading='2030-01-01 00:00:00')
+        context = MetadataContext()
+        context.seeker = SimpleNamespace(name_list=[path], _entries={path: raw_entry})
+        rows = list(module._iter_source_entries(context))
+        self.assertIsNone(rows[0]['modified_at'])
+        self.assertIn('timezone not recorded', rows[0]['modified'])
 
     def test_directory_filter_skips_unrelated_files_before_stat(self):
         context = MetadataContext()

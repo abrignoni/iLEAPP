@@ -124,6 +124,7 @@ class AnonymousChatSyntheticTests(unittest.TestCase):
             recipient='local.synthetic',
             mime='image/png',
             size=5678,
+            join_tokens=['ph://' + PHOTO_UUID + '/L0/001'],
         )
         media_table_reference = _reference(
             'Media Table Metadata',
@@ -200,7 +201,7 @@ class AnonymousChatSyntheticTests(unittest.TestCase):
         self.assertEqual(photo_row['message_id'], 'photo-message')
         self.assertEqual(photo_row['media_id'], 'ph://' + PHOTO_UUID + '/L0/001')
         self.assertIn('Photos original', photo_row['correlation'])
-        self.assertIn('media-table timestamp', photo_row['correlation'])
+        self.assertIn('explicit message_info media join', photo_row['correlation'])
 
     def test_lava_conversation_mapping_is_complete(self):
         mapping = module.__artifacts_v2__['anonymousChat_messages']['data_views']['conversation']

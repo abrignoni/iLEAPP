@@ -24,7 +24,7 @@ DATA_ROOT = Path(
     'private/var/mobile/Containers/Data/Application'
 ) / DATA_UUID
 BUNDLE_ROOT = Path(
-    'private/var/mobile/Containers/Bundle/Application'
+    'private/var/containers/Bundle/Application'
 ) / BUNDLE_UUID
 
 
@@ -90,11 +90,6 @@ def build_database(path: Path) -> None:
                 media_data TEXT,
                 media_time INTEGER
             );
-            CREATE TABLE ZASSET (
-                ZUUID TEXT,
-                ZDIRECTORY TEXT,
-                ZFILENAME TEXT
-            );
             '''
         )
         db.executemany(
@@ -139,7 +134,9 @@ def build_database(path: Path) -> None:
                     'message-3', 'conversation-1', 'UUID-PHOTO',
                     'Synthetic Photos-linked metadata message',
                     None, 'image/png', 'image', 5678, None, 'photos', '1', None,
-                    None, None, None, None, None,
+                    None, None, None, json.dumps({
+                        'media_id': f'ph://{PHOTO_UUID}/L0/001',
+                    }, separators=(',', ':')), None,
                     BASE_TIME + 2, 1, 'remote.synthetic', BASE_TIME + 2,
                 ),
             ],
@@ -151,10 +148,6 @@ def build_database(path: Path) -> None:
         db.execute(
             'INSERT INTO media VALUES (?, ?, ?, ?)',
             (f'ph://{PHOTO_UUID}/L0/001', 'SYNTH001.PNG', None, BASE_TIME + 2),
-        )
-        db.execute(
-            'INSERT INTO ZASSET VALUES (?, ?, ?)',
-            (PHOTO_UUID, 'DCIM/100APPLE', 'SYNTH001.PNG'),
         )
 
 
@@ -181,10 +174,10 @@ def build_fixture(output_root: Path) -> Path:
         'com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json'
     )
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(
-        json.dumps({'synthetic_fixture': True, 'record_count': 3}, indent=2) + '\n',
-        encoding='utf-8',
-    )
+    manifest_path.write_bytes((
+        json.dumps({'signedInUsername': 'local.synthetic',
+                    'synthetic_fixture': True, 'record_count': 3}, indent=2) + '\n'
+    ).encode('utf-8'))
     build_database(output_root / DATA_ROOT / 'Library/LocalDatabase/anonimchat.db')
 
     write_plist(
