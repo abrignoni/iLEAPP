@@ -19,6 +19,10 @@ recommended shape for new large artifacts is ``add_row()``.
 
 Queue settings are preserved for async iterable insertion, and writer mode
 keeps its own per-result batch state so multiple results can coexist.
+
+When no LAVA run is active (a module executed on its own, as the test harness does),
+``add_row()`` keeps the rows in memory instead and they are read back by iterating the
+result, so a writer-style module behaves like one that returned a list.
 """
 
 
@@ -54,6 +58,7 @@ class ArtifactResult:
         self._object_columns = None
         self._column_map = None
         self._is_lava_backed = False
+        self._buffer = None
 
     def _format_source_path(self, source_path):
         if source_path and self._source_path_formatter:
@@ -113,14 +118,21 @@ class ArtifactResult:
 
     def _ensure_writer(self):
         """Create the LAVA artifact table the first time writer mode needs it."""
-        if self._is_lava_backed:
+        if self._is_lava_backed or self._buffer is not None:
             return
         if self._rows is not None:
             raise ValueError("Cannot use add_row() on an ArtifactResult created with rows=")
         if not self.headers:
             raise ValueError("ArtifactResult headers must be set before adding rows")
 
+        from scripts import lavafuncs
         from scripts.lavafuncs import lava_process_artifact
+
+        if lavafuncs.lava_data is None:
+            # No LAVA run is active, so there is no table to write to; keep the rows and
+            # let the caller iterate them.
+            self._buffer = []
+            return
 
         self._table_name, self._object_columns, self._column_map = lava_process_artifact(
             self._writer_metadata.get("category", ""),
@@ -161,6 +173,9 @@ class ArtifactResult:
         if self._closed:
             raise ValueError("Cannot add a row to a closed artifact result")
         self._ensure_writer()
+        if self._buffer is not None:
+            self._buffer.append(row)
+            return self
         self._write_batch.append(row)
         if len(self._write_batch) >= self.batch_size:
             self._flush_batch()
@@ -203,6 +218,8 @@ class ArtifactResult:
         self.close()
 
     def __len__(self):
+        if self._buffer is not None:
+            return len(self._buffer)
         if self.row_count or self._write_batch:
             return self.row_count + len(self._write_batch)
         if isinstance(self._rows, list):
@@ -210,6 +227,8 @@ class ArtifactResult:
         return self.estimated_row_count or 0
 
     def __bool__(self):
+        if self._buffer is not None:
+            return bool(self._buffer)
         if self._is_lava_backed:
             return True
         if self._write_batch:
@@ -221,4 +240,6 @@ class ArtifactResult:
         return True
 
     def __iter__(self):
+        if self._buffer is not None:
+            return iter(self._buffer)
         return iter(self._rows)
