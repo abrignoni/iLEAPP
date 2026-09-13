@@ -39,18 +39,21 @@ __artifacts_v2__ = {
     },
     'anonymousChat_accounts': {
         'name': 'Anonymous Chat & Fun - Accounts',
-        'description': 'Account identifiers stored by the iOS app "Anonymous Chat & Fun" '
-                       '(bundle ID com.anonimchat.app) as the '
-                       'conversation from_username value, with message-direction evidence '
-                       'and limits on owner attribution.',
+        'description': 'Account and conversation-participant identifiers stored by the iOS app '
+                       '"Anonymous Chat & Fun" (bundle ID com.anonimchat.app), with signed-in '
+                       'manifest evidence where available and limits on owner attribution.',
         'author': 'Darren Rooney',
         'creation_date': '2026-09-11',
         'last_update_date': '2026-09-13',
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'This artifact is from the iOS app "Anonymous Chat & Fun" '
-                 '(bundle ID com.anonimchat.app). The database does '
-                 'not establish the legal or physical device owner.',
+                 '(bundle ID com.anonimchat.app). Signed-in usernames are read from explicit '
+                 'account fields in the same container\'s AsyncStorage manifest; usernames in '
+                 'cached contact/message objects are not account evidence. Without a confirmed '
+                 'local endpoint, the stored from_username is reported as an unconfirmed '
+                 'participant and direction counts stay unassigned. The database does not '
+                 'establish the legal or physical device owner.',
         'paths': (
             '*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*',
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
@@ -87,10 +90,12 @@ __artifacts_v2__ = {
         'category': 'Anonymous Chat & Fun',
         'notes': 'This artifact is from the iOS app "Anonymous Chat & Fun" '
                  '(bundle ID com.anonimchat.app). Unexplained integer '
-                 'and boolean values are retained as raw values. Other Party repeats the stored '
-                 'to_username participant as a display-friendly conversation label; it is not '
-                 'an independent database field. Conversation Key combines the source database '
-                 'and stored conversation ID; it is a report grouping key, not a stored field.',
+                 'and boolean values are retained as raw values. Other Party identifies the '
+                 'opposite endpoint only when the same container\'s manifest establishes one '
+                 'local participant; otherwise the label lists the stored participants. '
+                 'Conversation Key combines the source database and stored conversation ID; '
+                 'it is a report grouping key, not a stored field. Integer conversation times '
+                 'are Unix timestamps. Text without a timezone is preserved only in the raw field.',
         'paths': (
             '*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*',
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
@@ -127,10 +132,12 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'This artifact is from the iOS app "Anonymous Chat & Fun" '
-                 '(bundle ID com.anonimchat.app). Direction is populated only when the stored '
-                 'sender/name relationship supports it; the signed-in username, when present in '
-                 'the app manifest, is used as corroborating evidence rather than legal owner '
-                 'attribution. Conversation Key scopes the stored conversation ID to its source '
+                 '(bundle ID com.anonimchat.app). Direction requires one signed-in username from '
+                 'the same container\'s AsyncStorage manifest to match a conversation endpoint, '
+                 'and the sender name and flag to agree (0 local, 1 remote). Missing, ambiguous '
+                 'or contradictory account evidence leaves direction blank; raw endpoints and '
+                 'sender flags remain available. This does not establish legal owner attribution. '
+                 'Conversation Key scopes the stored conversation ID to its source '
                  'database. Media is populated only when the application records a relationship '
                  'to a local file: stored path, SDImageCache URL-derived key, explicit media ID, '
                  'or an equivalent stored join. Size, timestamps, MIME compatibility, and filename '
@@ -236,8 +243,15 @@ __artifacts_v2__ = {
                  'reports filesystem times from the supplied copy, not device times. ZIP and TAR '
                  'inputs report blank Created/Access fields and preserve their source timestamp '
                  'limitations; ZIP modification output discloses when the timezone is unavailable. '
-                 'iTunes and raw-image inputs use their seeker metadata; raw-image media is staged '
-                 'only after an explicit relationship is established. '
+                 'iTunes timestamps come from Manifest file-property metadata when available; '
+                 'backup-copy times are never substituted. Raw-image timestamps use seeker '
+                 'metadata. Both inputs support extensionless SDImageCache files through stored '
+                 'URL keys and MIME metadata. Their seekers expose no bounded header-read API, '
+                 'so otherwise unclassified cache entries remain Filesystem Candidate rows with '
+                 'type Unknown and no inferred message link. ZIP/TAR/folder signature checks, '
+                 'when necessary, are limited to the first 4096 bytes. Classification and '
+                 'correlation are indexed and reused across Messages and Media; each artifact '
+                 'registers its own media references. '
                  'Photos originals outside the app container are included only through app media_id '
                  '= ZASSET.ZUUID and a safe stored DCIM path. Original and transmitted media may differ.',
         'paths': (
@@ -282,11 +296,12 @@ import os
 import plistlib
 import re
 import sqlite3
+import stat as stat_module
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from scripts.ilapfuncs import artifact_processor, check_in_media, \
-    convert_unix_ts_to_utc, does_table_exist_in_db, open_sqlite_db_readonly, \
+    convert_unix_ts_to_utc, does_table_exist_in_db, get_plist_content, open_sqlite_db_readonly, \
     logfunc, null_absent_columns
 
 
@@ -301,9 +316,11 @@ _CONTAINER_UUID_RE = re.compile(
     r'[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
 _TARGET_GROUP_PREFIX = f'group.{_BUNDLE_ID}'
 _MANIFEST_ACCOUNT_KEYS = {
-    'username', 'signedinusername', 'loggedinusername', 'currentusername',
+    'signedinusername', 'loggedinusername', 'currentusername',
     'accountusername', 'localusername',
 }
+_MANIFEST_ACCOUNT_OBJECTS = {'session', 'auth', 'account', 'currentuser',
+                             'signedinuser', 'loggedinuser'}
 _MESSAGE_INFO_MEDIA_ID_KEYS = {
     'mediaid', 'mediauuid', 'assetid', 'assetuuid', 'attachmentid',
     'attachmentuuid',
@@ -551,44 +568,62 @@ def _read_json(path):
         return None
 
 
-def _manifest_account_identifiers(context, files=None):
-    """Return signed-in identifiers explicitly named in the app manifest."""
-    files = _files_found(context) if files is None else files
-    _bundle_ids, data_ids, _group_ids, _app_plists = _target_containers(context, files)
+def _account_container_key(context, path):
+    path = _relative_source(context, path)
+    match = _CONTAINER_RE.search(path)
+    return path[:match.end()] if match else ''
+
+
+def _manifest_usernames(value):
+    """Read explicit account fields, not usernames in cached contacts/messages."""
     identifiers = set()
 
-    def collect(value, key=''):
+    def collect(value, key='', account_object=False, depth=0):
+        if depth > 32:
+            return
+        if isinstance(value, str) and value.lstrip()[:1] in ('{', '['):
+            try:
+                collect(json.loads(value), key, account_object, depth + 1)
+            except (json.JSONDecodeError, TypeError, ValueError):
+                pass
+            return
         if isinstance(value, dict):
             for child_key, child in value.items():
                 normalized_key = re.sub(r'[^a-z0-9]', '', _text(child_key).casefold())
-                collect(child, normalized_key)
+                collect(child, normalized_key,
+                        depth == 0 or key in _MANIFEST_ACCOUNT_OBJECTS, depth + 1)
             return
         if isinstance(value, (list, tuple)):
             for child in value:
-                collect(child, key)
+                collect(child, key, False, depth + 1)
             return
-        if key not in _MANIFEST_ACCOUNT_KEYS or not isinstance(value, str):
-            # Some React Native stores encode a nested object as a JSON string.
-            if isinstance(value, str) and value[:1] in ('{', '['):
-                try:
-                    collect(json.loads(value), key)
-                except (json.JSONDecodeError, TypeError, ValueError):
-                    pass
+        if (not isinstance(value, str) or
+                not (key in _MANIFEST_ACCOUNT_KEYS or key == 'username' and account_object)):
             return
         value = value.strip()
         if value:
             identifiers.add(value.casefold())
 
+    collect(value)
+    return identifiers
+
+
+def _manifest_account_identifiers(context, files=None):
+    """Scope account evidence to each source container, including its input root."""
+    files = _files_found(context) if files is None else files
+    _bundle_ids, data_ids, _group_ids, _app_plists = _target_containers(context, files)
+    by_container = {}
     for path in files:
         kind, token = _container_location(path)
-        if (kind != 'data' or token not in data_ids and
-                token != _BUNDLE_ID.upper() or
-                os.path.basename(path).casefold() != 'manifest.json'):
+        if (kind != 'data' or token not in data_ids or not _normalise_path(path).endswith(
+                '/Library/Application Support/com.anonimchat.app/'
+                'RCTAsyncLocalStorage_V1/manifest.json')):
             continue
         manifest = _read_json(path)
         if manifest is not None:
-            collect(manifest)
-    return identifiers
+            by_container.setdefault(_account_container_key(context, path), set()).update(
+                _manifest_usernames(manifest))
+    return by_container
 
 
 def _unix_time(value):
@@ -682,49 +717,46 @@ def _message_rows(db_path):
     return _query_rows(db_path, 'messages', query)
 
 
+def _local_participant(row, local_accounts):
+    accounts = {_text(account).strip().casefold() for account in local_accounts} - {''}
+    participants = [_text(row.get(key)).strip() for key in ('from_username', 'to_username')]
+    if (not all(participants) or
+            participants[0].casefold() == participants[1].casefold()):
+        return ''
+    local = [name for name in participants if name.casefold() in accounts]
+    return local[0] if len(local) == 1 else ''
+
+
 def _direction(row, local_accounts=()):
-    sender_flag = row.get('sender_flag')
-    sender_name = _text(row.get('sender_name'))
-    from_username = _text(row.get('from_username'))
-    to_username = _text(row.get('to_username'))
-    local_accounts = {(_text(account)).casefold() for account in local_accounts}
-    if local_accounts:
-        from_is_local = from_username.casefold() in local_accounts
-        to_is_local = to_username.casefold() in local_accounts
-        sender_is_from = sender_name.casefold() == from_username.casefold()
-        sender_is_to = sender_name.casefold() == to_username.casefold()
-        if sender_flag == 0 and from_is_local and sender_is_from:
-            return 'Outgoing'
-        if sender_flag == 1 and to_is_local and sender_is_to:
-            return 'Incoming'
-    if sender_flag == 0 and sender_name and sender_name == from_username:
+    local = _local_participant(row, local_accounts)
+    if not local:
+        return ''
+    sender_name = _text(row.get('sender_name')).strip().casefold()
+    remote = _other_party(row, local_accounts).casefold()
+    if row.get('sender_flag') == 0 and sender_name == local.casefold():
         return 'Outgoing'
-    if sender_flag == 1 and sender_name and sender_name == to_username:
+    if row.get('sender_flag') == 1 and sender_name == remote:
         return 'Incoming'
     return ''
 
 
-def _other_party(row):
-    # In this database, from_username identifies the local account for the
-    # conversation and to_username identifies the remote participant.  The
-    # sender flag/name relationship changes with direction, but the endpoints
-    # do not swap.  Returning from_username for incoming rows made one LAVA
-    # conversation contain two competing labels and could display the owner as
-    # the other party.
-    other_party = _text(row.get('to_username'))
-    if other_party:
-        return other_party
-    if _direction(row) == 'Incoming':
-        return _text(row.get('sender_name'))
-    return ''
+def _other_party(row, local_accounts=()):
+    local = _local_participant(row, local_accounts)
+    participants = [_text(row.get(key)).strip() for key in ('from_username', 'to_username')]
+    if local:
+        return next(name for name in participants if name.casefold() != local.casefold())
+    # With no established local endpoint, label the participants explicitly.
+    # Do not present either one as the confirmed remote party.
+    names = sorted(set(filter(None, participants)))
+    return 'Participants: ' + ', '.join(names) if names else 'Participants unconfirmed'
 
 
 def _recipient(row, local_accounts=()):
     direction = _direction(row, local_accounts)
     if direction == 'Incoming':
-        return _text(row.get('from_username'))
+        return _local_participant(row, local_accounts)
     if direction == 'Outgoing':
-        return _text(row.get('to_username'))
+        return _other_party(row, local_accounts)
     return ''
 
 
@@ -846,6 +878,49 @@ def _zip_modified_at(seeker, info):
     return _timestamp_datetime(modification_time)
 
 
+def _itunes_entries(seeker, all_files, include):
+    """Inventory hashed backup files from Manifest metadata and filesystem stat."""
+    directory = getattr(seeker, 'directory', '')
+    metadata_by_hash = getattr(seeker, 'files_metadata', {})
+    encrypted_metadata = getattr(seeker, '_all_file_meta', {})
+    encrypted = bool(getattr(seeker, 'decryption_keys', ()))
+    for member, digest in all_files.items():
+        path = _normalise_path(member)
+        if include is not None and not include(path):
+            continue
+        if not isinstance(digest, str) or not re.fullmatch(r'[0-9a-fA-F]{40}', digest):
+            continue
+        physical = (os.path.join(directory, digest[:2], digest)
+                    if getattr(seeker, 'backup_type', 'db') == 'db'
+                    else os.path.join(directory, digest))
+        try:
+            file_stat = os.stat(physical)
+        except OSError:
+            continue
+        if not stat_module.S_ISREG(file_stat.st_mode):
+            continue
+        # This is the seeker's already loaded file-properties plist, never a
+        # media payload. It supplies device metadata even for encrypted backups.
+        payload = metadata_by_hash.get(digest)
+        metadata = get_plist_content(payload) if payload else {}
+        if not isinstance(metadata, dict):
+            metadata = {}
+        size = metadata.get('Size', encrypted_metadata.get(member, {}).get('Size'))
+        if not isinstance(size, (int, float)) or isinstance(size, bool) or size < 0:
+            size = '' if encrypted else file_stat.st_size
+        created = metadata.get('Birth')
+        modified = metadata.get('LastModified')
+        created_at = _timestamp_datetime(created) if created not in (None, '', 0) else None
+        modified_at = _timestamp_datetime(modified) if modified not in (None, '', 0) else None
+        yield {
+            'path': path, 'size': size,
+            'created': _format_fs_time(created) if created_at else '',
+            'modified': _format_fs_time(modified) if modified_at else '',
+            'modified_at': modified_at, 'accessed': '',
+            'kind': 'itunes', 'info': member, 'handle': seeker,
+        }
+
+
 def _iter_source_entries(context, include=None):
     """Yield listing/metadata records without staging or reading file contents."""
     try:
@@ -928,6 +1003,9 @@ def _iter_source_entries(context, include=None):
         return
 
     all_files = getattr(seeker, '_all_files', None)
+    if isinstance(all_files, dict):
+        yield from _itunes_entries(seeker, all_files, include)
+        return
     if isinstance(all_files, list):
         directory = _normalise_path(getattr(seeker, 'directory', '')).rstrip('/')
         for item in all_files:
@@ -1196,12 +1274,48 @@ def _reference_in_scope(entry, reference):
     return True
 
 
+def _media_reference_indexes(references):
+    """Index metadata before classification, including extensionless cache keys."""
+    indexes = {'references': references, 'paths': {}, 'suffixes': {},
+               'filenames': {}, 'cache_keys': {}}
+    for index, reference in enumerate(references):
+        for value in _reference_path_values(reference):
+            parsed = _split_reference(value)
+            if parsed and parsed.scheme.casefold() in ('http', 'https') and parsed.netloc:
+                if reference.get('kind') == 'Message Attachment Reference':
+                    key = hashlib.md5(value.encode('utf-8'), usedforsecurity=False).hexdigest()
+                    indexes['cache_keys'].setdefault(key, set()).add(index)
+                continue
+            path, basename = _reference_path(value)
+            path = path.strip('/')
+            if '/' in path:
+                indexes['paths'].setdefault(path, set()).add(index)
+                parts = path.split('/')
+                for offset in range(len(parts) - 1):
+                    indexes['suffixes'].setdefault('/'.join(parts[offset:]), set()).add(index)
+            elif basename and reference.get('kind') == 'Media Table Metadata':
+                indexes['filenames'].setdefault(basename, set()).add(index)
+    return indexes
+
+
+def _entry_reference_indices(entry, indexes):
+    path = _normalise_path(entry['path']).strip('/')
+    parts = path.split('/')
+    candidates = set(indexes['suffixes'].get(path, ()))
+    for offset in range(len(parts) - 1):
+        candidates.update(indexes['paths'].get('/'.join(parts[offset:]), ()))
+    candidates.update(indexes['filenames'].get(parts[-1], ()))
+    cache_candidates = indexes['cache_keys'].get(_sdimagecache_key(path), set())
+    return candidates | cache_candidates, cache_candidates
+
+
 def _direct_media_matches(media_entries, references, matched_reference_ids=(),
-                          filenames_only=False):
+                          filenames_only=False, indexes=None):
     """Resolve explicit stored paths, or stored media-table names, only."""
     proposals = {}
     blocked = set()
-    indexes = _media_entry_indexes(media_entries)
+    if indexes is None:
+        indexes = _media_entry_indexes(media_entries)
     for ref_index, reference in enumerate(references):
         if ref_index in matched_reference_ids:
             continue
@@ -1389,9 +1503,10 @@ def _attachment_references(db_paths, context):
     """Build safe textual/numeric attachment references; never select media_data."""
     refs = []
     media_rows = []
-    local_accounts = _manifest_account_identifiers(context)
+    accounts_by_container = _manifest_account_identifiers(context)
     for db_path in db_paths:
         source = _source_label(context, db_path)
+        local_accounts = accounts_by_container.get(_account_container_key(context, db_path), ())
         for row in _message_rows(db_path):
             stored_reference = row.get('media_url')
             info_paths, info_joins = _message_info_media_tokens(row.get('message_info'))
@@ -1463,7 +1578,7 @@ def _target_media_entry(entry, _target_bundle_ids, target_data_ids, target_group
             (kind == 'group' and uuid in target_group_ids))
 
 
-def _media_entry_type(entry, references):
+def _media_entry_type(entry, indexes):
     path = entry['path']
     extension, extension_type = _extension_classification(path)
     if extension_type:
@@ -1471,24 +1586,39 @@ def _media_entry_type(entry, references):
 
     # A known database MIME can identify a non-standard filename without
     # inspecting bytes.  This is still a textual metadata classification.
-    matched_refs = []
-    for reference in references:
+    matched_refs = set()
+    methods = set()
+    recorded_link = False
+    candidate_indices, cache_candidates = _entry_reference_indices(entry, indexes)
+    for index in sorted(candidate_indices):
+        reference = indexes['references'][index]
         if not _reference_in_scope(entry, reference):
             continue
-        for path_reference in _reference_path_values(reference):
-            matched, _method = _entry_matches_reference(path, path_reference)
-            if matched:
-                mime_type, category = _mime_classification(reference['mime'])
-                if mime_type:
-                    matched_refs.append((mime_type, category, 'Stored MIME Type'))
-                break
+        matched = index in cache_candidates or any(
+            _entry_matches_reference(path, value)[0]
+            for value in _reference_path_values(reference))
+        if matched:
+            recorded_link = True
+            mime_type, category = _mime_classification(reference.get('mime'))
+            if category:
+                methods.add('Stored MIME Type via SDImageCache URL key'
+                            if index in cache_candidates else 'Stored MIME Type')
+                matched_refs.add((mime_type or category, category))
     if matched_refs:
-        if len(set(matched_refs)) != 1:
+        if len(matched_refs) != 1:
             return '', 'Unknown', 'Unknown', 'Conflicting stored MIME types'
-        return '', matched_refs[0][0], matched_refs[0][1], matched_refs[0][2]
+        detected_type, category = next(iter(matched_refs))
+        return '', detected_type, category, '; '.join(sorted(methods))
+
+    if recorded_link:
+        return '', 'Unknown', 'Unknown', 'Stored relationship; media type unavailable'
 
     if not _extensionless_candidate(path):
         return '', '', '', ''
+    if entry['kind'] in ('raw', 'itunes'):
+        # These seekers expose staging, not a bounded header-read API. Keep a
+        # candidate row and disclose that its type could not be established.
+        return '', 'Unknown', 'Unknown', 'Unclassified cache candidate; no bounded header API'
     classification = _signature_from_entry(entry)
     if classification:
         return '', classification[0], classification[1], classification[2]
@@ -1701,6 +1831,11 @@ def _explicit_media_table_message_matches(media_entries, references,
         for token in {_normalised_media_token(item) for item in tokens} - {''}:
             media_rows_by_token.setdefault(token, set()).add(media_row_index)
 
+    entries_by_media_row = {}
+    for entry_index, entry_matches in direct_matches_by_entry.items():
+        for reference_index, _reference, _method in entry_matches:
+            entries_by_media_row.setdefault(reference_index, set()).add(entry_index)
+
     matches_by_entry = {}
     for message_index, message in enumerate(references):
         if (message_index in matched_reference_ids or
@@ -1717,13 +1852,10 @@ def _explicit_media_table_message_matches(media_entries, references,
         if len(media_row_indices) != 1:
             continue
         media_row_index = next(iter(media_row_indices))
-        candidate_entries = []
-        for entry_index, entry_matches in direct_matches_by_entry.items():
-            if any(match[0] == media_row_index for match in entry_matches):
-                candidate_entries.append(entry_index)
+        candidate_entries = entries_by_media_row.get(media_row_index, set())
         if len(candidate_entries) != 1:
             continue
-        entry_index = candidate_entries[0]
+        entry_index = next(iter(candidate_entries))
         media_row = references[media_row_index]
         linked_message = dict(message)
         linked_message['media_id'] = media_row.get('media_id', '')
@@ -1808,12 +1940,13 @@ def _photos_relative_path(path):
     return marker.group(1) if marker else ''
 
 
-def _media_rows(db_paths, context):
+def _analyse_media(db_paths, context):
     files = _files_found(context)
     bundle_ids, data_ids, group_ids, _app_plists = _target_containers(context, files)
     if not (bundle_ids or data_ids or group_ids or db_paths):
-        return []
+        return [], [], {}, set(), set()
     references = _attachment_references(db_paths, context)
+    reference_indexes = _media_reference_indexes(references)
     photos_paths = _photos_asset_paths(context, references)
     photos_entries = []
     media_entries = []
@@ -1838,7 +1971,7 @@ def _media_rows(db_paths, context):
             continue
         if not _target_media_entry(entry, bundle_ids, data_ids, group_ids):
             continue
-        extension, detected_type, category, identification = _media_entry_type(entry, references)
+        extension, detected_type, category, identification = _media_entry_type(entry, reference_indexes)
         if not detected_type:
             continue
         media_entries.append({
@@ -1849,8 +1982,9 @@ def _media_rows(db_paths, context):
             'identification': identification,
         })
 
+    entry_indexes = _media_entry_indexes(media_entries)
     direct_matches_by_entry, blocked_reference_ids = _direct_media_matches(
-        media_entries, references)
+        media_entries, references, indexes=entry_indexes)
     direct_entry_indices = set(direct_matches_by_entry)
     matched_reference_ids = {index for matches in direct_matches_by_entry.values()
                              for index, _reference, _method in matches}
@@ -1865,7 +1999,7 @@ def _media_rows(db_paths, context):
 
     filename_matches, filename_blocked = _direct_media_matches(
         media_entries, references, matched_reference_ids | blocked_reference_ids,
-        filenames_only=True)
+        filenames_only=True, indexes=entry_indexes)
     blocked_reference_ids.update(filename_blocked)
     for entry_index, matches in filename_matches.items():
         direct_matches_by_entry.setdefault(entry_index, []).extend(matches)
@@ -1895,6 +2029,27 @@ def _media_rows(db_paths, context):
         direct_matches_by_entry[entry_index].extend(matches)
         matched_reference_ids.update(match[0] for match in matches)
 
+    return (media_entries, references, direct_matches_by_entry,
+            matched_reference_ids, blocked_reference_ids)
+
+
+def _media_rows(db_paths, context):
+    # The input is read-only during a run. Share classification/correlation work
+    # between artifacts; register media separately for each artifact's context.
+    try:
+        seeker = context.get_seeker()
+    except ValueError:
+        seeker = None
+    cache = getattr(seeker, '_anonymous_chat_analysis', None)
+    if not isinstance(cache, dict):
+        cache = {}
+        if seeker is not None:
+            setattr(seeker, '_anonymous_chat_analysis', cache)
+    key = tuple(_source_label(context, path) for path in db_paths)
+    if key not in cache:
+        cache[key] = _analyse_media(db_paths, context)
+    (media_entries, references, direct_matches_by_entry,
+     matched_reference_ids, blocked_reference_ids) = cache[key]
     output = []
     for entry_index, media_entry in enumerate(media_entries):
         entry = media_entry['entry']
@@ -1915,7 +2070,8 @@ def _media_rows(db_paths, context):
                     reference['source'], reference['message_id'],
                     reference['conversation_id'], reference['message_uuid'])
             output.append({
-                'kind': 'Filesystem Media',
+                'kind': ('Filesystem Candidate' if detected_type == 'Unknown' and not matches
+                         else 'Filesystem Media'),
                 'message_timestamp': reference.get('message_timestamp', ''),
                 'media_timestamp': reference.get('media_timestamp', ''),
                 'conversation_id': _text(reference.get('conversation_id')),
@@ -1945,9 +2101,9 @@ def _media_rows(db_paths, context):
                 'accessed': entry['accessed'],
                 'database_referenced': 'Yes' if reference else 'No',
                 'filesystem_present': 'Yes',
-            'correlation': (method or
-                            'Unlinked: no stored app-to-file relationship; '
-                            'size/timestamp/name-only matching not used'),
+                'correlation': (method or
+                                'Unlinked: no stored app-to-file relationship; '
+                                'size/timestamp/name-only matching not used'),
                 'source': '\n'.join(filter(None, (entry['path'], reference.get('source')))),
                 '_message_key': key,
             })
@@ -2130,19 +2286,27 @@ def anonymousChat_appInfo(context):
 @artifact_processor
 def anonymousChat_accounts(context):
     db_paths = _target_db_paths(context)
-    local_accounts = _manifest_account_identifiers(context)
+    accounts_by_container = _manifest_account_identifiers(context)
     aggregate = {}
     source_by_account = {}
     for db_path in db_paths:
         source = _source_label(context, db_path)
+        local_accounts = accounts_by_container.get(_account_container_key(context, db_path), ())
         for row in _message_rows(db_path):
-            account = _text(row.get('from_username'))
+            local = _local_participant(row, local_accounts)
+            account = local or _text(row.get('from_username'))
             if not account:
                 continue
             item = aggregate.setdefault(account, {
                 'conversations': set(), 'messages': 0, 'outgoing': 0, 'incoming': 0,
                 'first': None, 'last': None, 'supported': 0, 'undetermined': 0,
+                'fields': set(), 'confirmed_fields': set(),
             })
+            field = ('to_username' if local and
+                     local == _text(row.get('to_username')).strip() else 'from_username')
+            item['fields'].add(field)
+            if local:
+                item['confirmed_fields'].add(field)
             item['conversations'].add((source, _text(row.get('conversation_id'))))
             item['messages'] += 1
             direction = _direction(row, local_accounts)
@@ -2162,10 +2326,14 @@ def anonymousChat_accounts(context):
     rows = []
     for account in sorted(aggregate):
         item = aggregate[account]
-        evidence = ('from_username; sender/name relationship supports direction for '
+        evidence = (f'{", ".join(sorted(item["fields"]))}; '
+                    'sender/name relationship supports direction for '
                     f'{item["supported"]} message(s)')
-        if account.casefold() in local_accounts:
-            evidence += '; app manifest signed-in username matches from_username'
+        if item['confirmed_fields']:
+            evidence += ('; app manifest signed-in username matches ' +
+                         ', '.join(sorted(item['confirmed_fields'])))
+        else:
+            evidence += '; signed-in account unconfirmed'
         if item['undetermined']:
             evidence += f'; {item["undetermined"]} message(s) remain undetermined'
         rows.append((
@@ -2176,7 +2344,9 @@ def anonymousChat_accounts(context):
             item['incoming'],
             item['first'] or '',
             item['last'] or '',
-            'Candidate local account identifier; owner not established',
+            ('Candidate local account identifier; owner not established'
+             if item['confirmed_fields'] else
+             'Stored conversation participant; local account unconfirmed'),
             evidence,
             '\n'.join(sorted(source_by_account[account])),
         ))
@@ -2191,10 +2361,11 @@ def anonymousChat_accounts(context):
 @artifact_processor
 def anonymousChat_conversations(context):
     db_paths = _target_db_paths(context)
-    local_accounts = _manifest_account_identifiers(context)
+    accounts_by_container = _manifest_account_identifiers(context)
     rows = []
     for db_path in db_paths:
         source = _source_label(context, db_path)
+        local_accounts = accounts_by_container.get(_account_container_key(context, db_path), ())
         messages = _message_rows(db_path)
         counts = {}
         for message in messages:
@@ -2216,7 +2387,7 @@ def anonymousChat_conversations(context):
                 conversation.get('conversation_id'),
                 _text(conversation.get('from_username')),
                 _text(conversation.get('to_username')),
-                _text(conversation.get('to_username')),
+                _other_party(conversation, local_accounts),
                 count['total'],
                 count['outgoing'],
                 count['incoming'],
@@ -2253,11 +2424,12 @@ def anonymousChat_conversations(context):
 @artifact_processor
 def anonymousChat_messages(context):
     db_paths = _target_db_paths(context)
-    local_accounts = _manifest_account_identifiers(context)
+    accounts_by_container = _manifest_account_identifiers(context)
     media_by_message = _message_media_references(db_paths, context)
     rows = []
     for db_path in db_paths:
         source = _source_label(context, db_path)
+        local_accounts = accounts_by_container.get(_account_container_key(context, db_path), ())
         for message in _message_rows(db_path):
             key = _message_key(source, message.get('message_id'),
                                message.get('conversation_id'), message.get('msg_uuid'))
@@ -2267,7 +2439,7 @@ def anonymousChat_messages(context):
                 _unix_time(message.get('send_time')),
                 _direction(message, local_accounts),
                 _text(message.get('sender_name')),
-                _other_party(message),
+                _other_party(message, local_accounts),
                 _text(message.get('message_text')),
                 media_link.get('media_ref', '') if isinstance(media_link, dict) else media_link,
                 message.get('conversation_id'),
