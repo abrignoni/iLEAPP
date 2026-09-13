@@ -2,7 +2,7 @@
 
 `testdata.anonymousChat.json` case 1 and its six artifact archives are generated
 from a metadata-only iOS-shaped fixture for the iOS app Anonymous Chat & Fun
-(App Store ID 1483337394; bundle ID `com.anonimchat.app`). The fixture contains
+(bundle ID `com.anonimchat.app`). The fixture contains
 synthetic SQLite, plist, and JSON records for container discovery, messages,
 direction, conversation fields, media-table metadata, and a Photos `ZASSET`
 reference. It contains no casework and no media payloads.
@@ -31,26 +31,29 @@ python -m unittest discover -s admin/test/scripts -p 'test_anonymous_chat*.py'
 python admin/test/scripts/run_test_cases.py --module anonymousChat --strict
 ```
 
-The 42 focused tests cover duplicate filenames, contradictory sizes/types,
+The focused tests cover duplicate filenames, contradictory sizes/types,
 cross-container and cross-database collisions, direction/recipient metadata,
-timestamp ties, malformed URLs/timestamps, partial SQLite schemas, WAL visibility,
-read-only database connections, Photos UUID/path ambiguity, source attribution,
-safe staging patterns, and ZIP, TAR, and extracted-folder report generation,
+malformed URLs/timestamps, partial SQLite schemas, WAL visibility, read-only
+database connections, Photos UUID/path ambiguity, source attribution, safe
+staging patterns, and ZIP, TAR, iTunes, and extracted-folder report generation,
 including two app containers that reuse the same conversation/message IDs.
 Media Manager and signature calls in media-link tests are mocked; the CLI tests
 generate metadata-only inputs and confirm that zero media items are registered.
 Hostile synthetic message markup is checked as escaped HTML text, without
 opening a browser or fetching its URL.
 
-The provenance test regenerates the fixture and compares every uncompressed file
-in all six case archives byte-for-byte. It skips only this archive comparison in
-the upstream runtime-contract sparse checkout, which intentionally omits case
+The provenance test regenerates the fixture and compares JSON/plist bytes plus
+SQLite schema and row data in all six case archives. It ignores SQLite version
+bytes that vary by platform. It skips only this archive comparison in the
+upstream runtime-contract sparse checkout, which intentionally omits case
 archives; the fresh-build and CLI tests still run there.
 
-The 2026-09-12 snapshot changes retain all original fixture rows. Application
-Info now attributes all consulted container plists; Messages and Conversations
-add a source-scoped Conversation Key; incoming media recipient metadata identifies
-the local account instead of repeating the remote sender.
+The 2026-09-13 changes retain all original fixture rows. Application Info now
+attributes all consulted container plists; Messages and Conversations add a
+source-scoped Conversation Key; incoming media recipient metadata identifies
+the local account instead of repeating the remote sender; iTunes bundle-domain
+and raw-image discovery are covered; and inferred filename/timestamp links are
+no longer created.
 
 ## Interpretation and acceptance limits
 
@@ -60,17 +63,21 @@ represent associations: the same file can appear once per referencing message,
 with its own timestamp/participants. Count distinct Filesystem Path values when
 counting files.
 
-Unique-filename and timestamp-assisted links are labelled inferred. Contradictory
-or ambiguous paths, cache keys, and filenames are left unlinked. Timestamp-only
-matching across the wider Photos library is not performed. Photos originals are
-labelled because their contents and size can differ from the transmitted media.
-Remote attachment URLs are never fetched by the parser.
+Message media is linked only through an application-recorded local path, an
+SDImageCache key derived from stored URL text, or an explicit media/join key.
+Size, timestamps, MIME compatibility, and filename similarity alone never link a
+message. Contradictory or ambiguous paths, cache keys, and filenames are left
+unlinked. Timestamp-only matching across the wider Photos library is not
+performed. Photos originals are labelled because their contents and size can
+differ from the transmitted media. Remote attachment URLs are never fetched by
+the parser.
 
 Supported discovery targets are full-filesystem ZIP/TAR and extracted-directory
-layouts containing the app's container metadata or app-specific preference path.
-Standalone databases and hashed iTunes backups have not been validated by this
-module. No container UUID is hard-coded. Python 3.10 / iLEAPP 2026.3.3 was used for
-local release checks; the other supported Python versions require upstream CI.
+layouts, hashed iTunes backups, and raw disk images/E01 acquisitions containing
+the app's container paths. Standalone databases without an identifiable app
+container are not targeted. No container UUID is hard-coded. Python 3.10 /
+iLEAPP 2026.3.3 was used for local release checks; the other supported Python
+versions require upstream CI.
 
 These tests establish code and metadata/report behavior, not a forensic validation
 certificate. Real-media rendering and case-specific association correctness need

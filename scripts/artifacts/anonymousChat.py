@@ -232,9 +232,12 @@ __artifacts_v2__ = {
                  'are not evidence of a message relationship. One filesystem row is reported per '
                  'association, or one inventory row for an unlinked file; unlinked rows explain why '
                  'no association was made. Only locally linked media are checked in through iLEAPP '
-                 'Media Manager for report display; remote URLs are never followed. ZIP and TAR '
+                 'Media Manager for report display; remote URLs are never followed. Folder input '
+                 'reports filesystem times from the supplied copy, not device times. ZIP and TAR '
                  'inputs report blank Created/Access fields and preserve their source timestamp '
                  'limitations; ZIP modification output discloses when the timezone is unavailable. '
+                 'iTunes and raw-image inputs use their seeker metadata; raw-image media is staged '
+                 'only after an explicit relationship is established. '
                  'Photos originals outside the app container are included only through app media_id '
                  '= ZASSET.ZUUID and a safe stored DCIM path. Original and transmitted media may differ.',
         'paths': (
@@ -461,6 +464,11 @@ def _target_containers(context, files=None):
         kind, uuid = _container_location(path)
         if not kind or not uuid:
             continue
+        if kind == 'data' and uuid == _BUNDLE_ID.upper():
+            # iTunes AppDomain paths use the exact bundle identifier in place
+            # of the on-device data-container UUID.  The exact token is already
+            # validated by _container_location, so it is sufficient on its own.
+            data_ids.add(uuid)
         name = os.path.basename(path).lower()
         if name == '.com.apple.mobile_container_manager.metadata.plist':
             plist = _read_plist(path)

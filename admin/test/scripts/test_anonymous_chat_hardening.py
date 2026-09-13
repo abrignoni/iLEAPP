@@ -474,9 +474,7 @@ class AnonymousChatHardeningTests(unittest.TestCase):
             try:
                 database_staged = seeker.search(
                     '*/Library/LocalDatabase/anonimchat.db*', return_on_first_hit=True)
-                preference_staged = seeker.search(
-                    '*/Library/Preferences/com.anonimchat.app.plist', return_on_first_hit=True)
-                context = MetadataContext([database_staged, preference_staged])
+                context = MetadataContext([database_staged])
                 context.seeker = seeker
                 self.assertEqual(module._container_location(database_staged),
                                  ('data', module._BUNDLE_ID.upper()))

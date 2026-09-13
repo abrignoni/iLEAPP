@@ -1,6 +1,6 @@
 {
   "case1": {
-    "description": "Synthetic metadata-only coverage for the iOS app Anonymous Chat & Fun (App Store ID 1483337394; bundle ID com.anonimchat.app), including container discovery, messages, direction, media metadata, and Photos references. No casework or media payloads are included.",
+    "description": "Synthetic metadata-only coverage for the iOS app Anonymous Chat & Fun (bundle ID com.anonimchat.app), including container discovery, messages, direction, media metadata, and Photos references. No casework or media payloads are included.",
     "maker": "Darren Rooney",
     "image_info": {
       "os_name": "iOS",
