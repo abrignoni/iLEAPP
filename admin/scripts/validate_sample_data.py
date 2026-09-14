@@ -261,14 +261,24 @@ def check_registry(artifacts, registry, registry_path, verify_hashes, report):
                 f"artifacts cite {len(cited)}")
 
 
-def input_type_for(source):
+RUNNABLE_TYPES = ("fs", "tar", "zip", "gz", "file", "raw")
+
+
+def input_type_for(source, declared=None):
     """Map an evidence source to the tool's -t input type.
 
     The registry's match key is spelled "zip" for historical reasons but may
     point at any container the tool accepts, and --emit may also hand this an
     extraction directory. Returns None when nothing names a known type, so the
     caller reports it instead of guessing.
+
+    declared is an entry's optional "input_type" field and wins outright. It
+    exists because an extension cannot decide the raw case: a registry can hold
+    .bin files that are readable disk images and .bin files that are chip-level
+    dumps no walker opens, so raw is opt-in per entry rather than guessed.
     """
+    if declared:
+        return declared if declared in RUNNABLE_TYPES else None
     if source.is_dir():
         return "fs"
     name = source.name.lower()
@@ -307,7 +317,7 @@ def lava_output_predicate(report):
         return None
 
 
-def execute_tool(source, label, log_name, report, keep=False):
+def execute_tool(source, label, log_name, report, keep=False, declared_type=None):
     """Parse one evidence source and return its per-artifact LAVA row counts.
 
     Returns (produced, output_root, log_path); produced is None when the run
@@ -318,10 +328,12 @@ def execute_tool(source, label, log_name, report, keep=False):
     deleted unless keep is set; the run log is written beside it and survives,
     because an artifact that produced nothing has usually logged why.
     """
-    input_type = input_type_for(source)
+    input_type = input_type_for(source, declared_type)
     if input_type is None:
         report.error(f"{label}: cannot pick a -t input type for {source.name}; "
-                     "known inputs are a directory, .zip, .tar, .tar.gz, .tgz")
+                     "known inputs are a directory, .zip, .tar, .tar.gz, .tgz, "
+                     "or an entry-level \"input_type\" field (a raw disk image "
+                     "is never guessed from its extension)")
         return None, None, None
 
     output_root = tempfile.mkdtemp(prefix=RUN_PREFIX)
@@ -412,7 +424,8 @@ def run_corpus(registry, registry_path, corpus, report, keep=False):
         report.error(f"--run '{corpus}' points at a missing file: {source}")
         return
 
-    produced, _, _ = execute_tool(source, f"--run '{corpus}'", corpus, report, keep=keep)
+    produced, _, _ = execute_tool(source, f"--run '{corpus}'", corpus, report, keep=keep,
+                                  declared_type=entry.get("input_type"))
     if produced is None:
         return
 

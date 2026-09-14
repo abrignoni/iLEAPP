@@ -103,6 +103,19 @@ def get_sql_type(python_type):
     return type_map.get(python_type, 'TEXT')
 
 
+def bind_dates_as_text(value):
+    """
+    Return a date or datetime as the text sqlite3's default adapters wrote for it.
+
+    Those adapters are deprecated as of Python 3.12 and warn on every value they convert.
+    str() returns exactly what they did, isoformat(" ") for a datetime and isoformat() for a
+    date, so binding its result stores the same text. Any other value is returned unchanged.
+    """
+    if isinstance(value, datetime.date):
+        return str(value)
+    return value
+
+
 def initialize_lava(input_path, output_path, input_type, profile_filename=None):
     '''
     Initialize the LAVA data.
@@ -470,7 +483,7 @@ def lava_insert_sqlite_data(table_name, data, object_columns, headers, column_ma
                                 d = None
                 if d is not None:
                     value = d.isoformat()
-            processed_row.append(value)
+            processed_row.append(bind_dates_as_text(value))
         rows_to_insert.append(tuple(processed_row))
 
     # Execute the insert
@@ -541,8 +554,8 @@ def lava_insert_sqlite_media_item(media_item):
         str(media_item.extraction_path),
         media_item.mimetype,
         media_item.metadata,
-        media_item.created_at if media_item.created_at else None,
-        media_item.updated_at if media_item.updated_at else None,
+        bind_dates_as_text(media_item.created_at) if media_item.created_at else None,
+        bind_dates_as_text(media_item.updated_at) if media_item.updated_at else None,
         media_item.is_embedded
     )
 

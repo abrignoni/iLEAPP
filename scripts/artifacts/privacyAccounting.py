@@ -133,7 +133,7 @@ def _stream_files(context, tombstones):
             continue
         if not os.path.isfile(file_found):
             continue
-        is_tombstone = 'tombstone' in file_found.replace('\\', '/').split('/')
+        is_tombstone = 'tombstone' in context.get_relative_path(file_found).replace('\\', '/').split('/')
         if is_tombstone == tombstones:
             yield file_found
 

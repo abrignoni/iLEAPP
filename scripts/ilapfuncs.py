@@ -63,7 +63,7 @@ from PIL import Image
 from scripts.html_safe import esc, safe_local_path
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_get_media_item, \
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
-    lava_get_full_media_info, lava_update_record_count
+    lava_get_full_media_info, lava_update_record_count, bind_dates_as_text
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -1211,7 +1211,7 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
             pnt.name = times
             pnt.description = f"{times_header}: {times} - {kmlactivity}"
             pnt.coords = [(lon, lat)]
-            data.append((times, lat, lon, kmlactivity))
+            data.append((bind_dates_as_text(times), lat, lon, kmlactivity))
         a += 1
 
     if len(data) > 0:

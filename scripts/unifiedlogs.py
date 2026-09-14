@@ -98,6 +98,22 @@ def find_iterator():
     return shutil.which(BINARY_NAME)
 
 
+def iterator_version(binary):
+    """Return what the binary reports for --version ('unifiedlog_iterator 0.7.0'), or ''.
+
+    Logged at the start of an import so the run log records which parser produced the
+    rows; the version is what bin/PROVENANCE.md asks an examiner to be able to name. Some
+    releases exit non-zero on --version, so the exit status is ignored and only the text
+    counts. Any failure to run it yields '' and the import proceeds regardless.
+    """
+    try:
+        result = subprocess.run([binary, '--version'], capture_output=True, text=True,
+                                encoding='utf-8', errors='replace', timeout=30, check=False)
+    except (OSError, subprocess.SubprocessError):
+        return ''
+    return (result.stdout or '').strip().splitlines()[0].strip() if (result.stdout or '').strip() else ''
+
+
 def _path_components(path):
     return os.path.normpath(path).replace('\\', '/').split('/')
 
@@ -366,7 +382,8 @@ def _report_parser_diagnostics(stderr_file):
             reported += 1
     if total > reported:
         logfunc(f'unifiedlog_iterator reported {total:,} messages in total; first {reported} shown. '
-                f'These are per-record decode failures; the rest of the import is unaffected.')
+                f'They are the parser\'s own per-record diagnostics; the records they concern are '
+                f'imported as the parser rendered them, and every other record is unaffected.')
 
 
 def stream_records(binary, archive_dir):

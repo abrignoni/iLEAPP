@@ -171,7 +171,7 @@ def _stream_files(context):
     for file_found in sorted(map(str, context.get_files_found())):
         if os.path.basename(file_found).startswith('.'):
             continue
-        if not os.path.isfile(file_found) or 'tombstone' in file_found:
+        if not os.path.isfile(file_found) or 'tombstone' in context.get_relative_path(file_found):
             continue
         yield file_found
 

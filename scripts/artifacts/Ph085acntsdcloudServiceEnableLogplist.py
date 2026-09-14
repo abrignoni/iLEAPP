@@ -2,12 +2,12 @@ __artifacts_v2__ = {
 'Ph085accountsdcloudServiceEnableLogPlist': {
 'name': 'Ph085-accountsd-cloud-Service-Enable-Log-Plist',
 'description': 'Parses basic data from */PhotoData/private/com.apple.accountsd/cloudServiceEnableLog.plist'
-' which is a plist that tracks when Cloud Photos Library (CPL) and Shared Albums have been'
-' enabled. Based on research and published blogs written by Scott Koenig'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+' which is a plist that records when iCloud Photo Library (CPL) and Shared Albums were enabled or'
+' disabled. Based on research and published blogs written by Scott Koenig'
+' https://theforensicscooter.com/2022/05/02/photos-sqlite-query-documentation-notable-artifacts/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-09-12',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains accountsd cloudServiceEnableLog.plist',
@@ -60,7 +60,7 @@ def Ph085accountsdcloudServiceEnableLogPlist(context):
             data_list.append((timestamputc, servicetype, enabledstate))
 
     data_headers = (
-    'TimestampUTC',
+    ('TimestampUTC', 'datetime'),
     'Service-Type',
     'Enabled-State')
     return data_headers, data_list, source_path

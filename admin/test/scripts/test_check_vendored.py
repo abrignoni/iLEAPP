@@ -1,22 +1,27 @@
 """Pin what admin/scripts/check_vendored.py treats as drift.
 
-The guard compares a vendored file against its upstream with only the banner
-removed, so a one-byte change anywhere below the banner has to fail, a banner-only
-change has to pass, and a banner the script cannot read has to fail rather than
-be skipped. Everything here runs against a local upstream directory, never the
-network, so it holds on every CI runner.
+The guard compares each vendored file against the hash recorded in
+scripts/vendor/vendored.json and against the upstream file at the pinned commit,
+read from a checkout given with --upstream or fetched from GitHub. A changed byte
+has to fail, a matching file has to pass, and a file that opens with a vendoring
+banner is compared to upstream below that banner.
 
-It also pins the split between the two outcomes. "The upstream could not be read"
-is not evidence that this copy drifted, so it is reported under its own headline
-and its own exit code, and it still has to be non-zero: an unreachable upstream
-must never read as a pass.
+It also pins the split between the two outcomes. An upstream that cannot be read
+was never compared, so it is reported under its own headline and its own exit
+code rather than as drift. That exit code still has to be non-zero: an upstream
+that cannot be read must never read as a pass.
+
+Everything here runs against a temporary tree; the fetch is patched, never made.
 """
+import hashlib
 import importlib.util
 import io
+import json
 import pathlib
 import sys
 import tempfile
 import unittest
+import urllib.error
 from contextlib import redirect_stdout
 from unittest import mock
 
@@ -28,152 +33,173 @@ check_vendored = importlib.util.module_from_spec(_spec)
 sys.modules['check_vendored'] = check_vendored
 _spec.loader.exec_module(check_vendored)
 
-BANNER = (
-    b'# ---------------------------------------------------------------------------\n'
-    b'# Vendored into this repo from example (github.com/example-owner/example-repo)\n'
-    b'#   * upstream commit 0123456789abcdef0123456789abcdef01234567 (2026-01-01).\n'
-    b'#   * upstream file pkg/module.py.\n'
-    b'# ---------------------------------------------------------------------------\n'
-)
-BODY = b'"""A module."""\n\nVALUE = 1\n'
+BODY = b'"""A vendored module."""\n\nVALUE = 1\n'
+BANNER = (b'# ---------------------------------------------------------------------------\n'
+          b'# Vendored from example (github.com/example/example), unchanged below this banner.\n'
+          b'#   * upstream commit 0123456789abcdef0123456789abcdef01234567.\n'
+          b'# ---------------------------------------------------------------------------\n')
 
 
 class CheckVendoredTest(unittest.TestCase):
+    """The outcomes, and the exit code each one uses."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = pathlib.Path(self.tmp.name)
-        (self.root / 'upstream' / 'pkg').mkdir(parents=True)
-        (self.root / 'upstream' / 'pkg' / 'module.py').write_bytes(BODY)
-        (self.root / 'scripts').mkdir()
-        self.vendored = self.root / 'scripts' / 'module.py'
-        # Point the module at the temp tree so check_file resolves paths there.
-        self._repo = check_vendored.REPO
-        check_vendored.REPO = str(self.root)
-        self.addCleanup(setattr, check_vendored, 'REPO', self._repo)
-
-    def _check(self):
-        return check_vendored.check_file('scripts/module.py', str(self.root / 'upstream'))
-
-    def test_matching_body_passes(self):
-        self.vendored.write_bytes(BANNER + BODY)
-        self.assertEqual(self._check(), [])
-
-    def test_banner_text_is_ignored(self):
-        edited = BANNER.replace(b'2026-01-01', b'2026-02-02')
-        self.vendored.write_bytes(edited + BODY)
-        self.assertEqual(self._check(), [])
-
-    def test_one_byte_below_the_banner_fails(self):
-        self.vendored.write_bytes(BANNER + BODY.replace(b'VALUE = 1', b'VALUE = 2'))
-        problems = self._check()
-        self.assertEqual(len(problems), 1)
-        self.assertEqual(problems[0].kind, check_vendored.DRIFT)
-        self.assertIn('does not match the upstream file', problems[0].text)
-
-    def test_trailing_newline_counts(self):
-        self.vendored.write_bytes(BANNER + BODY.rstrip(b'\n'))
-        self.assertEqual(len(self._check()), 1)
-
-    def test_banner_without_a_commit_fails_rather_than_skipping(self):
-        broken = BANNER.replace(b'upstream commit ', b'commit ')
-        self.vendored.write_bytes(broken + BODY)
-        problems = self._check()
-        self.assertEqual(len(problems), 1)
-        self.assertEqual(problems[0].kind, check_vendored.DRIFT)
-        self.assertIn('upstream commit <sha>', problems[0].text)
-
-    def test_file_without_a_banner_fails(self):
+        (self.root / 'scripts' / 'vendor').mkdir(parents=True)
+        self.vendored = self.root / 'scripts' / 'vendor' / 'module.py'
         self.vendored.write_bytes(BODY)
-        problems = self._check()
-        self.assertEqual(len(problems), 1)
-        self.assertEqual(problems[0].kind, check_vendored.DRIFT)
-        self.assertIn('rule line', problems[0].text)
+        self.bannered = self.root / 'scripts' / 'bannered.py'
+        self.bannered.write_bytes(BANNER + BODY)
+        self.upstream = self.root / 'upstream'
+        self.upstream.mkdir()
+        (self.upstream / 'module.py').write_bytes(BODY)
+        (self.upstream / 'bannered.py').write_bytes(BODY)
 
-    # ---- "could not check" is not "has drifted" -------------------------------
+        self.manifest_path = self.root / 'scripts' / 'vendor' / 'vendored.json'
+        self._write_manifest()
 
-    def _run_main(self, argv):
-        """Run main() with VENDORED narrowed to the temp file; return (rc, output)."""
+        self._repo, self._manifest = check_vendored.REPO, check_vendored.MANIFEST
+        check_vendored.REPO = str(self.root)
+        check_vendored.MANIFEST = str(self.manifest_path)
+        self.addCleanup(setattr, check_vendored, 'REPO', self._repo)
+        self.addCleanup(setattr, check_vendored, 'MANIFEST', self._manifest)
+
+    def _entry(self, path, upstream_file, data, **extra):
+        entry = {'path': path, 'name': 'example', 'version': '1.0',
+                 'upstream': 'https://github.com/example/example', 'upstream_file': upstream_file,
+                 'commit': '0123456789abcdef0123456789abcdef01234567',
+                 'sha256': hashlib.sha256(data).hexdigest()}
+        entry.update(extra)
+        return entry
+
+    def _write_manifest(self):
+        entries = [self._entry('scripts/vendor/module.py', 'module.py', BODY),
+                   self._entry('scripts/bannered.py', 'bannered.py', BANNER + BODY, banner=True)]
+        self.manifest_path.write_text(json.dumps({'vendored': entries}), encoding='utf-8')
+
+    def _run(self, argv=None):
         buf = io.StringIO()
-        with mock.patch.object(check_vendored, 'VENDORED', ['scripts/module.py']):
-            with redirect_stdout(buf):
-                rc = check_vendored.main(argv)
+        with redirect_stdout(buf):
+            rc = check_vendored.main(argv or [])
         return rc, buf.getvalue()
 
-    def test_unreadable_upstream_is_blocked_not_drift(self):
-        """The upstream being unreachable says nothing about this copy."""
-        self.vendored.write_bytes(BANNER + BODY)
-        problems = check_vendored.check_file('scripts/module.py',
-                                             str(self.root / 'no-such-checkout'))
-        self.assertEqual(len(problems), 1)
-        self.assertEqual(problems[0].kind, check_vendored.BLOCKED)
-        self.assertIn('could not read the upstream file', problems[0].text)
+    # ---- hashes alone -------------------------------------------------------
 
-    def test_fetch_failure_is_blocked_not_drift(self):
-        """A verify failure or an outage is the reported bug: it read as drift."""
-        self.vendored.write_bytes(BANNER + BODY)
-        boom = check_vendored.urllib.error.URLError('[SSL: CERTIFICATE_VERIFY_FAILED]')
-        with mock.patch.object(check_vendored.urllib.request, 'urlopen', side_effect=boom):
-            problems = check_vendored.check_file('scripts/module.py')
-        self.assertEqual(len(problems), 1)
-        self.assertEqual(problems[0].kind, check_vendored.BLOCKED)
+    def test_matching_files_pass_offline(self):
+        rc, out = self._run(['--offline'])
+        self.assertIn('all matching what was recorded', out)
+        self.assertEqual(rc, 0)
 
-    def test_blocked_run_does_not_print_the_drift_headline(self):
-        self.vendored.write_bytes(BANNER + BODY)
-        rc, out = self._run_main(['--upstream', str(self.root / 'no-such-checkout')])
-        self.assertNotIn('have drifted', out)
-        self.assertIn('could not be checked', out)
-        self.assertEqual(rc, 2)
-
-    def test_blocked_run_is_never_a_pass(self):
-        """Exit 0 here would let a broken network silently stop guarding the file."""
-        self.vendored.write_bytes(BANNER + BODY)
-        rc, _ = self._run_main(['--upstream', str(self.root / 'no-such-checkout')])
-        self.assertNotEqual(rc, 0)
-
-    def test_drift_still_exits_1_under_its_own_headline(self):
-        self.vendored.write_bytes(BANNER + BODY.replace(b'VALUE = 1', b'VALUE = 2'))
-        rc, out = self._run_main(['--upstream', str(self.root / 'upstream')])
+    def test_one_changed_byte_is_drift(self):
+        self.vendored.write_bytes(BODY.replace(b'VALUE = 1', b'VALUE = 2'))
+        rc, out = self._run(['--offline'])
         self.assertIn('have drifted', out)
         self.assertNotIn('could not be checked', out)
         self.assertEqual(rc, 1)
 
-    def test_matching_run_exits_0(self):
-        self.vendored.write_bytes(BANNER + BODY)
-        rc, out = self._run_main(['--upstream', str(self.root / 'upstream')])
-        self.assertIn('all matching the pinned upstream commit', out)
-        self.assertEqual(rc, 0)
-
-    def test_drift_outranks_blocked_when_both_happen(self):
-        """Two guarded files, one drifted and one unreachable: report both, exit 1."""
-        (self.root / 'scripts' / 'other.py').write_bytes(
-            BANNER.replace(b'pkg/module.py', b'pkg/missing.py') + BODY)
-        self.vendored.write_bytes(BANNER + BODY.replace(b'VALUE = 1', b'VALUE = 2'))
-        buf = io.StringIO()
-        with mock.patch.object(check_vendored, 'VENDORED',
-                               ['scripts/module.py', 'scripts/other.py']):
-            with redirect_stdout(buf):
-                rc = check_vendored.main(['--upstream', str(self.root / 'upstream')])
-        out = buf.getvalue()
-        self.assertIn('have drifted', out)
-        self.assertIn('could not be checked', out)
+    def test_a_missing_file_is_drift(self):
+        self.vendored.unlink()
+        rc, out = self._run(['--offline'])
+        self.assertIn('not on disk', out)
         self.assertEqual(rc, 1)
 
-    def test_banner_fields_are_read_as_written(self):
-        info = check_vendored.parse_banner(BANNER)
-        self.assertEqual(info, {'owner': 'example-owner', 'repo': 'example-repo',
-                                'commit': '0123456789abcdef0123456789abcdef01234567',
-                                'file': 'pkg/module.py'})
+    def test_a_banner_edit_changes_the_recorded_hash(self):
+        # The banner is part of the copy, so re-vendoring means updating it and
+        # then re-recording the hash with --update, in that order.
+        self.bannered.write_bytes(BANNER.replace(b'unchanged', b'UNCHANGED') + BODY)
+        rc, out = self._run(['--offline'])
+        self.assertIn('have drifted', out)
+        self.assertEqual(rc, 1)
 
-    def test_every_listed_file_carries_a_readable_banner(self):
-        """The real vendored files in this repo, checked without the network."""
-        for rel_path in check_vendored.VENDORED:
-            data = (pathlib.Path(self._repo) / rel_path).read_bytes()
-            banner, body = check_vendored.split_banner(data)
-            info = check_vendored.parse_banner(banner)
-            self.assertEqual(len(info['commit']), 40, rel_path)
-            self.assertTrue(body.strip(), rel_path)
+    # ---- against a checkout -------------------------------------------------
+
+    def test_matching_a_checkout_passes(self):
+        rc, out = self._run(['--upstream', str(self.upstream)])
+        self.assertIn('all matching what was recorded and the pinned upstream', out)
+        self.assertEqual(rc, 0)
+
+    def test_the_banner_is_ignored_when_comparing_to_upstream(self):
+        rc, out = self._run(['--upstream', f'example={self.upstream}'])
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(out.count('and matches'), 2)
+
+    def test_a_body_that_differs_from_the_checkout_is_drift(self):
+        # The copy still hashes to what was recorded, so only the upstream
+        # comparison can see this: someone edited the copy and re-recorded it.
+        edited = BODY.replace(b'VALUE = 1', b'VALUE = 2')
+        self.vendored.write_bytes(edited)
+        manifest = json.loads(self.manifest_path.read_text(encoding='utf-8'))
+        manifest['vendored'][0]['sha256'] = hashlib.sha256(edited).hexdigest()
+        self.manifest_path.write_text(json.dumps(manifest), encoding='utf-8')
+        rc, out = self._run(['--upstream', str(self.upstream)])
+        self.assertIn('differs from the checkout at', out)
+        self.assertIn('have drifted', out)
+        self.assertEqual(rc, 1)
+
+    def test_a_checkout_without_the_file_is_could_not_check(self):
+        (self.upstream / 'module.py').unlink()
+        rc, out = self._run(['--upstream', str(self.upstream)])
+        self.assertIn('could not be checked', out)
+        self.assertNotIn('have drifted', out)
+        self.assertEqual(rc, 2)
+
+    # ---- against GitHub (patched) --------------------------------------------
+
+    def test_a_matching_fetch_passes(self):
+        with mock.patch.object(check_vendored, 'fetch_upstream', return_value=BODY):
+            rc, out = self._run()
+        self.assertEqual(rc, 0, out)
+        self.assertIn('and matches https://github.com/example/example@0123456', out)
+
+    def test_a_fetch_that_differs_is_drift(self):
+        with mock.patch.object(check_vendored, 'fetch_upstream',
+                               return_value=BODY.replace(b'1', b'9')):
+            rc, out = self._run()
+        self.assertIn('does not match the upstream file at the pinned commit', out)
+        self.assertIn('have drifted', out)
+        self.assertEqual(rc, 1)
+
+    def test_an_unreachable_upstream_is_could_not_check_not_a_pass(self):
+        with mock.patch.object(check_vendored, 'fetch_upstream',
+                               side_effect=urllib.error.URLError('no network')):
+            rc, out = self._run()
+        self.assertIn('could not be checked', out)
+        self.assertNotIn('have drifted', out)
+        self.assertEqual(rc, 2)
+
+    def test_fetch_url_is_built_from_the_manifest(self):
+        entry = json.loads(self.manifest_path.read_text(encoding='utf-8'))['vendored'][0]
+        seen = {}
+
+        class _Response(io.BytesIO):
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+        def fake_urlopen(url, timeout=0):
+            seen['url'], seen['timeout'] = url, timeout
+            return _Response(BODY)
+
+        with mock.patch.object(check_vendored.urllib.request, 'urlopen', fake_urlopen):
+            self.assertEqual(check_vendored.fetch_upstream(entry), BODY)
+        self.assertEqual(seen['url'], 'https://raw.githubusercontent.com/example/example/'
+                                      '0123456789abcdef0123456789abcdef01234567/module.py')
+
+    # ---- --update -------------------------------------------------------------
+
+    def test_update_records_the_hash_on_disk(self):
+        changed = BODY.replace(b'1', b'2')
+        self.vendored.write_bytes(changed)
+        rc, out = self._run(['--update'])
+        self.assertEqual(rc, 0, out)
+        recorded = json.loads(self.manifest_path.read_text(encoding='utf-8'))['vendored'][0]['sha256']
+        self.assertEqual(recorded, hashlib.sha256(changed).hexdigest())
+        rc, _ = self._run(['--offline'])
+        self.assertEqual(rc, 0)
 
 
 if __name__ == '__main__':

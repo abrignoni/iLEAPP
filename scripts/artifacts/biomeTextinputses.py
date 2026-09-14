@@ -96,10 +96,12 @@ def get_biomeTextinputses(context):
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
-        if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
-                continue
-        else:
+        if not os.path.isfile(file_found):
+            continue
+        # Anchor the tombstone skip and the epoch choice on the evidence path, not the
+        # staged path, so the examiner's own output folder name cannot flip either.
+        relative_path = context.get_relative_path(file_found).replace('\\', '/')
+        if 'tombstone' in relative_path:
             continue
 
         source_dirs.add(os.path.dirname(file_found))
@@ -111,8 +113,9 @@ def get_biomeTextinputses(context):
                 protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
 
                 duration = protostuff['1']
-                # Records in "restricted" folder seem to have time in Unix time, whereas public was cocoa time
-                if 'restricted' in file_found:
+                # The restricted Text.InputSession stream stores Unix time, the public
+                # TextInputSession stream Cocoa time; the paths glob matches only these two.
+                if '/streams/restricted/' in relative_path:
                     timestart = convert_ts_int_to_utc(protostuff['2'])
                 else:
                     timestart = (webkit_timestampsconv(protostuff['2']))
