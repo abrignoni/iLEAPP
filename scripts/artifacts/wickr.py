@@ -799,19 +799,19 @@ _KEYCHAIN_HEADERS = (
 @artifact_processor
 def wickr_app_log(context):
     data_list = []
-    source_path = ''
+    source_paths = []
 
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not file_found.endswith('.log'):
             continue
-        source_path = file_found
         try:
             with open(file_found, 'r', encoding='utf-8', errors='replace') as handle:
                 lines = handle.readlines()
         except OSError as error:
             logfunc(f'Error reading Wickr log {file_found}: {error}')
             continue
+        source_paths.append(file_found)
 
         for line in lines:
             match = PAYLOAD_RE.match(line.rstrip('\n'))
@@ -850,4 +850,4 @@ def wickr_app_log(context):
         'Sender User ID Hash',
         'Message Type (as stored)',
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)

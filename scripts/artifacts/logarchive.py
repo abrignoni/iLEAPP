@@ -915,7 +915,8 @@ def logarchive(context):
             os.path.join(context.get_data_folder(), '_logarchive_native'))
         source_path = f'{diagnostics_dir}\n{uuidtext_dir}'
 
-    logfunc(f'Reading Apple Unified Logs natively with {os.path.basename(binary)}')
+    parser = unifiedlogs.iterator_version(binary) or os.path.basename(binary)
+    logfunc(f'Reading Apple Unified Logs natively with {parser}')
     return DATA_HEADERS, rows_from_tracev3(binary, archive_dir), source_path
 
 @artifact_processor

@@ -176,12 +176,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "United Airlines",
+        "sample_data": {'abe_ios16': 'iOS 16.5 | 0 rows'},
         "notes": (
-            "Core Data table: ZUACDINFLIGHTMEDIA; also app prefs "
-            "com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys)."
+            'Core Data table: ZUACDINFLIGHTMEDIA; also app prefs com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys). On abe_ios16 the Core Data store is read and its ZUACDINFLIGHTMEDIA table is present with no rows. The preferences plist was not found on any of the 21 registered corpora whose listings were checked, so the preferences branch is unexercised.'
         ),
         "paths": (
-            "*/UnitediPhoneCoreData.sqlite*"
+            "*/UnitediPhoneCoreData.sqlite*",
             "*/com.united.UnitedCustomerFacingIPhone/Library/Preferences/"
             "com.united.UnitedCustomerFacingIPhone.plist",
         ),

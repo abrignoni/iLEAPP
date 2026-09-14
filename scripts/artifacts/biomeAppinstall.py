@@ -127,7 +127,7 @@ def get_biomeAppinstall(context):
         if not os.path.isfile(file_found):
             continue
 
-        if 'tombstone' in file_found:
+        if 'tombstone' in context.get_relative_path(file_found):
             continue
 
         parent = os.path.dirname(file_found)

@@ -71,7 +71,7 @@ def get_biomeAppWebUsage(context):
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
             else:
                 report_file = os.path.dirname(file_found)

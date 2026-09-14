@@ -51,7 +51,7 @@ def get_biomeNotificationUsage(context):
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
-        if not os.path.isfile(file_found) or 'tombstone' in file_found:
+        if not os.path.isfile(file_found) or 'tombstone' in context.get_relative_path(file_found):
             continue
         report_file = os.path.dirname(file_found)
 

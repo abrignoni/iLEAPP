@@ -36,6 +36,9 @@ import tempfile
 PYLINT_ARGS = ['--disable=C,R', '--persistent=no', '--output-format=json']
 
 
+VENDOR_PREFIX = 'scripts/vendor/'
+
+
 def run_pylint(repo_dir, paths):
     """Return Counter keyed by (path, symbol) for paths that exist in repo_dir."""
     present = [p for p in paths if os.path.exists(os.path.join(repo_dir, p))]
@@ -73,8 +76,20 @@ def main():
     args = parser.parse_args()
 
     paths = [p for p in args.paths if p.endswith('.py')]
+
+    # scripts/vendor/ is code copied verbatim from another repository. Linting it
+    # would fail this job on warnings that are not ours to fix, and the only ways to
+    # silence them are editing the copy or adding a file-level disable, both of which
+    # make the next re-vendor a merge instead of a copy. check_vendored.py is what
+    # guards that directory, by hash rather than by style.
+    skipped = [p for p in paths if p.replace(os.sep, '/').startswith(VENDOR_PREFIX)]
+    if skipped:
+        print('Not linting vendored files (guarded by check_vendored.py instead):\n'
+              + '\n'.join(f'  {p}' for p in skipped) + '\n')
+        paths = [p for p in paths if p not in skipped]
+
     if not paths:
-        print('No Python files changed.')
+        print('No Python files to lint.')
         return 0
 
     print('Linting:\n' + '\n'.join(f'  {p}' for p in paths) + '\n')

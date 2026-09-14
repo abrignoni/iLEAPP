@@ -71,7 +71,7 @@ def get_biomeNetworkingEdgeSelection(context):
         filename = os.path.basename(file_found)
         if filename.startswith('.') or not os.path.isfile(file_found):
             continue
-        if 'tombstone' in file_found:  # deletion bookkeeping, not edge observations
+        if 'tombstone' in context.get_relative_path(file_found):  # deletion bookkeeping, not edge observations
             continue
 
         source_dirs.add(os.path.dirname(file_found))

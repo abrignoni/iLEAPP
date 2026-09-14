@@ -7,7 +7,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Call History",
-        "notes": "Call type and disconnected-cause value mappings are community-established decodes reported as observed; unrecognized values are reported as stored.",
+        "notes": 'Call type and disconnected-cause value mappings are community-established decodes reported as observed; unrecognized values are reported as stored. When both CallHistory.storedata and CallHistoryTemp.storedata hold records, rows from both are reported with a Source File path column and the report names both stores. On none of the nine registered corpora run did both stores hold records, so that path was exercised on a constructed tree with the same records under both names.',
         "paths": (
             '*/mobile/Library/CallHistoryDB/CallHistory*',
             '*/mobile/Library/CallHistoryDB/call_history.db*'),
@@ -129,7 +129,7 @@ def callHistory(context):
     temp_db_records = list( get_sqlite_db_records(temp_db_path, query) )
     if db_path or temp_db_path:
         if db_records and temp_db_records:
-            source_path = "Source file path in the report below"
+            source_path = '\n'.join([db_path, temp_db_path])
             records_in_both_db = True
             records = [tuple(list(record) + [db_path]) for record in db_records] + [tuple(list(record) + [temp_db_path]) for record in temp_db_records]
         else:
