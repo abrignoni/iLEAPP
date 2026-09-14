@@ -11,23 +11,22 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-14",
         "requirements": "Acquisition that contains SystemVersion.plist",
         "category": "IOS Build",
-        "notes": "Reads System/Library/CoreServices/SystemVersion.plist from the extraction and, "
-                 "inside each sysdiagnose_*.tar.gz archive, logs/SystemVersion/SystemVersion.plist; "
-                 "other SystemVersion.plist members of an archive, such as "
-                 "logs/Splat/OS/SystemVersion.plist, are not read. A copy whose ProductVersion is "
-                 "empty is not reported, and a file matched more than once is read once. When the "
-                 "extraction holds several copies, only those nearest the extraction root are "
-                 "reported: on the images in sample_data the copies left out sat under "
-                 "private/var/MobileAsset (each with an empty ProductVersion), usr/SDK "
-                 "(ProductVersion 11.1 on an iOS 12.4 image) and private/preboot/Cryptexes. Rows "
-                 "read from an archive name that archive in Source File and hold the values stored "
-                 "in it, which can differ from the extraction's copy: on felix23_ios16 two archives "
-                 "hold 16.0.3 and the extraction's copy holds 16.5. The Device Information entries "
-                 "come from the extraction's copy, and from the archive copies, one entry per "
-                 "archive, only when the extraction has no reported copy; that branch was exercised "
-                 "on a constructed tree holding two felix23_ios16 sysdiagnose archives and a "
-                 "MobileAsset copy, not on a registered image. Added parsing of SystemVersion.plist "
-                 "in a sysdiagnose archive by C_Peter",
+        "notes": "Reads System/Library/CoreServices/SystemVersion.plist from the extraction and, inside "
+                 "each sysdiagnose_*.tar.gz archive, logs/SystemVersion/SystemVersion.plist; other "
+                 "SystemVersion.plist members of an archive, such as logs/Splat/OS/SystemVersion.plist, "
+                 "are not read. A copy whose ProductVersion is empty is not reported, and a file matched "
+                 "more than once is read once. When the extraction holds several copies, only those "
+                 "nearest the extraction root are reported: on the images in sample_data the copies left "
+                 "out sat under private/var/MobileAsset (each with an empty ProductVersion), usr/SDK "
+                 "(ProductVersion 11.1 on an iOS 12.4 image) and private/preboot/Cryptexes. Rows read "
+                 "from an archive name that archive in Source File and hold the values stored in it, "
+                 "which can differ from the extraction's copy: on felix23_ios16 two archives hold 16.0.3 "
+                 "and the extraction's copy holds 16.5. The Device Information entries come from the "
+                 "extraction's copy; only when the extraction has no reported copy do they come from the "
+                 "archive copies, each archive adding the values its own copy holds. That branch was "
+                 "exercised on a constructed tree holding two felix23_ios16 sysdiagnose archives and a "
+                 "MobileAsset copy, not on a registered image. Added parsing of SystemVersion.plist in a "
+                 "sysdiagnose archive by C_Peter",
         "paths": (
             "*/System/Library/CoreServices/SystemVersion.plist",
             "*/sysdiagnose_*.tar.gz"),
