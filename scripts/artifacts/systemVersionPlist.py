@@ -18,7 +18,7 @@ __artifacts_v2__ = {
         "output_types": ["standard", "tsv", "none"],
         "artifact_icon": "git-commit",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 6 rows",
+            "ctf2020_ios12": "iOS 12.4 | 11 rows",
             "dexter_ios18": "iOS 18.3.2 | 6 rows",
             "felix_ios17": "iOS 17.6.1 | 6 rows",
             "fsfull002_ios17": "iOS 17.1 | 6 rows",
@@ -28,9 +28,9 @@ __artifacts_v2__ = {
             "iphone14plus_ios18": "iOS 18.0 | 6 rows",
             "otto_ios17": "iOS 17.5.1 | 6 rows",
             "abe_ios16": "iOS 16.5 | 6 rows",
-            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "felix23_ios16": "iOS 16.5 | 18 rows",
             "hickman_ios13": "iOS 13.3.1 | 6 rows",
-            "hickman_ios14": "iOS 14.3 | 6 rows",
+            "hickman_ios14": "iOS 14.3 | 12 rows",
             "magnet_ios16": "iOS 16.1.1 | 6 rows",
         }
     }
@@ -64,7 +64,7 @@ def system_version_plist(context):
             for key, val in pl.items():
                 data_list.append((key, val, source_name))
                 
-                if key == "Product Build Version":
+                if key == "ProductBuildVersion":
                     device_info("Device Information", "Product Build Version", val, source_name)
 
                 if key == "ProductVersion":
