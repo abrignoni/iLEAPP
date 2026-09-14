@@ -29,7 +29,6 @@ This document outlines the various device information collected by LEAPP modules
 | Cellular | SIM Cards | subscriberInfo |
 | Cellular | Self Registration Update IMEI | imeiImsi |
 | Cellular | Self Registration Update IMSI | imeiImsi |
-| Device Information | Build ID | systemVersionPlist |
 | Device Information | Device Name | deviceName |
 | Device Information | Device/Computer Name | preferencesPlist |
 | Device Information | Host Name | preferencesPlist |
@@ -38,13 +37,10 @@ This document outlines the various device information collected by LEAPP modules
 | Device Information | Local Host Name | preferencesPlist |
 | Device Information | Model | preferencesPlist |
 | Device Information | Model Number | deviceActivator |
-| Device Information | Product Build Version | systemVersionPlist |
-| Device Information | Product Name | lastBuild, systemVersionPlist |
+| Device Information | Product Name | lastBuild |
 | Device Information | ProductBuildVersion | lastBuild |
 | Device Information | Reported Phone Number | deviceDatam |
 | Device Information | Serial Number | serialNumber |
-| Device Information | System Image ID | systemVersionPlist |
-| Device Information | iOS Version | systemVersionPlist |
 | Device Information | iOS version | lastBuild |
 | Network | Bluetooth Address | deviceActivator, keychain |
 | Network | Bluetooth IRK | keychain |
