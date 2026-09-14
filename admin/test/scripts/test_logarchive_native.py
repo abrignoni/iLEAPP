@@ -413,6 +413,35 @@ class TestBinaryDiscovery(unittest.TestCase):
         self.assertEqual(unifiedlogs.find_iterator(), fake)
 
 
+class TestIteratorVersion(unittest.TestCase):
+    """The run log must name the parser build; a binary that cannot say must not break the import."""
+
+    def _fake(self, script):
+        tmpdir = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmpdir, True)
+        fake = os.path.join(tmpdir, 'unifiedlog_iterator')
+        with open(fake, 'w', encoding='utf-8') as handle:
+            handle.write(script)
+        os.chmod(fake, 0o755)
+        return fake
+
+    def test_reports_first_line_of_version_output(self):
+        fake = self._fake('#!/bin/sh\necho "unifiedlog_iterator 0.7.0"\necho "extra"\n')
+        self.assertEqual(unifiedlogs.iterator_version(fake), 'unifiedlog_iterator 0.7.0')
+
+    def test_nonzero_exit_still_yields_the_text(self):
+        # Some releases exit non-zero on --version; the text is what matters.
+        fake = self._fake('#!/bin/sh\necho "unifiedlog_iterator 0.6.0"\nexit 1\n')
+        self.assertEqual(unifiedlogs.iterator_version(fake), 'unifiedlog_iterator 0.6.0')
+
+    def test_silent_binary_yields_empty_string(self):
+        fake = self._fake('#!/bin/sh\nexit 0\n')
+        self.assertEqual(unifiedlogs.iterator_version(fake), '')
+
+    def test_unrunnable_binary_yields_empty_string(self):
+        self.assertEqual(unifiedlogs.iterator_version('/nonexistent/unifiedlog_iterator'), '')
+
+
 __artifacts_v2__ = {
     'streaming_probe': {
         'name': 'streaming probe',

@@ -29,7 +29,7 @@ import tarfile
 import urllib.request
 import zipfile
 
-PINNED_VERSION = 'v0.6.0'
+PINNED_VERSION = 'v0.7.0'
 REPO = 'mandiant/macos-UnifiedLogs'
 BASE_URL = f'https://github.com/{REPO}/releases/download/{PINNED_VERSION}'
 
@@ -42,24 +42,24 @@ BIN_DIR = REPO_ROOT / 'bin'
 # _normalize_digest) because upstream's per-platform build runners disagree on case -
 # the Windows .sha256 is uppercase (PowerShell Get-FileHash style), the rest lowercase.
 ASSETS = {
-    'macos-arm64': ('unifiedlog_iterator-v0.6.0-aarch64-apple-darwin.tar.gz',
-                    'd3e0e620b51358dc3f4a7d376551a435153e9a4a7942cb52ddb7144a72bbdb63'),
-    'macos-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-apple-darwin.tar.gz',
-                     '28f4a5641543559ef90472537950fafb344a13eb64c432d7929748b45007afe8'),
+    'macos-arm64': ('unifiedlog_iterator-v0.7.0-aarch64-apple-darwin.tar.gz',
+                    'bf5c4a3418b133fbd403ca7893a2280acb8c2c3605b4ad6f87f9fc75b35a20b7'),
+    'macos-x86_64': ('unifiedlog_iterator-v0.7.0-x86_64-apple-darwin.tar.gz',
+                     '32e23956c3ac6364f56e96243357cf02959f79a6e24a5afddba1047914bf7f1a'),
     # No musl build is published for aarch64; gnu is the only option there.
-    'linux-arm64': ('unifiedlog_iterator-v0.6.0-aarch64-unknown-linux-gnu.tar.gz',
-                    '1e519eef11e5763d44311600077318d9bdd2c8b1c806191b7c9b345e1c995c5f'),
+    'linux-arm64': ('unifiedlog_iterator-v0.7.0-aarch64-unknown-linux-gnu.tar.gz',
+                    'ab40daf464376a2e52c4b51fd82b003b7f360a4e2726501ba853889fa3a959f4'),
     # Linux x86_64 deliberately takes the musl build (verified static-pie linked, no
     # dynamic libc). The gnu build links whatever glibc the release runner carries, and a
     # binary built against a newer glibc refuses to start on older distros - the exact
     # machines an AppImage exists to support, and forensic workstations skew old. The gnu
     # build stays reachable below for anyone who wants it.
-    'linux-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-unknown-linux-musl.tar.gz',
-                     '43fb304af5b3cc19ce15490f6e0ff4255e7707b69c51fc67e279677ea9784adb'),
-    'linux-x86_64-gnu': ('unifiedlog_iterator-v0.6.0-x86_64-unknown-linux-gnu.tar.gz',
-                         'f5a17b056092be347e5d7f5051a6c3698e635bd7eeb22e595efbf13897e03419'),
-    'windows-x86_64': ('unifiedlog_iterator-v0.6.0-x86_64-pc-windows-msvc.zip',
-                       '749731fc09d0d107958d777188c99682db8f2d7810835d6afe46172e1d0d9d36'),
+    'linux-x86_64': ('unifiedlog_iterator-v0.7.0-x86_64-unknown-linux-musl.tar.gz',
+                     'c1fea0f142850ac05e0faf66f3d69aca848793bc121e972238fb1927daf31004'),
+    'linux-x86_64-gnu': ('unifiedlog_iterator-v0.7.0-x86_64-unknown-linux-gnu.tar.gz',
+                         '7192a187f93c6fb8eafdad9885522e73dc2ae7a9a5000f5957edd4fcd0ca1c82'),
+    'windows-x86_64': ('unifiedlog_iterator-v0.7.0-x86_64-pc-windows-msvc.zip',
+                       '4776ac9c677ad3bdec6a0cee3e92e27308f7493a0ac4e4fedde65555eb36373d'),
 }
 
 
