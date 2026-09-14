@@ -881,9 +881,9 @@ def _read_binary_plist_tolerantly(file_path):
 def get_plist_file_content(file_path):
     is_stream = hasattr(file_path, 'read')
     temp_path = None
-    
+
     # If the input is a stream (like an ExFileObject from a tar archive),
-    # write it to a temporary file so the path-based open() and fallback 
+    # write it to a temporary file so the path-based open() and fallback
     # functions can handle it natively without throwing TypeErrors.
     if is_stream:
         try:
@@ -894,7 +894,7 @@ def get_plist_file_content(file_path):
                     content = content.encode('utf-8')
                 temp_file.write(content)
                 temp_path = temp_file.name
-            
+
             # Reassign file_path to the temp file string for the rest of the function
             file_path = temp_path
         except Exception as e: # pylint: disable=broad-exception-caught
@@ -935,7 +935,7 @@ def get_plist_file_content(file_path):
                 os.remove(temp_path)
             except OSError:
                 pass
-                
+
     return {}
 
 def get_sqlite_db_path(path):
@@ -976,7 +976,7 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
 
         # 1. Direct standalone file match
         match_standalone = target.search(filename) if is_regex else (target == filename)
-        
+
         # Ensure it's not a tar file being falsely processed as standalone
         if match_standalone and not ("sysdiagnose_" in filename and ".tar" in filename):
             try:
@@ -994,10 +994,10 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
                     for member in tar.getmembers():
                         if not member.isreg():
                             continue
-                        
+
                         # Match regex or exact string
                         match_tar = target.search(member.name) if is_regex else (member.name.endswith(f"/{target}") or member.name == target)
-                        
+
                         if match_tar:
                             extracted = tar.extractfile(member)
                             if extracted is None:
