@@ -312,11 +312,11 @@ def _parse_events(lines):
 def _events_and_source(context):
     events = []
     sources = []
-    
+
     # Sorting the log files fixes the order events are read in, which is what breaks
     # ties between two state-setting events written in the same second.
     files_sorted = sorted(str(f) for f in context.get_files_found())
-    
+
     for file_obj, source in get_sysdiagnose_files(files_sorted, _LOG_MATCH_RE):
         # 1. Separate base path and member name to correctly apply relative paths
         if ' >> ' in source:
@@ -324,14 +324,14 @@ def _events_and_source(context):
             rel_source = f"{context.get_relative_path(base_source)} >> {member}"
         else:
             rel_source = context.get_relative_path(source)
-            
+
         # 2. Deduplicate on the full string (Relative Archive >> Member)
         if rel_source not in sources:
             sources.append(rel_source)
-            
+
         # Pass the file_obj directly; _parse_events iterates over lines natively
         events.extend(_parse_events(file_obj))
-        
+
     return events, ', '.join(sources)
 
 

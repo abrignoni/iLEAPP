@@ -59,11 +59,11 @@ def mobileActivationLogs(context):
         else:
             rel_source = context.get_relative_path(source)
             log_name = Path(source).name
-            
+
         # 2. Deduplicate on the full string (Relative Archive >> Member)
         if rel_source not in source_files:
             source_files.append(rel_source)
-        
+
         # 3. Process the file
         for linecount, line in enumerate(file_obj, 1):
             match = _DATE_RE.match(line)
@@ -74,7 +74,7 @@ def mobileActivationLogs(context):
                                               '%b %d %Y %H:%M:%S').replace(tzinfo=timezone.utc)
             except ValueError:
                 continue
-                
+
             values = match.group(7)
             if 'perform_data_migration' in values:
                 upgrade_match = _UPGRADE_RE.search(values)
