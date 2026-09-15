@@ -182,13 +182,11 @@ def fsCachedData(context):
         'Filename',
         'Bundle Name',
         'Path')
-    data_list = []
+    files_found = [str(file_found) for file_found in context.get_files_found()]
 
     # Pre-index plist maps by GUID
     app_group_plist_map = {}
     app_plist_map = {}
-
-    files_found = [str(f) for f in context.get_files_found()]
 
     for file_found in files_found:
         if file_found.lower().endswith('.plist') and re.search(r'[\/\\]Library[\/\\]Preferences[\/\\]', file_found, re.I):
@@ -206,6 +204,11 @@ def fsCachedData(context):
                 app_plist_map.setdefault(guid, []).append(file_found)
 
     source_dirs = set()
+    results = context.create_artifact_result(
+        headers=data_headers,
+        estimated_row_count=len(files_found),
+    )
+
     for file_found in files_found:
         if not os.path.isfile(file_found) or file_found.lower().endswith('.plist'):
             continue
@@ -216,7 +219,7 @@ def fsCachedData(context):
         media_ref = check_in_media(file_found)
         bundle_name = extract_bundle_name(file_found, app_group_plist_map, app_plist_map)
 
-        data_list.append((
+        results.add_row((
             modified_time,
             media_ref,
             mime,
@@ -224,4 +227,5 @@ def fsCachedData(context):
             bundle_name,
             context.get_relative_path(file_found)))
 
-    return data_headers, data_list, '\n'.join(sorted(source_dirs))
+    results.set_source_path('\n'.join(sorted(source_dirs)))
+    return results

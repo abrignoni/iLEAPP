@@ -36,6 +36,7 @@ import inspect
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 # import scripts.ilapfuncs as ilapfuncs
 from scripts.context import Context
+from leapp_functions.app.artifact_result import ArtifactResult
 
 
 def mock_logdevinfo(message):
@@ -251,13 +252,19 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
             try:
                 sig = inspect.signature(original_func)
                 if len(sig.parameters) == 1:
-                    data_headers, data_list, _ = original_func(Context)
+                    result = original_func(Context)
                 else:
-                    data_headers, data_list, _ = original_func(all_files,
-                                                               str(mock_report_folder_path),
-                                                               mock_seeker,
-                                                               mock_wrap_text,
-                                                               timezone_offset)
+                    result = original_func(all_files,
+                                           str(mock_report_folder_path),
+                                           mock_seeker,
+                                           mock_wrap_text,
+                                           timezone_offset)
+                if isinstance(result, ArtifactResult):
+                    # No LAVA run is active here, so a writer-style module kept its rows in
+                    # memory; read them back the way artifact_processor would iterate them.
+                    data_headers, data_list = result.headers, list(result)
+                else:
+                    data_headers, data_list, _ = result
             finally:
                 Context.clear()
 
