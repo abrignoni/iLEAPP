@@ -7,7 +7,7 @@ __artifacts_v2__ = {
             to get informations about peers in the account's Octagon trust circle (iCloud Keychain syncing).",
         "author": "@C_Peter",
         "creation_date": "2025-05-22",
-        "last_update_date": "2026-09-04",
+        "last_update_date": "2026-09-11",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "OCTL refers to the Octagon Account (iCloud Keychain). Reference: Apple Security open source (OctagonTrust; otctl man page: 'diagnostic information for iCloud Keychain syncing'), https://github.com/apple-oss-distributions/Security",
@@ -58,7 +58,5 @@ def get_sysdiag_account_devices(context):
             if not any(serial in subliste for subliste in data_list):
                 data_list.append((opush, model, m_name, os_bnum, os_ver, serial,source_name))
 
-    source_list = "; ".join(sources)
     data_headers = ("lastOctagonPush", "Model", "Product", "OS Build", "OS Version", "Serial Number","Source Path")
-
-    return data_headers, data_list, source_list
+    return data_headers, data_list, '\n'.join(sorted(sources))

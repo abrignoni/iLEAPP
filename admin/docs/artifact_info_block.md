@@ -58,8 +58,8 @@ The `paths` tuple uses **glob-like** wildcards, but matching is performed by Pyt
 
 - **Not strict glob semantics.** In true glob (`pathlib`), `*` matches a single path segment and `**` matches zero or more directories recursively. In `fnmatch` (Python 3.11+), `*` and `**` are largely interchangeable — both can span `/` characters. Patterns like `*/mobile/...` and `**/mobile/...` therefore behave the same in practice.
 - **Patterns are permissive.** A single `*` in a path pattern may match more than one directory level. Do not assume `*` is limited to one path component.
-- **Case sensitivity depends on platform.** For filesystem, tar, and zip extractions, paths are normalized with `os.path.normcase` before matching. On Windows this makes matching case-insensitive; on macOS and Linux it is case-sensitive. iTunes backup matching (`FileSeekerItunes`) does not apply `normcase`, so it is always case-sensitive.
-- **Leading `**/` is common.** Patterns such as `**/Safari/History.db` match the suffix of a full extraction path. This works because the seeker prepends a synthetic `root/` prefix to absolute paths before matching.
+- **Case sensitivity depends on platform.** For filesystem, tar, zip and raw image inputs, paths are normalized with `os.path.normcase` before matching. On Windows this makes matching case-insensitive; on macOS and Linux it is case-sensitive. iTunes backups follow the same rule: `FileSeekerItunes` matches with `fnmatch.filter`, which applies `os.path.normcase` to the pattern and, whenever `os.path` is not `posixpath` (that is, on Windows), to every path as well.
+- **Leading `**/` is common.** Patterns such as `**/Safari/History.db` match the suffix of a full extraction path. This works because the seeker prepends a synthetic `root/` prefix to absolute paths before matching. iTunes backups are the exception: `FileSeekerItunes` adds no prefix, and the paths it rebuilds from its domain table all start at `private/`, so a pattern that starts `*/private/` does not match the same file in a backup.
 - **Never write two patterns that differ only in case.** Use one bracket class instead:
 
     ```python
