@@ -61,6 +61,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | appStoreSearches |
 | appleAccountDeviceList |
 | appleMapsTrips |
+| applePodcasts |
 | appleWalletCards |
 | appleWalletTransactions |
 | atxDatastore |
@@ -210,7 +211,6 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | DataUsage |
 | ZangiChats |
 | amazonShopping |
-| applePodcasts |
 | appleWalletPasses |
 | applicationStateDB |
 | biomeSetsStores |
