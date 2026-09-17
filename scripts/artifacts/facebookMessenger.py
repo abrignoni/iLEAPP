@@ -131,27 +131,40 @@ __artifacts_v2__ = {
         "category": "Facebook Messenger",
         "notes": "All 114 client_messages rows across the 9 msys stores measured sit on a thread whose "
         "client_threads.transport_key is AdvancedCrypto, and all 18 of those threads carry "
-        "Messenger's own end-to-end encryption notice as a message; where a row carries text, "
-        "that text is held in this table unencrypted. Read from both containers that hold "
-        "Messenger's msys mailbox: lightspeed-userDatabases in the shared app group "
-        "group.com.facebook.Messenger, and cask/<account "
-        "id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared app group "
-        "group.com.facebook.Facebook. Both group identifiers were read from those groups' own "
-        "container metadata on the tested images. Records identical in every reported value "
-        "are merged into one row whose Source File cell lists each file they were found in; "
-        "records differing in any value are reported separately, so one held in both copies "
-        "can still appear twice when a volatile value differs between them, which on the "
-        "tested images is the profile picture URL because it carries a per-fetch token. Of "
-        "the 25 registered corpora run, 4 carry the Facebook app's copy and no lightspeed "
-        "copy, and 2 of those 4 (hexordia_ios1651, iphone12_ios18) have no Messenger app "
-        "bundle on the image at all. Message Direction, Sender Name and Sender ID come from "
-        "joining client_messages.sender_contact_pk to contacts.id and to "
-        "_user_info.facebook_user_id. That column holds a Facebook user id on some stores and "
-        "a local contact key on others: measured across the 9 msys stores carrying "
-        "client_messages, the join resolves on 36 of 114 rows, on every row of 5 stores and "
-        "on no row of 4. Where it does not resolve the sender columns are blank and every row "
-        "reads Received, so Message Direction is not reliable on a row whose Sender Name is "
-        "blank. This predates the second container being read and is unchanged by it.",
+        "Messenger's own end-to-end encryption notice as a message; where a row carries text, that "
+        "text is held in this table unencrypted. Read from both containers that hold Messenger's msys "
+        "mailbox: lightspeed-userDatabases in the shared app group group.com.facebook.Messenger, and "
+        "cask/<account id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared app "
+        "group group.com.facebook.Facebook. Both group identifiers were read from those groups' own "
+        "container metadata on the tested images. Records identical in every reported value are "
+        "merged into one row whose Source File cell lists each file they were found in; records "
+        "differing in any value are reported separately, so one held in both copies can still appear "
+        "twice when a volatile value differs between them, which on the tested images is the profile "
+        "picture URL because it carries a per-fetch token. Of the 25 registered corpora run, 4 carry "
+        "the Facebook app's copy and no lightspeed copy, and 2 of those 4 (hexordia_ios1651, "
+        "iphone12_ios18) have no Messenger app bundle on the image at all. Message Direction, Sender "
+        "Name and Sender ID are resolved through fb_transport_contacts. All 9 msys stores carrying "
+        "client_messages declare sender_contact_pk a foreign key to client_contacts (pk), so it holds "
+        "a client contact key, while contacts.id and _user_info.facebook_user_id hold Facebook user "
+        "ids; fb_transport_contacts maps between the two. This is the store's own resolution path: "
+        "its armadillo_participants view reaches a client participant's contact row through "
+        "fb_unified_contacts, which on 8 of the 9 stores is contacts INNER JOIN fb_transport_contacts "
+        "ON contacts.id = fb_transport_contacts.server_contact_id, and on the ninth (hickman_ios15, "
+        "Messenger 405.0) joins that same table through an intermediate fb_client_contacts view. All "
+        "9 carry a UNIQUE index on fb_transport_contacts.client_contact_pk, so the join cannot "
+        "multiply rows. On 5 of the 9 the mapping is an identity map, every client contact key equal "
+        "to the Facebook user id it maps to, so a client contact key on those stores reads like a "
+        "Facebook user id; on the other 4 the two are unrelated. Measured on the 6 registered corpora "
+        "that report rows (dexter_ios18, hc_ios18_7, hc_ios26, hickman_ios15, iphone11_ios17, "
+        "otto_ios17), 114 rows in all: a sender name and a sender id are reported on 114 of 114 rows, "
+        "and 76 of 114 are Sent. The mapping was cross-checked against the store's own server-side "
+        "records: for each of the 9 client threads that mi_act_mapping_table maps to a server thread, "
+        "the Facebook user ids fb_transport_contacts gives that thread's client_participants equal "
+        "the contact ids the participants table holds for the mapped thread, 9 of 9 with no "
+        "disagreement. Where a store carries no fb_transport_contacts table, or no mapping row for a "
+        "sender, the raw sender_contact_pk is used as the Facebook user id; neither branch is "
+        "exercised by these corpora, where all 9 stores carry the table and 0 of the 114 rows lack a "
+        "mapping row.",
         "paths": (
             "*/lightspeed-userDatabases/*.db*",
             "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
@@ -379,6 +392,7 @@ from scripts.ilapfuncs import (
 )
 
 CLIENT_MESSAGES = "client_messages"
+FB_TRANSPORT_CONTACTS = "fb_transport_contacts"
 CONTACTS = "contacts"
 THREAD_MESSAGES = "thread_messages"
 THREAD_PARTICIPANT_DETAIL = "thread_participant_detail"
@@ -434,6 +448,66 @@ def _merge_duplicate_records(data_list):
         if source not in sources_by_record[values]:
             sources_by_record[values].append(source)
     return [values + ("; ".join(sources_by_record[values]),) for values in order]
+
+_CLIENT_MESSAGES_QUERY = """
+    SELECT
+        client_messages.display_ts_ms,
+        client_messages.thread_pk,
+        CASE
+            WHEN {sender_id} = _user_info.facebook_user_id
+                THEN contacts.name || ' (Local User)'
+            ELSE contacts.name
+        END,
+        contacts.id,
+        CASE
+            WHEN {sender_id} = _user_info.facebook_user_id THEN 'Sent'
+            ELSE 'Received'
+        END AS "Message Direction",
+        client_messages.text,
+        CASE client_messages.message_content_type
+            WHEN 2 THEN 'Yes'
+            ELSE ''
+        END AS "Attachment-Image",
+        client_attachments.filename,
+        client_attachments.filesize,
+        client_attachment_store_keys.persisted_path
+    FROM client_messages
+    {transport_join}
+    LEFT JOIN contacts
+        ON contacts.id = {sender_id}
+    LEFT JOIN client_attachments
+        ON client_messages.pk = client_attachments.message_pk
+    LEFT JOIN client_attachment_store_keys
+        ON client_attachments.content_token = client_attachment_store_keys.content_token
+    LEFT JOIN _user_info
+    ORDER BY client_messages.display_ts_ms ASC
+    """
+
+_TRANSPORT_JOIN = """LEFT JOIN fb_transport_contacts
+        ON fb_transport_contacts.client_contact_pk = client_messages.sender_contact_pk"""
+
+# client_messages declares sender_contact_pk a foreign key to client_contacts (pk), so it is a
+# client contact key, while contacts.id and _user_info.facebook_user_id hold Facebook user ids.
+# fb_transport_contacts maps between the two, and it is the store's own resolution path: the
+# app's armadillo_participants view reaches a client participant's contact row through
+# fb_unified_contacts, which joins fb_transport_contacts on its server_contact_id directly on
+# the newer stores and through an intermediate fb_client_contacts view on the older ones.
+# Falling back to the raw key covers a store that does not carry the mapping table.
+_SENDER_ID_VIA_TRANSPORT = (
+    "COALESCE(fb_transport_contacts.server_contact_id, client_messages.sender_contact_pk)"
+)
+_SENDER_ID_DIRECT = "client_messages.sender_contact_pk"
+
+
+def _client_messages_query(has_transport_contacts):
+    if has_transport_contacts:
+        return _CLIENT_MESSAGES_QUERY.format(
+            sender_id=_SENDER_ID_VIA_TRANSPORT, transport_join=_TRANSPORT_JOIN
+        )
+    return _CLIENT_MESSAGES_QUERY.format(
+        sender_id=_SENDER_ID_DIRECT, transport_join=""
+    )
+
 
 def _source_path(context, files_found):
     if not files_found:
@@ -651,44 +725,11 @@ def facebook_messenger_client_chats(context):
         "Source File",
     )
 
-    query = """
-    SELECT
-	client_messages.display_ts_ms,
-    client_messages.thread_pk,
-	CASE
-        WHEN (SELECT CASE
-		WHEN _user_info.facebook_user_id IS NOT NULL THEN 'Sent'
-		ELSE 'Received'
-	END) = 'Sent' THEN contacts.name || ' (Local User)'
-        ELSE contacts.name
-    END,
-	contacts.id,
-	CASE
-		WHEN _user_info.facebook_user_id IS NOT NULL THEN 'Sent'
-		ELSE 'Received'
-	END AS "Message Direction",
-	client_messages.text,
-	CASE client_messages.message_content_type
-		WHEN 2 THEN 'Yes'
-        ELSE ''
-	END AS "Attachment-Image",
-    client_attachments.filename,
-	client_attachments.filesize,
-    client_attachment_store_keys.persisted_path
-    FROM client_messages
-    LEFT JOIN contacts
-        ON client_messages.sender_contact_pk = contacts.id
-    LEFT JOIN client_attachments
-        ON client_messages.pk = client_attachments.message_pk
-    LEFT JOIN client_attachment_store_keys
-        ON client_attachments.content_token = client_attachment_store_keys.content_token
-    LEFT JOIN _user_info
-        ON client_messages.sender_contact_pk = _user_info.facebook_user_id
-    ORDER BY client_messages.display_ts_ms ASC
-    """
-
     if database_files_found:
         for file_found in database_files_found:
+            query = _client_messages_query(
+                does_table_exist_in_db(file_found, FB_TRANSPORT_CONTACTS)
+            )
             db_records = get_sqlite_db_records(file_found, query)
             for record in db_records:
                 timestamp = ""
