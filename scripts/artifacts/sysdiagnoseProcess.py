@@ -17,6 +17,7 @@ __artifacts_v2__ = {
     }
 }
 
+
 @artifact_processor
 def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
@@ -61,34 +62,31 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                     else:
                         roots.append(pid)
 
-                # 3. Fonction récursive pour générer les lignes de l'arbre (avec couleurs)
+                # 3. Fonction récursive pour générer les lignes de l'arbre (badges Bootstrap/MDB, cohérent avec la DA iLEAPP)
                 def colorize_user(user):
-                    colors = {
-                        'root': '#e74c3c',      # rouge
-                        'mobile': '#3498db',    # bleu
+                    badge_classes = {
+                        'root': 'badge-danger',
+                        'mobile': 'badge-primary',
                     }
-                    color = colors.get(user, '#f39c12')  # orange par défaut pour les autres users système
-                    return f"<span style='color:{color}; font-weight:bold;'>[{user}]</span>"
+                    badge_class = badge_classes.get(user, 'badge-warning')  # autres users système
+                    return f"<span class='badge {badge_class}'>{user}</span>"
 
                 def colorize_command(command):
-                    # Sépare l'exécutable de ses paramètres (premier espace non protégé)
+                    # Sépare l'exécutable de ses paramètres (premier espace)
                     parts = command.split(' ', 1)
                     exe = parts[0]
                     params = parts[1] if len(parts) > 1 else ''
 
-                    exe_html = f"<span style='color:#e0e0e0;'>{exe}</span>"
                     if params:
-                        params_html = f" <span style='color:#2ecc71;'>{params}</span>"
-                    else:
-                        params_html = ''
-                    return exe_html + params_html
+                        return f"{exe} <span class='text-success'>{params}</span>"
+                    return exe
 
                 tree_lines = []
                 def build_tree_string(pid, prefix=""):
                     if pid not in processes:
                         return
                     p = processes[pid]
-                    pid_html = f"<span style='color:#888;'>(PID: {p['pid']})</span>"
+                    pid_html = f"<span class='text-muted'>(PID: {p['pid']})</span>"
                     user_html = colorize_user(p['user'])
                     cmd_html = colorize_command(p['command'])
                     tree_lines.append(f"{prefix}├── {pid_html} {user_html} {cmd_html}")
@@ -101,15 +99,8 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
 
                 full_tree_text = "\n".join(tree_lines)
 
-                # Encapsulation HTML pour conserver l'affichage exact
-                html_formatted_tree = (
-                    "<pre style=\"font-family:'Consolas','Menlo',monospace; "
-                    "font-size:13px; line-height:1.5; margin:0; padding:12px; "
-                    "background:#1e1e1e; color:#ddd; border-radius:6px; "
-                    "overflow-x:auto;\">"
-                    f"{full_tree_text}"
-                    "</pre>"
-                )
+                # Encapsulation HTML : <pre> nu, sans style codé en dur, pour hériter du thème clair/sombre du rapport
+                html_formatted_tree = f"<pre class='mb-0'>{full_tree_text}</pre>"
                 data_list.append([html_formatted_tree])
 
             except Exception as e:
