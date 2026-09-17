@@ -64,7 +64,7 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                         'root': 'badge-danger',
                         'mobile': 'badge-primary',
                     }
-                    badge_class = badge_classes.get(user, 'badge-warning')  # autres users système
+                    badge_class = badge_classes.get(user, 'badge-warning') 
                     return f"<span class='badge {badge_class}'>{user}</span>"
 
                 tree_lines = []
@@ -74,7 +74,6 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                     p = processes[pid]
                     pid_html = f"<span class='text-muted'>(PID: {p['pid']})</span>"
                     user_html = colorize_user(p['user'])
-                    # La commande est affichée de manière brute sans coloration spécifique des paramètres
                     tree_lines.append(f"{prefix}├── {pid_html} {user_html} {p['command']}")
                     for child_pid in p['children']:
                         build_tree_string(child_pid, prefix + "│   ")
