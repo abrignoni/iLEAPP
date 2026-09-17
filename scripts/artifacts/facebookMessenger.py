@@ -164,7 +164,25 @@ __artifacts_v2__ = {
         "disagreement. Where a store carries no fb_transport_contacts table, or no mapping row for a "
         "sender, the raw sender_contact_pk is used as the Facebook user id; neither branch is "
         "exercised by these corpora, where all 9 stores carry the table and 0 of the 114 rows lack a "
-        "mapping row.",
+        "mapping row."
+        " Attachment Name is read from client_attachments.filename and is blank on every row "
+        "reported. The column is present in the schema of all 16 msys stores carrying a "
+        "client_messages table, the 9 with rows included, and it holds no value on any of the 20 "
+        "rows that carry a client_attachments record. No other name for these attachments is "
+        "recorded in the stores this artifact reads: across every table of all 16 stores, 67 "
+        "columns hold a value shaped like a file name, and each one holds a remote address, an "
+        "app asset name, or the persisted path described next. The last component of "
+        "client_attachment_store_keys.persisted_path, reported in Attachment Persisted Path, is "
+        "the media bank's own name for the stored copy, att. or prev. followed by the value the "
+        "app's own sidecar labels the plaintext hash and an extension, on all 14 recorded paths. "
+        "On 13 of the 15 staged media files that value equals the base64url SHA-256 of the stored "
+        "bytes, so the path names the stored copy rather than the file as it was sent, and it is "
+        "not repeated here as a name. The per-attachment sidecars and message records the app "
+        "keeps in the same TAMStorage folder as the media bank were read as well, 65 records "
+        "across 5 corpora carrying 79 distinct field names between them, and none of those fields "
+        "is a file name. 11 of the 20 attachment records carry a mime type and every one of those "
+        "is an image type, the other 9 record none, so whether an attachment of another kind "
+        "fills the column is not established here and the column is kept rather than dropped.",
         "paths": (
             "*/lightspeed-userDatabases/*.db*",
             "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
