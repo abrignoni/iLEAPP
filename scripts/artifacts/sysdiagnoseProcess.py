@@ -29,7 +29,6 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                 processes = {}
                 roots = []
 
-                # 1. Lecture et structuration des données
                 with open(file_found, 'r', encoding='utf-8', errors='ignore') as f:
                     for line in f:
                         if line.startswith("USER") or not line.strip():
@@ -53,7 +52,6 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                             except ValueError:
                                 continue
 
-                # 2. Liaison des parents et des enfants
                 for pid, pdata in processes.items():
                     ppid = pdata['ppid']
                     if ppid in processes:
@@ -61,7 +59,6 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                     else:
                         roots.append(pid)
 
-                # 3. Fonction récursive pour générer les lignes de l'arbre (badges Bootstrap/MDB, cohérent avec la DA iLEAPP)
                 def colorize_user(user):
                     badge_classes = {
                         'root': 'badge-danger',
@@ -82,13 +79,11 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                     for child_pid in p['children']:
                         build_tree_string(child_pid, prefix + "│   ")
 
-                # Génération de l'arbre global
                 for root_pid in roots:
                     build_tree_string(root_pid)
 
                 full_tree_text = "\n".join(tree_lines)
 
-                # Encapsulation HTML : <pre> nu, sans style codé en dur, pour hériter du thème clair/sombre du rapport
                 html_formatted_tree = f"<pre class='mb-0'>{full_tree_text}</pre>"
                 data_list.append([html_formatted_tree])
 
