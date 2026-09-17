@@ -3,7 +3,7 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 __artifacts_v2__ = {
     "sysdiagnoseProcess": {
         "name": "Sysdiagnose Process",
-        "description": "Vue hiérarchique des processus (arbre parent/enfant) extraite de ps.txt / ps_thread.txt",
+        "description": "Hierarchical view of processes (parent/child tree) extracted from ps.txt / ps_thread.txt",
         "author": "@mathisdesaulty",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-17",
