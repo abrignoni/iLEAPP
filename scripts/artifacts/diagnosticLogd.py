@@ -83,7 +83,6 @@ def diagnosticLogdEvents(context):
         "PID",
         "Log Message",
         "Line Number",
-        "Source File",
     )
     data_list = []
     sources = []
@@ -96,7 +95,7 @@ def diagnosticLogdEvents(context):
                 for line_number, line in enumerate(log_file, 1):
                     parsed = _parse_logd_line(line)
                     if parsed:
-                        data_list.append((*parsed, line_number, relative_path))
+                        data_list.append((*parsed, line_number))
         except OSError as ex:
             logfunc(f"Failed to read diagnostic log {relative_path}: {ex}")
             continue
