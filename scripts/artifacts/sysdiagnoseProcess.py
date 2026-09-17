@@ -70,16 +70,6 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                     badge_class = badge_classes.get(user, 'badge-warning')  # autres users système
                     return f"<span class='badge {badge_class}'>{user}</span>"
 
-                def colorize_command(command):
-                    # Sépare l'exécutable de ses paramètres (premier espace)
-                    parts = command.split(' ', 1)
-                    exe = parts[0]
-                    params = parts[1] if len(parts) > 1 else ''
-
-                    if params:
-                        return f"{exe} <span class='text-success'>{params}</span>"
-                    return exe
-
                 tree_lines = []
                 def build_tree_string(pid, prefix=""):
                     if pid not in processes:
@@ -87,8 +77,8 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                     p = processes[pid]
                     pid_html = f"<span class='text-muted'>(PID: {p['pid']})</span>"
                     user_html = colorize_user(p['user'])
-                    cmd_html = colorize_command(p['command'])
-                    tree_lines.append(f"{prefix}├── {pid_html} {user_html} {cmd_html}")
+                    # La commande est affichée de manière brute sans coloration spécifique des paramètres
+                    tree_lines.append(f"{prefix}├── {pid_html} {user_html} {p['command']}")
                     for child_pid in p['children']:
                         build_tree_string(child_pid, prefix + "│   ")
 
