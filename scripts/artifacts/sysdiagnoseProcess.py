@@ -17,7 +17,6 @@ __artifacts_v2__ = {
     }
 }
 
-
 @artifact_processor
 def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_offset):
     data_list = []
