@@ -1,44 +1,112 @@
 __artifacts_v2__ = {
     "facebookMessengerCalls": {
         "name": "Facebook Messenger - Calls",
-        "description": "Extract call history from Facebook Messenger.",
+        "description": "Call events from the Facebook Messenger msys mailbox, with the recorded time, the "
+        "caller's name and id and the call type and duration text as stored.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
-        "last_update_date": "2025-04-09",
+        "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "",
-        "paths": ("*/lightspeed-userDatabases/*.db*",),
+        "notes": "Read from both containers that hold Messenger's msys mailbox: "
+        "lightspeed-userDatabases in the shared app group group.com.facebook.Messenger, and "
+        "cask/<account id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the "
+        "shared app group group.com.facebook.Facebook. Both group identifiers were read from "
+        "those groups' own container metadata on the tested images. Records identical in "
+        "every reported value are merged into one row whose Source File cell lists each file "
+        "they were found in; records differing in any value are reported separately, so one "
+        "held in both copies can still appear twice when a volatile value differs between "
+        "them, which on the tested images is the profile picture URL because it carries a "
+        "per-fetch token. Of the 25 registered corpora run, 4 carry the Facebook app's copy "
+        "and no lightspeed copy, and 2 of those 4 (hexordia_ios1651, iphone12_ios18) have no "
+        "Messenger app bundle on the image at all.",
+        "paths": (
+            "*/lightspeed-userDatabases/*.db*",
+            "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
+        ),
         "output_types": "standard",
         "artifact_icon": "phone-call",
         "sample_data": {
-            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 0 rows",
-            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 20 rows",
-            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 0 rows",
             "abe_ios16": "iOS 16.5 | Messenger 414.0 | 0 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Messenger 408.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | Messenger 570.0.0 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Messenger 405.0 | 4 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 20 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
         },
     },
     "facebookMessengerChats": {
         "name": "Facebook Messenger - Chats",
-        "description": "Messages from the thread_messages table of the Facebook Messenger "
-                       "lightspeed user database, with direction, sender, text, attachment name "
-                       "and size and the thread id.",
+        "description": "Messages from the thread_messages view of the Facebook Messenger msys mailbox, with "
+        "direction, sender, text, attachment name and size and the thread id.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
-        "last_update_date": "2025-08-27",
+        "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "",
-        "paths": ("*/lightspeed-userDatabases/*.db*",),
+        "notes": "Read from both containers that hold Messenger's msys mailbox: "
+        "lightspeed-userDatabases in the shared app group group.com.facebook.Messenger, and "
+        "cask/<account id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the "
+        "shared app group group.com.facebook.Facebook. Both group identifiers were read from "
+        "those groups' own container metadata on the tested images. Records identical in "
+        "every reported value are merged into one row whose Source File cell lists each file "
+        "they were found in; records differing in any value are reported separately, so one "
+        "held in both copies can still appear twice when a volatile value differs between "
+        "them, which on the tested images is the profile picture URL because it carries a "
+        "per-fetch token. Of the 25 registered corpora run, 4 carry the Facebook app's copy "
+        "and no lightspeed copy, and 2 of those 4 (hexordia_ios1651, iphone12_ios18) have no "
+        "Messenger app bundle on the image at all.",
+        "paths": (
+            "*/lightspeed-userDatabases/*.db*",
+            "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
+        ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "sample_data": {
+            "abe_ios16": "iOS 16.5 | Messenger 414.0 | 25 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Messenger 408.1 | 13 rows",
             "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | Messenger 570.0.0 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 17 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Messenger 405.0 | 10 rows",
             "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 90 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
             "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 0 rows",
-            "abe_ios16": "iOS 16.5 | Messenger 414.0 | 24 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
         },
         "data_views": {
             "conversation": {
@@ -48,32 +116,75 @@ __artifacts_v2__ = {
                 "directionSentValue": "Sent",
                 "timeColumn": "Timestamp",
                 "senderColumn": "Sender Name",
-            }
+            },
         },
     },
     "facebook_messenger_client_chats": {
         "name": "Facebook Messenger - Client Messages",
-        "description": "Messages from the client_messages table of the Facebook Messenger "
-                       "lightspeed user database, with direction, sender, text and the attachment "
-                       "image where its persisted file is present in the media bank.",
+        "description": "Messages from the client_messages table of the Facebook Messenger msys mailbox, with "
+        "direction, sender, the message text and the attachment image where its persisted "
+        "file is present in the media bank.",
         "author": "Sukochev",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "",
+        "notes": "All 114 client_messages rows across the 9 msys stores measured sit on a thread whose "
+        "client_threads.transport_key is AdvancedCrypto, and all 18 of those threads carry "
+        "Messenger's own end-to-end encryption notice as a message; where a row carries text, "
+        "that text is held in this table unencrypted. Read from both containers that hold "
+        "Messenger's msys mailbox: lightspeed-userDatabases in the shared app group "
+        "group.com.facebook.Messenger, and cask/<account "
+        "id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the shared app group "
+        "group.com.facebook.Facebook. Both group identifiers were read from those groups' own "
+        "container metadata on the tested images. Records identical in every reported value "
+        "are merged into one row whose Source File cell lists each file they were found in; "
+        "records differing in any value are reported separately, so one held in both copies "
+        "can still appear twice when a volatile value differs between them, which on the "
+        "tested images is the profile picture URL because it carries a per-fetch token. Of "
+        "the 25 registered corpora run, 4 carry the Facebook app's copy and no lightspeed "
+        "copy, and 2 of those 4 (hexordia_ios1651, iphone12_ios18) have no Messenger app "
+        "bundle on the image at all. Message Direction, Sender Name and Sender ID come from "
+        "joining client_messages.sender_contact_pk to contacts.id and to "
+        "_user_info.facebook_user_id. That column holds a Facebook user id on some stores and "
+        "a local contact key on others: measured across the 9 msys stores carrying "
+        "client_messages, the join resolves on 36 of 114 rows, on every row of 5 stores and "
+        "on no row of 4. Where it does not resolve the sender columns are blank and every row "
+        "reads Received, so Message Direction is not reliable on a row whose Sender Name is "
+        "blank. This predates the second container being read and is unchanged by it.",
         "paths": (
             "*/lightspeed-userDatabases/*.db*",
+            "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
             "*/lightspeed-TAMStorage/media_bank/AdvancedCrypto/*/persistent/*.jpg",
         ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
         "sample_data": {
-            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 5 rows",
-            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 10 rows",
-            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 44 rows",
-            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 9 rows",
             "abe_ios16": "iOS 16.5 | Messenger 414.0 | 0 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 17 rows",
+            "falken_ios26": "iOS 26.2.1 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Messenger 408.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 17 rows",
+            "hc_ios26": "iOS 26.5.2 | Messenger 570.0.0 | 2 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Messenger 405.0 | 12 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 44 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 22 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
         },
         "data_views": {
             "conversation": {
@@ -84,67 +195,173 @@ __artifacts_v2__ = {
                 "timeColumn": "Timestamp",
                 "senderColumn": "Sender Name",
                 "mediaColumn": "Image",
-            }
+            },
         },
     },
     "facebookMessengerSecretConversations": {
         "name": "Facebook Messenger - Secret Conversations",
-        "description": "Extract secret conversations from Facebook Messenger.",
+        "description": "Rows from the secure_messages table of the Facebook Messenger msys mailbox. The "
+        "message and attachment values are stored encrypted and are reported as stored.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
-        "last_update_date": "2025-04-10",
+        "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "",
-        "paths": ("*/lightspeed-userDatabases/*.db*",),
+        "notes": "Read from both containers that hold Messenger's msys mailbox: "
+        "lightspeed-userDatabases in the shared app group group.com.facebook.Messenger, and "
+        "cask/<account id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the "
+        "shared app group group.com.facebook.Facebook. Both group identifiers were read from "
+        "those groups' own container metadata on the tested images. Records identical in "
+        "every reported value are merged into one row whose Source File cell lists each file "
+        "they were found in; records differing in any value are reported separately, so one "
+        "held in both copies can still appear twice when a volatile value differs between "
+        "them, which on the tested images is the profile picture URL because it carries a "
+        "per-fetch token. Of the 25 registered corpora run, 4 carry the Facebook app's copy "
+        "and no lightspeed copy, and 2 of those 4 (hexordia_ios1651, iphone12_ios18) have no "
+        "Messenger app bundle on the image at all.",
+        "paths": (
+            "*/lightspeed-userDatabases/*.db*",
+            "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
+        ),
         "output_types": "standard",
         "artifact_icon": "lock",
         "sample_data": {
-            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 0 rows",
-            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 0 rows",
-            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 0 rows",
-            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 0 rows",
             "abe_ios16": "iOS 16.5 | Messenger 414.0 | 0 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 0 rows",
+            "falken_ios26": "iOS 26.2.1 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Messenger 408.1 | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | Messenger 570.0.0 | 0 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Messenger 405.0 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 0 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
         },
     },
     "facebookMessengerConversationGroups": {
         "name": "Facebook Messenger - Conversation Groups",
-        "description": "Extract conversation groups from Facebook Messenger.",
+        "description": "Conversation threads from the thread_participant_detail view of the Facebook "
+        "Messenger msys mailbox, with the thread key, the participants and the last activity "
+        "time.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
-        "last_update_date": "2025-04-10",
+        "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "",
-        "paths": ("*/lightspeed-userDatabases/*.db*",),
+        "notes": "Read from both containers that hold Messenger's msys mailbox: "
+        "lightspeed-userDatabases in the shared app group group.com.facebook.Messenger, and "
+        "cask/<account id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the "
+        "shared app group group.com.facebook.Facebook. Both group identifiers were read from "
+        "those groups' own container metadata on the tested images. Records identical in "
+        "every reported value are merged into one row whose Source File cell lists each file "
+        "they were found in; records differing in any value are reported separately, so one "
+        "held in both copies can still appear twice when a volatile value differs between "
+        "them, which on the tested images is the profile picture URL because it carries a "
+        "per-fetch token. Of the 25 registered corpora run, 4 carry the Facebook app's copy "
+        "and no lightspeed copy, and 2 of those 4 (hexordia_ios1651, iphone12_ios18) have no "
+        "Messenger app bundle on the image at all.",
+        "paths": (
+            "*/lightspeed-userDatabases/*.db*",
+            "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
+        ),
         "output_types": "standard",
         "artifact_icon": "brand-facebook",
         "sample_data": {
-            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 2 rows",
-            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 1 row",
-            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 4 rows",
-            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 2 rows",
             "abe_ios16": "iOS 16.5 | Messenger 414.0 | 6 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 2 rows",
+            "falken_ios26": "iOS 26.2.1 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Messenger 408.1 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 2 rows",
+            "hc_ios26": "iOS 26.5.2 | Messenger 570.0.0 | 1 row",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 1 row",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Messenger 405.0 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 4 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 3 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
         },
     },
     "facebookMessengerContacts": {
         "name": "Facebook Messenger - Contacts",
-        "description": "Extract contacts from Facebook Messenger.",
+        "description": "Contacts from the contacts table of the Facebook Messenger msys mailbox, with the "
+        "Facebook id, names and profile picture link as stored.",
         "author": "@stark4n6",
         "creation_date": "2021-03-03",
-        "last_update_date": "2025-04-09",
+        "last_update_date": "2026-09-17",
         "requirements": "none",
         "category": "Facebook Messenger",
-        "notes": "",
-        "paths": ("*/lightspeed-userDatabases/*.db*",),
+        "notes": "Read from both containers that hold Messenger's msys mailbox: "
+        "lightspeed-userDatabases in the shared app group group.com.facebook.Messenger, and "
+        "cask/<account id>/FBMessagingMailboxCaskStore/<n>/fb-msys-<account id>.db in the "
+        "shared app group group.com.facebook.Facebook. Both group identifiers were read from "
+        "those groups' own container metadata on the tested images. Records identical in "
+        "every reported value are merged into one row whose Source File cell lists each file "
+        "they were found in; records differing in any value are reported separately, so one "
+        "held in both copies can still appear twice when a volatile value differs between "
+        "them, which on the tested images is the profile picture URL because it carries a "
+        "per-fetch token. Of the 25 registered corpora run, 4 carry the Facebook app's copy "
+        "and no lightspeed copy, and 2 of those 4 (hexordia_ios1651, iphone12_ios18) have no "
+        "Messenger app bundle on the image at all.",
+        "paths": (
+            "*/lightspeed-userDatabases/*.db*",
+            "*/FBMessagingMailboxCaskStore/*/fb-msys-*.db*",
+        ),
         "output_types": "standard",
         "artifact_icon": "users",
         "sample_data": {
-            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 3 rows",
-            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 3 rows",
+            "abe_ios16": "iOS 16.5 | Messenger 414.0 | 14 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 0 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | Messenger 526.0.0 | 8 rows",
+            "falken_ios26": "iOS 26.2.1 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "fsfull002_ios17": "iOS 17.1 | Messenger 408.1 | 5 rows",
+            "hc_ios18_7": "iOS 18.7.8 | Messenger 557.0.0 | 5 rows",
+            "hc_ios26": "iOS 26.5.2 | Messenger 570.0.0 | 2 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 2 rows",
+            "hickman_ios13": "iOS 13.3.1 | 0 rows",
+            "hickman_ios14": "iOS 14.3 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | Messenger 405.0 | 2 rows",
             "iphone11_ios17": "iOS 17.3 | Messenger 468.1.0 | 3 rows",
-            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 6 rows",
-            "abe_ios16": "iOS 16.5 | Messenger 414.0 | 7 rows",
+            "iphone12_ios18": "iOS 18.7 | 1 row",
+            "iphone14plus_ios18": "iOS 18.0 | 0 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 0 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+            "otto_ios17": "iOS 17.5.1 | Messenger 471.0.0 | 13 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 0 rows",
         },
     },
 }
@@ -165,6 +382,7 @@ CLIENT_MESSAGES = "client_messages"
 CONTACTS = "contacts"
 THREAD_MESSAGES = "thread_messages"
 THREAD_PARTICIPANT_DETAIL = "thread_participant_detail"
+SECURE_MESSAGES = "secure_messages"
 
 
 def _database_files_with_view(context, view):
@@ -197,6 +415,26 @@ def _media_files(context):
     ]
 
 
+
+def _merge_duplicate_records(data_list):
+    """Collapse records read twice because the device carries two mailbox copies.
+
+    Messenger keeps the same msys mailbox under lightspeed-userDatabases and under
+    FBMessagingMailboxCaskStore. A record present in both is one record, so it is
+    reported once with every file it was found in listed in its Source File cell.
+    Records that differ in any reported value are left alone.
+    """
+    sources_by_record = {}
+    order = []
+    for record in data_list:
+        values, source = record[:-1], record[-1]
+        if values not in sources_by_record:
+            sources_by_record[values] = []
+            order.append(values)
+        if source not in sources_by_record[values]:
+            sources_by_record[values].append(source)
+    return [values + ("; ".join(sources_by_record[values]),) for values in order]
+
 def _source_path(context, files_found):
     if not files_found:
         return ""
@@ -218,6 +456,7 @@ def facebookMessengerCalls(context):
         "Sender ID",
         "Call Type",
         "Call Duration/Subtitle",
+        "Source File",
     )
 
     query = """
@@ -265,12 +504,13 @@ def facebookMessengerCalls(context):
                         sender_id,
                         call_type,
                         call_duration,
+                        context.get_relative_path(file_found),
                     )
                 )
 
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
     else:
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
 
 
 @artifact_processor
@@ -292,6 +532,7 @@ def facebookMessengerChats(context):
         "Title Text",
         "Subtitle Text",
         "Thread ID",
+        "Source File",
     )
 
     query = """
@@ -377,12 +618,13 @@ def facebookMessengerChats(context):
                         title_text,
                         subtitle_text,
                         thread_id,
+                        context.get_relative_path(file_found),
                     )
                 )
 
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
     else:
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
 
 
 @artifact_processor
@@ -406,6 +648,7 @@ def facebook_messenger_client_chats(context):
         "Attachment Name",
         "Attachment Size",
         "Attachment Persisted Path",
+        "Source File",
     )
 
     query = """
@@ -500,19 +743,20 @@ def facebook_messenger_client_chats(context):
                         attachment_name,
                         attachment_size,
                         attachment_persisted_path,
+                        context.get_relative_path(file_found),
                     )
                 )
 
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
     else:
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
 
 
 @artifact_processor
 def facebookMessengerSecretConversations(context):
     data_list = []
 
-    database_files_found = _database_files_with_table(context, CONTACTS)
+    database_files_found = _database_files_with_table(context, SECURE_MESSAGES)
     source_path = _source_path(context, database_files_found)
 
     data_headers = (
@@ -521,6 +765,7 @@ def facebookMessengerSecretConversations(context):
         "Sender Name",
         "Message (Encrypted)",
         "Attachment (Encrypted)",
+        "Source File",
     )
 
     query = """
@@ -562,12 +807,13 @@ def facebookMessengerSecretConversations(context):
                         sender_name,
                         message,
                         attachment,
+                        context.get_relative_path(file_found),
                     )
                 )
 
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
     else:
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
 
 
 @artifact_processor
@@ -581,6 +827,7 @@ def facebookMessengerConversationGroups(context):
         ("Timestamp (Last Activity)", "datetime"),
         "Thread Key",
         "Thread Participants",
+        "Source File",
     )
 
     query = """
@@ -615,12 +862,13 @@ def facebookMessengerConversationGroups(context):
                         timestamp,
                         thread_key,
                         thread_participants,
+                        context.get_relative_path(file_found),
                     )
                 )
 
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
     else:
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
 
 
 @artifact_processor
@@ -636,6 +884,7 @@ def facebookMessengerContacts(context):
         "Normalized Username",
         "Profile Pic URL",
         "Is App User",
+        "Source File",
     )
 
     query = """
@@ -674,9 +923,10 @@ def facebookMessengerContacts(context):
                         normalized_contact_name,
                         profile_picture_url,
                         is_app_user,
+                        context.get_relative_path(file_found),
                     )
                 )
 
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
     else:
-        return data_headers, data_list, source_path
+        return data_headers, _merge_duplicate_records(data_list), source_path
