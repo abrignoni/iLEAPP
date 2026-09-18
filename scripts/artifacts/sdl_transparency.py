@@ -36,7 +36,7 @@ __artifacts_v2__ = {
 import json
 import re
 from datetime import datetime, timezone
-from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files, logfunc
+from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 
 regex_pattern = re.compile(r"[Tt]ransparency\.log")
 

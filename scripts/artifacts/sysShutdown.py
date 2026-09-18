@@ -81,7 +81,7 @@ __artifacts_v2__ = {
 
 import re
 
-from scripts.ilapfuncs import artifact_processor, convert_ts_int_to_utc, logfunc, get_sysdiagnose_files
+from scripts.ilapfuncs import artifact_processor, convert_ts_int_to_utc, get_sysdiagnose_files
 
 
 # Directories Kaspersky's iShutdown research associates with mobile malware
