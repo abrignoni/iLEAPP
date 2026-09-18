@@ -25,7 +25,7 @@ its fields checked for internal consistency before it is reported CONFIRMED.
 
 Read-only throughout. Never writes to the image.
 """
-import os, re, struct, sys, datetime, json, time, uuid, zipfile, bisect, collections
+import os, re, struct, sys, datetime, json, time, uuid, zipfile, bisect, collections, itertools
 import array
 
 # ewfprobe is vendored beside this file (see vendored.json) so an EnCase/EWF
@@ -42,7 +42,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.29"
+QNXPROBE_VERSION = "1.30"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -622,6 +622,7 @@ QNX6_DIRENT_SIZE = 0x20
 QNX6_ROOT_INO    = 1
 QNX6_ROOTNODE    = dict(Inode=72, Longfile=232)   # offsets inside the superblock
 S_IFDIR, S_IFLNK = 0o040000, 0o120000
+S_IFMT, S_IFREG = 0o170000, 0o100000     # the format bits, and a regular file
 
 
 def _fmt_time(v):
@@ -2378,6 +2379,44 @@ def ntfs_time(v):
     return sec if -12219292800 < sec < 253402300799 else 0
 
 
+def _ntfs_file_names(attrs):
+    """[(parent reference, name)] for every name a record's $FILE_NAME gives it.
+
+    A record carries one $FILE_NAME per link, so a hard-linked file names every
+    directory it appears in. Each holds the parent's reference, which is a
+    record number in its low 48 bits and the sequence number the name was
+    written for in its top 16.
+
+    Namespace 2 is the 8.3 name of a file that also has a long one, indexed
+    beside it. Reporting both lists every such file twice, once under a name
+    nobody typed. Namespace 3 is a single entry serving as both, because the
+    name is already 8.3-legal, and is kept. Neither committed fixture carries a
+    namespace 2 name, because both were built on macOS, which writes POSIX
+    names: a real Windows volume is full of them (93,048 of 249,943 on one
+    7.4 GB acquisition), which is why this is exercised by a constructed
+    control in the self-test rather than only by a fixture.
+    """
+    out = []
+    for a in attrs:
+        if a.type != NTFS_FILE_NAME or not a.resident:
+            continue
+        v = a.value
+        if len(v) < 0x42:
+            continue
+        ref = struct.unpack_from("<Q", v, 0)[0]
+        nlen, namespace = v[0x40], v[0x41]
+        if namespace == 2:
+            continue
+        end = 0x42 + nlen * 2
+        if end > len(v):
+            continue                        # the record does not hold the name it declares
+        name = v[0x42:end].decode("utf-16-le", "replace")
+        if not name or name in (".", ".."):
+            continue
+        out.append((ref, name))
+    return out
+
+
 def _ntfs_std_times(attrs):
     """(created, modified, accessed) from a record's $STANDARD_INFORMATION, as
     Unix seconds, each 0 where the attribute is absent or too short to hold it.
@@ -2932,6 +2971,164 @@ class NtfsWalker:
         """
         return _ntfs_std_times(self._record(num))
 
+    # -- the whole volume in one pass --------------------------------------
+
+    # The record header's base file reference (low 48 bits of the eight bytes at
+    # 0x20). Non-zero means the record holds overflow attributes for the record
+    # it names and is not a file of its own.
+    _BASE_REF = 0x20
+
+    def listing(self):
+        """Every entry on the volume, built from $MFT in record order.
+
+        A tree walk learns a directory's children by reading its index, so it
+        reads an $INDEX_ALLOCATION block per directory and reaches MFT records
+        in directory order. Every record already carries its own $FILE_NAME,
+        which names it and names its parent, so the same listing can be built
+        from one sequential pass over $MFT with no index read at all.
+
+        Measured on a 7.4 GB Windows acquisition holding 156,894 entries: the
+        tree walk plus stamps() takes 3.54 s and this takes 1.07 s, and the
+        paths, kinds, sizes and all three dates are identical. Reading the
+        whole 130 MB $MFT is 0.13 s of that; the parse is the cost, not the
+        read.
+
+        Two things a scan of $MFT has to get right, and both fail quietly:
+
+        An **extension record** carries the FILE signature, is flagged in use,
+        and holds copies of its base record's $FILE_NAME. Counting it names
+        the same path a second time from a record with no $STANDARD_INFORMATION
+        behind it, so the dates come back empty. On that acquisition 4,665 of
+        126,976 records are extension records and they would have added 8,435
+        such rows, every one disagreeing with the real record on modified time.
+        They are skipped here on the base reference in the record header.
+
+        A **$FILE_NAME's parent reference carries the parent's sequence
+        number**, exactly as a directory index entry carries the child's. A
+        parent record that has since been freed and handed to another file
+        carries a different one, and resolving through it would file the entry
+        under whatever that record became. Those names are dropped. That guard
+        is the one thing here no image in the test set exercises: a stale
+        parent reference was looked for and not found on any of them, on
+        249,943 names of a 7.4 GB Windows acquisition among others. It is kept
+        because the same staleness on the child reference is real and measured
+        (see _index_entries, where it put an update installer under a browser
+        cache folder on one volume), and it is reported here as code present
+        and unexercised rather than as something proven.
+
+        Yields (path, record, mode, size, mtime, None) for every entry,
+        directories included. A record whose parent chain does not lead to the
+        root cannot be given a path and is left out, which is what a tree walk
+        does with it too. NTFS records instants, so there is never a stored
+        reading and the last element is always None.
+
+        **This asks the volume a different question from a tree walk, and on a
+        volume whose index and records disagree it gets a different answer.**
+        A tree walk reads what each directory says is in it; this reads what
+        each record says about itself. They agree exactly on a consistent
+        volume: 156,894 of 156,894 entries on a 7.4 GB Windows acquisition and
+        every entry of every committed fixture, on paths, kinds, sizes and all
+        three dates.
+
+        On a 49 GB Windows 11 acquisition they disagree on 4 of 313,652, and
+        neither reader is wrong. Three are files whose record names a parent
+        whose sequence number matches, while that parent's index holds only a
+        stale entry for the name, which _index_entries rightly refuses; a tree
+        walk reports nothing at those paths and this reports the file. In the
+        fourth the index and the record disagree on the name: the index files
+        record 3057 under HxCommAlwaysOnLog_Old.etl and the record's own
+        $FILE_NAME says HxCommAlwaysOnLog.etl. A Windows 10 acquisition shows
+        the first shape three times, all files in a Chrome profile. What put
+        these indexes and records out of step is not established: the volume's
+        own dirty flag is clear on both. Reconciling them would mean reading
+        the indexes, which is the work this exists to avoid; the difference is
+        reported here instead so a caller knows which question the answer
+        belongs to.
+        """
+        mft = self._data_attr(0)
+        if mft is None or not mft.runs:
+            return
+        total = mft.data_size // self.rec_size
+        if not total:
+            return
+
+        # One sequential pass. Each record is parsed once and kept in the cache
+        # entry(), stamps() and _seq() already read, so nothing below this line
+        # goes back to the image for it.
+        names = {}                                  # record -> [(parent, name)]
+        is_dir = {}
+        per_read = max(1, (1 << 20) // self.rec_size)
+        for first in range(0, total, per_read):
+            count = min(per_read, total - first)
+            raw = self._read_runs(mft.runs, count * self.rec_size,
+                                  first * self.rec_size)
+            for i in range(count):
+                num = first + i
+                rec = raw[i * self.rec_size:(i + 1) * self.rec_size]
+                if len(rec) < 0x30 or rec[:4] != NTFS_FILE:
+                    continue
+                flags = struct.unpack_from("<H", rec, 22)[0]
+                if not flags & NTFS_MFT_IN_USE:
+                    # _parse_attrs refuses a freed record too, so this is what
+                    # keeps the fixup and the parse off every free record
+                    # rather than what keeps a deleted file out of the listing.
+                    # deleted_files() is where a freed record is read on purpose.
+                    continue
+                if struct.unpack_from("<Q", rec, self._BASE_REF)[0] & 0xFFFFFFFFFFFF:
+                    continue                        # an extension record, not a file
+                fixed = _ntfs_fixup(rec, self.bps, NTFS_FILE)
+                if not fixed:
+                    continue
+                attrs = self._parse_attrs(fixed, self_ref=num)
+                if not attrs:
+                    continue
+                self._records[num] = attrs
+                is_dir[num] = bool(flags & NTFS_MFT_IS_DIR)
+                here = _ntfs_file_names(attrs)
+                if here:
+                    names[num] = here
+
+        # Second pass: turn each parent reference into a path. Only a directory
+        # can be one, and the root is the one record that has no path of its own.
+        # A directory has one name, so its own parent reference is the link in
+        # the chain. A file can have several, which is what a hard link is.
+        up_from = {num: here[0] for num, here in names.items()
+                   if is_dir.get(num) and num != NTFS_ROOT}
+        resolved = {NTFS_ROOT: ""}
+
+        def path_of(ref, depth=0):
+            """The path of the directory this reference names, or None when the
+            chain does not reach the root or the record it names was reused."""
+            num = ref & 0xFFFFFFFFFFFF
+            want_seq = ref >> 48
+            if want_seq:
+                got_seq = self._seq(num)
+                if got_seq is not None and want_seq != got_seq:
+                    return None
+            if num in resolved:
+                return resolved[num]
+            if depth > 64 or num not in up_from:
+                return None
+            resolved[num] = None                    # breaks a cycle in the chain
+            parent_ref, name = up_from[num]
+            above = path_of(parent_ref, depth + 1)
+            got = None if above is None else (f"{above}/{name}" if above else name)
+            resolved[num] = got
+            return got
+
+        for num, here in names.items():
+            if num == NTFS_ROOT:
+                continue
+            ent = self.entry(num)
+            if not ent:
+                continue
+            mode, size, mtime = ent
+            for ref, name in here:
+                base = path_of(ref)
+                if base is None:
+                    continue                        # no path to the root
+                yield (f"{base}/{name}" if base else name, num, mode, size, mtime, None)
+
     def free_extents(self, min_bytes=0):
         """[(byte offset, length)] for the runs of space the volume says are free.
 
@@ -3266,6 +3463,22 @@ APFS_TYPE_DSTREAM_ID  = 6
 APFS_TYPE_FILE_EXTENT = 8
 APFS_TYPE_DIR_REC     = 9
 
+# The record types a listing asks for, over and over, one object id at a time:
+# a directory's children, an inode, and the extended attribute that carries a
+# compressed file's real size. prime_records() reads all of them in one pass
+# over the tree's leaves. File extents are left out on purpose: only reading a
+# file's content needs them, a listing never asks, and on a volume of any size
+# they are the bulk of the tree.
+APFS_PRIMED_TYPES = frozenset((APFS_TYPE_INODE, APFS_TYPE_XATTR, APFS_TYPE_DIR_REC))
+
+# How many records prime_records() will hold for one volume before giving up on
+# it and leaving the tree to be searched the ordinary way. The table is a
+# Python object per record and per key, which is most of what it costs: the
+# 1,853,807 records of a 625,543-entry macOS volume are 155 MB of bytes and
+# about 900 MB of process. This cap is roughly twice that volume, so a volume
+# large enough to exhaust a machine is walked slowly instead of not at all.
+APFS_PRIME_MAX_RECORDS = 4_000_000
+
 APFS_INCOMPAT_CASE_INSENSITIVE          = 0x0000000000000001
 APFS_INCOMPAT_NORMALIZATION_INSENSITIVE = 0x0000000000000008
 
@@ -3477,6 +3690,7 @@ class ApfsWalker:
             raise ValueError("the container names no readable volume")
         self._state = {}
         self._current = None
+        self._primed = None                         # prime_records() fills it
         self._fext = None
         self._open_volume(0)
 
@@ -3524,6 +3738,11 @@ class ApfsWalker:
                                            | APFS_INCOMPAT_NORMALIZATION_INSENSITIVE)),
                 "case_insensitive": bool(incompat & APFS_INCOMPAT_CASE_INSENSITIVE),
                 "inodes": {},
+                # filled by prime_records(), and None until it is asked for
+                "primed": None,
+                # set when the volume held more records than the cap allows, so
+                # a second call does not pay for the same abandoned pass again
+                "prime_capped": False,
             }
             self._state[index] = got
         self._current = index
@@ -3533,6 +3752,7 @@ class ApfsWalker:
                                      base_oid=got["base_oid"])
         self._tree = got["tree"]
         self._inodes = got["inodes"]
+        self._primed = got["primed"]
         self._hashed_names = got["hashed"]
         self.case_insensitive = got["case_insensitive"]
         self.volume_name = self.volumes[index][2]
@@ -3744,9 +3964,76 @@ class ApfsWalker:
         return out
 
     # -- records -----------------------------------------------------------
+    def prime_records(self, max_records=APFS_PRIME_MAX_RECORDS):
+        """Read every volume's directory records, inodes and extended
+        attributes once, in one pass over the tree's leaves.
+
+        The tree is keyed on (object id, record type), so a lookup is a bisect
+        of the leaf list and a parse of the leaf it lands in. That is cheap on
+        its own and a listing does it several times per file, which means the
+        same leaf block is read and parsed again for every entry that happens
+        to live in it. Measured over the first 40,000 entries of a 32 GB macOS
+        acquisition: 216,889 searches, 5.4 per entry, and 88,566 leaf parses,
+        2.2 per entry, for 4.48 s of 5.19 s.
+
+        One ordered pass parses each leaf exactly once and answers every later
+        lookup from memory. Nothing else changes: listdir(), entry() and the
+        rest read the same records through the same code and only the route
+        they arrive by is different.
+
+        The cost is memory, roughly proportional to the number of files, and
+        it is worth it for a full listing and not for reading a few files. A
+        volume with more than ``max_records`` of them is left unprimed and
+        searched the ordinary way, so a volume too large to hold is slow rather
+        than fatal. Nothing calls this on its own; walk_all() does when it is
+        asked for a whole volume.
+
+        Returns the volume indexes it primed, which is what a test asserts
+        against and what tells a caller the cap was reached.
+        """
+        was = self._current
+        done = []
+        for index in range(len(self.volumes)):
+            state = self._state.get(index, {})
+            if state.get("primed") is not None:
+                done.append(index)
+                continue
+            if state.get("prime_capped"):
+                continue
+            try:
+                self._open_volume(index)
+            except Exception:                       # pylint: disable=broad-except
+                continue                            # identification says why
+            table, held = {}, 0
+            tree = self._tree
+            for _first, block in tree.leaves(_apfs_fs_key):
+                _flags, recs = tree.records(self.block(block))
+                for key, val in recs:
+                    k = _apfs_fs_key(key)
+                    if k is not None and k[1] in APFS_PRIMED_TYPES:
+                        table.setdefault(k, []).append((key, val))
+                        held += 1
+                if held > max_records:
+                    break
+            if held > max_records:
+                table = None                        # too large to hold; walk it
+                self._state[index]["prime_capped"] = True
+            self._state[index]["primed"] = table
+            self._primed = table
+            if table is not None:
+                done.append(index)
+        if was is not None and was != self._current:
+            self._open_volume(was)
+        return done
+
     def _records(self, oid, rtype):
         """Every file-system record of one object id and one record type."""
         want = (oid, rtype)
+        primed = self._primed
+        if primed is not None and rtype in APFS_PRIMED_TYPES:
+            for key, val in primed.get(want, ()):
+                yield key, val
+            return
         for key, val in self._tree.search(want, _apfs_fs_key):
             k = _apfs_fs_key(key)
             if k is None or k < want:
@@ -5567,6 +5854,74 @@ def collect(w, num, prefix="", depth=0, seen=None, out=None, times=None):
         else:
             out.append((path, ino, None, mtime))     # symlink or special
     return out
+
+
+def walk_all(w):
+    """Every entry under this volume, directories included, as
+    (path, node, mode, size, mtime, recorded).
+
+    ``collect()`` returns the regular files, which is what an extraction needs,
+    and reports them in tree order. A listing wants the directories as well,
+    and wants them quickly. A walker that can produce its whole tree from one
+    pass over its own records says so with a ``listing()`` method and this uses
+    it; a walker that can only make its lookups cheaper says so with
+    ``prime_records()``; anything else is walked the ordinary way.
+
+    ``recorded`` is the dates as the filesystem stores them, for FAT and exFAT,
+    which keep a wall-clock reading and no zone, and None for the rest.
+
+    **The order is not promised** and is not the same by both routes: a
+    walker's own ``listing()`` reports in the order its records sit in rather
+    than in tree order. Sort by path where the order matters. ``collect()``
+    is unchanged and still walks the tree, so nothing that relies on its order
+    is affected by this.
+
+    A fast route can also answer a slightly different question. NTFS is the
+    one that does: see ``NtfsWalker.listing``, which reads what each record
+    says about itself rather than what each directory says is in it. The two
+    agree on every consistent volume measured and differ on 4 entries of
+    313,652 on one acquisition whose directory indexes and records disagree.
+
+    A directory is decided here by the format bits of the mode rather than by
+    ``mode & S_IFDIR``, which ``collect()`` uses: the latter is also true of a
+    block device, whose format bits share that one. No image in the test set
+    carries one, which is why the two agree everywhere it has been measured.
+    """
+    fast = getattr(w, "listing", None)
+    if fast is not None:
+        for item in fast():
+            yield item
+        return
+    prime = getattr(w, "prime_records", None)
+    if prime is not None:
+        prime()
+    records = hasattr(w, "listdir_records")
+    seen = set()
+
+    def walk(node, prefix, depth):
+        if depth > 64:
+            return
+        key = node[0] if isinstance(node, tuple) else node
+        if key in seen:
+            return
+        seen.add(key)
+        if records:
+            listing = w.listdir_records(node)
+        else:
+            listing = [(name, ino, None) for name, ino in w.listdir(node)]
+        for name, ino, recorded in listing:
+            ent = w.entry(ino)
+            if not ent:
+                continue
+            mode, size, mtime = ent
+            path = f"{prefix}/{name}" if prefix else name
+            yield (path, ino, mode, size, mtime, recorded)
+            if mode & S_IFMT == S_IFDIR:
+                for item in walk(ino, path, depth + 1):
+                    yield item
+
+    for item in walk(w.root, "", 0):
+        yield item
 
 
 def apply_exclude(entries, exclude):
@@ -7542,13 +7897,89 @@ def _ntfs_listing_check(image_gz):
     return ("2026-09-11" in line), (line.strip() or "dir/mid.txt not listed")
 
 
+def _tree_walk_for_check(w):
+    """walk_all's generic route, forced, whatever the walker offers.
+
+    Written out here rather than reached by a flag so the comparison below is
+    against a second implementation of the traversal and not against the same
+    code with a branch turned off, which would agree with itself.
+    """
+    seen = set()
+
+    def walk(node, prefix, depth):
+        if depth > 64:
+            return
+        key = node[0] if isinstance(node, tuple) else node
+        if key in seen:
+            return
+        seen.add(key)
+        if hasattr(w, "listdir_records"):
+            listing = w.listdir_records(node)
+        else:
+            listing = [(n, i, None) for n, i in w.listdir(node)]
+        for name, ino, recorded in listing:
+            ent = w.entry(ino)
+            if not ent:
+                continue
+            mode, size, mtime = ent
+            path = f"{prefix}/{name}" if prefix else name
+            yield (path, mode, size, mtime, recorded)
+            if mode & S_IFMT == S_IFDIR:
+                for item in walk(ino, path, depth + 1):
+                    yield item
+
+    return walk(w.root, "", 0)
+
+
+def _walk_all_agreement(image_gz, break_it=None):
+    """Compare walk_all() against a walk of the directory tree, on a fixture.
+
+    Returns (volumes, rows, wrong, fast), where wrong counts every path only
+    one of them found, every path the fast route reported twice, and every
+    field the two disagree on. A walker that offers a fast route is the point
+    of the check; ``fast`` says whether one was taken, so a route that stops
+    being reached cannot pass by quietly turning into the slow one.
+
+    ``break_it`` is for the control: it is handed each walker and may return a
+    stand-in whose fast route is deliberately wrong, which must make this
+    report a non-zero ``wrong``. A comparison that has never reported one is
+    not evidence of anything.
+    """
+    import gzip, io as _io
+    with gzip.open(image_gz, "rb") as gz:
+        img = _io.BytesIO(gz.read())
+    found = rows = wrong = 0
+    fast = False
+    for vol in volumes(img, image_size(img)):
+        w = vol.get("walker")
+        if w is None:
+            continue
+        found += 1
+        tree = {}
+        for path, mode, size, mtime, recorded in _tree_walk_for_check(w):
+            tree[path] = (mode, size, mtime, recorded)
+        subject = break_it(w) if break_it else w
+        fast = fast or hasattr(subject, "listing") or hasattr(subject, "prime_records")
+        seen = {}
+        for path, _node, mode, size, mtime, recorded in walk_all(subject):
+            if path in seen:
+                wrong += 1                          # the same path reported twice
+            seen[path] = (mode, size, mtime, recorded)
+        rows += len(seen)
+        wrong += len(set(seen) - set(tree)) + len(set(tree) - set(seen))
+        for path in set(seen) & set(tree):
+            if seen[path] != tree[path]:
+                wrong += 1
+    return found, rows, wrong, fast
+
+
 def self_test():
     """Prove the detector reports BOTH ways before you trust a run.
 
     Builds three throwaway images in a temp directory, checks them, and removes
     the directory. Nothing outside that directory is touched.
     """
-    import tempfile, shutil
+    import tempfile, shutil, gzip
 
     # These two literals are deliberately NOT QNX6_MAGIC. A self-test that
     # builds its fixtures from the constant it is verifying is circular: it
@@ -9607,6 +10038,202 @@ def self_test():
             ok = False
         print(f"  [{'PASS' if cut_cond else 'FAIL'}] volumes() reports a volume the "
               f"image is too short for as missing bytes ({cut_detail})")
+
+        # walk_all() takes a faster route on the walkers that offer one. It has
+        # to report exactly what a walk of the directory tree reports, so every
+        # committed fixture is walked both ways and every field compared.
+        here = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "tests", "fixtures")
+        checked, all_rows, all_wrong, fast_seen = 0, 0, 0, []
+        for stem in ("ntfs-fixture", "apfs-fixture", "hfsplus-fixture",
+                     "ext4-sparse", "ext2-sparse", "fat32-deleted",
+                     "exfat-deleted", "f2fs-fixture"):
+            fix = os.path.join(here, stem + ".img.gz")
+            if not os.path.isfile(fix):
+                continue
+            try:
+                vols, rows, wrong, fast = _walk_all_agreement(fix)
+            except Exception as exc:                 # pylint: disable=broad-except
+                vols, rows, wrong, fast = 0, 0, 1, False
+                print(f"       {stem}: raised {type(exc).__name__}: {exc}")
+            checked += vols
+            all_rows += rows
+            all_wrong += wrong
+            if fast:
+                fast_seen.append(stem)
+        # A fixture that is not beside this file cannot be walked, and that is
+        # not a failure: a frozen build carries the script and not the test
+        # data, which is exactly how the other fixture checks here behave. A
+        # check that cannot run has to say so rather than report a defect.
+        if not checked:
+            print("  [SKIP] the fixtures are not beside this script, so walk_all() "
+                  "was not compared against a walk of the directory tree")
+        else:
+            wcond = all_rows and not all_wrong
+            if not wcond:
+                ok = False
+            print(f"  [{'PASS' if wcond else 'FAIL'}] walk_all() reports exactly what a "
+                  f"walk of the directory tree reports, on every committed fixture "
+                  f"({all_rows:,} entries over {checked} volume(s), {all_wrong} "
+                  f"disagreement(s); the fast route was taken on "
+                  f"{', '.join(fast_seen) or 'none'})")
+
+        # The fast routes have to be reached, not merely present. A change that
+        # leaves walk_all() correct by quietly falling back to the tree passes
+        # the comparison above and is still a regression, so the routes are
+        # asserted here: the MFT pass must report the volume, and the APFS
+        # prime must hold records and must stand down when capped.
+        apfs_fix2 = os.path.join(here, "apfs-fixture.img.gz")
+        ntfs_fix2 = os.path.join(here, "ntfs-fixture.img.gz")
+        if os.path.isfile(ntfs_fix2):
+            try:
+                with gzip.open(ntfs_fix2, "rb") as gz:
+                    nimg = io.BytesIO(gz.read())
+                nw = [v["walker"] for v in volumes(nimg, image_size(nimg)) if v.get("walker")][0]
+                n_from_mft = sum(1 for _ in nw.listing())
+                nfail = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                n_from_mft, nfail = 0, f" ({type(exc).__name__}: {exc})"
+            cond = n_from_mft > 0
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] the NTFS listing is built from "
+                  f"$MFT and not from the directory tree ({n_from_mft} entries"
+                  f" from one pass){nfail}")
+
+        if os.path.isfile(apfs_fix2):
+            try:
+                with gzip.open(apfs_fix2, "rb") as gz:
+                    aimg = io.BytesIO(gz.read())
+                aw = [v["walker"] for v in volumes(aimg, image_size(aimg)) if v.get("walker")][0]
+                primed = aw.prime_records()
+                held = sum(
+                    len(t) for i in primed
+                    for t in [aw._state[i]["primed"]] if t)   # pylint: disable=protected-access
+                # Every type a listing asks for has to be in the table, or the
+                # lookups it was built to answer go back to searching the tree.
+                # These three numbers are written out and are deliberately NOT
+                # APFS_PRIMED_TYPES: comparing the table against the same
+                # constant that filled it passes whatever that constant says,
+                # which is how narrowing it to inodes alone went unnoticed
+                # here. They are apfs_fs_key's record types for an inode, an
+                # extended attribute and a directory record.
+                WANT_PRIMED = {3, 4, 9}
+                kinds = {
+                    k[1] for i in primed
+                    for t in [aw._state[i]["primed"]] if t for k in t}  # pylint: disable=protected-access
+                missing_kinds = sorted(WANT_PRIMED - kinds)
+                # the same walker, asked again with a cap it cannot meet
+                with gzip.open(apfs_fix2, "rb") as gz:
+                    aimg2 = io.BytesIO(gz.read())
+                aw2 = [v["walker"] for v in volumes(aimg2, image_size(aimg2)) if v.get("walker")][0]
+                capped = aw2.prime_records(max_records=1)
+                capped_rows = sum(1 for _ in walk_all(aw2))
+                afail = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                primed, held, capped, capped_rows = [], 0, ["?"], 0
+                missing_kinds = [-1]
+                afail = f" ({type(exc).__name__}: {exc})"
+            cond = (bool(primed) and held > 0 and not missing_kinds
+                    and not capped and capped_rows > 0)
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] the APFS tree is primed in one "
+                  f"pass, and a volume over the cap is walked instead of held "
+                  f"({len(primed)} volume(s) primed holding {held} key(s) of "
+                  f"{3 - len(missing_kinds)} of 3 record type(s); capped: "
+                  f"{len(capped)} primed, {capped_rows} entries still "
+                  f"reported){afail}")
+
+        # Neither committed fixture holds a DOS 8.3 name or a padded
+        # $FILE_NAME, because both were built on macOS. A real Windows volume
+        # is full of the first (93,048 of 249,943 names on one acquisition), so
+        # the rules that handle them are exercised here on records built for
+        # the purpose rather than left to a fixture that cannot reach them.
+        def _fn(parent, seq, name, namespace, tail=b""):
+            v = bytearray(0x42)
+            struct.pack_into("<Q", v, 0, (seq << 48) | parent)
+            enc = name.encode("utf-16-le")
+            v[0x40] = len(name)
+            v[0x41] = namespace
+            attr = _NtfsAttr(NTFS_FILE_NAME, "", 0, True)
+            attr.value = bytes(v) + enc + tail
+            return attr
+
+        def _short(parent, name):
+            """A record that declares a longer name than it holds."""
+            a = _fn(parent, 1, name, 1)
+            a.value = a.value[:-4]
+            return a
+
+        name_cases = [
+            ("a long name is kept", [_fn(5, 1, "Microsoft.Ink.dll", 1)],
+             [(5, "Microsoft.Ink.dll")]),
+            ("its 8.3 twin is dropped", [_fn(5, 1, "MICROS~1.DLL", 2)], []),
+            ("a name that is already 8.3 is kept", [_fn(5, 1, "SETUP.EXE", 3)],
+             [(5, "SETUP.EXE")]),
+            ("both links of a hard-linked file are kept",
+             [_fn(7, 1, "http", 1), _fn(9, 1, "https", 1)],
+             [(7, "http"), (9, "https")]),
+            ("the DOS twin is dropped from beside its long name",
+             [_fn(5, 1, "LongName.txt", 1), _fn(5, 1, "LONGNA~1.TXT", 2)],
+             [(5, "LongName.txt")]),
+            ("a name the record is too short to hold is dropped",
+             [_short(5, "truncated.txt")], []),
+            ("padding after the name is not read as part of it",
+             [_fn(5, 1, "padded.txt", 1, b"\x00" * 6)], [(5, "padded.txt")]),
+            ("the sequence number rides in the top of the reference",
+             [_fn(0x1D419, 2, "x", 1)], [((2 << 48) | 0x1D419, "x")]),
+            (". and .. are not children", [_fn(5, 1, ".", 1), _fn(5, 1, "..", 1)], []),
+        ]
+        for label, attrs, want in name_cases:
+            try:
+                got = _ntfs_file_names(attrs)
+                # the reference is compared low-48 only except where the case
+                # is about the sequence number itself
+                if "sequence" not in label:
+                    got = [(r & 0xFFFFFFFFFFFF, n) for r, n in got]
+            except Exception as exc:                 # pylint: disable=broad-except
+                got = f"raised {type(exc).__name__}: {exc}"
+            cond = got == want
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] $FILE_NAME: {label}"
+                  + ("" if cond else f"  (got {got}, wanted {want})"))
+
+        # The control for that check. A fast route that drops one entry must
+        # make it report a disagreement; a comparison that has never reported
+        # one says nothing about the comparison.
+        def _drop_one(w):
+            real = getattr(w, "listing", None)
+            if real is None:
+                return w
+
+            class _ShortOne:
+                """The walker, with one entry missing from its fast route."""
+                def __init__(self, inner):
+                    self._inner = inner
+
+                def __getattr__(self, name):
+                    return getattr(self._inner, name)
+
+                def listing(self):
+                    return itertools.islice(real(), 1, None)
+
+            return _ShortOne(w)
+
+        ntfs_only = os.path.join(here, "ntfs-fixture.img.gz")
+        if os.path.isfile(ntfs_only):
+            try:
+                _v, _r, broke_wrong, _f = _walk_all_agreement(ntfs_only, break_it=_drop_one)
+            except Exception:                        # pylint: disable=broad-except
+                broke_wrong = 0
+            ccond = broke_wrong > 0
+            if not ccond:
+                ok = False
+            print(f"  [{'PASS' if ccond else 'FAIL'}] and that comparison reports a "
+                  f"disagreement when the fast route drops an entry "
+                  f"({broke_wrong} found)")
 
         print()
         print("  SELF-TEST PASSED. The detector reports positives and negatives"
