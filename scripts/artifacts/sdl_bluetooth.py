@@ -4,11 +4,15 @@ __artifacts_v2__ = {
         "description": "Parses Bluetooth status from Sysdiagnose",
         "author": "@Hexordia",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/WiFi/bluetooth_status.txt','*/logs/Bluetooth/CoreCapture/bluetooth_status.txt',),
+        "paths": (
+            '*/WiFi/bluetooth_status.txt',
+            '*/logs/Bluetooth/CoreCapture/bluetooth_status.txt',
+            '*/sysdiagnose_*.tar.gz',
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "bluetooth"
     },
@@ -17,45 +21,48 @@ __artifacts_v2__ = {
         "description": "Parses Bluetooth devices from Sysdiagnose",
         "author": "@Hexordia",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "",
-        "paths": ('*/WiFi/bluetooth_status.txt','*/logs/Bluetooth/CoreCapture/bluetooth_status.txt',),
+        "paths": (
+            '*/WiFi/bluetooth_status.txt',
+            '*/logs/Bluetooth/CoreCapture/bluetooth_status.txt',
+            '*/sysdiagnose_*.tar.gz',
+        ),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "bluetooth"
     }
 }
 
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 
 @artifact_processor
 def bluetooth_status(context):
     data_list_bluetooth_status = []
     source_paths = set()
-    
-    files_found = context.get_files_found()
-    
-    for file_found in files_found:
-        source_name = str(context.get_relative_path(file_found))
-        
+
+    for file_obj, source_path in get_sysdiagnose_files(context.get_files_found(), "bluetooth_status.txt", text_mode=True, encoding='utf-8'):
+        source_name = str(context.get_relative_path(source_path))
+        if "/CoreCapture/" in source_path: # Skips duplicate files from "logs/Bluetooth/CoreCapture/"
+            continue
         # Bluetooth Status
-        if file_found.endswith('bluetooth_status.txt'):
-            source_paths.add(file_found)
-            with open(file_found, encoding='utf-8', mode='r') as f:
-                lines = f.readlines()[2:8]
-    
-                for line in lines:
-                    line = line.strip()
-                    if ': ' in line:
-                        item, value = line.split(': ', 1)
-                        item = item.strip()
-                        value = value.strip()
-                        
-                        if 'MAC Address' in item and value != 'None':
-                            value = str(value).upper()
-                        
-                        data_list_bluetooth_status.append((item, value, source_name))
+        if source_path.endswith('bluetooth_status.txt'):
+            source_paths.add(source_path)
+            
+            lines = file_obj.readlines()[2:8]
+
+            for line in lines:
+                line = line.strip()
+                if ': ' in line:
+                    item, value = line.split(': ', 1)
+                    item = item.strip()
+                    value = value.strip()
+                    
+                    if 'MAC Address' in item and value != 'None':
+                        value = str(value).upper()
+                    
+                    data_list_bluetooth_status.append((item, value, source_name))
 
     data_headers = ('Category', 'Value', 'Source File')
     return data_headers, data_list_bluetooth_status, '\n'.join(sorted(source_paths))
@@ -63,26 +70,25 @@ def bluetooth_status(context):
 
 @artifact_processor
 def bluetooth_devices(context):
-    def read_device_chunks(file_path, start_line=9):
+    def read_device_chunks(file, start_line=9):
         """Yields blocks of lines grouped by blank-line separation."""
-        with open(file_path, encoding='utf-8', mode='r') as file:
-            # Skip the initial header lines
-            for _ in range(start_line):
-                try:
-                    next(file)
-                except StopIteration:
-                    return
-            
-            chunk = []
-            for line in file:
-                stripped = line.strip()
-                if stripped:
-                    chunk.append(stripped)
-                elif chunk:
-                    yield chunk
-                    chunk = []
-            if chunk:
+        # Skip the initial header lines
+        for _ in range(start_line):
+            try:
+                next(file)
+            except StopIteration:
+                return
+        
+        chunk = []
+        for line in file:
+            stripped = line.strip()
+            if stripped:
+                chunk.append(stripped)
+            elif chunk:
                 yield chunk
+                chunk = []
+        if chunk:
+            yield chunk
 
     def process_chunks(file_path, source_name):
         """Extracts device names and key-value pairs safely from variable chunks."""
@@ -120,15 +126,15 @@ def bluetooth_devices(context):
             ))
     
     data_list_bt_device = []
-    source_paths = set()
-    files_found = context.get_files_found()
-    
-    for file_found in files_found:
-        source_name = str(context.get_relative_path(file_found))
-    
-        if file_found.endswith('bluetooth_status.txt'):
-            source_paths.add(file_found)
-            process_chunks(file_found, source_name)
+    source_paths = set()   
+    for file_obj, source_path in get_sysdiagnose_files(context.get_files_found(), "bluetooth_status.txt", text_mode=True, encoding='utf-8'):
+        source_name = str(context.get_relative_path(source_path))
+        if "/CoreCapture/" in source_path: # Skips duplicate files from "logs/Bluetooth/CoreCapture/"
+            continue
+            
+        if source_path.endswith('bluetooth_status.txt'):
+            source_paths.add(source_path)
+            process_chunks(file_obj, source_name)
     
     data_headers = (
         'Device Name',

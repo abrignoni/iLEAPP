@@ -8,7 +8,7 @@ __artifacts_v2__ = {
                        "Kaspersky's research associates with mobile malware",
         "author": "@KevinPagano3",
         "creation_date": "2024-02-13",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "The Location Indicator column marks processes running from /private/var/db/ "
@@ -18,7 +18,10 @@ __artifacts_v2__ = {
                  "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
                  "Legitimate software can also run from these paths, so a mark is a lead to "
                  "review, not a finding.",
-        "paths": ('*/shutdown*.log',),
+        "paths": (
+            '*/shutdown*.log',
+            '*/sysdiagnose_*.tar.gz',
+        ),
         "output_types": "standard",
         "artifact_icon": "power",
         "sample_data": {
@@ -43,7 +46,7 @@ __artifacts_v2__ = {
                        "the count of shutdown delay notices and the longest delay per reboot",
         "author": "@KevinPagano3",
         "creation_date": "2024-02-13",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": "Delay Notices counts the 'these clients are still here' messages logged "
@@ -53,7 +56,10 @@ __artifacts_v2__ = {
                  "devices "
                  "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
                  "Elevated counts also occur for benign reasons.",
-        "paths": ('*/shutdown*.log',),
+        "paths": (
+            '*/shutdown*.log',
+            '*/sysdiagnose_*.tar.gz',
+        ),
         "output_types": "standard",
         "artifact_icon": "refresh",
         "sample_data": {
@@ -75,14 +81,14 @@ __artifacts_v2__ = {
 
 import re
 
-from scripts.ilapfuncs import artifact_processor, convert_ts_int_to_utc, logfunc
+from scripts.ilapfuncs import artifact_processor, convert_ts_int_to_utc, logfunc, get_sysdiagnose_files
 
 
 # Directories Kaspersky's iShutdown research associates with mobile malware
 # (Pegasus, Reign, Predator ran from these; see the artifact notes). Legitimate
 # software can also live here, so matches are surfaced, not judged.
 INDICATOR_DIRS = ('/private/var/db/', '/private/var/tmp/')
-
+regex_pattern = re.compile(r"shutdown*\.log")
 
 def _path_indicator(path):
     for prefix in INDICATOR_DIRS:
@@ -104,14 +110,24 @@ def _parse_shutdown_logs(context):
     reboots = []
     sources = []
 
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        rel = context.get_relative_path(file_found)
+    for file_obj, source_path in get_sysdiagnose_files(context.get_files_found(), regex_pattern):
+        rel = context.get_relative_path(source_path)
         try:
-            with open(file_found, encoding='utf-8', mode='r') as fh:
-                lines = fh.readlines()
-        except OSError as ex:
-            logfunc(f'Failed to read shutdown log {file_found}: {ex}')
+            # Read the raw stream directly to avoid text-mode line ending corruption
+            if hasattr(file_obj, 'buffer'):
+                file_content = file_obj.buffer.read()
+            else:
+                file_content = file_obj.read()
+                
+            if not file_content:
+                continue
+                
+            # Decode bytes to a string for text processing
+            if isinstance(file_content, bytes):
+                file_content = file_content.decode('utf-8', errors='replace')
+                
+            lines = file_content.splitlines()[1:]
+        except Exception:
             continue
 
         entry_num = 1
