@@ -24,12 +24,17 @@ __artifacts_v2__ = {
 
 
 import os
+import struct
 from datetime import timezone
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import webkit_timestampsconv, artifact_processor
+from scripts.ilapfuncs import webkit_timestampsconv, artifact_processor, logfunc
 from scripts.html_safe import safe_source
+
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
+                  IndexError)
 
 @artifact_processor
 def get_biomeNotes(context):
@@ -66,7 +71,12 @@ def get_biomeNotes(context):
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                try:
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                except _DECODE_ERRORS as ex:
+                    logfunc(f'Biome Notes: could not decode record at offset '
+                            f'{record.data_start_offset} in {filename}: {ex}')
+                    continue
                 record_counter += 1
                 time = (webkit_timestampsconv(protostuff['3']))
                 identifier1 = protostuff['1']

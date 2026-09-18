@@ -39,11 +39,16 @@ __artifacts_v2__ = {
 
 
 import os
+import struct
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from datetime import timezone
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor
+from scripts.ilapfuncs import artifact_processor, logfunc
+
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
+                  IndexError)
 
 
 def _sync_origin(file_found):
@@ -81,7 +86,12 @@ def get_biomeBluetooth(context):
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                try:
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                except _DECODE_ERRORS as ex:
+                    logfunc(f'Biome Bluetooth: could not decode record at offset '
+                            f'{record.data_start_offset} in {filename}: {ex}')
+                    continue
                 
                 mac = protostuff['1'].decode()
                 if isinstance(protostuff['2'], dict):
