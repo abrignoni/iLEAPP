@@ -20,6 +20,9 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 2 rows",
             "hickman_ios13": "iOS 13.3.1 | 2 rows",
             "hickman_ios14": "iOS 14.3 | 5 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 14 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 1 row",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 5 rows",
         }
     }
 }
