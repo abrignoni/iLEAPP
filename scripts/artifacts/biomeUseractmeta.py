@@ -27,13 +27,18 @@ __artifacts_v2__ = {
 
 
 import os
+import struct
 from datetime import timezone
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, get_plist_content
+from scripts.ilapfuncs import artifact_processor, convert_time_obj_to_utc, get_plist_content, logfunc
 
 from datetime import datetime as _dt
+
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
+                  IndexError)
 
 def _safe_time_obj(value):
     """Set UTC tzinfo on datetime objects; pass strings/None through unchanged."""
@@ -64,7 +69,12 @@ def get_biomeUseractmeta(context):
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                try:
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data)
+                except _DECODE_ERRORS as ex:
+                    logfunc(f'Biome User Activity Metadata: could not decode record at offset '
+                            f'{record.data_start_offset} in {filename}: {ex}')
+                    continue
 
                 bplistdata = (protostuff['2'])
                 desc1 = (protostuff['4'].decode())

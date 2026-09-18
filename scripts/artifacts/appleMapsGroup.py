@@ -32,7 +32,11 @@ __artifacts_v2__ = {
 }
 
 from scripts import blackboxprotobuf
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
+from google.protobuf.message import DecodeError
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, logfunc
+
+_DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError,
+                  IndexError)
 
 @artifact_processor
 def appleMapsGroup(context):
@@ -59,10 +63,13 @@ def appleMapsGroup(context):
                                 '7': {'type': 'int', 'name': ''}},
                         'name': ''}
                 }    
-        internal_deserialized_plist, _ = blackboxprotobuf.decode_message(maps_activity, types)
-        latitude = (internal_deserialized_plist['1']['5']['Latitude'])
-        longitude = (internal_deserialized_plist['1']['5']['Longitude'])
-        data_list.append((latitude, longitude))
+        try:
+            internal_deserialized_plist, _ = blackboxprotobuf.decode_message(maps_activity, types)
+            latitude = (internal_deserialized_plist['1']['5']['Latitude'])
+            longitude = (internal_deserialized_plist['1']['5']['Longitude'])
+            data_list.append((latitude, longitude))
+        except _DECODE_ERRORS as ex:
+            logfunc(f'Apple Maps Group: could not decode MapsActivity: {ex}')
 
     data_headers = ('Latitude', 'Longitude')     
     return data_headers, data_list, source_path

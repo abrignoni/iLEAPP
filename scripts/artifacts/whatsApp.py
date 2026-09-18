@@ -136,6 +136,7 @@ __artifacts_v2__ = {
 
 
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 
 from pathlib import Path
 from scripts.ilapfuncs import (
@@ -415,7 +416,7 @@ def whatsAppMessages(context):
                         forwardedwhatsappid, fullname, phone = contact_records[0]
                         from_forward = f"{fullname} ({phone}) - ({forwardedwhatsappid})"
 
-            except (TypeError, ValueError, KeyError):
+            except (DecodeError, TypeError, ValueError, KeyError):
                 pass
 
         lon = record['ZLONGITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
