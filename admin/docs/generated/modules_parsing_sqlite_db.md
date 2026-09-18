@@ -116,6 +116,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | installHistory |
 | interactionCcontacts |
 | keyboard |
+| keyboardInputContexts |
 | keychain |
 | life360 |
 | line |
