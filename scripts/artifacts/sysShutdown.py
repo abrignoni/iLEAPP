@@ -11,13 +11,21 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "The Location Indicator column marks processes running from /private/var/db/ "
-                 "or /private/var/tmp/. Kaspersky's analysis of Pegasus, Reign and Predator "
-                 "infections found their processes (e.g. 'rolexd', 'libtouchregd') delaying "
-                 "reboot from these directories "
-                 "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
-                 "Legitimate software can also run from these paths, so a mark is a lead to "
-                 "review, not a finding.",
+        "notes": (
+            "The Location Indicator column marks processes running from /private/var/db/ or "
+            "/private/var/tmp/. Kaspersky's analysis of Pegasus, Reign and Predator infections "
+            "found their processes (e.g. 'rolexd', 'libtouchregd') delaying reboot from these "
+            "directories "
+            "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
+            "Legitimate software can also run from these paths, so a mark is a lead to review, not "
+            "a finding. The log is read from every file the paths match: the live shutdown.log and "
+            "the copy a packed sysdiagnose (sysdiagnose_*.tar.gz) holds under "
+            "system_logs.logarchive/Extra, named shutdown.log or shutdown.0.log on test data. A row "
+            "identical to one already reported from another copy is reported once, from the copy "
+            "read first; entry numbers restart per file. On the three test images holding packed "
+            "sysdiagnoses, every process row read from the packed copies repeated a row of the live "
+            "log (265, 295 and 172 rows), so the counts equal those from the live log alone."
+        ),
         "paths": (
             '*/shutdown*.log',
             '*/sysdiagnose_*.tar.gz',
@@ -37,6 +45,9 @@ __artifacts_v2__ = {
             "hickman_ios13": "iOS 13.3.1 | 537 rows",
             "hickman_ios14": "iOS 14.3 | 217 rows",
             "jess_ios15": "iOS 15.0.2 | 448 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 554 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 192 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
         }
     },
     "sysShutdownReboots": {
@@ -49,13 +60,21 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "Delay Notices counts the 'these clients are still here' messages logged "
-                 "before a reboot's SIGTERM. Kaspersky's research reports a handful per "
-                 "reboot as typical and treats counts above three or four as worth review, "
-                 "since processes resisting termination produced elevated counts on infected "
-                 "devices "
-                 "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
-                 "Elevated counts also occur for benign reasons.",
+        "notes": (
+            "Delay Notices counts the 'these clients are still here' messages logged before a "
+            "reboot's SIGTERM. Kaspersky's research reports a handful per reboot as typical and "
+            "treats counts above three or four as worth review, since processes resisting "
+            "termination produced elevated counts on infected devices "
+            "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
+            "Elevated counts also occur for benign reasons. The log is read from every file the "
+            "paths match: the live shutdown.log and the copy a packed sysdiagnose "
+            "(sysdiagnose_*.tar.gz) holds under system_logs.logarchive/Extra, named shutdown.log or "
+            "shutdown.0.log on test data. A row identical to one already reported from another copy "
+            "is reported once, from the copy read first; reboot numbers restart per file. On the "
+            "three test images holding packed sysdiagnoses, every reboot row read from the packed "
+            "copies repeated a row of the live log (23, 2 and 6 rows), so the counts equal those "
+            "from the live log alone."
+        ),
         "paths": (
             '*/shutdown*.log',
             '*/sysdiagnose_*.tar.gz',
@@ -75,20 +94,32 @@ __artifacts_v2__ = {
             "hickman_ios13": "iOS 13.3.1 | 3 rows",
             "hickman_ios14": "iOS 14.3 | 7 rows",
             "jess_ios15": "iOS 15.0.2 | 12 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 11 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 8 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 0 rows",
         }
     }
 }
 
 import re
+import tarfile
+import zlib
 
-from scripts.ilapfuncs import artifact_processor, convert_ts_int_to_utc, get_sysdiagnose_files
+from scripts.ilapfuncs import artifact_processor, convert_ts_int_to_utc, get_sysdiagnose_files, logfunc
 
 
 # Directories Kaspersky's iShutdown research associates with mobile malware
 # (Pegasus, Reign, Predator ran from these; see the artifact notes). Legitimate
 # software can also live here, so matches are surfaced, not judged.
 INDICATOR_DIRS = ('/private/var/db/', '/private/var/tmp/')
-regex_pattern = re.compile(r"shutdown*\.log")
+
+# The same files the '*/shutdown*.log' glob matches: the live log and the copy a
+# sysdiagnose keeps under system_logs.logarchive/Extra, named shutdown.log or, on iOS 26
+# test data, shutdown.0.log. In a regex a bare '*' would only repeat the 'n'.
+SHUTDOWN_LOG_RE = re.compile(r'shutdown[^/]*\.log$')
+
+_READ_ERRORS = (OSError, EOFError, tarfile.TarError, zlib.error)
+
 
 def _path_indicator(path):
     for prefix in INDICATOR_DIRS:
@@ -109,25 +140,19 @@ def _parse_shutdown_logs(context):
     processes = []
     reboots = []
     sources = []
+    # A packed sysdiagnose holds a copy of the live log as it stood when the sysdiagnose
+    # was taken, so a row identical to one already reported is reported once, from the
+    # first copy read. Entry and reboot numbers restart per file.
+    seen_processes = set()
+    seen_reboots = set()
 
-    for file_obj, source_path in get_sysdiagnose_files(context.get_files_found(), regex_pattern):
+    for file_obj, source_path in get_sysdiagnose_files(
+            context.get_files_found(), SHUTDOWN_LOG_RE, text_mode=False):
         rel = context.get_relative_path(source_path)
         try:
-            # Read the raw stream directly to avoid text-mode line ending corruption
-            if hasattr(file_obj, 'buffer'):
-                file_content = file_obj.buffer.read()
-            else:
-                file_content = file_obj.read()
-                
-            if not file_content:
-                continue
-                
-            # Decode bytes to a string for text processing
-            if isinstance(file_content, bytes):
-                file_content = file_content.decode('utf-8', errors='replace')
-                
-            lines = file_content.splitlines()[1:]
-        except Exception:
+            lines = file_obj.read().decode('utf-8', errors='replace').splitlines()
+        except _READ_ERRORS as ex:
+            logfunc(f'Failed to read shutdown log {rel}: {ex}')
             continue
 
         entry_num = 1
@@ -151,11 +176,16 @@ def _parse_shutdown_logs(context):
             sigterm_match = re.search(r'SIGTERM: \[(\d+)\]', line)
             if sigterm_match:
                 reboot_time = convert_ts_int_to_utc(int(sigterm_match.group(1)))
-                reboots.append((reboot_time, reboot_num, delay_notices, longest_delay, rel))
+                reboot = (reboot_time, reboot_num, delay_notices, longest_delay)
+                if reboot not in seen_reboots:
+                    seen_reboots.add(reboot)
+                    reboots.append(reboot + (rel,))
                 reboot_num += 1
                 for pid, path, delay in entries:
-                    processes.append((reboot_time, entry_num, pid, path, delay,
-                                      _path_indicator(path), rel))
+                    process = (reboot_time, entry_num, pid, path, delay, _path_indicator(path))
+                    if process not in seen_processes:
+                        seen_processes.add(process)
+                        processes.append(process + (rel,))
                     entry_num += 1
                 entries = []
                 current_delay = None

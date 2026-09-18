@@ -1,7 +1,7 @@
 """ See description below"""
 
 __artifacts_v2__ = {
-    "sdl_account_devices": {
+    "get_sysdiag_account_devices": {
         "name": "Sysdiagnose - Account Devices",
         "description": "Parses the otctl_status.txt file from Sysdiagnose logs, \
             to get informations about peers in the account's Octagon trust circle (iCloud Keychain syncing).",
@@ -20,6 +20,9 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 2 rows",
             "hickman_ios13": "iOS 13.3.1 | 2 rows",
             "hickman_ios14": "iOS 14.3 | 5 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 sysdiagnose | 14 rows",
+            "hc_ios26_sysdiag": "iOS 26 sysdiagnose | 1 row",
+            "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 5 rows",
         }
     }
 }
@@ -28,7 +31,7 @@ import json
 from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 
 @artifact_processor
-def sdl_account_devices(context):
+def get_sysdiag_account_devices(context):
     files_found = context.get_files_found()
     data_list = []
     sources = []
