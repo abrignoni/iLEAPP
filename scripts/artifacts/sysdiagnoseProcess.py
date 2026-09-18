@@ -4,8 +4,8 @@ from scripts.html_safe import esc
 __artifacts_v2__ = {
     "sysdiagnoseProcess": {
         "name": "Sysdiagnose Process",
-        "description": "Vue hiérarchique des processus (arbre parent/enfant) extraite de ps.txt / ps_thread.txt",
-        "author": "@mathis",
+        "description": "Hierarchical view of processes (parent/child tree) extracted from ps.txt / ps_thread.txt",
+        "author": "@mathisdesaulty",
         "creation_date": "2026-09-17",
         "last_update_date": "2026-09-17",
         "requirements": "none",
@@ -30,7 +30,6 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                 processes = {}
                 roots = []
 
-                # 1. Lecture et structuration des données
                 with open(file_found, 'r', encoding='utf-8', errors='ignore') as f:
                     for line in f:
                         if line.startswith("USER") or not line.strip():
@@ -54,7 +53,6 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                             except ValueError:
                                 continue
 
-                # 2. Liaison des parents et des enfants
                 for pid, pdata in processes.items():
                     ppid = pdata['ppid']
                     if ppid in processes:
@@ -62,13 +60,12 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                     else:
                         roots.append(pid)
 
-                # 3. Fonction récursive pour générer les lignes de l'arbre (badges Bootstrap/MDB, cohérent avec la DA iLEAPP)
                 def colorize_user(user):
                     badge_classes = {
                         'root': 'badge-danger',
                         'mobile': 'badge-primary',
                     }
-                    badge_class = badge_classes.get(user, 'badge-warning')  # autres users système ; badge_class est une constante fixe, pas besoin d'échapper
+                    badge_class = badge_classes.get(user, 'badge-warning')  
                     return f"<span class='badge {badge_class}'>{esc(user)}</span>"
 
                 tree_lines = []
@@ -76,19 +73,17 @@ def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_o
                     if pid not in processes:
                         return
                     p = processes[pid]
-                    pid_html = f"<span class='text-muted'>(PID: {esc(str(p['pid']))})</span>"  # int converti en str puis échappé pour satisfaire le checker statique
+                    pid_html = f"<span class='text-muted'>(PID: {esc(str(p['pid']))})</span>"  
                     user_html = colorize_user(p['user'])
                     tree_lines.append(f"{prefix}├── {pid_html} {user_html} {esc(p['command'])}")
                     for child_pid in p['children']:
                         build_tree_string(child_pid, prefix + "│   ")
 
-                # Génération de l'arbre global
                 for root_pid in roots:
                     build_tree_string(root_pid)
 
                 full_tree_text = "\n".join(tree_lines)
 
-                # Encapsulation HTML : <pre> nu, sans style codé en dur, pour hériter du thème clair/sombre du rapport
                 html_formatted_tree = f"<pre class='mb-0'>{full_tree_text}</pre>"
                 data_list.append([html_formatted_tree])
 
