@@ -72,6 +72,14 @@ class WhatsAppMetadataReaderTests(unittest.TestCase):
     def test_an_empty_blob_yields_nothing(self):
         self.assertEqual(_read_forward_fields(b''), ('', ''))
 
+    def test_a_value_that_is_not_a_blob_yields_nothing_and_does_not_raise(self):
+        # SQLite does not enforce column types, so ZMETADATA can hold text or a number.
+        # The previous decoder raised TypeError on a str, which the artifact caught; this
+        # reader walked the value as bytes and the artifact ended with no rows.
+        self.assertEqual(_read_forward_fields('not a blob'), ('', ''))
+        self.assertEqual(_read_forward_fields(7), ('', ''))
+        self.assertEqual(_read_forward_fields(bytearray(_field(17, 0, _varint(3)))), ('3', ''))
+
     def test_a_varint_with_the_top_bit_set_reads_as_the_signed_value(self):
         # matches the previous reader, which decoded field 17 as a signed 64-bit varint
         self.assertEqual(_read_forward_fields(_field(17, 0, _varint((1 << 64) - 1))), ('-1', ''))
