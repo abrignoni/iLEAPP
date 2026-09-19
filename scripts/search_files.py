@@ -385,7 +385,10 @@ class FileInfo:
     """
     A class to store file metadata information.
     Attributes:
-        source_path (str): The full path to the source file.
+        source_path (str): Where the file sits in the evidence: an archive
+            member name as stored, a path relative to the input directory, a
+            volume path inside a raw image, or the file name for a single-file
+            input. Never a path on the examiner's machine.
         creation_date (datetime): The date and time when the file was created.
         modification_date (datetime): The date and time when the file was last modified.
     """
@@ -477,23 +480,28 @@ class FileSeekerDir(FileSeekerBase):
         root = normcase("root/")
         for item in self._all_files:
             if pat(root + normcase(item)) is not None:
-                item_rel_path = item.replace(self.directory, '')
-                data_path = os.path.join(self.data_folder, item_rel_path[1:])
-                if is_platform_windows():
-                    data_path = data_path.replace('/', '\\')
+                # Relative to the input root, so the staged tree and the recorded
+                # source path do not depend on where the extraction sits on the
+                # examiner's machine, on a trailing separator in the input path or
+                # on the \\?\ prefix the entry points add on Windows. The former
+                # prefix slice dropped the first character of every staged path
+                # after a trailing separator, and every dot when the input was '.'.
+                item_rel_path = os.path.relpath(item, self.directory)
+                source_path = item_rel_path.replace('\\', '/')
+                data_path = os.path.join(self.data_folder, item_rel_path)
                 if item not in self.copied or force:
                     try:
                         if os.path.isdir(item):
                             pass
                         elif os.path.isfile(item):
                             data_path = self._unique_data_path(
-                                data_path, item, hash_source=item_rel_path)
+                                data_path, item, hash_source=source_path)
                             os.makedirs(os.path.dirname(data_path), exist_ok=True)
                             copy2(item, data_path)
                             self.copied[item] = data_path
                             creation_date = Path(item).stat().st_ctime
                             modification_date = Path(item).stat().st_mtime
-                            file_info = FileInfo(item, creation_date, modification_date)
+                            file_info = FileInfo(source_path, creation_date, modification_date)
                             self.file_infos[data_path] = file_info
                         else:
                             logfunc(f"INFO: Item '{item}' is neither a file nor a directory "
@@ -1087,7 +1095,9 @@ class FileSeekerFile(FileSeekerBase):
                     copy2(self.single_file_abs_path, dest_data_path)
                     self.copied[self.single_file_abs_path] = dest_data_path
                     s = Path(self.single_file_abs_path).stat()
-                    file_info_obj = FileInfo(self.single_file_abs_path, s.st_ctime, s.st_mtime)
+                    # The file name is all that places this input in the evidence;
+                    # the directory it came from is the examiner's, not the device's.
+                    file_info_obj = FileInfo(self.single_file_basename, s.st_ctime, s.st_mtime)
                     self.file_infos[dest_data_path] = file_info_obj
                     found_data_paths.append(dest_data_path)
                     # logfunc(f"FileSeekerFile: Matched and copied. Dest: {dest_data_path}")

@@ -48,3 +48,9 @@ jobs:
 
       - name: Open SQLite on a path longer than 260 characters
         run: python admin/test/scripts/test_sqlite_longpath_uri.py
+
+      # The entry points hand a directory input to the seeker with the extended-length
+      # prefix on Windows, so the recorded evidence path and the staged path are
+      # checked here with that prefix as well as without it.
+      - name: Stage from a directory input with and without the extended-length prefix
+        run: python admin/test/scripts/test_seeker_source_path.py
