@@ -54,7 +54,7 @@ _console_write = sys.stdout.write
 # common third party imports
 import pytz
 import simplekml
-from scripts.filetype import guess_mime, guess_extension
+from scripts.filetype import get_signature_bytes, guess_mime, guess_extension
 from functools import wraps
 
 # LEAPP version unique imports
@@ -379,8 +379,9 @@ def check_in_media(file_path, name="", converted_file_path=False, force_type=Non
     file_info = Context.get_seeker().file_infos.get(extraction_path)
     if file_info:
         media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
-        with open(extraction_path, "rb") as f:
-            file_data = f.read()
+        # Only the type sniffer reads media_data for a file on disk, and it looks at no more
+        # than the first 8,192 bytes, so read just those instead of the whole file.
+        file_data = get_signature_bytes(extraction_path)
         return _check_in_media(media_id, file_path, False, name, media_data=file_data, converted_file_path=converted_file_path,
                                force_type=force_type, force_extension=force_extension,
                                force_creation_date=force_creation_date, force_modification_date=force_modification_date)
