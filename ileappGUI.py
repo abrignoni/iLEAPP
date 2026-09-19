@@ -558,7 +558,9 @@ def process(casedata):
         input_frame.pack_forget()
         keychain_frame.pack_forget()
         logtext_frame.pack(padx=8, pady=4, expand=True, fill='both')
-        progress_bar_frame.pack(padx=2, pady=2, ipady=2, fill='x')
+        # Packed at the bottom, ahead of the log, so a window shorter than its contents
+        # shrinks the log instead of hiding the progress bar or the end-of-run buttons.
+        progress_bar_frame.pack(side='bottom', padx=2, pady=2, ipady=2, fill='x', before=logtext_frame)
 
         # Record history if enabled
         history.record_input_path(input_path)
@@ -1128,7 +1130,9 @@ main_window.bind("<Control-o>", lambda event: output_entry.focus_set()) # Focus 
 
 ### Process
 bottom_frame = ttk.Frame(main_window)
-bottom_frame.pack(padx=16, pady=6, fill='x')
+# Packed at the bottom, ahead of the module list, so a window shorter than its contents
+# (a larger system text size, a small screen) shrinks the list instead of hiding these buttons.
+bottom_frame.pack(side='bottom', padx=16, pady=6, fill='x', before=mlist_frame)
 process_button = ttk.Button(bottom_frame, text='Process', command=lambda: process(casedata))
 process_button.pack(side='left', padx=5)
 close_button = ttk.Button(bottom_frame, text='Close', command=main_window.quit)
