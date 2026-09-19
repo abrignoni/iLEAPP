@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Bundle IDs whose most recent installer-reported outcome in mobile_installation.log is a successful install",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-08-25",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone "
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
         "description": "Bundle IDs whose most recent installer-reported outcome in mobile_installation.log is an uninstall or container destruction",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-08-25",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone "
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "description": "Install, update, patch, uninstall, container and reboot events from mobile_installation.log",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-08-25",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt.",
@@ -123,7 +123,7 @@ __artifacts_v2__ = {
         "description": "Reboot events detected in mobile_installation.log",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-08-25",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time.",
@@ -154,7 +154,7 @@ __artifacts_v2__ = {
         "description": "Bundle IDs that mobile_installation.log mentions only through container or patch activity, with no installer-reported install or uninstall",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-25",
-        "last_update_date": "2026-08-25",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
         "notes": "Timestamps are reported as written in the log, which carries no timezone "
@@ -200,8 +200,9 @@ from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 
 _MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-# Replaces _TAR_MEMBER_RE to work universally with the helper function
-_LOG_MATCH_RE = re.compile(r"mobile_installation\.log(\.\d+)?$")
+# Anchored on a path segment, because a sysdiagnose archive can carry an AppleDouble
+# sidecar (._mobile_installation.log.0) beside a log.
+_LOG_MATCH_RE = re.compile(r"(?:^|/)mobile_installation\.log(\.\d+)?$")
 
 # Only an installer-reported outcome sets a bundle's state. Container bookkeeping is
 # written during installs, updates and cleanup alike, so it stays history only.
