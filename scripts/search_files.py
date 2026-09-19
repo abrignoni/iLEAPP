@@ -28,7 +28,7 @@ import hashlib
 import struct
 
 from pathlib import Path
-from shutil import copy2
+from shutil import copy2, copyfileobj
 from zipfile import ZipFile
 from fnmatch import _compile_pattern
 from functools import lru_cache
@@ -869,6 +869,15 @@ class FileSeekerZip(FileSeekerBase):
             Searches for files matching the specified pattern in the ZIP archive and extracts them if found.
         cleanup():
             Closes the ZIP file to free up resources.
+
+    A zip can store one member name more than once. A search matches each name
+    once. Entries repeating the same content (same CRC-32 and size) are staged
+    once, from the entry ZipFile resolves the name to. When the entries hold
+    different content, the entry recording the latest modification time is
+    staged under the name (the earlier entry on a tie), and every other
+    version is staged beside it as <name>~zip-entry-<N><ext>, N being the
+    entry's position in the archive, and logged. Those other versions are not
+    returned to artifacts, so an artifact reads one version of each name.
     """
 
     def __init__(self, zip_file_path, data_folder):
@@ -880,6 +889,74 @@ class FileSeekerZip(FileSeekerBase):
         self.copied = {}
         self.file_infos = {}
         self._init_dest_guard(self.data_folder)
+        self._search_names, self._chosen, self._other_versions = self._index_member_names()
+
+    def _index_member_names(self):
+        """Distinct member names, and how to stage a name stored more than once.
+
+        Returns the distinct names in archive order, the entry to stage under
+        each name whose copies differ, and the other versions of those names.
+        """
+        by_name = {}
+        for index, info in enumerate(self.zip_file.infolist()):
+            by_name.setdefault(info.filename, []).append((index, info))
+        chosen = {}
+        other_versions = {}
+        repeated = 0
+        for name, entries in by_name.items():
+            if len(entries) < 2:
+                continue
+            repeated += 1
+            if len({(info.CRC, info.file_size) for _, info in entries}) == 1:
+                continue
+            times = self._recorded_mtimes([info for _, info in entries])
+            # Latest recorded time wins; on a tie the earlier entry does.
+            pick = max(((stamp, -i), i) for i, stamp in enumerate(times))[1]
+            chosen[name] = entries[pick][1]
+            seen = {(entries[pick][1].CRC, entries[pick][1].file_size)}
+            for index, info in entries[:pick] + entries[pick + 1:]:
+                content = (info.CRC, info.file_size)
+                if content not in seen:
+                    seen.add(content)
+                    other_versions.setdefault(name, []).append((index, info))
+        if repeated:
+            versions = sum(len(v) for v in other_versions.values())
+            logfunc(f'INFO: {repeated} member name(s) are stored more than once in this archive. '
+                    f'{repeated - len(chosen)} repeat the same content (CRC-32 and size) and are '
+                    f'staged once. {len(chosen)} hold different content: the entry recording the '
+                    f'latest modification time is staged under the name, and {versions} other '
+                    f'version(s) are staged beside it as <name>~zip-entry-<N><ext>, N being the '
+                    f'entry\'s position in the archive. Artifacts read the version under the name.')
+        return list(by_name), chosen, other_versions
+
+    @staticmethod
+    def _recorded_mtimes(infos):
+        """Modification times recorded for entries of one name, on one clock.
+
+        Uses the extended timestamp (0x5455) when every entry carries one, else
+        the NTFS times (0x000a), else the DOS date and time, so entries are only
+        ever compared on the same clock.
+        """
+        def fields(info):
+            found = {}
+            extra, offset = info.extra, 0
+            while offset + 4 <= len(extra):
+                header_id, size = struct.unpack_from('<HH', extra, offset)
+                body = extra[offset + 4:offset + 4 + size]
+                if header_id == 0x5455 and len(body) >= 5 and body[0] & 1:
+                    found['unix'] = float(struct.unpack_from('<I', body, 1)[0])
+                elif header_id == 0x000a and len(body) >= 16:
+                    tag, tag_size = struct.unpack_from('<HH', body, 4)
+                    if tag == 1 and tag_size >= 8:
+                        found['ntfs'] = struct.unpack_from('<Q', body, 8)[0]
+                offset += 4 + size
+            found['dos'] = info.date_time
+            return found
+        recorded = [fields(info) for info in infos]
+        for clock in ('unix', 'ntfs', 'dos'):
+            if all(clock in r for r in recorded):
+                return [r[clock] for r in recorded]
+        return [r['dos'] for r in recorded]
 
     def decode_extended_timestamp(self, extra_data):
         """
@@ -920,23 +997,25 @@ class FileSeekerZip(FileSeekerBase):
         pathlist = []
         pat = _compile_pattern(normcase(filepattern))
         root = normcase("root/")
-        for member in self.name_list:
+        for member in self._search_names:
             if member.startswith("__MACOSX"):
                 continue
             if pat(root + normcase(member)) is not None:
                 if member not in self.copied or force:
+                    source = self._chosen.get(member, member)
                     try:
                         if member.endswith('/'):
                             # Case-variant directories fold into one on a
                             # case-insensitive volume; their files disambiguate
                             # individually, so directory members take no guard.
-                            extracted_path = self._extract_member(member)
+                            extracted_path = self._extract_member(member, source=source)
                         else:
                             intended = self._intended_extract_path(member)
                             extracted_path = self._extract_member(
                                 member,
-                                dest_path=self._unique_data_path(intended, member))
-                        f = self.zip_file.getinfo(member)
+                                dest_path=self._unique_data_path(intended, member),
+                                source=source)
+                        f = self.zip_file.getinfo(member) if source is member else source
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
                         file_info = FileInfo(member, creation_date, modification_date)
                         self.file_infos[extracted_path] = file_info
@@ -947,6 +1026,7 @@ class FileSeekerZip(FileSeekerBase):
                     except OSError as ex:
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
                         continue
+                    self._stage_other_versions(member)
                 else:
                     extracted_path = self.copied[member]
                 pathlist.append(extracted_path)
@@ -956,6 +1036,26 @@ class FileSeekerZip(FileSeekerBase):
         self.searched[filepattern] = pathlist
         return pathlist
 
+    def _stage_other_versions(self, member):
+        """Stage each other version of a name whose copies hold different content."""
+        for index, info in self._other_versions.get(member, ()):
+            base, ext = os.path.splitext(self._intended_extract_path(member))
+            dest_path = self._unique_data_path(
+                f'{base}~zip-entry-{index}{ext}', (member, index),
+                hash_source=f'{member}~zip-entry-{index}')
+            try:
+                parent = os.path.dirname(dest_path)
+                if parent:
+                    os.makedirs(parent, exist_ok=True)
+                with self.zip_file.open(info) as fin, open(dest_path, 'wb') as fout:
+                    copyfileobj(fin, fout)
+                date_time = timex.mktime(info.date_time + (0, 0, -1))
+                os.utime(dest_path, (date_time, date_time))
+                logfunc(f'INFO: {member} is stored more than once with different content; '
+                        f'entry {index} ({info.file_size} bytes) staged as {dest_path}')
+            except OSError as ex:
+                logfunc(f'Could not write file to filesystem, path was {member} (entry {index}) ' + str(ex))
+
     def _intended_extract_path(self, member):
         clean_member = sanitize_file_path(member)
         parts = [part for part in clean_member.replace('\\', '/').split('/')
@@ -964,7 +1064,7 @@ class FileSeekerZip(FileSeekerBase):
             return self.data_folder
         return os.path.join(self.data_folder, *parts)
 
-    def _extract_member(self, member, dest_path=None):
+    def _extract_member(self, member, dest_path=None, source=None):
         """Extract one member, sanitizing names ZipFile.extract() cannot write.
 
         ZipFile.extract() only replaces a fixed set of printable characters
@@ -974,21 +1074,25 @@ class FileSeekerZip(FileSeekerBase):
         names need sanitizing are written out manually to a cleaned path.
 
         dest_path, when given, is the already-disambiguated destination so a
-        later case-variant member cannot overwrite an earlier one.
+        later case-variant member cannot overwrite an earlier one. source,
+        when given, is the entry to read (a ZipInfo) for a name the archive
+        stores more than once; otherwise the name resolves as ZipFile resolves it.
         """
         intended = self._intended_extract_path(member)
         if dest_path is None:
             dest_path = intended
+        if source is None:
+            source = member
         clean_member = sanitize_file_path(member)
         if dest_path == intended and clean_member == member:
-            return self.zip_file.extract(member, path=self.data_folder)
+            return self.zip_file.extract(source, path=self.data_folder)
         if member.endswith('/'):
             os.makedirs(dest_path, exist_ok=True)
         else:
             parent = os.path.dirname(dest_path)
             if parent:
                 os.makedirs(parent, exist_ok=True)
-            with self.zip_file.open(member) as fin, open(dest_path, 'wb') as fout:
+            with self.zip_file.open(source) as fin, open(dest_path, 'wb') as fout:
                 fout.write(fin.read())
         return dest_path
 

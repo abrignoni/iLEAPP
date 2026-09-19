@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | 3 rows",
             "felix_ios17": "iOS 17.6.1 | 1 row",
-            "fsfull002_ios17": "iOS 17.1 | 2 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1 rows",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 0 rows",
             "iphone12_ios18": "iOS 18.7 | 6 rows",
