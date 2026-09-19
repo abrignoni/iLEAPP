@@ -68,6 +68,13 @@ closed and pinned in the test file:
 The framework helper that leaked the accounts artifacts lives in ilapfuncs.py and is
 outside this check's scope; that one is pinned by its own unit test.
 
+A fourth shape, 2026-09-19: a local path handed to `media_to_html` came back untracked.
+That helper returns its first argument unchanged unless it is a bare file name found in
+`files_found`, so a face crop written under the report folder and passed to it by full
+path reached the row verbatim. iLEAPP's Photos.sqlite face crop artifacts published the
+examiner's report folder that way, in 35 and 33 rows of two of them on otto_ios17.
+FIRST_ARG_PASSTHROUGH_CALLS carries the taint of that first argument through the call.
+
 Usage:
   check_report_local_paths.py [--root REPO_ROOT] [--verbose]
 
@@ -116,6 +123,12 @@ PASSTHROUGH_CALLS = {
 # Formatters that hand back a rewrapped copy of what they were given. A path put through
 # one of these is still that path, so the taint has to survive the call.
 REFORMATTING_CALLS = {'fill', 'shorten', 'indent', 'dedent'}
+
+# Framework helpers that hand back their FIRST argument unchanged when they cannot do
+# their job, mapped to that argument's keyword name. media_to_html only resolves a bare
+# file name that is in files_found; a path with a directory in it never equals the
+# basename it compares against, so it matches nothing and comes back verbatim.
+FIRST_ARG_PASSTHROUGH_CALLS = {'media_to_html': 'media_path'}
 
 # Calls and attributes that reduce a full path to something publishable.
 SANITIZERS = {
@@ -329,6 +342,10 @@ class FunctionScan:
             return False
         if self._strips_data_folder(node):
             return False
+        if name in FIRST_ARG_PASSTHROUGH_CALLS:
+            first = node.args[0] if node.args else next(
+                (k.value for k in node.keywords if k.arg == FIRST_ARG_PASSTHROUGH_CALLS[name]), None)
+            return self.is_tainted(first)
         # Wrappers and formatters that hand back whatever they were given. Reached as a
         # bare name (`Path(x)`) or through a module (`pathlib.Path(x)`,
         # `os.path.abspath(x)`, `textwrap.fill(x)`).
