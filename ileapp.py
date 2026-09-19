@@ -558,6 +558,7 @@ def crunch_artifacts(
                         continue  # cannot do work
                 try:
                     plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                    lava_commit()
                     if plugin.name == 'logarchive':
                         lava_db_path = os.path.join(out_params.output_folder_base, '_lava_artifacts.db')
                         if does_table_exist_in_db(lava_db_path, 'logarchive'):
@@ -579,6 +580,7 @@ def crunch_artifacts(
                     logfunc('{} [{}] artifact failed after {:.1f}s'.format(
                         plugin.name, plugin.module_name, plugin_elapsed))
                     lava_add_module(plugin.module_name, "Error", len(files_found), plugin.name)
+                    lava_commit()
                     continue  # nope
                 lava_add_module(plugin.module_name, "Complete", len(files_found), plugin.name)
             else:
