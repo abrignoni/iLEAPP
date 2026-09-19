@@ -66,13 +66,16 @@ __artifacts_v2__ = {
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
-        'last_update_date': '2026-09-18',
+        'last_update_date': '2026-09-19',
         'requirements': '',
         'category': 'WhatsApp',
         'notes': 'Metadata Field 17 and Metadata Field 21 are read off the ZMETADATA protobuf wire '
         'format by a reader that decodes those two fields and skips every other field by the '
         'length its wire type gives, so a blob it cannot walk yields what was read before '
-        'that point and does not stop the artifact. Field 17 is taken as a varint and Field '
+        'that point and does not stop the artifact. A ZMETADATA value stored as text or a '
+        'number, which SQLite permits, yields blank Metadata columns for that row; no tested '
+        'image holds one, so that branch is exercised by constructed input. Field 17 is '
+        'taken as a varint and Field '
         '21 as a UTF-8 string; the forward count and forwarder labels are observed and have '
         'no vendor source. On 10 of the tested images, 1,350 media item rows carry a metadata '
         'blob; Field 17 was present on 2 of them, both on the iOS 17.5.1 image, and Field 21 '
@@ -181,10 +184,15 @@ def _read_forward_fields(blob):
     UTF-8 string, the shapes observed on the tested images. A blob that ends
     inside a field, or that reaches a wire type this reader does not walk
     (groups, or an invalid value), yields whatever was read before that point.
+    A value that is not a blob yields nothing: SQLite does not enforce column
+    types, so ZMETADATA can hold text or a number, and the row keeps blank
+    forward columns instead of the artifact stopping.
     Wire format: https://protobuf.dev/programming-guides/encoding/
     """
     count = ''
     forwarder = ''
+    if not isinstance(blob, (bytes, bytearray)):
+        return count, forwarder
     pos = 0
     end = len(blob)
     try:
