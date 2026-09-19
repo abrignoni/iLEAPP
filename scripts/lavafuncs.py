@@ -206,6 +206,13 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None):
                         LEFT JOIN _lava_media_items as lmi ON lmr.media_item_id = lmi.id''')
 
 
+# Conversation view keys whose value is data rather than a column name. LAVA reads these two
+# as written and resolves every other key to a column, so the writer must not turn them into
+# a column's SQL name when the value happens to match a header, as a 'Sent' direction value
+# does beside a 'Sent' time column.
+CONVERSATION_VALUE_KEYS = ('directionSentValue', 'sentMessageStaticLabel')
+
+
 def lava_process_artifact(
         category,
         module_name,
@@ -310,8 +317,9 @@ def lava_process_artifact(
                 # Remap old keys to new keys
                 final_key = convert_map.get(key, key)
 
-                # Sanitize value if it's a column name, otherwise pass through
-                if value in column_names:
+                # Sanitize value if it's a column name, otherwise pass through. A value key
+                # carries data, so it passes through even when it equals a column name.
+                if final_key not in CONVERSATION_VALUE_KEYS and value in column_names:
                     sanitized_params[final_key] = sanitize_sql_name(value)
                 else:
                     sanitized_params[final_key] = value
