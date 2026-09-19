@@ -376,10 +376,14 @@ def main():
     history.record_input_path(input_path)
     history.record_output_path(output_path)
 
-    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
+    crunch_successful = crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
         profile_filename, itunes_backup_password)
 
     lava_finalize_output(out_params.output_folder_base)
+    if crunch_successful:
+        # _lava_data.lava exists only after finalize; recording earlier is a no-op.
+        lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
+        history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -638,10 +642,6 @@ def crunch_artifacts(
 
         report.generate_report(out_params.output_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
         logfunc('Report generation Completed.')
-
-        # Record the run in history
-        lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
-        history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
         logfunc('')
         logfunc(f'Report location: {out_params.output_folder_base}')
