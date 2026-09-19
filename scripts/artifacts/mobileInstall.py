@@ -30,7 +30,7 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 63 rows",
             "jess_ios15": "iOS 15.0.2 | 38 rows",
             "abe_ios16": "iOS 16.5 | 45 rows",
-            "felix23_ios16": "iOS 16.5 | 53 rows",
+            "felix23_ios16": "iOS 16.5 | 56 rows",
             "magnet_ios16": "iOS 16.1.1 | 64 rows",
             "felix_ios17": "iOS 17.6.1 | 54 rows",
             "fsfull002_ios17": "iOS 17.1 | 55 rows",
@@ -74,7 +74,7 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 27 rows",
             "jess_ios15": "iOS 15.0.2 | 5 rows",
             "abe_ios16": "iOS 16.5 | 0 rows",
-            "felix23_ios16": "iOS 16.5 | 17 rows",
+            "felix23_ios16": "iOS 16.5 | 18 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "fsfull002_ios17": "iOS 17.1 | 0 rows",
@@ -95,7 +95,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Patch-update lines record an attempt, not a completed update. Install kinds, container personas and version strings are reported as written. Version and Short Version carry the target of a patch attempt or the version of an installable bundle; From Version carries the source of a patch attempt. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz) are read as well, and they can hold copies of the same log lines. A line found in more than one log file is reported as many times as the one file holding it most often: a copy adds no row, and a line repeated within one file is reported each time. On the three tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5), 853, 797 and 291 rows would otherwise have been reported twice. Every log file read is listed as a source, whether or not it added a row.",
         "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "list",
@@ -105,7 +105,7 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 798 rows",
             "jess_ios15": "iOS 15.0.2 | 940 rows",
             "abe_ios16": "iOS 16.5 | 834 rows",
-            "felix23_ios16": "iOS 16.5 | 918 rows",
+            "felix23_ios16": "iOS 16.5 | 2276 rows",
             "magnet_ios16": "iOS 16.1.1 | 895 rows",
             "felix_ios17": "iOS 17.6.1 | 664 rows",
             "fsfull002_ios17": "iOS 17.1 | 681 rows",
@@ -126,7 +126,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time. Sysdiagnose archives in the extraction (sysdiagnose_*.tar.gz) are read as well. A line found in more than one log file is reported as many times as the one file holding it most often, so a copy adds no row; on the three tested images carrying a packed sysdiagnose (iOS 13.3.1, 14.3 and 16.5), 5, 4 and 4 reboots would otherwise have been reported twice.",
         "paths": ('*/mobile_installation.log.*', '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "refresh",
@@ -136,7 +136,7 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 5 rows",
             "jess_ios15": "iOS 15.0.2 | 7 rows",
             "abe_ios16": "iOS 16.5 | 4 rows",
-            "felix23_ios16": "iOS 16.5 | 3 rows",
+            "felix23_ios16": "iOS 16.5 | 19 rows",
             "magnet_ios16": "iOS 16.1.1 | 7 rows",
             "felix_ios17": "iOS 17.6.1 | 2 rows",
             "fsfull002_ios17": "iOS 17.1 | 15 rows",
@@ -180,7 +180,7 @@ __artifacts_v2__ = {
             "hickman_ios14": "iOS 14.3 | 157 rows",
             "jess_ios15": "iOS 15.0.2 | 534 rows",
             "abe_ios16": "iOS 16.5 | 173 rows",
-            "felix23_ios16": "iOS 16.5 | 168 rows",
+            "felix23_ios16": "iOS 16.5 | 184 rows",
             "magnet_ios16": "iOS 16.1.1 | 215 rows",
             "felix_ios17": "iOS 17.6.1 | 192 rows",
             "fsfull002_ios17": "iOS 17.1 | 204 rows",
@@ -195,6 +195,7 @@ __artifacts_v2__ = {
     }
 }
 
+import collections
 import re
 from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 
@@ -318,6 +319,12 @@ def _events_and_source(context):
     # ties between two state-setting events written in the same second.
     files_sorted = sorted(str(f) for f in context.get_files_found())
 
+    # A packed sysdiagnose carries copies of these logs, and an extraction can store one file
+    # twice, so one line can be read from several files. Each distinct line is reported as
+    # many times as the one file holding it most often: a copy adds nothing, and a line
+    # repeated within a single file is still reported every time.
+    reported = collections.Counter()
+
     for file_obj, source in get_sysdiagnose_files(files_sorted, _LOG_MATCH_RE):
         # 1. Separate base path and member name to correctly apply relative paths
         if ' >> ' in source:
@@ -330,8 +337,15 @@ def _events_and_source(context):
         if rel_source not in sources:
             sources.append(rel_source)
 
-        # Pass the file_obj directly; _parse_events iterates over lines natively
-        events.extend(_parse_events(file_obj))
+        in_file = collections.Counter()
+        new_lines = []
+        for line in file_obj:
+            key = line.rstrip('\r\n')
+            in_file[key] += 1
+            if in_file[key] > reported[key]:
+                reported[key] += 1
+                new_lines.append(line)
+        events.extend(_parse_events(new_lines))
 
     return events, ', '.join(sources)
 
