@@ -7,7 +7,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-09-19',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -42,7 +42,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-09-19',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
 import os
 import nska_deserialize as nd
 from packaging import version
-from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
@@ -442,10 +442,8 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[29] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[106] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[29])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[29], f'FaceCropFor_{row[106]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -494,7 +492,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zPerson-Cloud Verified Type-26',
         'zFaceCrop-State-27',
         'zFaceCrop-Type-28',
-        'zFaceCrop-Resource Data-29',
+        ('zFaceCrop-Resource Data-29', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-30',
         'zDetFace-Manual-31',
         'zDetFace-VIP Model Type-32',
@@ -1029,10 +1027,8 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[32] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[125] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[32])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[32], f'FaceCropFor_{row[125]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1087,7 +1083,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zPerson-Cloud Verified Type-29',
         'zFaceCrop-State-30',
         'zFaceCrop-Type-31',
-        'zFaceCrop-Resource Data-32',
+        ('zFaceCrop-Resource Data-32', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-33',
         'zDetFace-Manual-34',
         'zDetFace-Detection Type-35',
@@ -1641,10 +1637,8 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[33] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[128] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[33])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[33], f'FaceCropFor_{row[128]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -1699,7 +1693,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zPerson-Cloud Verified Type-30',
         'zFaceCrop-State-31',
         'zFaceCrop-Type-32',
-        'zFaceCrop-Resource Data-33',
+        ('zFaceCrop-Resource Data-33', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-34',
         'zDetFace-Manual-35',
         'zDetFace-Detection Type-36',
@@ -2259,10 +2253,8 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[34] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[131] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[34])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[34], f'FaceCropFor_{row[131]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2319,7 +2311,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zPerson-Cloud Verified Type-31',
         'zFaceCrop-State-32',
         'zFaceCrop-Type-33',
-        'zFaceCrop-Resource Data-34',
+        ('zFaceCrop-Resource Data-34', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-35',
         'zDetFace-Manual-36',
         'zDetFace-Detection Type-37',
@@ -2889,10 +2881,8 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[36] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[133] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[36])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[36], f'FaceCropFor_{row[133]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -2950,7 +2940,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
         'zPerson-Cloud Verified Type-33',
         'zFaceCrop-State-34',
         'zFaceCrop-Type-35',
-        'zFaceCrop-Resource Data-36',
+        ('zFaceCrop-Resource Data-36', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-37',
         'zDetFace-Manual-38',
         'zDetFace-Detection Type-39',
@@ -3433,10 +3423,8 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[29] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[106] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[29])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[29], f'FaceCropFor_{row[106]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -3485,7 +3473,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zPerson-Cloud Verified Type-26',
         'zFaceCrop-State-27',
         'zFaceCrop-Type-28',
-        'zFaceCrop-Resource Data-29',
+        ('zFaceCrop-Resource Data-29', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-30',
         'zDetFace-Manual-31',
         'zDetFace-VIP Model Type-32',
@@ -4020,10 +4008,8 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[32] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[125] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[32])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[32], f'FaceCropFor_{row[125]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -4078,7 +4064,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zPerson-Cloud Verified Type-29',
         'zFaceCrop-State-30',
         'zFaceCrop-Type-31',
-        'zFaceCrop-Resource Data-32',
+        ('zFaceCrop-Resource Data-32', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-33',
         'zDetFace-Manual-34',
         'zDetFace-Detection Type-35',
@@ -4632,10 +4618,8 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[33] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[128] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[33])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[33], f'FaceCropFor_{row[128]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -4690,7 +4674,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zPerson-Cloud Verified Type-30',
         'zFaceCrop-State-31',
         'zFaceCrop-Type-32',
-        'zFaceCrop-Resource Data-33',
+        ('zFaceCrop-Resource Data-33', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-34',
         'zDetFace-Manual-35',
         'zDetFace-Detection Type-36',
@@ -5250,10 +5234,8 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[34] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[131] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[34])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[34], f'FaceCropFor_{row[131]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -5310,7 +5292,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zPerson-Cloud Verified Type-31',
         'zFaceCrop-State-32',
         'zFaceCrop-Type-33',
-        'zFaceCrop-Resource Data-34',
+        ('zFaceCrop-Resource Data-34', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-35',
         'zDetFace-Manual-36',
         'zDetFace-Detection Type-37',
@@ -5880,10 +5862,8 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[36] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[133] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[36])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[36], f'FaceCropFor_{row[133]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
             row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18],
@@ -5941,7 +5921,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
         'zPerson-Cloud Verified Type-33',
         'zFaceCrop-State-34',
         'zFaceCrop-Type-35',
-        'zFaceCrop-Resource Data-36',
+        ('zFaceCrop-Resource Data-36', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-37',
         'zDetFace-Manual-38',
         'zDetFace-Detection Type-39',
