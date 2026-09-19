@@ -15,10 +15,12 @@ Download a pre-built release — no Python installation required.
 
 | Platform | GUI | CLI |
 | -------- | --- | --- |
-| Windows | `ileappGUI-*-Windows_x64.zip` | `ileapp-*-Windows_x64.zip` |
-| macOS (Apple Silicon) | `ileappGUI-*-macOS_Apple_Silicon.dmg` | `ileapp-*-macOS_Apple_Silicon.zip` |
-| macOS (Intel) | `ileappGUI-*-macOS_Mac_Intel.dmg` | `ileapp-*-macOS_Mac_Intel.zip` |
-| Linux | `ileappGUI-*-Linux_x86_64.AppImage` | `ileapp-*-Linux_x86_64.AppImage` |
+| Windows (Intel) | `ileappGUI-v*-Windows_x86_64.zip` | `ileapp-v*-Windows_x86_64.zip` |
+| Windows (ARM) | `ileappGUI-v*-Windows_arm64.zip` | `ileapp-v*-Windows_arm64.zip` |
+| macOS (Apple Silicon) | `ileappGUI-v*-macOS_Apple_Silicon.dmg` | `ileapp-v*-macOS_Apple_Silicon.zip` |
+| macOS (Intel) | `ileappGUI-v*-macOS_Mac_Intel.dmg` | `ileapp-v*-macOS_Mac_Intel.zip` |
+| Linux (Intel) | `ileappGUI-v*-Linux_x86_64.AppImage` | `ileapp-v*-Linux_x86_64.AppImage` |
+| Linux (ARM) | `ileappGUI-v*-Linux_arm64.AppImage` | `ileapp-v*-Linux_arm64.AppImage` |
 
 **GUI** — extract the download, run `ileappGUI`, then select your input type, source path, output folder, and modules to process.
 
