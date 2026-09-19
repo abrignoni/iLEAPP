@@ -10,8 +10,9 @@ __artifacts_v2__ = {
         "notes": (
             (
             (
-            "One row per stateMachine/devices entry: name, model, osVersion, build, serial, "
-            "deviceID and pushToken as stored. Model Name is the tool's device model table entry "
+            "One row per stateMachine/devices entry whose value is a JSON object: name, model, "
+            "osVersion, build, serial, deviceID and pushToken as stored. Model Name is the tool's "
+            "device model table entry "
             "for the model identifier and OS Version (from build) its build table entry for the "
             "build, looked up with the model's family; both are empty where they do not resolve. On "
             "the 21 test entries the build lookup matched the stored osVersion on 17, gave macOS "
@@ -21,7 +22,9 @@ __artifacts_v2__ = {
             "test log (6 of 6 entries) and absent from the two iOS 26 ones. The file was empty (0 "
             "bytes) in both packed sysdiagnoses of the iOS 16.5 test image, and the iOS 13.3.1 and "
             "14.3 test sysdiagnoses had none; the three test sysdiagnoses holding entries listed "
-            "13, 2 and 6 devices."
+            "13, 2 and 6 devices. The separate logs/swtransparency.log, carried by the two iOS 26 "
+            "test sysdiagnoses, is not read; its stateMachine held neither devices nor "
+            "cloudRecords in either."
         )
         )
         ),
@@ -50,10 +53,13 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose",
         "notes": (
-            "One row per stateMachine/cloudRecords/optIn entry: record name, state, osVersion and "
-            "sn as stored, and timestampReadable as stored and converted to UTC. The only state "
+            "One row per stateMachine/cloudRecords/optIn entry whose value is a JSON object: "
+            "record name, state, osVersion and sn as stored, and timestampReadable as stored and, "
+            "where it parses, converted to UTC. The only state "
             "value on test data was KTOptIn(rawValue: 0); the iOS 26.5.2 and 17.3 test sysdiagnoses "
-            "held 3 and 2 entries and the iOS 26 one none."
+            "held 3 and 2 entries and the iOS 26 one none. The separate logs/swtransparency.log, "
+            "carried by the two iOS 26 test sysdiagnoses, is not read; its stateMachine held "
+            "neither devices nor cloudRecords in either."
         ),
         "paths": (
             '*/[Tt]ransparency.log',
@@ -82,7 +88,9 @@ from datetime import datetime, timezone
 from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files, logfunc
 
 _READ_ERRORS = (OSError, EOFError, tarfile.TarError, zlib.error)
-TRANSPARENCY_LOG_RE = re.compile(r'[Tt]ransparency\.log$')
+# Anchored on a path segment: a sysdiagnose archive can carry an AppleDouble sidecar
+# (._transparency.log) beside the log, and logs/swtransparency.log is a different file.
+TRANSPARENCY_LOG_RE = re.compile(r'(?:^|/)[Tt]ransparency\.log$')
 
 
 def _is_pax_header(path):
