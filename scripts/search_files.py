@@ -795,6 +795,15 @@ class FileSeekerTar(FileSeekerBase):
             Returns a list of paths to the extracted files or the first hit if specified.
         cleanup():
             Closes the tar file to free up resources.
+
+    A tar can store one member name more than once (an appended archive does).
+    A search matches each name once. Entries holding the same bytes are staged
+    once, from the last entry, which is the one tar itself extracts. When the
+    entries differ, the entry recording the latest modification time is staged
+    under the name (the earlier entry on a tie), and every other version is
+    staged beside it as <name>~tar-entry-<N><ext>, N being the entry's position
+    in the archive, and logged. Those other versions are not returned to
+    artifacts, so an artifact reads one version of each name.
     """
 
     def __init__(self, tar_file_path, data_folder):
@@ -807,6 +816,54 @@ class FileSeekerTar(FileSeekerBase):
         self.copied = {}
         self.file_infos = {}
         self._init_dest_guard(self.data_folder)
+        self._search_members, self._other_versions = self._index_member_names()
+
+    def _index_member_names(self):
+        """One member per distinct name, in archive order, and the other versions of any name stored twice."""
+        by_name = {}
+        for index, member in enumerate(self.tar_file.getmembers()):
+            by_name.setdefault(member.name, []).append((index, member))
+        search_members = []
+        other_versions = {}
+        repeated = differing = 0
+        for name, entries in by_name.items():
+            if len(entries) < 2:
+                search_members.append(entries[0][1])
+                continue
+            repeated += 1
+            contents = [self._member_content_key(member) for _, member in entries]
+            if len(set(contents)) == 1:
+                search_members.append(entries[-1][1])
+                continue
+            differing += 1
+            # Latest recorded time wins; on a tie the earlier entry does.
+            pick = max(((member.mtime, -position), position)
+                       for position, (_, member) in enumerate(entries))[1]
+            search_members.append(entries[pick][1])
+            seen = {contents[pick]}
+            for position, (index, member) in enumerate(entries):
+                if position != pick and contents[position] not in seen:
+                    seen.add(contents[position])
+                    other_versions.setdefault(name, []).append((index, member))
+        if repeated:
+            versions = sum(len(v) for v in other_versions.values())
+            logfunc(f'INFO: {repeated} member name(s) are stored more than once in this archive. '
+                    f'{repeated - differing} repeat the same content and are staged once. '
+                    f'{differing} hold different content: the entry recording the latest '
+                    f'modification time is staged under the name, and {versions} other version(s) '
+                    f'are staged beside it as <name>~tar-entry-<N><ext>, N being the entry\'s '
+                    f'position in the archive. Artifacts read the version under the name.')
+        return search_members, other_versions
+
+    def _member_content_key(self, member):
+        """What a member holds: the digest of a regular file's bytes, else its type and link target."""
+        if not member.isreg():
+            return (member.type, member.linkname, member.size)
+        digest = hashlib.sha256()
+        with tarfile.ExFileObject(self.tar_file, member) as fin:
+            for chunk in iter(lambda: fin.read(1 << 20), b''):
+                digest.update(chunk)
+        return (member.size, digest.hexdigest())
 
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
@@ -815,7 +872,7 @@ class FileSeekerTar(FileSeekerBase):
         pathlist = []
         pat = _compile_pattern(normcase(filepattern))
         root = normcase("root/")
-        for member in self.tar_file.getmembers():
+        for member in self._search_members:
             if pat(root + normcase(member.name)) is not None:
                 clean_name = sanitize_file_path(member.name)
                 full_path = os.path.join(self.data_folder, Path(clean_name))
@@ -835,6 +892,7 @@ class FileSeekerTar(FileSeekerBase):
                                 self.file_infos[full_path] = file_info
                                 self.copied[member.name] = full_path
                             os.utime(full_path, (member.mtime, member.mtime))
+                            self._stage_other_versions(member.name)
                     except OSError as ex:
                         logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
                 else:
@@ -845,6 +903,25 @@ class FileSeekerTar(FileSeekerBase):
                     return full_path
         self.searched[filepattern] = pathlist
         return pathlist
+
+    def _stage_other_versions(self, name):
+        """Stage each other version of a name whose entries hold different content."""
+        for index, member in self._other_versions.get(name, ()):
+            base, ext = os.path.splitext(os.path.join(self.data_folder, Path(sanitize_file_path(name))))
+            dest_path = self._unique_data_path(
+                f'{base}~tar-entry-{index}{ext}', (name, index),
+                hash_source=f'{name}~tar-entry-{index}')
+            try:
+                parent = os.path.dirname(dest_path)
+                if parent:
+                    os.makedirs(parent, exist_ok=True)
+                with tarfile.ExFileObject(self.tar_file, member) as fin, open(dest_path, 'wb') as fout:
+                    copyfileobj(fin, fout)
+                os.utime(dest_path, (member.mtime, member.mtime))
+                logfunc(f'INFO: {name} is stored more than once with different content; '
+                        f'entry {index} ({member.size} bytes) staged as {dest_path}')
+            except OSError as ex:
+                logfunc(f'Could not write file to filesystem, path was {name} (entry {index}) ' + str(ex))
 
     def cleanup(self):
         self.tar_file.close()
