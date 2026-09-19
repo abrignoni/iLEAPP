@@ -121,8 +121,7 @@ ESCAPER_NAMES = frozenset({
 # folder. Only these may complete an href= or src=. The media helpers belong here
 # because they rewrite an extraction path to `media/<file>` beside the report.
 LOCAL_LINK_NAMES = frozenset({
-    'safe_local_path', 'safe_local_link', 'media_to_html', 'check_in_media',
-    'html_media_tag',
+    'safe_local_path', 'safe_local_link', 'check_in_media', 'html_media_tag',
 })
 
 # Pre-existing violations. Delete an entry when its violation is fixed; a stale entry
@@ -152,7 +151,7 @@ ALLOWLIST = {
 # it in here would bury the cell findings this check exists to hold the line on.
 FRAMEWORK_FUNCTIONS = {
     'scripts/ilapfuncs.py': frozenset({
-        'html_media_tag', 'media_to_html', 'get_data_list_with_media',
+        'html_media_tag', 'get_data_list_with_media',
     }),
 }
 
@@ -255,8 +254,8 @@ def _resolve(node, assignments, names, seen):
     """True when `node` is safe under the callee set `names`.
 
     `assignments` maps a local variable to every expression assigned to it in the
-    enclosing function, so the common `thumb = media_to_html(...)` then
-    `f'src="{thumb}"'` shape resolves instead of failing for lack of context. A name
+    enclosing function, so a `src = safe_local_path(...)` assignment followed by
+    `f'src="{src}"'` resolves instead of failing for lack of context. A name
     is safe only when *every* assignment to it is, which keeps a conditional
     reassignment from laundering a raw value.
     """
