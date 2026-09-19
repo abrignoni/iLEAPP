@@ -74,6 +74,7 @@ ileapp -t zip -i /path/to/extraction.zip -o /path/to/output/
 | `-d` | `--load_case_data` | Path to a LEAPP case data file (`.lcasedata`) |
 | `--custom_output_folder` | | Custom name for the report output subfolder |
 | `--custom_artifacts_path` | | Extra folder to load artifact modules from (e.g. `scripts/alternate_artifacts`) |
+| `--html_row_limit` | | Rows above which an artifact's table is left off its HTML page, which then points at the LAVA database and the TSV export instead. Default 50000; `0` writes every table. The GUI uses the default |
 | `--itunes_password` | | | Password for an encrypted iTunes/Finder backup (`-t 12345`) |
 
 ### Standalone utility modes

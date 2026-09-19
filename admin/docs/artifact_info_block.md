@@ -90,7 +90,7 @@ The `output_types` field accepts a list of strings or specific keywords:
 -   `"standard"`: Generates `HTML`, `TSV`, `LAVA`, and `timeline` output.
 
 #### Individual options:
--   `"html"`: Generates HTML output.
+-   `"html"`: Generates HTML output. A table above 50,000 rows (the `--html_row_limit` default) is left off its page, which instead gives the row count and says where the complete rows are: the LAVA database and the TSV export.
 -   `"tsv"`: Generates TSV (Tab-Separated Values) output.
 -   `"timeline"`: Generates timeline output.
 -   `"lava"`: Generates output for LAVA (a specific data processing format).
