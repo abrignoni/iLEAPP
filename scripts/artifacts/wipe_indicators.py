@@ -19,7 +19,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 2 rows",
             "felix_ios17": "iOS 17.6.1 | 2 rows",
-            "fsfull002_ios17": "iOS 17.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
             "iphone12_ios18": "iOS 18.7 | 2 rows",
             "iphone14plus_ios18": "iOS 18.0 | 2 rows",
