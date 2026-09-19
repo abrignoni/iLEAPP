@@ -512,6 +512,18 @@ def lava_update_record_count(category, tablename, record_count):
             return
 
 
+def lava_commit():
+    """Commit the LAVA database.
+
+    The per-row inserts below (media items and references, search patterns, file
+    paths and their links) leave their rows in the open transaction; the main loop
+    calls this once after each artifact, so a run pays one durable commit per
+    artifact instead of one per staged file.
+    """
+    if lava_db is not None:
+        lava_db.commit()
+
+
 def lava_get_media_item(media_id):
     """
     Retrieve a media item from the lava database by its ID.
@@ -561,7 +573,6 @@ def lava_insert_sqlite_media_item(media_item):
 
     try:
         cursor.execute(sql, params)
-        lava_db.commit()
     except sqlite3.IntegrityError as e:
         print(str(e))
 
@@ -608,7 +619,6 @@ def lava_insert_sqlite_media_references(media_references):
         media_references.name
     )
     cursor.execute(sql, params)
-    lava_db.commit()
 
 
 def lava_get_full_media_info(media_ref_id):
@@ -653,7 +663,6 @@ def lava_insert_sqlite_artifact_search_pattern(artifact_regex_id, module_name, a
 
     try:
         cursor.execute(sql, data)
-        lava_db.commit()
     except sqlite3.IntegrityError as e:
         print(str(e))
 
@@ -675,7 +684,6 @@ def lava_insert_sqlite_file_path(file_id, file_path):
 
     try:
         cursor.execute(sql, data)
-        lava_db.commit()
     except sqlite3.IntegrityError as e:
         print(str(e))
 
@@ -697,7 +705,6 @@ def lava_insert_sqlite_artifact_link_pattern_to_file(artifact_regex_id, file_id)
 
     try:
         cursor.execute(sql, data)
-        lava_db.commit()
     except sqlite3.IntegrityError as e:
         print(str(e))
 
@@ -741,4 +748,5 @@ def lava_finalize_output(output_path):
         json.dump(lava_data, f, indent=4)
 
     # Close the SQLite database
+    lava_db.commit()
     lava_db.close()
