@@ -133,11 +133,6 @@ BASELINE = set()
 
 # Reviewed exceptions expected to stay. Every entry needs a comment saying why.
 ALLOWLIST = {
-    # Declares a single media column and nothing else. The cell is built by the
-    # framework's media helper, so the module has no evidence text of its own to
-    # escape.
-    ('scripts/artifacts/nsVault.py', 'unguarded-html-columns', '<module>'),
-
     # Both join values produced by BeReal's own generic_url(), which returns
     # safe_url() output -- escaped text, never an anchor. The values reaching the
     # cell are already escaped; this check does not follow a value through a
