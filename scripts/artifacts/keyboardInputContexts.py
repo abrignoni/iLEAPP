@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         "chat type (direct or group) and the other party are decoded from it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-18",
+        "last_update_date": "2026-09-19",
         "requirements": "none",
         "category": "User Activity",
         "notes": "An identifier key holds a keyboard language; a <key>_SETTIME key holds a time for it "
@@ -30,20 +30,30 @@ __artifacts_v2__ = {
         "s.whatsapp.net is a direct chat and the local part is the phone number, lid is a "
         "direct chat under a linked id that is not a phone number, g.us is a group, "
         "status@broadcast is the status composer, another @broadcast is a broadcast list and "
-        "newsletter is a channel. A Messenger-shaped identifier under a com.facebook.* bundle "
-        "is split into Account ID and the thread key, which Chat Party carries. Messenger keys a "
-        "one-to-one thread by the other user's id and a group by an id of its own, so the "
-        "thread key is looked up in the contacts table of every msys mailbox on the image: a "
-        "match is reported as Direct with the contact's name, and a key that is not a contact "
-        "but is a thread with 3 or more participants in thread_participant_detail is reported "
-        "as Group. A key matching neither is left undecoded: the thread and the contact may "
-        "both be gone from the mailbox, and the identifier itself does not carry the type. The "
-        "mailbox lookup is pooled across accounts because a user id is not account-scoped. The "
-        "record outlives the thread: it sits in the app's Preferences, not the message store, "
-        "so an identifier with no matching thread is consistent with a thread that has since "
-        "been deleted. The Messenger decoding rules follow the mailbox structure the "
-        "facebookMessenger artifacts read; the decoded columns were not measured against the "
-        "registered corpora in the change that added them, and row counts are unchanged by it.",
+        "newsletter is a channel. Under a com.facebook.* bundle, an identifier of the form "
+        "<account id>_<thread key>_0 is split into Account ID and the thread key, which Chat "
+        "Party carries. Messenger keys a one-to-one thread by the other user's id and a group "
+        "by an id of its own, so the thread key is looked up in the contacts table of every "
+        "msys mailbox on the image: a match is reported as Direct with the contact's name, and "
+        "a key that is not a contact but is a thread with 3 or more participants in "
+        "thread_participant_detail is reported as Group. A key matching neither is left "
+        "undecoded: the thread and the contact may both be gone from the mailbox, and the "
+        "identifier itself does not carry the type. The mailbox lookup is pooled across "
+        "accounts because a user id is not account-scoped. Messenger also writes a second "
+        "form, <account id>_<1 digit>_<4 digits>, seen 3 times across the 2 public Josh "
+        "Hickman images (hickman_ios15, iphone11_ios17): its first group is the local account "
+        "on every one, and neither of its other parts is a contact id or a thread key, so it "
+        "is reported with Account ID only and no Chat Type or Chat Party. The record outlives "
+        "the thread: it sits in the app's Preferences, not the message store, so an identifier "
+        "with no matching thread is consistent with a thread that has since been deleted. "
+        "Measured on hickman_ios15 and iphone11_ios17: every _0 identifier (1 and 2) resolved "
+        "to Direct through a contact whose id is also the key of a two-participant thread, and "
+        "every WhatsApp identifier (1 and 2) is an s.whatsapp.net JID present as a chat "
+        "session in ChatStorage.sqlite. Neither image holds a group thread, so the Group "
+        "branch has not been exercised on real data. The threads table also carries a "
+        "thread_type column, 1 on the one-to-one threads keyed by a contact and 15 on the "
+        "two-participant threads that are not, whose meaning is not established and is not "
+        "used.",
         "paths": (
             "*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist",
             "*/Containers/Data/Application/*/Library/Preferences/UITextInputContextIdentifiers.plist",
@@ -70,8 +80,8 @@ __artifacts_v2__ = {
             "hexordia_ios1651": "iOS 16.5.1 | 4 rows",
             "hickman_ios13": "iOS 13.3.1 | 11 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
-            "hickman_ios15": "iOS 15.3.1 | 10 rows",
-            "iphone11_ios17": "iOS 17.3 | 17 rows",
+            "hickman_ios15": "iOS 15.3.1 | 10 rows | 1 Messenger Direct, 1 WhatsApp Direct",
+            "iphone11_ios17": "iOS 17.3 | 17 rows | 2 Messenger Direct, 2 WhatsApp Direct",
             "iphone12_ios18": "iOS 18.7 | 4 rows",
             "iphone14plus_ios18": "iOS 18.0 | 3 rows",
             "iphone14plus_ios18_mvs2025": "iOS 18.0 | 2 rows",
@@ -100,9 +110,11 @@ CONTEXT_PLIST = "UITextInputContextIdentifiers.plist"
 KEY_PREFIX = "ID_"
 TIME_SUFFIX = "_SETTIME"
 
-# Messenger writes <account id>_<thread key>_0. The trailing number has only ever been
-# observed as 0, so it is matched but not reported.
-MESSENGER_CONTEXT = re.compile(r"^(\d+)_(\d+)_\d+$")
+# Messenger writes <account id>_<thread key>_0 for a conversation composer. A second form,
+# <account id>_<1 digit>_<4 digits>, names no contact or thread on the images checked, so
+# only its account id is read.
+MESSENGER_THREAD_CONTEXT = re.compile(r"^(\d+)_(\d+)_0$")
+MESSENGER_ACCOUNT_CONTEXT = re.compile(r"^(\d+)_\d+_\d+$")
 MESSENGER_BUNDLE_PREFIX = "com.facebook."
 MESSENGER_CONTACTS_TABLE = "contacts"
 MESSENGER_PARTICIPANTS_VIEW = "thread_participant_detail"
@@ -192,9 +204,10 @@ def _decode_whatsapp(identifier):
 
 
 def _decode_messenger(identifier, contacts, participant_counts):
-    match = MESSENGER_CONTEXT.match(identifier)
+    match = MESSENGER_THREAD_CONTEXT.match(identifier)
     if not match:
-        return "", "", ""
+        account = MESSENGER_ACCOUNT_CONTEXT.match(identifier)
+        return "", "", account.group(1) if account else ""
     account_id, thread_key = match.groups()
     if thread_key in contacts:
         name = contacts[thread_key]
