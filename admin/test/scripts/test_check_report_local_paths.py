@@ -20,9 +20,9 @@ checker had passed, through `unique_files()`, `or`, and paths handed back by mod
 helpers. Those shapes, and the correct forms that must stay silent, are pinned in
 ThirdAuditShapes.
 
-A fourth shape (2026-09-19), a local path handed to media_to_html, which returns its
-first argument unchanged when it cannot resolve it, is pinned in
-MediaToHtmlHandsBackItsFirstArgument.
+A fourth shape (2026-09-19) came through media_to_html, which returned a full path
+unchanged. That helper has since been removed from all five cores; the
+check_in_embedded_media form that replaced it is pinned in MustStaySilent.
 
 The false-negative cases matter as much as the positives: a checker wired into CI that
 flags correct code gets disabled, so the shapes that must stay silent are pinned too.
@@ -251,6 +251,21 @@ class MustStaySilent(unittest.TestCase):
                 return (), data_list, ''
         '''), [])
 
+    def test_checking_the_crop_in_as_embedded_media_is_accepted(self):
+        self.assertEqual(findings_for('''
+            @artifact_processor
+            def fine(context):
+                source_path = get_file_path(context.get_files_found(), 'Photos.sqlite')
+                data_list = []
+                for row in get_sqlite_db_records(source_path, 'q'):
+                    thumb = ''
+                    if row[1] is not None:
+                        thumb = check_in_embedded_media(
+                            source_path, row[1], f'FaceCropFor_{row[2]}') or ''
+                    data_list.append((row[0], thumb))
+                return ('a', ('Face crop', 'media')), data_list, source_path
+        '''), [])
+
 
 class Allowlist(unittest.TestCase):
     def test_an_allowlisted_expression_is_not_reported(self):
@@ -475,80 +490,6 @@ class ThirdAuditShapes(unittest.TestCase):
                     data_list.append(record)
                 return (), data_list, ''
         '''), [('leak', 1)])
-
-
-class MediaToHtmlHandsBackItsFirstArgument(unittest.TestCase):
-    """media_to_html returns its first argument unchanged unless that argument is a bare
-    file name found in files_found. iLEAPP's Photos.sqlite face crop artifacts wrote each
-    crop under the report folder and passed the full path, so the examiner's report
-    folder reached the rows."""
-
-    def _cols(self, source):
-        return [(func, column) for _m, func, _l, _k, _e, column in findings_for(source)]
-
-    def test_a_report_folder_path_passed_through_media_to_html_is_reported(self):
-        self.assertEqual(self._cols('''
-            @artifact_processor
-            def leak(context):
-                files_found = context.get_files_found()
-                report_folder = context.get_report_folder()
-                if report_folder.endswith('/'):
-                    report_folder = report_folder[:-1]
-                data_list = []
-                for row in get_sqlite_db_records('db', 'q'):
-                    thumb = ''
-                    if row[1] is not None:
-                        pathto = os.path.join(report_folder, 'FaceCropFor_' + row[2] + '.jpg')
-                        with open(pathto, 'wb') as file:
-                            file.write(row[1])
-                        thumb = media_to_html(pathto, files_found, report_folder)
-                    data_list.append((row[0], thumb))
-                return (), data_list, ''
-        '''), [('leak', 1)])
-
-    def test_the_keyword_form_is_reported_too(self):
-        self.assertEqual(self._cols('''
-            @artifact_processor
-            def leak(context):
-                report_folder = context.get_report_folder()
-                data_list = []
-                for row in get_sqlite_db_records('db', 'q'):
-                    pathto = os.path.join(report_folder, 'crop.jpg')
-                    data_list.append((row[0], media_to_html(
-                        media_path=pathto, files_found=context.get_files_found(),
-                        report_folder=report_folder)))
-                return (), data_list, ''
-        '''), [('leak', 1)])
-
-    def test_a_file_name_from_the_database_is_not_a_path(self):
-        """nsVault passes a name read from the store, alongside the tainted
-        files_found and report folder. Only the first argument decides."""
-        self.assertEqual(findings_for('''
-            @artifact_processor
-            def fine(context):
-                data_list, data_list_html = [], []
-                for record in get_sqlite_db_records('db', 'q'):
-                    thumb = media_to_html(str(record[6]), context.get_files_found(),
-                                          context.get_report_folder())
-                    data_list.append((record[0], ''))
-                    data_list_html.append((record[0], thumb))
-                return (), (data_list, data_list_html), ''
-        '''), [])
-
-    def test_checking_the_crop_in_as_embedded_media_is_accepted(self):
-        self.assertEqual(findings_for('''
-            @artifact_processor
-            def fine(context):
-                source_path = get_file_path(context.get_files_found(), 'Photos.sqlite')
-                data_list = []
-                for row in get_sqlite_db_records(source_path, 'q'):
-                    thumb = ''
-                    if row[1] is not None:
-                        thumb = check_in_embedded_media(
-                            source_path, row[1], f'FaceCropFor_{row[2]}') or ''
-                    data_list.append((row[0], thumb))
-                return ('a', ('Face crop', 'media')), data_list, source_path
-        '''), [])
 
 
 class TheRepoItself(unittest.TestCase):
