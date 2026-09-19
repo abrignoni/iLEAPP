@@ -963,16 +963,27 @@ def get_sqlite_db_path(path):
     else:
         return quote(str(path), safe='/')
         
+def _is_appledouble(path):
+    """True for a macOS AppleDouble sidecar (._<name>), which holds another file's metadata."""
+    return os.path.basename(path).startswith('._')
+
+
 def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8'):
     """
     Yields (file_object, source_path) for target (string or compiled regex)
     across standalone matches and active sysdiagnose archives.
+
+    A sysdiagnose archive carries an AppleDouble sidecar (._<name>) beside each file
+    that has extended attributes. A sidecar is never yielded, in an archive or on disk,
+    and a sidecar named like an archive is not opened as one.
     """
     is_regex = isinstance(target, re.Pattern)
 
     for file_found in files_found:
         file_path = str(file_found)
         filename = os.path.basename(file_path)
+        if _is_appledouble(filename):
+            continue
 
         # 1. Direct standalone file match
         match_standalone = target.search(filename) if is_regex else (target == filename)
@@ -992,7 +1003,7 @@ def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8')
             try:
                 with tarfile.open(file_path, 'r:*') as tar:
                     for member in tar.getmembers():
-                        if not member.isreg():
+                        if not member.isreg() or _is_appledouble(member.name):
                             continue
 
                         # Match regex or exact string
