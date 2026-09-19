@@ -1,7 +1,7 @@
 """ See description below"""
 
 __artifacts_v2__ = {
-    "get_sysdiag_account_devices": {
+    "sdl_account_devices": {
         "name": "Sysdiagnose - Account Devices",
         "description": "Parses the otctl_status.txt file from Sysdiagnose logs, \
             to get informations about peers in the account's Octagon trust circle (iCloud Keychain syncing).",
@@ -31,12 +31,11 @@ import json
 from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
 
 @artifact_processor
-def get_sysdiag_account_devices(context):
+def sdl_account_devices(context):
     files_found = context.get_files_found()
     data_list = []
     sources = []
     
-
     for file_obj, source_path in get_sysdiagnose_files(files_found, "otctl_status.txt"):
         source_name = context.get_relative_path(source_path)
         try:
