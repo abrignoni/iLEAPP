@@ -172,28 +172,21 @@ def get_json_content(data):
 
 
 def _device_relative(path):
-    """A path as it sat on the device: extraction relative, no leading slash.
+    """A path as it sits in the evidence: extraction relative, no leading slash.
 
     The seeker stages every file under <report folder>/data/<extraction relative
     path>, whatever the input type, so stripping that prefix is what makes this
-    work the same for a zip, a tar, an iTunes backup and a directory.
-
-    The slice from '/private/' is a fallback for the one input this cannot
-    reduce: the directory and single-file seekers record an absolute path on the
-    examiner's machine in file_infos, and only the seeker knows the input root.
-    It stops firing once those seekers record an extraction relative path.
+    work the same for a zip, a tar, an iTunes backup and a directory. A media
+    item's recorded source path is already the evidence path, for every input
+    type, so it only loses its leading slash here.
     """
     text = Context.get_relative_path(Path(str(path)).as_posix()).replace('\\', '/')
-    if text.startswith('/'):
-        index = text.find('/private/')
-        if index > 0:
-            text = text[index:]
     return text.lstrip('/')
 
 
 # device path/local path
 def get_device_file_path(file_path, seeker):
-    """Where this file lived on the device, for the Location column.
+    """Where this file sits in the evidence, for the Source file name column.
 
     Callers pass either a staged path or a media item's recorded source_path.
     file_infos is keyed by the staged path, so a hit means the first kind and a
