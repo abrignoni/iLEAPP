@@ -973,7 +973,19 @@ class FileSeekerZip(FileSeekerBase):
 
         Returns the distinct names in archive order, the entry to stage under
         each name whose copies differ, and the other versions of those names.
+
+        ZipFile keys NameToInfo on the member name while it reads the central
+        directory, so that dict is short by exactly the number of names stored more
+        than once. Reading its length costs nothing and answers the only question
+        the walk below exists to answer. Grouping every member to learn the same
+        thing costs a dict entry, a list and a tuple per member: on a 630,560 member
+        archive that measured 138 MB, spent to discover that no name repeats.
+        NameToInfo is not part of zipfile's documented surface, so an absent one
+        falls through to the walk rather than assuming anything.
         """
+        by_member_name = getattr(self.zip_file, 'NameToInfo', None)
+        if by_member_name is not None and len(self.name_list) == len(by_member_name):
+            return list(self.name_list), {}, {}
         by_name = {}
         for index, info in enumerate(self.zip_file.infolist()):
             by_name.setdefault(info.filename, []).append((index, info))
