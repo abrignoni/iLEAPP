@@ -764,7 +764,7 @@ import os
 import ijson
 from datetime import datetime, timezone
 from scripts import unifiedlogs
-from scripts.ilapfuncs import artifact_processor, artifact_processor_streaming, get_file_path, \
+from scripts.ilapfuncs import artifact_processor, get_file_path, \
     get_sqlite_db_records, logfunc
 
 DATA_HEADERS = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
@@ -869,7 +869,7 @@ def rows_from_tracev3(binary, archive_dir):
                '')
 
 
-@artifact_processor_streaming
+@artifact_processor
 def logarchive(context):
     """Import Apple Unified Logs into the LAVA database.
 
@@ -881,24 +881,28 @@ def logarchive(context):
          intermediate json file.
 
     Rows are streamed rather than accumulated: a full archive runs to tens of millions of
-    records, which is more than fits in memory as Python tuples.
+    records, which is more than fits in memory as Python tuples. Each row goes to SQLite as
+    it arrives, so peak memory stays flat at one batch however many records the archive holds.
+    The artifact is declared lava_only, so nothing replays the rows for a second output.
     """
     files_found = context.get_files_found()
+    results = context.create_artifact_result(headers=DATA_HEADERS)
 
     source_path = get_file_path(files_found, 'logarchive*.json')
     if source_path:
-        return DATA_HEADERS, rows_from_json(source_path), source_path
+        results.set_source_path(source_path)
+        return results.extend(rows_from_json(source_path))
 
     logarchive_dir, diagnostics_dir, uuidtext_dir = unifiedlogs.find_archive_roots(files_found)
     if not logarchive_dir and not diagnostics_dir:
-        return DATA_HEADERS, iter(()), None
+        return results
 
     binary = unifiedlogs.find_iterator()
     if not binary:
         logfunc('Unified Log tracev3 data was found but the unifiedlog_iterator binary is not '
                 'available, so it cannot be read natively. Either install the binary (see '
                 'scripts/unifiedlogs.py) or supply a logarchive*.json export.')
-        return DATA_HEADERS, iter(()), None
+        return results
 
     if logarchive_dir:
         archive_dir = logarchive_dir
@@ -909,7 +913,7 @@ def logarchive(context):
             # would come back as placeholders. Better to say why than to import junk.
             logfunc('Unified Log tracev3 data was found but the uuidtext directory was not, '
                     'so log messages cannot be resolved. Skipping.')
-            return DATA_HEADERS, iter(()), None
+            return results
         archive_dir = unifiedlogs.assemble_archive(
             diagnostics_dir, uuidtext_dir,
             os.path.join(context.get_data_folder(), '_logarchive_native'))
@@ -917,7 +921,8 @@ def logarchive(context):
 
     parser = unifiedlogs.iterator_version(binary) or os.path.basename(binary)
     logfunc(f'Reading Apple Unified Logs natively with {parser}')
-    return DATA_HEADERS, rows_from_tracev3(binary, archive_dir), source_path
+    results.set_source_path(source_path)
+    return results.extend(rows_from_tracev3(binary, archive_dir))
 
 @artifact_processor
 def logarchive_artifacts(context):
