@@ -1,94 +1,242 @@
-from scripts.ilapfuncs import artifact_processor, logfunc
-from scripts.html_safe import esc
-
 __artifacts_v2__ = {
     "sysdiagnoseProcess": {
         "name": "Sysdiagnose Process",
-        "description": "Hierarchical view of processes (parent/child tree) extracted from ps.txt / ps_thread.txt",
+        "description": "Parses ps.txt from Sysdiagnose logs to list running processes with PID, parent PID, user, command and other ps(1) fields.",
         "author": "@mathisdesaulty",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-17",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "",
-        "paths": ('*/ps.txt', '*/ps_thread.txt'),
-        "output_types": "html",
-        "html_columns": ["Process Hierarchy Tree"],
-        "artifact_icon": "list-tree"
+        "notes": "Only ps.txt is parsed; ps_thread.txt is not, because its column layout is not consistent "
+                 "across iOS versions (on iOS 15 test data its 4th column is %CPU, not PID). STARTED is "
+                 "reported as raw text (e.g. '1:25PM') since it carries no date or timezone and is not a "
+                 "usable timestamp. See 'Sysdiagnose Process - Tree' for a rendered image of the process "
+                 "hierarchy.",
+
+        "paths": (
+            '*/ps.txt',
+            '*/sysdiagnose_*.tar.gz'),
+        "output_types": ["html", "tsv", "lava"],
+        "artifact_icon": "list-tree",
+        "sample_data": {
+            "sysdiagnose_2023_05_24_13_29_15_0700_iphone_os_iphone_19h349_tar": "244 rows",
+        }
+    },
+    "sysdiagnoseProcessTree": {
+        "name": "Sysdiagnose Process - Tree",
+        "description": "Rendered image of the process hierarchy (parent/child tree) from ps.txt",
+        "author": "@mathisdesaulty",
+        "creation_date": "2026-09-18",
+        "last_update_date": "2026-09-18",
+        "requirements": "none",
+        "category": "Sysdiagnose",
+        "notes": "A PNG is rendered per ps.txt capture as a visual reference of the process tree, one image "
+                 "per sysdiagnose. Tree branches use plain ASCII characters (not Unicode box-drawing) so "
+                 "the image renders correctly regardless of which font is available on the host running "
+                 "the report. 'Sysdiagnose Process List' holds the same data in queryable/plain form.",
+        "paths": (
+            '*/ps.txt',
+            '*/sysdiagnose_*.tar.gz'),
+        "output_types": ["html", "lava", "tsv"],
+        "artifact_icon": "list-tree",
+        "sample_data": {
+            "sysdiagnose_2023_05_24_13_29_15_0700_iphone_os_iphone_19h349_tar": "1 rows",
+        }
     }
 }
 
+import io
+
+from PIL import Image, ImageDraw, ImageFont
+
+from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files, check_in_embedded_media, logfunc
+
+_LINE_H = 16
+_PAD = 10
+_FONT_SIZE = 12
+_USER_PALETTE = ['#5b7ea6', '#6a9e6a', '#a68c5b', '#8c5ba6', '#5ba6a1', '#a65b7e', '#8c8c5b']
+_DEFAULT_USER_COLOR = '#9a9a9a'
+
+
+def _mono_font(size):
+    for path in ('DejaVuSansMono.ttf', '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf',
+                 '/System/Library/Fonts/Supplemental/Menlo.ttc', '/Library/Fonts/Menlo.ttc'):
+        try:
+            return ImageFont.truetype(path, size)
+        except OSError:
+            continue
+    try:
+        return ImageFont.load_default(size)
+    except TypeError:
+        return ImageFont.load_default()
+
+
+def _parse_ps_line(line):
+    """Parse one ps.txt line into a dict, or None if the line should be skipped."""
+    if line.startswith("USER") or not line.strip():
+        return None
+
+    # Columns ps.txt: user,uid,prsna,pid,ppid,flags,%cpu,%mem,pri,ni,vsz,rss,wchan,tt,stat,start,time,command
+    parts = line.split(maxsplit=17)
+    if len(parts) < 18:
+        return None
+
+    try:
+        pid = int(parts[3])
+        ppid = int(parts[4])
+    except ValueError:
+        return None
+
+    return {
+        'pid': pid,
+        'ppid': ppid,
+        'user': parts[0],
+        'uid': parts[1],
+        'cpu': parts[6],
+        'mem': parts[7],
+        'stat': parts[14],
+        'started': parts[15],
+        'time': parts[16],
+        'command': parts[17].strip(),
+    }
+
+
+def _build_tree(file_obj):
+    """Parse a ps.txt stream into {pid: {..., children}} plus root pids."""
+    processes = {}
+    for line in file_obj:
+        entry = _parse_ps_line(line)
+        if entry is None:
+            continue
+        entry['children'] = []
+        processes[entry['pid']] = entry
+
+    roots = []
+    for pid, pdata in processes.items():
+        if pdata['ppid'] in processes and pdata['ppid'] != pid:
+            processes[pdata['ppid']]['children'].append(pid)
+        else:
+            roots.append(pid)
+    return processes, roots
+
+
+def _flatten_tree(processes, roots):
+    """Depth-first walk into a flat list of (depth, pid, user, command)."""
+    flat = []
+
+    def walk(pid, depth):
+        p = processes.get(pid)
+        if not p:
+            return
+        flat.append((depth, p['pid'], p['user'], p['command']))
+        for child_pid in p['children']:
+            walk(child_pid, depth + 1)
+
+    for root_pid in roots:
+        walk(root_pid, 0)
+    return flat
+
+
+def _user_colors(flat):
+    colors = {}
+    for _, _, user, _ in flat:
+        if user not in colors:
+            colors[user] = _USER_PALETTE[len(colors) % len(_USER_PALETTE)]
+    return colors
+
+
+def _render_tree(title, flat, user_colors):
+    font = _mono_font(_FONT_SIZE)
+    header_font = _mono_font(_FONT_SIZE + 4)
+
+    probe_img = Image.new('RGB', (1, 1))
+    probe_draw = ImageDraw.Draw(probe_img)
+    lines = [f"{'|   ' * depth}|-- (PID: {pid}) [{user}] {command}" for depth, pid, user, command in flat]
+    max_width = max((probe_draw.textlength(line, font=font) for line in lines), default=200)
+
+    width = int(max_width) + _PAD * 2
+    height = _PAD * 2 + 26 + len(flat) * _LINE_H
+
+    img = Image.new('RGB', (width, height), '#1e1e1e')
+    draw = ImageDraw.Draw(img)
+    draw.text((_PAD, _PAD), title, fill='#ffffff', font=header_font)
+
+    y = _PAD + 26
+    for depth, pid, user, command in flat:
+        x = _PAD
+        prefix = '|   ' * depth + '|-- '
+        draw.text((x, y), prefix, fill='#666666', font=font)
+        x += draw.textlength(prefix, font=font)
+
+        pid_text = f"(PID: {pid}) "
+        draw.text((x, y), pid_text, fill='#888888', font=font)
+        x += draw.textlength(pid_text, font=font)
+
+        user_text = f"[{user}] "
+        draw.text((x, y), user_text, fill=user_colors.get(user, _DEFAULT_USER_COLOR), font=font)
+        x += draw.textlength(user_text, font=font)
+
+        draw.text((x, y), command, fill='#dddddd', font=font)
+        y += _LINE_H
+
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    return buf.getvalue()
+
+
 @artifact_processor
-def sysdiagnoseProcess(files_found, report_folder, seeker, wrap_text, timezone_offset):
+def sysdiagnoseProcess(context):
+    """ See artifact description """
+    data_headers = (
+        "PID", "Parent PID", "User", "Command",
+        "UID", "%CPU", "%MEM", "STAT", "STARTED", "TIME",
+        "Source File"
+    )
     data_list = []
-    source_file = ''
+    sources = []
 
-    for file_found in files_found:
-        if 'ps.txt' in file_found or 'ps_thread.txt' in file_found:
-            source_file = file_found
-            try:
-                processes = {}
-                roots = []
+    for file_obj, source_path in get_sysdiagnose_files(context.get_files_found(), "ps.txt"):
+        source_name = context.get_relative_path(source_path)
+        sources.append(source_path)
 
-                with open(file_found, 'r', encoding='utf-8', errors='ignore') as f:
-                    for line in f:
-                        if line.startswith("USER") or not line.strip():
-                            continue
+        for line in file_obj:
+            entry = _parse_ps_line(line)
+            if entry is None:
+                continue
+            data_list.append((
+                entry['pid'], entry['ppid'], entry['user'], entry['command'],
+                entry['uid'], entry['cpu'], entry['mem'], entry['stat'],
+                entry['started'], entry['time'], source_name
+            ))
 
-                        parts = line.split(maxsplit=17)
-                        if len(parts) >= 18:
-                            try:
-                                pid = int(parts[3])
-                                ppid = int(parts[4])
-                                user = parts[0]
-                                command = parts[17].strip()
+    return data_headers, data_list, '\n'.join(sorted(set(sources)))
 
-                                processes[pid] = {
-                                    'pid': pid,
-                                    'ppid': ppid,
-                                    'user': user,
-                                    'command': command,
-                                    'children': []
-                                }
-                            except ValueError:
-                                continue
 
-                for pid, pdata in processes.items():
-                    ppid = pdata['ppid']
-                    if ppid in processes:
-                        processes[ppid]['children'].append(pid)
-                    else:
-                        roots.append(pid)
+@artifact_processor
+def sysdiagnoseProcessTree(context):
+    """ See artifact description """
+    data_headers = ('Capture', ('Tree', 'media'))
+    data_list = []
+    sources = []
 
-                def colorize_user(user):
-                    badge_classes = {
-                        'root': 'badge-danger',
-                        'mobile': 'badge-primary',
-                    }
-                    badge_class = badge_classes.get(user, 'badge-warning')  
-                    return f"<span class='badge {badge_class}'>{esc(user)}</span>"
+    for file_obj, source_path in get_sysdiagnose_files(context.get_files_found(), "ps.txt"):
+        source_name = context.get_relative_path(source_path)
+        sources.append(source_path)
 
-                tree_lines = []
-                def build_tree_string(pid, prefix=""):
-                    if pid not in processes:
-                        return
-                    p = processes[pid]
-                    pid_html = f"<span class='text-muted'>(PID: {esc(str(p['pid']))})</span>"  
-                    user_html = colorize_user(p['user'])
-                    tree_lines.append(f"{prefix}├── {pid_html} {user_html} {esc(p['command'])}")
-                    for child_pid in p['children']:
-                        build_tree_string(child_pid, prefix + "│   ")
+        processes, roots = _build_tree(file_obj)
+        flat = _flatten_tree(processes, roots)
+        if not flat:
+            data_list.append((source_name, None))
+            continue
 
-                for root_pid in roots:
-                    build_tree_string(root_pid)
+        user_colors = _user_colors(flat)
+        try:
+            png = _render_tree(source_name, flat, user_colors)
+            media_ref = check_in_embedded_media(source_path, png, 'sysdiagnose_process_tree.png',
+                                                force_type='image/png', force_extension='png')
+        except (OSError, ValueError) as ex:
+            logfunc(f'Failed to render process tree for {source_path}: {ex}')
+            media_ref = None
+        data_list.append((source_name, media_ref))
 
-                full_tree_text = "\n".join(tree_lines)
-
-                html_formatted_tree = f"<pre class='mb-0'>{full_tree_text}</pre>"
-                data_list.append([html_formatted_tree])
-
-            except Exception as e:
-                logfunc(f"Erreur lors du parsing de {file_found}: {e}")
-
-    data_headers = ('Process Hierarchy Tree',)
-    return data_headers, data_list, source_file
+    return data_headers, data_list, '\n'.join(sorted(set(sources)))
