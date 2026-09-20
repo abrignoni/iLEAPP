@@ -25,6 +25,11 @@ When no LAVA run is active (a module executed on its own, as the test harness do
 result, so a writer-style module behaves like one that returned a list.
 """
 
+import itertools
+
+_UNSET = object()
+_NO_ROWS = object()
+
 
 class ArtifactResult:
     """Container for artifact metadata and rows to be streamed by the core."""
@@ -59,6 +64,7 @@ class ArtifactResult:
         self._column_map = None
         self._is_lava_backed = False
         self._buffer = None
+        self._peeked = _UNSET
 
     def _format_source_path(self, source_path):
         if source_path and self._source_path_formatter:
@@ -255,9 +261,27 @@ class ArtifactResult:
             return False
         if isinstance(self._rows, list):
             return bool(self._rows)
-        return True
+        # An iterable passed with rows= may yield nothing, and the core decides whether to
+        # register a LAVA table from this result's truth value. Without a lookahead every
+        # iterable is truthy, so an artifact that found nothing would leave an empty table
+        # and a zero-count manifest entry, which reads as "parsed, found nothing" rather
+        # than "did not run". add_row() already defers registration to the first row; this
+        # gives the rows= form the same guarantee. The lookahead runs once and __iter__
+        # puts the item back, so consuming the result still yields every row.
+        return self._peek() is not _NO_ROWS
+
+    def _peek(self):
+        """Pull and hold the first row of a rows= iterable, once."""
+        if self._peeked is _UNSET:
+            rows = iter(self._rows)
+            self._peeked = next(rows, _NO_ROWS)
+            self._rows = rows
+        return self._peeked
 
     def __iter__(self):
         if self._buffer is not None:
             return iter(self._buffer)
-        return iter(self._rows)
+        if self._peeked is _UNSET or self._peeked is _NO_ROWS:
+            return iter(self._rows)
+        first, self._peeked = self._peeked, _UNSET
+        return itertools.chain([first], self._rows)
