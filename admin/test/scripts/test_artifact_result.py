@@ -19,6 +19,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from scripts import lavafuncs  # pylint: disable=wrong-import-position
 from scripts.context import Context  # pylint: disable=wrong-import-position
 from leapp_functions.app.artifact_result import ArtifactResult  # pylint: disable=wrong-import-position
+from scripts.ilapfuncs import artifact_processor, OutputParameters  # pylint: disable=wrong-import-position
 
 UTC = datetime.timezone.utc
 STAMP = datetime.datetime(2022, 3, 4, 12, 34, 56, tzinfo=UTC)
@@ -159,3 +160,103 @@ class TestAsyncInsert(ArtifactResultTestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class TestDiscardAfterRows(ArtifactResultTestCase):
+    """A result discarded after writing rows leaves no table and no manifest entry."""
+
+    def setUp(self):
+        super().setUp()
+        lavafuncs.initialize_lava(self.tmpdir, self.tmpdir, 'fs')
+
+    def _table_names(self):
+        cursor = lavafuncs.lava_db.cursor()
+        return [r[0] for r in cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                if not r[0].startswith('_')]
+
+    def test_discard_drops_the_table_and_the_manifest_entry(self):
+        result = Context.create_artifact_result(headers=HEADERS, batch_size=2)
+        for row in ROWS:
+            result.add_row(row)
+        # Rows were flushed: the table exists and the manifest names the artifact.
+        self.assertTrue(result.is_lava_backed)
+        self.assertIn(result.table_name, self._table_names())
+        self.assertEqual(len(lavafuncs.lava_data['artifacts'].get('Unit Category', [])), 1)
+
+        result.discard()
+
+        self.assertNotIn(result.table_name, self._table_names())
+        self.assertNotIn('Unit Category', lavafuncs.lava_data['artifacts'])
+        self.assertFalse(result.is_lava_backed)
+        self.assertEqual(result.row_count, 0)
+        self.assertEqual(len(result), 0)
+        # A discarded result is closed: nothing more can be added to it.
+        with self.assertRaises(ValueError):
+            result.add_row(ROWS[0])
+
+    def test_discard_before_any_row_is_harmless(self):
+        result = Context.create_artifact_result(headers=HEADERS)
+        result.discard()
+        self.assertEqual(self._table_names(), [])
+        self.assertNotIn('Unit Category', lavafuncs.lava_data['artifacts'])
+
+    def test_the_context_hands_back_the_result_it_created(self):
+        result = Context.create_artifact_result(headers=HEADERS)
+        self.assertIs(Context.get_artifact_result(), result)
+        Context.clear()
+        self.assertIsNone(Context.get_artifact_result())
+
+# artifact_processor reads the artifact's metadata from the module globals of the function
+# it wraps, so the two probe modules below are registered here.
+__artifacts_v2__ = {
+    'streaming_module_that_raises': {
+        'name': 'Streaming Raises', 'category': 'Probe Category', 'description': 'probe',
+        'author': '@unit', 'creation_date': '2026-09-20', 'last_update_date': '2026-09-20',
+        'notes': '', 'paths': ('*/nothing',), 'output_types': 'lava_only',
+    },
+    'list_module_that_raises': {
+        'name': 'List Raises', 'category': 'Probe Category', 'description': 'probe',
+        'author': '@unit', 'creation_date': '2026-09-20', 'last_update_date': '2026-09-20',
+        'notes': '', 'paths': ('*/nothing',), 'output_types': 'lava_only',
+    },
+}
+
+
+@artifact_processor
+def streaming_module_that_raises(context):
+    result = context.create_artifact_result(headers=HEADERS, source_path='probe.db', batch_size=2)
+    for row in ROWS:
+        result.add_row(row)
+    raise RuntimeError('probe: failed after streaming rows')
+
+
+@artifact_processor
+def list_module_that_raises(context):  # pylint: disable=unused-argument
+    raise RuntimeError('probe: failed after building a list')
+
+
+class TestARaisingModuleLeavesNothingBehind(ArtifactResultTestCase):
+    """Through artifact_processor, a module that raises after streaming leaves no table and no
+    manifest entry, exactly like a list-returning module that raises."""
+
+    def setUp(self):
+        super().setUp()
+        lavafuncs.initialize_lava(self.tmpdir, self.tmpdir, 'fs')
+        self.output_params = OutputParameters(self.tmpdir)
+        Context.set_output_params(self.output_params)
+
+    def _artifact_tables(self):
+        cursor = lavafuncs.lava_db.cursor()
+        return [r[0] for r in cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                if not r[0].startswith('_')]
+
+    def test_streaming_module_that_raises_leaves_no_table_and_no_manifest_entry(self):
+        with self.assertRaises(RuntimeError):
+            streaming_module_that_raises([], self.tmpdir, None, True, 'UTC')
+        self.assertEqual(self._artifact_tables(), [])
+        self.assertNotIn('Probe Category', lavafuncs.lava_data['artifacts'])
+
+    def test_list_module_that_raises_leaves_the_same_nothing(self):
+        with self.assertRaises(RuntimeError):
+            list_module_that_raises([], self.tmpdir, None, True, 'UTC')
+        self.assertEqual(self._artifact_tables(), [])
+        self.assertNotIn('Probe Category', lavafuncs.lava_data['artifacts'])

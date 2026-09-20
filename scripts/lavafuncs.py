@@ -739,6 +739,32 @@ def lava_update_source_path(category, tablename, source_path):
         if artifact.get("tablename") == tablename:
             artifact["source_path"] = source_path
             return
+def lava_discard_artifact(category, tablename):
+    """
+    Drop a streamed artifact's table and remove it from the manifest.
+
+    An ArtifactResult registers its table and writes rows while the module is still
+    running. If the module then raises, the rows already written would otherwise stay
+    in the database under a manifest entry with no record count, and the report would
+    show a complete-looking table that is short. The run log reports the failure; this
+    makes the database and manifest agree with it.
+
+    Args:
+        category (str): The category the artifact was registered under.
+        tablename (str): The sanitized table name returned by lava_process_artifact.
+    """
+
+    cursor = lava_db.cursor()
+    cursor.execute(f"DROP TABLE IF EXISTS {quote_sql_name(tablename)}")
+    lava_db.commit()
+    entries = lava_data["artifacts"].get(category)
+    if entries is None:
+        return
+    entries[:] = [a for a in entries if a.get("tablename") != tablename]
+    if not entries:
+        del lava_data["artifacts"][category]
+
+
 def lava_commit():
     """Commit the LAVA database.
 

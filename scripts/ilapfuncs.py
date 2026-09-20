@@ -629,10 +629,20 @@ def artifact_processor(func):
         Context.set_artifact_func_name(func_name)
 
         sig = inspect.signature(func)
-        if len(sig.parameters) == 1:
-            artifact_result = func(Context)
-        else:
-            artifact_result = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+        try:
+            if len(sig.parameters) == 1:
+                artifact_result = func(Context)
+            else:
+                artifact_result = func(files_found, report_folder, seeker, wrap_text, timezone_offset)
+        except BaseException:
+            # A streaming module has already written rows by the time it raises. Drop them
+            # with the manifest entry, so the report cannot show a table that is short
+            # while the run log says the artifact failed. A list-returning module that
+            # raises leaves nothing behind, and this keeps the two paths alike.
+            partial = Context.get_artifact_result()
+            if partial is not None:
+                partial.discard()
+            raise
 
         is_artifact_result = isinstance(artifact_result, ArtifactResult)
         if is_artifact_result:

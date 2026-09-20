@@ -217,6 +217,23 @@ class ArtifactResult:
         """Release any pending writer state."""
         self.close()
 
+    def discard(self):
+        """
+        Throw away everything this result wrote, table and manifest entry included.
+
+        Called by the core when the module that owns this result raises after adding
+        rows, so a failed artifact leaves nothing behind, the same as a module that
+        returned a list would.
+        """
+        self._write_batch = []
+        if self._is_lava_backed:
+            from scripts.lavafuncs import lava_discard_artifact
+
+            lava_discard_artifact(self._writer_metadata.get("category", ""), self._table_name)
+            self._is_lava_backed = False
+        self.row_count = 0
+        self._closed = True
+
     def __len__(self):
         if self._buffer is not None:
             return len(self._buffer)

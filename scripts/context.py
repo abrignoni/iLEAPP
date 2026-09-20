@@ -25,6 +25,7 @@ class Context:
     _module_file_path = None
     _artifact_name = None
     _artifact_func_name = None
+    _artifact_result = None
     _files_found = []
     _filename_lookup_map = {}
     _data_folder = None
@@ -514,7 +515,7 @@ class Context:
             "data_views": artifact_info.get("data_views"),
             "artifact_icon": artifact_info.get("artifact_icon"),
         }
-        return ArtifactResult(
+        result = ArtifactResult(
             headers=headers,
             source_path=source_path,
             estimated_row_count=estimated_row_count,
@@ -525,6 +526,14 @@ class Context:
             writer_metadata=writer_metadata,
             source_path_formatter=source_path_formatter,
         )
+        # Kept so the core can discard a result whose module raised before returning it.
+        Context._artifact_result = result
+        return result
+
+    @staticmethod
+    def get_artifact_result():
+        """Return the ArtifactResult the current artifact created, or None."""
+        return Context._artifact_result
 
     @staticmethod
     def _normalize_source_path(source_path):
@@ -627,5 +636,6 @@ class Context:
         Context._module_file_path = None
         Context._artifact_name = None
         Context._artifact_func_name = None
+        Context._artifact_result = None
         Context._files_found = []
         Context._filename_lookup_map = {}
