@@ -217,11 +217,14 @@ Pass `--compare MULTI_REPORT_DIR` to add the multi-container arithmetic above as
 than a manual diff.
 
 It is not a gate. A finding is a prompt, and the answer is usually one of two things: fix the
-column, or, when the blank or the constant is a real result, **name that column in the notes**.
-A column the notes name is not reported, so the documented way to keep a uniform column, saying
-it was uniform and why it still earns its place, is exactly what clears the finding. An empty
-column on a messages or location artifact is frequently a forensic negative worth stating (no
-group chats, no disappearing timers, coarse location denied), not a column to delete.
+column, or, when the blank or the constant is a real result, **write that finding into the
+notes**. What clears it is a sentence naming the column and saying what the checker says, so
+"ChargeLimit held 100 on all 247 rows" clears it and "ChargeLimit is an integer code reported
+as stored" does not. The key is the finding, not the column: naming a column for an unrelated
+reason does not silence a defect, and the name has to appear as a word, so "timestamp" and
+"timezone" do not stand in for a column named TIME. An empty column on a messages or location
+artifact is frequently a forensic negative worth stating (no group chats, no disappearing
+timers, coarse location denied), not a column to delete.
 
 ## 6. Before opening the PR
 
