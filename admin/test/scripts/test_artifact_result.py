@@ -218,6 +218,16 @@ __artifacts_v2__ = {
         'author': '@unit', 'creation_date': '2026-09-20', 'last_update_date': '2026-09-20',
         'notes': '', 'paths': ('*/nothing',), 'output_types': 'lava_only',
     },
+    'rows_iterable_module_empty': {
+        'name': 'Rows Iterable Empty', 'category': 'Probe Category', 'description': 'probe',
+        'author': '@unit', 'creation_date': '2026-09-20', 'last_update_date': '2026-09-20',
+        'notes': '', 'paths': ('*/nothing',), 'output_types': 'lava_only',
+    },
+    'rows_iterable_module_rows': {
+        'name': 'Rows Iterable Rows', 'category': 'Probe Category', 'description': 'probe',
+        'author': '@unit', 'creation_date': '2026-09-20', 'last_update_date': '2026-09-20',
+        'notes': '', 'paths': ('*/nothing',), 'output_types': 'lava_only',
+    },
 }
 
 
@@ -321,3 +331,65 @@ class TestReplayKeepsPythonText(ArtifactResultTestCase):
         self.assertEqual(restore('nan'), 'nan')          # non-finite never converts
         self.assertEqual(restore('["a", "b"]', 'media'), ['a', 'b'])
         self.assertEqual(restore('single-ref', 'media'), 'single-ref')
+
+@artifact_processor
+def rows_iterable_module_empty(context):
+    return context.create_artifact_result(headers=HEADERS, source_path='probe.db', rows=iter(()))
+
+
+@artifact_processor
+def rows_iterable_module_rows(context):
+    return context.create_artifact_result(headers=HEADERS, source_path='probe.db', rows=iter(ROWS))
+
+
+class TestRowsIterableEmptyCase(ArtifactResultTestCase):
+    """An iterable passed with rows= that yields nothing must leave no table and no manifest
+    entry, the same as add_row() with no rows, and a non-empty one must keep every row."""
+
+    def setUp(self):
+        super().setUp()
+        lavafuncs.initialize_lava(self.tmpdir, self.tmpdir, 'fs')
+        self._saved_log_paths = {name: getattr(OutputParameters, name) for name in vars(OutputParameters)
+                                 if name.startswith('screen_output_file_path')}
+        Context.set_output_params(OutputParameters(self.tmpdir))
+
+    def tearDown(self):
+        for name, value in self._saved_log_paths.items():
+            setattr(OutputParameters, name, value)
+        super().tearDown()
+
+    def _artifact_tables(self):
+        cursor = lavafuncs.lava_db.cursor()
+        return [r[0] for r in cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                if not r[0].startswith('_')]
+
+    def test_an_empty_iterable_is_falsey(self):
+        self.assertFalse(ArtifactResult(headers=HEADERS, rows=iter(())))
+
+    def test_an_empty_list_is_still_falsey(self):
+        self.assertFalse(ArtifactResult(headers=HEADERS, rows=[]))
+
+    def test_a_non_empty_iterable_is_truthy_and_keeps_every_row(self):
+        result = ArtifactResult(headers=HEADERS, rows=iter(ROWS))
+        self.assertTrue(result)
+        # The lookahead pulled the first row; iterating has to put it back.
+        self.assertEqual(list(result), list(ROWS))
+
+    def test_asking_twice_does_not_lose_the_first_row(self):
+        result = ArtifactResult(headers=HEADERS, rows=iter(ROWS))
+        self.assertTrue(result)
+        self.assertTrue(result)
+        self.assertEqual(list(result), list(ROWS))
+
+    def test_an_empty_iterable_module_leaves_no_table_and_no_manifest_entry(self):
+        rows_iterable_module_empty([], self.tmpdir, None, True, 'UTC')  # pylint: disable=too-many-function-args
+        self.assertEqual(self._artifact_tables(), [])
+        self.assertNotIn('Probe Category', lavafuncs.lava_data['artifacts'])
+
+    def test_a_non_empty_iterable_module_writes_every_row(self):
+        rows_iterable_module_rows([], self.tmpdir, None, True, 'UTC')  # pylint: disable=too-many-function-args
+        tables = self._artifact_tables()
+        self.assertEqual(len(tables), 1)
+        count = lavafuncs.lava_db.execute(
+            f'SELECT COUNT(*) FROM {lavafuncs.quote_sql_name(tables[0])}').fetchone()[0]
+        self.assertEqual(count, len(ROWS))
