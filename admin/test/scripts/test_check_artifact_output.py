@@ -119,5 +119,70 @@ class Scaling(unittest.TestCase):
         self.assertEqual(coa.check_scaling({'a': 0}, {'a': 0}), [])
 
 
+
+class SilencedOnTheFindingNotTheColumn(unittest.TestCase):
+    """The notes silence a finding only by addressing that finding.
+
+    Before this, any mention of the column anywhere in the notes silenced every
+    finding about it, and the match was a bare substring. A real case: a module
+    whose notes explained that ps_thread.txt carries %CPU in its 4th column had
+    its own uniform %CPU column silenced by that sentence, and its uniform TIME
+    column silenced by the words "timezone" and "timestamp".
+    """
+
+    CONSTANT = [{'A': str(i), '%CPU': '0.0', 'TIME': '0:00.00'} for i in range(5)]
+    COLUMNS = ['A', '%CPU', 'TIME']
+
+    def test_a_mention_for_another_reason_does_not_silence(self):
+        notes = ('ps_thread.txt is not read: its 4th column is %CPU, where the 4th of '
+                 'ps.txt holds the process identifier.')
+        findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
+        reported = [m for k, m in findings if k == 'constant-column']
+        self.assertTrue(any("'%CPU'" in m for m in reported))
+
+    def test_a_longer_word_containing_the_name_does_not_silence(self):
+        notes = "STARTED carries no date or timezone and is not a usable timestamp."
+        findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
+        reported = [m for k, m in findings if k == 'constant-column']
+        self.assertTrue(any("'TIME'" in m for m in reported))
+
+    def test_saying_the_column_is_uniform_does_silence(self):
+        notes = "%CPU and TIME each held a single value on all 5 rows."
+        findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
+        self.assertNotIn('constant-column', _kinds(findings))
+
+    def test_a_plural_still_names_the_column(self):
+        rows = [{'A': 'x', 'Timestamp': ''} for _ in range(3)]
+        findings = coa.check_table(['A', 'Timestamp'], rows,
+                                   notes='The timestamps were blank on every row.')
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_a_colon_list_is_one_statement(self):
+        rows = [{'A': 'x', 'B': ''} for _ in range(3)]
+        findings = coa.check_table(['A', 'B'], rows, notes='These are blank: A, B and C.')
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_documenting_emptiness_does_not_silence_uniformity(self):
+        """Each kind has its own vocabulary, so the wrong one leaves the finding."""
+        rows = [{'A': 'x', 'B': 'same'} for _ in range(4)]
+        findings = coa.check_table(['A', 'B'], rows, notes='B is blank on rows with no record.')
+        self.assertIn('constant-column', _kinds(findings))
+
+    def test_identical_columns_need_both_named_in_one_sentence(self):
+        rows = [{'A': str(i), 'B': str(i)} for i in range(4)]
+        loose = coa.check_table(['A', 'B'], rows,
+                                notes='A is the path. Separately, B is the name.')
+        self.assertIn('identical-columns', _kinds(loose))
+        stated = coa.check_table(['A', 'B'], rows,
+                                 notes='A and B are identical because the store repeats it.')
+        self.assertNotIn('identical-columns', _kinds(stated))
+
+    def test_a_bare_mention_is_reported_with_a_hint(self):
+        notes = 'The %CPU column is read from the 7th field.'
+        findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
+        hinted = [m for k, m in findings if "'%CPU'" in m]
+        self.assertTrue(hinted and 'not as this finding' in hinted[0])
+
+
 if __name__ == '__main__':
     unittest.main()
