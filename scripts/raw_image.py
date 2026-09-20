@@ -56,7 +56,7 @@ RAW_IMAGE_SUFFIXES = ('img', 'bin', 'dd', 'raw', '001', 'e01')
 # What the vendored reader walks, for the file dialog and the -t help. A test
 # asserts each entry here has a walker in the vendored copy, so the two cannot
 # drift apart quietly.
-RAW_IMAGE_FILESYSTEMS = ('QNX6, QNX4, ETFS, EFS, ext2/3/4, FAT32, exFAT, NTFS, '
+RAW_IMAGE_FILESYSTEMS = ('QNX6, QNX4, ETFS, EFS, ext2/3/4, F2FS, FAT32, exFAT, NTFS, '
                          'HFS+, APFS, QNX IFS')
 RAW_IMAGE_LABEL = f'Raw disk image or acquisition ({RAW_IMAGE_FILESYSTEMS})'
 
@@ -215,36 +215,70 @@ class FileSeekerRaw(FileSeekerBase):
             if walker is None:
                 continue
             started = timex.monotonic()
-            files, dirs = self._walk(walker, vol['name'])
+            files, dirs, route = self._walk(walker, vol['name'])
             logfunc(f"  walked {vol['name']}: {files:,} files, {dirs:,} directories "
-                    f"in {timex.monotonic() - started:.1f}s")
+                    f"in {timex.monotonic() - started:.1f}s ({route})")
         logfunc(f'File listing complete - {len(self.name_list):,} members')
 
     def _walk(self, walker, prefix):
-        """Register every file and directory under a volume's root. Returns counts."""
+        """Register every file and directory under a volume's root.
+
+        Returns (files, directories, route), where route names how the entries
+        were read, for the run log.
+
+        A volume is walked one directory at a time: list its children, read each
+        child's entry, descend. On NTFS that means reading every directory's index
+        and reaching the MFT records in directory order, and on APFS it means
+        searching the catalog tree once per lookup. The reader offers a faster
+        way to have the same entries on both: one pass over $MFT for NTFS
+        (walker.listing) and one pass over the catalog's leaves for APFS
+        (walker.prime_records). On a 7.4 GB Windows acquisition the listing went
+        from 6.9 s to 2.0 s, and on a 32 GB macOS one from 147.0 s to 8.0 s.
+
+        Only where the entries come from changes. The traversal below is the one
+        this has always used, depth first with each directory's children sorted
+        by name, and the member list is the order search() hands artifacts their
+        files in, so it stays exactly what it was. Everything else is walked as
+        before.
+        """
+        by_directory = self._one_pass_listing(walker)
+        if by_directory is not None:
+            route = 'one pass over $MFT'
+        else:
+            route = 'directory by directory'
+            prime = getattr(walker, 'prime_records', None)
+            if prime is not None:
+                try:
+                    prime()
+                    route = 'one pass over the catalog'
+                except Exception as exc:  # pylint: disable=broad-exception-caught
+                    logfunc(f'  could not read the catalog in one pass ({type(exc).__name__}: '
+                            f'{exc}); searching it once per lookup instead')
         files = dirs = 0
         seen = set()
-        stack = [(walker.root, prefix, 0)]
+        stack = [(walker.root, prefix, 0, '')]
         while stack:
-            node, path, depth = stack.pop()
+            node, path, depth, within = stack.pop()
             if depth > _MAX_DEPTH or node in seen:
                 continue
             seen.add(node)
             try:
-                if hasattr(walker, 'listdir_records'):
+                if by_directory is not None:
+                    listing = list(by_directory.get(within, ()))
+                elif hasattr(walker, 'listdir_records'):
                     # FAT and exFAT keep wall-clock readings rather than instants;
                     # the reader hands them back as text beside each entry.
-                    listing = [(name, child, (recorded or {}).get('modified', ''))
+                    listing = [(name, child, (recorded or {}).get('modified', ''), None)
                                for name, child, recorded in walker.listdir_records(node)]
                 else:
-                    listing = [(name, child, '') for name, child in walker.listdir(node)]
+                    listing = [(name, child, '', None) for name, child in walker.listdir(node)]
                 listing.sort(key=lambda item: item[0])
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 logfunc(f'Could not list {path}/ in the image: {exc}')
                 continue
-            for child_name, child, reading in listing:
+            for child_name, child, reading, known in listing:
                 try:
-                    ent = walker.entry(child)
+                    ent = known if known is not None else walker.entry(child)
                 except Exception as exc:  # pylint: disable=broad-exception-caught
                     logfunc(f'Could not read the entry for {path}/{child_name}: {exc}')
                     continue
@@ -256,12 +290,57 @@ class FileSeekerRaw(FileSeekerBase):
                     self.name_list.append(member + '/')
                     self._entries[member + '/'] = None
                     dirs += 1
-                    stack.append((child, member, depth + 1))
+                    stack.append((child, member, depth + 1,
+                                  f'{within}/{child_name}' if within else child_name))
                 elif (mode & 0o170000) == 0o100000:          # regular files only
                     self.name_list.append(member)
                     self._entries[member] = _Entry(walker, child, size or 0, mtime or 0, reading)
                     files += 1
-        return files, dirs
+        return files, dirs, route
+
+    @staticmethod
+    def _one_pass_listing(walker):
+        """Every entry of the volume, grouped by the directory holding it, or None.
+
+        {directory path within the volume: [(name, node, reading, (mode, size,
+        mtime))]}, built from a walker's one-pass listing, which NTFS offers.
+        None when the walker has none, or when the pass fails part way: the
+        caller then walks the volume directory by directory, which reports what
+        it cannot read one entry at a time and carries on.
+
+        A tree walk and this read the volume differently: the first asks each
+        directory what it holds, this asks each record what it is called. They
+        agree on every consistent volume measured. On two Windows acquisitions
+        they differ, by 4 of the 313,892 members this lists on one and by 3 of
+        181,521 on the other, where a directory's index holds an entry for a
+        file at an older sequence number than the file's own record carries:
+        the tree walk rightly refuses the entry and so loses a file whose
+        record is live. The reader's NtfsWalker.listing says which and what is
+        known about why. Two records naming the same file in the same directory
+        is that same disagreement: the first in record order is kept, so a path
+        is never listed twice.
+        """
+        listing = getattr(walker, 'listing', None)
+        if listing is None:
+            return None
+        by_directory, taken, clashes = {}, set(), 0
+        try:
+            for path, node, mode, size, mtime, recorded in listing():
+                parent, _slash, name = path.rpartition('/')
+                if (parent, name) in taken:
+                    clashes += 1
+                    continue
+                taken.add((parent, name))
+                by_directory.setdefault(parent, []).append(
+                    (name, node, (recorded or {}).get('modified', ''), (mode, size, mtime)))
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logfunc(f'  the one-pass listing failed ({type(exc).__name__}: {exc}); '
+                    f'walking the volume directory by directory instead')
+            return None
+        if clashes:
+            logfunc(f'  {clashes:,} name(s) were claimed by more than one record in the '
+                    f'same directory; the first in record order was kept')
+        return by_directory
 
     # ---- searching and staging ----------------------------------------------
 

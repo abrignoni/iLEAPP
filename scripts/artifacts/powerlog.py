@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "(PLAppTimeService_Aggregate_AppRunTime table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -22,7 +22,20 @@ __artifacts_v2__ = {
             "acquisition dates. ScreenOnTime/BackgroundTime read as seconds are "
             "consistent with the sampling-window durations in test data. Gzipped rotated "
             "logs (*.PLSQL.gz) are decompressed to a temporary location and parsed; the "
-            "Source File column carries the archive path. InCallScreenOnTime and "
+            "Source File column carries the archive path. The databases under "
+            "logs/powerlogs in a packed sysdiagnose (sysdiagnose_*.tar.gz, such as those "
+            "under DiagnosticLogs/sysdiagnose in a full file system extraction) are copied "
+            "out to a temporary location and parsed; the Source File column carries the "
+            "archive path and the database's path inside it, joined by ' >> '. Rows are "
+            "not deduplicated across files: an event held in more than one copy of a "
+            "database appears once per copy, and because each copy applies its own "
+            "time-offset entries, the copies can display it at different times. On one "
+            "test image a torch event held in seven copies displayed at three times, up "
+            "to six seconds apart. On two test images whose packed sysdiagnoses fell "
+            "within the period their live log covers, 99.9% of the rows read from the "
+            "sysdiagnoses repeated rows already reported from the live log; on a third, "
+            "whose sysdiagnoses predate its live PowerLog tables by months, 99.2% did "
+            "not. InCallScreenOnTime and "
             "InCallBackgroundTime exist on later iOS 18 schemas only; where absent the "
             "columns are reported empty. PowerLog holds many additional version-specific "
             "tables that require separate validation."
@@ -31,18 +44,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 13524 rows",
-            "hickman_ios13": "iOS 13.3.1 | 11047 rows",
-            "hickman_ios14": "iOS 14.3 | 18474 rows",
+            "hickman_ios13": "iOS 13.3.1 | 13701 rows",
+            "hickman_ios14": "iOS 14.3 | 22668 rows",
             "jess_ios15": "iOS 15.0.2 | 3558 rows",
             "hickman_ios15": "iOS 15 | 16221 rows",
             "magnet_ios16": "iOS 16.1.1 | 933 rows",
             "abe_ios16": "iOS 16.5 | 84531 rows",
-            "felix23_ios16": "iOS 16.5 | 11986 rows",
+            "felix23_ios16": "iOS 16.5 | 15134 rows",
             "fsfull002_ios17": "iOS 17.1 | 8059 rows",
             "iphone11_ios17": "iOS 17.3 | 55157 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 6266 rows",
@@ -63,7 +77,7 @@ __artifacts_v2__ = {
                        "(PLBatteryAgent_EventBackward_BatteryUI table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -77,18 +91,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery-charging",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 12915 rows",
-            "hickman_ios13": "iOS 13.3.1 | 5967 rows",
-            "hickman_ios14": "iOS 14.3 | 6704 rows",
+            "hickman_ios13": "iOS 13.3.1 | 7659 rows",
+            "hickman_ios14": "iOS 14.3 | 8386 rows",
             "jess_ios15": "iOS 15.0.2 | 2560 rows",
             "hickman_ios15": "iOS 15 | 7220 rows",
             "magnet_ios16": "iOS 16.1.1 | 210 rows",
             "abe_ios16": "iOS 16.5 | 16342 rows",
-            "felix23_ios16": "iOS 16.5 | 4905 rows",
+            "felix23_ios16": "iOS 16.5 | 6818 rows",
             "fsfull002_ios17": "iOS 17.1 | 2999 rows",
             "iphone11_ios17": "iOS 17.3 | 13704 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 1591 rows",
@@ -109,7 +124,7 @@ __artifacts_v2__ = {
                        "(PLSleepWakeAgent_EventForward_PowerState table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -123,18 +138,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "power",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 65114 rows",
-            "hickman_ios13": "iOS 13.3.1 | 13208 rows",
-            "hickman_ios14": "iOS 14.3 | 13357 rows",
+            "hickman_ios13": "iOS 13.3.1 | 19005 rows",
+            "hickman_ios14": "iOS 14.3 | 19991 rows",
             "jess_ios15": "iOS 15.0.2 | 2960 rows",
             "hickman_ios15": "iOS 15 | 18018 rows",
             "magnet_ios16": "iOS 16.1.1 | 1472 rows",
             "abe_ios16": "iOS 16.5 | 21426 rows",
-            "felix23_ios16": "iOS 16.5 | 3173 rows",
+            "felix23_ios16": "iOS 16.5 | 7527 rows",
             "fsfull002_ios17": "iOS 17.1 | 3150 rows",
             "iphone11_ios17": "iOS 17.3 | 22977 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 2670 rows",
@@ -155,7 +171,7 @@ __artifacts_v2__ = {
                        "(PLApplicationAgent_EventForward_Application table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -169,18 +185,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "activity",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 9493 rows",
-            "hickman_ios13": "iOS 13.3.1 | 10596 rows",
-            "hickman_ios14": "iOS 14.3 | 11695 rows",
+            "hickman_ios13": "iOS 13.3.1 | 14878 rows",
+            "hickman_ios14": "iOS 14.3 | 19186 rows",
             "jess_ios15": "iOS 15.0.2 | 701 rows",
             "hickman_ios15": "iOS 15 | 5708 rows",
             "magnet_ios16": "iOS 16.1.1 | 360 rows",
             "abe_ios16": "iOS 16.5 | 31702 rows",
-            "felix23_ios16": "iOS 16.5 | 2268 rows",
+            "felix23_ios16": "iOS 16.5 | 4052 rows",
             "fsfull002_ios17": "iOS 17.1 | 921 rows",
             "iphone11_ios17": "iOS 17.3 | 18444 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 5345 rows",
@@ -201,7 +218,7 @@ __artifacts_v2__ = {
                        "(PLSpringBoardAgent_EventForward_SBLock table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -215,18 +232,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "lock",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 214 rows",
-            "hickman_ios13": "iOS 13.3.1 | 62 rows",
-            "hickman_ios14": "iOS 14.3 | 63 rows",
+            "hickman_ios13": "iOS 13.3.1 | 83 rows",
+            "hickman_ios14": "iOS 14.3 | 99 rows",
             "jess_ios15": "iOS 15.0.2 | 21 rows",
             "hickman_ios15": "iOS 15 | 77 rows",
             "magnet_ios16": "iOS 16.1.1 | 3 rows",
             "abe_ios16": "iOS 16.5 | 295 rows",
-            "felix23_ios16": "iOS 16.5 | 34 rows",
+            "felix23_ios16": "iOS 16.5 | 83 rows",
             "fsfull002_ios17": "iOS 17.1 | 7 rows",
             "iphone11_ios17": "iOS 17.3 | 114 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 40 rows",
@@ -247,7 +265,7 @@ __artifacts_v2__ = {
                        "(PLSpringBoardAgent_EventPoint_SBAutoLock table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -261,18 +279,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "clock",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 71 rows",
-            "hickman_ios13": "iOS 13.3.1 | 120 rows",
-            "hickman_ios14": "iOS 14.3 | 113 rows",
+            "hickman_ios13": "iOS 13.3.1 | 160 rows",
+            "hickman_ios14": "iOS 14.3 | 163 rows",
             "jess_ios15": "iOS 15.0.2 | 30 rows",
             "hickman_ios15": "iOS 15 | 193 rows",
             "magnet_ios16": "iOS 16.1.1 | 11 rows",
             "abe_ios16": "iOS 16.5 | 1275 rows",
-            "felix23_ios16": "iOS 16.5 | 35 rows",
+            "felix23_ios16": "iOS 16.5 | 88 rows",
             "fsfull002_ios17": "iOS 17.1 | 20 rows",
             "iphone11_ios17": "iOS 17.3 | 201 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 70 rows",
@@ -293,13 +312,13 @@ __artifacts_v2__ = {
                        "(PLCameraAgent_EventForward_Torch table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "BundleId and Level are reported as stored; Level was 0 on 114 of the 120 tested rows "
-            "(iOS 12.4-26) and 1 on 6 rows of two images. Rows are sparse: the test images held "
-            "at most a few entries each. Timestamps are adjusted using PowerLog's time-offset "
+            "BundleId and Level are reported as stored; Level was 0 on 116 of the 122 tested rows "
+            "(iOS 12.4-26) and 1 on 6 rows of two images. Rows are sparse: no test image held "
+            "more than 23. Timestamps are adjusted using PowerLog's time-offset "
             "table and the applied offset is reported per row; see the PowerLog - Application "
             "Runtime notes for the mechanism."
         ),
@@ -307,18 +326,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "zap",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 11 rows",
-            "hickman_ios13": "iOS 13.3.1 | 8 rows",
-            "hickman_ios14": "iOS 14.3 | 6 rows",
+            "hickman_ios13": "iOS 13.3.1 | 10 rows",
+            "hickman_ios14": "iOS 14.3 | 7 rows",
             "jess_ios15": "iOS 15.0.2 | 6 rows",
             "hickman_ios15": "iOS 15 | 8 rows",
             "magnet_ios16": "iOS 16.1.1 | 2 rows",
             "abe_ios16": "iOS 16.5 | 23 rows",
-            "felix23_ios16": "iOS 16.5 | 6 rows",
+            "felix23_ios16": "iOS 16.5 | 8 rows",
             "fsfull002_ios17": "iOS 17.1 | 6 rows",
             "iphone11_ios17": "iOS 17.3 | 11 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 1 rows",
@@ -339,7 +359,7 @@ __artifacts_v2__ = {
                        "PowerLog (PLDisplayAgent_EventForward_Display table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -353,18 +373,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "sun",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 1271 rows",
-            "hickman_ios13": "iOS 13.3.1 | 945 rows",
-            "hickman_ios14": "iOS 14.3 | 1365 rows",
+            "hickman_ios13": "iOS 13.3.1 | 1445 rows",
+            "hickman_ios14": "iOS 14.3 | 2251 rows",
             "jess_ios15": "iOS 15.0.2 | 262 rows",
             "hickman_ios15": "iOS 15 | 4787 rows",
             "magnet_ios16": "iOS 16.1.1 | 45 rows",
             "abe_ios16": "iOS 16.5 | 4311 rows",
-            "felix23_ios16": "iOS 16.5 | 110 rows",
+            "felix23_ios16": "iOS 16.5 | 254 rows",
             "fsfull002_ios17": "iOS 17.1 | 131 rows",
             "iphone11_ios17": "iOS 17.3 | 5369 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 1009 rows",
@@ -385,7 +406,7 @@ __artifacts_v2__ = {
                        "(PLAudioAgent_EventForward_Routing table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -403,18 +424,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "headphones",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 183 rows",
-            "hickman_ios13": "iOS 13.3.1 | 105 rows",
-            "hickman_ios14": "iOS 14.3 | 206 rows",
+            "hickman_ios13": "iOS 13.3.1 | 176 rows",
+            "hickman_ios14": "iOS 14.3 | 344 rows",
             "jess_ios15": "iOS 15.0.2 | 20 rows",
             "hickman_ios15": "iOS 15 | 66 rows",
             "magnet_ios16": "iOS 16.1.1 | 4 rows",
             "abe_ios16": "iOS 16.5 | 2116 rows",
-            "felix23_ios16": "iOS 16.5 | 40 rows",
+            "felix23_ios16": "iOS 16.5 | 87 rows",
             "fsfull002_ios17": "iOS 17.1 | 13 rows",
             "iphone11_ios17": "iOS 17.3 | 2097 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 261 rows",
@@ -435,7 +457,7 @@ __artifacts_v2__ = {
                        "PowerLog (PLBatteryAgent_EventBackward_Adapter table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -452,6 +474,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "plug-connected",
@@ -484,7 +507,7 @@ __artifacts_v2__ = {
                        "(PLCameraAgent_EventForward_Camera table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -500,18 +523,19 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "camera",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 957 rows",
-            "hickman_ios13": "iOS 13.3.1 | 131 rows",
-            "hickman_ios14": "iOS 14.3 | 160 rows",
+            "hickman_ios13": "iOS 13.3.1 | 223 rows",
+            "hickman_ios14": "iOS 14.3 | 286 rows",
             "jess_ios15": "iOS 15.0.2 | 8 rows",
             "hickman_ios15": "iOS 15 | 100 rows",
             "magnet_ios16": "iOS 16.1.1 | 1 rows",
             "abe_ios16": "iOS 16.5 | 322 rows",
-            "felix23_ios16": "iOS 16.5 | 14 rows",
+            "felix23_ios16": "iOS 16.5 | 37 rows",
             "fsfull002_ios17": "iOS 17.1 | 27 rows",
             "iphone11_ios17": "iOS 17.3 | 245 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 94 rows",
@@ -532,7 +556,7 @@ __artifacts_v2__ = {
                        "(ANE_modelLoad_1_2 table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -547,6 +571,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -579,7 +604,7 @@ __artifacts_v2__ = {
                        "(ANE_modelUnload_1_2 table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -593,6 +618,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -625,7 +651,7 @@ __artifacts_v2__ = {
                        "(GenerativeFunctionMetrics_Summarization_1_2 table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -643,6 +669,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -675,7 +702,7 @@ __artifacts_v2__ = {
                        "(GenerativeFunctionMetrics_tgiExecuteRequest_1_2 table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -693,6 +720,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -725,7 +753,7 @@ __artifacts_v2__ = {
                        "(GenerativeFunctionMetrics_mmExecuteRequest_1_2 table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -745,6 +773,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -777,7 +806,7 @@ __artifacts_v2__ = {
                        "(GenerativeFunctionMetrics_assetLoad_1_2 table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -796,6 +825,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -828,7 +858,7 @@ __artifacts_v2__ = {
                        "(GenerativeFunctionMetrics_OptIn_1_2 table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -848,6 +878,7 @@ __artifacts_v2__ = {
             "*/BatteryLife/*.PLSQL*",
             "*/[Pp]ower[Ll]og/*.PLSQL*",
             "*/powerlogs/*.PLSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "cpu",
@@ -880,7 +911,7 @@ __artifacts_v2__ = {
                        "extended persistence log (BatteryDataCollection_BDC_Daily table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
@@ -897,6 +928,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
             "*/powerlogs/*.EPSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery",
@@ -908,7 +940,7 @@ __artifacts_v2__ = {
             "hickman_ios15": "iOS 15 | 77 rows",
             "magnet_ios16": "iOS 16.1.1 | 93 rows",
             "abe_ios16": "iOS 16.5 | 208 rows",
-            "felix23_ios16": "iOS 16.5 | 245 rows",
+            "felix23_ios16": "iOS 16.5 | 316 rows",
             "fsfull002_ios17": "iOS 17.1 | 193 rows",
             "iphone11_ios17": "iOS 17.3 | 598 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 608 rows",
@@ -930,7 +962,7 @@ __artifacts_v2__ = {
                        "table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
@@ -946,6 +978,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
             "*/powerlogs/*.EPSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "battery-charging",
@@ -957,7 +990,7 @@ __artifacts_v2__ = {
             "hickman_ios15": "iOS 15 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 5 rows",
             "abe_ios16": "iOS 16.5 | 160 rows",
-            "felix23_ios16": "iOS 16.5 | 26 rows",
+            "felix23_ios16": "iOS 16.5 | 48 rows",
             "fsfull002_ios17": "iOS 17.1 | 49 rows",
             "iphone11_ios17": "iOS 17.3 | 241 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 247 rows",
@@ -978,13 +1011,14 @@ __artifacts_v2__ = {
                        "extended persistence log (BatteryDataCollection_BDC_Once table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
             "DesignCapacity, ChemID, AlgoChemID, EEEE, YWW, and "
             "GasGaugeFirmwareVersion are reported as stored; no interpretation "
-            "is applied. Test images held at most two rows each. "
+            "is applied. Test images held at most three rows each; the three on "
+            "one image were the same record read from three copies of the log. "
             "Raw timestamp values are adjusted using the time-offset table in "
             "this log (PPTStorageOperator_TimeOffset; its retention suffix "
             "varies by iOS version) and the applied offset is reported per row; "
@@ -993,6 +1027,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
             "*/powerlogs/*.EPSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "settings",
@@ -1004,7 +1039,7 @@ __artifacts_v2__ = {
             "hickman_ios15": "iOS 15 | 1 rows",
             "magnet_ios16": "iOS 16.1.1 | 1 rows",
             "abe_ios16": "iOS 16.5 | 0 rows",
-            "felix23_ios16": "iOS 16.5 | 1 rows",
+            "felix23_ios16": "iOS 16.5 | 3 rows",
             "fsfull002_ios17": "iOS 17.1 | 2 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
             "rodeo_ios17_sysdiag": "iOS 17.3 sysdiagnose | 2 rows",
@@ -1026,7 +1061,7 @@ __artifacts_v2__ = {
                        "(BatteryTrustedData_Daily table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
@@ -1044,6 +1079,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
             "*/powerlogs/*.EPSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "clock",
@@ -1077,7 +1113,7 @@ __artifacts_v2__ = {
                        "table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
@@ -1095,6 +1131,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.BGSQL*",
             "*/powerlogs/*.BGSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "activity",
@@ -1127,7 +1164,7 @@ __artifacts_v2__ = {
                        "background processing log (BackgroundProcessing_TaskMetadata table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
@@ -1142,6 +1179,7 @@ __artifacts_v2__ = {
         "paths": (
             "*/PerfPowerTelemetry/*/*.BGSQL*",
             "*/powerlogs/*.BGSQL*",
+            "*/sysdiagnose_*.tar.gz",
         ),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "package",
@@ -1174,9 +1212,12 @@ import atexit
 import glob
 import gzip
 import os
+import re
 import shutil
+import tarfile
 import tempfile
 import time
+import zlib
 from bisect import bisect_right
 from datetime import timedelta
 
@@ -1186,6 +1227,7 @@ from scripts.ilapfuncs import (
     does_column_exist_in_db,
     does_table_exist_in_db,
     get_sqlite_db_records,
+    get_sysdiagnose_files,
     logfunc,
 )
 
@@ -1195,8 +1237,17 @@ TIME_OFFSET_TABLE = "PLStorageOperator_EventForward_TimeOffset"
 # artifact in this module; maps original .PLSQL.gz path -> decompressed copy.
 _GZ_CACHE = {}
 # 'dir' -> session temp directory for the decompressed copies, first use only.
+# The copies taken out of packed sysdiagnoses go in the same directory.
 _GZ_TEMP = {}
 _GZ_TEMP_PREFIX = "ileapp_powerlog_gz_"
+
+# Packed sysdiagnoses are read once per session as well; maps archive path ->
+# [(extracted copy, 'archive >> member')] for every telemetry db it holds under
+# logs/powerlogs/.
+_SYSDIAG_CACHE = {}
+# A sysdiagnose keeps its telemetry dbs under logs/powerlogs/. The sysdiagnoses
+# checked (iOS 13.3.1 to 26) held only the database files there, no -wal or -shm.
+_SYSDIAG_TELEMETRY = re.compile(r"/logs/powerlogs/[^/]+\.(?:PLSQL|EPSQL|BGSQL)$")
 
 # How long an abandoned directory must have gone untouched before another run reclaims it.
 # Generous on purpose: the cost of waiting is disk space, the cost of being wrong is
@@ -1205,7 +1256,7 @@ _STALE_TEMP_AGE_SECONDS = 24 * 60 * 60
 
 
 def _remove_gz_temp():
-    """Delete this run's decompressed copies.
+    """Delete this run's decompressed and extracted copies.
 
     The rotated archives expand to their full uncompressed size, so a run over an
     extraction with a long PowerLog history leaves hundreds of megabytes behind. Nothing
@@ -1214,6 +1265,7 @@ def _remove_gz_temp():
     """
     temp_dir = _GZ_TEMP.pop("dir", None)
     _GZ_CACHE.clear()
+    _SYSDIAG_CACHE.clear()
     if temp_dir:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
@@ -1238,6 +1290,16 @@ def _remove_stale_gz_temps():
             continue
 
 
+def _session_temp_dir():
+    """This run's temp dir for decompressed and extracted copies, made on first use."""
+    temp_dir = _GZ_TEMP.get("dir")
+    if not temp_dir:
+        _remove_stale_gz_temps()
+        temp_dir = tempfile.mkdtemp(prefix=_GZ_TEMP_PREFIX)
+        _GZ_TEMP["dir"] = temp_dir
+    return temp_dir
+
+
 def _materialize_gz(gz_path):
     """Decompress a rotated PowerLog archive to a session temp dir, once.
 
@@ -1247,13 +1309,8 @@ def _materialize_gz(gz_path):
     cached = _GZ_CACHE.get(gz_path)
     if cached and os.path.exists(cached):
         return cached
-    temp_dir = _GZ_TEMP.get("dir")
-    if not temp_dir:
-        _remove_stale_gz_temps()
-        temp_dir = tempfile.mkdtemp(prefix=_GZ_TEMP_PREFIX)
-        _GZ_TEMP["dir"] = temp_dir
     out_name = f"{len(_GZ_CACHE):04d}_{os.path.basename(gz_path)[:-3]}"
-    out_path = os.path.join(temp_dir, out_name)
+    out_path = os.path.join(_session_temp_dir(), out_name)
     try:
         with gzip.open(gz_path, "rb") as src, open(out_path, "wb") as dst:
             shutil.copyfileobj(src, dst)
@@ -1264,11 +1321,53 @@ def _materialize_gz(gz_path):
     return out_path
 
 
+def _materialize_sysdiagnose(archive_path):
+    """Copy the telemetry dbs out of a packed sysdiagnose to the session temp dir, once.
+
+    SQLite needs a file on disk and get_sysdiagnose_files() yields a stream, so each
+    matching member is written out. Returns [(copy path, 'archive >> member')], empty
+    when the archive holds none or is not a sysdiagnose the helper reads. A member
+    that fails part way through is dropped rather than queried incomplete. The
+    archive is only ever opened for reading.
+    """
+    cached = _SYSDIAG_CACHE.get(archive_path)
+    if cached is not None:
+        return cached
+    copies = []
+    target_dir = None
+    partial = None
+    members = get_sysdiagnose_files([archive_path], _SYSDIAG_TELEMETRY, text_mode=False)
+    try:
+        for stream, evidence_path in members:
+            if target_dir is None:
+                target_dir = os.path.join(_session_temp_dir(),
+                                          f"sysdiagnose_{len(_SYSDIAG_CACHE):04d}")
+                os.makedirs(target_dir, exist_ok=True)
+            member_name = evidence_path.rsplit(" >> ", 1)[-1]
+            out_path = os.path.join(
+                target_dir, f"{len(copies):02d}_{os.path.basename(member_name)}")
+            partial = out_path
+            with open(out_path, "wb") as dst:
+                shutil.copyfileobj(stream, dst)
+            partial = None
+            copies.append((out_path, evidence_path))
+    except (OSError, EOFError, tarfile.TarError, zlib.error) as e:
+        logfunc(f"Could not read the telemetry databases in {archive_path}: {e}")
+        if partial and os.path.exists(partial):
+            os.remove(partial)
+    finally:
+        members.close()
+    _SYSDIAG_CACHE[archive_path] = copies
+    return copies
+
+
 def _powerlog_sources(context, extension=".PLSQL"):
     """(queryable path, evidence path) for every matching telemetry db found.
 
     Plain database files are used in place; .PLSQL.gz rotated archives are
     decompressed to a temp dir but keep their original path for reporting.
+    The telemetry dbs under logs/powerlogs/ in a packed sysdiagnose_*.tar.gz
+    are copied out to the same temp dir and reported as 'archive >> member'.
     -wal/-shm sidecars ride along on disk for SQLite and are not listed.
     A file matched by more than one glob is returned once.
     """
@@ -1285,6 +1384,12 @@ def _powerlog_sources(context, extension=".PLSQL"):
             materialized = _materialize_gz(path)
             if materialized:
                 sources.append((materialized, path))
+        elif ".tar" in os.path.basename(path):
+            # get_sysdiagnose_files() decides which archives are sysdiagnoses and skips
+            # IN_PROGRESS_ ones. Every family is copied on first use, so the .EPSQL and
+            # .BGSQL artifacts read the same copies.
+            sources.extend(pair for pair in _materialize_sysdiagnose(path)
+                           if pair[0].endswith(extension))
     return sources
 
 

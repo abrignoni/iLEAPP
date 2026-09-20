@@ -6,7 +6,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-09-19',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-09-19',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -70,7 +70,7 @@ __artifacts_v2__ = {
 import os
 import nska_deserialize as nd
 from packaging import version
-from scripts.ilapfuncs import media_to_html, artifact_processor, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
+from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, get_file_path, get_sqlite_db_records, null_absent_columns, logfunc, iOS
 
 @artifact_processor
 def Ph015_1PeopleFacesNADPhDaPsql(context):
@@ -392,10 +392,8 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[87] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[10])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[10], f'FaceCropFor_{row[87]}') or ''
 
             data_list.append((row[0], row[1], row[2],
             personcontactmatchingdictionary,
@@ -422,7 +420,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Cloud Verified Type-7',
         'zFaceCrop-State-8',
         'zFaceCrop-Type-9',
-        'zFaceCrop-Resource Data-10',
+        ('zFaceCrop-Resource Data-10', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-11',
         'zDetFace-Manual-12',
         'zDetFace-VIP Model Type-13',
@@ -899,10 +897,8 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[103] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[10])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[10], f'FaceCropFor_{row[103]}') or ''
 
             data_list.append((row[0], row[1], row[2],
             personcontactmatchingdictionary,
@@ -930,7 +926,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Cloud Verified Type-7',
         'zFaceCrop-State-8',
         'zFaceCrop-Type-9',
-        'zFaceCrop-Resource Data-10',
+        ('zFaceCrop-Resource Data-10', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-11',
         'zDetFace-Manual-12',
         'zDetFace-Detection Type-13',
@@ -1425,10 +1421,8 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[105] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[10])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[10], f'FaceCropFor_{row[105]}') or ''
 
             data_list.append((row[0], row[1], row[2],
             personcontactmatchingdictionary,
@@ -1457,7 +1451,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Cloud Verified Type-7',
         'zFaceCrop-State-8',
         'zFaceCrop-Type-9',
-        'zFaceCrop-Resource Data-10',
+        ('zFaceCrop-Resource Data-10', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-11',
         'zDetFace-Manual-12',
         'zDetFace-Detection Type-13',
@@ -1958,10 +1952,8 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[12] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[109] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[12])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[12], f'FaceCropFor_{row[109]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4],
             personcontactmatchingdictionary,
@@ -1992,7 +1984,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Cloud Verified Type-9',
         'zFaceCrop-State-10',
         'zFaceCrop-Type-11',
-        'zFaceCrop-Resource Data-12',
+        ('zFaceCrop-Resource Data-12', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-13',
         'zDetFace-Manual-14',
         'zDetFace-Detection Type-15',
@@ -2496,10 +2488,8 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[110] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[13])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[13], f'FaceCropFor_{row[110]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4],
             personcontactmatchingdictionary,
@@ -2531,7 +2521,7 @@ def Ph015_1PeopleFacesNADPhDaPsql(context):
         'zPerson-Cloud Verified Type-10',
         'zFaceCrop-State-11',
         'zFaceCrop-Type-12',
-        'zFaceCrop-Resource Data-13',
+        ('zFaceCrop-Resource Data-13', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-14',
         'zDetFace-Manual-15',
         'zDetFace-Detection Type-16',
@@ -2957,10 +2947,8 @@ def Ph015_2PeopleFacesNADSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[87] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[10])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[10], f'FaceCropFor_{row[87]}') or ''
 
             data_list.append((row[0], row[1], row[2],
             personcontactmatchingdictionary,
@@ -2987,7 +2975,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Cloud Verified Type-7',
         'zFaceCrop-State-8',
         'zFaceCrop-Type-9',
-        'zFaceCrop-Resource Data-10',
+        ('zFaceCrop-Resource Data-10', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-11',
         'zDetFace-Manual-12',
         'zDetFace-VIP Model Type-13',
@@ -3464,10 +3452,8 @@ def Ph015_2PeopleFacesNADSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[103] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[10])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[10], f'FaceCropFor_{row[103]}') or ''
 
             data_list.append((row[0], row[1], row[2],
             personcontactmatchingdictionary,
@@ -3495,7 +3481,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Cloud Verified Type-7',
         'zFaceCrop-State-8',
         'zFaceCrop-Type-9',
-        'zFaceCrop-Resource Data-10',
+        ('zFaceCrop-Resource Data-10', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-11',
         'zDetFace-Manual-12',
         'zDetFace-Detection Type-13',
@@ -3990,10 +3976,8 @@ def Ph015_2PeopleFacesNADSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[10] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[105] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[10])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[10], f'FaceCropFor_{row[105]}') or ''
 
             data_list.append((row[0], row[1], row[2],
             personcontactmatchingdictionary,
@@ -4022,7 +4006,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Cloud Verified Type-7',
         'zFaceCrop-State-8',
         'zFaceCrop-Type-9',
-        'zFaceCrop-Resource Data-10',
+        ('zFaceCrop-Resource Data-10', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-11',
         'zDetFace-Manual-12',
         'zDetFace-Detection Type-13',
@@ -4523,10 +4507,8 @@ def Ph015_2PeopleFacesNADSyndPL(context):
 
             # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[12] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[109] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[12])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[12], f'FaceCropFor_{row[109]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4],
             personcontactmatchingdictionary,
@@ -4557,7 +4539,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Cloud Verified Type-9',
         'zFaceCrop-State-10',
         'zFaceCrop-Type-11',
-        'zFaceCrop-Resource Data-12',
+        ('zFaceCrop-Resource Data-12', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-13',
         'zDetFace-Manual-14',
         'zDetFace-Detection Type-15',
@@ -5062,10 +5044,8 @@ def Ph015_2PeopleFacesNADSyndPL(context):
 
         # zFaceCrop.ZRESOURCEDATA-BLOB_JPG
             if row[13] is not None:
-                pathto = os.path.join(report_folder, 'FaceCropFor_' + row[110] + '.jpg')
-                with open(pathto, 'wb') as file:
-                    file.write(row[13])
-                facecropresourcedata_blob = media_to_html(pathto, files_found, report_folder)
+                facecropresourcedata_blob = check_in_embedded_media(
+                    source_path, row[13], f'FaceCropFor_{row[110]}') or ''
 
             data_list.append((row[0], row[1], row[2], row[3], row[4],
             personcontactmatchingdictionary,
@@ -5097,7 +5077,7 @@ def Ph015_2PeopleFacesNADSyndPL(context):
         'zPerson-Cloud Verified Type-10',
         'zFaceCrop-State-11',
         'zFaceCrop-Type-12',
-        'zFaceCrop-Resource Data-13',
+        ('zFaceCrop-Resource Data-13', 'media'),
         'zDetFace-Confirmed Face Crop Generation State-14',
         'zDetFace-Manual-15',
         'zDetFace-Detection Type-16',

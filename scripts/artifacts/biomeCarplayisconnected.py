@@ -28,11 +28,16 @@ __artifacts_v2__ = {
 }
 
 import os
+import struct
 from datetime import timezone
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
-from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv
+from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
+                  IndexError)
 
 
 @artifact_processor
@@ -95,7 +100,12 @@ def get_biomeCarplayisconnected(context):
             ts = ts.replace(tzinfo=timezone.utc)
 
             if record.state == EntryState.Written:
-                protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
+                try:
+                    protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
+                except _DECODE_ERRORS as ex:
+                    logfunc(f'Biome Carplay: could not decode record at offset '
+                            f'{record.data_start_offset} in {filename}: {ex}')
+                    continue
 
                 activity = (protostuff['1']['1'])
                 

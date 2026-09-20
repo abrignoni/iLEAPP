@@ -84,7 +84,8 @@ COMPLETION_MARKER = "Report generation Completed."
 # framework's "artifact had errors!" banner stays clean while a table comes back short.
 # A count taken from such a run describes the failure, not the evidence.
 CAUGHT_ERROR_RE = re.compile(
-    r"no such column|no such table|malformed|file is not a database", re.I)
+    r"no such column|no such table|database disk image is malformed|"
+    r"malformed database schema|file is not a database", re.I)
 
 # A capability disabled for a missing optional dependency makes its artifacts report
 # zero rows on a run that is otherwise healthy. Comparing against that produces a

@@ -6,7 +6,7 @@ For maintainers, and shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP.
 segment of a split set) or an EnCase/EWF acquisition (`.E01` and its segments)
 and reads it in place: no mounting, no administrator rights, and no copy of the
 image or of its files anywhere but the files an artifact asks for. Its NTFS,
-FAT32, exFAT, ext2/3/4, HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS volumes
+FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS volumes
 are searched directly.
 
 ## Where the pieces are
@@ -76,8 +76,10 @@ for it, so no report field carries a zone the evidence never had.
   collapsed and per-app row counts multiply; on a bare iOS Data volume the
   `iosfilesystemevents` family and `diagnosticlogdevents` find nothing. A
   full-disk or full-`/data` image carries the expected root and neither happens.
-- F2FS, the filesystem most current Android userdata partitions use, is not
-  one the reader walks; such a volume is listed as not recognised.
+- On F2FS, a file the filesystem compressed is listed with its size and not
+  decompressed, and one under per-file encryption (the norm on a current
+  Android `userdata`) is listed and its content refused rather than staged as
+  ciphertext.
 - An encrypted volume (Android file-based encryption, iOS data protection,
   FileVault, BitLocker) reads, but its names or contents are ciphertext.
 
@@ -97,9 +99,8 @@ none of them a file the seeker got wrong:
 - First-match order. A few artifacts read one file out of several equivalent
   copies and take the first the seeker returns. The zip, tar and raw seekers each
   list a directory in their own order, so which copy wins can differ. On Android
-  `installedappsGass` labels its source by the view it read, and `walstrings`
-  numbers its rows by arrival. This is a property of those artifacts and shows
-  between the zip and tar routes too.
+  `walstrings` numbers its rows by arrival. This is a property of those artifacts
+  and shows between the zip and tar routes too.
 - Companion files beside the zip. Some artifacts read a file a tool exported next
   to the acquisition rather than inside it. iOS keychain artifacts read a
   `<udid>_keychain.plist` sitting beside the zip on disk, found only when the

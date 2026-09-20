@@ -13,6 +13,7 @@ test suite, MIT), and a split set is the raw image cut into numbered pieces.
 The expected values are the fixture's, written out, never read back from the
 seeker.
 """
+import contextlib
 import gzip
 import hashlib
 import os
@@ -152,16 +153,18 @@ class RawImageSeekerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.work = tempfile.mkdtemp(prefix='raw_image_test_')
-        for stem in ('ntfs-fixture', 'fat32-deleted', 'exfat-deleted'):
+        for stem in ('ntfs-fixture', 'fat32-deleted', 'exfat-deleted', 'apfs-fixture'):
             with gzip.open(FIXTURES / f'{stem}.img.gz', 'rb') as src, \
                     open(os.path.join(cls.work, f'{stem}.img'), 'wb') as dst:
                 shutil.copyfileobj(src, dst)
         cls.ntfs = os.path.join(cls.work, 'ntfs-fixture.img')
         cls.fat32 = os.path.join(cls.work, 'fat32-deleted.img')
         cls.exfat = os.path.join(cls.work, 'exfat-deleted.img')
+        cls.apfs = os.path.join(cls.work, 'apfs-fixture.img')
         cls.ntfs_hashes = _hash_list(FIXTURES / 'ntfs-fixture.sha256')
         cls.fat32_hashes = _hash_list(FIXTURES / 'fat32-deleted.live.sha256')
         cls.exfat_hashes = _hash_list(FIXTURES / 'exfat-deleted.live.sha256')
+        cls.apfs_hashes = _hash_list(FIXTURES / 'apfs-fixture.sha256')
 
     @classmethod
     def tearDownClass(cls):
@@ -224,6 +227,20 @@ class RawImageSeekerTest(unittest.TestCase):
         self._check_volume(self.fat32, self.fat32_hashes)
         self._check_volume(self.exfat, self.exfat_hashes)
 
+    def test_every_apfs_file_matches_the_independent_hash_list(self):
+        # The container's one volume is named QNXPROBE, and a container's volumes
+        # are the first level of the walk, so every file sits beneath it.
+        seeker = self._seeker(self.apfs)
+        self.assertEqual([v['name'] for v in seeker.volumes], ['lba0'])
+        self.assertTrue(seeker.search('*'))
+        staged = self._staged_by_source(seeker, 'lba0/QNXPROBE')
+        self.assertEqual(len(self.apfs_hashes), 411)
+        missing = sorted(set(self.apfs_hashes) - set(staged))
+        self.assertEqual(missing, [], 'files the independent reader saw and the seeker did not stage')
+        differ = [rel for rel, digest in self.apfs_hashes.items()
+                  if _sha256(staged[rel]) != digest]
+        self.assertEqual(differ, [])
+
     def test_only_matched_files_are_staged(self):
         import fnmatch
         pattern = '*/many/file_00[0-4]?.txt'
@@ -242,6 +259,92 @@ class RawImageSeekerTest(unittest.TestCase):
         again = seeker.search('*/many/file_0001.txt')
         self.assertEqual(first, again)
         self.assertEqual(seeker.search('*/many/file_0001.txt', return_on_first_hit=True), first[0])
+
+    # ---- the one-pass routes ----------------------------------------------------
+    #
+    # NTFS is listed from one pass over $MFT and APFS from one pass over its
+    # catalog, rather than directory by directory. The member list is the order
+    # search() hands an artifact its files in, so each route has to produce the
+    # directory-by-directory walk's list exactly, order and all, and not merely
+    # the same set. The walk that each is compared against is the same seeker
+    # with the faster route taken away.
+
+    def _members(self, image, **patches):
+        """(member list, {member: (node, size, mtime, reading)}) from a fresh seeker."""
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        with contextlib.ExitStack() as stack:
+            for walker_class, key in ((qnxprobe.NtfsWalker, 'ntfs'),
+                                      (qnxprobe.ApfsWalker, 'apfs')):
+                if patches.get(key):
+                    stack.enter_context(mock.patch.multiple(walker_class, **patches[key]))
+            seeker = self._seeker(image)
+        entries = {member: None if entry is None else
+                   (repr(entry.node), entry.size, entry.mtime, entry.reading)
+                   for member, entry in seeker._entries.items()}  # pylint: disable=protected-access
+        return list(seeker.name_list), entries
+
+    def test_ntfs_is_listed_in_one_pass_and_matches_the_tree_walk(self):
+        fast = self._members(self.ntfs)
+        self.assertIn('(one pass over $MFT)', self.log.text())
+        slow = self._members(self.ntfs, ntfs={'listing': None})
+        self.assertIn('(directory by directory)', self.log.text())
+        self.assertGreater(len(fast[0]), 475)
+        self.assertEqual(fast[0], slow[0])
+        self.assertEqual(fast[1], slow[1])
+
+    def test_apfs_is_listed_in_one_pass_and_matches_the_tree_walk(self):
+        fast = self._members(self.apfs)
+        self.assertIn('(one pass over the catalog)', self.log.text())
+        slow = self._members(self.apfs, apfs={'prime_records': None})
+        self.assertIn('(directory by directory)', self.log.text())
+        self.assertGreater(len(fast[0]), 411)
+        self.assertEqual(fast[0], slow[0])
+        self.assertEqual(fast[1], slow[1])
+
+    def test_the_ntfs_route_reads_no_directory_index(self):
+        # Were the one-pass route quietly abandoned, the list above would still
+        # match and only be slower, so nothing would notice. A walker that cannot
+        # read a directory index at all must still list the whole volume.
+        whole = self._members(self.ntfs)
+        refused = mock.Mock(side_effect=AssertionError('a directory index was read'))
+        blind = self._members(self.ntfs, ntfs={'listdir': refused})
+        refused.assert_not_called()
+        self.assertEqual(blind[0], whole[0])
+        self.assertNotIn('Could not list', self.log.text())
+
+    def test_a_one_pass_listing_that_fails_falls_back_to_the_tree_walk(self):
+        whole = self._members(self.ntfs)
+        real = qnxprobe.NtfsWalker.listing
+
+        def cut_short(walker):
+            for count, row in enumerate(real(walker)):
+                if count == 50:
+                    raise ValueError('the pass stopped part way')
+                yield row
+
+        fallen = self._members(self.ntfs, ntfs={'listing': cut_short})
+        self.assertIn('the one-pass listing failed (ValueError', self.log.text())
+        self.assertIn('(directory by directory)', self.log.text())
+        self.assertEqual(fallen[0], whole[0])
+        self.assertEqual(fallen[1], whole[1])
+
+    def test_a_name_two_records_claim_is_listed_once(self):
+        # A volume whose records disagree can have two records name one file in
+        # one directory. Listing it twice would hand an artifact the same staged
+        # copy twice, which reads it twice and reports its rows twice.
+        real = qnxprobe.NtfsWalker.listing
+
+        def doubled(walker):
+            for row in real(walker):
+                yield row
+                if row[0] == 'many/file_0001.txt':
+                    yield ('many/file_0001.txt', row[1] + 100000) + row[2:]
+
+        names, entries = self._members(self.ntfs, ntfs={'listing': doubled})
+        self.assertEqual(names.count('lba0/many/file_0001.txt'), 1)
+        self.assertNotEqual(entries['lba0/many/file_0001.txt'][0], repr(100000))
+        self.assertIn('claimed by more than one record', self.log.text())
 
     # ---- members and metadata ---------------------------------------------------
 
@@ -388,7 +491,8 @@ class RawImageSeekerTest(unittest.TestCase):
     def test_the_filesystem_list_names_only_kinds_the_reader_walks(self):
         walkers = {'QNX6': qnxprobe.Qnx6Walker, 'QNX4': qnxprobe.Qnx4Walker,
                    'ETFS': qnxprobe.EtfsWalker, 'EFS': qnxprobe.EfsWalker,
-                   'ext2/3/4': qnxprobe.ExtWalker, 'FAT32': qnxprobe.Fat32Walker,
+                   'ext2/3/4': qnxprobe.ExtWalker, 'F2FS': qnxprobe.F2fsWalker,
+                   'FAT32': qnxprobe.Fat32Walker,
                    'exFAT': qnxprobe.ExfatWalker, 'NTFS': qnxprobe.NtfsWalker,
                    'HFS+': qnxprobe.HfsPlusWalker, 'APFS': qnxprobe.ApfsWalker,
                    'QNX IFS': qnxprobe.IfsWalker}

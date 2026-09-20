@@ -13,7 +13,7 @@ __artifacts_v2__ = {
                        "database.",
         "author": "John Hyla",
         "creation_date": "2023-08-01",
-        "last_update_date": "2025-11-21",
+        "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Core Accessories",
         "notes": "",
@@ -63,7 +63,7 @@ def get_coreAccessories(context):
         all_keys.update(pl.keys())
 
     all_keys.remove(event_time_key)
-    all_keys_list = [event_time_key] + list(all_keys)
+    all_keys_list = [event_time_key] + sorted(all_keys)
     data_list = []
     for row in temp_data:
         row_values = []

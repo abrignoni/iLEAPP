@@ -68,6 +68,15 @@ closed and pinned in the test file:
 The framework helper that leaked the accounts artifacts lives in ilapfuncs.py and is
 outside this check's scope; that one is pinned by its own unit test.
 
+A fourth shape, 2026-09-19: a local path handed to `media_to_html` came back untracked.
+That helper returned its first argument unchanged unless it was a bare file name found in
+`files_found`, so a face crop written under the report folder and passed to it by full
+path reached the row verbatim. iLEAPP's Photos.sqlite face crop artifacts published the
+examiner's report folder that way, in 35 and 33 rows of two of them on otto_ios17. The
+helper was then removed from all five cores, so this check no longer models it. A plain
+call with a tainted argument clears the taint here, so a framework helper that hands its
+argument back unchanged when it cannot do its job has to be modelled by name.
+
 Usage:
   check_report_local_paths.py [--root REPO_ROOT] [--verbose]
 

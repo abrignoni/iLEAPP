@@ -16,6 +16,7 @@ import shutil
 import sqlite3
 import sys
 import tarfile
+import tempfile
 import xml
 
 from datetime import datetime, timezone, timedelta
@@ -54,7 +55,7 @@ _console_write = sys.stdout.write
 # common third party imports
 import pytz
 import simplekml
-from scripts.filetype import guess_mime, guess_extension
+from scripts.filetype import get_signature_bytes, guess_mime, guess_extension
 from functools import wraps
 
 # LEAPP version unique imports
@@ -76,6 +77,24 @@ thumb_size = 256, 256
 identifiers = {}
 icons = {}
 lava_only_artifacts = {}
+
+# Tables left off their HTML page for exceeding artifact_report.HTML_TABLE_ROW_LIMIT, listed
+# on the index page so an examiner sees them without opening each artifact. Mutated in
+# place only: report.py imports the list itself.
+html_tables_held_back = []
+
+
+def record_html_table_held_back(category, artifact_name, safe_artifact_name, rows):
+    """Remember a table the HTML report held back, for the index page and the run log."""
+    html_tables_held_back.append({
+        'category': category,
+        'artifact_name': artifact_name,
+        # report.generate_report names the final page from the .temphtml file this way
+        'page': safe_artifact_name.replace(' ', '_') + '.html',
+        'rows': rows,
+    })
+    logfunc(f'{artifact_name}: {rows:,} rows, above the {artifact_report.HTML_TABLE_ROW_LIMIT:,}-row '
+            f'limit for HTML pages; the table is left off the page and stays in the other outputs')
 
 class iOS:
     _version = None
@@ -380,8 +399,9 @@ def check_in_media(file_path, name="", converted_file_path=False, force_type=Non
     file_info = Context.get_seeker().file_infos.get(extraction_path)
     if file_info:
         media_id = hashlib.sha1(f"{file_info.source_path}".encode()).hexdigest()
-        with open(extraction_path, "rb") as f:
-            file_data = f.read()
+        # Only the type sniffer reads media_data for a file on disk, and it looks at no more
+        # than the first 8,192 bytes, so read just those instead of the whole file.
+        file_data = get_signature_bytes(extraction_path)
         return _check_in_media(media_id, file_path, False, name, media_data=file_data, converted_file_path=converted_file_path,
                                force_type=force_type, force_extension=force_extension,
                                force_creation_date=force_creation_date, force_modification_date=force_modification_date)
@@ -722,13 +742,24 @@ def artifact_processor(func):
                     report = artifact_report.ArtifactHtmlReport(artifact_name)
                     report.start_artifact_report(report_folder, safe_artifact_name, description)
                     report.add_script()
-                    report.write_artifact_data_table(
+                    full_data_locations = []
+                    if check_output_types('lava', output_types):
+                        full_data_locations.append(artifact_report.LAVA_DATABASE_LOCATION)
+                    if check_output_types('tsv', output_types):
+                        full_data_locations.append(artifact_report.tsv_export_location(safe_artifact_name))
+                    # A streamed table above the row limit is held back before its rows are
+                    # read out of LAVA, so the notice costs no replay.
+                    held_back = report.write_artifact_data_table(
                         stripped_headers,
                         output_rows(html_output=True) if is_artifact_result else html_data_list,
                         source_path,
                         html_no_escape=html_columns,
-                        row_count=inserted_count if is_artifact_result else None)
+                        row_count=inserted_count if is_artifact_result else None,
+                        full_data_locations=full_data_locations)
                     report.end_artifact_report()
+                    if held_back:
+                        record_html_table_held_back(category, artifact_name, safe_artifact_name,
+                                                    inserted_count if is_artifact_result else len(data_list))
 
                 if check_output_types('tsv', output_types):
                     tsv_rows = output_rows() if is_artifact_result else txt_data_list if media_header_info else data_list
@@ -1002,6 +1033,28 @@ def _read_binary_plist_tolerantly(file_path):
 
 
 def get_plist_file_content(file_path):
+    is_stream = hasattr(file_path, 'read')
+    temp_path = None
+
+    # If the input is a stream (like an ExFileObject from a tar archive),
+    # write it to a temporary file so the path-based open() and fallback
+    # functions can handle it natively without throwing TypeErrors.
+    if is_stream:
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".plist") as temp_file:
+                content = file_path.read()
+                # Ensure we are writing bytes
+                if isinstance(content, str):
+                    content = content.encode('utf-8')
+                temp_file.write(content)
+                temp_path = temp_file.name
+
+            # Reassign file_path to the temp file string for the rest of the function
+            file_path = temp_path
+        except Exception as e: # pylint: disable=broad-exception-caught
+            logfunc(f"Error creating temp file for stream: {str(e)}")
+            return {}
+
     try:
         with open(file_path, 'rb') as file:
             plist_content = plistlib.load(file)
@@ -1029,6 +1082,14 @@ def get_plist_file_content(file_path):
         logfunc(f"Error: {file_path} is not a valid NSKeyedArchive plist file")
     except Exception as e:  # pylint: disable=broad-exception-caught
         logfunc(f"Unexpected error reading plist file {file_path}: {str(e)}")
+    finally:
+        # Always clean up the temporary file if one was generated
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
+
     return {}
 
 def get_sqlite_db_path(path):
@@ -1056,43 +1117,63 @@ def get_sqlite_db_path(path):
     else:
         return quote(str(path), safe='/')
         
-def get_sysdiagnose_files(files_found, target_file, text_mode=True, encoding='utf-8'):
+def _is_appledouble(path):
+    """True for a macOS AppleDouble sidecar (._<name>), which holds another file's metadata."""
+    return os.path.basename(path).startswith('._')
+
+
+def get_sysdiagnose_files(files_found, target, text_mode=True, encoding='utf-8'):
     """
-    Yields (file_object, source_path) for target_file across standalone matches
-    and active sysdiagnose archives (.tar.gz / .tar).
+    Yields (file_object, source_path) for target (string or compiled regex)
+    across standalone matches and active sysdiagnose archives.
+
+    A sysdiagnose archive carries an AppleDouble sidecar (._<name>) beside each file
+    that has extended attributes. A sidecar is never yielded, in an archive or on disk,
+    and a sidecar named like an archive is not opened as one.
     """
+    is_regex = isinstance(target, re.Pattern)
+
     for file_found in files_found:
         file_path = str(file_found)
         filename = os.path.basename(file_path)
+        if _is_appledouble(filename):
+            continue
 
         # 1. Direct standalone file match
-        if filename == target_file:
+        match_standalone = target.search(filename) if is_regex else (target == filename)
+
+        # Ensure it's not a tar file being falsely processed as standalone
+        if match_standalone and not ("sysdiagnose_" in filename and ".tar" in filename):
             try:
                 mode = 'r' if text_mode else 'rb'
                 kwargs = {'encoding': encoding, 'errors': 'replace'} if text_mode else {}
                 with open(file_path, mode, **kwargs) as f:
                     yield f, file_path
-            except (OSError, IOError) as e:
+            except OSError as e:
                 print(f"Error reading standalone file {file_path}: {e}")
 
-        # 2. Sysdiagnose archive match (ignoring incomplete/in-progress dumps)
+        # 2. Sysdiagnose archive match
         elif "sysdiagnose_" in filename and "IN_PROGRESS_" not in filename and (".tar" in filename):
             try:
                 with tarfile.open(file_path, 'r:*') as tar:
                     for member in tar.getmembers():
-                        # Match exact filename or target subpath regardless of root folder name
-                        if member.isreg() and (member.name.endswith(f"/{target_file}") or member.name == target_file):
+                        if not member.isreg() or _is_appledouble(member.name):
+                            continue
+
+                        # Match regex or exact string
+                        match_tar = target.search(member.name) if is_regex else (member.name.endswith(f"/{target}") or member.name == target)
+
+                        if match_tar:
                             extracted = tar.extractfile(member)
                             if extracted is None:
                                 continue
                             
-                            # Wrap in TextIOWrapper if text mode is requested (e.g., json.load, regex, csv)
                             stream = io.TextIOWrapper(extracted, encoding=encoding, errors='replace') if text_mode else extracted
                             try:
                                 yield stream, f"{file_path} >> {member.name}"
                             finally:
                                 if text_mode:
-                                    stream.detach() # Detach wrapper so tarfile manages underlying stream
+                                    stream.detach()
             except (tarfile.TarError, EOFError, OSError) as e:
                 print(f"Error processing archive {file_path}: {e}")
 
@@ -1364,77 +1445,6 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
         db.close()
         kml.save(os.path.join(kml_report_folder, f'{kmlactivity}.kml'))
 
-def media_to_html(media_path, files_found, report_folder):
-
-    def media_path_filter(name):
-        return media_path in name
-
-    def relative_paths(source, splitter):
-        splitted_a = source.split(splitter)
-        for x in splitted_a:
-            if '_HTML' in x:
-                splitted_b = source.split(x)
-                return '.' + splitted_b[1]
-            elif 'data' in x:
-                index = splitted_a.index(x)
-                splitted_b = source.split(splitted_a[index - 1])
-                return '..' + splitted_b[1]
-
-
-    platform = is_platform_windows()
-    if platform:
-        media_path = media_path.replace('/', '\\')
-        splitter = '\\'
-    else:
-        splitter = '/'
-
-    thumb = media_path
-    for match in filter(media_path_filter, files_found):
-        filename = os.path.basename(match)
-        if filename.startswith('~') or filename.startswith('._') or filename != media_path:
-            continue
-
-        dirs = os.path.dirname(report_folder)
-        dirs = os.path.dirname(dirs)
-        env_path = os.path.join(dirs, 'data')
-        if env_path in match:
-            source = match
-            source = relative_paths(source, splitter)
-        else:
-            path = os.path.dirname(match)
-            dirname = os.path.basename(path)
-            filename = Path(match)
-            filename = filename.name
-            locationfiles = Path(report_folder).joinpath(dirname)
-            Path(f'{locationfiles}').mkdir(parents=True, exist_ok=True)
-            shutil.copy2(match, locationfiles)
-            source = Path(locationfiles, filename)
-            source = relative_paths(str(source), splitter)
-
-        mimetype = guess_mime(match)
-        if mimetype is None:
-            mimetype = ''
-
-        # allow_parent: relative_paths() above deliberately emits ../data/... to reach
-        # the extraction folder beside the report. The evidence filename in the
-        # fallback link text is escaped -- it used to be interpolated raw.
-        # Bind the escaped values to their own names rather than writing back over
-        # `source`, which is assigned several times above. Reading a name that only
-        # ever holds a checked value makes the safety local and obvious, to a reader
-        # and to admin/scripts/check_html_safety.py alike.
-        safe_source = safe_local_path(source, allow_parent=True)
-        safe_filename = esc(filename)
-
-        if 'video' in mimetype:
-            thumb = f'<video width="320" height="240" controls="controls"><source src="{safe_source}" type="video/mp4" preload="none">Your browser does not support the video tag.</video>'
-        elif 'image' in mimetype:
-            thumb = f'<a href="{safe_source}" target="_blank"><img src="{safe_source}" width="300"></img></a>'
-        elif 'audio' in mimetype:
-            thumb = f'<audio controls><source src="{safe_source}" type="audio/ogg"><source src="{safe_source}" type="audio/mpeg">Your browser does not support the audio element.</audio>'
-        else:
-            thumb = f'<a href="{safe_source}" target="_blank"> Link to {safe_filename} file</a>'
-    return thumb
-
 
 # pylint: disable-next=pointless-string-statement
 """
@@ -1574,12 +1584,11 @@ def write_lava_only_log():
         lava_log.write(
             """
                 <p class="note alert-info mb-4">
-                The artifacts listed below are likely to return too much data to be viewed \
-                in a Web browser, so they have been stored in the <i>'_lava_artifacts.db'</i> \
-                SQLite database.<br>
-                They are not available from the side bar of the HTML report, but they can \
-                currently be viewed with any SQLite database viewer until we release <b>LAVA</b> \
-                (LEAPP Artifact Viewer App).<br></p>
+                The artifacts listed below are declared LAVA only because of the amount of data \
+                they return, so their rows are written to the <i>'_lava_artifacts.db'</i> \
+                SQLite database and they have no page in the side bar of the HTML report.<br>
+                Open the report folder in <b>LAVA</b> (LEAPP Artifact Viewer App) to review them; \
+                any SQLite database viewer can also read the database.<br></p>
             """
         )
         for category, artifacts in lava_only_artifacts.items():

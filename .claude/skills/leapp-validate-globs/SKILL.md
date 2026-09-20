@@ -19,8 +19,8 @@ The matcher is Python `fnmatch`, so reproduce it exactly rather than approximati
 - `*` and `**` both span `/`. They are interchangeable.
 - Matching goes through `os.path.normcase`, so it is **case-sensitive on macOS and Linux**
   and case-insensitive on Windows. Test the case-sensitive behaviour; it is the stricter one.
-- The directory, zip and tar seekers prepend a synthetic `root/`. iLEAPP's iOS-backup seeker
-  does not, and does not normcase either.
+- The directory, zip, tar and raw image seekers prepend a synthetic `root/`. iLEAPP's
+  iOS-backup seeker does not.
 
 ## Method 1: against recorded path listings (fastest)
 
@@ -34,9 +34,10 @@ tightening, unless you meant it.
 
 ## Method 2: against a real extraction (authoritative)
 
-Instantiate the matching seeker from `scripts/search_files.py` directly so the semantics are
-exact by construction, then call `search()` with the pattern. This is the only way to catch
-a mismatch between what you think the seeker does and what it does.
+Instantiate the matching seeker directly, from `scripts/search_files.py` or, for a raw
+image, `scripts/raw_image.py`, so the semantics are exact by construction, then call
+`search()` with the pattern. This is the only way to catch a mismatch between what you
+think the seeker does and what it does.
 
 To confirm the artifact then produces the rows you expect, call the artifact function's
 `.__wrapped__`, exposed by `@artifact_processor`'s `@wraps`, with a mock context providing

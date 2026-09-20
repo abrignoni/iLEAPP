@@ -15,10 +15,12 @@ Download a pre-built release — no Python installation required.
 
 | Platform | GUI | CLI |
 | -------- | --- | --- |
-| Windows | `ileappGUI-*-Windows_x64.zip` | `ileapp-*-Windows_x64.zip` |
-| macOS (Apple Silicon) | `ileappGUI-*-macOS_Apple_Silicon.dmg` | `ileapp-*-macOS_Apple_Silicon.zip` |
-| macOS (Intel) | `ileappGUI-*-macOS_Mac_Intel.dmg` | `ileapp-*-macOS_Mac_Intel.zip` |
-| Linux | `ileappGUI-*-Linux_x86_64.AppImage` | `ileapp-*-Linux_x86_64.AppImage` |
+| Windows (Intel) | `ileappGUI-v*-Windows_x86_64.zip` | `ileapp-v*-Windows_x86_64.zip` |
+| Windows (ARM) | `ileappGUI-v*-Windows_arm64.zip` | `ileapp-v*-Windows_arm64.zip` |
+| macOS (Apple Silicon) | `ileappGUI-v*-macOS_Apple_Silicon.dmg` | `ileapp-v*-macOS_Apple_Silicon.zip` |
+| macOS (Intel) | `ileappGUI-v*-macOS_Mac_Intel.dmg` | `ileapp-v*-macOS_Mac_Intel.zip` |
+| Linux (Intel) | `ileappGUI-v*-Linux_x86_64.AppImage` | `ileapp-v*-Linux_x86_64.AppImage` |
+| Linux (ARM) | `ileappGUI-v*-Linux_arm64.AppImage` | `ileapp-v*-Linux_arm64.AppImage` |
 
 **GUI** — extract the download, run `ileappGUI`, then select your input type, source path, output folder, and modules to process.
 
@@ -74,6 +76,7 @@ ileapp -t zip -i /path/to/extraction.zip -o /path/to/output/
 | `-d` | `--load_case_data` | Path to a LEAPP case data file (`.lcasedata`) |
 | `--custom_output_folder` | | Custom name for the report output subfolder |
 | `--custom_artifacts_path` | | Extra folder to load artifact modules from (e.g. `scripts/alternate_artifacts`) |
+| `--html_row_limit` | | Rows above which an artifact's table is left off its HTML page, which then points at the LAVA database and the TSV export instead. Default 50000; `0` writes every table. The GUI uses the default |
 | `--itunes_password` | | | Password for an encrypted iTunes/Finder backup (`-t 12345`) |
 
 ### Standalone utility modes
@@ -211,7 +214,7 @@ python ileapp.py -t raw -i /path/to/acquisition.E01 -o /path/to/output/
 `raw` reads a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001` segment of
 a split set), or an EnCase/EWF `.E01` acquisition and the segments beside it, in
 place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
-HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS volumes are searched directly, and
+F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS volumes are searched directly, and
 only the files an artifact asks for are read out of the image. The GUI picks
 `raw` on its own for those extensions. See `admin/docs/raw_image_input.md`.
 

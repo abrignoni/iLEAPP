@@ -25,7 +25,7 @@ its fields checked for internal consistency before it is reported CONFIRMED.
 
 Read-only throughout. Never writes to the image.
 """
-import os, re, struct, sys, datetime, json, time, uuid, zipfile, bisect, collections
+import os, re, struct, sys, datetime, json, time, uuid, zipfile, bisect, collections, itertools
 import array
 
 # ewfprobe is vendored beside this file (see vendored.json) so an EnCase/EWF
@@ -42,7 +42,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.27"
+QNXPROBE_VERSION = "1.30"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -622,6 +622,7 @@ QNX6_DIRENT_SIZE = 0x20
 QNX6_ROOT_INO    = 1
 QNX6_ROOTNODE    = dict(Inode=72, Longfile=232)   # offsets inside the superblock
 S_IFDIR, S_IFLNK = 0o040000, 0o120000
+S_IFMT, S_IFREG = 0o170000, 0o100000     # the format bits, and a regular file
 
 
 def _fmt_time(v):
@@ -979,6 +980,551 @@ class ExtWalker:
             n -= piece
 
     root = 2
+
+
+# ---------------------------------------------------------------------------
+# F2FS (Flash-Friendly File System).
+#
+# F2FS is the filesystem Android uses for /data on most phones, so an Android
+# image or a userdata partition can carry one where an older device would have
+# ext4. It is read here directly, no mounting.
+#
+# The layout is sourced from the Linux kernel's own F2FS at v7.0 (commit
+# 028ef9c96e96197026887c0f092424679298aae8): the on-disk structures in
+# include/linux/f2fs_fs.h (f2fs_super_block, f2fs_checkpoint, f2fs_inode,
+# node_footer, f2fs_dir_entry, f2fs_dentry_block, f2fs_nat_entry), node
+# resolution in fs/f2fs/node.{c,h} (current_nat_addr, get_node_path),
+# checkpoint selection in fs/f2fs/checkpoint.c (validate_checkpoint) and
+# fs/f2fs/super.c (sanity_check_raw_super), the NAT journal in
+# fs/f2fs/segment.c (read_normal_summaries), the inode read in
+# fs/f2fs/inode.c (do_read_inode) and the directory walk in fs/f2fs/dir.c
+# (f2fs_fill_dentries). No F2FS implementation's code was copied; qnxprobe is
+# MIT and both the kernel driver and f2fs-tools are GPL. f2fs-tools' dump.f2fs
+# is used only as an independent oracle to validate this reader.
+#
+# To find a file this reader has to resolve a node id (nid) to the block that
+# holds its node. That mapping lives in the NAT (Node Address Table), and the
+# current copy of each NAT block is chosen by a bitmap in the active
+# checkpoint, with recent updates overriding it from a journal in the
+# checkpoint's data summary. Once the inode block is read, its data is
+# addressed the way ext is: pointers in the inode, then direct, indirect and
+# double-indirect node blocks. Small files and directories keep their content
+# inline in the inode instead.
+# ---------------------------------------------------------------------------
+F2FS_MAGIC = 0xF2F52010
+F2FS_SUPER_OFF = 1024               # the superblock sits 1024 bytes into block 0
+F2FS_BLKSIZE_BITS_MIN = 12          # only block == page size is valid: 4K or 16K
+F2FS_BLKSIZE_BITS_MAX = 16
+# i_inline flags (f2fs_fs.h)
+F2FS_INLINE_XATTR, F2FS_INLINE_DATA = 0x01, 0x02
+F2FS_INLINE_DENTRY, F2FS_EXTRA_ATTR = 0x04, 0x20
+F2FS_COMPR_FL = 0x00000004          # i_flags: file is compressed
+F2FS_FADVISE_ENCRYPT = 0x04         # i_advise: file is encrypted
+# superblock feature flags (f2fs_fs.h F2FS_FEATURE_*)
+F2FS_FEAT_ENCRYPT = 0x0001
+F2FS_FEAT_EXTRA_ATTR = 0x0008
+F2FS_FEAT_FLEX_INLINE_XATTR = 0x0040
+F2FS_FEAT_INODE_CRTIME = 0x0100
+F2FS_FEAT_COMPRESSION = 0x2000
+F2FS_FEAT_CASEFOLD = 0x1000
+F2FS_FEAT_PACKED_SSA = 0x10000
+# checkpoint flags (f2fs_fs.h CP_*)
+F2FS_CP_UMOUNT = 0x0001
+F2FS_CP_COMPACT_SUM = 0x0004
+F2FS_CP_FASTBOOT = 0x0020
+F2FS_CP_ERROR = 0x0008
+F2FS_CP_LARGE_NAT_BITMAP = 0x0400
+# reserved data-block-address markers (f2fs_fs.h)
+F2FS_NULL_ADDR, F2FS_NEW_ADDR, F2FS_COMPRESS_ADDR = 0, 0xFFFFFFFF, 0xFFFFFFFE
+F2FS_DEFAULT_INLINE_XATTR_ADDRS = 50
+F2FS_NAT_ENTRY_SIZE = 9             # f2fs_nat_entry: u8 version, le32 ino, le32 block_addr
+F2FS_ENC_NAME_MARKERS = ()          # names are not decoded; encryption is reported per file
+
+
+def f2fs_time(v):
+    """An F2FS timestamp (le64 Unix seconds, UTC) as a Unix second count, or 0."""
+    return v if 0 < v < (1 << 40) else 0
+
+
+class F2fsUnreadable(Exception):
+    """A file this reader will not hand back whole (encrypted or compressed);
+    the message says which."""
+
+
+class F2fsWalker:
+    """List and read files from an F2FS volume. Nodes are addressed by nid, so
+    listdir()/entry()/read_file() take a nid and the shared collect() and
+    extract_to_zip() work unchanged; the root is the superblock's root_ino."""
+
+    def __init__(self, fh, base):
+        self.fh, self.base = fh, base
+        sb = self._sb(base)
+        if sb is None:
+            raise F2fsUnreadable("no valid F2FS superblock")
+        self.log_bs = struct.unpack_from("<I", sb, 16)[0]
+        self.bs = 1 << self.log_bs
+        self.seg_blocks = 1 << struct.unpack_from("<I", sb, 20)[0]   # always 512
+        self.cp_blkaddr = struct.unpack_from("<I", sb, 76)[0]
+        self.sit_blkaddr = struct.unpack_from("<I", sb, 80)[0]
+        self.nat_blkaddr = struct.unpack_from("<I", sb, 84)[0]
+        self.main_blkaddr = struct.unpack_from("<I", sb, 92)[0]
+        self.sit_segs_total = struct.unpack_from("<I", sb, 56)[0]   # segment_count_sit, both copies
+        self.main_segs = struct.unpack_from("<I", sb, 68)[0]        # segment_count_main
+        self.root_ino = struct.unpack_from("<I", sb, 96)[0]
+        self.cp_payload = struct.unpack_from("<I", sb, 1664)[0]
+        self.feature = struct.unpack_from("<I", sb, 2180)[0]
+        # NAT entry is 9 bytes; DEF_ADDRS_PER_INODE and the node capacity follow
+        # the same arithmetic the kernel uses, parameterised by block size.
+        self.nepb = self.bs // F2FS_NAT_ENTRY_SIZE
+        self.def_addrs = (self.bs - 360 - 20 - 24) // 4     # DEF_ADDRS_PER_INODE
+        self.addrs_per_block = (self.bs - 24) // 4          # direct/indirect node capacity
+        self._cache = {}
+        self._load_checkpoint()
+
+    root = property(lambda self: self.root_ino)
+
+    @staticmethod
+    def _sb_ok(b):
+        """True if b holds a superblock that passes the reserved-value checks
+        sanity_check_raw_super applies: the magic, a supported block size, 512
+        blocks per segment, and node/meta/root inode numbers of 1/2/3."""
+        return (len(b) >= 200
+                and struct.unpack_from("<I", b, 0)[0] == F2FS_MAGIC
+                and F2FS_BLKSIZE_BITS_MIN <= struct.unpack_from("<I", b, 16)[0] <= F2FS_BLKSIZE_BITS_MAX
+                and struct.unpack_from("<I", b, 20)[0] == 9
+                and struct.unpack_from("<I", b, 96)[0] == 3
+                and struct.unpack_from("<I", b, 100)[0] == 1
+                and struct.unpack_from("<I", b, 104)[0] == 2)
+
+    def _sb(self, base):
+        """The raw superblock bytes, from copy 1 (1024 bytes into block 0) or,
+        if that copy is unreadable, copy 2 (1024 bytes into block 1). The block
+        size is not known until a copy is read, so copy 2 is tried at both the
+        4K and 16K block offsets."""
+        b = read_at(self.fh, base + F2FS_SUPER_OFF, 3072)
+        if self._sb_ok(b):
+            return b
+        for blk_bytes in (4096, 16384):
+            c = read_at(self.fh, base + blk_bytes + F2FS_SUPER_OFF, 3072)
+            if self._sb_ok(c):
+                return c
+        return None
+
+    def block(self, blkaddr):
+        b = self._cache.get(blkaddr)
+        if b is None:
+            b = read_at(self.fh, self.base + blkaddr * self.bs, self.bs)
+            if len(self._cache) < 4096:
+                self._cache[blkaddr] = b
+        return b
+
+    def _load_checkpoint(self):
+        """Pick the newer of the two checkpoint packs, then read the NAT bitmap
+        and NAT journal it points at. A pack is only valid when the version at
+        its first block equals the version at its last, meaning it was written
+        whole (fs/f2fs/checkpoint.c validate_checkpoint)."""
+        best = None
+        for pack, addr in ((1, self.cp_blkaddr), (2, self.cp_blkaddr + self.seg_blocks)):
+            head = self.block(addr)
+            if len(head) < self.bs:
+                continue
+            ver = int.from_bytes(head[0:8], "little")
+            total = struct.unpack_from("<I", head, 136)[0]   # cp_pack_total_block_count
+            if not (2 < total <= self.seg_blocks):
+                continue
+            tail = self.block(addr + total - 1)
+            if len(tail) < self.bs or int.from_bytes(tail[0:8], "little") != ver:
+                continue
+            if best is None or ver > best[0]:
+                best = (ver, pack, head, total)
+        if best is None:
+            raise F2fsUnreadable("no valid F2FS checkpoint")
+        self.cp_ver, self.cur_pack, self.ckpt, self.cp_total = best
+        self.start_cp = self.cp_blkaddr + (self.seg_blocks if self.cur_pack == 2 else 0)
+        self.cp_flags = struct.unpack_from("<I", self.ckpt, 132)[0]
+        sit_bm = struct.unpack_from("<I", self.ckpt, 156)[0]   # sit_ver_bitmap_bytesize
+        # The version bitmap region begins at offset 192 (after alloc_type[16]).
+        # NAT bitmap placement follows f2fs.h __bitmap_ptr(NAT_BITMAP).
+        if self.cp_flags & F2FS_CP_LARGE_NAT_BITMAP:
+            self.nat_bitmap = self.ckpt[192 + 4:]
+        elif self.cp_payload > 0:
+            self.nat_bitmap = self.ckpt[192:]
+        else:
+            self.nat_bitmap = self.ckpt[192 + sit_bm:]
+        self._load_nat_journal()
+
+    def _load_nat_journal(self):
+        """Recent NAT updates not yet flushed to the on-disk table live in a
+        journal inside the checkpoint's hot-data summary (fs/f2fs/segment.c
+        read_normal_summaries / read_compacted_summaries). They override the
+        on-disk NAT, so a nid found here wins."""
+        self.nat_j = {}
+        sum_bs = 4096 if (self.feature & F2FS_FEAT_PACKED_SSA) else self.bs
+        sum_entry_size = 7 * (sum_bs // 8)     # entries_in_sum summaries of 7 bytes
+        if self.cp_flags & F2FS_CP_COMPACT_SUM:
+            blk = self.start_cp + struct.unpack_from("<I", self.ckpt, 140)[0]
+            joff = 0
+        elif self.cp_flags & (F2FS_CP_UMOUNT | F2FS_CP_FASTBOOT):
+            blk = self.start_cp + self.cp_total - 7    # HOT_DATA summary, base 6
+            joff = sum_entry_size
+        else:
+            blk = self.start_cp + self.cp_total - 4    # base 3, no node summaries
+            joff = sum_entry_size
+        buf = self.block(blk)
+        if len(buf) < self.bs or joff + 2 > len(buf):
+            return
+        n_nats = struct.unpack_from("<H", buf, joff)[0]
+        p = joff + 2
+        for _ in range(n_nats):
+            if p + 13 > len(buf):
+                break
+            nid = struct.unpack_from("<I", buf, p)[0]
+            # nat_journal_entry: nid(4) then f2fs_nat_entry{ver(1) ino(4) blkaddr(4)}
+            self.nat_j[nid] = struct.unpack_from("<I", buf, p + 9)[0]
+            p += 13
+
+    @staticmethod
+    def _test_bit(bm, i):
+        """Bit i of a little-endian bitmap: the kernel's set_bit_le and
+        find_next_bit_le, which F2FS uses for a directory's validity bitmap
+        (fs/f2fs/dir.c f2fs_update_dentry sets it, f2fs_fill_dentries reads it).
+        Bit 0 is the least significant bit of byte 0. Not the order of the SIT
+        valid_map or of the version bitmaps, which f2fs_set_bit writes the other
+        way round; see _f2fs_test_bit."""
+        j = i >> 3
+        return (bm[j] >> (i & 7)) & 1 if j < len(bm) else 0
+
+    @staticmethod
+    def _f2fs_test_bit(bm, i):
+        """Bit i the way F2FS's own f2fs_test_bit reads it: bit 0 is the MOST
+        significant bit of byte 0 (fs/f2fs/f2fs.h: mask = BIT(7 - (nr & 7))).
+        This is the order of the NAT and SIT version bitmaps in the checkpoint,
+        which say which of a block's two on-disk copies is current
+        (node.h current_nat_addr, segment.h current_sit_addr). Reading them
+        little-endian picks the stale copy whenever the two orders disagree, and
+        a fresh volume, whose bitmaps are all zero, cannot show the difference."""
+        j = i >> 3
+        return (bm[j] >> (7 - (i & 7))) & 1 if j < len(bm) else 0
+
+    def resolve(self, nid):
+        """The block address holding node nid, or 0 if it is unallocated."""
+        if nid in self.nat_j:
+            return self.nat_j[nid]
+        start = (nid // self.nepb) * self.nepb
+        block_off = start // self.nepb
+        addr = self.nat_blkaddr + (block_off << 1) - (block_off & (self.seg_blocks - 1))
+        if self._f2fs_test_bit(self.nat_bitmap, block_off):
+            addr += self.seg_blocks
+        blk = self.block(addr)
+        eo = (nid - start) * F2FS_NAT_ENTRY_SIZE
+        if eo + F2FS_NAT_ENTRY_SIZE > len(blk):
+            return 0
+        return struct.unpack_from("<I", blk, eo + 5)[0]     # f2fs_nat_entry.block_addr
+
+    def _node(self, nid):
+        blkaddr = self.resolve(nid)
+        if blkaddr in (F2FS_NULL_ADDR, F2FS_NEW_ADDR):
+            return None
+        b = self.block(blkaddr)
+        return b if len(b) >= self.bs else None
+
+    def inode(self, nid):
+        """The parsed inode for nid, or None. A node whose footer nid equals its
+        footer ino is an inode (f2fs.h RAW_IS_INODE)."""
+        b = self._node(nid)
+        if b is None:
+            return None
+        if struct.unpack_from("<I", b, self.bs - 24)[0] != struct.unpack_from("<I", b, self.bs - 20)[0]:
+            return None
+        i_inline = b[3]
+        extra = struct.unpack_from("<H", b, 360)[0] if (i_inline & F2FS_EXTRA_ATTR) else 0
+        if self.feature & F2FS_FEAT_FLEX_INLINE_XATTR:
+            ix = struct.unpack_from("<H", b, 362)[0]
+        elif i_inline & (F2FS_INLINE_XATTR | F2FS_INLINE_DENTRY):
+            ix = F2FS_DEFAULT_INLINE_XATTR_ADDRS
+        else:
+            ix = 0
+        base = extra // 4                                   # offset_in_addr
+        addrs_in_inode = (self.def_addrs - base) - ix       # ADDRS_PER_INODE
+        crtime = (struct.unpack_from("<Q", b, 372)[0]
+                  if (extra and (self.feature & F2FS_FEAT_INODE_CRTIME)) else 0)
+        return dict(
+            raw=b, mode=struct.unpack_from("<H", b, 0)[0], advise=b[2], inline=i_inline,
+            size=struct.unpack_from("<Q", b, 16)[0], flags=struct.unpack_from("<I", b, 80)[0],
+            atime=struct.unpack_from("<Q", b, 32)[0], mtime=struct.unpack_from("<Q", b, 48)[0],
+            crtime=crtime, base=base, addrs_in_inode=addrs_in_inode,
+            iaddr_off=360 + base * 4)
+
+    def _iaddr(self, ino, k):
+        return struct.unpack_from("<I", ino["raw"], ino["iaddr_off"] + k * 4)[0]
+
+    def _nid_slot(self, ino, k):        # i_nid[k], the five node-id pointers
+        return struct.unpack_from("<I", ino["raw"], self.bs - 44 + k * 4)[0]
+
+    def _node_word(self, nid, idx):
+        """Word idx of a direct/indirect node's array (addr[] or nid[]), 0 when
+        the node itself is unallocated (a hole covering that whole subtree)."""
+        b = self._node(nid)
+        if b is None or idx * 4 + 4 > len(b):
+            return 0
+        return struct.unpack_from("<I", b, idx * 4)[0]
+
+    def _block_of(self, ino, L):
+        """The data block address for logical block L of a file, following
+        fs/f2fs/node.c get_node_path; 0/NEW mark a hole that reads as zeros."""
+        n = ino["addrs_in_inode"]
+        if L < n:
+            return self._iaddr(ino, L)
+        L -= n
+        apb = self.addrs_per_block
+        if L < apb:
+            return self._node_word(self._nid_slot(ino, 0), L)
+        L -= apb
+        if L < apb:
+            return self._node_word(self._nid_slot(ino, 1), L)
+        L -= apb
+        if L < apb * apb:
+            ind = self._node_word(self._nid_slot(ino, 2), L // apb)
+            return self._node_word(ind, L % apb)
+        L -= apb * apb
+        if L < apb * apb:
+            ind = self._node_word(self._nid_slot(ino, 3), L // apb)
+            return self._node_word(ind, L % apb)
+        L -= apb * apb
+        dind = self._nid_slot(ino, 4)
+        l1 = self._node_word(dind, L // (apb * apb))
+        rem = L % (apb * apb)
+        ind = self._node_word(l1, rem // apb)
+        return self._node_word(ind, rem % apb)
+
+    def _encrypted(self, ino):
+        return bool((self.feature & F2FS_FEAT_ENCRYPT) and (ino["advise"] & F2FS_FADVISE_ENCRYPT))
+
+    def _compressed(self, ino):
+        return bool((self.feature & F2FS_FEAT_COMPRESSION) and (ino["flags"] & F2FS_COMPR_FL))
+
+    def entry(self, nid):
+        ino = self.inode(nid)
+        if ino is None:
+            return None
+        return ino["mode"], ino["size"], f2fs_time(ino["mtime"])
+
+    def stamps(self, nid):
+        """(created, modified, accessed) in Unix seconds, 0 where unset. F2FS
+        stores real UTC instants, so unlike a FAT reading these sit on a
+        timeline; created needs the inode_crtime feature and an extra_attr
+        inode, else it is 0."""
+        ino = self.inode(nid)
+        if ino is None:
+            return (0, 0, 0)
+        return (f2fs_time(ino["crtime"]), f2fs_time(ino["mtime"]), f2fs_time(ino["atime"]))
+
+    def _dentry_geom(self, span):
+        """(entries, bitmap bytes, dentry offset, filename offset) for a dentry
+        area of `span` bytes (f2fs_fs.h NR_DENTRY_IN_BLOCK and friends): a
+        validity bitmap, reserved padding, an 11-byte dir entry per slot, then
+        an 8-byte filename slot per slot."""
+        nr = (8 * span) // ((11 + 8) * 8 + 1)
+        bmsize = (nr + 7) // 8
+        reserved = span - ((11 + 8) * nr + bmsize)
+        return nr, bmsize, bmsize + reserved, bmsize + reserved + 11 * nr
+
+    def _parse_dentry(self, buf, off, span):
+        nr, bmsize, doff, foff = self._dentry_geom(span)
+        out, bit = [], 0
+        while bit < nr:
+            if not self._test_bit(buf[off:off + bmsize], bit):
+                bit += 1
+                continue
+            de = off + doff + bit * 11
+            child = struct.unpack_from("<I", buf, de + 4)[0]
+            name_len = struct.unpack_from("<H", buf, de + 8)[0]
+            if name_len == 0 or name_len > 255:
+                bit += 1
+                continue
+            slots = (name_len + 7) // 8
+            ns = off + foff + bit * 8
+            name = buf[ns:ns + name_len].decode("utf-8", "replace")
+            bit += slots
+            if name not in (".", ".."):
+                out.append((name, child))
+        return out
+
+    def listdir(self, nid):
+        ino = self.inode(nid)
+        if ino is None or not (ino["mode"] & S_IFDIR):
+            return []
+        if ino["inline"] & F2FS_INLINE_DENTRY:
+            off = ino["iaddr_off"] + 4                      # DEF_INLINE_RESERVED_SIZE
+            span = 4 * (ino["addrs_in_inode"] - 1)          # MAX_INLINE_DATA
+            return sorted(self._parse_dentry(ino["raw"], off, span))
+        out = []
+        for L in range((ino["size"] + self.bs - 1) // self.bs):
+            addr = self._block_of(ino, L)
+            if addr in (F2FS_NULL_ADDR, F2FS_NEW_ADDR, F2FS_COMPRESS_ADDR):
+                continue
+            buf = self.block(addr)
+            if len(buf) >= self.bs:
+                out.extend(self._parse_dentry(buf, 0, self.bs))
+        return sorted(out)
+
+    def read_file(self, nid, size):
+        """Yield exactly `size` bytes, holes emitted as zeros so offsets stay
+        correct. Inline data lives in the inode; encrypted or compressed content
+        is refused rather than guessed at."""
+        ino = self.inode(nid)
+        if ino is None:
+            return
+        if self._encrypted(ino):
+            raise F2fsUnreadable("the file is encrypted and the volume holds no key")
+        if self._compressed(ino):
+            raise F2fsUnreadable("the file is compressed (F2FS compression is not read here)")
+        if ino["inline"] & F2FS_INLINE_DATA:
+            off = ino["iaddr_off"] + 4                      # skip DEF_INLINE_RESERVED_SIZE
+            yield ino["raw"][off:off + size]
+            return
+        left, L = size, 0
+        while left > 0:
+            addr = self._block_of(ino, L)
+            if addr in (F2FS_NULL_ADDR, F2FS_NEW_ADDR, F2FS_COMPRESS_ADDR):
+                buf = bytes(self.bs)
+            else:
+                buf = self.block(addr)
+                if len(buf) < self.bs:
+                    buf = buf + bytes(self.bs - len(buf))
+            take = min(self.bs, left)
+            yield buf[:take]
+            left -= take
+            L += 1
+
+    def _sit_bitmap(self):
+        """The SIT version bitmap: which of a SIT block's two copies is current.
+        Placement follows f2fs.h __bitmap_ptr(SIT_BITMAP): with the large-NAT-
+        bitmap flag it follows the NAT bitmap after a 4-byte checksum; with a
+        checkpoint payload it is the block after the checkpoint header; else it
+        is first in the version-bitmap region at offset 192."""
+        if self.cp_flags & F2FS_CP_LARGE_NAT_BITMAP:
+            nat_len = struct.unpack_from("<I", self.ckpt, 160)[0]
+            return self.ckpt[192 + nat_len + 4:]
+        if self.cp_payload > 0:
+            return self.block(self.start_cp + 1)
+        return self.ckpt[192:]
+
+    def _load_sit_journal(self):
+        """SIT entries updated since the table was last written live in the
+        checkpoint's cold-data summary journal and override the on-disk table
+        (segment.c build_sit_entries applies them after reading it). Same
+        placement rules as the NAT journal, one summary type along: normal
+        summaries keep it in the COLD_DATA block, compact ones keep the two
+        journals back to back at the start of the summary area."""
+        self.sit_j = {}
+        sum_bs = 4096 if (self.feature & F2FS_FEAT_PACKED_SSA) else self.bs
+        sum_entry_size = 7 * (sum_bs // 8)
+        sum_journal_size = sum_bs - 5 - sum_entry_size       # SUM_FOOTER_SIZE is 5
+        if self.cp_flags & F2FS_CP_COMPACT_SUM:
+            blk = self.start_cp + struct.unpack_from("<I", self.ckpt, 140)[0]
+            joff = sum_journal_size                          # the second journal
+        elif self.cp_flags & (F2FS_CP_UMOUNT | F2FS_CP_FASTBOOT):
+            blk = self.start_cp + self.cp_total - 7 + 2      # COLD_DATA summary, base 6
+            joff = sum_entry_size
+        else:
+            blk = self.start_cp + self.cp_total - 4 + 2      # base 3
+            joff = sum_entry_size
+        buf = self.block(blk)
+        if len(buf) < self.bs or joff + 2 > len(buf):
+            return
+        n_sits = struct.unpack_from("<H", buf, joff)[0]
+        p = joff + 2
+        for _ in range(n_sits):
+            if p + 78 > len(buf):
+                break
+            # sit_journal_entry: segno(4) then f2fs_sit_entry (74 bytes)
+            self.sit_j[struct.unpack_from("<I", buf, p)[0]] = buf[p + 4:p + 78]
+            p += 78
+
+    def _sit_entry(self, segno):
+        """The raw 74-byte f2fs_sit_entry for main-area segment segno, journal
+        first, else the current on-disk copy (segment.h current_sit_addr); None
+        past the end of the image."""
+        raw = self.sit_j.get(segno)
+        if raw is not None:
+            return raw
+        sents = self.bs // 74                                # SIT_ENTRY_PER_BLOCK
+        block_off = segno // sents
+        addr = self.sit_blkaddr + block_off
+        if self._f2fs_test_bit(self._sit_bitmap(), block_off):
+            addr += (self.sit_segs_total >> 1) * self.seg_blocks   # sit_blocks: the second copy
+        buf = self.block(addr)
+        eo = (segno % sents) * 74
+        if eo + 74 > len(buf):
+            return None
+        return buf[eo:eo + 74]
+
+    def free_extents(self, min_bytes=0):
+        """[(byte offset, length)] for the runs of space the volume says are free.
+
+        F2FS keeps one validity bit per block of the main area, 512 bits per
+        segment in f2fs_sit_entry.valid_map. The bits are set by the filesystem's
+        own f2fs_set_bit (segment.c update_sit_entry), so bit 0 is the MOST
+        significant bit of byte 0; segment.h check_block_count reads the same map
+        with the little-endian helpers, but only to count clear bits, which no
+        order changes. Position does change: read least-significant-first, this
+        map put 14 live blocks of one test volume inside "free" runs while the
+        total still matched the checkpoint's own count. A clear bit is a block no
+        live node or data occupies, which is where deleted content survives until
+        the log wraps round to it. The current copy of each SIT block is chosen by
+        the checkpoint's SIT version bitmap, read the same most-significant-first
+        way, and an entry still in the cold-data summary journal overrides the
+        table. Only the main area is reported: the superblock, checkpoint, SIT,
+        NAT and SSA areas are the filesystem's own bookkeeping and hold no user
+        content.
+
+        Offsets are into the image rather than the volume, so a caller reading
+        the whole disk can use them directly. ``min_bytes`` drops runs too short
+        to hold anything worth recovering.
+        """
+        if not self.main_segs or not self.seg_blocks:
+            return []
+        self._load_sit_journal()
+        # per byte of a valid_map, the (first block, count) runs of clear bits,
+        # bit 0 being the most significant bit (f2fs_set_bit's order)
+        table = []
+        for byte in range(256):
+            runs, start = [], None
+            for bit in range(8):
+                if (byte >> (7 - bit)) & 1:
+                    if start is not None:
+                        runs.append((start, bit - start))
+                        start = None
+                elif start is None:
+                    start = bit
+            if start is not None:
+                runs.append((start, 8 - start))
+            table.append(tuple(runs))
+        out, run_start, run_len = [], None, 0
+        for segno in range(self.main_segs):
+            raw = self._sit_entry(segno)
+            if raw is None:                                  # the image ends inside the SIT
+                break
+            base_blk = self.main_blkaddr + segno * self.seg_blocks
+            vmap = raw[2:2 + (self.seg_blocks >> 3)]
+            for i, byte in enumerate(vmap):
+                for first, n in table[byte]:
+                    blk = base_blk + i * 8 + first
+                    if run_start is not None and run_start + run_len == blk:
+                        run_len += n
+                    else:
+                        if run_start is not None:
+                            out.append((run_start, run_len))
+                        run_start, run_len = blk, n
+        if run_start is not None:
+            out.append((run_start, run_len))
+        result = []
+        for first, n in out:
+            length = n * self.bs
+            if length >= min_bytes:
+                result.append((self.base + first * self.bs, length))
+        return result
 
 
 # ---------------------------------------------------------------------------
@@ -1833,6 +2379,44 @@ def ntfs_time(v):
     return sec if -12219292800 < sec < 253402300799 else 0
 
 
+def _ntfs_file_names(attrs):
+    """[(parent reference, name)] for every name a record's $FILE_NAME gives it.
+
+    A record carries one $FILE_NAME per link, so a hard-linked file names every
+    directory it appears in. Each holds the parent's reference, which is a
+    record number in its low 48 bits and the sequence number the name was
+    written for in its top 16.
+
+    Namespace 2 is the 8.3 name of a file that also has a long one, indexed
+    beside it. Reporting both lists every such file twice, once under a name
+    nobody typed. Namespace 3 is a single entry serving as both, because the
+    name is already 8.3-legal, and is kept. Neither committed fixture carries a
+    namespace 2 name, because both were built on macOS, which writes POSIX
+    names: a real Windows volume is full of them (93,048 of 249,943 on one
+    7.4 GB acquisition), which is why this is exercised by a constructed
+    control in the self-test rather than only by a fixture.
+    """
+    out = []
+    for a in attrs:
+        if a.type != NTFS_FILE_NAME or not a.resident:
+            continue
+        v = a.value
+        if len(v) < 0x42:
+            continue
+        ref = struct.unpack_from("<Q", v, 0)[0]
+        nlen, namespace = v[0x40], v[0x41]
+        if namespace == 2:
+            continue
+        end = 0x42 + nlen * 2
+        if end > len(v):
+            continue                        # the record does not hold the name it declares
+        name = v[0x42:end].decode("utf-16-le", "replace")
+        if not name or name in (".", ".."):
+            continue
+        out.append((ref, name))
+    return out
+
+
 def _ntfs_std_times(attrs):
     """(created, modified, accessed) from a record's $STANDARD_INFORMATION, as
     Unix seconds, each 0 where the attribute is absent or too short to hold it.
@@ -2387,6 +2971,164 @@ class NtfsWalker:
         """
         return _ntfs_std_times(self._record(num))
 
+    # -- the whole volume in one pass --------------------------------------
+
+    # The record header's base file reference (low 48 bits of the eight bytes at
+    # 0x20). Non-zero means the record holds overflow attributes for the record
+    # it names and is not a file of its own.
+    _BASE_REF = 0x20
+
+    def listing(self):
+        """Every entry on the volume, built from $MFT in record order.
+
+        A tree walk learns a directory's children by reading its index, so it
+        reads an $INDEX_ALLOCATION block per directory and reaches MFT records
+        in directory order. Every record already carries its own $FILE_NAME,
+        which names it and names its parent, so the same listing can be built
+        from one sequential pass over $MFT with no index read at all.
+
+        Measured on a 7.4 GB Windows acquisition holding 156,894 entries: the
+        tree walk plus stamps() takes 3.54 s and this takes 1.07 s, and the
+        paths, kinds, sizes and all three dates are identical. Reading the
+        whole 130 MB $MFT is 0.13 s of that; the parse is the cost, not the
+        read.
+
+        Two things a scan of $MFT has to get right, and both fail quietly:
+
+        An **extension record** carries the FILE signature, is flagged in use,
+        and holds copies of its base record's $FILE_NAME. Counting it names
+        the same path a second time from a record with no $STANDARD_INFORMATION
+        behind it, so the dates come back empty. On that acquisition 4,665 of
+        126,976 records are extension records and they would have added 8,435
+        such rows, every one disagreeing with the real record on modified time.
+        They are skipped here on the base reference in the record header.
+
+        A **$FILE_NAME's parent reference carries the parent's sequence
+        number**, exactly as a directory index entry carries the child's. A
+        parent record that has since been freed and handed to another file
+        carries a different one, and resolving through it would file the entry
+        under whatever that record became. Those names are dropped. That guard
+        is the one thing here no image in the test set exercises: a stale
+        parent reference was looked for and not found on any of them, on
+        249,943 names of a 7.4 GB Windows acquisition among others. It is kept
+        because the same staleness on the child reference is real and measured
+        (see _index_entries, where it put an update installer under a browser
+        cache folder on one volume), and it is reported here as code present
+        and unexercised rather than as something proven.
+
+        Yields (path, record, mode, size, mtime, None) for every entry,
+        directories included. A record whose parent chain does not lead to the
+        root cannot be given a path and is left out, which is what a tree walk
+        does with it too. NTFS records instants, so there is never a stored
+        reading and the last element is always None.
+
+        **This asks the volume a different question from a tree walk, and on a
+        volume whose index and records disagree it gets a different answer.**
+        A tree walk reads what each directory says is in it; this reads what
+        each record says about itself. They agree exactly on a consistent
+        volume: 156,894 of 156,894 entries on a 7.4 GB Windows acquisition and
+        every entry of every committed fixture, on paths, kinds, sizes and all
+        three dates.
+
+        On a 49 GB Windows 11 acquisition they disagree on 4 of 313,652, and
+        neither reader is wrong. Three are files whose record names a parent
+        whose sequence number matches, while that parent's index holds only a
+        stale entry for the name, which _index_entries rightly refuses; a tree
+        walk reports nothing at those paths and this reports the file. In the
+        fourth the index and the record disagree on the name: the index files
+        record 3057 under HxCommAlwaysOnLog_Old.etl and the record's own
+        $FILE_NAME says HxCommAlwaysOnLog.etl. A Windows 10 acquisition shows
+        the first shape three times, all files in a Chrome profile. What put
+        these indexes and records out of step is not established: the volume's
+        own dirty flag is clear on both. Reconciling them would mean reading
+        the indexes, which is the work this exists to avoid; the difference is
+        reported here instead so a caller knows which question the answer
+        belongs to.
+        """
+        mft = self._data_attr(0)
+        if mft is None or not mft.runs:
+            return
+        total = mft.data_size // self.rec_size
+        if not total:
+            return
+
+        # One sequential pass. Each record is parsed once and kept in the cache
+        # entry(), stamps() and _seq() already read, so nothing below this line
+        # goes back to the image for it.
+        names = {}                                  # record -> [(parent, name)]
+        is_dir = {}
+        per_read = max(1, (1 << 20) // self.rec_size)
+        for first in range(0, total, per_read):
+            count = min(per_read, total - first)
+            raw = self._read_runs(mft.runs, count * self.rec_size,
+                                  first * self.rec_size)
+            for i in range(count):
+                num = first + i
+                rec = raw[i * self.rec_size:(i + 1) * self.rec_size]
+                if len(rec) < 0x30 or rec[:4] != NTFS_FILE:
+                    continue
+                flags = struct.unpack_from("<H", rec, 22)[0]
+                if not flags & NTFS_MFT_IN_USE:
+                    # _parse_attrs refuses a freed record too, so this is what
+                    # keeps the fixup and the parse off every free record
+                    # rather than what keeps a deleted file out of the listing.
+                    # deleted_files() is where a freed record is read on purpose.
+                    continue
+                if struct.unpack_from("<Q", rec, self._BASE_REF)[0] & 0xFFFFFFFFFFFF:
+                    continue                        # an extension record, not a file
+                fixed = _ntfs_fixup(rec, self.bps, NTFS_FILE)
+                if not fixed:
+                    continue
+                attrs = self._parse_attrs(fixed, self_ref=num)
+                if not attrs:
+                    continue
+                self._records[num] = attrs
+                is_dir[num] = bool(flags & NTFS_MFT_IS_DIR)
+                here = _ntfs_file_names(attrs)
+                if here:
+                    names[num] = here
+
+        # Second pass: turn each parent reference into a path. Only a directory
+        # can be one, and the root is the one record that has no path of its own.
+        # A directory has one name, so its own parent reference is the link in
+        # the chain. A file can have several, which is what a hard link is.
+        up_from = {num: here[0] for num, here in names.items()
+                   if is_dir.get(num) and num != NTFS_ROOT}
+        resolved = {NTFS_ROOT: ""}
+
+        def path_of(ref, depth=0):
+            """The path of the directory this reference names, or None when the
+            chain does not reach the root or the record it names was reused."""
+            num = ref & 0xFFFFFFFFFFFF
+            want_seq = ref >> 48
+            if want_seq:
+                got_seq = self._seq(num)
+                if got_seq is not None and want_seq != got_seq:
+                    return None
+            if num in resolved:
+                return resolved[num]
+            if depth > 64 or num not in up_from:
+                return None
+            resolved[num] = None                    # breaks a cycle in the chain
+            parent_ref, name = up_from[num]
+            above = path_of(parent_ref, depth + 1)
+            got = None if above is None else (f"{above}/{name}" if above else name)
+            resolved[num] = got
+            return got
+
+        for num, here in names.items():
+            if num == NTFS_ROOT:
+                continue
+            ent = self.entry(num)
+            if not ent:
+                continue
+            mode, size, mtime = ent
+            for ref, name in here:
+                base = path_of(ref)
+                if base is None:
+                    continue                        # no path to the root
+                yield (f"{base}/{name}" if base else name, num, mode, size, mtime, None)
+
     def free_extents(self, min_bytes=0):
         """[(byte offset, length)] for the runs of space the volume says are free.
 
@@ -2721,6 +3463,22 @@ APFS_TYPE_DSTREAM_ID  = 6
 APFS_TYPE_FILE_EXTENT = 8
 APFS_TYPE_DIR_REC     = 9
 
+# The record types a listing asks for, over and over, one object id at a time:
+# a directory's children, an inode, and the extended attribute that carries a
+# compressed file's real size. prime_records() reads all of them in one pass
+# over the tree's leaves. File extents are left out on purpose: only reading a
+# file's content needs them, a listing never asks, and on a volume of any size
+# they are the bulk of the tree.
+APFS_PRIMED_TYPES = frozenset((APFS_TYPE_INODE, APFS_TYPE_XATTR, APFS_TYPE_DIR_REC))
+
+# How many records prime_records() will hold for one volume before giving up on
+# it and leaving the tree to be searched the ordinary way. The table is a
+# Python object per record and per key, which is most of what it costs: the
+# 1,853,807 records of a 625,543-entry macOS volume are 155 MB of bytes and
+# about 900 MB of process. This cap is roughly twice that volume, so a volume
+# large enough to exhaust a machine is walked slowly instead of not at all.
+APFS_PRIME_MAX_RECORDS = 4_000_000
+
 APFS_INCOMPAT_CASE_INSENSITIVE          = 0x0000000000000001
 APFS_INCOMPAT_NORMALIZATION_INSENSITIVE = 0x0000000000000008
 
@@ -2932,6 +3690,7 @@ class ApfsWalker:
             raise ValueError("the container names no readable volume")
         self._state = {}
         self._current = None
+        self._primed = None                         # prime_records() fills it
         self._fext = None
         self._open_volume(0)
 
@@ -2979,6 +3738,11 @@ class ApfsWalker:
                                            | APFS_INCOMPAT_NORMALIZATION_INSENSITIVE)),
                 "case_insensitive": bool(incompat & APFS_INCOMPAT_CASE_INSENSITIVE),
                 "inodes": {},
+                # filled by prime_records(), and None until it is asked for
+                "primed": None,
+                # set when the volume held more records than the cap allows, so
+                # a second call does not pay for the same abandoned pass again
+                "prime_capped": False,
             }
             self._state[index] = got
         self._current = index
@@ -2988,6 +3752,7 @@ class ApfsWalker:
                                      base_oid=got["base_oid"])
         self._tree = got["tree"]
         self._inodes = got["inodes"]
+        self._primed = got["primed"]
         self._hashed_names = got["hashed"]
         self.case_insensitive = got["case_insensitive"]
         self.volume_name = self.volumes[index][2]
@@ -3199,9 +3964,76 @@ class ApfsWalker:
         return out
 
     # -- records -----------------------------------------------------------
+    def prime_records(self, max_records=APFS_PRIME_MAX_RECORDS):
+        """Read every volume's directory records, inodes and extended
+        attributes once, in one pass over the tree's leaves.
+
+        The tree is keyed on (object id, record type), so a lookup is a bisect
+        of the leaf list and a parse of the leaf it lands in. That is cheap on
+        its own and a listing does it several times per file, which means the
+        same leaf block is read and parsed again for every entry that happens
+        to live in it. Measured over the first 40,000 entries of a 32 GB macOS
+        acquisition: 216,889 searches, 5.4 per entry, and 88,566 leaf parses,
+        2.2 per entry, for 4.48 s of 5.19 s.
+
+        One ordered pass parses each leaf exactly once and answers every later
+        lookup from memory. Nothing else changes: listdir(), entry() and the
+        rest read the same records through the same code and only the route
+        they arrive by is different.
+
+        The cost is memory, roughly proportional to the number of files, and
+        it is worth it for a full listing and not for reading a few files. A
+        volume with more than ``max_records`` of them is left unprimed and
+        searched the ordinary way, so a volume too large to hold is slow rather
+        than fatal. Nothing calls this on its own; walk_all() does when it is
+        asked for a whole volume.
+
+        Returns the volume indexes it primed, which is what a test asserts
+        against and what tells a caller the cap was reached.
+        """
+        was = self._current
+        done = []
+        for index in range(len(self.volumes)):
+            state = self._state.get(index, {})
+            if state.get("primed") is not None:
+                done.append(index)
+                continue
+            if state.get("prime_capped"):
+                continue
+            try:
+                self._open_volume(index)
+            except Exception:                       # pylint: disable=broad-except
+                continue                            # identification says why
+            table, held = {}, 0
+            tree = self._tree
+            for _first, block in tree.leaves(_apfs_fs_key):
+                _flags, recs = tree.records(self.block(block))
+                for key, val in recs:
+                    k = _apfs_fs_key(key)
+                    if k is not None and k[1] in APFS_PRIMED_TYPES:
+                        table.setdefault(k, []).append((key, val))
+                        held += 1
+                if held > max_records:
+                    break
+            if held > max_records:
+                table = None                        # too large to hold; walk it
+                self._state[index]["prime_capped"] = True
+            self._state[index]["primed"] = table
+            self._primed = table
+            if table is not None:
+                done.append(index)
+        if was is not None and was != self._current:
+            self._open_volume(was)
+        return done
+
     def _records(self, oid, rtype):
         """Every file-system record of one object id and one record type."""
         want = (oid, rtype)
+        primed = self._primed
+        if primed is not None and rtype in APFS_PRIMED_TYPES:
+            for key, val in primed.get(want, ()):
+                yield key, val
+            return
         for key, val in self._tree.search(want, _apfs_fs_key):
             k = _apfs_fs_key(key)
             if k is None or k < want:
@@ -5024,6 +5856,74 @@ def collect(w, num, prefix="", depth=0, seen=None, out=None, times=None):
     return out
 
 
+def walk_all(w):
+    """Every entry under this volume, directories included, as
+    (path, node, mode, size, mtime, recorded).
+
+    ``collect()`` returns the regular files, which is what an extraction needs,
+    and reports them in tree order. A listing wants the directories as well,
+    and wants them quickly. A walker that can produce its whole tree from one
+    pass over its own records says so with a ``listing()`` method and this uses
+    it; a walker that can only make its lookups cheaper says so with
+    ``prime_records()``; anything else is walked the ordinary way.
+
+    ``recorded`` is the dates as the filesystem stores them, for FAT and exFAT,
+    which keep a wall-clock reading and no zone, and None for the rest.
+
+    **The order is not promised** and is not the same by both routes: a
+    walker's own ``listing()`` reports in the order its records sit in rather
+    than in tree order. Sort by path where the order matters. ``collect()``
+    is unchanged and still walks the tree, so nothing that relies on its order
+    is affected by this.
+
+    A fast route can also answer a slightly different question. NTFS is the
+    one that does: see ``NtfsWalker.listing``, which reads what each record
+    says about itself rather than what each directory says is in it. The two
+    agree on every consistent volume measured and differ on 4 entries of
+    313,652 on one acquisition whose directory indexes and records disagree.
+
+    A directory is decided here by the format bits of the mode rather than by
+    ``mode & S_IFDIR``, which ``collect()`` uses: the latter is also true of a
+    block device, whose format bits share that one. No image in the test set
+    carries one, which is why the two agree everywhere it has been measured.
+    """
+    fast = getattr(w, "listing", None)
+    if fast is not None:
+        for item in fast():
+            yield item
+        return
+    prime = getattr(w, "prime_records", None)
+    if prime is not None:
+        prime()
+    records = hasattr(w, "listdir_records")
+    seen = set()
+
+    def walk(node, prefix, depth):
+        if depth > 64:
+            return
+        key = node[0] if isinstance(node, tuple) else node
+        if key in seen:
+            return
+        seen.add(key)
+        if records:
+            listing = w.listdir_records(node)
+        else:
+            listing = [(name, ino, None) for name, ino in w.listdir(node)]
+        for name, ino, recorded in listing:
+            ent = w.entry(ino)
+            if not ent:
+                continue
+            mode, size, mtime = ent
+            path = f"{prefix}/{name}" if prefix else name
+            yield (path, ino, mode, size, mtime, recorded)
+            if mode & S_IFMT == S_IFDIR:
+                for item in walk(ino, path, depth + 1):
+                    yield item
+
+    for item in walk(w.root, "", 0):
+        yield item
+
+
 def apply_exclude(entries, exclude):
     """Drop entries whose path contains any excluded substring."""
     if not exclude:
@@ -5287,6 +6187,8 @@ def walker_for(kind, fh, base, size=None):
         return ExfatWalker(fh, base)
     if kind == "ntfs":
         return NtfsWalker(fh, base)
+    if kind == "f2fs":
+        return F2fsWalker(fh, base)
     if kind in ("hfs+", "hfsx"):
         return HfsPlusWalker(fh, base)
     if kind == "apfs":
@@ -5529,6 +6431,66 @@ def identify_fat(fh, base):
     return None
 
 
+def identify_f2fs(fh, base):
+    """Return ("f2fs", lines) for an F2FS volume at base, else None.
+
+    F2FS names itself with a 4-byte magic 1024 bytes into the volume, and the
+    reserved inode numbers that follow (node 1, meta 2, root 3) are fixed, so
+    both are required rather than the magic alone (fs/f2fs/super.c
+    sanity_check_raw_super). Block size and blocks-per-segment must also be the
+    values the format allows.
+    """
+    b = read_at(fh, base + F2FS_SUPER_OFF, 3072)
+    if len(b) < 200 or struct.unpack_from("<I", b, 0)[0] != F2FS_MAGIC:
+        return None
+    log_bs = struct.unpack_from("<I", b, 16)[0]
+    if not (F2FS_BLKSIZE_BITS_MIN <= log_bs <= F2FS_BLKSIZE_BITS_MAX):
+        return None
+    if struct.unpack_from("<I", b, 20)[0] != 9:              # log blocks per segment
+        return None
+    if (struct.unpack_from("<I", b, 96)[0] != 3
+            or struct.unpack_from("<I", b, 100)[0] != 1
+            or struct.unpack_from("<I", b, 104)[0] != 2):
+        return None
+    bs = 1 << log_bs
+    total = struct.unpack_from("<Q", b, 36)[0] * bs          # block_count, user blocks
+    label = b[124:124 + 1024].decode("utf-16-le", "replace").split("\x00")[0]
+    uid = b[108:124].hex()
+    kver = b[1668:1668 + 256].split(b"\x00")[0].decode("ascii", "replace")
+    feat = struct.unpack_from("<I", b, 2180)[0]
+    names = [(F2FS_FEAT_ENCRYPT, "encrypt"), (F2FS_FEAT_COMPRESSION, "compression"),
+             (F2FS_FEAT_CASEFOLD, "casefold"), (F2FS_FEAT_EXTRA_ATTR, "extra_attr"),
+             (F2FS_FEAT_INODE_CRTIME, "inode_crtime")]
+    flags = " ".join(n for bit, n in names if feat & bit) or "(none)"
+    lines = [
+        f"label        {label or '(none)'}",
+        f"block size   {bs:,} bytes",
+        f"volume       {human(total)}",
+        f"uuid         {uid}",
+        f"features     {flags}",
+    ]
+    if kver:
+        lines.append(f"made by      {kver}")
+    try:
+        w = F2fsWalker(fh, base)
+    except (F2fsUnreadable, ValueError, OSError, struct.error) as exc:
+        lines.append(f"walk         not possible: {exc}")
+        return "f2fs", lines
+    used = int.from_bytes(w.ckpt[16:24], "little") * bs      # valid_block_count
+    if total:
+        lines.insert(3, f"used         {human(used)} of {human(total)} "
+                        f"({100.0 * used / total:.1f}%)")
+    clean = "cleanly unmounted" if (w.cp_flags & F2FS_CP_UMOUNT) else \
+            "NOT cleanly unmounted, so it may have been live at acquisition"
+    if w.cp_flags & F2FS_CP_ERROR:
+        clean += "; checkpoint carries an error flag"
+    lines.append(f"checkpoint   {clean}")
+    if feat & F2FS_FEAT_ENCRYPT:
+        lines.append("note         per-file encryption is enabled; encrypted files "
+                     "are named and their content is not read")
+    return "f2fs", lines
+
+
 def identify_fs(fh, base, size=None):
     """Return (name, [detail lines]) for whatever sits at this partition.
 
@@ -5605,6 +6567,10 @@ def identify_fs(fh, base, size=None):
     fat = identify_fat(fh, base)
     if fat:
         return fat
+
+    f2fs = identify_f2fs(fh, base)
+    if f2fs:
+        return f2fs
 
     efs = identify_efs(fh, base, size)
     if efs:
@@ -6279,7 +7245,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                     except Exception as exc:
                         print(f"        could not extract: {exc}")
 
-                if kind in ("fat32", "exfat", "ntfs", "hfs+", "hfsx", "apfs",
+                if kind in ("fat32", "exfat", "ntfs", "f2fs", "hfs+", "hfsx", "apfs",
                             "etfs", "efs", "qnx4") and wanted:
                     if do_list:
                         print(f"        CONTENTS  (depth {list_depth})")
@@ -6624,6 +7590,163 @@ def _ext_fixture_check(image_gz, listing):
     return kind, matched, len(want), missing, different
 
 
+def _f2fs_fixture_check(image_gz, listing):
+    """Walk the committed F2FS fixture and compare every file in `listing`
+    against its recorded hash. Returns (kind, matched, expected, missing,
+    different).
+
+    Two listings are checked with this. The main one is sha256sum over the
+    source tree, an oracle independent of the image and of this reader; it
+    covers files that live inside the inode's own address list (inline data,
+    inline directories, and files up to a few MiB), plus the multi-block
+    directory and the symlink. The second is the one file large enough to run
+    past the inode into direct and single-indirect node blocks: sload.f2fs
+    relocates such a file's node blocks (it writes them as if the inode had no
+    inline xattr while stamping the inode with one), so the source hash does
+    not match, and the recorded hash is what f2fs-tools' own dump.f2fs, an
+    independent reader, extracts from the committed image.
+    """
+    import gzip, hashlib, io
+    with gzip.open(image_gz, "rb") as gz:
+        img = io.BytesIO(gz.read())
+    size = img.getbuffer().nbytes
+    want = {}
+    with open(listing, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            digest, path = line.split("  ", 1)
+            want[path] = digest
+    kind = (identify_fs(img, 0, size) or (None,))[0]
+    w = walker_for(kind, img, 0, size) if kind else None
+    if w is None:
+        return kind, 0, len(want), len(want), 0
+    have = {path: (ino, sz) for path, ino, sz, _mtime in collect(w, w.root) if sz is not None}
+    matched = missing = different = 0
+    for path, digest in want.items():
+        got = have.get(path)
+        if got is None:
+            missing += 1
+            continue
+        h = hashlib.sha256()
+        read = 0
+        try:
+            for chunk in w.read_file(got[0], got[1]):
+                h.update(chunk)
+                read += len(chunk)
+        except F2fsUnreadable:
+            different += 1
+            continue
+        if read == got[1] and h.hexdigest() == digest:
+            matched += 1
+        else:
+            different += 1
+    return kind, matched, len(want), missing, different
+
+
+def _f2fs_free_check(image_gz):
+    """Read a committed F2FS fixture's free space and hold it against the volume
+    itself. Returns (kind, free_blocks, main_blocks, valid_blocks, named_blocks,
+    named_in_free).
+
+    Two statements, neither derived from free_extents: the checkpoint's own
+    valid_block_count must equal the main area minus what is reported free (the
+    filesystem's accounting), and no block a live file or node occupies may lie
+    in a reported run (position, which is what tells a wrong bit order from a
+    right one when the counts agree). named_blocks is every data block of every
+    reachable file and directory plus every node block that addresses them; on
+    both committed fixtures it equals valid_block_count, so the named blocks and
+    the free runs together tile the whole main area.
+    """
+    import gzip, io
+    with gzip.open(image_gz, "rb") as gz:
+        img = io.BytesIO(gz.read())
+    size = img.getbuffer().nbytes
+    kind = (identify_fs(img, 0, size) or (None,))[0]
+    if kind != "f2fs":
+        return kind, 0, 0, 0, 0, 0
+    w = F2fsWalker(img, 0)
+    runs = w.free_extents()
+    free_blocks = sum(n for _, n in runs) // w.bs
+    main_blocks = w.main_segs * w.seg_blocks
+    valid = struct.unpack_from("<Q", w.ckpt, 16)[0]
+    named = set()
+
+    def node(nid):
+        b = w.resolve(nid)
+        if b not in (F2FS_NULL_ADDR, F2FS_NEW_ADDR):
+            named.add(b)
+
+    seen = set()
+
+    def walk(nid):
+        if nid in seen:
+            return
+        seen.add(nid)
+        node(nid)
+        ino = w.inode(nid)
+        if ino is None:
+            return
+        for k in range(5):
+            n = w._nid_slot(ino, k)                 # pylint: disable=protected-access
+            if n:
+                node(n)
+                if k >= 2:                          # an indirect node names direct nodes
+                    nb = w._node(n)                 # pylint: disable=protected-access
+                    for j in range(w.addrs_per_block if nb else 0):
+                        child = struct.unpack_from("<I", nb, j * 4)[0]
+                        if child:
+                            node(child)
+        isdir = bool(ino["mode"] & S_IFDIR)
+        inline = F2FS_INLINE_DENTRY if isdir else F2FS_INLINE_DATA
+        if not (ino["inline"] & inline):
+            for L in range((ino["size"] + w.bs - 1) // w.bs):
+                a = w._block_of(ino, L)             # pylint: disable=protected-access
+                if a not in (F2FS_NULL_ADDR, F2FS_NEW_ADDR, F2FS_COMPRESS_ADDR):
+                    named.add(a)
+        if isdir:
+            for _name, child in w.listdir(nid):
+                walk(child)
+
+    walk(w.root)
+    starts = [a for a, _n in runs]
+    import bisect
+
+    def in_free(blk):
+        off = w.base + blk * w.bs
+        i = bisect.bisect_right(starts, off) - 1
+        return i >= 0 and runs[i][0] <= off < runs[i][0] + runs[i][1]
+
+    named_in_free = sum(1 for b in named if in_free(b))
+    return kind, free_blocks, main_blocks, valid, len(named), named_in_free
+
+
+def _f2fs_marker_check(image_gz):
+    """The two properties only the kernel-written two-session fixture has.
+    Returns (nat bitmap has a set bit, marker blocks found, marker blocks in
+    free runs). The marker is a file of 256 blocks deleted before the last
+    checkpoint, each block beginning ``F2FS-FREE-MARKER-<index>-``; its bytes
+    are searched for directly, so the count is a fact about the image, and
+    every block found must lie inside a run free_extents reports."""
+    import gzip, io, re, bisect
+    with gzip.open(image_gz, "rb") as gz:
+        raw = gz.read()
+    w = F2fsWalker(io.BytesIO(raw), 0)
+    nat_len = struct.unpack_from("<I", w.ckpt, 160)[0]
+    has_bit = any(bytes(w.nat_bitmap[:nat_len]))
+    runs = w.free_extents()
+    starts = [a for a, _n in runs]
+    blocks = {m.start() // w.bs for m in re.finditer(rb"F2FS-FREE-MARKER-\d{4}-", raw)}
+    in_free = 0
+    for blk in blocks:
+        off = w.base + blk * w.bs
+        i = bisect.bisect_right(starts, off) - 1
+        if i >= 0 and runs[i][0] <= off < runs[i][0] + runs[i][1]:
+            in_free += 1
+    return has_bit, len(blocks), in_free
+
+
 def _ntfs_fixture_check(image_gz, listing):
     """Walk the committed NTFS fixture and compare every file against the
     hashes an independent reader recorded from the same image.
@@ -6774,13 +7897,89 @@ def _ntfs_listing_check(image_gz):
     return ("2026-09-11" in line), (line.strip() or "dir/mid.txt not listed")
 
 
+def _tree_walk_for_check(w):
+    """walk_all's generic route, forced, whatever the walker offers.
+
+    Written out here rather than reached by a flag so the comparison below is
+    against a second implementation of the traversal and not against the same
+    code with a branch turned off, which would agree with itself.
+    """
+    seen = set()
+
+    def walk(node, prefix, depth):
+        if depth > 64:
+            return
+        key = node[0] if isinstance(node, tuple) else node
+        if key in seen:
+            return
+        seen.add(key)
+        if hasattr(w, "listdir_records"):
+            listing = w.listdir_records(node)
+        else:
+            listing = [(n, i, None) for n, i in w.listdir(node)]
+        for name, ino, recorded in listing:
+            ent = w.entry(ino)
+            if not ent:
+                continue
+            mode, size, mtime = ent
+            path = f"{prefix}/{name}" if prefix else name
+            yield (path, mode, size, mtime, recorded)
+            if mode & S_IFMT == S_IFDIR:
+                for item in walk(ino, path, depth + 1):
+                    yield item
+
+    return walk(w.root, "", 0)
+
+
+def _walk_all_agreement(image_gz, break_it=None):
+    """Compare walk_all() against a walk of the directory tree, on a fixture.
+
+    Returns (volumes, rows, wrong, fast), where wrong counts every path only
+    one of them found, every path the fast route reported twice, and every
+    field the two disagree on. A walker that offers a fast route is the point
+    of the check; ``fast`` says whether one was taken, so a route that stops
+    being reached cannot pass by quietly turning into the slow one.
+
+    ``break_it`` is for the control: it is handed each walker and may return a
+    stand-in whose fast route is deliberately wrong, which must make this
+    report a non-zero ``wrong``. A comparison that has never reported one is
+    not evidence of anything.
+    """
+    import gzip, io as _io
+    with gzip.open(image_gz, "rb") as gz:
+        img = _io.BytesIO(gz.read())
+    found = rows = wrong = 0
+    fast = False
+    for vol in volumes(img, image_size(img)):
+        w = vol.get("walker")
+        if w is None:
+            continue
+        found += 1
+        tree = {}
+        for path, mode, size, mtime, recorded in _tree_walk_for_check(w):
+            tree[path] = (mode, size, mtime, recorded)
+        subject = break_it(w) if break_it else w
+        fast = fast or hasattr(subject, "listing") or hasattr(subject, "prime_records")
+        seen = {}
+        for path, _node, mode, size, mtime, recorded in walk_all(subject):
+            if path in seen:
+                wrong += 1                          # the same path reported twice
+            seen[path] = (mode, size, mtime, recorded)
+        rows += len(seen)
+        wrong += len(set(seen) - set(tree)) + len(set(tree) - set(seen))
+        for path in set(seen) & set(tree):
+            if seen[path] != tree[path]:
+                wrong += 1
+    return found, rows, wrong, fast
+
+
 def self_test():
     """Prove the detector reports BOTH ways before you trust a run.
 
     Builds three throwaway images in a temp directory, checks them, and removes
     the directory. Nothing outside that directory is touched.
     """
-    import tempfile, shutil
+    import tempfile, shutil, gzip
 
     # These two literals are deliberately NOT QNX6_MAGIC. A self-test that
     # builds its fixtures from the constant it is verifying is circular: it
@@ -8470,6 +9669,220 @@ def self_test():
                   + (f", {emiss} missing" if emiss else "")
                   + (f", {ediff} different" if ediff else "") + ")" + ebroke)
 
+        # F2FS detection rejects the negatives: an all-zero region, the right
+        # magic with a wrong reserved inode number, and the right magic with an
+        # impossible block size. Each must return None, so a chance 4-byte match
+        # cannot be read as a filesystem.
+        _bad = bytearray(3072)
+        struct.pack_into("<I", _bad, 0, F2FS_MAGIC)
+        struct.pack_into("<I", _bad, 16, 12)      # log_blocksize 4K
+        struct.pack_into("<I", _bad, 20, 9)       # log_blocks_per_seg
+        struct.pack_into("<I", _bad, 96, 3)       # root_ino ok
+        struct.pack_into("<I", _bad, 100, 1)
+        struct.pack_into("<I", _bad, 104, 2)
+        _wrong_root = bytearray(_bad)
+        struct.pack_into("<I", _wrong_root, 96, 99)   # root_ino must be 3
+        _wrong_bs = bytearray(_bad)
+        struct.pack_into("<I", _wrong_bs, 16, 20)     # log_blocksize out of range
+        f2fs_neg_ok = (identify_f2fs(io.BytesIO(bytes(3072)), 0) is None
+                       and identify_f2fs(io.BytesIO(bytes(_wrong_root)), 0) is None
+                       and identify_f2fs(io.BytesIO(bytes(_wrong_bs)), 0) is None)
+        if not f2fs_neg_ok:
+            ok = False
+        print(f"  [{'PASS' if f2fs_neg_ok else 'FAIL'}] F2FS detection rejects an "
+              "all-zero region, a wrong reserved inode and an impossible block size")
+
+        # F2FS: the same reader over an image f2fs-tools wrote. The source-tree
+        # hashes cover the inline and in-inode files (and the symlink and the
+        # multi-block directory); the nodes list covers the one file large
+        # enough to reach direct and single-indirect node blocks, checked
+        # against what dump.f2fs extracts (see _f2fs_fixture_check).
+        f2fs_fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "tests", "fixtures", "f2fs-fixture.img.gz")
+        for want_name, what in (("f2fs-fixture.src.sha256",
+                                 "sha256sum recorded over its source tree"),
+                                ("f2fs-fixture.nodes.sha256",
+                                 "dump.f2fs extracted from the image")):
+            f2fs_want = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                     "tests", "fixtures", want_name)
+            if not (os.path.isfile(f2fs_fix) and os.path.isfile(f2fs_want)):
+                print(f"  [SKIP] the {want_name} F2FS fixture is not beside this "
+                      "script, so the walk was not compared against it")
+                continue
+            try:
+                fkind, fgot, fwant, fmiss, fdiff = _f2fs_fixture_check(f2fs_fix, f2fs_want)
+                fbroke = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                fkind, fgot, fwant, fmiss, fdiff = None, 0, 0, 0, 0
+                fbroke = f"; the walk raised {type(exc).__name__}: {exc}"
+            fcond = (fkind == "f2fs" and fgot and fgot == fwant and not fmiss
+                     and not fdiff and not fbroke)
+            if not fcond:
+                ok = False
+            print(f"  [{'PASS' if fcond else 'FAIL'}] every file in {want_name} "
+                  f"matches what {what} "
+                  f"({fgot} of {fwant}, identified as {fkind}"
+                  + (f", {fmiss} missing" if fmiss else "")
+                  + (f", {fdiff} different" if fdiff else "") + ")" + fbroke)
+
+        # F2FS holes, against the Linux kernel driver as a third oracle. sload.f2fs
+        # allocates every block, so this second image is built by mounting a fresh
+        # volume with the kernel and writing sparse files (a leading hole, a middle
+        # hole, a trailing hole, and one file that is all hole); the recorded hashes
+        # are what the kernel read back. See tools/make_f2fs_hole_fixture.sh.
+        f2fs_holes = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "tests", "fixtures", "f2fs-fixture-holes.img.gz")
+        f2fs_holes_want = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                       "tests", "fixtures", "f2fs-fixture.holes.sha256")
+        if os.path.isfile(f2fs_holes) and os.path.isfile(f2fs_holes_want):
+            try:
+                hkind, hgot, hwant, hmiss, hdiff = _f2fs_fixture_check(f2fs_holes, f2fs_holes_want)
+                hbroke = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                hkind, hgot, hwant, hmiss, hdiff = None, 0, 0, 0, 0
+                hbroke = f"; the walk raised {type(exc).__name__}: {exc}"
+            hcond = (hkind == "f2fs" and hgot and hgot == hwant and not hmiss
+                     and not hdiff and not hbroke)
+            if not hcond:
+                ok = False
+            print(f"  [{'PASS' if hcond else 'FAIL'}] every F2FS file with holes reads "
+                  f"back the bytes the Linux kernel driver read from the same image "
+                  f"({hgot} of {hwant}, identified as {hkind}"
+                  + (f", {hmiss} missing" if hmiss else "")
+                  + (f", {hdiff} different" if hdiff else "") + ")" + hbroke)
+        else:
+            print("  [SKIP] the F2FS holes fixture is not beside this script, so the "
+                  "hole path was not compared against the kernel driver")
+
+        # F2FS free space, first on a SIT written out by hand. Segment 0 has
+        # blocks {0, 1, 2, 9, 20..23} in use and segment 1 is empty, so the free
+        # runs are 3..8, 10..19 and 24..1023, the last one crossing the segment
+        # boundary; those are written out here, not computed. The used bits are
+        # set the way F2FS sets them (bit 0 is the most significant bit), and the
+        # first copy of the SIT block is entirely in use while the version bitmap's
+        # byte is 0x80, so only a reader that takes bit 0 from the top of the byte
+        # reaches the second copy and the expected runs; one that reads
+        # little-endian lands on the first copy and reports nothing free.
+        SIT_BS, SIT_SEG = 4096, 512
+        SIT_BASE, SIT_MAIN, SIT_ADDR = 1 << 20, 4096, 100
+        SIT_USED = {0, 1, 2, 9, 20, 21, 22, 23}
+        SIT_WANT = [(3, 6), (10, 10), (24, 1000)]
+        _seg0 = bytearray(74)
+        for _b in SIT_USED:
+            _seg0[2 + (_b >> 3)] |= 1 << (7 - (_b & 7))
+        struct.pack_into("<H", _seg0, 0, len(SIT_USED))
+        _copy2 = bytes(_seg0) + bytes(74) + bytes(SIT_BS - 148)       # seg 1 all free
+        _full = bytearray(74)
+        _full[2:66] = b"\xff" * 64
+        _copy1 = bytes(_full) * 2 + bytes(SIT_BS - 148)               # everything used
+        _ck = bytearray(SIT_BS)
+        struct.pack_into("<I", _ck, 132, F2FS_CP_UMOUNT)
+        struct.pack_into("<I", _ck, 136, 8)                           # cp_pack_total_block_count
+        struct.pack_into("<I", _ck, 156, 64)                          # sit_ver_bitmap_bytesize
+        struct.pack_into("<I", _ck, 160, 64)
+        _ck[192] = 0x80                                               # SIT block 0: second copy
+
+        class _SitOnly:
+            """Only what free_extents asks of an F2FS walker."""
+            free_extents = F2fsWalker.free_extents
+            _load_sit_journal = F2fsWalker._load_sit_journal   # pylint: disable=protected-access
+            _sit_entry = F2fsWalker._sit_entry                 # pylint: disable=protected-access
+            _sit_bitmap = F2fsWalker._sit_bitmap               # pylint: disable=protected-access
+            _f2fs_test_bit = staticmethod(F2fsWalker._f2fs_test_bit)  # pylint: disable=protected-access
+            bs, seg_blocks, base = SIT_BS, SIT_SEG, SIT_BASE
+            main_blkaddr, main_segs = SIT_MAIN, 2
+            sit_blkaddr, sit_segs_total = SIT_ADDR, 2          # one copy is 512 blocks
+            cp_flags, cp_payload, feature = F2FS_CP_UMOUNT, 0, 0
+            ckpt, start_cp, cp_total = bytes(_ck), 512, 8
+            short = False
+
+            def block(self, addr):
+                if self.short:
+                    return b""
+                if addr == SIT_ADDR:
+                    return _copy1
+                if addr == SIT_ADDR + SIT_SEG:
+                    return _copy2
+                return bytes(SIT_BS)                              # the journal block: no entries
+
+        _sgot = _SitOnly().free_extents()
+        _swant = [(SIT_BASE + (SIT_MAIN + b) * SIT_BS, n * SIT_BS) for b, n in SIT_WANT]
+        sit_free_ok = _sgot == _swant
+        sit_floor_ok = (_SitOnly().free_extents(min_bytes=11 * SIT_BS)
+                        == [(SIT_BASE + (SIT_MAIN + 24) * SIT_BS, 1000 * SIT_BS)])
+        _cut = _SitOnly()
+        _cut.short = True
+        sit_cut_ok = _cut.free_extents() == []
+        for label, cond in (
+                ("an F2FS SIT reads back as the runs of free space it describes, "
+                 "the used bits taken from the top of each byte and the current SIT "
+                 "copy chosen the same way", sit_free_ok),
+                ("an F2FS free-space floor drops the short runs", sit_floor_ok),
+                ("an F2FS volume cut short before its SIT answers nothing rather than "
+                 "raising", sit_cut_ok)):
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
+        # The two-session fixture (tools/make_f2fs_free_fixture.sh): the kernel
+        # rewrote NAT block 0, so the checkpoint's NAT version bitmap carries a set
+        # bit and which copy is current is decided by bit order for real; the 1.28
+        # reader, little-endian there, finds no files on this volume at all. Every
+        # file must read back as the kernel read it, the bitmap must actually have
+        # a set bit (else this leg has lost its point), and all 256 blocks of the
+        # file deleted before the last checkpoint must sit in reported free space
+        # with their bytes intact.
+        f2fs_free_fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                     "tests", "fixtures", "f2fs-fixture-free.img.gz")
+        f2fs_free_want = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                      "tests", "fixtures", "f2fs-fixture.free.sha256")
+        if os.path.isfile(f2fs_free_fix) and os.path.isfile(f2fs_free_want):
+            try:
+                vk, vgot, vwant, vmiss, vdiff = _f2fs_fixture_check(f2fs_free_fix, f2fs_free_want)
+                vbit, vfound, vfree = _f2fs_marker_check(f2fs_free_fix)
+                vbroke = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                vk, vgot, vwant, vmiss, vdiff, vbit, vfound, vfree = None, 0, 0, 0, 0, False, 0, 0
+                vbroke = f"; raised {type(exc).__name__}: {exc}"
+            vcond = (vk == "f2fs" and vgot and vgot == vwant and not vmiss and not vdiff
+                     and vbit and vfound == 256 and vfree == 256 and not vbroke)
+            if not vcond:
+                ok = False
+            print(f"  [{'PASS' if vcond else 'FAIL'}] on the volume the kernel wrote twice, "
+                  f"whose NAT version bitmap {'carries a' if vbit else 'CARRIES NO'} set bit, "
+                  f"every file reads back as the kernel read it ({vgot} of {vwant}"
+                  + (f", {vmiss} missing" if vmiss else "")
+                  + (f", {vdiff} different" if vdiff else "")
+                  + f") and the deleted marker's blocks lie in free space ({vfree} of "
+                  f"{vfound} found, 256 written)" + vbroke)
+        else:
+            print("  [SKIP] the two-session F2FS fixture is not beside this script, so the "
+                  "NAT copy selection and the deleted-file control were not checked")
+
+        # Then on the committed images: the checkpoint's own count, and position.
+        for stem in ("f2fs-fixture", "f2fs-fixture-holes", "f2fs-fixture-free"):
+            fx = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              "tests", "fixtures", stem + ".img.gz")
+            if not os.path.isfile(fx):
+                print(f"  [SKIP] the {stem} fixture is not beside this script, so its free "
+                      "space was not checked")
+                continue
+            try:
+                fk, ffree, fmain, fvalid, fnamed, fbad = _f2fs_free_check(fx)
+                fbroke = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                fk, ffree, fmain, fvalid, fnamed, fbad = None, 0, 0, 0, 0, 0
+                fbroke = f"; raised {type(exc).__name__}: {exc}"
+            fcond = (fk == "f2fs" and fmain and ffree == fmain - fvalid
+                     and fnamed == fvalid and fbad == 0 and not fbroke)
+            if not fcond:
+                ok = False
+            print(f"  [{'PASS' if fcond else 'FAIL'}] {stem}: free space plus the blocks "
+                  f"live files and nodes occupy tile the main area, and none of those "
+                  f"blocks is reported free ({ffree:,} free + {fnamed:,} named = "
+                  f"{fmain:,}; checkpoint says {fvalid:,} valid"
+                  + (f"; {fbad} live blocks in free runs" if fbad else "") + ")" + fbroke)
+
         ntfs_fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "tests", "fixtures", "ntfs-fixture.img.gz")
         ntfs_want = ntfs_fix[:-len(".img.gz")] + ".sha256"
@@ -8625,6 +10038,202 @@ def self_test():
             ok = False
         print(f"  [{'PASS' if cut_cond else 'FAIL'}] volumes() reports a volume the "
               f"image is too short for as missing bytes ({cut_detail})")
+
+        # walk_all() takes a faster route on the walkers that offer one. It has
+        # to report exactly what a walk of the directory tree reports, so every
+        # committed fixture is walked both ways and every field compared.
+        here = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "tests", "fixtures")
+        checked, all_rows, all_wrong, fast_seen = 0, 0, 0, []
+        for stem in ("ntfs-fixture", "apfs-fixture", "hfsplus-fixture",
+                     "ext4-sparse", "ext2-sparse", "fat32-deleted",
+                     "exfat-deleted", "f2fs-fixture"):
+            fix = os.path.join(here, stem + ".img.gz")
+            if not os.path.isfile(fix):
+                continue
+            try:
+                vols, rows, wrong, fast = _walk_all_agreement(fix)
+            except Exception as exc:                 # pylint: disable=broad-except
+                vols, rows, wrong, fast = 0, 0, 1, False
+                print(f"       {stem}: raised {type(exc).__name__}: {exc}")
+            checked += vols
+            all_rows += rows
+            all_wrong += wrong
+            if fast:
+                fast_seen.append(stem)
+        # A fixture that is not beside this file cannot be walked, and that is
+        # not a failure: a frozen build carries the script and not the test
+        # data, which is exactly how the other fixture checks here behave. A
+        # check that cannot run has to say so rather than report a defect.
+        if not checked:
+            print("  [SKIP] the fixtures are not beside this script, so walk_all() "
+                  "was not compared against a walk of the directory tree")
+        else:
+            wcond = all_rows and not all_wrong
+            if not wcond:
+                ok = False
+            print(f"  [{'PASS' if wcond else 'FAIL'}] walk_all() reports exactly what a "
+                  f"walk of the directory tree reports, on every committed fixture "
+                  f"({all_rows:,} entries over {checked} volume(s), {all_wrong} "
+                  f"disagreement(s); the fast route was taken on "
+                  f"{', '.join(fast_seen) or 'none'})")
+
+        # The fast routes have to be reached, not merely present. A change that
+        # leaves walk_all() correct by quietly falling back to the tree passes
+        # the comparison above and is still a regression, so the routes are
+        # asserted here: the MFT pass must report the volume, and the APFS
+        # prime must hold records and must stand down when capped.
+        apfs_fix2 = os.path.join(here, "apfs-fixture.img.gz")
+        ntfs_fix2 = os.path.join(here, "ntfs-fixture.img.gz")
+        if os.path.isfile(ntfs_fix2):
+            try:
+                with gzip.open(ntfs_fix2, "rb") as gz:
+                    nimg = io.BytesIO(gz.read())
+                nw = [v["walker"] for v in volumes(nimg, image_size(nimg)) if v.get("walker")][0]
+                n_from_mft = sum(1 for _ in nw.listing())
+                nfail = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                n_from_mft, nfail = 0, f" ({type(exc).__name__}: {exc})"
+            cond = n_from_mft > 0
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] the NTFS listing is built from "
+                  f"$MFT and not from the directory tree ({n_from_mft} entries"
+                  f" from one pass){nfail}")
+
+        if os.path.isfile(apfs_fix2):
+            try:
+                with gzip.open(apfs_fix2, "rb") as gz:
+                    aimg = io.BytesIO(gz.read())
+                aw = [v["walker"] for v in volumes(aimg, image_size(aimg)) if v.get("walker")][0]
+                primed = aw.prime_records()
+                held = sum(
+                    len(t) for i in primed
+                    for t in [aw._state[i]["primed"]] if t)   # pylint: disable=protected-access
+                # Every type a listing asks for has to be in the table, or the
+                # lookups it was built to answer go back to searching the tree.
+                # These three numbers are written out and are deliberately NOT
+                # APFS_PRIMED_TYPES: comparing the table against the same
+                # constant that filled it passes whatever that constant says,
+                # which is how narrowing it to inodes alone went unnoticed
+                # here. They are apfs_fs_key's record types for an inode, an
+                # extended attribute and a directory record.
+                WANT_PRIMED = {3, 4, 9}
+                kinds = {
+                    k[1] for i in primed
+                    for t in [aw._state[i]["primed"]] if t for k in t}  # pylint: disable=protected-access
+                missing_kinds = sorted(WANT_PRIMED - kinds)
+                # the same walker, asked again with a cap it cannot meet
+                with gzip.open(apfs_fix2, "rb") as gz:
+                    aimg2 = io.BytesIO(gz.read())
+                aw2 = [v["walker"] for v in volumes(aimg2, image_size(aimg2)) if v.get("walker")][0]
+                capped = aw2.prime_records(max_records=1)
+                capped_rows = sum(1 for _ in walk_all(aw2))
+                afail = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                primed, held, capped, capped_rows = [], 0, ["?"], 0
+                missing_kinds = [-1]
+                afail = f" ({type(exc).__name__}: {exc})"
+            cond = (bool(primed) and held > 0 and not missing_kinds
+                    and not capped and capped_rows > 0)
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] the APFS tree is primed in one "
+                  f"pass, and a volume over the cap is walked instead of held "
+                  f"({len(primed)} volume(s) primed holding {held} key(s) of "
+                  f"{3 - len(missing_kinds)} of 3 record type(s); capped: "
+                  f"{len(capped)} primed, {capped_rows} entries still "
+                  f"reported){afail}")
+
+        # Neither committed fixture holds a DOS 8.3 name or a padded
+        # $FILE_NAME, because both were built on macOS. A real Windows volume
+        # is full of the first (93,048 of 249,943 names on one acquisition), so
+        # the rules that handle them are exercised here on records built for
+        # the purpose rather than left to a fixture that cannot reach them.
+        def _fn(parent, seq, name, namespace, tail=b""):
+            v = bytearray(0x42)
+            struct.pack_into("<Q", v, 0, (seq << 48) | parent)
+            enc = name.encode("utf-16-le")
+            v[0x40] = len(name)
+            v[0x41] = namespace
+            attr = _NtfsAttr(NTFS_FILE_NAME, "", 0, True)
+            attr.value = bytes(v) + enc + tail
+            return attr
+
+        def _short(parent, name):
+            """A record that declares a longer name than it holds."""
+            a = _fn(parent, 1, name, 1)
+            a.value = a.value[:-4]
+            return a
+
+        name_cases = [
+            ("a long name is kept", [_fn(5, 1, "Microsoft.Ink.dll", 1)],
+             [(5, "Microsoft.Ink.dll")]),
+            ("its 8.3 twin is dropped", [_fn(5, 1, "MICROS~1.DLL", 2)], []),
+            ("a name that is already 8.3 is kept", [_fn(5, 1, "SETUP.EXE", 3)],
+             [(5, "SETUP.EXE")]),
+            ("both links of a hard-linked file are kept",
+             [_fn(7, 1, "http", 1), _fn(9, 1, "https", 1)],
+             [(7, "http"), (9, "https")]),
+            ("the DOS twin is dropped from beside its long name",
+             [_fn(5, 1, "LongName.txt", 1), _fn(5, 1, "LONGNA~1.TXT", 2)],
+             [(5, "LongName.txt")]),
+            ("a name the record is too short to hold is dropped",
+             [_short(5, "truncated.txt")], []),
+            ("padding after the name is not read as part of it",
+             [_fn(5, 1, "padded.txt", 1, b"\x00" * 6)], [(5, "padded.txt")]),
+            ("the sequence number rides in the top of the reference",
+             [_fn(0x1D419, 2, "x", 1)], [((2 << 48) | 0x1D419, "x")]),
+            (". and .. are not children", [_fn(5, 1, ".", 1), _fn(5, 1, "..", 1)], []),
+        ]
+        for label, attrs, want in name_cases:
+            try:
+                got = _ntfs_file_names(attrs)
+                # the reference is compared low-48 only except where the case
+                # is about the sequence number itself
+                if "sequence" not in label:
+                    got = [(r & 0xFFFFFFFFFFFF, n) for r, n in got]
+            except Exception as exc:                 # pylint: disable=broad-except
+                got = f"raised {type(exc).__name__}: {exc}"
+            cond = got == want
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] $FILE_NAME: {label}"
+                  + ("" if cond else f"  (got {got}, wanted {want})"))
+
+        # The control for that check. A fast route that drops one entry must
+        # make it report a disagreement; a comparison that has never reported
+        # one says nothing about the comparison.
+        def _drop_one(w):
+            real = getattr(w, "listing", None)
+            if real is None:
+                return w
+
+            class _ShortOne:
+                """The walker, with one entry missing from its fast route."""
+                def __init__(self, inner):
+                    self._inner = inner
+
+                def __getattr__(self, name):
+                    return getattr(self._inner, name)
+
+                def listing(self):
+                    return itertools.islice(real(), 1, None)
+
+            return _ShortOne(w)
+
+        ntfs_only = os.path.join(here, "ntfs-fixture.img.gz")
+        if os.path.isfile(ntfs_only):
+            try:
+                _v, _r, broke_wrong, _f = _walk_all_agreement(ntfs_only, break_it=_drop_one)
+            except Exception:                        # pylint: disable=broad-except
+                broke_wrong = 0
+            ccond = broke_wrong > 0
+            if not ccond:
+                ok = False
+            print(f"  [{'PASS' if ccond else 'FAIL'}] and that comparison reports a "
+                  f"disagreement when the fast route drops an entry "
+                  f"({broke_wrong} found)")
 
         print()
         print("  SELF-TEST PASSED. The detector reports positives and negatives"

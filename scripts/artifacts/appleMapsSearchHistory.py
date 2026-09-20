@@ -32,6 +32,7 @@ __artifacts_v2__ = {
 }
 
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 import base64
 import binascii
 import pprint
@@ -55,9 +56,13 @@ def get_nested_value(data, path):
 
 
 def longbase64proto(longstuff, longtypes):
-    longstuff = longstuff.split('placeRequest=')[1]
-    longstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(longstuff), longtypes)
-    return longstuff
+    try:
+        longstuff = longstuff.split('placeRequest=')[1]
+        longstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(longstuff), longtypes)
+        return longstuff
+    except (DecodeError, binascii.Error, ValueError, IndexError) as ex:
+        logfunc(f"Error decoding Apple Maps Search History protobuf: {ex}")
+        return None
 
 
 def shortbase64proto(shortstuff, shorttypes):
@@ -66,7 +71,7 @@ def shortbase64proto(shortstuff, shorttypes):
         shortstuff += '=' * (-len(shortstuff) % 4)
         shortstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(shortstuff), shorttypes)
         return shortstuff
-    except (binascii.Error, ValueError) as ex:
+    except (DecodeError, binascii.Error, ValueError) as ex:
         logfunc(f"Error decoding Apple Maps Search History protobuf: {ex}")
         return None
 
@@ -112,8 +117,12 @@ def get_appleMapsSearchHistory(context):
                             modificationdate = (h.replace(tzinfo=timezone.utc)
                                                 if isinstance(h, datetime) and h.tzinfo is None else h)
                         if g == 'contents':
-                            
-                            protostuff, _ = blackboxprotobuf.decode_message(h)
+                            try:
+                                protostuff, _ = blackboxprotobuf.decode_message(h)
+                            except (DecodeError, ValueError, TypeError) as ex:
+                                logfunc(f'Apple Maps Search History: could not decode record '
+                                        f'{guid} in {file_found}: {ex}')
+                                continue
                             #pp.pprint(protostuff)
                             items = (protostuff)
                             if protostuff.get('7'):

@@ -7,8 +7,7 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': "none",
         'category': 'Call History',
-        'notes': "Reference: A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' (Syngress, "
-                 "2011), voicemail.db flags: 67 = old, 75 = deleted, 3 = recent.",
+        'notes': "Reference: A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' (Syngress, 2011), voicemail.db flags: 67 = old, 75 = deleted, 3 = recent. When no voicemail.db is present, one row is reported per audio file with its transcript matched by file stem, and the report names the audio and transcript files read. The 19 registered corpora found to carry voicemail files all carry the database as well, so that path was exercised on a constructed tree of audio and transcript files without it.",
         'paths': (
             '*/mobile/Library/Voicemail/voicemail.db*',
             '*/mobile/Library/Voicemail/*.amr',
@@ -150,13 +149,14 @@ def voicemail(context):
                      transcription_confidence))
 
     else:
-        source_file = 'See Filename Column'
+        source_paths = []
         transcriptions_map = {}
         for transcript_path in extracted_transcript_files:
             t_id = Path(transcript_path).stem
             try:
                 pl = get_plist_file_content(transcript_path)
                 transcriptions_map[t_id] = pl
+                source_paths.append(transcript_path)
             except (OSError, TypeError, ValueError):
                 continue
 
@@ -185,10 +185,12 @@ def voicemail(context):
                 transcription_string,
                 confidence
             ))
+            source_paths.append(audio_file_path)
 
         data_headers = (
             ('File Created', 'datetime'), ('File Modified', 'datetime'),
             'Audio Filename', ('Audio File', 'media'),
             'Transcript', 'Transcript confidence')
+        source_file = '\n'.join(source_paths)
 
     return data_headers, data_list, source_file

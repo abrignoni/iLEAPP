@@ -9,6 +9,7 @@ reader other than the one under test.
 | `ntfs-fixture.img.gz` | NTFS, 16 MiB, 475 files with fixups, attribute lists, LZNT1 compression and sparse runs | 475 | `sha256sum` over an `ntfs-3g` mount of the image on Linux, at build time (qnxprobe `tools/make_ntfs_fixture.sh`) |
 | `fat32-deleted.img.gz` | FAT32, 64 MiB, two live files (`a.bin`, `c.bin`) and deleted ones | 2 | `shasum -a 256` over the image mounted read-only by macOS's own FAT driver, 2026-09-12 |
 | `exfat-deleted.img.gz` | exFAT, 64 MiB, two live files and deleted ones | 2 | `shasum -a 256` over the image mounted read-only by macOS's own exFAT driver, 2026-09-12 |
+| `apfs-fixture.img.gz` | APFS, 32 MiB, a container holding one volume of 411 files, one of them decmpfs-compressed, and a symbolic link | 411 | `shasum -a 256` over the files as macOS's own APFS driver wrote them, and the build fails unless The Sleuth Kit's reading of the finished image agrees (qnxprobe `tools/make_apfs_fixture.sh`) |
 
 The images are copies of the fixtures committed in
 [abrignoni/qnxprobe](https://github.com/abrignoni/qnxprobe) under `tests/fixtures/`,

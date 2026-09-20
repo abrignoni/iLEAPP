@@ -20,6 +20,10 @@ checker had passed, through `unique_files()`, `or`, and paths handed back by mod
 helpers. Those shapes, and the correct forms that must stay silent, are pinned in
 ThirdAuditShapes.
 
+A fourth shape (2026-09-19) came through media_to_html, which returned a full path
+unchanged. That helper has since been removed from all five cores; the
+check_in_embedded_media form that replaced it is pinned in MustStaySilent.
+
 The false-negative cases matter as much as the positives: a checker wired into CI that
 flags correct code gets disabled, so the shapes that must stay silent are pinned too.
 """
@@ -245,6 +249,21 @@ class MustStaySilent(unittest.TestCase):
                     names = ', '.join(p.get_filename() for p in message.walk())
                     data_list.append((names, 'b'))
                 return (), data_list, ''
+        '''), [])
+
+    def test_checking_the_crop_in_as_embedded_media_is_accepted(self):
+        self.assertEqual(findings_for('''
+            @artifact_processor
+            def fine(context):
+                source_path = get_file_path(context.get_files_found(), 'Photos.sqlite')
+                data_list = []
+                for row in get_sqlite_db_records(source_path, 'q'):
+                    thumb = ''
+                    if row[1] is not None:
+                        thumb = check_in_embedded_media(
+                            source_path, row[1], f'FaceCropFor_{row[2]}') or ''
+                    data_list.append((row[0], thumb))
+                return ('a', ('Face crop', 'media')), data_list, source_path
         '''), [])
 
 

@@ -5,6 +5,42 @@ from scripts.html_parts import *
 #from scripts.ilapfuncs import is_platform_windows
 from scripts.version_info import leapp_version
 
+# Rows above which write_artifact_data_table leaves the table off the page and writes a
+# notice pointing at the LAVA database and the TSV export instead. Measured 2026-09-19 on
+# a 16-column messages page in Chromium: 25,000 rows were usable 5.9 s after opening,
+# 50,000 in 11.3 s and 100,000 in 25.8 s with the browser holding 1.7 GB for the page; at
+# 150,000 the table script failed with "Maximum call stack size exceeded" inside jQuery,
+# the loading spinner never cleared and the browser held 9 GB. The main script sets this
+# from --html_row_limit; 0 turns the limit off.
+HTML_TABLE_ROW_LIMIT = 50000
+
+LAVA_DATABASE_LOCATION = ('the LAVA database (<code>_lava_artifacts.db</code> in the report '
+                          'folder, opened with LAVA)')
+
+
+def set_html_row_limit(limit):
+    """Set the row limit for HTML tables; 0 turns it off."""
+    global HTML_TABLE_ROW_LIMIT  # pylint: disable=global-statement
+    HTML_TABLE_ROW_LIMIT = max(0, int(limit))
+
+
+def tsv_export_location(tsv_name):
+    """Describe an artifact's TSV export for the held-back table notice."""
+    return f'the TSV export <code>_TSV Exports/{html.escape(tsv_name)}.tsv</code>'
+
+
+def table_held_back_notice(num_entries, row_limit, full_data_locations=None):
+    """The notice written in place of a table that exceeds the row limit."""
+    if full_data_locations:
+        where = ' and in '.join(full_data_locations)
+    else:
+        where = "the report's other outputs, such as the LAVA database and the TSV export"
+    return (f'<p class="note note-warning">This table has {num_entries:,} rows, above the '
+            f'{row_limit:,}-row limit for HTML report pages, so it is not shown here. The '
+            f'complete rows are in {where}. Run with <code>--html_row_limit 0</code> to write '
+            f'it anyway.</p>')
+
+
 class ArtifactHtmlReport:
 
     def __init__(self, artifact_name, artifact_category=''):
@@ -52,7 +88,9 @@ class ArtifactHtmlReport:
         table_style='',
         table_id='dtBasicExample',
         html_no_escape=[],
-        row_count=None
+        row_count=None,
+        row_limit=None,
+        full_data_locations=None
     ):
         ''' Writes info about data, then writes the table to html file
             Parameters
@@ -80,6 +118,13 @@ class ArtifactHtmlReport:
             html_no_escape  : if html_escape=True, list of columns not to escape
 
             row_count       : Optional precomputed row count for streaming data_list iterables
+            row_limit      : Rows above which the table is left off the page and a notice
+                             written instead; None uses HTML_TABLE_ROW_LIMIT, 0 means no limit
+
+            full_data_locations : HTML fragments naming where the complete rows are, for
+                             the notice (see LAVA_DATABASE_LOCATION and tsv_export_location)
+
+            Returns True when the table was held back, False when it was written.
         '''
         if (not self.report_file):
             raise ValueError('Output report file is closed/unavailable!')
@@ -95,6 +140,12 @@ class ArtifactHtmlReport:
             self.write_lead_text(f'{self.artifact_name} located at: {source_path}')
 
         self.report_file.write('<br />')
+
+        if row_limit is None:
+            row_limit = HTML_TABLE_ROW_LIMIT
+        if row_limit and num_entries > row_limit:
+            self.report_file.write(table_held_back_notice(num_entries, row_limit, full_data_locations))
+            return True
 
         if table_responsive:
             self.report_file.write("<div class='table-responsive'>")
@@ -127,6 +178,7 @@ class ArtifactHtmlReport:
         self.report_file.write('</table>')
         if table_responsive:
             self.report_file.write("</div>")
+        return False
 
     def add_section_heading(self, heading, size='h2'):
         heading = html.escape(heading)

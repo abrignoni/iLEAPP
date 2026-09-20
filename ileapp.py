@@ -8,6 +8,7 @@ import pytz
 import os.path
 import typing
 import scripts.report as report
+import scripts.artifact_report as artifact_report
 import traceback
 import sys
 
@@ -49,7 +50,7 @@ def validate_args(args):
         raise argparse.ArgumentError(None, f'INPUT path \'{args.input_path}\' does not exist! Run the program again.')
 
     if not os.path.exists(args.output_path):
-        raise argparse.ArgumentError(None, 'OUTPUT path \'{args.output_path}\' does not exist! Run the program again.')
+        raise argparse.ArgumentError(None, f'OUTPUT path \'{args.output_path}\' does not exist! Run the program again.')
     if not os.path.isdir(os.path.abspath(args.output_path)):
         raise argparse.ArgumentError(None, f'OUTPUT path \'{args.output_path}\' must be a directory! Run the program again.')
 
@@ -189,7 +190,7 @@ def main():
                               "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
                               "'raw' for a disk image (.img, .dd, .bin, or any numbered .001 segment of a split "
                               "set) or an EnCase/EWF .E01 acquisition, read in place without mounting: its "
-                              "NTFS, FAT32, exFAT, ext2/3/4, HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS "
+                              "NTFS, FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS "
                               "volumes are searched directly, "
                               "'file' for a single file input."))
     parser.add_argument('-o', '--output_path', required=False, action="store",
@@ -207,6 +208,10 @@ def main():
                         help=("Generate a text file list of artifact paths. "
                               "This argument is meant to be used alone, without any other arguments."))
     parser.add_argument('--custom_output_folder', required=False, action="store", help="Custom name for the output folder")
+    parser.add_argument('--html_row_limit', required=False, action="store", type=int,
+                        default=artifact_report.HTML_TABLE_ROW_LIMIT,
+                        help="Rows above which an artifact's table is left off its HTML page, which then points at "
+                             "the LAVA database and the TSV export instead (default %(default)s). 0 writes every table.")
     parser.add_argument('--custom_artifacts_path', required=False, action="store", help="Additional path to load artifacts from (e.g., scripts/alternate_artifacts)")
     parser.add_argument('--itunes_password', required=False, action="store", help="Password used for encrypted iTunes backup")
     parser.add_argument('--keychain', required=False, action="store",
@@ -220,6 +225,9 @@ def main():
         sys.exit()
 
     args = parser.parse_args()
+    if args.html_row_limit < 0:
+        parser.error('--html_row_limit must be 0 or a positive number of rows')
+    artifact_report.set_html_row_limit(args.html_row_limit)
 
     available_plugins = []
     loader_paths = [plugin_loader.PLUGINPATH]
@@ -368,10 +376,14 @@ def main():
     history.record_input_path(input_path)
     history.record_output_path(output_path)
 
-    crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
+    crunch_successful = crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
         profile_filename, itunes_backup_password)
 
     lava_finalize_output(out_params.output_folder_base)
+    if crunch_successful:
+        # _lava_data.lava exists only after finalize; recording earlier is a no-op.
+        lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
+        history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -558,6 +570,7 @@ def crunch_artifacts(
                         continue  # cannot do work
                 try:
                     plugin.method(files_found, category_folder, seeker, wrap_text, time_offset)
+                    lava_commit()
                     if plugin.name == 'logarchive':
                         lava_db_path = os.path.join(out_params.output_folder_base, '_lava_artifacts.db')
                         if does_table_exist_in_db(lava_db_path, 'logarchive'):
@@ -579,6 +592,7 @@ def crunch_artifacts(
                     logfunc('{} [{}] artifact failed after {:.1f}s'.format(
                         plugin.name, plugin.module_name, plugin_elapsed))
                     lava_add_module(plugin.module_name, "Error", len(files_found), plugin.name)
+                    lava_commit()
                     continue  # nope
                 lava_add_module(plugin.module_name, "Complete", len(files_found), plugin.name)
             else:
@@ -628,10 +642,6 @@ def crunch_artifacts(
 
         report.generate_report(out_params.output_folder_base, run_time_secs, run_time_HMS, extracttype, input_path, casedata, profile_filename, icons, lava_only)
         logfunc('Report generation Completed.')
-
-        # Record the run in history
-        lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
-        history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
         logfunc('')
         logfunc(f'Report location: {out_params.output_folder_base}')

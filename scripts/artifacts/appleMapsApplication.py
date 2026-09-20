@@ -32,7 +32,11 @@ __artifacts_v2__ = {
 
 
 from scripts import blackboxprotobuf
-from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content
+from google.protobuf.message import DecodeError
+from scripts.ilapfuncs import artifact_processor, get_file_path, get_plist_file_content, logfunc
+
+_DECODE_ERRORS = (DecodeError, KeyError, ValueError, TypeError,
+                  IndexError)
 
 @artifact_processor
 def appleMapsApplication(context):
@@ -55,11 +59,14 @@ def appleMapsApplication(context):
     
     protobuf = plist.get('__internal__LastActivityCamera', None)
     if protobuf:
-        internal_plist, _ = blackboxprotobuf.decode_message(protobuf,types)
-        latitude = (internal_plist['Latitude'])
-        longitude = (internal_plist['Longitude'])
-        
-        data_list.append((latitude, longitude))
+        try:
+            internal_plist, _ = blackboxprotobuf.decode_message(protobuf,types)
+            latitude = (internal_plist['Latitude'])
+            longitude = (internal_plist['Longitude'])
+            data_list.append((latitude, longitude))
+        except _DECODE_ERRORS as ex:
+            logfunc(f'Apple Maps Last Activity Camera: could not decode '
+                    f'__internal__LastActivityCamera: {ex}')
                             
     data_headers = ('Latitude','Longitude')
     return data_headers, data_list, source_path    
