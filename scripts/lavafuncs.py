@@ -33,6 +33,7 @@ import sys
 import os
 from platform import platform
 from collections import OrderedDict
+import math
 import re
 import datetime
 import queue
@@ -126,9 +127,14 @@ def _prepare_datetime_value(value):
 
     if isinstance(value, str):
         try:
-            value = datetime.datetime.fromisoformat(value)
+            parsed = datetime.datetime.fromisoformat(value)
         except ValueError:
             return value
+        # An ISO string has always been stored as a whole-second epoch; keep that so a
+        # list-returning artifact's LAVA values do not change.
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=datetime.timezone.utc)
+        return int(parsed.timestamp())
 
     if isinstance(value, datetime.datetime):
         if value.tzinfo is None:
@@ -169,17 +175,43 @@ def _prepare_date_value(value):
     return value
 
 
-def _prepare_lava_value(value, column_type=None):
+def _python_text(value):
+    """
+    The text Python itself would print for a float or a boolean, or the value unchanged.
+
+    An untyped LAVA column is TEXT, and SQLite renders a bound float into it at 15
+    significant digits and a boolean as 1 or 0. The HTML, TSV, timeline and KML writers
+    print the Python value, so rows replayed out of LAVA would otherwise read
+    35.6595662310191 where the list path wrote 35.65956623101914, and 1 where it wrote
+    True. Storing Python's own text keeps the replayed outputs identical to the list
+    path's; _restore_lava_value turns it back into the value.
+    """
+
+    if isinstance(value, bool):
+        return 'True' if value else 'False'
+    if isinstance(value, float) and math.isfinite(value):
+        return repr(value)
+    return value
+
+
+def _prepare_lava_value(value, column_type=None, keep_python_text=False):
     """
     Convert a Python value into the representation stored in the LAVA SQLite table.
 
     Only column types that need storage conversion get handlers here. Other object
     column types, such as phonenumber, remain normal SQLite TEXT values while their
     type metadata stays available in the LAVA artifact metadata.
+
+    keep_python_text stores a float or boolean in an untyped column as the text Python
+    prints for it (see _python_text). Rows that will be replayed for the other outputs
+    ask for it; the list path does not, so its stored values are unchanged.
     """
 
     if isinstance(value, (dict, list)):
         return json.dumps(value)
+
+    if keep_python_text and column_type is None:
+        return _python_text(value)
 
     type_handlers = {
         'datetime': _prepare_datetime_value,
@@ -195,7 +227,16 @@ def _prepare_lava_value(value, column_type=None):
 
 
 def _restore_lava_value(value, column_type=None):
-    """Restore a value streamed back from the LAVA SQLite table for secondary outputs."""
+    """
+    Restore a value streamed back from the LAVA SQLite table for secondary outputs.
+
+    Untyped columns come back through the inverse of _python_text: the text 'True' or
+    'False' becomes the boolean, text that is exactly the repr of a finite float
+    becomes that float, and text that is exactly the decimal form of an integer becomes
+    that integer, so the timeline's JSON carries a number where the list path carried
+    a number. A text cell that happens to hold one of those spellings is typed the
+    same way; nothing in the table records which it was.
+    """
 
     if value is None:
         return value
@@ -205,6 +246,31 @@ def _restore_lava_value(value, column_type=None):
 
     if column_type == 'date' and isinstance(value, (int, float)):
         return datetime.datetime.fromtimestamp(value, tz=datetime.timezone.utc).date()
+
+    if column_type == 'media' and isinstance(value, str) and value.startswith('['):
+        # A cell holding several media references was stored as a JSON list.
+        try:
+            return json.loads(value)
+        except ValueError:
+            return value
+
+    if column_type is None and isinstance(value, str):
+        if value == 'True':
+            return True
+        if value == 'False':
+            return False
+        try:
+            integer = int(value)
+        except ValueError:
+            integer = None
+        if integer is not None and str(integer) == value:
+            return integer
+        try:
+            number = float(value)
+        except ValueError:
+            return value
+        if math.isfinite(number) and repr(number) == value:
+            return number
 
     return value
 
@@ -560,7 +626,8 @@ def lava_insert_sqlite_data(
         column_map,  # pylint: disable=unused-argument
         batch_size=10000,
         async_write=False,
-        queue_size=5000):
+        queue_size=5000,
+        keep_python_text=False):
     """
     Insert data into a SQLite database table with automatic column sanitization and type conversion.
     This function handles the insertion of multiple rows of data into a specified SQLite table,
@@ -578,6 +645,8 @@ def lava_insert_sqlite_data(
         batch_size (int): Maximum rows to insert per SQLite executemany call.
         async_write (bool): If True, prepare and insert rows on a writer thread.
         queue_size (int): Maximum rows waiting for the async writer.
+        keep_python_text (bool): Store floats and booleans in untyped columns as the text
+                                 Python prints for them, for rows that will be replayed.
     Returns:
         int: Number of rows inserted.
     """
@@ -601,7 +670,7 @@ def lava_insert_sqlite_data(
             row = tuple(row)
         processed_row = []
         for index, value in enumerate(row):
-            processed_row.append(_prepare_lava_value(value, column_types[index]))
+            processed_row.append(_prepare_lava_value(value, column_types[index], keep_python_text))
         return tuple(processed_row)
 
     if async_write:

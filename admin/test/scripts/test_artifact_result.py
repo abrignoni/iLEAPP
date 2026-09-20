@@ -241,8 +241,17 @@ class TestARaisingModuleLeavesNothingBehind(ArtifactResultTestCase):
     def setUp(self):
         super().setUp()
         lavafuncs.initialize_lava(self.tmpdir, self.tmpdir, 'fs')
+        # OutputParameters() points the class-level log paths logfunc() writes to at this
+        # tmpdir; put them back afterwards or a later test logs into a deleted folder.
+        self._saved_log_paths = {name: getattr(OutputParameters, name) for name in vars(OutputParameters)
+                                 if name.startswith('screen_output_file_path')}
         self.output_params = OutputParameters(self.tmpdir)
         Context.set_output_params(self.output_params)
+
+    def tearDown(self):
+        for name, value in self._saved_log_paths.items():
+            setattr(OutputParameters, name, value)
+        super().tearDown()
 
     def _artifact_tables(self):
         cursor = lavafuncs.lava_db.cursor()
@@ -260,3 +269,55 @@ class TestARaisingModuleLeavesNothingBehind(ArtifactResultTestCase):
             list_module_that_raises([], self.tmpdir, None, True, 'UTC')
         self.assertEqual(self._artifact_tables(), [])
         self.assertNotIn('Probe Category', lavafuncs.lava_data['artifacts'])
+
+class TestReplayKeepsPythonText(ArtifactResultTestCase):
+    """Floats and booleans in untyped columns replay exactly as the list path prints them,
+    while the list path's own stored values are unchanged."""
+
+    def setUp(self):
+        super().setUp()
+        lavafuncs.initialize_lava(self.tmpdir, self.tmpdir, 'fs')
+
+    def test_streamed_rows_replay_as_the_original_values(self):
+        headers = ('Latitude', 'Flag', 'Count', 'Text', 'Looks Numeric')
+        rows = [(35.65956623101914, True, 7, 'plain', '1.5e3'),
+                (-78.87282251025944, False, 0, '', '007')]
+        result = Context.create_artifact_result(headers=headers)
+        for row in rows:
+            result.add_row(row)
+        result.close()
+        replayed = list(lavafuncs.lava_iter_artifact_rows(
+            result.table_name, headers, result.object_columns, result.row_count))
+        self.assertEqual(replayed, rows)
+        # The stored text is Python's own rendering, not SQLite's 15-digit one.
+        stored = lavafuncs.lava_db.execute(
+            f'SELECT latitude, flag FROM {lavafuncs.quote_sql_name(result.table_name)} ORDER BY rowid').fetchall()
+        self.assertEqual(stored, [('35.65956623101914', 'True'), ('-78.87282251025944', 'False')])
+
+    def test_list_path_storage_is_unchanged(self):
+        headers = ('Latitude', 'Flag', 'When')
+        table, object_columns, column_map = lavafuncs.lava_process_artifact(
+            'Unit Category', 'unit_module', 'List Artifact', (headers[0], headers[1], (headers[2], 'datetime')),
+            1, func_name='list_artifact')
+        lavafuncs.lava_insert_sqlite_data(
+            table, [(35.65956623101914, True, '2024-07-21T15:16:47.357843+00:00')],
+            object_columns, (headers[0], headers[1], (headers[2], 'datetime')), column_map)
+        stored = lavafuncs.lava_db.execute(
+            f'SELECT latitude, flag, "when" FROM {lavafuncs.quote_sql_name(table)}').fetchone()
+        # SQLite's rendering of a bound float and boolean into TEXT columns, and a whole-second
+        # int epoch for an ISO string: what the list path stored before this change.
+        self.assertEqual(stored, ('35.6595662310191', '1', 1721575007))
+
+    def test_python_text_restore_is_exact_and_leaves_other_text_alone(self):
+        restore = lavafuncs._restore_lava_value  # pylint: disable=protected-access
+        self.assertIs(restore('True'), True)
+        self.assertIs(restore('False'), False)
+        self.assertEqual(restore('35.65956623101914'), 35.65956623101914)
+        self.assertEqual(restore('7'), 7)
+        self.assertEqual(restore('-3'), -3)
+        self.assertEqual(restore('1.5e3'), '1.5e3')      # not a repr, stays text
+        self.assertEqual(restore('007'), '007')          # not the decimal form of 7
+        self.assertEqual(restore('-0'), '-0')
+        self.assertEqual(restore('nan'), 'nan')          # non-finite never converts
+        self.assertEqual(restore('["a", "b"]', 'media'), ['a', 'b'])
+        self.assertEqual(restore('single-ref', 'media'), 'single-ref')
