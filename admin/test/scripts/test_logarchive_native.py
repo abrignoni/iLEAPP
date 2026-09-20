@@ -461,6 +461,11 @@ class TestStreamingWriter(unittest.TestCase):
     def setUp(self):
         self.tmpdir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.tmpdir, True)
+        # initialize_lava sets module-level singletons. Left set, they point at this
+        # directory after it is deleted, and any later test that streams rows would write
+        # into a database that is gone. Put them back the way they were found.
+        for name in ('lava_data', 'lava_db', 'lava_db_path'):
+            self.addCleanup(setattr, lavafuncs, name, getattr(lavafuncs, name))
         lavafuncs.initialize_lava(self.tmpdir, self.tmpdir, 'fs')
         self.addCleanup(Context.clear)
 

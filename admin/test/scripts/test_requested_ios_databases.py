@@ -8,6 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from leapp_functions.app.artifact_result import ArtifactResult
+
 from scripts.artifacts.appleAccountDeviceList import appleAccountDeletedDeviceList, \
     appleAccountDeviceList
 from scripts.artifacts.keyboard import keyboardVulgarWordUsage
@@ -34,6 +36,12 @@ class _Context:
 
     def get_relative_path(self, path):
         return Path(path).name
+
+    def create_artifact_result(self, headers=None, source_path=None, **_kwargs):
+        # No LAVA run is active here, so the result keeps its rows in memory and reads
+        # back like a list.
+        return ArtifactResult(headers=headers, source_path=source_path,
+                              source_path_formatter=self.get_relative_path)
 
 
 class RequestedIOSDatabasesTest(unittest.TestCase):
@@ -135,7 +143,8 @@ class RequestedIOSDatabasesTest(unittest.TestCase):
             ("INSERT INTO PLAppTimeService_Aggregate_AppRunTime VALUES (?, ?, ?, ?)",
              (1635847545, "com.apple.mobilesafari", 2.0, 30.0)),
         ])
-        headers, rows, _ = powerlogApplicationRuntime.__wrapped__(_Context(path))
+        headers, result, _ = powerlogApplicationRuntime.__wrapped__(_Context(path))
+        rows = list(result)
         self.assertEqual(len(headers), len(rows[0]))
         self.assertEqual(rows[0][1], "com.apple.mobilesafari")
 

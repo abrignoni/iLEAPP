@@ -27,6 +27,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from scripts.artifacts import powerlog  # pylint: disable=wrong-import-position
 from scripts.context import Context  # pylint: disable=wrong-import-position
+from leapp_functions.app.artifact_result import ArtifactResult  # pylint: disable=wrong-import-position
 
 SD = 'sysdiagnose_2026.01.02_03-04-05-0500_iPhone-OS_iPhone_23A000'
 PLSQL = f'{SD}/logs/powerlogs/powerlog_2026-01-02_03-05_ABCD1234.PLSQL'
@@ -46,6 +47,12 @@ class _Context:
     @staticmethod
     def get_relative_path(full_path):
         return Context.get_relative_path(full_path)
+
+    def create_artifact_result(self, headers=None, source_path=None, **_kwargs):
+        # No LAVA run is active here, so the result keeps its rows in memory and reads
+        # back like a list.
+        return ArtifactResult(headers=headers, source_path=source_path,
+                              source_path_formatter=self.get_relative_path)
 
 
 def _make_archive(directory, members, name=f'{SD}.tar.gz'):
@@ -188,11 +195,17 @@ class PackedSysdiagnoseSourceTests(unittest.TestCase):
         Context.set_data_folder(self.inputs)
         self.addCleanup(Context.set_data_folder, saved)
 
-        rows, _ = powerlog._parse_powerlog_table(  # pylint: disable=protected-access
-            _Context([archive]), 'PLCameraAgent_EventForward_Torch',
+        headers = (('Timestamp', 'datetime'), 'Bundle ID', 'Level (as stored)',
+                   'Time Offset (seconds)', 'Source File')
+        result, _ = powerlog._parse_powerlog_table(  # pylint: disable=protected-access
+            _Context([archive]), headers, 'PLCameraAgent_EventForward_Torch',
             ('timestamp', 'BundleId', 'Level'),
             lambda ts, offset, row, rel: (ts, row[1], row[2], offset, rel))
+        rows = list(result)
 
+        # The helper hands rows to LAVA as it reads them. If it ever goes back to
+        # collecting them into a list, every one of these tables is held in memory twice.
+        self.assertIsInstance(result, ArtifactResult)
         self.assertEqual(len(rows), 2)
         self.assertEqual({row[4] for row in rows}, {f'{SD}.tar.gz >> {PLSQL}'})
         self.assertEqual([row[3] for row in rows], [5, 5])
