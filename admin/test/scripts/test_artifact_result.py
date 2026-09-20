@@ -260,13 +260,13 @@ class TestARaisingModuleLeavesNothingBehind(ArtifactResultTestCase):
 
     def test_streaming_module_that_raises_leaves_no_table_and_no_manifest_entry(self):
         with self.assertRaises(RuntimeError):
-            streaming_module_that_raises([], self.tmpdir, None, True, 'UTC')
+            streaming_module_that_raises([], self.tmpdir, None, True, 'UTC')  # pylint: disable=too-many-function-args
         self.assertEqual(self._artifact_tables(), [])
         self.assertNotIn('Probe Category', lavafuncs.lava_data['artifacts'])
 
     def test_list_module_that_raises_leaves_the_same_nothing(self):
         with self.assertRaises(RuntimeError):
-            list_module_that_raises([], self.tmpdir, None, True, 'UTC')
+            list_module_that_raises([], self.tmpdir, None, True, 'UTC')  # pylint: disable=too-many-function-args
         self.assertEqual(self._artifact_tables(), [])
         self.assertNotIn('Probe Category', lavafuncs.lava_data['artifacts'])
 
