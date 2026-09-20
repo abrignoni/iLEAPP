@@ -4,22 +4,28 @@ __artifacts_v2__ = {
         "description": "Parses ps.txt from Sysdiagnose logs to list running processes with PID, parent PID, user, command and other ps(1) fields.",
         "author": "@mathisdesaulty",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-18",
+        "last_update_date": "2026-09-20",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "Only ps.txt is parsed; ps_thread.txt is not, because its column layout is not consistent "
-                 "across iOS versions (on iOS 15 test data its 4th column is %CPU, not PID). STARTED is "
-                 "reported as raw text (e.g. '1:25PM') since it carries no date or timezone and is not a "
-                 "usable timestamp. See 'Sysdiagnose Process - Tree' for a rendered image of the process "
-                 "hierarchy.",
-
+        "notes": "Parses ps.txt only. ps_thread.txt is not read: its columns sit in a different order "
+                 "from ps.txt (its 4th column is %CPU, where the 4th of ps.txt holds the process "
+                 "identifier), and on the three sysdiagnose captures tested it carried a header line "
+                 "and no data rows. The %CPU, %MEM and TIME fields are read from each line but not "
+                 "reported: each held a single value on all 1,668 rows of the four captures tested "
+                 "(0.0, 0.0 and 0:00.00 on iOS 16 20A362, iOS 17.3 21D50, iOS 26 23G71 and "
+                 "iOS 26.5.2 23F84). STARTED is reported as recorded (e.g. '1:25PM'); it carries no "
+                 "date and no timezone, so no instant is asserted. See 'Sysdiagnose Process - Tree' "
+                 "for a rendered image of the process hierarchy.",
         "paths": (
             '*/ps.txt',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "list-tree",
         "sample_data": {
-            "sysdiagnose_2023_05_24_13_29_15_0700_iphone_os_iphone_19h349_tar": "244 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 407 rows",
+            "hc_ios26_sysdiag": "iOS 26 | 546 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 382 rows",
+            "jess_ios15": "iOS 15.0.2 | 0 rows; the image carries no sysdiagnose",
         }
     },
     "sysdiagnoseProcessTree": {
@@ -27,20 +33,25 @@ __artifacts_v2__ = {
         "description": "Rendered image of the process hierarchy (parent/child tree) from ps.txt",
         "author": "@mathisdesaulty",
         "creation_date": "2026-09-18",
-        "last_update_date": "2026-09-18",
+        "last_update_date": "2026-09-20",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "A PNG is rendered per ps.txt capture as a visual reference of the process tree, one image "
-                 "per sysdiagnose. Tree branches use plain ASCII characters (not Unicode box-drawing) so "
-                 "the image renders correctly regardless of which font is available on the host running "
-                 "the report. 'Sysdiagnose Process List' holds the same data in queryable/plain form.",
+        "notes": "A PNG is rendered per ps.txt capture as a visual reference of the process tree, one "
+                 "image per sysdiagnose. Tree branches use plain ASCII characters (not Unicode "
+                 "box-drawing) so the image renders correctly regardless of which font is available "
+                 "on the host running the report. The image is drawn on a fixed dark background and "
+                 "does not follow the report's light or dark setting. 'Sysdiagnose Process' holds "
+                 "the same data in queryable form.",
         "paths": (
             '*/ps.txt',
             '*/sysdiagnose_*.tar.gz'),
         "output_types": ["html", "lava", "tsv"],
         "artifact_icon": "list-tree",
         "sample_data": {
-            "sysdiagnose_2023_05_24_13_29_15_0700_iphone_os_iphone_19h349_tar": "1 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 1 row",
+            "hc_ios26_sysdiag": "iOS 26 | 1 row",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 1 row",
+            "jess_ios15": "iOS 15.0.2 | 0 rows; the image carries no sysdiagnose",
         }
     }
 }
@@ -189,7 +200,7 @@ def sysdiagnoseProcess(context):
     """ See artifact description """
     data_headers = (
         "PID", "Parent PID", "User", "Command",
-        "UID", "%CPU", "%MEM", "STAT", "STARTED", "TIME",
+        "UID", "STAT", "STARTED",
         "Source File"
     )
     data_list = []
@@ -205,8 +216,7 @@ def sysdiagnoseProcess(context):
                 continue
             data_list.append((
                 entry['pid'], entry['ppid'], entry['user'], entry['command'],
-                entry['uid'], entry['cpu'], entry['mem'], entry['stat'],
-                entry['started'], entry['time'], source_name
+                entry['uid'], entry['stat'], entry['started'], source_name
             ))
 
     return data_headers, data_list, '\n'.join(sorted(set(sources)))
