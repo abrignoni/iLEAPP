@@ -689,10 +689,18 @@ def _report_rows(context, interest_mask=None):
         parameters = (interest_mask,)
     query += " ORDER BY rowid"
 
+    # The largest of these artifacts runs to millions of rows (3,569,449 on one registered
+    # image, 2 GB held as a list), so rows stream into LAVA as the query yields them and the
+    # source files are gathered in the same pass. The core replays the rows for the HTML
+    # and TSV outputs; the HTML table is held back above the row limit as before.
+    results = context.create_artifact_result(headers=_REPORT_HEADERS)
+    sources = {}
     with sqlite3.connect(f"file:{cache_path}?mode=ro", uri=True) as database:
-        data_list = list(database.execute(query, parameters))
-    sources = "\n".join(dict.fromkeys(row[-1] for row in data_list))
-    return _REPORT_HEADERS, data_list, sources
+        for row in database.execute(query, parameters):
+            results.add_row(row)
+            sources.setdefault(row[-1])
+    results.set_source_path("\n".join(sources))
+    return results
 
 
 @artifact_processor
