@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 
 from scripts.artifacts.diagnosticLogd import diagnosticLogdEvents
+from leapp_functions.app.artifact_result import ArtifactResult
 from scripts.artifacts.fileSystemEvents import (
     iosFileSystemEvents,
     iosFileSystemEventsAppContainers,
@@ -34,6 +35,19 @@ class _Context:
 
     def get_relative_path(self, path):
         return Path(path).name
+
+    def create_artifact_result(self, headers=None, source_path=None, **_kwargs):
+        # No LAVA run is active here, so the result keeps its rows in memory and reads
+        # back like a list; the source path is relative to the file name, as above.
+        return ArtifactResult(headers=headers, source_path=source_path,
+                              source_path_formatter=self.get_relative_path)
+
+
+def _unpack(result):
+    """(headers, rows, source) from a list-returning or a streaming artifact."""
+    if isinstance(result, ArtifactResult):
+        return result.headers, list(result), result.source_path
+    return result
 
 
 class IOSSystemHistoryArtifactsTest(unittest.TestCase):
@@ -119,7 +133,7 @@ class IOSSystemHistoryArtifactsTest(unittest.TestCase):
         path = self.root / "0000000000000065"
         path.write_bytes(gzip.compress(first_page) + gzip.compress(second_page))
 
-        headers, rows, _source = iosFileSystemEvents.__wrapped__(_Context([path]))
+        headers, rows, _source = _unpack(iosFileSystemEvents.__wrapped__(_Context([path])))
 
         self.assertEqual(len(rows), 2)
         self.assertEqual(len(headers), len(rows[0]))
@@ -139,7 +153,7 @@ class IOSSystemHistoryArtifactsTest(unittest.TestCase):
         path = self.root / "0000000000000002"
         path.write_bytes(gzip.compress(v1_page + v2_page))
 
-        headers, rows, _source = iosFileSystemEvents.__wrapped__(_Context([path]))
+        headers, rows, _source = _unpack(iosFileSystemEvents.__wrapped__(_Context([path])))
 
         self.assertEqual(len(rows), 2)
         self.assertEqual(len(headers), len(rows[0]))
@@ -183,7 +197,7 @@ class IOSSystemHistoryArtifactsTest(unittest.TestCase):
             (iosFileSystemEventsRemoved, "tmp/deleted-item"),
         )
         for artifact, expected_path in expected:
-            _headers, rows, _source = artifact.__wrapped__(context)
+            _headers, rows, _source = _unpack(artifact.__wrapped__(context))
             self.assertEqual([row[1] for row in rows], [expected_path])
 
 
