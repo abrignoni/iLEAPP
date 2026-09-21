@@ -232,19 +232,31 @@ __artifacts_v2__ = {
         "description": "Account values from the app's Documents/user.plist: username, user id, "
                        "laguna id, and client encryption values, reported as stored.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-16", "last_update_date": "2026-08-16",
+        "creation_date": "2026-08-16", "last_update_date": "2026-09-21",
         "requirements": "none", "category": "Snapchat",
         "notes": "user.plist is not a property list despite its name: it begins with the "
-                 "magic TSAF and carries length-delimited strings. The format is otherwise "
-                 "undocumented here, so values are read as the string that follows each named "
-                 "key token, and user_id and laguna_id are additionally required to be "
-                 "UUID-shaped before being reported. On the tested image user_id matched a "
-                 "userId in the snapchatter store whose username matched this file's username "
+                 "magic TSAF and holds strings written as a 0x08 byte, the text and a 0x00 "
+                 "terminator, which is how this artifact reads it. The format is otherwise "
+                 "undocumented here. A value is read only when its string begins immediately "
+                 "after its key's terminator, so a key with no value is reported as absent "
+                 "rather than as the next string in the file. dfjsim's Snapchat_Auto records a "
+                 "signed-out account's user.plist keeping its keys with a single 0x00 in place "
+                 "of the value; earlier versions of this artifact read the next string instead "
+                 "and there reported the following key's name as the value (username as "
+                 "user_id). None of the 14 user.plist files on the tested images held a key "
+                 "with no value, so that case was exercised on a copy of a tested file with its "
+                 "username, user_id and laguna_id values removed. user_id and laguna_id are "
+                 "also required to be UUID-shaped before being reported. On the 12 tested "
+                 "images that carry both this file and snapchatter rows in primary.docobjects, "
+                 "user_id matched a userId there whose username matched this file's username "
                  "value.\n"
                  "The client_encryption identifier, encryption_key and initialization_vector "
                  "are reported as stored; what they encrypt is not established here. Files "
                  "that do not begin with the TSAF magic are skipped, since Documents/user.plist "
-                 "is not a Snapchat-specific file name.",
+                 "is not a Snapchat-specific file name.\n"
+                 "Reference: dfjsim, 'Snapchat_Auto, scripts/data/tsaf.py', "
+                 "https://github.com/dfjsim/Snapchat_Auto/blob/"
+                 "93677d19a70caebb666d89dcb0f40d4693e2aacf/scripts/data/tsaf.py#L55",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/user.plist',),
         "output_types": "standard", "artifact_icon": "user",
         "sample_data": {
@@ -755,7 +767,8 @@ def _friend_name(friends, user_id, index=0):
 # --- user.plist (TSAF) ----------------------------------------------------------------------
 
 def _tsaf_tokens(path):
-    '''The length-delimited strings of a TSAF file, in order; [] when not TSAF.'''
+    '''The strings of a TSAF file in file order, as (text, start, end) byte offsets; [] when
+    not TSAF. Each string is a 0x08 byte, the UTF-8 text and a 0x00 terminator.'''
     if not path:
         return []
     try:
@@ -765,15 +778,23 @@ def _tsaf_tokens(path):
         return []
     if not data.startswith(_TSAF_MAGIC):
         return []
-    return [token.decode('utf-8', 'replace')
-            for token in re.findall(rb'\x08([^\x00]+)\x00', data)]
+    return [(match.group(1).decode('utf-8', 'replace'), match.start(), match.end())
+            for match in re.finditer(rb'\x08([^\x00]+)\x00', data)]
 
 
 def _tsaf_value(tokens, key):
-    '''The string following the key token, or ''.'''
-    for position, token in enumerate(tokens):
-        if token == key and position + 1 < len(tokens):
-            return tokens[position + 1]
+    '''The value stored for key, or '' when the key is absent or holds no value.
+
+    A value is the string that begins exactly where its key's terminator ends. A key with no
+    value is followed by a single 0x00 instead, as dfjsim's Snapchat_Auto records for a
+    signed-out account's user.plist, and the next string in the file is then the following
+    key's name, not this key's value.
+    '''
+    for position, (text, _start, end) in enumerate(tokens):
+        if text == key:
+            if position + 1 < len(tokens) and tokens[position + 1][1] == end:
+                return tokens[position + 1][0]
+            return ''
     return ''
 
 
