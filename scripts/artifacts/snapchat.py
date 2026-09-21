@@ -147,18 +147,51 @@ __artifacts_v2__ = {
         },
     },
     "snapchatFriends": {
-        "name": "Snapchat - Friends",
-        "description": "Snapchatter records from the primary.docobjects store: usernames from "
-                       "the store's own index tables, user id, and the display name string from "
-                       "the record's serialized document.",
+        "name": "Snapchat - Snapchatter Records",
+        "description": "User records in the snapchatter table of primary.docobjects, with "
+                       "usernames, user id and display name, and, where the app's own friends "
+                       "list is found, whether it names the user. The table is not a friends list.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-16", "last_update_date": "2026-08-16",
+        "creation_date": "2026-08-16", "last_update_date": "2026-09-21",
         "requirements": "none", "category": "Snapchat",
         "notes": "primary.docobjects (Documents/user_scoped/<account hash>/DocObjects/) is a "
                  "SQLite store whose snapchatter table keeps one FlatBuffers document per user "
-                 "in column p, keyed by userId. Username, Mutable Username and Legacy Username "
-                 "come from the store's own index_snapchatter* tables, joined on rowid, not "
-                 "from the document blob.\n"
+                 "in column p, keyed by userId. The table is not a friends list. On the 12 "
+                 "tested images that hold rows it included the account's own row and a row for "
+                 "the teamsnapchat account, and on the 11 of them where the app's own friends "
+                 "list was found, the table held 1,023 rows and the lists named 133 of them.\n"
+                 "In Friends List says whether the app's own friends list for the account names "
+                 "the user: YES, NO, or blank when no list for the account was found. The list "
+                 "is read from the App Group container that holds "
+                 "Library/Preferences/group.snapchat.picaboo.plist, in whichever of three "
+                 "layouts is present: User/<user id>/app_group_plist_storage > "
+                 "snapchatter_repository > FRIENDS (9 tested images), the group plist's user > "
+                 "keyed_friends_array (hickman_ios14), or its share_user > SECTIONS > "
+                 "DESTINATIONS whose CODED_SUBTYPE is SUBTYPE_FRIEND (jess_ios15). An account with "
+                 "more than one layout is read from the first in that order; no tested image had "
+                 "more than one. A list is tied "
+                 "to the store it describes by the SHA-256 of the account's user id, which "
+                 "equalled the account hash folder name on the 14 tested images whose App Group "
+                 "names an account. Where a list was found, the account's own row read NO, and the "
+                 "teamsnapchat row read NO in the first layout and YES in the two older ones. On "
+                 "iphone12_ios18 the App Group held none of the three layouts, so In Friends List "
+                 "is blank on its 220 rows; on magnet_ios16 the list was present and empty, so In "
+                 "Friends List is NO on all 129 rows there. None of the users the lists named "
+                 "lacked a snapchatter row. Mutual Friend (as stored) is IS_MUTUAL_FRIEND, which "
+                 "only the first layout records: YES on 60 and NO on 70 of the 130 users it "
+                 "listed, and blank on every other row.\n"
+                 "789 of the 890 rows the lists did not name were named in the store's "
+                 "snapchatters__displaysuggestion documents. What that table's page numbers mean "
+                 "is not established, and on otto_ios17 its page 7 also named 100 of the 104 "
+                 "users that image's list named, so a row named there is not reported as a "
+                 "suggestion.\n"
+                 "Username, Mutable Username and Legacy Username come from the store's own "
+                 "index_snapchatter* tables, joined on rowid, not from the document blob. On the "
+                 "11 tested images whose store has all three, Mutable Username was the same as "
+                 "Username on all 1,157 rows, so what it adds is not established. Legacy Username "
+                 "differed from Username on 77 of those rows, and on every row of jess_ios15 and "
+                 "magnet_ios16 Legacy Username was the same as both Username and Mutable "
+                 "Username.\n"
                  "Display Name is read from the document's third string field. No published "
                  "schema for the document was found, so the field position was established on "
                  "the tested image and is self-checked at parse time: the value is only "
@@ -167,29 +200,35 @@ __artifacts_v2__ = {
                  "on all 120 rows. When the layout check fails the column is left blank.\n"
                  "Older store generations carry fewer index tables (an iOS 14 era file has "
                  "only the username index) and iOS 12 and 13 era files predate the "
-                 "snapchatter table entirely; missing index tables report as blank columns "
-                 "and pre-snapchatter stores report no rows, with a log line saying so. The "
+                 "snapchatter table entirely; missing index tables leave Mutable Username and "
+                 "Legacy Username blank, and pre-snapchatter stores report no rows, with a log "
+                 "line saying so. The "
                  "display-name field position also held on the iOS 14 era store, where all "
                  "86 rows passed the layout self-check.\n"
                  "No timestamps are reported: none were identified in the SQL columns, and "
-                 "none in the document were established. Friend-relationship state (added, "
-                 "blocked, best-friend) is not parsed. On the tested images the local account "
-                 "appeared as a row.",
-        "paths": ('*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/DocObjects/primary.docobjects*',),
+                 "none in the document were established. The lists' BEST_FRIENDS, RECENTS and "
+                 "GROUPS entries are not parsed, and neither is any blocked state.\n"
+                 "Reference: dfjsim, 'Snapchat_Auto, docs/related_ileapp.md', "
+                 "https://github.com/dfjsim/Snapchat_Auto/blob/"
+                 "93677d19a70caebb666d89dcb0f40d4693e2aacf/docs/related_ileapp.md#L114",
+        "paths": ('*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/DocObjects/primary.docobjects*',
+                  '*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.snapchat.picaboo.plist',
+                  '*/mobile/Containers/Shared/AppGroup/*/User/*/app_group_plist_storage'),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
-            "iphone11_ios17": "iOS 17.3 | 120 rows",
-            "otto_ios17": "iOS 17.5.1 | 293 rows",
-            "dexter_ios18": "iOS 18.3.2 | 13 rows",
-            "iphone12_ios18": "iOS 18.7 | 220 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
-            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 106 rows",
-            "abe_ios16": "iOS 16.5 | 115 rows",
-            "hexordia_ios1651": "iOS 16.5.1 | 3 rows",
-            "magnet_ios16": "iOS 16.1.1 | 129 rows",
-            "hickman_ios15": "iOS 15.3.1 | 121 rows",
-            "jess_ios15": "iOS 15.0.2 | 33 rows",
-            "hickman_ios14": "iOS 14.3 | 86 rows (store has only the username index table)",
+            "iphone11_ios17": "iOS 17.3 | 120 rows (4 in the friends list)",
+            "otto_ios17": "iOS 17.5.1 | 293 rows (104 in the friends list)",
+            "dexter_ios18": "iOS 18.3.2 | 13 rows (10 in the friends list)",
+            "iphone12_ios18": "iOS 18.7 | 220 rows (no friends list found)",
+            "hc_ios18_7": "iOS 18.7.8 | 4 rows (2 in the friends list)",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 106 rows (1 in the friends list)",
+            "abe_ios16": "iOS 16.5 | 115 rows (5 in the friends list)",
+            "hexordia_ios1651": "iOS 16.5.1 | 3 rows (1 in the friends list)",
+            "magnet_ios16": "iOS 16.1.1 | 129 rows (friends list empty)",
+            "hickman_ios15": "iOS 15.3.1 | 121 rows (3 in the friends list)",
+            "jess_ios15": "iOS 15.0.2 | 33 rows (1 in the friends list)",
+            "hickman_ios14": "iOS 14.3 | 86 rows (2 in the friends list; store has only the username index table)",
+            "felix23_ios16": "iOS 16.5 | 0 rows (snapchatter table empty)",
             "hickman_ios13": "iOS 13.3.1 | 0 rows (store predates the snapchatter table)",
             "ctf2020_ios12": "iOS 12.4 | 0 rows (store predates the snapchatter table)",
         },
@@ -752,6 +791,96 @@ def _friend_name(friends, user_id, index=0):
     return friends.get(user_id, ('', ''))[index]
 
 
+# --- the app's own friends list (App Group) -------------------------------------------------
+
+_GROUP_PLIST_SUFFIX = '/Library/Preferences/group.snapchat.picaboo.plist'
+_USER_LIST_RE = re.compile(r'/User/(?P<user>[^/]+)/app_group_plist_storage$')
+_DOC_STORE_RE = re.compile(r'/Documents/user_scoped/(?P<account>[^/]+)/DocObjects/'
+                           r'primary\.docobjects$')
+
+
+def _plist_file(path):
+    '''A property list file as a dict, or {} when it cannot be read as one.'''
+    try:
+        with open(path, 'rb') as handle:
+            values = plistlib.load(handle)
+    except (OSError,) + _NSKA_ERRORS:
+        return {}
+    return values if isinstance(values, dict) else {}
+
+
+def _account_hash(user_id):
+    '''SHA-256 of a user id, the name the app gives the account's user_scoped folder.'''
+    return hashlib.sha256(user_id.encode('utf-8')).hexdigest() if isinstance(user_id, str) else ''
+
+
+def _friends_lists(files_found):
+    '''The app's own friends lists, as ({account hash: friends}, {account hash: source path}).
+
+    friends maps each listed user id to its IS_MUTUAL_FRIEND value as YES or NO, or ''
+    where the layout records none. Lists are read only from App Group containers that hold
+    Library/Preferences/group.snapchat.picaboo.plist, in three layouts: User/<user
+    id>/app_group_plist_storage -> snapchatter_repository -> FRIENDS, then the group plist's
+    user -> keyed_friends_array, then its share_user -> SECTIONS -> DESTINATIONS marked
+    SUBTYPE_FRIEND. When an account has more than one, the first of those is used.
+    '''
+    roots = {}
+    for file_found in files_found:
+        path = str(file_found)
+        if _norm(path).endswith(_GROUP_PLIST_SUFFIX) and os.path.isfile(path):
+            roots[_norm(path)[:-len(_GROUP_PLIST_SUFFIX)]] = path
+    lists, sources, layouts = {}, {}, {}
+
+    def add(user_id, friends, path, layout):
+        account = _account_hash(user_id)
+        if not account:
+            return
+        if account in lists:
+            logfunc(f'Snapchat: an account has friends lists in more than one App Group layout; '
+                    f'the {layouts[account]} list is used and the {layout} list is not.')
+            return
+        lists[account], sources[account], layouts[account] = friends, path, layout
+
+    for file_found in files_found:
+        path = str(file_found)
+        match = _USER_LIST_RE.search(_norm(path))
+        if not match or _norm(path)[:match.start()] not in roots or not os.path.isfile(path):
+            continue
+        repository = _archive(_plist_file(path).get('snapchatter_repository'))
+        entries = repository.get('FRIENDS') if repository else None
+        if isinstance(entries, list):
+            friends = {}
+            for entry in entries:
+                if isinstance(entry, dict) and isinstance(entry.get('USER_ID'), str):
+                    mutual = entry.get('IS_MUTUAL_FRIEND')
+                    friends[entry['USER_ID']] = '' if mutual is None else _yes_no(mutual)
+            add(match.group('user'), friends, path, 'snapchatter_repository')
+
+    for group_plist in roots.values():
+        values = _plist_file(group_plist)
+        account = _archive(values.get('user'))
+        if account and isinstance(account.get('keyed_friends_array'), list):
+            friends = {}
+            for section in account['keyed_friends_array']:
+                for entry in (section.get('friends') if isinstance(section, dict) else None) or []:
+                    if isinstance(entry, dict) and isinstance(entry.get('userId'), str):
+                        friends[entry['userId']] = ''
+            add(account.get('userId'), friends, group_plist, 'keyed_friends_array')
+        shared = _archive(values.get('share_user'))
+        if shared and isinstance(shared.get('SECTIONS'), list):
+            friends = {}
+            for section in shared['SECTIONS']:
+                for entry in (section.get('DESTINATIONS') if isinstance(section, dict) else None) or []:
+                    if not isinstance(entry, dict) or entry.get('CODED_SUBTYPE') != 'SUBTYPE_FRIEND':
+                        continue
+                    bitmoji = entry.get('FRIEND_BITMOJI_INFO')
+                    user_id = bitmoji.get('USER_ID') if isinstance(bitmoji, dict) else None
+                    if isinstance(user_id, str):
+                        friends[user_id] = ''
+            add(shared.get('USER_ID'), friends, group_plist, 'share_user')
+    return lists, sources
+
+
 # --- user.plist (TSAF) ----------------------------------------------------------------------
 
 def _tsaf_tokens(path):
@@ -1114,21 +1243,32 @@ def snapchatConversations(context):
 def snapchatFriends(context):
     files_found = context.get_files_found()
     data_list = []
-    source_path = ''
-    for doc_store in sorted({str(f) for f in files_found
-                             if str(f).endswith('primary.docobjects')}):
-        source_path = source_path or doc_store
+    source_paths = set()
+    lists, list_sources = _friends_lists(files_found)
+    for doc_store in sorted({str(f) for f in files_found if _DOC_STORE_RE.search(_norm(f))}):
+        source_paths.add(doc_store)
         sql = _snapchatter_sql(doc_store)
         if not sql:
             logfunc(f'No snapchatter table in {doc_store}; this store generation predates it.')
             continue
+        account = _DOC_STORE_RE.search(_norm(doc_store)).group('account')
+        friends = lists.get(account)
+        if friends is None:
+            logfunc('Snapchat: no friends list for this account was found in the Snapchat App '
+                    'Group, so In Friends List is blank on its snapchatter rows.')
+        else:
+            source_paths.add(list_sources[account])
         for user_id, blob, username, mutable, legacy in _rows(doc_store, sql):
-            data_list.append((username or '', _display_name(blob, user_id), user_id,
-                              mutable or '', legacy or '',
+            if friends is None:
+                in_list, mutual = '', ''
+            else:
+                in_list, mutual = _yes_no(user_id in friends), friends.get(user_id, '')
+            data_list.append((username or '', _display_name(blob, user_id), in_list, mutual,
+                              user_id, mutable or '', legacy or '',
                               context.get_relative_path(doc_store)))
-    data_headers = ('Username', 'Display Name', 'User ID', 'Mutable Username',
-                    'Legacy Username', 'Source File')
-    return data_headers, data_list, source_path
+    data_headers = ('Username', 'Display Name', 'In Friends List', 'Mutual Friend (as stored)',
+                    'User ID', 'Mutable Username', 'Legacy Username', 'Source File')
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
