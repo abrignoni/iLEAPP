@@ -274,6 +274,10 @@ def ValidateInput():
         # conventional ones onto the input type that reads them.
         if ext_type in RAW_IMAGE_SUFFIXES:
             ext_type = 'raw'
+        # An xz-compressed tar ends in 'xz', which matches no branch either. The
+        # tar seeker opens it through tarfile's compression detection.
+        elif i_path.lower().endswith('.tar.xz'):
+            ext_type = 'tar'
 
     # check output now
     if len(o_path) == 0:  # output path
@@ -727,9 +731,10 @@ def select_input(button_type):
         input_filename = tk_filedialog.askopenfilename(parent=main_window,
                                                        title='Select a file',
                                                        filetypes=(('All supported files',
-                                                                   '*.tar *.zip *.gz *.img *.bin *.dd *.raw *.001 *.E01'),
+                                                                   '*.tar *.zip *.gz *.xz *.img *.bin *.dd *.raw *.001 *.E01'),
                                                                   ('tar file', '*.tar'), ('zip file', '*.zip'),
                                                                   ('gz file', '*.gz'),
+                                                                  ('tar.xz file', '*.xz'),
                                                                   (RAW_IMAGE_LABEL, '*.img *.bin *.dd *.raw *.001 *.E01')))
     else:
         input_filename = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
