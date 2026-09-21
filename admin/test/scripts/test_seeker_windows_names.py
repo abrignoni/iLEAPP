@@ -8,6 +8,14 @@ names ending in a dot or a space, which an ordinary Windows path drops. Register
 extractions carry both: AUX and aux.dat on 15 of 63 corpora, and names ending in a dot
 or a space, such as the CleverTap SDK's app_CleverTap.Files. folder, on 16.
 
+Measured on GitHub's Windows runners before the rule below: members named AUX, CON and
+LPT1 were not written through a network share path on Windows Server 2022 or 2025, and
+AUX, aux.dat, COM1.log and LPT1 were not written through an ordinary path on Server
+2022; the tar seeker still handed such a member's path to the artifact. Names ending in
+a dot or a space were written and read back in every case. sanitize_file_path now puts
+an underscore after a device name (AUX_, aux_.dat), and a member that cannot be written
+is not handed back.
+
 Here the tar and the zip seeker stage one member of each kind, plus an ordinary one,
 into a data folder given as an ordinary path and, on Windows, two more ways: with the
 extended-length prefix the entry points add for an output folder on a drive letter, and
@@ -26,6 +34,8 @@ import sys
 import tarfile
 import tempfile
 import unittest
+import builtins
+import errno
 import zipfile
 from pathlib import Path
 from unittest import mock
@@ -35,6 +45,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import scripts.search_files as search_files  # pylint: disable=wrong-import-position
 from scripts.search_files import FileSeekerTar, FileSeekerZip  # pylint: disable=wrong-import-position
+from leapp_functions.app.platform import sanitize_file_path  # pylint: disable=wrong-import-position
 
 # Every content differs, so a member that lands on another member's file reads wrong.
 MEMBERS = {
@@ -45,6 +56,7 @@ MEMBERS = {
     'dev/nul.txt': b'NUL WITH AN EXTENSION',
     'dev/COM1.log': b'COM1 WITH AN EXTENSION',
     'dev/LPT1': b'LPT1 WITHOUT AN EXTENSION',
+    'dev/COM\u00b9.txt': b'COM SUPERSCRIPT ONE WITH AN EXTENSION',
     'app_CleverTap.Files./cached.bin': b'INSIDE A FOLDER ENDING IN A DOT',
     'pair/name.': b'NAME ENDING IN A DOT',
     'pair/name': b'NAME WITHOUT THE DOT',
@@ -63,7 +75,8 @@ def _share(path):
     return '\\\\localhost\\' + full[0] + '$' + full[2:]
 
 
-class TestWindowsSpecialMemberNames(unittest.TestCase):
+class _Archives(unittest.TestCase):
+    """A tar and a zip holding MEMBERS, in a folder removed after the test."""
 
     def setUp(self):
         self.tmp = tempfile.mkdtemp(prefix='leapp_windows_names_')
@@ -80,6 +93,9 @@ class TestWindowsSpecialMemberNames(unittest.TestCase):
         with zipfile.ZipFile(self.zip_path, 'w') as archive:
             for name, content in MEMBERS.items():
                 archive.writestr(name, content)
+
+
+class TestWindowsSpecialMemberNames(_Archives):
 
     def _data_folder(self, label, form):
         report = os.path.join(self.tmp, label)
@@ -150,6 +166,79 @@ class TestWindowsSpecialMemberNames(unittest.TestCase):
     @unittest.skipUnless(os.name == 'nt', 'an administrative share is a Windows path form')
     def test_zip_members_in_a_folder_on_a_share(self):
         self._assert_all_survive(FileSeekerZip, self.zip_path, 'share')
+
+
+
+class TestDeviceNamesAreRenamed(unittest.TestCase):
+    """The rule itself, on every platform: Microsoft's list, with or without an extension."""
+
+    def test_a_device_name_gets_an_underscore_after_it(self):
+        cases = {
+            'dev/AUX': 'dev/AUX_',
+            'dev/aux.dat': 'dev/aux_.dat',
+            'dev/COM1.log': 'dev/COM1_.log',
+            'CON': 'CON_',
+            'a\\nul.txt': 'a\\nul_.txt',
+            'x/NUL.tar.gz': 'x/NUL_.tar.gz',
+            'x/LPT\u00b2': 'x/LPT\u00b2_',
+            'prn/inside.db': 'prn_/inside.db',
+        }
+        for name, expected in cases.items():
+            with self.subTest(name=name):
+                self.assertEqual(sanitize_file_path(name), expected)
+
+    def test_a_name_that_only_starts_like_a_device_is_left_alone(self):
+        for name in ('x/auxiliary.txt', 'x/COM10.log', 'x/console', 'x/nullable.db', 'x/lpt0', 'x/AUX_'):
+            with self.subTest(name=name):
+                self.assertEqual(sanitize_file_path(name), name)
+
+    def test_forbidden_characters_are_still_replaced(self):
+        self.assertEqual(sanitize_file_path('a/b:c?.db'), 'a/b_c_.db')
+
+
+class TestAMemberThatCannotBeWrittenIsNotHandedBack(_Archives):
+    """A write that fails must not leave the artifact holding a path to nothing."""
+
+    def _refuse(self, blocked):
+        real_open = builtins.open
+
+        def fake_open(path, *args, **kwargs):
+            mode = args[0] if args else kwargs.get('mode', 'r')
+            if 'w' in mode and os.path.basename(str(path)) == blocked:
+                raise OSError(errno.EINVAL, 'Invalid argument')
+            return real_open(path, *args, **kwargs)
+        return fake_open
+
+    def _check(self, seeker_class, archive):
+        data = os.path.join(self.tmp, seeker_class.__name__, 'data')
+        os.makedirs(os.path.dirname(data))
+        log = []
+        real_extract = zipfile.ZipFile.extract
+
+        def refusing_extract(zip_self, member, path=None, pwd=None):
+            # the zip seeker writes an ordinary name through ZipFile.extract, not open
+            name = member.filename if isinstance(member, zipfile.ZipInfo) else member
+            if os.path.basename(name) == 'plain.txt':
+                raise OSError(errno.EINVAL, 'Invalid argument')
+            return real_extract(zip_self, member, path, pwd)
+        with mock.patch.object(search_files, 'open', self._refuse('plain.txt'), create=True), \
+                mock.patch.object(zipfile.ZipFile, 'extract', refusing_extract), \
+                mock.patch.object(search_files, 'logfunc', side_effect=log.append):
+            seeker = seeker_class(archive, data)
+            try:
+                refused = seeker.search('*/ok/plain.txt')
+                written = seeker.search('*/pair/name')
+            finally:
+                seeker.cleanup()
+        self.assertEqual(refused, [])
+        self.assertTrue(any('Could not write' in m and 'ok/plain.txt' in m for m in log), log)
+        self.assertEqual(len(written), 1)
+
+    def test_tar(self):
+        self._check(FileSeekerTar, self.tar_path)
+
+    def test_zip(self):
+        self._check(FileSeekerZip, self.zip_path)
 
 
 if __name__ == '__main__':
