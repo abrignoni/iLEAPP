@@ -21,6 +21,8 @@ Functions:
 """
 
 import time as timex
+import atexit
+import importlib
 import fnmatch
 import os
 import tarfile
@@ -775,6 +777,18 @@ class FileSeekerItunes(FileSeekerBase):
         return pathlist
 
 
+def _compressed_tar_streams():
+    """The reader classes tarfile wraps a compressed tar in, for the codecs this Python has."""
+    streams = []
+    for module, name in (('gzip', 'GzipFile'), ('bz2', 'BZ2File'), ('lzma', 'LZMAFile'),
+                         ('compression.zstd', 'ZstdFile')):
+        try:
+            streams.append(getattr(importlib.import_module(module), name))
+        except (ImportError, AttributeError):
+            pass
+    return tuple(streams)
+
+
 class FileSeekerTar(FileSeekerBase):
     """
     This is a class that extends FileSeekerBase to facilitate searching and extracting files
@@ -812,11 +826,50 @@ class FileSeekerTar(FileSeekerBase):
         mode = 'r:gz' if self.is_gzip else 'r'
         self.tar_file = tarfile.open(tar_file_path, mode)
         self.data_folder = data_folder
+        self._spool_path = None
+        if isinstance(self.tar_file.fileobj, _compressed_tar_streams()):
+            self._read_from_a_decompressed_copy(tar_file_path, mode)
         self.searched = {}
         self.copied = {}
         self.file_infos = {}
         self._init_dest_guard(self.data_folder)
         self._search_members, self._other_versions = self._index_member_names()
+
+    def _read_from_a_decompressed_copy(self, tar_file_path, mode):
+        """Decompress a compressed tar once and read the plain copy instead.
+
+        A compressed stream can only seek backwards by decompressing again from its
+        start. Each search reads its matches in archive order, but artifacts search one
+        after another, so reading a compressed tar in place rewinds over and over. On a
+        5.36 GB Android extraction that was 56 rewinds and 220 GB decompressed as a
+        .tar.gz (347 s against 33 s for the plain tar), and about two hours projected
+        as a .tar.xz. The copy sits in the report folder and is deleted by cleanup(),
+        or at exit if a run never reaches it. When it cannot be written, the archive is
+        read in place as before.
+        """
+        spool = os.path.join(os.path.dirname(os.path.normpath(self.data_folder)), '_decompressed_input.tar')
+        logfunc(f'Decompressing {os.path.basename(tar_file_path)} once so its files can be read in any order')
+        started = timex.time()
+        written = False
+        try:
+            self.tar_file.fileobj.seek(0)
+            with open(spool, 'wb') as out:
+                copyfileobj(self.tar_file.fileobj, out, 16 << 20)
+            written = True
+        except OSError as ex:
+            logfunc(f'Could not write the decompressed copy ({ex.strerror or type(ex).__name__}); '
+                    'reading the compressed archive in place, which is much slower')
+        finally:
+            if not written and os.path.exists(spool):
+                os.remove(spool)
+        self.tar_file.close()
+        if not written:
+            self.tar_file = tarfile.open(tar_file_path, mode)
+            return
+        self._spool_path = spool
+        atexit.register(self._discard_spool)
+        self.tar_file = tarfile.open(spool, 'r:')
+        logfunc(f'Decompressed {os.path.getsize(spool):,} bytes in {timex.time() - started:.0f} s')
 
     def _index_member_names(self):
         """One member per distinct name, in archive order, and the other versions of any name stored twice."""
@@ -925,6 +978,16 @@ class FileSeekerTar(FileSeekerBase):
 
     def cleanup(self):
         self.tar_file.close()
+        if self._spool_path:
+            atexit.unregister(self._discard_spool)
+            self._discard_spool()
+
+    def _discard_spool(self):
+        """Close the archive and delete the decompressed copy made for it."""
+        self.tar_file.close()
+        if self._spool_path and os.path.exists(self._spool_path):
+            os.remove(self._spool_path)
+        self._spool_path = None
 
 
 class FileSeekerZip(FileSeekerBase):
