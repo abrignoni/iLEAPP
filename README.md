@@ -219,10 +219,9 @@ only the files an artifact asks for are read out of the image. The GUI picks
 `raw` on its own for those extensions. See `admin/docs/raw_image_input.md`.
 
 `tar` also reads an xz-compressed tar (`.tar.xz`), and the GUI picks `tar` for that
-extension. A compressed tar, `.tar.gz` included, is read much more slowly than a plain one:
-each time a file earlier in the archive is needed, the reader decompresses from the start
-again. For a large extraction, decompress it first (`xz -dk` or `gunzip -k`) and give the
-tool the `.tar`.
+extension. A compressed tar, `.tar.gz` included, is decompressed once into the report folder
+before any file is read, so the run needs free space there for the uncompressed tar. The
+copy is deleted when the run ends, and the run log says how long the step took.
 
 **GUI:**
 
