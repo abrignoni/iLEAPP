@@ -948,6 +948,8 @@ class FileSeekerTar(FileSeekerBase):
                             self._stage_other_versions(member.name)
                     except OSError as ex:
                         logfunc(f'Could not write file to filesystem, path was {member.name} ' + str(ex))
+                        if member.name not in self.copied:
+                            continue  # nothing was written, so there is no file to hand back
                 else:
                     full_path = self.copied[member.name]
                 pathlist.append(full_path)
