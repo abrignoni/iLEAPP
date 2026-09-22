@@ -239,7 +239,7 @@ __artifacts_v2__ = {
                        "time, location, visual and meta tags, caption text, and visual "
                        "concept labels with their stored confidence values.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-16", "last_update_date": "2026-08-16",
+        "creation_date": "2026-08-16", "last_update_date": "2026-09-21",
         "requirements": "none", "category": "Snapchat",
         "notes": "search.sqlite3 (Documents/gallery_search/<n>/<account hash>/) is an index the "
                  "app keeps over Memories snaps. All "
@@ -251,7 +251,11 @@ __artifacts_v2__ = {
                  "equal to snap_id_table's rowid on the tested image by matching each "
                  "row's visual tags against snap_visual_tag_conf_table for the same snap "
                  "id. The snap id refers to a Memories entry; linking it to media files "
-                 "is not done here.",
+                 "is not done here.\n"
+                 "The index is read with its write-ahead log applied. On the 6 tested images "
+                 "whose index had a -wal file, the database file without it was a single page "
+                 "holding no tables, so no row existed only before the log was applied; the 4 "
+                 "tested images without a -wal read the same either way.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/gallery_search/*/search.sqlite3*',),
         "output_types": "standard", "artifact_icon": "search",
         "sample_data": {
@@ -263,6 +267,8 @@ __artifacts_v2__ = {
             "hc_ios18_7": "iOS 18.7.8 | 1 row",
             "abe_ios16": "iOS 16.5 | 1 row",
             "otto_ios17": "iOS 17.5.1 | 0 rows (index tables empty)",
+            "hexordia_ios1651": "iOS 16.5.1 | 0 rows (index tables empty)",
+            "ctf2020_ios12": "iOS 12.4 | 0 rows (index tables empty)",
             "iphone12_ios18": "iOS 18.7 | no gallery_search search.sqlite3 found",
         },
     },
@@ -391,7 +397,7 @@ __artifacts_v2__ = {
                        "Memory row, with location from gallery.encrypteddb and media decrypted from the app's "
                        "caches and stored thumbnails when the keys are available.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-09-19", "last_update_date": "2026-09-19",
+        "creation_date": "2026-09-19", "last_update_date": "2026-09-21",
         "requirements": "nska_deserialize, pycryptodome", "category": "Snapchat",
         "notes": "Sources. Documents/gallery_data_object/<n>/<profile>/scdb-27.sqlite3 is a Core Data "
                  "store with one ZGALLERYSNAP row per Memory. The profile folder name equalled the "
@@ -455,13 +461,18 @@ __artifacts_v2__ = {
                  "rows.\n"
                  "Limits. Without the keychain, location, address titles and the media of Memories whose "
                  "keys are only in gallery.encrypteddb stay unreadable, and Key State says so. A wrapped "
-                 "key with no persistedkey keeps that Memory's media locked. The gallery_search index is "
-                 "reported separately (Snapchat - Memories Search Index).\n"
+                 "key with no persistedkey keeps that Memory's media locked. The reference also describes "
+                 "a Memory moved into My Eyes Only whose cached media stays under the original snap's "
+                 "key, reached through ZMEDIAID or ZDUPLICATEDFROMSNAPID; that route is not followed "
+                 "here. On hickman_ios15, whose keychain has no persistedkey, none of the 6 snap ids its "
+                 "7 wrapped-key Memories reference had a key row in gallery.encrypteddb, so the route "
+                 "would not have opened them. The gallery_search index is reported separately "
+                 "(Snapchat - Memories Search Index).\n"
                  "Reference: dfjsim, 'Snapchat_Auto, a fork of DFIR-HBG and stark4n6's Snapchat_Auto: "
                  "snapchat_ios_memories_decryption.md', "
-                 "https://github.com/dfjsim/Snapchat_Auto/blob/58954948faf6ba682e9b09f968eb1c2cdef9796b/docs/snapchat_ios_memories_decryption.md?plain=1#L165 "
+                 "https://github.com/dfjsim/Snapchat_Auto/blob/5dfa662c39f08df373c54d06fd0aa52e5e7c2542/docs/snapchat_ios_memories_decryption.md?plain=1#L165 "
                  "(gallery.encrypteddb and egocipher), #L282 (the wrapped key and persistedkey), #L204 "
-                 "(the cache_controller.db entries).",
+                 "(the cache_controller.db entries), #L317 (a Memory moved into My Eyes Only).",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/gallery_data_object/*/scdb-27.sqlite3*',
                   '*/mobile/Containers/Data/Application/*/Documents/gallery_encrypted_db/*/gallery.encrypteddb*',
                   '*/mobile/Containers/Data/Application/*/Documents/global_scoped/cachecontroller/cache_controller.db*',
