@@ -70,6 +70,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | biomeIntelligenceEntity |
 | biomeSync |
 | booking |
+| botim |
 | box |
 | brave |
 | bumble |
