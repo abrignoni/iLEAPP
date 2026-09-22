@@ -34,6 +34,7 @@ import struct
 
 from scripts.ilapfuncs import (
     artifact_processor,
+    check_in_embedded_media,
     convert_unix_ts_to_utc,
     logfunc,
     open_sqlite_db_readonly,
@@ -65,9 +66,15 @@ __artifacts_v2__ = {
             "stored id otherwise. Chat is the group chat title, or for a one-to-one dialog "
             "the other participant's contact name where that participant is a known contact. "
             "Attachments are summarised by their recorded type (as stored, e.g. PHOTO, CALL, "
-            "AUDIO, VIDEO) and count; the attachment media files are not rendered. Reactions "
+            "AUDIO, VIDEO) and count. Media renders the inline preview thumbnail a photo or "
+            "video attachment carries in the message object itself (a small image in the "
+            "'previewData' field, WebP on the tested sample), checked in as embedded media; "
+            "these are low-resolution previews, not the full-resolution files. The "
+            "full-resolution image the app caches separately is keyed by a hash this module "
+            "does not derive, so it is not linked here, and voice-note and video files are "
+            "not rendered. Reactions "
             "are summarised from the recorded reaction counters. Message Type is reported as "
-            "stored. This module does not render attachment media, does not decode the "
+            "stored. This module does not decode the "
             "sticker/animoji catalogue collections, and does not parse the separate onelogV2 "
             "telemetry database. Field mapping was done against a private sample; no sample "
             "data is recorded for it."
@@ -84,6 +91,7 @@ __artifacts_v2__ = {
                 "directionSentValue": "Sent",
                 "senderColumn": "Sender",
                 "textColumn": "Message",
+                "mediaColumn": "Media",
             }
         },
     },
@@ -388,6 +396,29 @@ def _attachments_summary(attaches):
     return ", ".join(f"{atype} x{count}" for atype, count in sorted(counts.items()))
 
 
+def _preview_media(attaches, source_file):
+    """Render each attachment's inline preview thumbnail.
+
+    Photo and video attachments carry a small preview image inline in the message
+    object under 'previewData' (WebP bytes on the tested sample). These bytes are in
+    the record itself, so they are checked in as embedded media without resolving any
+    external file. This does not recover the full-resolution image, which the app
+    caches separately keyed by a hash this module does not derive.
+    """
+    if not isinstance(attaches, list):
+        return []
+    refs = []
+    for attach in attaches:
+        if not isinstance(attach, dict):
+            continue
+        preview = attach.get("previewData")
+        if isinstance(preview, (bytes, bytearray)) and preview:
+            ref = check_in_embedded_media(source_file, bytes(preview), "preview")
+            if ref:
+                refs.append(ref)
+    return refs
+
+
 def _reactions_summary(reaction_info):
     """Summarise a message's recorded reaction counters."""
     if not isinstance(reaction_info, dict):
@@ -423,6 +454,7 @@ def odnoklassniki_messages(context):
         "Sender",
         "Chat",
         "Message",
+        ("Media", "media"),
         "Sender ID (as stored)",
         "Chat ID",
         "Chat Type",
@@ -479,6 +511,7 @@ def odnoklassniki_messages(context):
                 sender_name,
                 chat_title,
                 message_text,
+                _preview_media(msg.get("attaches"), db_path),
                 sender_id_str,
                 chat_key if isinstance(chat_key, str) else "",
                 chat_type if isinstance(chat_type, str) else "",
