@@ -157,6 +157,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | recents |
 | reddit |
 | reminders |
+| roblox |
 | safariBookmarks |
 | safariCache |
 | safariFavicons |
