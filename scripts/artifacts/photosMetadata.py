@@ -14,7 +14,8 @@ __artifacts_v2__ = {
                  "no rows (see the Ph* artifact series for current schemas). The matching query is "
                  "selected automatically. "
                  "Reverse-location bplists are written to the report folder. "
-                 "Orientation labels correspond to EXIF orientation values. "
+                 "Orientation values 1, 3, 6 and 8 are labelled following the cited Scott Koenig "
+                 "queries; other values are reported as stored. "
                  "Reference: Scott Koenig, iOS_Local_PL_Photos.sqlite_Queries, "
                  "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries and "
                  "https://theforensicscooter.com/2022/02/21/photos-sqlite-update/",

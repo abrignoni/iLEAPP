@@ -189,6 +189,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from math import log10
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ilapfuncs import open_sqlite_db_readonly, get_sqlite_db_records, \
     does_column_exist_in_db, get_txt_file_content, convert_unix_ts_to_utc, \
     artifact_processor, logfunc
@@ -788,7 +789,7 @@ def _get_cached_data(source_path, context):
 
         return decoded_data
 
-    except (ValueError, TypeError, AttributeError, KeyError, IndexError, OverflowError) as ex:
+    except (DecodeError, ValueError, TypeError, AttributeError, KeyError, IndexError, OverflowError) as ex:
         logfunc(
             f"[{context.get_artifact_name()}] "
             f"Failed to parse cached_data protobuf: {str(ex)}"

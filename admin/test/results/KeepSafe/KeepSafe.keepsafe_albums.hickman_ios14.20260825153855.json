@@ -1,0 +1,68 @@
+{
+  "metadata": {
+    "module_name": "KeepSafe",
+    "artifact_name": "KeepSafe - Albums",
+    "function_name": "keepsafe_albums",
+    "case_number": "hickman_ios14",
+    "number_of_columns": 5,
+    "number_of_rows": 5,
+    "total_data_size_bytes": 925,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/KeepSafe/testdata.KeepSafe.keepsafe_albums.hickman_ios14.zip",
+    "start_time": "2026-08-25T15:38:55.560266+00:00",
+    "end_time": "2026-08-25T15:38:55.580443+00:00",
+    "run_time_seconds": 0.00023102760314941406,
+    "last_commit": {
+      "hash": "e5812e9fd29f22a7a84d337360eec108385e7e7c",
+      "author_name": "Dielle De Noon",
+      "author_email": "dielleaiko@hotmail.com",
+      "date": "2026-08-23T16:10:25-04:00",
+      "message": "Created KeepSafe Support for iOS"
+    }
+  },
+  "headers": [
+    "Album ID",
+    "Album Name",
+    "Has Cover Image",
+    "Cover Image Bytes",
+    "Source File"
+  ],
+  "data": [
+    [
+      "4fa0c7e3-a91e-43de-9cc7-7d8d6cd8f14f",
+      "Main Album",
+      "Yes",
+      29869,
+      "private/var/mobile/Containers/Shared/AppGroup/D3B5CD3C-7728-459B-AA79-168914A2C436/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+    ],
+    [
+      "202c72b4-1c6f-11e6-a98d-037bfb7ecdab",
+      "Videos",
+      "Yes",
+      3339,
+      "private/var/mobile/Containers/Shared/AppGroup/D3B5CD3C-7728-459B-AA79-168914A2C436/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+    ],
+    [
+      "7fb92f06-cba6-4ca2-9b29-c291268a1447",
+      "Cards & ID",
+      "Yes",
+      3684,
+      "private/var/mobile/Containers/Shared/AppGroup/D3B5CD3C-7728-459B-AA79-168914A2C436/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+    ],
+    [
+      "40cb6156-1c6f-11e6-9428-9f10356e30e2",
+      "Significant Other",
+      "Yes",
+      3754,
+      "private/var/mobile/Containers/Shared/AppGroup/D3B5CD3C-7728-459B-AA79-168914A2C436/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+    ],
+    [
+      "O8cr6",
+      "My Private Album",
+      "Yes",
+      32136,
+      "private/var/mobile/Containers/Shared/AppGroup/D3B5CD3C-7728-459B-AA79-168914A2C436/Library/Preferences/group.com.keepsafe.KeepSafe.plist"
+    ]
+  ]
+}

@@ -35,8 +35,8 @@ __artifacts_v2__ = {
             "Parses cached peer records (users, bots, groups, channels, secret chats) from "
             "table t2 of each Telegram account's Postbox database, joined with the contact "
             "list (table t16), the Spotlight contact cache, and cached avatar images. "
-            "Telegram caches peer records returned by its global search, so a peer can "
-            "appear here without any exchanged messages and without being a saved contact; "
+            "A peer record can be present without any exchanged messages and without being a "
+            "saved contact; "
             "the Messages In Chat column is 0 and In Contact List is blank for such peers."
         ),
         "author": "@AlexisBrignoni",
@@ -148,9 +148,8 @@ __artifacts_v2__ = {
                  "none, 1 is present with the time in 't', 2 is recently, 3 is last week and "
                  "4 is last month, and 'h' is the hidden flag those bucketed statuses carry. "
                  "'la' is the last activity value the client stored. The bucketed statuses "
-                 "are what the server returns when a peer restricts their last-seen "
-                 "visibility, so they are a privacy setting on the other account rather than "
-                 "a measurement of when that person was last online.",
+                 "are reported as stored and are not an exact time; what causes the server to "
+                 "return a bucketed status rather than a time is not sourced here.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
         ),
@@ -198,8 +197,7 @@ __artifacts_v2__ = {
             "in table t18 of each account's Postbox database. Reports the profile bio or "
             "channel description, a contact's stored birthday, whether a user is blocked, "
             "the number of groups in common, scheduled-message and auto-delete state, and "
-            "who invited the account to a channel. These details are cached from the "
-            "server when a profile is opened, so a record can exist for a peer the user "
+            "who invited the account to a channel. A record can exist for a peer the user "
             "never exchanged messages with."
         ),
         "author": "@AlexisBrignoni",
@@ -233,8 +231,7 @@ __artifacts_v2__ = {
             "(accounts-metadata database, table t2) and each account's preferences "
             "(Postbox database, table t35). Includes media auto-download, save-to-Photos, "
             "app passcode, contact synchronization, notification, and privacy settings. "
-            "Telegram writes a settings record only after the user changes it, so a "
-            "setting reported as 'not present' was still at its app default."
+            "A setting reported as 'not present' has no stored record in these tables."
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",

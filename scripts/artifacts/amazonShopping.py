@@ -1,10 +1,15 @@
 """
 Parses Apple iOS Amazon Shopping application artifacts.
 
-Every path and field in this module was derived from two private iOS Data containers
-whose .com.apple.mobile_container_manager.metadata.plist records
-MCMMetadataIdentifier = com.amazon.AmazonUK. Other Amazon storefront builds are not
-covered by that observation.
+Every field in this module was derived from two private iOS Data containers whose
+.com.apple.mobile_container_manager.metadata.plist records
+MCMMetadataIdentifier = com.amazon.AmazonUK. Containers recording
+MCMMetadataIdentifier = com.amazon.Amazon keep the same stores under their own bundle
+identifier, so the path patterns accept both spellings. No other spelling has been
+observed in tested images; storefront builds under other bundle identifiers, where
+they exist, are not covered. Sibling Amazon apps (com.amazon.echo,
+com.amazon.Hendrix) keep their own Cache.db under their own bundle identifiers and
+are deliberately not matched.
 """
 # pylint: disable=too-many-lines
 
@@ -31,13 +36,15 @@ __artifacts_v2__ = {
             "Amazon Shopping preferences store."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
-            "Values are read from Library/Preferences/com.amazon.AmazonUK.plist. Only keys "
-            "on an explicit list are reported; the store holds several hundred further keys, "
-            "most of them A/B test treatment codes. Timestamp units were established per key "
+            "Values are read from the preference plist the app names for its own bundle "
+            "identifier under Library/Preferences; com.amazon.Amazon and com.amazon.AmazonUK "
+            "are the spellings observed in tested images. Only keys "
+            "on an explicit list are reported; the store holds several hundred further keys that "
+            "are not reported. Timestamp units were established per key "
             "by decoding the stored value against each candidate epoch and keeping the only "
             "reading that falls inside the app's observed lifetime; the app binary is not "
             "present in a Data container, so no producing call site could be read. Keys "
@@ -49,9 +56,15 @@ __artifacts_v2__ = {
             "are reported as stored. LastRefreshTime is a small number of seconds that does not "
             "decode to a plausible date under any epoch tried, so it is reported as stored "
             "without interpretation."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.amazon.AmazonUK.plist',),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Preferences/com.amazon.Amazon.plist',
+                  '*/mobile/Containers/Data/Application/*/Library/Preferences/com.amazon.AmazonUK.plist',),
         "output_types": ["standard"],
-        "artifact_icon": "shopping-cart"
+        "artifact_icon": "shopping-cart",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 19 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 42 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 34 rows",
+        }
     },
     "amazon_profiles": {
         "name": "Amazon - Profiles",
@@ -67,17 +80,22 @@ __artifacts_v2__ = {
             "Profile rows come from the pandaStore sub-store of persist:root in "
             "Documents/RCTAsyncLocalStorage_V1/manifest.json, which records accountId, fullName, "
             "primaryAccountClaim and primaryAccountClaimType per account. lastActive and "
-            "lastUpdated decode as Unix milliseconds. That manifest path is the standard React "
-            "Native AsyncStorage location and is not unique to this app, so rows are emitted only "
-            "when the file carries an Amazon account identifier. Account rows without a profile "
-            "come from the names of Library/Preferences/amzn1.account.*.plist files; the identifier "
-            "is the file name, and the file contents are Alexa wakeword settings. Presence of an "
+            "lastUpdated decode as Unix milliseconds. That manifest path is not unique to this "
+            "app, so rows are emitted only when the file carries an Amazon account identifier. "
+            "Account rows without a profile come from the names of "
+            "Library/Preferences/amzn1.account.*.plist files; the identifier is the file name; "
+            "the file contents are not reported. Presence of an "
             "account identifier records that the account was known to the app on this device; it "
             "does not establish that the account was signed in at acquisition."),
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
                   '*/mobile/Containers/Data/Application/*/Library/Preferences/amzn1.account.*.plist',),
         "output_types": ["standard"],
-        "artifact_icon": "users"
+        "artifact_icon": "users",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 0 rows",
+        }
     },
     "amazon_orders": {
         "name": "Amazon - Orders",
@@ -85,26 +103,37 @@ __artifacts_v2__ = {
             "Reports orders and order line items from the app's cached orders API response."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
             "Rows are parsed from the JSON body cached in the app's NSURLCache for requests to "
-            "appx.transient.amazon.*/api/orders/v1. This is the order list the app last fetched "
-            "for the tab that displays it, not a complete order history; the request URL caps the "
-            "response with maxOrders and asinsPerOrder parameters, and the cached copy is replaced "
-            "on the next fetch. orderDate decodes as Unix seconds. Cached is the NSURLCache entry "
+            "appx.transient.amazon.*/api/orders/v1. This is a cached order list response, not a "
+            "complete order history; the request URL carries maxOrders and asinsPerOrder "
+            "parameters that limit the response. orderDate decodes as Unix seconds. Cached is "
+            "the NSURLCache entry "
             "time_stamp, stored by SQLite as UTC text. Line item images are linked by taking the "
             "image identifier from the line item imageUrl, matching it against the url column of "
             "the SSNAP image cache registry, and resolving that row's recorded filePath by file "
             "name inside Library/Caches/ssnap_image_cache; the recorded path carries the container "
             "UUID of the acquiring device, so only the file name is used. A line item whose image "
-            "is not in that cache is reported with an empty media cell rather than dropped."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+            "is not in that cache is reported with an empty media cell rather than dropped. A "
+            "response body the cache stored as a separate file under fsCachedData is resolved "
+            "through the file name recorded in the cache row before decoding; this path is "
+            "code-present and was not exercised by any tested image for this endpoint."),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/fsCachedData/*',
                   '*/mobile/Containers/Data/Application/*/Library/LocalDatabase/ssnapImageCacheRegistry.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/ssnap_image_cache/*',),
         "output_types": ["standard"],
-        "artifact_icon": "package"
+        "artifact_icon": "package",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 0 rows",
+        }
     },
     "amazon_products": {
         "name": "Amazon - Product Lookups",
@@ -113,7 +142,7 @@ __artifacts_v2__ = {
             "the product title where the response carried one."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
@@ -127,11 +156,22 @@ __artifacts_v2__ = {
             "the number of physicalId values in the product-images part. A cached product response "
             "records that the app requested detail for that ASIN, which is not the same as the "
             "user opening the product page. Documents/asins/*.plist in the same container holds "
-            "tens of thousands of ASINs and is a deep-link lookup table fetched from the server; "
-            "it is not parsed here and must not be read as products the user viewed."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+            "tens of thousands of ASINs; "
+            "it is not parsed here and must not be read as products the user viewed. A "
+            "response body the cache stored as a separate file under fsCachedData is resolved "
+            "through the file name recorded in the cache row before decoding; this path is "
+            "code-present and was not exercised by any tested image for this endpoint."),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/fsCachedData/*',),
         "output_types": ["standard"],
-        "artifact_icon": "tag"
+        "artifact_icon": "tag",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 0 rows",
+        }
     },
     "amazon_delivery_location": {
         "name": "Amazon - Delivery Location",
@@ -140,40 +180,82 @@ __artifacts_v2__ = {
             "service."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
             "Rows are parsed from JSON bodies cached in the app's NSURLCache for requests to "
             "*/portal-migration/hz/glow/get-location-label. The customerIntent object carries "
             "city, zipCode, state, countryCode and an addressSource value that is reported as "
-            "stored. The values describe the delivery destination the storefront had selected for "
-            "the session that made the request. They are not a device position fix and carry no "
-            "coordinates. Page Type is the pageType parameter of the request URL, which records "
-            "the app screen that triggered the lookup."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+            "stored. The values are the delivery location label the service returned for that "
+            "request; how the location was selected is not established. They are not a device "
+            "position fix and carry no coordinates. Page Type is the pageType parameter of the "
+            "request URL, reported as stored. The address identifier and delivery "
+            "line fields populate only when the cached response carries them; the address "
+            "identifiers were empty on every corpus image tested. A response body the cache "
+            "stored as a separate file under fsCachedData is resolved through the file name "
+            "recorded in the cache row before decoding; this path is code-present and was not "
+            "exercised by any tested image for this endpoint."),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/fsCachedData/*',),
         "output_types": ["standard"],
-        "artifact_icon": "map-pin"
+        "artifact_icon": "map-pin",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 0 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 4 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 6 rows",
+        }
     },
     "amazon_network_cache": {
         "name": "Amazon - Network Cache",
-        "description": "Reports the request URLs and entry times held in the app's network cache.",
+        "description": (
+            "Reports the request URLs, entry times and stored response bodies held in the "
+            "app's network cache, rendering bodies the cache stored as image files."),
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Amazon Shopping",
         "notes": (
-            "Reads the standard NSURLCache tables in "
-            "Library/Caches/com.amazon.AmazonUK/Cache.db. time_stamp is stored by SQLite as UTC "
-            "text. Response Size is the byte length of the stored body, which is not always the "
-            "resource: image entries in the tested samples frequently hold a 36 byte token rather "
-            "than image bytes, so a small size on an image URL means the bytes are not in this "
-            "cache. The WAL sidecar is load bearing here, carrying entries absent from the "
-            "committed file in both tested samples, so the path pattern picks up the sidecars."),
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',),
+            "Reads the standard NSURLCache tables in the Cache.db the app keeps under "
+            "Library/Caches in a folder named for its own bundle identifier; "
+            "com.amazon.Amazon and com.amazon.AmazonUK are the spellings observed in tested "
+            "images. time_stamp is stored by SQLite as UTC text. NSURLCache stores a response "
+            "body either inline in the database or, when isDataOnFS is set, as a separate file "
+            "in the fsCachedData folder beside the database, with the row holding that file's "
+            "name; Body Storage says which, Body Size is the byte length of the stored body "
+            "wherever it lives, and Body Format is read from the body's own leading bytes, not "
+            "from the URL. On the two corpus images that use external storage every reference "
+            "resolved to a file present in the extraction (7 of 7 and 17 of 17). An external "
+            "body whose bytes are an image is rendered in Cached Body; on tested images those "
+            "were Amazon interface and promotional graphics, not product photographs. Inline "
+            "bodies are characterized but not rendered; on tested images every inline image "
+            "body was an interface asset or a 43 byte tracking pixel. Body content is served "
+            "by Amazon, so a row records what the app fetched and when; the cache does not "
+            "record what was displayed. The WAL sidecar is load bearing here, carrying entries "
+            "absent from the committed file in both tested samples, so the path pattern picks "
+            "up the sidecars. The app keeps further NSURLCache stores inside the same folder, "
+            "none of which this artifact reads: SSNAP/SNPFileStore, present on all three "
+            "corpus images, held only the app's own JavaScript feature bundles and manifests "
+            "fetched from the ssnap-msa CDN path, with entry dates a subset of this cache's "
+            "dates on every tested image; SSNAP/ARCRuntimeConfig, where populated, held "
+            "server-supplied runtime configuration JSON; ABS/ClientStore held no rows on the "
+            "image that has it. The "
+            "Partition column was empty on every row of every corpus image tested and is "
+            "reported as stored."),
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/Cache.db*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.Amazon/fsCachedData/*',
+                  '*/mobile/Containers/Data/Application/*/Library/Caches/com.amazon.AmazonUK/fsCachedData/*',),
         "output_types": ["standard"],
-        "artifact_icon": "globe"
+        "artifact_icon": "globe",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 5 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 35 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 119 rows",
+        }
     },
     "amazon_image_cache": {
         "name": "Amazon - Image Cache",
@@ -200,7 +282,12 @@ __artifacts_v2__ = {
         "paths": ('*/mobile/Containers/Data/Application/*/Library/LocalDatabase/ssnapImageCacheRegistry.db*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/ssnap_image_cache/*',),
         "output_types": ["standard"],
-        "artifact_icon": "image"
+        "artifact_icon": "image",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 7 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 6 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 0 rows",
+        }
     },
     "amazon_metric_events": {
         "name": "Amazon - Metric Events",
@@ -223,15 +310,21 @@ __artifacts_v2__ = {
             "queued for longer before being written, the widest gap being about fifteen hours. "
             "Page Type, Sub Page Type, Ref Marker, Customer ID and Session ID are "
             "lifted from the event's own key strings where present and left empty otherwise. "
-            "Remaining keys are joined into Attributes as stored. These batches are queued for "
-            "upload, so their presence records what the client recorded, not what the server "
-            "received. Other Amazon applications use the same metric format, so confirm the "
+            "Remaining keys are joined into Attributes as stored. Whether a batch was uploaded "
+            "is not established; a row records what the client wrote, not what the server "
+            "received. The path pattern matches these folders in any application container, so "
+            "confirm the "
             "container the Source File belongs to before attributing a row to this app."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/METRICS_CRITICAL/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_HIGH/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_NORMAL/*',),
         "output_types": ["standard"],
-        "artifact_icon": "activity"
+        "artifact_icon": "activity",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 32 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 2978 rows",
+        }
     },
     "amazon_metric_batches": {
         "name": "Amazon - Metric Batch Context",
@@ -246,16 +339,20 @@ __artifacts_v2__ = {
         "notes": (
             "One row per metric batch file. The context values are the key/value pairs the batch "
             "carries in field 4, reported under their own key names. Batch Time is taken from the "
-            "batch file name, which is a Unix millisecond value. The user agent string carries an "
-            "Amazon device serial and the app and OS versions in the form the client sent them. "
-            "Event Count is the number of events the batch holds. See the Metric Events artifact "
-            "for the format notes; the same caution applies that other Amazon applications write "
-            "this format."),
+            "batch file name, which is a Unix millisecond value. The user agent string is "
+            "reported as stored. Event Count is the number of events the batch holds. See the "
+            "Metric Events artifact for the format notes; the same caution applies that the path "
+            "pattern matches these folders in any application container."),
         "paths": ('*/mobile/Containers/Data/Application/*/Library/METRICS_CRITICAL/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_HIGH/*',
                   '*/mobile/Containers/Data/Application/*/Library/METRICS_NORMAL/*',),
         "output_types": ["standard"],
-        "artifact_icon": "smartphone"
+        "artifact_icon": "smartphone",
+        "sample_data": {
+            "falken_ios26": "iOS 26.2.1 | Amazon Shopping 25.22.0 | 1 row",
+            "hexordia_ios1651": "iOS 16.5.1 | Amazon Shopping 21.23.0 | 0 rows",
+            "ctf2020_ios12": "iOS 12.4 | Amazon Shopping 15.4.0 | 12 rows",
+        }
     },
 }
 
@@ -492,10 +589,19 @@ def _parse_metric_batch(data):
 # Shared lookups
 # ---------------------------------------------------------------------------
 
+# Bundle identifier spellings observed for the shopping app's own Data container.
+# The Cache.db folder under Library/Caches and the main preference plist are both
+# named for the app's bundle identifier, and sibling Amazon apps keep their own
+# Cache.db under theirs, so membership is an exact name match, never a substring.
+_SHOPPING_BUNDLE_IDS = ('com.amazon.Amazon', 'com.amazon.AmazonUK')
+_SHOPPING_PLIST_NAMES = tuple(f'{bundle_id}.plist' for bundle_id in _SHOPPING_BUNDLE_IDS)
+
+
 def _cache_databases(files_found):
     """Main Cache.db paths, with the WAL and shm sidecars filtered out."""
     return [f for f in files_found
-            if os.path.basename(f) == 'Cache.db' and 'com.amazon.AmazonUK' in f]
+            if os.path.basename(f) == 'Cache.db'
+            and os.path.basename(os.path.dirname(f)) in _SHOPPING_BUNDLE_IDS]
 
 
 def _registry_databases(files_found):
@@ -550,13 +656,81 @@ def _image_url_index(files_found):
     return index
 
 
+def _external_body_path(db_path, file_name):
+    """Path of a cached body stored as its own file beside the database, or ''.
+
+    An isDataOnFS row's receiver_data holds a bare file name recorded for the
+    fsCachedData folder next to the Cache.db that owns the row, so resolution is
+    anchored to that sibling folder and cannot cross into another container. A
+    value carrying a path separator is refused rather than joined.
+    """
+    if not file_name or os.path.basename(file_name) != file_name:
+        return ''
+    candidate = os.path.join(os.path.dirname(db_path), 'fsCachedData', file_name)
+    return candidate if os.path.isfile(candidate) else ''
+
+
+def _resolve_body(db_path, body, data_on_fs):
+    """The stored body's bytes and, when it lives in its own file, that file's path.
+
+    When the referenced file is not in the extraction the stored reference bytes
+    are returned unchanged, so a caller's decode fails the same way it would on
+    an unresolved token.
+    """
+    body = bytes(body) if body is not None else b''
+    if data_on_fs != 1:
+        return body, ''
+    body_path = _external_body_path(db_path, body.decode('utf-8', 'replace'))
+    if not body_path:
+        logfunc(f'Amazon: cached body file {body[:64]!r} referenced by '
+                f'{db_path} is not in the extraction')
+        return body, ''
+    with open(body_path, 'rb') as body_file:
+        return body_file.read(), body_path
+
+
+_BODY_SIGNATURES = (
+    (b'\xff\xd8\xff', 'JPEG image'),
+    (b'\x89PNG\r\n\x1a\n', 'PNG image'),
+    (b'GIF87a', 'GIF image'),
+    (b'GIF89a', 'GIF image'),
+)
+
+
+def _body_format(data):
+    """Format label for a stored body, read from its own leading bytes."""
+    if not data:
+        return ''
+    for magic, label in _BODY_SIGNATURES:
+        if data.startswith(magic):
+            return label
+    if data[:4] == b'RIFF' and data[8:12] == b'WEBP':
+        return 'WebP image'
+    head = data.lstrip()[:1]
+    if head in (b'{', b'['):
+        return 'JSON text'
+    if head == b'<':
+        return 'HTML/XML text'
+    try:
+        sample = data[:256].decode('utf-8')
+    except UnicodeDecodeError:
+        return 'not identified'
+    if all(ch.isprintable() or ch in '\r\n\t' for ch in sample):
+        return 'text'
+    return 'not identified'
+
+
 def _cached_entries(db_path, url_like):
-    """Rows of (request_key, time_stamp, body) for cache entries matching a pattern."""
+    """Rows of (request_key, time_stamp, body) for cache entries matching a pattern.
+
+    A body NSURLCache stored as a separate file is read back through the file
+    name recorded in receiver_data.
+    """
     try:
         db = open_sqlite_db_readonly(db_path)
         db.text_factory = bytes
         rows = db.execute(
-            'SELECT r.request_key, r.time_stamp, d.receiver_data '
+            'SELECT r.request_key, r.time_stamp, d.receiver_data, d.isDataOnFS '
             'FROM cfurl_cache_response r '
             'JOIN cfurl_cache_receiver_data d ON d.entry_ID = r.entry_ID '
             'WHERE r.request_key LIKE ? ORDER BY r.time_stamp DESC', (url_like,)).fetchall()
@@ -565,11 +739,12 @@ def _cached_entries(db_path, url_like):
         logfunc(f'Amazon: could not read the network cache {db_path}: {err}')
         return []
     decoded = []
-    for request_key, time_stamp, body in rows:
+    for request_key, time_stamp, body, data_on_fs in rows:
+        body, _ = _resolve_body(db_path, body, data_on_fs)
         decoded.append((
             request_key.decode('utf-8', 'replace') if isinstance(request_key, bytes) else request_key,
             time_stamp.decode('utf-8', 'replace') if isinstance(time_stamp, bytes) else str(time_stamp),
-            body or b''))
+            body))
     return decoded
 
 
@@ -671,7 +846,7 @@ def amazon_account(context):
     source_path = ''
 
     for file_found in context.get_files_found():
-        if os.path.basename(file_found) != 'com.amazon.AmazonUK.plist':
+        if os.path.basename(file_found) not in _SHOPPING_PLIST_NAMES:
             continue
         plist = get_plist_file_content(file_found)
         if not isinstance(plist, dict):
@@ -984,11 +1159,14 @@ def amazon_delivery_location(context):
 
 @artifact_processor
 def amazon_network_cache(context):
-    """Reports request URLs and entry times from the app's network cache."""
+    """Reports request URLs, entry times and stored bodies from the app's network cache."""
     data_headers = (
         ('Cached', 'datetime'),
         'Request URL',
-        'Response Size',
+        'Body Format',
+        'Body Size',
+        'Body Storage',
+        ('Cached Body', 'media'),
         'Partition',
         SOURCE_FILE,
     )
@@ -1000,7 +1178,8 @@ def amazon_network_cache(context):
             db = open_sqlite_db_readonly(db_path)
             db.text_factory = bytes
             rows = db.execute(
-                'SELECT r.time_stamp, r.request_key, LENGTH(d.receiver_data), r.partition '
+                'SELECT r.time_stamp, r.request_key, r.partition, '
+                'd.entry_ID, d.isDataOnFS, d.receiver_data '
                 'FROM cfurl_cache_response r '
                 'LEFT JOIN cfurl_cache_receiver_data d ON d.entry_ID = r.entry_ID '
                 'ORDER BY r.time_stamp DESC').fetchall()
@@ -1012,11 +1191,28 @@ def amazon_network_cache(context):
             continue
         source_path = source_path or db_path
         relative = context.get_relative_path(db_path)
-        for time_stamp, request_key, size, partition in rows:
+        for time_stamp, request_key, partition, data_row_id, data_on_fs, stored in rows:
             decode = lambda v: v.decode('utf-8', 'replace') if isinstance(v, bytes) else (
                 '' if v is None else str(v))
-            data_list.append((decode(time_stamp), decode(request_key),
-                              '' if size is None else size, decode(partition), relative))
+            url = decode(request_key)
+            body_format = body_size = storage = media_ref = ''
+            if data_row_id is not None:
+                body, body_path = _resolve_body(db_path, stored, data_on_fs)
+                if data_on_fs != 1:
+                    storage = 'database'
+                    body_format = _body_format(body)
+                    body_size = len(body)
+                elif body_path:
+                    storage = 'external file'
+                    body_format = _body_format(body)
+                    body_size = len(body)
+                    if body_format.endswith('image'):
+                        media_ref = check_in_media(
+                            body_path, name=url.split('?')[0].rsplit('/', 1)[-1]) or ''
+                else:
+                    storage = 'external file (not in extraction)'
+            data_list.append((decode(time_stamp), url, body_format, body_size, storage,
+                              media_ref, decode(partition), relative))
 
     return data_headers, data_list, source_path
 

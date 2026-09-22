@@ -2,8 +2,13 @@ __artifacts_v2__ = {
     "imoHDChatMessages": {
         "name": "IMO HD Chat - Messages",
         "description": "IMO HD chat messages and attachments",
-        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "IMO HD Chat", "notes": "URLs are constructed by the parser from object IDs using an observed IMO CDN pattern; they are not stored in the data.",
+        "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-09-06", "requirements": "none",
+        "category": "IMO HD Chat",
+        "notes": "URLs are constructed by the parser from object IDs using an observed IMO CDN pattern; "
+                 "they are not stored in the data. Older stores have no ZCONTACT_ALIAS column on the "
+                 "message table (the iOS 13.3.1 and 14.3 images), so on those the chat and sender names "
+                 "fall back from the contact table's display name straight to the alias stored on the "
+                 "message.",
         "paths": ('*/IMODb2.sqlite*',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/videos/*.webp'),
         "output_types": "standard", "artifact_icon": "message-circle",
@@ -21,6 +26,7 @@ __artifacts_v2__ = {
         },
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 38 rows",
+            "hickman_ios15": "iOS 15.3.1 | 16 rows",
             "hickman_ios13": "iOS 13.3.1 | imo video calls and chat HD 7.1.88, group.co.babypenguin | 5 rows",
             "hickman_ios14": "iOS 14.3 | imo video calls and chat HD 7.2.8, group.co.babypenguin | 9 rows",
         }
@@ -34,6 +40,7 @@ __artifacts_v2__ = {
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 5 rows",
+            "hickman_ios15": "iOS 15.3.1 | 4 rows",
             "hickman_ios13": "iOS 13.3.1 | group.co.babypenguin | 2 rows",
             "hickman_ios14": "iOS 14.3 | group.co.babypenguin | 3 rows",
         }
@@ -47,6 +54,9 @@ __artifacts_v2__ = {
         "output_types": "standard", "artifact_icon": "key",
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | imo video calls and chat HD 7.2.23 | 6 rows",
+            "hickman_ios15": "iOS 15.3.1 | 7 rows",
+            "hickman_ios14": "iOS 14.3 | 7 rows",
+            "hickman_ios13": "iOS 13.3.1 | 7 rows",
         }
     }
 }
@@ -56,7 +66,8 @@ import plistlib
 
 import nska_deserialize as nd
 
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, check_in_media, logfunc
+from scripts.ilapfuncs import (artifact_processor, does_column_exist_in_db, get_sqlite_db_records,
+                               check_in_media, logfunc)
 
 _PLIST_ERRORS = (nd.DeserializeError, nd.biplist.NotBinaryPlistException,
                  nd.biplist.InvalidPlistException, nd.plistlib.InvalidFileException,
@@ -162,13 +173,17 @@ def imoHDChatMessages(context):
     local_user_name = _get_key_value(key_values, 'imo_account_alias') or 'Local User'
     local_user_id = _get_key_value(key_values, 'imo_account_uid')
 
-    query = '''
+    # Older releases (the iOS 13 and 14 stores) have no ZCONTACT_ALIAS column, so the
+    # name falls back straight to the message's own alias on those.
+    contact_alias = ('ZIMOCHATMSG.ZCONTACT_ALIAS, '
+                     if does_column_exist_in_db(db_path, 'ZIMOCHATMSG', 'ZCONTACT_ALIAS') else '')
+    query = f'''
     SELECT
         CASE ZIMOCHATMSG.ZTS WHEN 0 THEN '' ELSE datetime(ZTS/1000000000, 'unixepoch') END,
         ZIMOCHATMSG.ZBUID,
-        COALESCE(chat_contact.ZDISPLAY, ZIMOCHATMSG.ZCONTACT_ALIAS, ZIMOCHATMSG.ZALIAS),
+        COALESCE(chat_contact.ZDISPLAY, {contact_alias}ZIMOCHATMSG.ZALIAS),
         ZIMOCHATMSG.ZA_UID,
-        COALESCE(sender_contact.ZDISPLAY, ZIMOCHATMSG.ZCONTACT_ALIAS, ZIMOCHATMSG.ZALIAS),
+        COALESCE(sender_contact.ZDISPLAY, {contact_alias}ZIMOCHATMSG.ZALIAS),
         ZIMOCHATMSG.ZALIAS,
         sender_contact.ZDIGIT_PHONE,
         ZIMOCHATMSG.ZTEXT,

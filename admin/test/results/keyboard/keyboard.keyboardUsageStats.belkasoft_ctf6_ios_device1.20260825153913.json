@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "module_name": "keyboard",
+    "artifact_name": "Keyboard Usage Stats",
+    "function_name": "keyboardUsageStats",
+    "case_number": "belkasoft_ctf6_ios_device1",
+    "number_of_columns": 5,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 435,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/keyboard/testdata.keyboard.keyboardUsageStats.belkasoft_ctf6_ios_device1.zip",
+    "start_time": "2026-08-25T15:39:13.599589+00:00",
+    "end_time": "2026-08-25T15:39:13.623283+00:00",
+    "run_time_seconds": 0.0009219646453857422,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "Creation Date",
+    "Last Update Date",
+    "Key",
+    "Data Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      1692912070,
+      1712129204,
+      "tium.totalWordsTyped",
+      294,
+      "private/var/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      1702600779,
+      1711740244,
+      "tium.totalWordsAutocorrected",
+      8,
+      "private/var/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      1702600779,
+      1711740244,
+      "tium.totalWordsPathed",
+      66,
+      "private/var/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      1711162994,
+      1711162994,
+      "tium.totalWordsFromCandidateBar",
+      1,
+      "private/var/mobile/Library/Keyboard/user_model_database.sqlite"
+    ]
+  ]
+}

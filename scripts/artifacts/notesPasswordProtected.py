@@ -1,9 +1,8 @@
 __artifacts_v2__ = {
     "notesPasswordProtected": {
         "name": "Notes - Password Protected",
-        "description": "Locked Apple Notes: the password hint and the encryption scheme guarding "
-                       "each note, so an examiner can tell at a glance which locked notes are "
-                       "recoverable and which are not.",
+        "description": "Locked Apple Notes: the password hint and the wrapped-key length that "
+                       "classifies the encryption scheme of each note, as stored.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-07-31",
@@ -14,8 +13,9 @@ __artifacts_v2__ = {
                  "wrapped key with a PBKDF2 iteration count is the scheme described in the cited "
                  "research (PBKDF2-SHA256 -> AES Key Wrap -> AES-GCM) and is recoverable with the "
                  "note password per the cited research; hashcat mode 16200 targets these hashes. "
-                 "A 16-byte wrapped key is the revised scheme seen from iOS 16 onward "
-                 "and is not recoverable with that method. In tested samples the scheme "
+                 "A 16-byte wrapped key is a different scheme, seen in tested samples on iOS 16 "
+                 "and later, that the cited research does not cover. In tested samples the "
+                 "scheme "
                  "correlated with how the note was locked rather than the iOS version, so both "
                  "appear across the same releases. Note body "
                  "and title stay encrypted; this artifact does not attempt to decrypt them. "

@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "module_name": "keyboard",
+    "artifact_name": "Keyboard Usage Stats",
+    "function_name": "keyboardUsageStats",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 5,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 438,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/keyboard/testdata.keyboard.keyboardUsageStats.josh_ios15_ffs.zip",
+    "start_time": "2026-08-25T15:39:13.719353+00:00",
+    "end_time": "2026-08-25T15:39:13.745176+00:00",
+    "run_time_seconds": 0.0015628337860107422,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "Creation Date",
+    "Last Update Date",
+    "Key",
+    "Data Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      1681566928,
+      1684611546,
+      "tium.totalWordsTyped",
+      2584,
+      "filesystem2/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      1682359809,
+      1684608161,
+      "tium.totalWordsAutocorrected",
+      213,
+      "filesystem2/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      1682360322,
+      1684608161,
+      "tium.totalWordsFromCandidateBar",
+      56,
+      "filesystem2/mobile/Library/Keyboard/user_model_database.sqlite"
+    ],
+    [
+      1682615832,
+      1684339556,
+      "tium.totalWordsPathed",
+      3,
+      "filesystem2/mobile/Library/Keyboard/user_model_database.sqlite"
+    ]
+  ]
+}

@@ -10,6 +10,11 @@ Design Goals:
   streamlined developer experience.
 - CI/CD Ready: Structured to be eventually integrated into continuous integration
   pipelines for automated regression testing.
+
+Record baselines with TZ=UTC. The committed snapshots are UTC and CI runs UTC, so
+recording on a host in any other zone bakes that offset into every column derived
+from a naive datetime, and the snapshot then only reproduces on a machine set the
+same way. It fails as a wrong value rather than an error.
 """
 
 import sys
@@ -31,6 +36,7 @@ import inspect
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 # import scripts.ilapfuncs as ilapfuncs
 from scripts.context import Context
+from leapp_functions.app.artifact_result import ArtifactResult
 
 
 def mock_logdevinfo(message):
@@ -229,6 +235,11 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
             all_artifacts_info = getattr(module, '__artifacts_v2__', {})
             artifact_info = all_artifacts_info.get(artifact_name, {})
 
+            # The case zip is extracted into temp_dir, so temp_dir is this run's
+            # equivalent of the seeker's data folder. Without it get_relative_path
+            # is a no-op here and a path column records the recorder's own
+            # directory instead of the extraction-relative path.
+            Context.set_data_folder(str(temp_dir))
             Context.set_report_folder(str(mock_report_folder_path))
             Context.set_seeker(mock_seeker)
             Context.set_files_found(all_files)
@@ -241,13 +252,19 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
             try:
                 sig = inspect.signature(original_func)
                 if len(sig.parameters) == 1:
-                    data_headers, data_list, _ = original_func(Context)
+                    result = original_func(Context)
                 else:
-                    data_headers, data_list, _ = original_func(all_files,
-                                                               str(mock_report_folder_path),
-                                                               mock_seeker,
-                                                               mock_wrap_text,
-                                                               timezone_offset)
+                    result = original_func(all_files,
+                                           str(mock_report_folder_path),
+                                           mock_seeker,
+                                           mock_wrap_text,
+                                           timezone_offset)
+                if isinstance(result, ArtifactResult):
+                    # No LAVA run is active here, so a writer-style module kept its rows in
+                    # memory; read them back the way artifact_processor would iterate them.
+                    data_headers, data_list = result.headers, list(result)
+                else:
+                    data_headers, data_list, _ = result
             finally:
                 Context.clear()
 
@@ -447,6 +464,18 @@ def convert_to_unix_time(value):
     return value
 
 
+def previous_row_count(output_dir, module_name, artifact, case):
+    """Rows in the newest existing snapshot for this unit, or None if there is none."""
+    snapshots = sorted(Path(output_dir).glob(f"{module_name}.{artifact}.{case}.*.json"))
+    if not snapshots:
+        return None
+    try:
+        with open(snapshots[-1], encoding='utf-8') as handle:
+            return len(json.load(handle).get("data") or [])
+    except (OSError, ValueError):
+        return None
+
+
 def process_data(headers, data):
     """
     Processes artifact output data for comparison, handling datetime conversions.
@@ -478,7 +507,7 @@ def process_data(headers, data):
     return processed_headers, processed_data
 
 
-def main(module_name, artifact_name=None, case_number=None):
+def main(module_name, artifact_name=None, case_number=None, allow_empty=False):
     """
     Main entry point for testing module artifacts.
 
@@ -577,6 +606,24 @@ def main(module_name, artifact_name=None, case_number=None):
 
                     output_dir = Path('admin/test/results') / module_name
                     output_dir.mkdir(parents=True, exist_ok=True)
+
+                    # An artifact that needs an optional dependency disables itself and
+                    # returns nothing when that dependency is absent, so a recording made
+                    # on a machine without it replaces real rows with zero and the
+                    # snapshot then asserts the absence as the correct answer. Refuse the
+                    # overwrite rather than trust the recorder to notice: Threema goes
+                    # from 33 messages to 0 without sqlcipher3, which has no wheel on
+                    # every platform. Pass --allow-empty when the artifact genuinely
+                    # stopped finding anything.
+                    prior_rows = previous_row_count(output_dir, module_name, artifact, case)
+                    if not processed_data and prior_rows and not allow_empty:
+                        print(f"REFUSED to record {module_name} - {artifact} - Case {case}: "
+                              f"this run produced 0 rows but the existing snapshot has "
+                              f"{prior_rows}. Check the run log for a disabled capability "
+                              f"(a missing optional dependency logs one line and carries on). "
+                              f"Re-run with --allow-empty if the artifact really finds nothing now.")
+                        continue
+
                     output_file = output_dir / f"{module_name}.{artifact}.{case}.{start_datetime.strftime('%Y%m%d%H%M%S')}.json"
 
                     with open(output_file, 'w', encoding='utf-8') as f:
@@ -647,6 +694,12 @@ if __name__ == '__main__':
                         help="Case number to test (or 'all' for all cases)",
                         default=None)
 
+    parser.add_argument("--allow-empty", action="store_true",
+                        help="Record a snapshot even when this run produced 0 rows and the "
+                             "existing one has rows. Without it that overwrite is refused, "
+                             "because an artifact whose optional dependency is missing "
+                             "returns nothing and the snapshot would assert that as correct.")
+
     args = parser.parse_args()
 
-    main(args.module_name, args.artifact, args.case)
+    main(args.module_name, args.artifact, args.case, args.allow_empty)

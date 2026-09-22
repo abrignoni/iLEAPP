@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "module_name": "celWireless",
+    "artifact_name": "Cellular Wireless",
+    "function_name": "celWireless",
+    "case_number": "belkasoft_ctf6_ios_device1",
+    "number_of_columns": 3,
+    "number_of_rows": 10,
+    "total_data_size_bytes": 1029,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/celWireless/testdata.celWireless.celWireless.belkasoft_ctf6_ios_device1.zip",
+    "start_time": "2026-08-25T15:39:12.298676+00:00",
+    "end_time": "2026-08-25T15:39:12.321211+00:00",
+    "run_time_seconds": 0.0001499652862548828,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "Data Key",
+    "Data Value",
+    "Source File"
+  ],
+  "data": [
+    [
+      "EnhancedLQMLinkQualityFingerPrintRegistration",
+      "True",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMDataTransferTimeRegistration",
+      "True",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMDataStallRegistration",
+      "False",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMLinkStateRegistration",
+      "True",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMLinkPowerCostRegistration",
+      "True",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "LteDbHasDeploymentTypeKey",
+      "1",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "lastKnownOSVersion",
+      "16.3",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "LASDNextUpdate",
+      "2024-04-15 05:19:02.097449",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "PhoneServices",
+      "{'Version': 1}",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ],
+    [
+      "EnhancedLQMTrafficClassRegistration",
+      "True",
+      "private/var/wireless/Library/Preferences/com.apple.commcenter.plist"
+    ]
+  ]
+}

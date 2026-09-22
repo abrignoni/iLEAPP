@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "module_name": "appleWifiPlist",
+    "artifact_name": "WiFi Known Networks Times",
+    "function_name": "appleWifiKnownNetworksTimes",
+    "case_number": "josh_ios15_ffs",
+    "number_of_columns": 14,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 146,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWifiPlist/testdata.appleWifiPlist.appleWifiKnownNetworksTimes.josh_ios15_ffs.zip",
+    "start_time": "2026-08-25T15:39:10.457395+00:00",
+    "end_time": "2026-08-25T15:39:10.479779+00:00",
+    "run_time_seconds": 0.0002770423889160156,
+    "last_commit": {
+      "hash": "fcdf0afcbed8365c188cd997629ef87dc95c0321",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-20T23:00:52-05:00",
+      "message": "Report real source paths across 83 more modules"
+    }
+  },
+  "headers": [
+    "Last Updated",
+    "SSID",
+    "BSSID",
+    "Last Auto Joined",
+    "Last Joined",
+    "System Joined",
+    "User Joined",
+    "WiFi Network Password Modification Date",
+    "Last Discovered",
+    "Added At",
+    "Whitelisted Captive Network Probe Date",
+    "Captive Web Sheet Login Date",
+    "Previous Joined",
+    "Source File"
+  ],
+  "data": [
+    [
+      1684612503,
+      "Matt_Foley",
+      "6a:22:32:98:f4:df",
+      "",
+      "",
+      1684612503,
+      1681566827,
+      1681566827,
+      "",
+      1681566827,
+      "",
+      "",
+      1684597975,
+      "filesystem2/preferences/com.apple.wifi.known-networks.plist"
+    ]
+  ]
+}

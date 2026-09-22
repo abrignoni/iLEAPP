@@ -7,19 +7,22 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Wifi Connections",
-        "notes": "The synced-data plist lives at Library/SyncedPreferences/com.apple.wifid.plist "
-                 "and, in the only local test image carrying it (iOS 12.4), holds an empty values "
-                 "dictionary. The earlier glob matched any com.apple.wifid.plist and so reported "
-                 "the unrelated /System/Library/LaunchDaemons daemon configuration as the found "
-                 "file on most images; the narrower path stops that. "
-                 "Reference: cheeky4n6monkey (based on research by M. Epifani, H. Mahalik), "
-                 "'iOS_sysdiagnose_forensic_scripts', "
+        "notes": "The synced-data plist lives at Library/SyncedPreferences/com.apple.wifid.plist; "
+                 "on the tested images it is present only on the iOS 12.4, 13.3.1 and 14.3 "
+                 "images, holding an empty values dictionary on the first and two and three "
+                 "networks on the other two, and it is absent from every iOS 15 to 26 image. The "
+                 "earlier glob matched any com.apple.wifid.plist and so reported the unrelated "
+                 "/System/Library/LaunchDaemons daemon configuration as the found file on most "
+                 "images; the narrower path stops that. Reference: cheeky4n6monkey (based on "
+                 "research by M. Epifani, H. Mahalik), 'iOS_sysdiagnose_forensic_scripts', "
                  "https://github.com/cheeky4n6monkey/iOS_sysdiagnose_forensic_scripts",
         "paths": ('*/SyncedPreferences/com.apple.wifid.plist',),
         "output_types": "standard",
         "artifact_icon": "wifi",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 0 rows (plist present, values dictionary empty)",
+            "hickman_ios13": "iOS 13.3.1 | 2 rows",
+            "hickman_ios14": "iOS 14.3 | 3 rows",
             "iphone11_ios17": "iOS 17.3 | 0 rows (file not present)",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows (file not present)",
             "hc_ios26": "iOS 26.5.2 | 0 rows (file not present)",

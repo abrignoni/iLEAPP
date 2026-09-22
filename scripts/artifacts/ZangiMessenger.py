@@ -6,7 +6,9 @@ __artifacts_v2__ = {
     
     "zangi_messages": {
         "name": "Zangi Messenger - Messages",
-        "description": "Zangi Messenger - Messages",
+        "description": "Messages from the Zangi Messenger database (ZZANGIMESSAGE joined to its "
+                       "conversation, group and contact tables), with direction, sender, chat "
+                       "name, text, message type and the attachment file where the app kept one.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
@@ -42,7 +44,9 @@ __artifacts_v2__ = {
     },
     "zangi_contacts": {
         "name": "Zangi Messenger - Contacts",
-        "description": "Zangi Messenger - Contacts",
+        "description": "Contacts from the Zangi Messenger database (ZCONTACT with its numbers), "
+                       "with names, number, email, registration type, blocked and favourite flags "
+                       "and modification and activity times.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
@@ -59,7 +63,9 @@ __artifacts_v2__ = {
     },
     "zangi_accounts": {
         "name": "Zangi Messenger - Accounts",
-        "description": "Zangi Messenger - Accounts",
+        "description": "Account rows from the ZUSER table of the Zangi Messenger database, with "
+                       "account id, names, email, status, registration status, country and the "
+                       "passcode, password and PIN fields as stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
@@ -210,6 +216,7 @@ def zangi_messages(context):
         return found_path
 
     for main_db in db_files:
+        source_db = context.get_relative_path(main_db)
         db_records = get_sqlite_db_records(main_db, query)
 
         for row in db_records:
@@ -250,7 +257,7 @@ def zangi_messages(context):
                 row[10],
                 row[11],
                 attachment_link,
-                main_db,
+                source_db,
             ))
 
     data_headers = (
@@ -303,9 +310,24 @@ def zangi_contacts(context):
             '''
 
     source_files = set()
+    data_headers = (    ('Last Modification Timestamp', 'datetime'),
+                        ('Last Activity Timestamp', 'datetime'),
+                        'Last Name',
+                        'First Name', 
+                        'Display Name',
+                        'Contact Number',
+                        'Contact Email',
+                        'Registration Type',
+                        'Contact ID',
+                        'Is Blocked?',
+                        'Is Favorite?',
+                        'Source Database'
+                    )
+
     for file_found in files_found:
         main_db = str(file_found)
         source_files.add(main_db)
+        source_db = context.get_relative_path(main_db)
 
         db_records = get_sqlite_db_records(main_db, query)
 
@@ -335,21 +357,7 @@ def zangi_contacts(context):
                                 contact_id,
                                 is_blocked,
                                 is_favorite,
-                                main_db))
-
-        data_headers = (    ('Last Modification Timestamp', 'datetime'),
-                            ('Last Activity Timestamp', 'datetime'),
-                            'Last Name',
-                            'First Name', 
-                            'Display Name',
-                            'Contact Number',
-                            'Contact Email',
-                            'Registration Type',
-                            'Contact ID',
-                            'Is Blocked?',
-                            'Is Favorite?',
-                            'Source Database'
-                        )
+                                source_db))
 
     return data_headers, data_list, '\n'.join(sorted(source_files))
 
@@ -382,9 +390,26 @@ def zangi_accounts(context):
             '''
 
     source_files = set()
+    data_headers = (    ('Last Sync Timestamp', 'datetime'),
+                        'Account ID',
+                        'Nickname',
+                        'Last Name',
+                        'First Name',
+                        'Passcode',
+                        'Password',
+                        'PIN Code',
+                        'Conversation Hiding Password',
+                        'E-Mail',
+                        'Status',
+                        'Registration Status',
+                        'Country',
+                        'Source Database'
+                    )
+
     for file_found in files_found:
         main_db = str(file_found)
         source_files.add(main_db)
+        source_db = context.get_relative_path(main_db)
 
         db_records = get_sqlite_db_records(main_db, query)
 
@@ -416,22 +441,6 @@ def zangi_accounts(context):
                                 status,
                                 reg_status,
                                 country,
-                                main_db))
-
-        data_headers = (    ('Last Sync Timestamp', 'datetime'),
-                            'Account ID',
-                            'Nickname',
-                            'Last Name',
-                            'First Name',
-                            'Passcode',
-                            'Password',
-                            'PIN Code',
-                            'Conversation Hiding Password',
-                            'E-Mail',
-                            'Status',
-                            'Registration Status',
-                            'Country',
-                            'Source Database'
-                        )
+                                source_db))
 
     return data_headers, data_list, '\n'.join(sorted(source_files))

@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Kik",
         "notes": "Protobuf field positions for username/description/interests strings "
-                 "were established through observation of decoded content; labels are "
+                 "were assigned from the decoded content of tested stores and are not sourced "
+                 "from Kik; labels are "
                  "best-effort.",
         "paths": ('*/kik.sqlite*',),
         "output_types": "standard",

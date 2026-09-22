@@ -1,6 +1,7 @@
 # ---------------------------------------------------------------------------
 # Vendored into iLEAPP from crush-forensics (github.com/kalink0/crush-forensics)
 # by Marco Neumann (kalink0), Apache-2.0, unchanged except:
+#   * upstream commit fc280180f1d592aecdb53e0c90e31d9629942e65 (2026-09-02, pre-Cluster row support).
 #   * the two crush framework imports below are replaced with minimal local
 #     shims so the module is self-contained (iLEAPP has no crush.core.vfs /
 #     crush.parsers.base); the RealmParser class is kept verbatim but iLEAPP
@@ -12,9 +13,12 @@
 # held to iLEAPP's own lint rules; the file-level disable below silences the
 # warnings its upstream style and pylint's type inference raise (broad excepts
 # and deliberately-unused signature args in the on-disk decoders, plus a few
-# not-an-iterable / no-member / import-error false positives). Do not add a
+# not-an-iterable / no-member / import-error false positives, and two
+# possibly-used-before-assignment on the per-top-ref format variables, which
+# are assigned and used under the same `if header_info:` condition that
+# pylint does not correlate). Do not add a
 # blanket disable like this to iLEAPP's own artifact code.
-# pylint: disable=unused-argument,broad-exception-caught,not-an-iterable,no-member,import-error
+# pylint: disable=unused-argument,broad-exception-caught,not-an-iterable,no-member,import-error,possibly-used-before-assignment
 # ---------------------------------------------------------------------------
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 - now Marco Neumann (kalink0)
@@ -109,6 +113,23 @@ class ParseResult:  # pragma: no cover
 _HEADER_SIZE = 24
 _MNEMONIC = b"T-DB"
 
+# Realm's "streaming form" (alloc_slab.hpp/.cpp SlabAlloc::is_file_on_streaming_form
+# / StreamingFooter, verified against realm-core v5.23.9 source): Group::write()
+# — used by e.g. Realm Studio's file-export feature, not the normal
+# SharedGroup-driven form an app leaves on disk — writes top_ref[0] as this
+# sentinel with the select-bit flag left unset, and puts the real top ref in a
+# 16-byte footer at the very end of the file (8 bytes top ref, then 8 bytes
+# magic cookie). See issue #55 follow-up: a streaming-form file was silently
+# decoding to schema: [] because top_ref[0]'s literal value (the sentinel) was
+# being read as an offset.
+_STREAMING_SENTINEL = 0xFFFFFFFFFFFFFFFF
+_STREAMING_FOOTER_MAGIC = 0x3034125237E526C8
+
+# File format 10 introduced the Cluster/ClusterTree row layout this module's
+# row/table decoders are written against; older formats use a structurally
+# different layout they can't read. See issue #55.
+_MIN_CLUSTER_FORMAT_VERSION = 10
+
 # width_ndx (bits [2:0] of array flags byte) → element width value
 # Scheme 0: width is in bits.  Scheme 1: width is in bytes.
 _WIDTH_TABLE = [0, 1, 2, 4, 8, 16, 32, 64]
@@ -194,6 +215,34 @@ def _parse_realm_header(data: bytes) -> dict[str, Any] | None:
         "Flags": f"0x{flags:02x}",
         "Active top reference": active,
     }
+
+
+def _resolve_streaming_form(
+    data: bytes, top_ref0: int, active_idx: int,
+) -> dict[str, Any] | None:
+    """Detect and resolve Realm's "streaming form" top ref, if this file is one.
+
+    Only meaningful when active_idx == 0 (slot_selector == 0) and top_ref0 is
+    the sentinel — a streaming file has no second/inactive top ref at all
+    (SlabAlloc::init_streaming_header sets top_ref[1]=0, format[1]=0, so
+    top_ref1 is not a real alternative version, just padding).
+
+    Returns None when the file is not in streaming form. Otherwise returns
+    {"top_ref": int | None, "footer_valid": bool} — footer_valid is False
+    when the file is too short for a 16-byte footer or the magic cookie
+    doesn't match (corrupt/truncated), which must not be treated the same
+    as "zero tables" (see feedback_explicit_unsupported_marking).
+    """
+    if not (active_idx == 0 and top_ref0 == _STREAMING_SENTINEL):
+        return None
+    if len(data) < _HEADER_SIZE + 16:
+        return {"top_ref": None, "footer_valid": False}
+    footer = data[-16:]
+    top_ref = int.from_bytes(footer[0:8], "little")
+    magic = int.from_bytes(footer[8:16], "little")
+    if magic != _STREAMING_FOOTER_MAGIC:
+        return {"top_ref": None, "footer_valid": False}
+    return {"top_ref": top_ref, "footer_valid": True}
 
 
 # ---------------------------------------------------------------------------
@@ -403,12 +452,19 @@ def _extract_root_children(
 
 
 def _extract_schema(data: bytes, root_offset: int, file_size: int) -> list[str]:
-    """Extract class/table names from the Realm schema group array.
+    """Extract class/table names from the Group's table-names array
+    (m_table_names, group.hpp: child[0] of the Group top array).
 
-    B+ tree path followed:
-        root_offset  →  root Reference Array
-        entry[0]     →  schema group Data Array
-        each entry   →  null-terminated ASCII class name (padded to *width* bytes)
+    B+ tree path: root_offset → Group top Reference Array → child[0] →
+    m_table_names array.
+
+    m_table_names is `ArrayStringShort`-only in current realm-core (format
+    10+), but pre-rewrite realm-core (format 9 and earlier) declares it as
+    the full polymorphic `ArrayString`, which can also use the
+    SmallBlobs/BigBlobs on-disk forms. Dispatching through
+    _read_array_string_or_binary (the same decoder used for real
+    String/Binary columns) handles all three forms instead of assuming the
+    inline one — see issue #55.
     """
     root_hdr = _parse_array_header(data, root_offset)
     if root_hdr is None or not root_hdr["has_refs"]:
@@ -423,32 +479,12 @@ def _extract_schema(data: bytes, root_offset: int, file_size: int) -> list[str]:
     if schema_offset <= 0 or schema_offset >= file_size:
         return []
 
-    schema_hdr = _parse_array_header(data, schema_offset)
-    if schema_hdr is None:
+    raw_names = _read_array_string_or_binary(
+        data, schema_offset, file_size, is_string=True, nullable=False
+    )
+    if not raw_names:
         return []
-
-    entry_bytes = _elem_bytes(schema_hdr)
-    count = schema_hdr["Element count (size)"]
-    if entry_bytes < 1 or count == 0:
-        return []
-
-    payload_start = schema_offset + 8
-    names: list[str] = []
-    for i in range(count):
-        entry_off = payload_start + i * entry_bytes
-        if entry_off + entry_bytes > len(data):
-            break
-        entry = data[entry_off : entry_off + entry_bytes]
-        null_pos = entry.find(b"\x00")
-        raw = entry[:null_pos] if null_pos >= 0 else entry
-        try:
-            name = raw.decode("ascii")
-        except Exception:
-            continue
-        if name:
-            names.append(name)
-
-    return names
+    return [name for name in raw_names if isinstance(name, str) and name]
 
 
 # ---------------------------------------------------------------------------
@@ -711,6 +747,19 @@ def _read_collection_column(
         "is_set": False,
     }
 
+    # A LinkList/Set<Link>'s elements are NOT the same on-disk shape as a
+    # top-level Link column's own cluster-slot value: the +1/0=null "adj"
+    # trick (array_key.hpp, ArrayKeyBase<1>) exists specifically to let a
+    # ref-shaped cluster slot distinguish "empty" from "target ObjKey 0" --
+    # inside a LinkList's own dedicated BPlusTree<ObjKey> there is no such
+    # ambiguity, so elements are plain 0-based ObjKeys with no adjustment
+    # (mirrors the pre-Cluster LinkList finding: link_view.hpp's per-element
+    # storage is unadjusted even though LinkColumnBase's own is). Routing
+    # element_type==12 through _decode_column_values would wrongly apply
+    # the single-Link decoder's -1/null-at-0 logic here -- confirmed wrong
+    # against a real realm-js-produced file (issue #55 follow-up testing).
+    is_link_element = element_type == 12
+
     results: list[list[Any]] = []
     for i in range(count):
         row_ref = _read_ref(data, col_ref + 8, i, eb)
@@ -719,7 +768,10 @@ def _read_collection_column(
             continue
         values: list[Any] = []
         for leaf_ref, _off in _walk_bplustree_leaves(data, row_ref, file_size):
-            leaf_vals = _decode_column_values(data, leaf_ref, file_size, element_info)
+            if is_link_element:
+                leaf_vals = _read_scalar_leaf(data, leaf_ref, file_size)
+            else:
+                leaf_vals = _decode_column_values(data, leaf_ref, file_size, element_info)
             if leaf_vals:
                 values.extend(leaf_vals)
         results.append(values)
@@ -994,12 +1046,20 @@ def _read_scalar_leaf(
     data: bytes,
     col_offset: int,
     file_size: int,
-) -> list[int | bool | None] | None:
+) -> list[int | None] | None:
     """Parse a flat, non-nullable Realm scalar array (ArrayInteger / boolean
     bit-packed / any plain has_refs=False integer array — also reused as the
     generic reader for colkeys, type codes, offsets, and key arrays).
 
-        width=1, scheme=0  → 1 bit per row (0/1)
+        width=1, scheme=0  → 1 bit per row, returned as plain int (0/1) --
+          width is a storage-size detail (Realm sizes an array from the
+          largest value it ever held), not the column's declared type, so
+          an Int column can legitimately end up 1-bit wide too. Callers
+          that want real Bool semantics convert explicitly themselves
+          (see type_code == 1 in _decode_column_values /
+          _decode_pre_cluster_column_values) -- this function never
+          decides that on the caller's behalf (issue #55: a 1-bit-wide
+          Int column was decoding as True/False, found on a real file).
         width=2/4, scheme=0 → packed sub-byte unsigned integers
         width=8/16/32/64, scheme=0 or scheme=1 → little-endian integers
           (byte-aligned widths are reinterpreted as signed int64_t, matching
@@ -1026,11 +1086,22 @@ def _read_scalar_leaf(
             return [0] * count
         payload = data[payload_start : payload_start + hdr["Payload bytes (raw)"]]
         if width == 1:
-            result: list[int | bool | None] = []
+            # Width is a storage detail, not the column's declared type --
+            # Realm sizes an integer array from the largest value it has
+            # ever had to hold, so an Int column whose values all happen
+            # to fit in one bit gets a 1-bit array too. Returning bool()
+            # here unconditionally used to make every 1-bit-wide Int
+            # column decode as True/False instead of 1/0 (found on a real
+            # Houseparty app file, issue #55 -- e.g. a minute-counter
+            # column silently becoming "True"). Callers that actually want
+            # bool (the real Bool column dispatch) already wrap the
+            # result in bool() themselves; this stays a plain int so every
+            # *other* caller isn't silently mistyped.
+            result: list[int | None] = []
             for i in range(count):
                 byte_i, bit_i = divmod(i, 8)
                 if byte_i < len(payload):
-                    result.append(bool((payload[byte_i] >> bit_i) & 1))
+                    result.append((payload[byte_i] >> bit_i) & 1)
                 else:
                     result.append(None)
             return result
@@ -1288,13 +1359,17 @@ def _read_array_timestamp(data: bytes, ref: int, file_size: int) -> list[str | N
 
 def _read_array_fixed_bytes(
     data: bytes, ref: int, file_size: int, elem_size: int,
-) -> list[bytes | None] | None:
+) -> list[bytes | str | None] | None:
     """Decode a Realm ArrayFixedBytes[Null] leaf: elements are packed in
     blocks of 8, with 1 extra null-bitvector byte prefixing each block
     (array_fixed_bytes.hpp: Pos::get_pos/is_null, s_block_size). Used for
     ObjectId (elem_size=12) and UUID (elem_size=16); nullability is encoded
     the same way regardless of whether the column itself is nullable.
-    Returns raw per-element bytes (or None); callers format them.
+    Returns raw per-element bytes, `None` for a genuine null (the
+    null-bitvector bit set), or a "<...>" marker string when the payload
+    is simply too short to hold this element (truncated/corrupt data) --
+    that case must not look like a real null, so callers must not blindly
+    treat every non-bytes entry as one; they pass the marker through as-is.
     """
     hdr = _parse_array_header(data, ref)
     if hdr is None or hdr["has_refs"]:
@@ -1306,12 +1381,13 @@ def _read_array_fixed_bytes(
     data_bytes = total_bytes - -(-total_bytes // block_size)  # total - ceil(total/block_size)
     n = max(data_bytes // elem_size, 0)
     payload = data[ref + 8 : ref + 8 + total_bytes]
-    results: list[bytes | None] = []
+    results: list[bytes | str | None] = []
+    truncated = "<fixed_bytes: truncated>"
     for i in range(n):
         block_idx, offset = divmod(i, 8)
         base = block_idx * block_size
         if base >= len(payload):
-            results.append(None)
+            results.append(truncated)
             continue
         bitvec = payload[base]
         if bitvec & (1 << offset):
@@ -1319,7 +1395,7 @@ def _read_array_fixed_bytes(
             continue
         start = base + 1 + offset * elem_size
         val = payload[start : start + elem_size]
-        results.append(val if len(val) == elem_size else None)
+        results.append(val if len(val) == elem_size else truncated)
     return results
 
 
@@ -1334,18 +1410,32 @@ def _decode_bid(raw_int: int, total_bits: int) -> str:
     """Decode an IEEE 754-2008 BID (binary integer decimal) value — the
     encoding Realm's Decimal128 uses (array_decimal128.hpp: Bid64/Bid128).
 
-    Combination-field decode per IEEE 754-2008 §3.5.2: the coefficient's
-    leading decimal digit (0-9) is folded into the 5 most-significant bits
-    of the combination field alongside 2 exponent bits, so the full
-    coefficient reconstructs as msd * 2**t_width + trailing_significand.
+    Per IEEE 754-2008 §3.5.2, the g_width bits after the sign are NOT laid
+    out as "5-bit combination field, then exponent-continuation field"
+    contiguously -- two earlier versions of this function assumed that and
+    were both wrong. The real layout (confirmed 2026-09-01 by brute-force
+    solving against two real realm-js-produced Bid64 values after neither
+    prior version reproduced them): combination-field bits G0 and G1 sit at
+    the very top (right after sign), then the exponent-continuation field,
+    then combination-field bits G2/G3/G4 sit at the *bottom*, immediately
+    adjacent to the trailing significand T -- i.e. G0G1 and G2G3G4 are not
+    contiguous with each other. So in the common case (G0G1 != 11):
+    `biased_exponent = g >> 3` (the top g_width-3 bits, i.e. G0G1 directly
+    followed by the continuation field) and the coefficient's top 3 bits
+    are simply `g & 0b111` (G2G3G4, concatenated with T) -- no separate
+    "MSD lookup" needed. When G0G1 == 11 (not the inf/nan case), the
+    exponent is `(g >> 1) & 0x3FF` and the coefficient's top nibble is the
+    fixed prefix "100" + G4 (giving MSD 8 or 9).
 
-    NOTE: this is a hand-implementation of the public IEEE 754-2008 BID
-    arithmetic itself (combination-field/exponent/coefficient decode), not
-    something Realm's own source needs to define -- the *storage* format
-    (word order, low/high placement) is confirmed from Realm Core source
-    (see _read_array_mixed), but this function's own arithmetic has not
-    been run against known IEEE 754-2008 BID test vectors. Treat output
-    with appropriate care until that verification happens.
+    Verified: decoded two real Bid64 values from a realm-js-produced file
+    ("12345.6789" and "-99.99", format 24) byte-for-byte against the SDK's
+    own Decimal128.toString() -- both earlier versions produced garbage
+    (e.g. "3.377699843984661E-303" for the first), this version reproduces
+    both exactly. Also verified against an MSD-8/9 value
+    ("89999999999999.5") and a 34-significant-digit value forcing the full
+    Bid128 (16-byte) form. The *storage* format (word order, low/high
+    word placement for Bid128) is confirmed from Realm Core source
+    separately (see _read_array_mixed).
     """
     if total_bits == 64:
         g_width, t_width, bias = 13, 50, 398
@@ -1358,29 +1448,34 @@ def _decode_bid(raw_int: int, total_bits: int) -> str:
     g = (raw_int >> t_width) & ((1 << g_width) - 1)
     t = raw_int & ((1 << t_width) - 1)
 
-    g_top5 = g >> (g_width - 5)
-    exp_low_bits = g & ((1 << (g_width - 5)) - 1)
+    top4 = (g >> (g_width - 4)) & 0b1111  # G0 G1 G2 G3
+    if top4 == 0b1111:
+        g4 = (g >> (g_width - 5)) & 1
+        if g4:
+            return "NaN"
+        return "-Infinity" if sign else "Infinity"
 
-    if (g_top5 >> 3) != 0b11:
-        msd = (g_top5 >> 2) & 0b111
-        exp_high2 = g_top5 & 0b11
+    top2 = g >> (g_width - 2)  # G0 G1
+    if top2 != 0b11:
+        biased_exponent = g >> 3
+        msd = g & 0b111
     else:
-        g2g3 = (g_top5 >> 1) & 0b11
-        if g2g3 == 0b11:
-            g4 = g_top5 & 1
-            if g4:
-                return "NaN"
-            return "-Infinity" if sign else "Infinity"
-        msd = 8 | (g_top5 & 1)
-        exp_high2 = g2g3
+        biased_exponent = (g >> 1) & ((1 << (g_width - 3)) - 1)
+        g4 = g & 1
+        msd = 8 | g4
 
-    biased_exponent = (exp_high2 << (g_width - 5)) | exp_low_bits
     coefficient = msd * (1 << t_width) + t
     exponent = biased_exponent - bias
 
-    value = decimal.Decimal(coefficient).scaleb(exponent)
-    if sign:
-        value = -value
+    # decimal128's coefficient needs up to 34 significant digits -- Python's
+    # ambient decimal context defaults to 28 and .scaleb() is a
+    # context-rounded operation, which silently truncated Bid128 values
+    # past 28 digits until this was caught against a real 34-digit
+    # realm-js-produced value. Build the Decimal directly from its
+    # (sign, digits, exponent) tuple instead, which is exact and ignores
+    # context precision entirely.
+    digits = tuple(int(d) for d in str(coefficient)) if coefficient else (0,)
+    value = decimal.Decimal((sign, digits, exponent))
     return str(value)
 
 
@@ -1599,56 +1694,72 @@ def _read_array_mixed(
         payload_idx_flag = (val & _MIXED_PAYLOAD_IDX_MASK) >> 5
         payload_val = val >> _MIXED_DATA_SHIFT
 
+        # By this point `val` is non-zero (the genuine-null case was already
+        # handled by `if not val` above), so a payload helper returning None
+        # from here on can only mean its index couldn't be resolved (a
+        # corrupt/out-of-range payload_idx) -- never a legitimate null. Each
+        # branch below must say so explicitly rather than silently emitting
+        # None, which would be indistinguishable from a real null value.
+        missing = f"<mixed: unresolved payload index for type_{data_type}>"
+
         if data_type == 0:  # Int
             if payload_idx_flag == 0:
                 results.append(payload_val)
             else:
-                results.append(int_payload(payload_val))
+                iv = int_payload(payload_val)
+                results.append(iv if iv is not None else missing)
         elif data_type == 1:  # Bool
             results.append(payload_val != 0)
         elif data_type == 9:  # Float
             iv = int_payload(payload_val)
-            results.append(struct.unpack("<f", (iv & 0xFFFFFFFF).to_bytes(4, "little"))[0] if iv is not None else None)
+            results.append(
+                struct.unpack("<f", (iv & 0xFFFFFFFF).to_bytes(4, "little"))[0]
+                if iv is not None else missing
+            )
         elif data_type == 10:  # Double
             iv = int_payload(payload_val)
-            results.append(struct.unpack("<d", (iv & 0xFFFFFFFFFFFFFFFF).to_bytes(8, "little"))[0] if iv is not None else None)
+            results.append(
+                struct.unpack("<d", (iv & 0xFFFFFFFFFFFFFFFF).to_bytes(8, "little"))[0]
+                if iv is not None else missing
+            )
         elif data_type == 2:  # String
             raw = string_payload(payload_val)
-            results.append(raw.decode("utf-8", errors="replace") if raw is not None else None)
+            results.append(raw.decode("utf-8", errors="replace") if raw is not None else missing)
         elif data_type == 4:  # Binary
             raw = string_payload(payload_val)
-            results.append(raw if raw is not None else None)
+            results.append(raw if raw is not None else missing)
         elif data_type == 8:  # Timestamp
             pair = pair_payload(payload_val)
             results.append(
                 _decode_timestamp(int(pair[0] + (pair[1] / 1_000_000_000 if pair[1] else 0)))
-                if pair else None
+                if pair else missing
             )
         elif data_type == 15:  # ObjectId
             raw = string_payload(payload_val)
-            results.append(raw.hex() if raw is not None else None)
+            results.append(raw.hex() if raw is not None else missing)
         elif data_type == 11:  # Decimal128
             pair = pair_payload(payload_val)
             if pair:
                 low, high = pair[0] & 0xFFFFFFFFFFFFFFFF, pair[1] & 0xFFFFFFFFFFFFFFFF
                 results.append(_decode_bid(low | (high << 64), 128))
             else:
-                results.append(None)
+                results.append(missing)
         elif data_type == 12:  # Link
-            results.append(int_payload(payload_val))
+            iv = int_payload(payload_val)
+            results.append(iv if iv is not None else missing)
         elif data_type == 16:  # TypedLink
             pair = pair_payload(payload_val)
             if pair:
                 results.append(f"Obj(table_key={pair[0]}, key={pair[1]})")
             else:
-                results.append(None)
+                results.append(missing)
         elif data_type == 17:  # UUID
             raw = string_payload(payload_val)
-            results.append(_format_uuid(raw) if raw is not None else None)
+            results.append(_format_uuid(raw) if raw is not None else missing)
         elif data_type in (19, 20):  # List, Set (elements are always Mixed once nested)
             r = ref_payload(payload_val)
             if r is None:
-                results.append(None)
+                results.append(missing)
             elif _nest_depth >= _MIXED_MAX_NEST_DEPTH:
                 results.append(f"<mixed: nesting depth limit ({_MIXED_MAX_NEST_DEPTH}) reached>")
             else:
@@ -1656,7 +1767,7 @@ def _read_array_mixed(
         elif data_type == 21:  # Dictionary (always String-keyed -- see docstring)
             r = ref_payload(payload_val)
             if r is None:
-                results.append(None)
+                results.append(missing)
             elif _nest_depth >= _MIXED_MAX_NEST_DEPTH:
                 results.append(f"<mixed: nesting depth limit ({_MIXED_MAX_NEST_DEPTH}) reached>")
             else:
@@ -1733,8 +1844,15 @@ def _read_dictionary_at_ref(
             if leaf_vals:
                 values.extend(leaf_vals)
 
+    # keys/values are two independently-walked BPlusTrees paired by index
+    # position (see docstring above) -- if they come out mismatched in
+    # length (corruption, a partially-failed leaf decode), that's a real
+    # structural problem and must not look like this key's value simply
+    # decoded to a legitimate null.
     return {
-        (key if key is not None else f"<null key {j}>"): (values[j] if j < len(values) else None)
+        (key if key is not None else f"<null key {j}>"): (
+            values[j] if j < len(values) else "<dictionary: value tree shorter than keys tree>"
+        )
         for j, key in enumerate(keys)
     }
 
@@ -1817,10 +1935,10 @@ def _decode_column_values(
         return _read_array_link(data, col_ref, file_size)
     if type_code == 15:  # ObjectId
         raw = _read_array_fixed_bytes(data, col_ref, file_size, 12)
-        return None if raw is None else [None if v is None else v.hex() for v in raw]
+        return None if raw is None else [v.hex() if isinstance(v, bytes) else v for v in raw]
     if type_code == 17:  # UUID
         raw = _read_array_fixed_bytes(data, col_ref, file_size, 16)
-        return None if raw is None else [None if v is None else _format_uuid(v) for v in raw]
+        return None if raw is None else [_format_uuid(v) if isinstance(v, bytes) else v for v in raw]
     if type_code == 6:  # Mixed
         return _read_array_mixed(data, col_ref, file_size, _nest_depth)
     if type_code == 16:  # TypedLink
@@ -1838,7 +1956,7 @@ def _extract_table_data(
     schema: list[str],
     file_size: int,
     table_key_map: dict[int, str] | None = None,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], str | None]:
     """Walk each table's ClusterTree and decode its rows.
 
     Path: root_offset → child[1] (table refs) → table_node → child[2]
@@ -1853,47 +1971,61 @@ def _extract_table_data(
     resolve each Link/LinkList column's target table name via
     _read_opposite_table_keys — exposed per table as "column_target_tables".
 
-    Returns a list of dicts {name, row_count, columns, column_names,
-    column_types, column_target_tables, obj_keys} where columns is
-    {user_col_idx: [values]}.
+    Returns (tables, reason) -- tables is a list of dicts {name, row_count,
+    columns, column_names, column_types, column_target_tables, obj_keys}
+    (columns is {user_col_idx: [values]}); reason is None only when every
+    table in *schema* decoded, otherwise a "class_name: specific cause"
+    string per failed table (semicolon-joined) -- mirrors the pre-Cluster
+    path's own (result, reason) contract (see
+    _extract_pre_cluster_tables_data) so a genuine structural failure here
+    is never left as a silent, unexplained empty table list either
+    (feedback_explicit_unsupported_marking).
     """
     root_hdr = _parse_array_header(data, root_offset)
     if root_hdr is None or not root_hdr["has_refs"]:
-        return []
+        return [], "Group top array is malformed or has no references"
 
     root_eb = _elem_bytes(root_hdr)
     if root_eb < 1 or root_hdr["Element count (size)"] < 2:
-        return []
+        return [], "Group top array has no table-refs slot (fewer than 2 children)"
 
     table_refs_off = _read_ref(data, root_offset + 8, 1, root_eb)
     if table_refs_off <= 0 or table_refs_off >= file_size:
-        return []
+        return [], "Table-refs reference is invalid or points outside the file"
 
     tr_hdr = _parse_array_header(data, table_refs_off)
     if tr_hdr is None or not tr_hdr["has_refs"]:
-        return []
+        return [], "Table-refs array is malformed or has no references"
     tr_eb = _elem_bytes(tr_hdr)
     num_tables = tr_hdr["Element count (size)"]
 
     tables: list[dict[str, Any]] = []
+    failures: list[str] = []
 
     for t_idx in range(num_tables):
+        table_name = schema[t_idx] if t_idx < len(schema) else f"table[{t_idx}]"
         table_ref = _read_ref(data, table_refs_off + 8, t_idx, tr_eb)
         if table_ref <= 0 or table_ref >= file_size:
+            failures.append(f"{table_name}: table reference is invalid or points outside the file")
             continue
 
         t_hdr = _parse_array_header(data, table_ref)
         if t_hdr is None or not t_hdr["has_refs"] or t_hdr["Element count (size)"] < 3:
+            failures.append(
+                f"{table_name}: Table top array is malformed or missing its ClusterTree slot"
+            )
             continue
         t_eb = _elem_bytes(t_hdr)
 
         cluster_root_ref = _read_ref(data, table_ref + 8, 2, t_eb)
         if cluster_root_ref <= 0 or cluster_root_ref >= file_size:
+            failures.append(f"{table_name}: ClusterTree reference is invalid or points outside the file")
             continue
 
         col_names = _extract_column_names(data, table_ref, t_eb, file_size)
         col_infos = _extract_column_info(data, table_ref, t_eb, file_size)
         if not col_infos:
+            failures.append(f"{table_name}: Spec/colkeys array has no columns (empty or malformed)")
             continue
         col_infos_by_idx = sorted(col_infos, key=lambda info: info["user_col_idx"])
         col_type_names = []
@@ -1932,6 +2064,7 @@ def _extract_table_data(
 
         leaves = _walk_cluster_leaves(data, cluster_root_ref, file_size)
         if not leaves:
+            failures.append(f"{table_name}: ClusterTree root is malformed or has no leaves")
             continue
 
         columns: dict[int, list[Any]] = {info["user_col_idx"]: [] for info in col_infos}
@@ -1981,7 +2114,7 @@ def _extract_table_data(
 
         tables.append(
             {
-                "name": schema[t_idx] if t_idx < len(schema) else f"table[{t_idx}]",
+                "name": table_name,
                 "row_count": row_count_total,
                 "row_count_estimated": row_count_estimated,
                 "columns": columns,
@@ -1992,7 +2125,851 @@ def _extract_table_data(
             }
         )
 
-    return tables
+    if num_tables == 0 and schema:
+        # Class names resolved from Group.m_table_names, but the table-refs
+        # array itself is empty -- a real mismatch, not "nothing to report".
+        return [], f"Table-refs array has 0 entries, but {len(schema)} class name(s) in schema"
+    return tables, ("; ".join(failures) if failures else None)
+
+
+# ---------------------------------------------------------------------------
+# Pre-Cluster (file format < 10) row/table data — old Table/Spec layout
+# ---------------------------------------------------------------------------
+#
+# Everything above this point in the file (Cluster/ClusterTree, ColKey/Spec)
+# is written against the storage layout introduced at file format 10
+# (realm-core v6.0.0, ~2019). Files at format 9 and earlier (last written by
+# realm-core <= v5.23.9 / realm-java 5.6.0-6.1.0) used a structurally
+# different, older layout: each Table has its own Spec (types/names/attrs
+# arrays, table.hpp slot 0/1 = spec ref/columns ref) and each column is an
+# independent top-level B+-tree, rather than rows being grouped into
+# Clusters. Confirmed against the real v5.23.9 source (table.hpp, spec.hpp,
+# column_type.hpp, bptree.hpp, column_timestamp.hpp, column_mixed.hpp,
+# column_string_enum.hpp, column_linkbase.hpp, column_linklist.hpp) — see
+# issue #55. The low-level Array primitives (leaf formats for
+# String/Binary/Bool/Float/Double/Int) are unchanged across both eras and
+# reused as-is; only the row/column aggregation structure is new here.
+
+# Old ColumnType (column_type.hpp @ v5.23.9) -- NOT the same numeric meanings
+# as the modern _REALM_COL_TYPES above for several values (3/5/7/11 differ:
+# e.g. 11 is Reserved4/unused here vs. decimal128 in the modern enum).
+_PRE_CLUSTER_COL_TYPES: dict[int, str] = {
+    0: "int",
+    1: "bool",
+    2: "string",
+    3: "string_enum",
+    4: "data",
+    5: "table",   # subtable
+    6: "mixed",
+    7: "date",    # OldDateTime
+    8: "date",    # Timestamp
+    9: "float",
+    10: "double",
+    12: "link",
+    13: "linklist",
+    14: "backlink",
+}
+
+# Old ColumnAttr (column_type.hpp @ v5.23.9): a plain bitmask read directly
+# from Spec's m_attr array -- unlike modern ColKey, it is not bit-packed
+# into a key.
+_PRE_CLUSTER_COL_ATTR_INDEXED = 0x01
+_PRE_CLUSTER_COL_ATTR_NULLABLE = 0x10
+
+
+def _extract_pre_cluster_spec(
+    data: bytes, spec_ref: int, file_size: int,
+) -> list[dict[str, Any]] | None:
+    """Decode a pre-Cluster Spec array (spec.hpp @ v5.23.9): m_top slots
+    0=m_types (ArrayInteger, one old ColumnType per column), 1=m_names
+    (ArrayString), 2=m_attr (ArrayInteger, one ColumnAttr bitmask per
+    column), 3=m_subspecs (optional). m_subspecs is resolved here too
+    (spec.cpp get_subspec_ndx_after/get_subspec_entries_for_col_type,
+    confirmed against real source, not guessed): a sparse array with 1
+    entry for each Table/Link/LinkList column and 2 for each BackLink
+    column (origin table + origin column index), indexed by a running
+    count over prior columns of those types. For Link/LinkList, the entry
+    is a tagged integer (`value >> 1`) giving the target table's index in
+    the Group's tables array; for Table (subtable), it's a direct ref to
+    the shared nested Spec every row's subtable uses.
+
+    Returns one dict per column: {col_index, name, type_code, nullable,
+    indexed, target_table_index, subtable_spec_ref}, or None on failure.
+    """
+    spec_hdr = _parse_array_header(data, spec_ref)
+    if spec_hdr is None or not spec_hdr["has_refs"] or spec_hdr["Element count (size)"] < 3:
+        return None
+    spec_eb = _elem_bytes(spec_hdr)
+    if spec_eb < 1:
+        return None
+
+    types_ref = _read_ref(data, spec_ref + 8, 0, spec_eb)
+    names_ref = _read_ref(data, spec_ref + 8, 1, spec_eb)
+    attr_ref = _read_ref(data, spec_ref + 8, 2, spec_eb)
+    if types_ref <= 0 or types_ref >= file_size:
+        return None
+
+    types = _read_scalar_leaf(data, types_ref, file_size)
+    if not types:
+        return None
+    names = (
+        _read_pre_cluster_string_or_binary(data, names_ref, file_size, is_string=True, nullable=False)
+        if 0 < names_ref < file_size else None
+    )
+    attrs = (
+        _read_scalar_leaf(data, attr_ref, file_size)
+        if 0 < attr_ref < file_size else None
+    )
+
+    # m_subspecs (slot 3, spec.cpp @ v5.23.9): one entry per Table/Link/
+    # LinkList column (get_subspec_entries_for_col_type: 1 each), two per
+    # BackLink (origin table index + origin column index), zero for
+    # everything else -- "sparse", indexed by a running count over prior
+    # columns, not by plain column index (Spec::get_subspec_ndx_after).
+    subspecs_ref = (
+        _read_ref(data, spec_ref + 8, 3, spec_eb) if spec_hdr["Element count (size)"] > 3 else 0
+    )
+    subspecs = (
+        _read_scalar_leaf(data, subspecs_ref, file_size)
+        if 0 < subspecs_ref < file_size else None
+    )
+
+    # m_enumkeys (slot 4): one ref per StringEnum column, indexed by a
+    # running count over *only* prior StringEnum columns (spec.cpp
+    # Spec::get_enumkeys_ndx) -- a separate counter from m_subspecs above.
+    enumkeys_ref = (
+        _read_ref(data, spec_ref + 8, 4, spec_eb) if spec_hdr["Element count (size)"] > 4 else 0
+    )
+    enumkeys_hdr = _parse_array_header(data, enumkeys_ref) if enumkeys_ref > 0 else None
+    enumkeys_eb = _elem_bytes(enumkeys_hdr) if enumkeys_hdr else 0
+
+    columns: list[dict[str, Any]] = []
+    subspec_ndx = 0
+    enumkeys_ndx = 0
+    for i, type_val in enumerate(types):
+        if type_val is None:
+            continue
+        type_code = int(type_val)
+        attr_raw = attrs[i] if attrs and i < len(attrs) else None
+        attr_val = int(attr_raw) if attr_raw is not None else 0
+        col: dict[str, Any] = {
+            "col_index": i,
+            "name": names[i] if names and i < len(names) else f"column[{i}]",
+            "type_code": type_code,
+            "nullable": bool(attr_val & _PRE_CLUSTER_COL_ATTR_NULLABLE),
+            "indexed": bool(attr_val & _PRE_CLUSTER_COL_ATTR_INDEXED),
+            "target_table_index": None,
+            "subtable_spec_ref": None,
+            "enum_keys_ref": None,
+        }
+        if type_code in (5, 12, 13) and subspecs is not None and subspec_ndx < len(subspecs):
+            raw = subspecs[subspec_ndx]
+            if raw is not None:
+                raw = int(raw)
+                if type_code == 5:  # Table (subtable): direct ref to a nested Spec
+                    col["subtable_spec_ref"] = raw
+                elif raw & 1:  # Link/LinkList: tagged target-table index (>>1)
+                    col["target_table_index"] = raw >> 1
+        if type_code == 3 and enumkeys_hdr is not None and enumkeys_eb >= 1:
+            col["enum_keys_ref"] = _read_ref(data, enumkeys_ref + 8, enumkeys_ndx, enumkeys_eb)
+        if type_code == 5:
+            subspec_ndx += 1
+        elif type_code in (12, 13):
+            subspec_ndx += 1
+        elif type_code == 14:
+            subspec_ndx += 2
+        if type_code == 3:
+            enumkeys_ndx += 1
+        columns.append(col)
+    return columns if columns else None
+
+
+def _resolve_pre_cluster_column_refs(
+    data: bytes, columns_ref: int, spec_columns: list[dict[str, Any]], file_size: int,
+) -> dict[int, int]:
+    """Map each column's spec index to its ref in the Table's m_columns
+    array. m_columns holds one ref per column *plus* a search-index ref
+    immediately after any indexed column's own ref (table.hpp: "A search
+    index ref always occurs immediately after the ref of the column to
+    which the search index belongs") -- so the mapping is not a plain
+    1:1 index and has to walk Spec's `indexed` flags in step with it.
+    """
+    hdr = _parse_array_header(data, columns_ref)
+    if hdr is None or not hdr["has_refs"]:
+        return {}
+    eb = _elem_bytes(hdr)
+    if eb < 1:
+        return {}
+
+    refs: dict[int, int] = {}
+    slot = 0
+    for col in spec_columns:
+        refs[col["col_index"]] = _read_ref(data, columns_ref + 8, slot, eb)
+        slot += 1
+        if col["indexed"]:
+            slot += 1  # skip this column's search-index ref
+    return refs
+
+
+def _decode_pre_cluster_timestamp_column(
+    data: bytes, col_ref: int, file_size: int,
+) -> list[str | None] | None:
+    """Decode an old-format Timestamp column. Unlike the modern
+    ArrayTimestamp cell (a small 2-slot [secs_ref, nanos_ref] array bounded
+    by one Cluster leaf's row count), a pre-Cluster TimestampColumn is a
+    *table-wide* column: its own top-level ref is still a 2-slot
+    [m_seconds root, m_nanoseconds root] array (column_timestamp.hpp), but
+    each of those two roots is independently a full B+-tree that can span
+    many leaves for a large table -- so each side must be leaf-walked on
+    its own rather than assumed to fit in a single leaf.
+    """
+    hdr = _parse_array_header(data, col_ref)
+    if hdr is None or not hdr["has_refs"] or hdr["Element count (size)"] != 2:
+        return None
+    eb = _elem_bytes(hdr)
+    if eb < 1:
+        return None
+    secs_root = _read_ref(data, col_ref + 8, 0, eb)
+    nanos_root = _read_ref(data, col_ref + 8, 1, eb)
+
+    secs: list[int | None] = []
+    if secs_root > 0:
+        for leaf_ref, _offset in (_walk_bplustree_leaves(data, secs_root, file_size) or [(secs_root, 0)]):
+            leaf_vals = _read_array_int_null(data, leaf_ref, file_size)
+            if leaf_vals is None:
+                return None
+            secs.extend(leaf_vals)
+
+    nanos: list[int] = []
+    if nanos_root > 0:
+        for leaf_ref, _offset in (_walk_bplustree_leaves(data, nanos_root, file_size) or [(nanos_root, 0)]):
+            leaf_vals = _read_scalar_leaf(data, leaf_ref, file_size)
+            if leaf_vals is None:
+                return None
+            nanos.extend(v if v is not None else 0 for v in leaf_vals)
+
+    result: list[str | None] = []
+    for i, s in enumerate(secs):
+        if s is None:
+            result.append(None)
+            continue
+        ns = nanos[i] if i < len(nanos) else 0
+        result.append(_decode_timestamp(int(s + (ns / 1_000_000_000 if ns else 0))))
+    return result
+
+
+def _read_pre_cluster_medium_string_or_binary(
+    data: bytes, ref: int, file_size: int, *, is_string: bool,
+) -> list[Any] | None:
+    """Decode the pre-Cluster "medium" String/Binary leaf form -- named
+    ArrayStringLong for strings, ArrayBinary for binary (array_string_long.hpp
+    / array_binary.hpp @ v5.23.9) -- confirmed via source to be genuinely
+    different from the modern ArraySmallBlobs this parser's regular
+    _read_array_string_or_binary otherwise dispatches to: 2 slots
+    [offsets, blob] when the column is non-nullable, 3 slots [offsets, blob,
+    nulls] when nullable (nullability is inferred from the array's own slot
+    count -- array_string_long.hpp: `m_nullable = (Array::size() == 3)`),
+    rather than modern's fixed 3-slot layout regardless of nullability.
+
+    String vs Binary differ in two ways confirmed against source: strings
+    store an implicit trailing NUL in the blob (subtracted from the decoded
+    length: array_string_long.hpp get()'s `--end`), binary does not
+    (array_binary.hpp get(): no such subtraction); and the null-flag sense
+    is inverted between the two (`m_nulls.get(ndx) == 0` means NULL for
+    strings, but `m_nulls.get(ndx) != 0` means NULL for binary) -- easy to
+    get backwards, so kept as two explicit branches rather than one shared
+    boolean flip.
+    """
+    hdr = _parse_array_header(data, ref)
+    if hdr is None or not hdr["has_refs"] or hdr["context_flag"]:
+        return None
+    count = hdr["Element count (size)"]
+    if count not in (2, 3):
+        return None
+    eb = _elem_bytes(hdr)
+    if eb < 1:
+        return None
+
+    offsets_ref = _read_ref(data, ref + 8, 0, eb)
+    blob_ref = _read_ref(data, ref + 8, 1, eb)
+    nulls_ref = _read_ref(data, ref + 8, 2, eb) if count == 3 else 0
+
+    offsets = _read_uint_array(data, offsets_ref)
+    nulls = _read_uint_array(data, nulls_ref) if nulls_ref > 0 else None
+
+    blob_hdr = _parse_array_header(data, blob_ref)
+    blob = b""
+    if blob_hdr is not None:
+        blob_size = blob_hdr["Element count (size)"]
+        blob = data[blob_ref + 8 : blob_ref + 8 + blob_size]
+
+    results: list[Any] = []
+    prev = 0
+    for i, end in enumerate(offsets):
+        if nulls is not None and i < len(nulls):
+            is_null = (nulls[i] == 0) if is_string else (nulls[i] != 0)
+        else:
+            is_null = False
+        if is_null:
+            results.append(None)
+            prev = end
+            continue
+        chunk_end = end - 1 if is_string else end  # strings: discount trailing NUL
+        chunk = blob[prev:chunk_end]
+        results.append(chunk.decode("utf-8", errors="replace") if is_string else bytes(chunk))
+        prev = end
+    return results
+
+
+def _read_pre_cluster_string_or_binary(
+    data: bytes, ref: int, file_size: int, *, is_string: bool, nullable: bool,
+) -> list[Any] | None:
+    """Dispatch a pre-Cluster String/Binary column leaf to the right
+    on-disk sub-form. has_refs=False is the inline Short form, confirmed
+    identical to the modern one (already reused via _read_array_string_short
+    for the issue #55 schema-name fix); has_refs=True + context_flag=True is
+    ArrayBigBlobs, whose file (array_blobs_big.hpp) already exists unchanged
+    in the v5.23.9 source tree -- reused as-is, though this specific
+    boundary condition (context_flag distinguishing BigBlobs from the medium
+    form in the *old* era) has not been directly confirmed against a real
+    BigBlobs-form old column, unlike the medium form below which was
+    verified against real data (issue #55, IFTTT sample). has_refs=True +
+    context_flag=False is the medium form (_read_pre_cluster_medium_string_or_binary).
+    """
+    hdr = _parse_array_header(data, ref)
+    if hdr is None:
+        return None
+    if not hdr["has_refs"]:
+        return _read_array_string_short(data, ref, hdr, is_string=is_string, nullable=nullable)
+    if hdr["context_flag"]:
+        return _read_array_big_blobs(data, ref, hdr, file_size, is_string=is_string)
+    return _read_pre_cluster_medium_string_or_binary(data, ref, file_size, is_string=is_string)
+
+
+def _walk_pre_cluster_int_column(
+    data: bytes, col_ref: int, file_size: int,
+) -> list[int | None] | None:
+    """Walk a plain old-format IntegerColumn's own top-level B+-tree and
+    concatenate its leaves (no nullable-sentinel handling -- used for
+    Mixed's m_types/m_data sub-columns, which are never themselves null)."""
+    if col_ref <= 0 or col_ref >= file_size:
+        return None
+    leaves = _walk_bplustree_leaves(data, col_ref, file_size)
+    if not leaves:
+        leaves = [(col_ref, 0)]
+    values: list[int | None] = []
+    for leaf_ref, _offset in leaves:
+        leaf_vals = _read_scalar_leaf(data, leaf_ref, file_size)
+        if leaf_vals is None:
+            return None
+        values.extend(leaf_vals)
+    return values
+
+
+_U64_MASK = (1 << 64) - 1
+_BIT63 = 1 << 63
+
+
+def _decode_pre_cluster_mixed_column(
+    data: bytes, col_ref: int, file_size: int,
+) -> list[Any] | None:
+    """Decode an old-format Mixed column. Top-array slot assignment
+    confirmed against MixedColumn::create() (column_mixed.cpp @ v5.23.8 --
+    the exact realm-core version realm-java 6.1.0, the last release the
+    issue #55 reporter says wrote format 9, bundled): 0=m_types
+    (IntegerColumn of MixedColType), 1=m_data (RefsColumn, tagged --
+    get_value() = raw_uint64 >> 1), 2=m_binary_data (one shared
+    BinaryColumn holding every row's String/Binary payload, addressed by
+    row index), 3=m_timestamp_data (one shared TimestampColumn, same
+    addressing).
+
+    Per-type decode of get_value() (column_mixed_tpl.hpp @ v5.23.8):
+    Int/IntNeg store the 63-bit magnitude with the sign bit stripped (freed
+    up for the tag bit) and OR'd back in for the Neg variant; Double/
+    DoubleNeg the same trick then type-punned; Float type-punned from the
+    low 32 bits directly (no Neg variant needed -- a 32-bit float's own
+    sign bit at bit31 never collides with the tag scheme); String/Binary/
+    Timestamp store a row index into the shared sub-column rather than an
+    in-place value.
+
+    Table-typed Mixed cells (a subtable value nested inside a Mixed) and
+    the reserved/unused mixcol_Mixed(6) tag are not handled -- get_value()
+    for those does not use the same tag-shift scheme as everything else
+    verified above, and this hasn't been independently confirmed, so they
+    surface as a visible "<mixed: unsupported type_N>" marker per cell
+    (same precedent as the modern _read_array_mixed's own marker for a
+    data_type it doesn't recognise) rather than a guess.
+    """
+    hdr = _parse_array_header(data, col_ref)
+    if hdr is None or not hdr["has_refs"] or hdr["Element count (size)"] < 3:
+        return None
+    eb = _elem_bytes(hdr)
+    if eb < 1:
+        return None
+
+    types_ref = _read_ref(data, col_ref + 8, 0, eb)
+    data_ref = _read_ref(data, col_ref + 8, 1, eb)
+    binary_ref = _read_ref(data, col_ref + 8, 2, eb)
+    timestamp_ref = _read_ref(data, col_ref + 8, 3, eb) if hdr["Element count (size)"] > 3 else 0
+
+    types = _walk_pre_cluster_int_column(data, types_ref, file_size)
+    raw_data = _walk_pre_cluster_int_column(data, data_ref, file_size)
+    if types is None or raw_data is None:
+        return None
+
+    binary_rows = (
+        _read_pre_cluster_string_or_binary(data, binary_ref, file_size, is_string=False, nullable=False)
+        if binary_ref > 0 else None
+    )
+    timestamp_rows = (
+        _decode_pre_cluster_timestamp_column(data, timestamp_ref, file_size)
+        if timestamp_ref > 0 else None
+    )
+
+    results: list[Any] = []
+    for i, t in enumerate(types):
+        raw_val = raw_data[i] if i < len(raw_data) else None
+        if t is None or raw_val is None:
+            results.append(None)
+            continue
+        mixtype = int(t)
+        raw_u64 = int(raw_val) & _U64_MASK
+        value = raw_u64 >> 1
+
+        if mixtype == 0:  # Int
+            results.append(value)
+        elif mixtype == 12:  # IntNeg
+            signed_u64 = (value | _BIT63) & _U64_MASK
+            results.append(signed_u64 - (1 << 64))
+        elif mixtype == 1:  # Bool
+            results.append(value != 0)
+        elif mixtype == 9:  # Float
+            results.append(struct.unpack("<f", struct.pack("<I", value & 0xFFFFFFFF))[0])
+        elif mixtype == 10:  # Double (positive)
+            results.append(struct.unpack("<d", struct.pack("<Q", value))[0])
+        elif mixtype == 11:  # DoubleNeg
+            results.append(struct.unpack("<d", struct.pack("<Q", (value | _BIT63) & _U64_MASK))[0])
+        elif mixtype == 7:  # OldDateTime
+            results.append(_decode_timestamp(value))
+        elif mixtype == 8:  # Timestamp -- value is a row index into m_timestamp_data
+            if timestamp_rows is not None and value < len(timestamp_rows):
+                results.append(timestamp_rows[value])
+            else:
+                # Distinct from a genuine null entry (which the reader itself
+                # would report) -- this is the index resolution failing.
+                results.append(f"<mixed: timestamp index {value} out of range>")
+        elif mixtype in (2, 4):  # String/Binary -- value is a row index into m_binary_data
+            if binary_rows is None or value >= len(binary_rows):
+                results.append(f"<mixed: binary index {value} out of range>")
+                continue
+            chunk = binary_rows[value]
+            if chunk is None:
+                results.append(None)
+            elif mixtype == 2:
+                if chunk.endswith(b"\x00"):
+                    chunk = chunk[:-1]
+                results.append(chunk.decode("utf-8", errors="replace"))
+            else:
+                results.append(bytes(chunk))
+        else:
+            results.append(f"<mixed: unsupported type_{mixtype}>")
+    return results
+
+
+def _decode_pre_cluster_string_enum_column(
+    data: bytes, col_ref: int, enum_keys_ref: int | None, file_size: int,
+) -> list[str | None] | None:
+    """Decode a pre-Cluster StringEnum column (column_string_enum.hpp @
+    v5.23.9): a shared keys StringColumn (referenced from Spec's
+    m_enumkeys, resolved by the caller) holding each unique string once,
+    plus a per-row plain integer index into that keys array -- decoded
+    the same way as a regular Int column since the index storage itself
+    is an ordinary IntegerColumn, not a special leaf format.
+    """
+    if not enum_keys_ref:
+        return None
+    keys = _read_pre_cluster_string_or_binary(
+        data, enum_keys_ref, file_size, is_string=True, nullable=False
+    )
+    if keys is None:
+        return None
+
+    leaves = _walk_bplustree_leaves(data, col_ref, file_size)
+    if not leaves:
+        leaves = [(col_ref, 0)]
+
+    indices: list[int | None] = []
+    for leaf_ref, _offset in leaves:
+        leaf_hdr = _parse_array_header(data, leaf_ref)
+        if leaf_hdr is not None and leaf_hdr["width"] == 0:
+            indices.extend([0] * leaf_hdr["Element count (size)"])
+            continue
+        leaf_vals = _read_scalar_leaf(data, leaf_ref, file_size)
+        if leaf_vals is None:
+            return None
+        indices.extend(leaf_vals)
+
+    results: list[str | None] = []
+    for ix in indices:
+        if ix is None:
+            results.append(None)
+        elif 0 <= int(ix) < len(keys):
+            results.append(keys[int(ix)])
+        else:
+            # Distinct from a genuine null row (ix is None, handled above) --
+            # this is the index resolution itself failing.
+            results.append(f"<string_enum: index {int(ix)} out of range>")
+    return results
+
+
+def _decode_pre_cluster_table_column(
+    data: bytes, col_ref: int, file_size: int, subtable_spec_ref: int | None,
+) -> list[list[dict[str, Any]]] | None:
+    """Decode a pre-Cluster Table-typed (subtable) column. Each row's own
+    value in the column's top-level B+-tree is a plain ref: 0 = a
+    degenerate/not-yet-materialized empty subtable (table.hpp: "a subtable
+    ... always starts out in a degenerate form ... a null 'ref' is
+    stored"), otherwise a ref to that row's own m_columns array -- subtable
+    rows share one Spec (spec_ref resolved by the caller via
+    _extract_pre_cluster_spec's subtable_spec_ref, spec.cpp
+    Spec::get_subspec_by_ndx) rather than each row's subtable carrying its
+    own independent spec.
+
+    Each row's decoded value is a list of sub-row dicts ({column_name:
+    value}), recursively expanded rather than shown as a placeholder --
+    same "expand, don't stub out" precedent as _read_array_mixed's nested
+    List/Set/Dictionary handling.
+    """
+    if not subtable_spec_ref:
+        return None
+    subtable_spec = _extract_pre_cluster_spec(data, subtable_spec_ref, file_size)
+    if not subtable_spec:
+        return None
+    visible = [c for c in subtable_spec if c["type_code"] != 14]
+
+    leaves = _walk_bplustree_leaves(data, col_ref, file_size)
+    if not leaves:
+        leaves = [(col_ref, 0)]
+
+    refs: list[int] = []
+    for leaf_ref, _offset in leaves:
+        leaf_hdr = _parse_array_header(data, leaf_ref)
+        if leaf_hdr is None or not leaf_hdr["has_refs"]:
+            return None
+        count = leaf_hdr["Element count (size)"]
+        if leaf_hdr["width"] == 0:
+            refs.extend([0] * count)
+            continue
+        eb = _elem_bytes(leaf_hdr)
+        if eb < 1:
+            return None
+        for i in range(count):
+            refs.append(_read_ref(data, leaf_ref + 8, i, eb))
+
+    values: list[list[dict[str, Any]]] = []
+    for row_ref in refs:
+        if row_ref <= 0 or row_ref >= file_size:
+            values.append([])
+            continue
+        sub_col_refs = _resolve_pre_cluster_column_refs(data, row_ref, subtable_spec, file_size)
+        sub_columns: dict[int, list[Any]] = {}
+        sub_unsupported: list[int] = []
+        sub_row_count: int | None = None
+        for idx, col in enumerate(visible):
+            cref = sub_col_refs.get(col["col_index"], 0)
+            vals = _decode_pre_cluster_column_values(data, cref, file_size, col)
+            if vals is None:
+                sub_unsupported.append(idx)
+            sub_columns[idx] = vals if vals is not None else []
+            if vals is not None and sub_row_count is None:
+                sub_row_count = len(vals)
+        n = sub_row_count or 0
+        # Same explicit marker as the top-level table decode -- a column
+        # this dispatch can't handle yet must not look like an empty/null
+        # value once nested inside a nested subtable's rows.
+        for idx in sub_unsupported:
+            type_name = _PRE_CLUSTER_COL_TYPES.get(
+                visible[idx]["type_code"], f"type_{visible[idx]['type_code']}"
+            )
+            sub_columns[idx] = [f"<unsupported: {type_name}>"] * n
+        values.append([
+            {
+                col["name"]: (sub_columns[idx][r] if r < len(sub_columns[idx]) else None)
+                for idx, col in enumerate(visible)
+            }
+            for r in range(n)
+        ])
+    return values
+
+
+def _decode_pre_cluster_linklist_column(
+    data: bytes, col_ref: int, file_size: int,
+) -> list[list[int]] | None:
+    """Decode an old-format LinkList column. Confirmed against source
+    (column_linklist.hpp/link_view.hpp @ v5.23.9): the column's own
+    top-level B+-tree holds one *ref* per row (0 = empty list, matching the
+    modern LinkList shape), each pointing to that row's own flat Array of
+    plain 0-based target row indices (LinkView::get() -- no null/+1 encoding
+    at this level, unlike single Link columns, since a list element can't
+    itself be null).
+    """
+    leaves = _walk_bplustree_leaves(data, col_ref, file_size)
+    if not leaves:
+        leaves = [(col_ref, 0)]
+
+    values: list[list[int]] = []
+    for leaf_ref, _offset in leaves:
+        leaf_hdr = _parse_array_header(data, leaf_ref)
+        if leaf_hdr is None or not leaf_hdr["has_refs"]:
+            return None
+        count = leaf_hdr["Element count (size)"]
+        if leaf_hdr["width"] == 0:
+            # Realm's all-zero compact encoding: every ref in this leaf is
+            # implicitly 0 (empty list), no payload bytes are stored at all.
+            values.extend([] for _ in range(count))
+            continue
+        eb = _elem_bytes(leaf_hdr)
+        if eb < 1:
+            return None
+        for i in range(count):
+            row_ref = _read_ref(data, leaf_ref + 8, i, eb)
+            if row_ref <= 0 or row_ref >= file_size:
+                values.append([])
+                continue
+            targets = _read_scalar_leaf(data, row_ref, file_size)
+            values.append([int(t) for t in targets if t is not None] if targets else [])
+    return values
+
+
+def _decode_pre_cluster_column_values(
+    data: bytes,
+    col_ref: int,
+    file_size: int,
+    col_info: dict[str, Any],
+) -> list[Any] | None:
+    """Decode one old-format column's full value list, dispatched purely
+    from its Spec-declared old ColumnType (never guessed from shape). The
+    per-type leaf primitives are the same ones already used for modern
+    columns -- only the top-level walk (_walk_bplustree_leaves, confirmed
+    against bptree.hpp @ v5.23.9 to share the modern BPlusTree<T>'s
+    inner-node layout) and the dispatch table are new for this era.
+
+    Every old ColumnType is dispatched here now; a genuinely undecodable
+    per-cell value (e.g. a Mixed cell holding a nested subtable) still
+    returns an explicit marker rather than silently wrong data -- see
+    _decode_pre_cluster_mixed_column. BackLink columns are hidden entirely
+    by the caller (_extract_pre_cluster_table_data), not dispatched here.
+    """
+    if col_ref <= 0 or col_ref >= file_size:
+        return None
+    type_code = col_info["type_code"]
+    nullable = col_info["nullable"]
+
+    if type_code == 8:  # Timestamp
+        return _decode_pre_cluster_timestamp_column(data, col_ref, file_size)
+    if type_code == 13:  # LinkList
+        return _decode_pre_cluster_linklist_column(data, col_ref, file_size)
+    if type_code == 5:  # Table (subtable)
+        return _decode_pre_cluster_table_column(
+            data, col_ref, file_size, col_info.get("subtable_spec_ref")
+        )
+    if type_code == 3:  # StringEnum
+        return _decode_pre_cluster_string_enum_column(
+            data, col_ref, col_info.get("enum_keys_ref"), file_size
+        )
+    if type_code == 6:  # Mixed
+        return _decode_pre_cluster_mixed_column(data, col_ref, file_size)
+
+    leaves = _walk_bplustree_leaves(data, col_ref, file_size)
+    if not leaves:
+        leaves = [(col_ref, 0)]
+
+    values: list[Any] = []
+    for leaf_ref, _offset in leaves:
+        leaf_vals: list[Any] | None
+        if type_code == 0:  # int
+            leaf_vals = (
+                _read_array_int_null(data, leaf_ref, file_size) if nullable
+                else _read_scalar_leaf(data, leaf_ref, file_size)
+            )
+        elif type_code == 1:  # bool
+            leaf_vals = _read_scalar_leaf(data, leaf_ref, file_size)
+            if leaf_vals is not None:
+                leaf_vals = [None if v is None else bool(v) for v in leaf_vals]
+        elif type_code in (2, 4):  # string, binary
+            leaf_vals = _read_pre_cluster_string_or_binary(
+                data, leaf_ref, file_size, is_string=(type_code == 2), nullable=nullable,
+            )
+        elif type_code in (9, 10):  # float, double
+            leaf_vals = _read_array_float(data, leaf_ref, file_size)
+        elif type_code == 7:  # OldDateTime -- plain epoch-seconds int leaf
+            leaf_vals = _read_scalar_leaf(data, leaf_ref, file_size)
+            if leaf_vals is not None:
+                leaf_vals = [
+                    None if v is None else _decode_timestamp(int(v)) for v in leaf_vals
+                ]
+        elif type_code == 12:  # Link -- LinkColumn::get_link (column_link.hpp):
+            # raw 0 = null, raw N (N>0) = target row index N-1.
+            leaf_vals = _read_scalar_leaf(data, leaf_ref, file_size)
+            if leaf_vals is not None:
+                leaf_vals = [
+                    None if v is None or v == 0 else int(v) - 1 for v in leaf_vals
+                ]
+        else:
+            return None  # not yet implemented -- see docstring
+        if leaf_vals is None:
+            return None
+        values.extend(leaf_vals)
+    return values
+
+
+def _extract_pre_cluster_table_data(
+    data: bytes, table_ref: int, table_name: str, file_size: int, schema: list[str],
+) -> tuple[dict[str, Any] | None, str | None]:
+    """Decode one pre-Cluster Table (table.hpp @ v5.23.9: m_top slot 0 =
+    spec ref, slot 1 = columns ref). Row count is taken from the first
+    successfully-decoded column's value count (every column in a
+    well-formed old Table has exactly one entry per row); a table with no
+    decodable columns returns a 0-row result rather than None, so it is
+    still listed rather than silently dropped.
+
+    Returns (table, reason) -- reason is None on success, otherwise a
+    specific, human-readable description of the exact structural check
+    that failed (never just "could not be decoded"), so the caller can
+    surface *why*, not only *that* this table didn't decode
+    (feedback_explicit_unsupported_marking).
+    """
+    t_hdr = _parse_array_header(data, table_ref)
+    if t_hdr is None or not t_hdr["has_refs"] or t_hdr["Element count (size)"] < 2:
+        return None, "Table top array is malformed or missing its spec/columns slots"
+    t_eb = _elem_bytes(t_hdr)
+    if t_eb < 1:
+        return None, "Table top array has a zero element width"
+
+    spec_ref = _read_ref(data, table_ref + 8, 0, t_eb)
+    columns_ref = _read_ref(data, table_ref + 8, 1, t_eb)
+    if spec_ref <= 0 or spec_ref >= file_size:
+        return None, "Spec reference is invalid or points outside the file"
+
+    spec_columns = _extract_pre_cluster_spec(data, spec_ref, file_size)
+    if not spec_columns:
+        return None, "Spec array has no columns (empty or malformed)"
+    col_refs = (
+        _resolve_pre_cluster_column_refs(data, columns_ref, spec_columns, file_size)
+        if 0 < columns_ref < file_size else {}
+    )
+
+    columns: dict[int, list[Any]] = {}
+    column_names: list[str] = []
+    column_types: list[str] = []
+    unsupported_columns: list[str] = []
+    row_count = 0
+    row_count_known = False
+
+    # BackLink columns are auto-generated reverse-link bookkeeping, not user
+    # data -- hidden from the visible column list here too (matching the
+    # modern path's _HIDDEN_COL_TYPES), but still kept in spec_columns above
+    # for _resolve_pre_cluster_column_refs's slot-position math, which needs
+    # every Spec entry in order to stay aligned with the real m_columns array.
+    visible_cols = [col for col in spec_columns if col["type_code"] != 14]
+
+    for user_idx, col in enumerate(visible_cols):
+        column_names.append(col["name"])
+        column_types.append(_PRE_CLUSTER_COL_TYPES.get(col["type_code"], f"type_{col['type_code']}"))
+        col_ref = col_refs.get(col["col_index"], 0)
+        values = _decode_pre_cluster_column_values(data, col_ref, file_size, col)
+        if values is None:
+            # Type not yet implemented, or genuinely undecodable -- flagged
+            # explicitly below rather than shown as a silent empty column.
+            unsupported_columns.append(col["name"])
+        columns[user_idx] = values if values is not None else []
+        if values is not None and not row_count_known:
+            row_count = len(values)
+            row_count_known = True
+
+    # Undecoded columns still get one marker per row once the row count is
+    # known from a sibling column -- a visible "<unsupported...>" placeholder
+    # (same pattern as _read_array_mixed's own marker for a data_type it
+    # doesn't recognise), not None, so it can't be mistaken for real NULL data.
+    if row_count_known:
+        for user_idx, col in enumerate(visible_cols):
+            if col["name"] in unsupported_columns:
+                type_name = _PRE_CLUSTER_COL_TYPES.get(col["type_code"], f"type_{col['type_code']}")
+                columns[user_idx] = [f"<unsupported: {type_name}>"] * row_count
+
+    column_target_tables: list[str | None] = []
+    for col in visible_cols:
+        tt_idx = col.get("target_table_index")
+        column_target_tables.append(
+            schema[tt_idx] if tt_idx is not None and 0 <= tt_idx < len(schema) else None
+        )
+
+    return {
+        "name": table_name,
+        "row_count": row_count,
+        "row_count_estimated": not row_count_known,
+        "columns": columns,
+        "column_names": column_names,
+        "column_types": column_types,
+        "column_target_tables": column_target_tables,
+        "unsupported_columns": unsupported_columns,
+        "obj_keys": list(range(row_count)),
+    }, None
+
+
+def _extract_pre_cluster_tables_data(
+    data: bytes, root_offset: int, schema: list[str], file_size: int,
+) -> tuple[list[dict[str, Any]], str | None]:
+    """Pre-Cluster equivalent of _extract_table_data: same Group -> tables
+    array walk (root_offset -> child[1], stable across all file-format
+    versions -- group.hpp s_table_refs_ndx=1 predates even the earliest
+    documented format changes), but dispatches each table through
+    _extract_pre_cluster_table_data instead of the Cluster-based path.
+
+    Returns (tables, reason) -- reason is None only when every table in
+    *schema* decoded; otherwise a "class_name: specific cause" string per
+    failed table (semicolon-joined), so the caller can show the parser's
+    own concrete diagnosis instead of a generic "could not be decoded"
+    (feedback_explicit_unsupported_marking) -- e.g. a Group top array with
+    no table-refs slot at all (root_hdr["Element count (size)"] < 2) is a
+    structurally different, more specific problem than one single table's
+    Spec being unreadable, and both should say so distinctly.
+    """
+    root_hdr = _parse_array_header(data, root_offset)
+    if root_hdr is None or not root_hdr["has_refs"]:
+        return [], "Group top array is malformed or has no references"
+    root_eb = _elem_bytes(root_hdr)
+    if root_eb < 1 or root_hdr["Element count (size)"] < 2:
+        return [], "Group top array has no table-refs slot (fewer than 2 children)"
+
+    table_refs_off = _read_ref(data, root_offset + 8, 1, root_eb)
+    if table_refs_off <= 0 or table_refs_off >= file_size:
+        return [], "Table-refs reference is invalid or points outside the file"
+    tr_hdr = _parse_array_header(data, table_refs_off)
+    if tr_hdr is None or not tr_hdr["has_refs"]:
+        return [], "Table-refs array is malformed or has no references"
+    tr_eb = _elem_bytes(tr_hdr)
+    num_tables = tr_hdr["Element count (size)"]
+
+    tables: list[dict[str, Any]] = []
+    failures: list[str] = []
+    for t_idx in range(num_tables):
+        table_name = schema[t_idx] if t_idx < len(schema) else f"table[{t_idx}]"
+        table_ref = _read_ref(data, table_refs_off + 8, t_idx, tr_eb)
+        if table_ref <= 0 or table_ref >= file_size:
+            failures.append(f"{table_name}: table reference is invalid or points outside the file")
+            continue
+        table, reason = _extract_pre_cluster_table_data(data, table_ref, table_name, file_size, schema)
+        if table is not None:
+            tables.append(table)
+        else:
+            failures.append(f"{table_name}: {reason}")
+
+    if num_tables == 0 and schema:
+        # Class names resolved from Group.m_table_names, but the table-refs
+        # array itself is empty -- a real mismatch, not "nothing to report".
+        return [], f"Table-refs array has 0 entries, but {len(schema)} class name(s) in schema"
+    return tables, ("; ".join(failures) if failures else None)
 
 
 # ---------------------------------------------------------------------------
@@ -2078,56 +3055,136 @@ class RealmParser(AbstractParser):
         inactive_schema: list[str] = []
         inactive_ref_idx: int = 0
         active_idx = 0
+        streaming_form: dict[str, Any] | None = None
 
         if header_info:
             top_ref0_val = int.from_bytes(full_data[0:8], "little")
             top_ref1_val = int.from_bytes(full_data[8:16], "little")
             active_idx = header_info["Active top reference"]
 
-            hdr0 = _parse_array_header(full_data, top_ref0_val)
-            hdr1 = _parse_array_header(full_data, top_ref1_val)
-            children0 = _extract_root_children(full_data, top_ref0_val, file_size)
-            children1 = _extract_root_children(full_data, top_ref1_val, file_size)
+            streaming_form = _resolve_streaming_form(full_data, top_ref0_val, active_idx)
 
-            top_refs = {
-                "top_ref_0": {
-                    "offset": top_ref0_val,
-                    "active": active_idx == 0,
-                    "array_header": hdr0,
-                    "children": children0,
-                },
-                "top_ref_1": {
-                    "offset": top_ref1_val,
-                    "active": active_idx == 1,
-                    "array_header": hdr1,
-                    "children": children1,
-                },
-                "active_index": active_idx,
-            }
+            if streaming_form is not None:
+                # Group::write() streaming form: no second/inactive version
+                # exists (top_ref1 is unused padding, always 0), and the real
+                # top ref lives in the footer, not in top_ref0's literal value.
+                resolved_ref = streaming_form["top_ref"]
+                footer_valid = streaming_form["footer_valid"]
+                display_offset = resolved_ref if footer_valid else top_ref0_val
+                hdr0 = _parse_array_header(full_data, display_offset) if footer_valid else None
+                children0 = (
+                    _extract_root_children(full_data, display_offset, file_size)
+                    if footer_valid else []
+                )
+                top_refs = {
+                    "top_ref_0": {
+                        "offset": display_offset,
+                        "active": True,
+                        "array_header": hdr0,
+                        "children": children0,
+                    },
+                    "top_ref_1": {
+                        "offset": top_ref1_val,
+                        "active": False,
+                        "array_header": None,
+                        "children": [],
+                    },
+                    "active_index": 0,
+                    "streaming_form": streaming_form,
+                }
 
-            active_offset = top_ref1_val if active_idx == 1 else top_ref0_val
-            inactive_offset = top_ref0_val if active_idx == 1 else top_ref1_val
-            inactive_ref_idx = 0 if active_idx == 1 else 1
-            schema = _extract_schema(full_data, active_offset, file_size)
-            inactive_schema = _extract_schema(full_data, inactive_offset, file_size)
+                active_offset = display_offset if footer_valid else -1
+                inactive_offset = -1
+                inactive_ref_idx = 0
+                active_format = header_info["File format (top ref 0)"]
+                inactive_format = 0
+                schema = _extract_schema(full_data, active_offset, file_size) if footer_valid else []
+                inactive_schema = []
+            else:
+                hdr0 = _parse_array_header(full_data, top_ref0_val)
+                hdr1 = _parse_array_header(full_data, top_ref1_val)
+                children0 = _extract_root_children(full_data, top_ref0_val, file_size)
+                children1 = _extract_root_children(full_data, top_ref1_val, file_size)
+
+                top_refs = {
+                    "top_ref_0": {
+                        "offset": top_ref0_val,
+                        "active": active_idx == 0,
+                        "array_header": hdr0,
+                        "children": children0,
+                    },
+                    "top_ref_1": {
+                        "offset": top_ref1_val,
+                        "active": active_idx == 1,
+                        "array_header": hdr1,
+                        "children": children1,
+                    },
+                    "active_index": active_idx,
+                }
+
+                active_offset = top_ref1_val if active_idx == 1 else top_ref0_val
+                inactive_offset = top_ref0_val if active_idx == 1 else top_ref1_val
+                inactive_ref_idx = 0 if active_idx == 1 else 1
+                # Each top ref carries its own format byte (fmt0/fmt1) rather
+                # than a single file-wide value: mid-upgrade, Realm briefly
+                # writes the new format to one ref while the other still
+                # reads the old one.
+                active_format = (
+                    header_info["File format (top ref 1)"] if active_idx == 1
+                    else header_info["File format (top ref 0)"]
+                )
+                inactive_format = (
+                    header_info["File format (top ref 0)"] if active_idx == 1
+                    else header_info["File format (top ref 1)"]
+                )
+                schema = _extract_schema(full_data, active_offset, file_size)
+                inactive_schema = _extract_schema(full_data, inactive_offset, file_size)
 
         strings = _scan_strings(full_data)
 
+        # Row/table data below _MIN_CLUSTER_FORMAT_VERSION uses the
+        # pre-Cluster Table/Spec layout (_extract_pre_cluster_tables_data)
+        # instead of the Cluster-based path. unsupported_row_format now
+        # only means "this file format predates format 10 and used the old
+        # layout" (informational, not a decode failure) -- a handful of old
+        # column types still can't be decoded per-column; those are flagged
+        # per-table via each table's "unsupported_columns" instead.
+        unsupported_row_format: int | None = None
+        pre_cluster_reason: str | None = None
+        cluster_reason: str | None = None
+
         tables: list[dict[str, Any]] = []
         if header_info and schema:
-            table_key_map = _build_table_key_map(full_data, active_offset, schema, file_size)
-            tables = _extract_table_data(
-                full_data, active_offset, schema, file_size, table_key_map
-            )
+            if active_format < _MIN_CLUSTER_FORMAT_VERSION:
+                unsupported_row_format = active_format
+                tables, pre_cluster_reason = _extract_pre_cluster_tables_data(
+                    full_data, active_offset, schema, file_size
+                )
+            else:
+                table_key_map = _build_table_key_map(full_data, active_offset, schema, file_size)
+                tables, cluster_reason = _extract_table_data(
+                    full_data, active_offset, schema, file_size, table_key_map
+                )
 
         inactive_tables: list[dict[str, Any]] = []
         if header_info and inactive_schema:
-            inactive_table_key_map = _build_table_key_map(
-                full_data, inactive_offset, inactive_schema, file_size
-            )
-            inactive_tables = _extract_table_data(
-                full_data, inactive_offset, inactive_schema, file_size, inactive_table_key_map
-            )
+            if inactive_format < _MIN_CLUSTER_FORMAT_VERSION:
+                if unsupported_row_format is None:
+                    unsupported_row_format = inactive_format
+                inactive_tables, inactive_pre_cluster_reason = _extract_pre_cluster_tables_data(
+                    full_data, inactive_offset, inactive_schema, file_size
+                )
+                if pre_cluster_reason is None:
+                    pre_cluster_reason = inactive_pre_cluster_reason
+            else:
+                inactive_table_key_map = _build_table_key_map(
+                    full_data, inactive_offset, inactive_schema, file_size
+                )
+                inactive_tables, inactive_cluster_reason = _extract_table_data(
+                    full_data, inactive_offset, inactive_schema, file_size, inactive_table_key_map
+                )
+                if cluster_reason is None:
+                    cluster_reason = inactive_cluster_reason
 
         # Inject schema-level diff into top_refs so the viewer can display it.
         if top_refs and (schema or inactive_schema):
@@ -2180,6 +3237,9 @@ class RealmParser(AbstractParser):
             "inactive_ref_index": inactive_ref_idx if header_info else None,
             "strings": strings,
             "freed_blocks": freed_blocks,
+            "unsupported_row_format": unsupported_row_format,
+            "streaming_form": streaming_form,
+            "cluster_reason": cluster_reason,
         }
 
         meta: dict[str, Any] = {
@@ -2196,8 +3256,57 @@ class RealmParser(AbstractParser):
                 f"{header_info['File format (top ref 1)']}"
             )
             meta["Active top ref"] = str(active_idx)
+            if streaming_form is not None:
+                # Group::write() "streaming" form (e.g. a Realm Studio file
+                # export) — top_ref[0] is a sentinel, not an offset; see
+                # _resolve_streaming_form. Always state this explicitly,
+                # since a corrupt footer must not read the same as "decoded,
+                # zero tables".
+                if streaming_form["footer_valid"]:
+                    meta["Streaming form"] = (
+                        f"Yes — top ref resolved from end-of-file footer "
+                        f"(offset {streaming_form['top_ref']})"
+                    )
+                else:
+                    meta["Streaming form"] = (
+                        "Yes — but the footer is missing or its magic cookie "
+                        "doesn't match; top ref could not be resolved "
+                        "(truncated or corrupt file)"
+                    )
             if schema:
                 meta["Tables found"] = str(len(schema))
+            elif streaming_form is not None and not streaming_form["footer_valid"]:
+                meta["Tables found"] = "Unresolved (see Streaming form)"
+            if unsupported_row_format is not None:
+                # File format is already shown above ("File format"); this
+                # message adds the parser's own concrete diagnosis, not a
+                # restated format number (feedback_explicit_unsupported_marking:
+                # say *why*, not just *that* something didn't decode).
+                pc_tables = tables + inactive_tables
+                gaps = {
+                    t["name"]: t["unsupported_columns"]
+                    for t in pc_tables
+                    if t.get("unsupported_columns")
+                }
+                reasons: list[str] = []
+                if pre_cluster_reason:
+                    reasons.append(pre_cluster_reason)
+                if gaps:
+                    n_cols = sum(len(v) for v in gaps.values())
+                    reasons.append(
+                        f"{n_cols} column(s) across {len(gaps)} table(s) not yet decoded "
+                        "(unimplemented old column type)"
+                    )
+                if reasons:
+                    meta["Row data"] = "Pre-Cluster layout — " + "; ".join(reasons)
+                else:
+                    meta["Row data"] = "Decoded via legacy pre-Cluster layout"
+            elif cluster_reason:
+                # Same principle for format >=10: schema/class names may
+                # have resolved from Group.m_table_names while the
+                # Cluster/ClusterTree structure itself didn't -- say why,
+                # not just leave "tables" silently empty.
+                meta["Row data"] = cluster_reason
         else:
             meta["Header"] = "Not detected (corrupt or non-standard)"
             meta["Possibly Encrypted"] = "Try Open as → Realm DB (Encrypted)…"
@@ -2226,34 +3335,84 @@ def parse_realm_file(path):
 
     Returns a dict with 'active' and 'inactive' (deleted/older schema) sections,
     each mapping a table name to {'column_names', 'column_types', 'columns',
-    'row_count'}. 'columns' is keyed by positional index; column_names[i] gives
-    the property name for column i. Returns {'header': None, ...} when the file
-    is not a decodable (e.g. encrypted or corrupt) Realm file.
+    'row_count', 'unsupported_columns'}. 'columns' is keyed by positional index;
+    column_names[i] gives the property name for column i.
+
+    Also returns 'pre_cluster_format' (the file format byte when the store uses
+    the pre-Cluster layout Realm used before file format 10, else None) and
+    'reason' (the parser's own explanation when a table did not decode, else
+    None). Upstream spells the first of these 'unsupported_row_format'; it kept
+    that name after gaining pre-Cluster row support, so it no longer means the
+    rows are unreadable. Renamed here so artifacts are not misled by it.
+
+    Returns {'header': None, ...} when the file is not a decodable (e.g.
+    encrypted or corrupt) Realm file.
+
+    This helper re-implements RealmParser.parse()'s walk rather than calling it,
+    so any dispatch upstream adds to parse() has to be mirrored here by hand.
     """
     with open(path, "rb") as handle:
         data = handle.read()
     file_size = len(data)
     header = _parse_realm_header(data)
-    result = {"header": header, "active": {}, "inactive": {}}
+    result = {
+        "header": header,
+        "active": {},
+        "inactive": {},
+        "pre_cluster_format": None,
+        "reason": None,
+    }
     if not header:
         return result
+
     top0 = int.from_bytes(data[0:8], "little")
     top1 = int.from_bytes(data[8:16], "little")
     active_index = header["Active top reference"]
-    active_off = top1 if active_index == 1 else top0
-    inactive_off = top0 if active_index == 1 else top1
-    for label, offset in (("active", active_off), ("inactive", inactive_off)):
+
+    # Group::write() output puts the real top ref in a footer rather than in
+    # the header, and carries no second version at all.
+    streaming = _resolve_streaming_form(data, top0, active_index)
+    if streaming is not None:
+        if not streaming["footer_valid"]:
+            result["reason"] = "streaming-form file whose footer could not be read"
+            return result
+        sections = (("active", streaming["top_ref"], header["File format (top ref 0)"]),)
+    else:
+        active_off = top1 if active_index == 1 else top0
+        inactive_off = top0 if active_index == 1 else top1
+        active_fmt = (header["File format (top ref 1)"] if active_index == 1
+                      else header["File format (top ref 0)"])
+        inactive_fmt = (header["File format (top ref 0)"] if active_index == 1
+                        else header["File format (top ref 1)"])
+        sections = (("active", active_off, active_fmt),
+                    ("inactive", inactive_off, inactive_fmt))
+
+    reasons = []
+    for label, offset, file_format in sections:
         schema = _extract_schema(data, offset, file_size)
         if not schema:
             continue
-        key_map = _build_table_key_map(data, offset, schema, file_size)
-        for table in _extract_table_data(data, offset, schema, file_size, key_map):
+        if file_format < _MIN_CLUSTER_FORMAT_VERSION:
+            if result["pre_cluster_format"] is None:
+                result["pre_cluster_format"] = file_format
+            tables, reason = _extract_pre_cluster_tables_data(
+                data, offset, schema, file_size)
+        else:
+            key_map = _build_table_key_map(data, offset, schema, file_size)
+            tables, reason = _extract_table_data(
+                data, offset, schema, file_size, key_map)
+        if reason:
+            reasons.append(f"{label}: {reason}")
+        for table in tables:
             result[label][table["name"]] = {
                 "column_names": table.get("column_names", []),
                 "column_types": table.get("column_types", []),
                 "columns": table.get("columns", {}),
                 "row_count": table.get("row_count", 0),
+                "unsupported_columns": table.get("unsupported_columns", []),
             }
+    if reasons:
+        result["reason"] = "; ".join(reasons)
     return result
 
 

@@ -27,11 +27,16 @@ __artifacts_v2__ = {
 
 
 import os
+import struct
 from datetime import timezone
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 from scripts.ccl_segb.ccl_segb import read_segb_file
 from scripts.ccl_segb.ccl_segb_common import EntryState
 from scripts.ilapfuncs import artifact_processor, webkit_timestampsconv, logfunc
+
+_DECODE_ERRORS = (DecodeError, struct.error, KeyError, ValueError, TypeError,
+                  IndexError)
 
 
 @artifact_processor
@@ -51,7 +56,7 @@ def get_biomeNotificationUsage(context):
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
-        if not os.path.isfile(file_found) or 'tombstone' in file_found:
+        if not os.path.isfile(file_found) or 'tombstone' in context.get_relative_path(file_found):
             continue
         report_file = os.path.dirname(file_found)
 
@@ -60,7 +65,12 @@ def get_biomeNotificationUsage(context):
                 ts = record.timestamp1.replace(tzinfo=timezone.utc)
 
                 if record.state == EntryState.Written:
-                    protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
+                    try:
+                        protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
+                    except _DECODE_ERRORS as ex:
+                        logfunc(f'Biome Notification Usage: could not decode record at offset '
+                                f'{record.data_start_offset} in {filename}: {ex}')
+                        continue
 
                     raw_ts = protostuff.get('2')
                     timeStart = webkit_timestampsconv(raw_ts) if raw_ts is not None else None

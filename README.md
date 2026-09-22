@@ -15,10 +15,12 @@ Download a pre-built release — no Python installation required.
 
 | Platform | GUI | CLI |
 | -------- | --- | --- |
-| Windows | `ileappGUI-*-Windows_x64.zip` | `ileapp-*-Windows_x64.zip` |
-| macOS (Apple Silicon) | `ileappGUI-*-macOS_Apple_Silicon.dmg` | `ileapp-*-macOS_Apple_Silicon.zip` |
-| macOS (Intel) | `ileappGUI-*-macOS_Mac_Intel.dmg` | `ileapp-*-macOS_Mac_Intel.zip` |
-| Linux | `ileappGUI-*-Linux_x86_64.AppImage` | `ileapp-*-Linux_x86_64.AppImage` |
+| Windows (Intel) | `ileappGUI-v*-Windows_x86_64.zip` | `ileapp-v*-Windows_x86_64.zip` |
+| Windows (ARM) | `ileappGUI-v*-Windows_arm64.zip` | `ileapp-v*-Windows_arm64.zip` |
+| macOS (Apple Silicon) | `ileappGUI-v*-macOS_Apple_Silicon.dmg` | `ileapp-v*-macOS_Apple_Silicon.zip` |
+| macOS (Intel) | `ileappGUI-v*-macOS_Mac_Intel.dmg` | `ileapp-v*-macOS_Mac_Intel.zip` |
+| Linux (Intel) | `ileappGUI-v*-Linux_x86_64.AppImage` | `ileapp-v*-Linux_x86_64.AppImage` |
+| Linux (ARM) | `ileappGUI-v*-Linux_arm64.AppImage` | `ileapp-v*-Linux_arm64.AppImage` |
 
 **GUI** — extract the download, run `ileappGUI`, then select your input type, source path, output folder, and modules to process.
 
@@ -36,7 +38,7 @@ On macOS and Linux, use the `ileapp` binary from the extracted archive instead o
 | ---- | ----------- |
 | `fs` | Folder of extracted files with normal paths and names |
 | `zip` | ZIP archive containing files with normal names |
-| `tar` | TAR archive |
+| `tar` | TAR archive, plain or xz-compressed (`.tar.xz`) |
 | `gz` | GZIP-compressed archive |
 | `itunes` | iTunes/Finder backup folder with hashed paths and names |
 | `file` | Single file input |
@@ -74,6 +76,7 @@ ileapp -t zip -i /path/to/extraction.zip -o /path/to/output/
 | `-d` | `--load_case_data` | Path to a LEAPP case data file (`.lcasedata`) |
 | `--custom_output_folder` | | Custom name for the report output subfolder |
 | `--custom_artifacts_path` | | Extra folder to load artifact modules from (e.g. `scripts/alternate_artifacts`) |
+| `--html_row_limit` | | Rows above which an artifact's table is left off its HTML page, which then points at the LAVA database and the TSV export instead. Default 50000; `0` writes every table. The GUI uses the default |
 | `--itunes_password` | | | Password for an encrypted iTunes/Finder backup (`-t 12345`) |
 
 ### Standalone utility modes
@@ -104,6 +107,68 @@ Artifact modules live in `scripts/artifacts/` and are loaded dynamically at runt
 - [Updating Modules for Automatic Output Generation](admin/docs/module_updates.md)
 - [Updating Complex Modules to Include LAVA Output](admin/docs/module_updates_advanced.md)
 - [Testing Modules](admin/docs/testing/readme.md)
+
+## Test data and sample_data for your PR
+
+A PR that adds or changes an artifact is easiest to review and merge when it arrives with
+two things: a small test fixture cut from a real extraction, and `sample_data` values that
+record what the module produced. Scripts generate both. Here is the whole flow.
+
+One rule before anything else: whatever you commit here becomes public. Only use data you
+are allowed to share, like a test device you populated yourself, a public research image,
+or a file you sanitized by hand. Never casework.
+
+**1. Cut a fixture from your extraction**
+
+```
+python admin/test/scripts/make_test_data.py <module> --case 1 --input <extraction.zip>
+```
+
+This pulls the files your module's `paths` patterns match out of the extraction and writes
+the case file `admin/test/cases/testdata.<module>.json` plus one small zip per artifact
+under `admin/test/cases/data/<module>/`.
+
+Size rules: under 10 MB per zip, commit it with the PR. Between 10 and 25 MB, commit the
+case file and attach the zip to a PR comment. Bigger than that, say so in the PR and a
+maintainer will arrange a handoff.
+
+**2. Record the expected output**
+
+```
+TZ=UTC python admin/test/scripts/test_module.py <module> -a all -c all
+```
+
+This runs the module against the fixture and writes a snapshot of the output under
+`admin/test/results/<module>/`. Commit the snapshot too. It becomes the baseline that
+guards the module after merge. Keep the `TZ=UTC` part: the committed snapshots are UTC
+and CI runs UTC.
+
+**3. Run the same comparison CI will run**
+
+```
+python admin/test/scripts/run_test_cases.py --module <module>
+```
+
+**4. Generate the sample_data values**
+
+```
+python admin/scripts/validate_sample_data.py --emit <extraction.zip> --key <image_name>
+```
+
+This runs iLEAPP end to end on your extraction and prints ready-to-paste `sample_data`
+blocks for the modules changed on your branch. Paste them into your module's
+`__artifacts_v2__` and add the app name and version you saw on the image. If a count is
+zero, check the source file really is empty before recording it.
+
+**5. Commit it all and open the PR**
+
+Commit the module, the case file, the fixture zips, and the recorded snapshot together.
+More detail lives in
+[admin/docs/testing/create_module_test_cases.md](admin/docs/testing/create_module_test_cases.md).
+
+If your extraction cannot be shared, open the PR anyway and say so. A fixture can often be
+cut from a public research image instead, or the real file can be sanitized by hand. The
+review does not stop while we work that out.
 
 ## Running from Source
 
@@ -143,7 +208,20 @@ The output folder must exist before running. Source builds report a `-dev` versi
 
 ```
 python ileapp.py -t zip -i /path/to/extraction.zip -o /path/to/output/
+python ileapp.py -t raw -i /path/to/acquisition.E01 -o /path/to/output/
 ```
+
+`raw` reads a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001` segment of
+a split set), or an EnCase/EWF `.E01` acquisition and the segments beside it, in
+place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
+F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS volumes are searched directly, and
+only the files an artifact asks for are read out of the image. The GUI picks
+`raw` on its own for those extensions. See `admin/docs/raw_image_input.md`.
+
+`tar` also reads an xz-compressed tar (`.tar.xz`), and the GUI picks `tar` for that
+extension. A compressed tar, `.tar.gz` included, is decompressed once into the report folder
+before any file is read, so the run needs free space there for the uncompressed tar. The
+copy is deleted when the run ends, and the run log says how long the step took.
 
 **GUI:**
 

@@ -47,9 +47,9 @@ __artifacts_v2__ = {
     },
     'viber_call_remnants': {
         'name': 'Viber - Call Remnants',
-        'description': "Parses contacts db, extracts and reports on user's "
-                       "recent calls that have no corresponding ZVIBERMESSAGE "
-                       "entry, which may indicate deletion.",
+        'description': "Parses contacts db and reports ZRECENT call rows that have no "
+                       "corresponding ZVIBERMESSAGE entry; why the entry is missing is not "
+                       "established.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
         'last_update_date': '2026-07-31',

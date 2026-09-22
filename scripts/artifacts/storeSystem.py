@@ -8,12 +8,12 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
-        'notes': ('Store metadata is an NSKeyedArchiver payload recorded at install time, so the '
-                  'version, genre and purchase date describe the app as it was when installed. '
-                  'The phase, update type, source type, one shot bootstrap and switch '
-                  'distributor columns are integer codes whose values are not documented and '
-                  'are reported as stored. Bundle directory name arrived with iOS 26 and was '
-                  'empty on every row of the image tested, so what it holds is unknown.'),
+        'notes': ("Store metadata is an NSKeyedArchiver payload; the version, genre and purchase "
+                  "date are reported from it as stored, and when the payload was written is not "
+                  "established here. The phase, update type, source type, one shot bootstrap and "
+                  "switch distributor columns are integer codes whose values are not documented "
+                  "and are reported as stored. Bundle directory name is present on the iOS 26 "
+                  "image tested and was empty on every row of it, so what it holds is unknown."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'device-mobile-down',
@@ -36,9 +36,9 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
-        'notes': ('The catalog metadata is a cached copy of the App Store listing, so the latest '
-                  'version and release notes describe what the store offered at the time of the '
-                  'last refresh, not necessarily what is installed. Update state and package '
+        'notes': ("The latest version and release notes come from the catalog metadata and are "
+                  "reported as stored; they are not necessarily what is installed. Update state "
+                  "and package "
                   'type are integer codes whose values are not documented.'),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
@@ -60,8 +60,8 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
-        'notes': ('One install can own several packages, such as the app itself plus its '
-                  'on-demand resources, so bundle identifiers repeat across rows.'),
+        'notes': ("Several package rows can join to one install record, so bundle identifiers "
+                  "repeat across rows."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'package',

@@ -1,0 +1,1856 @@
+{
+  "metadata": {
+    "module_name": "batteryBDC",
+    "artifact_name": "Battery Data Collection (BDC) - SmartCharging",
+    "function_name": "battery_bdc_smartcharging",
+    "case_number": "abe_ios16",
+    "number_of_columns": 8,
+    "number_of_rows": 182,
+    "total_data_size_bytes": 19125,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/batteryBDC/testdata.batteryBDC.battery_bdc_smartcharging.abe_ios16.zip",
+    "start_time": "2026-08-25T15:39:11.931027+00:00",
+    "end_time": "2026-08-25T15:39:11.953173+00:00",
+    "run_time_seconds": 0.0006430149078369141,
+    "last_commit": {
+      "hash": "293328aaa7138520af1b86b7ab9323798cc3508f",
+      "author_name": "Brigs",
+      "author_email": "abrignoni@gmail.com",
+      "date": "2026-08-25T00:44:38-05:00",
+      "message": "Merge main, applying its source-path change to all eight BDC parsers"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Charging State",
+    "Inflow State",
+    "Charge Limit (%)",
+    "Check Point",
+    "Decision Maker",
+    "Mode Of Operation",
+    "Source File"
+  ],
+  "data": [
+    [
+      "2023-04-04 14:44:34",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-04_14:44:34.csv"
+    ],
+    [
+      "2023-05-05 01:07:56",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-20 05:28:16",
+      "0",
+      "1",
+      "100",
+      "10",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-20 08:59:20",
+      "1",
+      "1",
+      "100",
+      "10",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-20 09:12:00",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-20 10:44:45",
+      "1",
+      "1",
+      "100",
+      "20",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-24 06:08:07",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-24 11:25:07",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-27 09:17:02",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-27 11:37:40",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-29 06:54:42",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-05-29 11:27:09",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-05_01:07:57.csv"
+    ],
+    [
+      "2023-06-14 14:37:32",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-14 19:05:47",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-15 02:32:37",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-15 03:13:25",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-15 04:51:10",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-15 11:16:26",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-15 11:16:27",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-15 11:16:28",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-15 21:03:06",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-15 21:03:07",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 01:46:56",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 01:46:57",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 02:05:37",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 04:01:28",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 10:10:48",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 10:10:56",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 10:10:57",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 19:36:28",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 20:00:18",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 20:00:19",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 20:00:20",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 20:32:57",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 20:54:05",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 20:54:06",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 20:54:07",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 23:32:05",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-16 23:52:21",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-17 00:38:58",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-17 00:39:01",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-06-17 00:39:02",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-14_14:37:32.csv"
+    ],
+    [
+      "2023-05-29 18:55:45",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-09 23:07:37",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 03:38:28",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 03:43:52",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 03:43:54",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 08:52:17",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 09:43:36",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 10:59:43",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 12:23:51",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 17:12:53",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 17:12:55",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-10 17:12:57",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-11 02:50:09",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-11 04:14:01",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-12 05:09:42",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-12 05:09:44",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-06-12 05:09:45",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-05-29_18:55:46.csv"
+    ],
+    [
+      "2023-04-10 23:47:50",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-04-12 05:58:03",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-04-12 12:42:32",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-04-13 05:55:21",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-04-13 12:34:27",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-04-14 05:27:20",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-04-14 12:01:56",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-04-15 05:54:32",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-04-15 11:48:18",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_23:47:50.csv"
+    ],
+    [
+      "2023-03-14 14:52:29",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-14_14:52:29.csv"
+    ],
+    [
+      "2023-03-19 18:48:41",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-19_18:48:41.csv"
+    ],
+    [
+      "2023-03-26 05:40:47",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-19_18:48:41.csv"
+    ],
+    [
+      "2023-03-26 10:00:37",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-19_18:48:41.csv"
+    ],
+    [
+      "2023-04-10 02:31:50",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-10_02:31:51.csv"
+    ],
+    [
+      "2023-04-06 20:08:15",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-06_20:08:15.csv"
+    ],
+    [
+      "2023-06-21 00:50:36",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-21 04:59:16",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-21 05:40:17",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-21 07:24:12",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-21 14:34:45",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-21 14:34:45",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-21 14:34:46",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-23 01:54:07",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-23 03:24:42",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-23 04:47:45",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-23 21:50:05",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-23 21:50:05",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-23 21:50:06",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-24 06:26:50",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-24 07:45:20",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-24 16:15:47",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-24 16:15:47",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-24 16:15:49",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-25 18:06:21",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-25 18:17:49",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-25 18:17:50",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 04:23:30",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 05:27:37",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 07:21:40",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 14:34:27",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 14:34:29",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 14:34:30",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 17:10:27",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 17:10:28",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 19:26:43",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 19:26:45",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 22:42:40",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-26 22:42:41",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-27 03:41:03",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-27 05:09:00",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-27 13:48:20",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-27 13:48:23",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-27 13:48:23",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-28 00:22:05",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-28 00:24:44",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-28 00:24:45",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-28 03:30:07",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-28 05:11:20",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-28 16:01:06",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-28 16:01:08",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-28 16:01:08",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-29 08:08:41",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-06-29 16:28:07",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-21_00:50:37.csv"
+    ],
+    [
+      "2023-03-13 14:44:23",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-13_14:44:23.csv"
+    ],
+    [
+      "2023-03-06 22:04:20",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-06_22:04:20.csv"
+    ],
+    [
+      "2023-03-10 06:34:56",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-06_22:04:20.csv"
+    ],
+    [
+      "2023-03-10 10:06:19",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-06_22:04:20.csv"
+    ],
+    [
+      "2023-03-12 07:59:11",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-06_22:04:20.csv"
+    ],
+    [
+      "2023-03-12 12:09:32",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-06_22:04:20.csv"
+    ],
+    [
+      "2023-06-17 15:10:17",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-18 03:11:19",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-18 03:30:29",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-18 05:14:00",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-18 14:02:37",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-18 14:02:38",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-18 14:02:39",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-18 21:25:12",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-19 14:04:45",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-19 14:15:57",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-19 16:18:14",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-19 16:49:38",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-19 16:49:38",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-19 16:49:40",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-20 04:57:33",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-20 05:15:09",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-20 07:10:04",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-20 13:37:27",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-20 13:37:29",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-20 13:37:30",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-06-20 18:14:48",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-17_15:10:17.csv"
+    ],
+    [
+      "2023-04-16 02:52:08",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-04-18 05:38:01",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-04-18 12:29:48",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-04-20 04:39:39",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-04-20 12:09:28",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-04-29 05:55:42",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-04-29 11:25:55",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-04-30 04:56:45",
+      "0",
+      "1",
+      "100",
+      "2",
+      "",
+      "1",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-04-30 11:04:53",
+      "1",
+      "1",
+      "100",
+      "5",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-16_02:52:09.csv"
+    ],
+    [
+      "2023-03-28 00:14:58",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-03-28_00:14:59.csv"
+    ],
+    [
+      "2023-06-12 10:54:51",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 03:57:01",
+      "1",
+      "1",
+      "100",
+      "30",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 04:39:28",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 06:29:58",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 11:43:19",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 11:43:20",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 11:43:20",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 12:20:51",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 12:20:52",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 14:13:39",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 14:13:40",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 15:00:03",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 15:00:03",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 15:33:37",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 15:33:37",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 15:48:52",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-13 15:48:54",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-14 04:23:53",
+      "1",
+      "1",
+      "100",
+      "6",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-14 06:16:17",
+      "1",
+      "1",
+      "100",
+      "7",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-14 11:34:57",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "6",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-14 11:35:02",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-06-14 11:35:05",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-06-12_10:54:52.csv"
+    ],
+    [
+      "2023-04-08 06:02:22",
+      "1",
+      "1",
+      "100",
+      "0",
+      "",
+      "0",
+      "filesystem2/db/Battery/BDC/BDC_SmartCharging_version2.0_2023-04-08_06:02:23.csv"
+    ]
+  ]
+}

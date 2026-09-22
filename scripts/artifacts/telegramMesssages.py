@@ -20,7 +20,8 @@ __artifacts_v2__ = {
                  "Some media sub-field labels (live-location period, venue fields) are best-effort interpretations of observed keys. "
                  "A photo is stored on the device once per size the client downloaded, each under its own file name, so every "
                  "representation of an image is offered to the file search rather than the largest alone. When only a _partial "
-                 "file is present the media was referenced by the message but never fully downloaded, and the row says so.",
+                 "file is present, no complete copy of the media is in the extraction, and the "
+                 "row says so.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'

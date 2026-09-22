@@ -33,8 +33,9 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": (
             "Core Data: ZUACDUSER.ZSAVEDTRAVELERSJSON (simplifiedTravelers). "
-            "Per-traveler MileagePlus/KTN are usually on trip passengers, not this list. "
-            "In examined extractions, the column may be absent on older app versions."
+            "Per-traveler MileagePlus and KTN values, where present, are reported by the Trip "
+            "Passengers artifact rather than here. The column was absent in some examined "
+            "extractions."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -88,7 +89,8 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": (
             "Core Data table: ZUACDWALLETMBP. "
-            "In examined extractions, often present on older app versions when wallet reservation JSON is empty."
+            "In some examined extractions this table held rows while the wallet reservation JSON "
+            "was empty."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -157,7 +159,7 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": (
             "Source: Documents/logFile.txt (concatenated JSON travel-mode status history). "
-            "In examined extractions, not present on all app versions."
+            "The file was not present in every examined extraction."
         ),
         "paths": (
             "*/com.united.UnitedCustomerFacingIPhone*/Documents/logFile.txt",
@@ -174,12 +176,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "United Airlines",
+        "sample_data": {'abe_ios16': 'iOS 16.5 | 0 rows'},
         "notes": (
-            "Core Data table: ZUACDINFLIGHTMEDIA; also app prefs "
-            "com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys)."
+            'Core Data table: ZUACDINFLIGHTMEDIA; also app prefs com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys). On abe_ios16 the Core Data store is read and its ZUACDINFLIGHTMEDIA table is present with no rows. The preferences plist was not found on any of the 21 registered corpora whose listings were checked, so the preferences branch is unexercised.'
         ),
         "paths": (
-            "*/UnitediPhoneCoreData.sqlite*"
+            "*/UnitediPhoneCoreData.sqlite*",
             "*/com.united.UnitedCustomerFacingIPhone/Library/Preferences/"
             "com.united.UnitedCustomerFacingIPhone.plist",
         ),
@@ -219,7 +221,8 @@ __artifacts_v2__ = {
             "Source: MobileSMS PluginMetaDataCache plist for "
             "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension. "
             "Handles present in the plugin's metadata cache; not full message content. "
-            "Prefer the AppDomain-com.apple.MobileSMS copy over the notification-extension stub."
+            "The same cache can also be present under the notification extension domain; both "
+            "copies are read where present."
         ),
         "paths": (
             "*/Library/SMS/PluginMetaDataCache/*/com.apple.messages."

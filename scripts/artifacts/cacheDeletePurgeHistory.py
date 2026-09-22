@@ -5,7 +5,9 @@
 __artifacts_v2__ = {
     "cacheDeletePurgeHistory": {
         "name": "CacheDelete Purge History",
-        "description": "Parses CacheDeletePurgeHistory.txt — a headerless, pipe-delimited log of recent CacheDelete purge events (timestamp, target directory, urgency, available space, purged bytes, duration).",
+        "description": "Parses CacheDeletePurgeHistory.txt, a headerless, pipe-delimited log of "
+                       "recent CacheDelete purge events (timestamp, target directory, urgency, "
+                       "available space, purged bytes, duration).",
         "author": "@Jadoo4QFan", 
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-21",

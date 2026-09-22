@@ -72,7 +72,7 @@ __artifacts_v2__ = {
     },
     "booking_viewed": {
         "name": "Booking - Viewed",
-        "description": "Extracts Booking.com recently viewed accommodations.",
+        "description": "Extracts the recently viewed accommodations list stored by Booking.com.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
@@ -87,7 +87,8 @@ __artifacts_v2__ = {
     },
     "booking_recently_searched": {
         "name": "Booking - Recently Searched",
-        "description": "Extracts Booking.com recent searches for accommodations and destinations.",
+        "description": "Extracts the recent searches list for accommodations and destinations "
+                       "stored by Booking.com.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",

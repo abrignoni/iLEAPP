@@ -11,10 +11,11 @@ __artifacts_v2__ = {
         "category": "MEGA",
         "notes": "Read from the karere-*.db history table. Direction is set by comparing the sender "
                  "handle to the account's own handle, which the store keeps in vars as my_handle. "
-                 "Text messages (type 1) hold their content directly. Location shares (type 104) "
-                 "carry a JSON body with a maps URL, latitude and longitude and a base64 JPEG "
-                 "thumbnail, which is decoded and checked in. Other type values are management "
-                 "events and are reported with their stored type number and no body.",
+                 "Rows with type 1 hold their text directly. Rows whose body is a JSON object "
+                 "carrying a maps URL, latitude and longitude and a base64 JPEG thumbnail are "
+                 "reported as location shares (type 104 as stored), with the thumbnail decoded "
+                 "and checked in. Other type values are reported with their stored type number "
+                 "and no body; no published source for the type values is cited.",
         "paths": ('*/karere-*.db*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -42,8 +43,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "MEGA",
-        "notes": "A peer handle of 0 is used by the store for group or self chats rather than a "
-                 "one-to-one contact.",
+        "notes": "A peer handle of 0 does not resolve to a contact and is reported as stored; "
+                 "its meaning is not sourced.",
         "paths": ('*/karere-*.db*',),
         "output_types": "standard",
         "artifact_icon": "users",

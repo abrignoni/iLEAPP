@@ -1,7 +1,10 @@
 __artifacts_v2__ = {
     "wipe_indicators": {
         "name": "Wipe Indicators",
-        "description": "Reports the last-modified time of /root/.obliterated and /root/.bootstrapped, files created when the device is wiped; the timestamp reflects the first boot after reset.",
+        "description": "Reports the last-modified time of /root/.obliterated and "
+                       "/root/.bootstrapped; the cited reference describes .obliterated as "
+                       "created on the first boot after a wipe, and .bootstrapped is not covered "
+                       "by it",
         "author": "@JohnHyla",
         "creation_date": "2026-08-06",
         "version": "0.0.3",
@@ -16,7 +19,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 2 rows",
             "felix_ios17": "iOS 17.6.1 | 2 rows",
-            "fsfull002_ios17": "iOS 17.1 | 3 rows",
+            "fsfull002_ios17": "iOS 17.1 | 2 rows",
             "iphone11_ios17": "iOS 17.3 | 2 rows",
             "iphone12_ios18": "iOS 18.7 | 2 rows",
             "iphone14plus_ios18": "iOS 18.0 | 2 rows",

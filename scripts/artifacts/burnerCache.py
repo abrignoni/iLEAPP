@@ -17,6 +17,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
             "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 2 rows",
             "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 2 rows",
+            "hickman_ios15": "iOS 15.3.1 | Burner: Second Phone Number 5.3.8 | 2 rows",
         }
     },
     "burnerCache_contacts": {
@@ -37,6 +38,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 2 rows",
             "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 3 rows",
             "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 4 rows",
+            "hickman_ios15": "iOS 15.3.1 | Burner: Second Phone Number 5.3.8 | 2 rows",
         }
     },
     "burnerCache_numbers": {
@@ -57,6 +59,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 1 row",
             "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 3 rows",
             "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 2 rows",
+            "hickman_ios15": "iOS 15.3.1 | Burner: Second Phone Number 5.3.8 | 1 row",
         }
     },
     "burnerCache_messages": {
@@ -78,6 +81,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | Burner: Second Phone Number 5.4.11 | 34 rows",
             "hickman_ios13": "iOS 13.3.1 | Burner - 2nd Phone Number 4.0.18 | 9 rows",
             "hickman_ios14": "iOS 14.3 | Burner - Private Phone Line 4.3.3 | 12 rows",
+            "hickman_ios15": "iOS 15.3.1 | Burner: Second Phone Number 5.3.8 | 18 rows",
         },
         "data_views": {
             "conversation": {
@@ -101,6 +105,7 @@ from pathlib import Path
 from scripts.ilapfuncs import get_file_path, open_sqlite_db_readonly, lava_get_full_media_info, \
     convert_unix_ts_to_utc, check_in_media, check_in_embedded_media, artifact_processor, logfunc
 from scripts.html_safe import esc, safe_join, safe_url
+from scripts.context import Context
 
 
 # <id or phone number, phone number (display name)> shared across the artifacts below.
@@ -170,25 +175,36 @@ def get_json_content(data):
         return {}
 
 
+def _device_relative(path):
+    """A path as it sits in the evidence: extraction relative, no leading slash.
+
+    The seeker stages every file under <report folder>/data/<extraction relative
+    path>, whatever the input type, so stripping that prefix is what makes this
+    work the same for a zip, a tar, an iTunes backup and a directory. A media
+    item's recorded source path is already the evidence path, for every input
+    type, so it only loses its leading slash here.
+    """
+    text = Context.get_relative_path(Path(str(path)).as_posix()).replace('\\', '/')
+    return text.lstrip('/')
+
+
 # device path/local path
 def get_device_file_path(file_path, seeker):
-    device_path = file_path
+    """Where this file sits in the evidence, for the Source file name column.
 
-    if bool(file_path):
-        file_info = seeker.file_infos.get(file_path) if file_path else None
-        # data folder: /path/to/report/data
-        if file_info:
-            source_path = file_info.source_path
-        # extraction folder: /path/to/directory
-        else:
-            source_path = file_path
-        source_path = Path(source_path).as_posix()
+    Callers pass either a staged path or a media item's recorded source_path.
+    file_infos is keyed by the staged path, so a hit means the first kind and a
+    miss means the second; both reduce the same way.
 
-        index_private = source_path.find('/private/')
-        if index_private > 0:
-            device_path = source_path[index_private:]
-    
-    return device_path
+    Previously this returned the staged path whenever it could not find
+    '/private/', which published the examiner's own report folder in the report
+    and never fired at all on an image whose root is not /private.
+    """
+    if not file_path:
+        return file_path
+
+    file_info = seeker.file_infos.get(file_path) if seeker else None
+    return _device_relative(file_info.source_path if file_info else file_path)
 
 
 def get_cache_db_fs_path(data, file_found, seeker):

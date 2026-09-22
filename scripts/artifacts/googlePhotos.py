@@ -46,9 +46,9 @@ __artifacts_v2__ = {
         "notes": "Read from the Collections table, whose mcCollection blob is protobuf. The "
                  "title, item count, the earliest and latest item timestamps and the cover "
                  "image URL are taken from that blob. Timestamps are Unix milliseconds. Some "
-                 "titles observed in the tested samples are calendar dates, which is consistent "
-                 "with an album the app named rather than the account holder, but nothing in "
-                 "the store distinguishes the two, so no such column is reported.",
+                 "titles observed in the tested samples are calendar dates; nothing in the store "
+                 "records whether a title was set by the app or by the account holder, so no "
+                 "such column is reported.",
         "paths": ('*/Library/Application Support/store/photos-*.db*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "folder",
@@ -85,8 +85,8 @@ __artifacts_v2__ = {
         "category": "Google Photos",
         "notes": "Read from SharedServerPhotos joined to SharedExtendedPhotos, whose "
                  "mcMediaItem blob is zlib compressed protobuf and supplies the file name. "
-                 "actorMediaKey identifies the account credited with the item in the album; the "
-                 "store records the key, not a name. Timestamps are Unix milliseconds. "
+                 "actorMediaKey is reported as stored; the store records a key, not a name, and "
+                 "the key was not resolved to an account. Timestamps are Unix milliseconds. "
                  "widthAndHeight and latitudeLongitudeE7 are unpacked as in the library "
                  "artifact. allowedActions is reported as stored.",
         "paths": ('*/Library/Application Support/store/photos-*.db*',),
@@ -101,8 +101,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-19",
         "requirements": "none",
         "category": "Google Photos",
-        "notes": "Read from OnDeviceSearchClusters. A label is the text the cluster is "
-                 "searchable by; the store does not record whether a given label was entered by "
+        "notes": "Read from OnDeviceSearchClusters. A label is the text the store holds for the "
+                 "cluster; the store does not record whether a given label was entered by "
                  "the account holder or produced by the app, so no such distinction is "
                  "reported. clusterType, visibleStatus and hiddenReason are reported as stored: "
                  "five distinct clusterType values were observed and no mapping was sourced, "
@@ -140,15 +140,16 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Google Photos",
         "notes": "Files under Library/Caches/com.google.photos/ImageFetcherCache_file_<ext>. "
-                 "Each is a complete standalone file: the MP4 and MOV members read as ISO base "
-                 "media with a moov atom and the M4A members as M4A, so they are checked in and "
-                 "rendered. The cacheV0.index beside them is a 20 byte header followed by 32 "
-                 "byte records of a 20 byte digest and three 32 bit values, the last of which "
-                 "matched the member's byte length. The digest preimage was not recovered: "
-                 "sha1, md5, sha256 and UTF-16 variants over the media key and over 2694 image "
-                 "URLs read out of the library store's own protobufs produced no match against "
-                 "13461 index digests across the two samples, so no link from these files to a "
-                 "library row is reported. The file name is the cache's own sequence number and "
+                 "Each tested file is a complete standalone file: the MP4 and MOV members read "
+                 "as ISO base media with a moov atom and the M4A members as M4A, so they are "
+                 "checked in and rendered. The cacheV0.index beside them is a 20 byte header "
+                 "followed by 32 byte records of a 20 byte digest and three 32 bit values, the "
+                 "last of which matched the member's byte length. The digest preimage was not "
+                 "recovered: sha1, md5, sha256 and UTF-16 variants over the media key and over "
+                 "2694 image URLs read out of the library store's own protobufs produced no "
+                 "match against 13461 index digests across the two samples, so no link from "
+                 "these files to a library row is reported. The file name is a number the cache "
+                 "assigned and "
                  "does not carry the original name. This path is also listed in Park, Park, "
                  "Kim, Kang and Kim, 'A comprehensive artifact analysis of Google applications "
                  "on Android and iOS platforms', Forensic Science International: Digital "

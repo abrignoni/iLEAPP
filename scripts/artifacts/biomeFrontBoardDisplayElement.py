@@ -74,15 +74,21 @@ def _unix_double(value):
 @artifact_processor
 def get_biomeFrontBoardDisplayElement(context):
 
-    data_list = []
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Event Timestamp', 'datetime'),
+                    'SEGB State', 'Bundle ID', 'Scene ID', 'Display Type', 'Display Role',
+                    'Field 4 (raw)', 'Field 5 (raw)', 'Field 6 (raw)', 'Field 7 (raw)',
+                    'Field 8 (raw)', 'Field 10 (raw)', 'Filename', 'Offset')
+
     source_dirs = set()
+    results = context.create_artifact_result(headers=data_headers)
+
     for file_found in sorted(context.get_files_found()):
         file_found = str(file_found)
         filename = os.path.basename(file_found)
         if filename.startswith('.'):
             continue
         if os.path.isfile(file_found):
-            if 'tombstone' in file_found:
+            if 'tombstone' in context.get_relative_path(file_found):
                 continue
         else:
             continue
@@ -103,7 +109,7 @@ def get_biomeFrontBoardDisplayElement(context):
                 if not isinstance(display, dict):
                     display = {}
 
-                data_list.append((ts, _unix_double(protostuff.get('1')), record.state.name,
+                results.add_row((ts, _unix_double(protostuff.get('1')), record.state.name,
                                   _to_str(protostuff.get('3', b'')),
                                   _to_str(protostuff.get('2', b'')),
                                   _to_str(display.get('2', b'')),
@@ -114,13 +120,9 @@ def get_biomeFrontBoardDisplayElement(context):
                                   filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, None, record.state.name, None, None, None, None, None,
+                results.add_row((ts, None, record.state.name, None, None, None, None, None,
                                   None, None, None, None, None, filename,
                                   record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Event Timestamp', 'datetime'),
-                    'SEGB State', 'Bundle ID', 'Scene ID', 'Display Type', 'Display Role',
-                    'Field 4 (raw)', 'Field 5 (raw)', 'Field 6 (raw)', 'Field 7 (raw)',
-                    'Field 8 (raw)', 'Field 10 (raw)', 'Filename', 'Offset')
-
-    return data_headers, data_list, '\n'.join(sorted(source_dirs))
+    results.set_source_path('\n'.join(sorted(source_dirs)))
+    return results

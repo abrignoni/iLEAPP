@@ -75,7 +75,8 @@ __artifacts_v2__ = {
     },
     "uber_searched_rides": {
         "name": "Uber - Place Search Hits",
-        "description": "Parses searched rides history from database.db.",
+        "description": "Parses the hits table of database.db joined to its place rows (place "
+                       "search hits).",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",

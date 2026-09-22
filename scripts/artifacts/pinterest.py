@@ -45,10 +45,9 @@ __artifacts_v2__ = {
                  "the conversations it opened, so it is neither the complete message history "
                  "nor evidence that other conversations do not exist.\n"
                  "The cache key of the response parsed from the tested sample carries the "
-                 "request parameter hide_sys_msg true, so system messages were excluded by "
-                 "the server before the response was cached and none appear here. A file whose "
-                 "key does not carry that parameter is parsed the same way and its system "
-                 "messages, if any, would be reported.\n"
+                 "request parameter hide_sys_msg true, and no system messages appear in that "
+                 "response. A file whose key does not carry that parameter is parsed the same "
+                 "way.\n"
                  "Direction is derived by comparing the message sender id against the signed "
                  "in account id read from the activeUser file, so it is reported only when "
                  "that file is present in the extraction. Every message in the tested "
@@ -119,10 +118,10 @@ __artifacts_v2__ = {
                  "that the app made the request and the server returned nothing, which is not "
                  "the same as the app never making it.\n"
                  "Created and Modified are the file system dates the extraction recorded for "
-                 "the cache file, not times the app wrote into the record. This library keys "
-                 "its cache entries on the request path, so an entry is overwritten in place "
-                 "when the same request is repeated and these dates describe the most recent "
-                 "fetch only. Field mapping was done against private samples; no sample data "
+                 "the cache file, not times the app wrote into the record. Whether an earlier "
+                 "response for the same request path was overwritten is not established here, so "
+                 "these dates describe the cache file as found. Field mapping was done against "
+                 "private samples; no sample data "
                  "is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Caches/com.pinterest.PINDiskCache.PINRemoteModelCache/*',
@@ -234,8 +233,7 @@ __artifacts_v2__ = {
                  "archive or binary payload is reported by its type and length rather than "
                  "decoded. The keys ending last_selected_date carry a tab number whose "
                  "meaning is not established, so the key name is reported as stored. Absence "
-                 "of a key is not evidence a setting was off; the app writes many of these "
-                 "only once the state they describe changes. Field mapping was done against "
+                 "of a key is not evidence a setting was off. Field mapping was done against "
                  "private samples; no sample data is recorded for them.",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Preferences/pinterest.plist',

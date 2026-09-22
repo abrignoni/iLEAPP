@@ -7,7 +7,17 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Locations",
-        "notes": "GeoHistory.mapsdata is present only on the iOS 12.4 and 13.3.1 test images; it is absent from every newer registered corpus image and public path listing checked and from all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current extractions is expected (Maps history there is parsed by the Apple Maps Sync artifacts). Search terms have been documented in GeoHistory.mapsdata by published research; the specific protobuf field positions used here were established through testing. Reference: Heather Mahalik, 'How the Grinch Stole Apple Maps Artifacts (Or Did He Just Hide Them?)', https://smarterforensics.com/2016/12/how-the-grinch-stole-apple-maps-artifacts-or-did-he-just-hide-them/",
+        "notes": "GeoHistory.mapsdata is present only on the iOS 12.4 and 13.3.1 test images; it "
+                 "is absent from every newer registered corpus image and public path listing "
+                 "checked and from all 21 extractions in Mattia Epifani's 2026-08 comparison "
+                 "across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current "
+                 "extractions is expected (Maps history there is parsed by the Maps Sync "
+                 "artifact). Search terms have been documented in GeoHistory.mapsdata by "
+                 "published research; the specific protobuf field positions used here are not "
+                 "vendor-documented and were derived from the tested images. Reference: Heather "
+                 "Mahalik, 'How the Grinch Stole Apple Maps Artifacts (Or Did He Just Hide "
+                 "Them?)', "
+                 "https://smarterforensics.com/2016/12/how-the-grinch-stole-apple-maps-artifacts-or-did-he-just-hide-them/",
         "paths": (
             '*/mobile/Containers/Data/Application/*/Library/Maps/GeoHistory.mapsdata',
             '*/GeoHistory.mapsdata',
@@ -22,6 +32,7 @@ __artifacts_v2__ = {
 }
 
 from scripts import blackboxprotobuf
+from google.protobuf.message import DecodeError
 import base64
 import binascii
 import pprint
@@ -45,9 +56,13 @@ def get_nested_value(data, path):
 
 
 def longbase64proto(longstuff, longtypes):
-    longstuff = longstuff.split('placeRequest=')[1]
-    longstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(longstuff), longtypes)
-    return longstuff
+    try:
+        longstuff = longstuff.split('placeRequest=')[1]
+        longstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(longstuff), longtypes)
+        return longstuff
+    except (DecodeError, binascii.Error, ValueError, IndexError) as ex:
+        logfunc(f"Error decoding Apple Maps Search History protobuf: {ex}")
+        return None
 
 
 def shortbase64proto(shortstuff, shorttypes):
@@ -56,7 +71,7 @@ def shortbase64proto(shortstuff, shorttypes):
         shortstuff += '=' * (-len(shortstuff) % 4)
         shortstuff, _ = blackboxprotobuf.decode_message(base64.b64decode(shortstuff), shorttypes)
         return shortstuff
-    except (binascii.Error, ValueError) as ex:
+    except (DecodeError, binascii.Error, ValueError) as ex:
         logfunc(f"Error decoding Apple Maps Search History protobuf: {ex}")
         return None
 
@@ -102,8 +117,12 @@ def get_appleMapsSearchHistory(context):
                             modificationdate = (h.replace(tzinfo=timezone.utc)
                                                 if isinstance(h, datetime) and h.tzinfo is None else h)
                         if g == 'contents':
-                            
-                            protostuff, _ = blackboxprotobuf.decode_message(h)
+                            try:
+                                protostuff, _ = blackboxprotobuf.decode_message(h)
+                            except (DecodeError, ValueError, TypeError) as ex:
+                                logfunc(f'Apple Maps Search History: could not decode record '
+                                        f'{guid} in {file_found}: {ex}')
+                                continue
                             #pp.pprint(protostuff)
                             items = (protostuff)
                             if protostuff.get('7'):

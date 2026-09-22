@@ -4,10 +4,32 @@ __artifacts_v2__ = {
         "description": "Parses SMS and iMessage chats",
         "author": "@AlexisBrignoni, @XperyLab, @ydkhatri, @tobraha, @snoop168",
         "creation_date": "2020-04-30",
-        "last_update_date": "2026-07-10",
+        "last_update_date": "2026-09-07",
         "requirements": "none",
         "category": "SMS & iMessage",
-        "notes": "",
+        "notes": "Sender is the handle joined to a received row through message.handle_id, which "
+                 "imessage-exporter documents as the sender handle row ID "
+                 "(imessage-database/src/tables/messages/message.rs at commit 4d90fc8d, line 190); it is "
+                 "left blank on sent rows, whose local account is in the Account column, and on received "
+                 "rows that record no handle. Across the tested images those were announcement rows, "
+                 "most often a shared location start or stop and less often a group participant or name "
+                 "change (item_type and group_action_type, "
+                 "imessage-database/src/tables/messages/models/group_action.rs at commit 4d90fc8d, lines "
+                 "41 to 51). Chat Participants lists the handles joined to the message's chat through "
+                 "chat_handle_join, comma separated. In a direct chat that is the same value as Chat "
+                 "Contact ID; in a group chat, Chat Contact ID holds the chat identifier as stored and "
+                 "Chat Participants is where a phone number or email is found. Chat Name is "
+                 "chat.display_name as stored. A message with no chat_message_join row has blank chat "
+                 "columns, and Sender still resolves for it where a handle is recorded. Destination "
+                 "Caller ID is message.destination_caller_id as stored, documented by Josh Hickman as "
+                 "the number of the account used to send or receive the message, which is what separates "
+                 "the lines on a dual SIM device (thebinaryhick.blog, Mo' SIMs, Mo' Problems: Examining "
+                 "Phones with Dual SIMs, 6 December 2022). It was filled on all 737 sent rows and on "
+                 "1,257 of 1,281 received rows across the tested images, and 7 of the 18 that hold "
+                 "messages carried more than one identity in it. It is not always a phone number: one "
+                 "image stores an email address and another a UUID. One line can appear in more than one "
+                 "spelling, as bare digits, +E.164, or with a tel: prefix, so two values that differ as "
+                 "text can be the same line.",
         "paths": ('*/Library/SMS/sms.db*',
                   '*/Library/SMS/Attachments/*'),
         "output_types": "standard",
@@ -37,8 +59,8 @@ __artifacts_v2__ = {
                 "directionColumn": "From Me",
                 "directionSentValue": 1,
                 "timeColumn": "Message Timestamp",
-                "senderColumn": "Chat Contact ID",
-                "sentMessageLabelColumn": "Account",
+                "senderColumn": "Sender",
+                "sentMessageLabelColumn": "Destination Caller ID",
                 "mediaColumn": "Attachment File"
             }
         }
@@ -129,8 +151,17 @@ def sms(context):
     message.is_from_me as "From Me",
     message.attributedBody,
     message.date_delivered,
-    message.guid as "Message GUID"
+    message.guid as "Message GUID",
+    case when message.is_from_me = 0 then handle.id end as "Sender",
+    chat.display_name as "Chat Name",
+    (select group_concat(id) from
+        (select distinct handle.id as id from chat_handle_join
+         join handle on handle.ROWID = chat_handle_join.handle_id
+         where chat_handle_join.chat_id = chat.ROWID
+         order by id)) as "Chat Participants",
+    message.destination_caller_id as "Destination Caller ID"
     from message
+    left join handle on message.handle_id = handle.ROWID
     left join message_attachment_join on message.ROWID = message_attachment_join.message_id
     left join attachment on message_attachment_join.attachment_id = attachment.ROWID
     left join chat_message_join on message.ROWID = chat_message_join.message_id
@@ -143,9 +174,12 @@ def sms(context):
         ('Delivered Timestamp', 'datetime'),
         ('Attachment Timestamp', 'datetime'),
         'From Me',
+        'Sender',
         'Chat Contact ID',
         'Message',
         ('Attachment File', 'media'),
+        'Chat Name',
+        'Chat Participants',
         'Service',
         'Message Direction',
         'Message Sent',
@@ -153,6 +187,7 @@ def sms(context):
         'Message Read',
         'Account',
         'Account Login',
+        'Destination Caller ID',
         'Attachment Name',
         'Attachment Mimetype',
         'Attachment Size (Bytes)',
@@ -202,9 +237,12 @@ def sms(context):
             delivered_timestamp,
             attachment_timestamp,
             record[18],
+            record[22],
             record[10],
             message_text,
             media_ref_id,
+            record[23],
+            record[24],
             record[3],
             record[4],
             record[5],
@@ -212,6 +250,7 @@ def sms(context):
             record[7],
             record[8],
             record[9],
+            record[25],
             record[11],
             record[14],
             record[15],
@@ -237,9 +276,12 @@ def sms(context):
                                        'Delivered Timestamp',
                                        'Attachment Timestamp',
                                        'from_me',
+                                       'Sender',
                                        'data-name',
                                        'message',
                                        'Attachment File',
+                                       'Chat Name',
+                                       'Chat Participants',
                                        'Service',
                                        'Message Direction',
                                        'Message Sent',
@@ -247,6 +289,7 @@ def sms(context):
                                        'Message Read',
                                        'Account',
                                        'Account Login',
+                                       'Destination Caller ID',
                                        'Attachment Name',
                                        'content-type',
                                        'Attachment Size (Bytes)',

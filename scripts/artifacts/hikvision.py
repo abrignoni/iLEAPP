@@ -41,7 +41,8 @@ __artifacts_v2__ = {
     },
     "hikvisionActivity": {
         "name": "Hikvision - CCTV Activity",
-        "description": "User interaction with the Hikvision app (live view / play back)",
+        "description": "Log records from the Hikvision app's YSDCLogItem.sqlite, with the system "
+                       "name and data of each as stored",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
         "last_update_date": "2026-06-24",

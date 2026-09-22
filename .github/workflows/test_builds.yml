@@ -99,6 +99,23 @@ jobs:
           dist_build\ileapp.exe -t fs -i smoke_in -o smoke_out
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
+      # A raw image is read through the vendored reader imported as a module, which
+      # is the path a frozen build is most likely to break: an earlier design ran the
+      # reader as a subprocess through sys.executable, and in a bundle that is the
+      # tool itself, so -t raw could never work frozen and nothing smoke-tested it.
+      - name: Smoke test the frozen CLI on a raw image
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path smoke_raw_out | Out-Null
+          python -c "import gzip, shutil; shutil.copyfileobj(gzip.open('admin/test/data/raw_images/ntfs-fixture.img.gz'), open('smoke_in/ntfs-fixture.img', 'wb'))"
+          dist_build\ileapp.exe -t raw -i smoke_in\ntfs-fixture.img -o smoke_raw_out
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $log = Get-ChildItem -Path smoke_raw_out -Recurse -Filter "Screen_Output.html" | Select-Object -First 1
+          if (-not $log) { Write-Error "no run log was written"; exit 1 }
+          if (-not (Select-String -Path $log.FullName -Pattern "walked lba0: 4" -Quiet)) {
+            Write-Error "the frozen build did not walk the NTFS fixture"; exit 1
+          }
+
       - name: Verify the parser is bundled inside the frozen CLI
         # The artifact must read tracev3 natively on the examiner's machine with
         # nothing else installed. A onefile exe unpacks at runtime, so check the
@@ -175,6 +192,15 @@ jobs:
           mkdir smoke_in smoke_out
           echo placeholder > smoke_in/placeholder.txt
           dist_build/ileapp -t fs -i smoke_in -o smoke_out
+
+      # Same on Linux: the frozen build has to read a raw image through the vendored
+      # reader imported as a module, and the run log has to show the walk.
+      - name: Smoke test the frozen CLI on a raw image
+        run: |
+          mkdir smoke_raw_out
+          python -c "import gzip, shutil; shutil.copyfileobj(gzip.open('admin/test/data/raw_images/ntfs-fixture.img.gz'), open('smoke_in/ntfs-fixture.img', 'wb'))"
+          dist_build/ileapp -t raw -i smoke_in/ntfs-fixture.img -o smoke_raw_out
+          grep -rq "walked lba0: 4" smoke_raw_out --include="Screen_Output.html" || { echo "the frozen build did not walk the NTFS fixture"; exit 1; }
 
       - name: Verify the parser is bundled inside the frozen CLI
         # The workpath subfolder is named after the spec file: ileapp_Linux here,

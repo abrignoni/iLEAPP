@@ -7,7 +7,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health & Fitness",
-        "notes": "Difficulty value mapping observed in testing; unrecognized values are reported as stored.",
+        "notes": "Difficulty value mapping (1 Easy, 3 Moderate, 5 Hard) is not vendor-documented "
+                 "and was derived from tested data; unrecognized values are reported as stored.",
         "paths": ('*/Documents/AllTrails.sqlite*'),
         "output_types": ["html", "tsv", "lava", "kml"],
         "artifact_icon": "map",

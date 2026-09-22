@@ -72,7 +72,8 @@ __artifacts_v2__ = {
     },
     'groupMeGroupMembers': {
         'name': 'GroupMe - Group Members',
-        'description': 'Members of the GroupMe groups the account belongs to',
+        'description': "Members recorded for GroupMe groups in the app's store, with the member "
+                       "state as stored",
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-08-18',

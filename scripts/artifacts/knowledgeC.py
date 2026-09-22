@@ -96,7 +96,11 @@ __artifacts_v2__ = {
         "last_update_date": "2024-02-24",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "Based on research by Geraldine Blay and Dan Ogden. In tested data rows are recorded only on the iOS 13.3.1 and 14.3 images; the iOS 12.4 and 15.0.2 images and every iOS 16.1.1-26.5.2 image checked (recorded corpora plus Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2)) yield no rows, so an empty result on current extractions is expected.",
+        "notes": "Based on research by Geraldine Blay and Dan Ogden. In tested data rows are "
+                 "recorded only on the iOS 13.3.1, 14.3 and 15.3.1 images; the iOS 12.4 and "
+                 "15.0.2 images and every iOS 16.1.1-26.5.2 image checked (recorded corpora plus "
+                 "Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2)) "
+                 "yield no rows, so an empty result on current extractions is expected.",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "moon",

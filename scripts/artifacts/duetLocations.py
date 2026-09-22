@@ -49,7 +49,7 @@ def duetlocations(context):
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
-        if filename.startswith('.') or not os.path.isfile(file_found) or 'tombstone' in file_found:
+        if filename.startswith('.') or not os.path.isfile(file_found) or 'tombstone' in context.get_relative_path(file_found):
             continue
         with open(file_found, 'rb') as f:
             data = f.read()

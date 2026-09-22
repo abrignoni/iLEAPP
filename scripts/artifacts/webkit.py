@@ -106,7 +106,6 @@ SALT_MAP = {}
 
 @artifact_processor
 def webkit_cache_records(context):
-    data_list = []
     source_dirs = set()
     research_mode = context.get_artifact_info().get("research_mode", False)
     data_headers = (
@@ -116,6 +115,10 @@ def webkit_cache_records(context):
     )
     if research_mode:
         data_headers = RESEARCH_HEADERS
+
+    results = context.create_artifact_result(
+        headers=data_headers,
+    )
 
     for file_found in context.get_files_found():
         if file_found.endswith('salt'):
@@ -247,8 +250,8 @@ def webkit_cache_records(context):
         finally:
             # Append whatever data we have, even if it's incomplete
             # If header is a tuple (e.g., ('Timestamp', 'datetime')), use header[0] for the key
-            data_list.append(
-                tuple(file_data.get(header[0] if isinstance(header, tuple) else header, '') for header in data_headers)
-            )
+            results.add_row(tuple(file_data.get(header[0] if isinstance(header, tuple) else header, '')
+                                   for header in data_headers))
 
-    return data_headers, data_list, '\n'.join(sorted(source_dirs))
+    results.set_source_path('\n'.join(sorted(source_dirs)))
+    return results

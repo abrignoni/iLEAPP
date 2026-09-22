@@ -12,9 +12,18 @@ on:
       - '.github/workflows/windows_smoke.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   windows-smoke:
-    runs-on: windows-latest
+    # Windows Server 2025 (windows-latest) and 2022 handle device names differently in an
+    # ordinary path, and the staging tests below showed it, so the job runs on both.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, windows-2022]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,3 +54,25 @@ jobs:
 
       - name: Open SQLite on a path longer than 260 characters
         run: python admin/test/scripts/test_sqlite_longpath_uri.py
+
+      # The entry points hand a directory input to the seeker with the extended-length
+      # prefix on Windows, so the recorded evidence path and the staged path are
+      # checked here with that prefix as well as without it.
+      - name: Stage from a directory input with and without the extended-length prefix
+        run: python admin/test/scripts/test_seeker_source_path.py
+
+      # sanitize_file_path passes reserved device names (AUX, aux.dat, CON...) and names
+      # ending in a dot or a space through unchanged, and registered extractions carry
+      # both. Each is staged here through the tar and zip seekers, with and without the
+      # extended-length prefix, and must come back as its own file with its own bytes.
+      - name: Stage archive members named like devices or ending in a dot or a space
+        run: python admin/test/scripts/test_seeker_windows_names.py
+
+      # A compressed tar is decompressed once into the report folder and read from there.
+      - name: Read a compressed tar through one decompressed copy
+        run: python admin/test/scripts/test_seeker_tar_compressed.py
+
+      # Members with control characters in their names were absent from the extraction
+      # on Windows until sanitize_file_path covered them.
+      - name: Stage archive members whose names hold characters Windows forbids
+        run: python admin/test/scripts/test_extraction_illegal_filenames.py

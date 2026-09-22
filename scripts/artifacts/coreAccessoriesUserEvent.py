@@ -13,7 +13,7 @@ __artifacts_v2__ = {
             database found in CoreAccessories",
         "author": "John Hyla",
         "creation_date": "2023-08-01",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Core Accessories",
         "notes": "Lightning accessory ID labels are drawn from published reverse-engineering research; unmapped IDs are reported as stored. Reference: nyansatan, 'Lightning connector reverse engineering', https://nyansatan.github.io/lightning/",
@@ -64,7 +64,7 @@ def get_coreAccessoriesUserEvent(context):
         all_keys.update(pl.keys())
 
     all_keys.remove(event_time_key)
-    all_keys_list = [event_time_key] + list(all_keys)
+    all_keys_list = [event_time_key] + sorted(all_keys)
     data_list = []
     for row in temp_data:
         row_values = []

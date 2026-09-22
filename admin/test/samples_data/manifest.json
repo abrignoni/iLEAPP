@@ -6,6 +6,12 @@
     "notes": "Baseline common photo format."
   },
   {
+    "type": "HEIC",
+    "mime": "image/heic",
+    "file": "sample_heic.heic",
+    "notes": "iOS Camera Roll default still format."
+  },
+  {
     "type": "PNG",
     "mime": "image/png",
     "file": "sample_png.png",

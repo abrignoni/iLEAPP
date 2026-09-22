@@ -6,10 +6,8 @@ See artifacts description for more details.
 __artifacts_v2__ = {
     "health_workouts": {
         "name": "Health - Workouts",
-        "description": "Added column within Health - Workouts for Total Time "
-                       "Duration. Total Time Duration reviewed side by side "
-                       "with Workout Duration can show variations which could "
-                       "be significant within an investigation/examination. "
+        "description": "Workouts from healthdb_secure.sqlite, with Workout Duration and Total "
+                       "Time Duration (end minus start) reported side by side. "
                        "Additional details published within 'Enriching "
                        "Investigations with Apple Watch Data Through the "
                        "healthdb_secure.sqlite Database' at "
@@ -221,7 +219,8 @@ __artifacts_v2__ = {
     },
     "health_steps": {
         "name": "Health - Steps",
-        "description": "Health - Steps",
+        "description": "Step count samples from the samples table of healthdb_secure.sqlite, with "
+                       "start and end, steps, duration and the writing device's id and model.",
         "author": "@KevinPagano3",
         "creation_date": "2023-10-06",
         "last_update_date": "2025-10-13",
@@ -320,11 +319,7 @@ __artifacts_v2__ = {
     "health_watch_worn_data": {
         "name": "Health - Device - Watch Worn Data",
         "description": "Parses Apple Watch Worn Data from the healthdb_secure.sqlite database"
-                       "This artifact provides an 'at a glance' review of time periods "
-                       "in which the Apple Watch is worn. "
-                       "This data can lend to pattern of life analysis as well as providing "
-                       "structure to periods in which data such as heart rate data will be "
-                       "generated and recorded. "
+                       ", reporting the periods the Health store records the watch as worn. "
                        "Additional details published within 'Apple Watch Worn Data Analysis' at "
                        "https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
         "author": "@SQLMcGee for Metadata Forensics, LLC",

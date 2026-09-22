@@ -519,7 +519,7 @@ def chromeWebHistory(context):
             for row in all_rows:
                 dt = convert_ts_human_to_utc(row[0])
                 data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -623,7 +623,7 @@ def chromeWebVisits(context):
             for row in all_rows:
                 dt = convert_ts_human_to_utc(row[0])
                 data_list.append((dt,row[1],row[2],row[3],row[4],row[5],row[6]))
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -702,7 +702,7 @@ def chromeWebSearch(context):
                 search = urllib.parse.unquote(search).replace('+', ' ')
                 data_list.append((dt, search, row[0], row[1], row[2]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
             
             # Generate LAVA output
@@ -861,7 +861,7 @@ def chromeDownloads(context):
             for row in all_rows:
                 data_list.append((row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -937,7 +937,7 @@ def chromeKeywordSearchTerms(context):
                 dt = convert_ts_human_to_utc(row[4])
                 data_list.append((dt, row[1], row[3]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1044,7 +1044,7 @@ def chromeAutofillEntries(context):
                     last_used_dt = convert_ts_human_to_utc(row[3])
                     data_list.append((created_dt, row[1], row[2], last_used_dt, row[4]))
 
-                report.write_artifact_data_table(data_headers, data_list, file_found)
+                report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
                 report.end_artifact_report()
 
                 # Generate LAVA output
@@ -1078,7 +1078,7 @@ def chromeAutofillEntries(context):
                     created_dt = convert_ts_human_to_utc(row[0])
                     data_list.append((created_dt, row[1], row[2], None, row[3]))
 
-                report.write_artifact_data_table(data_headers, data_list, file_found)
+                report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
                 report.end_artifact_report()
 
                 # Generate LAVA output
@@ -1235,7 +1235,7 @@ def chromeAutofillProfiles(context):
                 data_list.append((modified_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
                                   row[10], row[11], last_used_dt, row[13]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1323,7 +1323,7 @@ def chromeBookmarks(context):
             report.start_artifact_report(context.get_report_folder(), os.path.basename(report_path))
             report.add_script()
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1429,7 +1429,7 @@ def chromeCookies(context):
                 expiration_dt = convert_ts_human_to_utc(row[5])
                 data_list.append((last_accessed_dt, row[1], row[2], row[3], created_dt, expiration_dt, row[6]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1513,7 +1513,7 @@ def chromeLoginData(context):
                 valid_date = get_valid_date(row[2], row[3])
                 data_list.append((valid_date, row[0], password, row[4], row[5]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1598,7 +1598,7 @@ def chromeTopSites(context):
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1679,7 +1679,7 @@ def chromeOfflinePages(context):
                 created_dt = convert_ts_human_to_utc(row[0])
                 last_accessed_dt = convert_ts_human_to_utc(row[1])
                 data_list.append((created_dt, last_accessed_dt, row[2], row[3], row[4], row[5], row[6]))
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1760,7 +1760,7 @@ def chromeMediaHistorySessions(context):
                 last_update_dt = convert_ts_human_to_utc(row[0])
                 data_list.append((last_update_dt, row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1843,7 +1843,7 @@ def chromeMediaHistoryPlaybacks(context):
                 last_update_dt = convert_ts_human_to_utc(row[0])
                 data_list.append((last_update_dt, row[1], row[2], row[3], row[4], row[5], row[6]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1917,7 +1917,7 @@ def chromeMediaHistoryOrigins(context):
                 last_update_dt = convert_ts_human_to_utc(row[0])
                 data_list.append((last_update_dt, row[1], row[2], row[3]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output
@@ -1992,7 +1992,7 @@ def chromeNetworkActionPredictor(context):
             for row in all_rows:
                 data_list.append((row[0], row[1], row[2], row[3]))
 
-            report.write_artifact_data_table(data_headers, data_list, file_found)
+            report.write_artifact_data_table(data_headers, data_list, Context.get_relative_path(file_found))
             report.end_artifact_report()
 
             # Generate LAVA output

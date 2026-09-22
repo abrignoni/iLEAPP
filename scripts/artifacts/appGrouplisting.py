@@ -36,25 +36,31 @@ __artifacts_v2__ = {
 import pathlib
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content
 
+
 @artifact_processor
 def appGrouplisting(context):
-    source_path = 'Path column in the report'
-    data_list = []       
-    
+    source_paths = set()
+    data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
+
+    results = context.create_artifact_result(
+        headers=data_headers,
+        estimated_row_count=len(context.get_files_found()),
+    )
+
     for file_found in context.get_files_found():
         plist = get_plist_file_content(file_found)
         # Check if plist is a valid parseable object
         if not plist or not isinstance(plist, dict):
             continue
+        source_paths.add(str(file_found))
         bundleid = plist['MCMMetadataIdentifier']
-        
+
         p = pathlib.Path(file_found)
         appgroupid = p.parent.name
-        fileloc = str(p.parents[1])
+        fileloc = context.get_relative_path(str(p.parents[1]))
         typedir = str(p.parents[1].name)
-        
-        data_list.append((bundleid, typedir, appgroupid, fileloc))
-                
-    data_headers = ('Bundle ID', 'Type', 'Directory GUID', 'Path')
-    return data_headers, data_list, source_path
-    
+
+        results.add_row((bundleid, typedir, appgroupid, fileloc))
+
+    results.set_source_path('\n'.join(sorted(source_paths)))
+    return results

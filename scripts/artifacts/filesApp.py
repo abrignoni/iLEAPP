@@ -106,7 +106,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
-        "notes": "Sharing-option value mappings observed in testing; unrecognized values reported as stored",
+        "notes": "The Permissions labels are assigned to item_sharing_options values 8 and 12, "
+                 "24 and 28, and 64 and 68 without a vendor source; unrecognized values are "
+                 "reported as stored",
         "paths": (
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',

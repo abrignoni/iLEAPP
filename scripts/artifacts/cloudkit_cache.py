@@ -38,7 +38,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "CloudKit",
-        "notes": "File-type value mapping observed in testing; unrecognized values reported as stored.",
+        "notes": "The File Type labels File and Folder are assigned to stored fileType values 0 "
+                 "and 1 without a vendor source; unrecognized values are reported as stored.",
         "paths": ('*/Library/Caches/Backup/cloudkit_cache.db*',),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -191,15 +192,34 @@ def cloudkit_files(context):
     Extracts file listings associated with iCloud backup snapshots from the cloudkit_cache.db database.
     """
     files_found = context.get_files_found()
-    data_list = []
-    source_path = ""
+    data_headers = (
+        ('Modified', 'datetime'),
+        'Snapshot ID',
+        'Relative Path',
+        'File ID',
+        'File Domain',
+        'Deleted',
+        'File Type',
+        'Size',
+        'Protection Class',
+        'ManifestID'
+    )
+    source_files = [
+        str(file_found)
+        for file_found in files_found
+        if str(file_found).endswith('cloudkit_cache.db')
+    ]
+    if not source_files:
+        return data_headers, [], ''
 
-    for file_found in files_found:
-        file_found = str(file_found)
-        if not file_found.endswith('cloudkit_cache.db'):
-            continue
+    source_path = '\n'.join(context.get_relative_path(file_found) for file_found in source_files)
 
-        source_path = context.get_relative_path(file_found)
+    results = context.create_artifact_result(
+        headers=data_headers,
+        source_path=source_path,
+    )
+
+    for file_found in source_files:
 
         query = '''
             SELECT 
@@ -228,7 +248,7 @@ def cloudkit_files(context):
         for record in db_records:
             modified_ts = convert_unix_ts_to_utc(record[1]) if record[1] else ""
 
-            data_list.append((
+            results.add_row((
                 modified_ts,  # Modified
                 record[0],    # Snapshot ID
                 record[2],    # Relative Path
@@ -241,17 +261,4 @@ def cloudkit_files(context):
                 record[9]     # ManifestID
             ))
 
-    data_headers = (
-        ('Modified', 'datetime'),
-        'Snapshot ID',
-        'Relative Path',
-        'File ID',
-        'File Domain',
-        'Deleted',
-        'File Type',
-        'Size',
-        'Protection Class',
-        'ManifestID'
-    )
-
-    return data_headers, data_list, source_path
+    return results

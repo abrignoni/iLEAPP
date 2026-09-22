@@ -5,6 +5,8 @@ import re
 from os.path import basename
 from pathlib import Path
 
+from leapp_functions.app.artifact_result import ArtifactResult
+
 
 class Context:
     """
@@ -22,9 +24,12 @@ class Context:
     _module_name = None
     _module_file_path = None
     _artifact_name = None
+    _artifact_func_name = None
+    _artifact_result = None
     _files_found = []
     _filename_lookup_map = {}
     _data_folder = None
+    _output_folder_base = None
     _metadata = {}
     _installed_os_version = ""
     # Run-level, like the output parameters: set once from the CLI or GUI and
@@ -42,6 +47,26 @@ class Context:
         """
         Context._output_params = output_params
         Context._data_folder = getattr(output_params, 'data_folder', None)
+        Context._output_folder_base = getattr(
+            output_params, 'output_folder_base', None)
+
+    @staticmethod
+    def set_data_folder(data_folder):
+        """
+        Sets the folder the seeker stages evidence into, without the rest of the
+        output parameters.
+
+        A normal run gets this from set_output_params. The test harness has no
+        OutputParameters: it extracts a case zip into its own temporary directory
+        and runs artifacts against that. Without this, _data_folder stays None and
+        get_relative_path returns every path unchanged, so an artifact that leaks
+        an absolute path and one that reports a relative path record identical
+        output and no fixture can tell them apart.
+
+        Args:
+            data_folder (str): The folder evidence is staged into.
+        """
+        Context._data_folder = data_folder
 
     @staticmethod
     def set_report_folder(report_folder):
@@ -109,6 +134,17 @@ class Context:
         """
 
         Context._artifact_name = artifact_name
+
+    @staticmethod
+    def set_artifact_func_name(artifact_func_name):
+        """
+        Sets the function name for the current artifact in the Context.
+
+        Args:
+            artifact_func_name (str): The artifact processor function name.
+        """
+
+        Context._artifact_func_name = artifact_func_name
 
     @staticmethod
     def set_files_found(files_found):
@@ -355,6 +391,23 @@ class Context:
         return Context._artifact_name
 
     @staticmethod
+    def get_artifact_func_name():
+        """
+        Retrieves the current artifact processor function name from the Context.
+
+        Raises:
+            ValueError: If the function name has not been set in the Context.
+
+        Returns:
+            str: The function name of the current artifact.
+        """
+
+        if not Context._artifact_func_name:
+            raise ValueError("Context not set. This function should be" +
+                             " called from within an artifact.")
+        return Context._artifact_func_name
+
+    @staticmethod
     def get_files_found():
         """
         Retrieves the list of files found in the current context.
@@ -440,29 +493,100 @@ class Context:
         return Context._data_folder
 
     @staticmethod
+    def create_artifact_result(
+        headers=None,
+        source_path=None,
+        estimated_row_count=None,
+        async_write=False,
+        queue_size=5000,
+        batch_size=10000,
+        rows=None,
+    ):
+        """
+        Create an artifact result wrapper for modules with large row sets.
+
+        Headers, source_path, and estimated_row_count are optional and can be
+        set later by the module before returning the result.
+        """
+        artifact_info = Context._artifact_info or {}
+        source_path_formatter = Context._normalize_source_path
+        writer_metadata = {
+            "category": artifact_info.get("category", ""),
+            "module_name": Context._module_name or "",
+            "artifact_name": Context._artifact_name or Context._module_name or "",
+            "func_name": Context._artifact_func_name,
+            "data_views": artifact_info.get("data_views"),
+            "artifact_icon": artifact_info.get("artifact_icon"),
+        }
+        result = ArtifactResult(
+            headers=headers,
+            source_path=source_path,
+            estimated_row_count=estimated_row_count,
+            async_write=async_write,
+            queue_size=queue_size,
+            batch_size=batch_size,
+            rows=rows,
+            writer_metadata=writer_metadata,
+            source_path_formatter=source_path_formatter,
+        )
+        # Kept so the core can discard a result whose module raised before returning it.
+        Context._artifact_result = result
+        return result
+
+    @staticmethod
+    def get_artifact_result():
+        """Return the ArtifactResult the current artifact created, or None."""
+        return Context._artifact_result
+
+    @staticmethod
+    def _normalize_source_path(source_path):
+        """Return extraction-relative source path metadata for reports and LAVA."""
+        return '\n'.join(
+            Context.get_relative_path(p) for p in str(source_path).split('\n'))
+
+    @staticmethod
     def get_relative_path(full_path):
         """
-        Converts a full on-disk path (from files_found) to a relative
-        extraction path by removing the global data_folder prefix.
+        Converts a full on-disk path into one that carries none of the
+        examiner's own filesystem layout.
+
+        Two prefixes are stripped, in this order:
+
+          1. the data folder, where the seeker stages evidence, so a staged
+             file is reported by its path inside the extraction;
+          2. the report folder, so a file the run itself writes is reported by
+             its path inside the report.
+
+        The second case exists for artifacts that declare no search paths. The
+        main script hands those '<report folder>/_lava_artifacts.db' as their
+        source file, because they read the rows a previous artifact wrote
+        rather than any file in the extraction. That path is outside the data
+        folder, so before this it was reported unchanged and the examiner's own
+        report directory reached both the "located at" line and the LAVA
+        manifest's source_path.
+
+        The data folder is tried first because it sits inside the report
+        folder: stripping the report folder first would leave every staged
+        evidence path prefixed with 'data/'.
 
         Args:
             full_path (str): The full path to the file.
 
         Returns:
-            str: The relative extraction path, or the original path if
-                 the data_folder is not available.
+            str: The relative path, or the original path if neither prefix is
+                 known or present.
         """
-        if not full_path or not Context._data_folder:
+        if not full_path:
             return full_path
 
-        if Context._data_folder in full_path:
-            # Strip the base path everywhere it appears, including inside path
-            # strings concatenated with arbitrary separators (', ', '; ', ...)
-            base = Context._data_folder
-            return (full_path.replace(base + '/', '')
-                             .replace(base + '\\', '')
-                             .replace(base, '')
-                             .lstrip('/\\'))
+        for base in (Context._data_folder, Context._output_folder_base):
+            if base and base in full_path:
+                # Strip the base path everywhere it appears, including inside path
+                # strings concatenated with arbitrary separators (', ', '; ', ...)
+                return (full_path.replace(base + '/', '')
+                                 .replace(base + '\\', '')
+                                 .replace(base, '')
+                                 .lstrip('/\\'))
 
         return full_path
 
@@ -533,5 +657,7 @@ class Context:
         Context._module_name = None
         Context._module_file_path = None
         Context._artifact_name = None
+        Context._artifact_func_name = None
+        Context._artifact_result = None
         Context._files_found = []
         Context._filename_lookup_map = {}

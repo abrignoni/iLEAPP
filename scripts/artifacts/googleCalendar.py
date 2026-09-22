@@ -170,14 +170,14 @@ __artifacts_v2__ = {
     },
     "googleCalendarContacts": {
         "name": "Google Calendar - Cached Contacts",
-        "description": "Contacts cached by the Google Calendar iOS app for guest lookup",
+        "description": "Contacts cached by the Google Calendar iOS app",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Google Calendar",
         "notes": "Rows come from the contacts table of the per account Contacts cache database. This is a "
-                 "cache the app holds for looking up guests; presence of a contact here does not establish "
+                 "cache the app holds; presence of a contact here does not establish "
                  "that the user contacted or invited that person. The affinity value is reported as stored "
                  "and no meaning is asserted for it. The cache file name is not specific to this app, so "
                  "a container is only reported when it also holds the Google Calendar preferences file; a "

@@ -4,10 +4,42 @@ __artifacts_v2__ = {
         'description': 'Extract call history from WhatsApp',
         'author': '@Vinceckert',
         'creation_date': '2024-05-31',
-        'last_update_date': '2026-08-09',
+        'last_update_date': '2026-09-11',
         'requirements': 'none',
         'category': 'WhatsApp',
-        'notes': 'Call outcome value mapping observed in testing; unrecognized values reported as stored.',
+        'notes': "The ZOUTCOME values 0, 1 and 4 are labelled Ended, Missed and Rejected; that "
+                 "mapping has no vendor source and no recorded count, and unrecognized values are "
+                 "reported as stored. Incoming (as stored), Video Call, Missed and Missed Reason "
+                 "come from the ZWAAGGREGATECALLEVENT row this call belongs to, joined on the "
+                 "call's own Z1CALLEVENTS, which the artifact also reports as Aggregate Event ID. "
+                 "That row is per group of calls rather than per call: 2 aggregates across the "
+                 "tested images covered more than one call, so where two rows share an Aggregate "
+                 "Event ID those four columns describe the group and not the individual call. "
+                 "Video Call and Missed are the ZVIDEO and ZMISSED booleans rendered Yes and No; "
+                 "across the 20 rows of the 5 tested images that hold any, Video Call was Yes on "
+                 "12 and Missed was Yes on 4. Missed Reason is reported as stored: the only value "
+                 "held is 1, and nothing available defines it. Incoming (as stored) is the app's "
+                 "own ZINCOMING flag and Direction beside it is derived from the group call "
+                 "creator, so the two are independent readings of the same thing: they agreed on "
+                 "all 16 rows where both are present and disagreed on none. On the iOS 14.3 image "
+                 "Direction is blank on every row because that release has no group call creator "
+                 "column, and the stored flag fills in there. Bytes Sent and Bytes Received are "
+                 "the call's own byte counts. Call ID is the call's ZCALLIDSTRING and was present "
+                 "on 14 of the 20 rows; the column is absent from the database on the iOS 17.1 "
+                 "and 14.3 images. Group JID held no value on any row of any tested image, so no "
+                 "group call is recorded among them, and the column is kept because the database "
+                 "declares it. The file also holds ZWAJOINABLECALLEVENT, present and empty on "
+                 "every tested image, and ZWAUPCOMINGCALLEVENT, present and empty on all but the "
+                 "iOS 14.3 image, which does not have it; neither is read. Ending Timestamp is "
+                 "the start plus the stored duration, so it equals Starting Timestamp on a call "
+                 "of no duration: 7 of the 20 rows have a duration of 00:00:00 and those are "
+                 "exactly the rows where the two timestamps are equal, and exactly the rows whose "
+                 "Disconnected cause reads Missed. Contact Fullname and Phone Number come from "
+                 "the separate address book database and were filled on 12 of the 20 rows, blank "
+                 "where the participant has no entry there. Contact ID is the participant the "
+                 "call was with and can legitimately repeat: it held a single value across every "
+                 "row of the 2 rows of the iOS 17.1 image and the 4 rows of the iOS 14.3 image, "
+                 "which is that many calls with the same party.",
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -34,10 +66,24 @@ __artifacts_v2__ = {
         'description': 'Extract WhatsApp messages',
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-09-19',
         'requirements': '',
         'category': 'WhatsApp',
-        'notes': 'Metadata protobuf field meanings established through testing. Coordinates are emitted only for message type 5, the type observed to carry locations in testing.',
+        'notes': 'Metadata Field 17 and Metadata Field 21 are read off the ZMETADATA protobuf wire '
+        'format by a reader that decodes those two fields and skips every other field by the '
+        'length its wire type gives, so a blob it cannot walk yields what was read before '
+        'that point and does not stop the artifact. A ZMETADATA value stored as text or a '
+        'number, which SQLite permits, yields blank Metadata columns for that row; no tested '
+        'image holds one, so that branch is exercised by constructed input. Field 17 is '
+        'taken as a varint and Field '
+        '21 as a UTF-8 string; the forward count and forwarder labels are observed and have '
+        'no vendor source. On 10 of the tested images, 1,350 media item rows carry a metadata '
+        'blob; Field 17 was present on 2 of them, both on the iOS 17.5.1 image, and Field 21 '
+        'on none of them, so the forwarder column and its ContactsV2 lookup are exercised by '
+        'constructed input and not by any tested image. Where Field 21 is present, the '
+        "ContactsV2 address book is read once per run and the matching contact's full name "
+        'and phone number are shown beside the ID. Coordinates are emitted only for rows '
+        'whose ZMESSAGETYPE is 5; the ZMESSAGETYPE value mapping is not sourced.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -101,18 +147,106 @@ __artifacts_v2__ = {
 }
 
 
-from scripts import blackboxprotobuf
-
 from pathlib import Path
 from scripts.ilapfuncs import (
     artifact_processor,
     get_file_path,
     get_sqlite_db_records, null_absent_columns,
-    attach_sqlite_db_readonly, does_column_exist_in_db,
+    attach_sqlite_db_readonly, does_column_exist_in_db, does_table_exist_in_db,
     check_in_media,
     convert_cocoa_core_data_ts_to_utc
 )
 
+
+def _varint(blob, pos):
+    """Return (value, next position) for the base-128 varint at pos."""
+    value = 0
+    shift = 0
+    while True:
+        if pos >= len(blob) or shift > 63:
+            raise ValueError('truncated or oversized varint')
+        byte = blob[pos]
+        pos += 1
+        value |= (byte & 0x7F) << shift
+        shift += 7
+        if not byte & 0x80:
+            if value >= 1 << 63:
+                value -= 1 << 64
+            return value, pos
+
+
+def _read_forward_fields(blob):
+    """Read fields 17 and 21 off a ZMETADATA blob's protobuf wire format.
+
+    Only the two fields the artifact reports are decoded; every other field is
+    skipped by the length its wire type gives, so the cost is one pass over the
+    blob and nothing is guessed. Field 17 is taken as a varint and field 21 as a
+    UTF-8 string, the shapes observed on the tested images. A blob that ends
+    inside a field, or that reaches a wire type this reader does not walk
+    (groups, or an invalid value), yields whatever was read before that point.
+    A value that is not a blob yields nothing: SQLite does not enforce column
+    types, so ZMETADATA can hold text or a number, and the row keeps blank
+    forward columns instead of the artifact stopping.
+    Wire format: https://protobuf.dev/programming-guides/encoding/
+    """
+    count = ''
+    forwarder = ''
+    if not isinstance(blob, (bytes, bytearray)):
+        return count, forwarder
+    pos = 0
+    end = len(blob)
+    try:
+        while pos < end:
+            tag, pos = _varint(blob, pos)
+            field, wire = tag >> 3, tag & 7
+            if wire == 0:
+                value, pos = _varint(blob, pos)
+                if field == 17:
+                    count = str(value)
+            elif wire == 1:
+                pos += 8
+            elif wire == 2:
+                length, pos = _varint(blob, pos)
+                if length < 0 or pos + length > end:
+                    break
+                if field == 21:
+                    try:
+                        forwarder = blob[pos:pos + length].decode('utf-8')
+                    except UnicodeDecodeError:
+                        forwarder = ''
+                pos += length
+            elif wire == 5:
+                pos += 4
+            else:
+                break
+    except ValueError:
+        pass
+    return count, forwarder
+
+
+def _forwarder_contacts(contacts_db):
+    """Map WhatsApp ID to (full name, phone number) from ContactsV2, read once."""
+    contacts = {}
+    if not contacts_db:
+        return contacts
+    query = 'SELECT ZWHATSAPPID, ZFULLNAME, ZPHONENUMBER FROM ZWAADDRESSBOOKCONTACT'
+    for whatsapp_id, fullname, phone in get_sqlite_db_records(contacts_db, query):
+        if whatsapp_id and whatsapp_id not in contacts:
+            contacts[whatsapp_id] = (fullname, phone)
+    return contacts
+
+
+
+def _stored(value):
+    """A stored value as text, with an absent column and a stored null read the same way."""
+    return '' if value is None else value
+
+
+def _flag(value):
+    """A stored boolean rendered Yes or No, blank where the column holds nothing."""
+    if value is None:
+        return ''
+    return 'Yes' if value else 'No'
 
 @artifact_processor
 def whatsAppCallHistory(context):
@@ -144,6 +278,24 @@ def whatsAppCallHistory(context):
                                    'ZGROUPCALLCREATORUSERJIDSTRING'):
         creator = 'NULL'
 
+    # The same file keeps an aggregate row per group of calls and several per-call
+    # columns that older releases do not have. Each is resolved the same way, for
+    # the same reason: the contacts branch attaches a second database, so
+    # null_absent_columns cannot compile the statement to find out what is missing.
+    def column(table, name):
+        return f'{table}.{name}' if does_column_exist_in_db(source_path, table, name) else 'NULL'
+
+    aggregate = 'ZWAAGGREGATECALLEVENT'
+    has_aggregate = does_table_exist_in_db(source_path, aggregate)
+    aggregate_columns = ', '.join(
+        column(aggregate, name) if has_aggregate else 'NULL'
+        for name in ('ZINCOMING', 'ZVIDEO', 'ZMISSED', 'ZMISSEDREASON'))
+    event_columns = ', '.join(
+        column('ZWACDCALLEVENT', name)
+        for name in ('ZBYTESSENT', 'ZBYTESRECEIVED', 'ZCALLIDSTRING', 'ZGROUPJIDSTRING'))
+    aggregate_join = (f'LEFT JOIN {aggregate} ON '
+                      f'ZWACDCALLEVENT.Z1CALLEVENTS = {aggregate}.Z_PK' if has_aggregate else '')
+
     query = f'''
     SELECT
         ZWACDCALLEVENT.ZDATE,
@@ -161,9 +313,13 @@ def whatsAppCallHistory(context):
             WHEN 4 THEN 'Rejected'
             ELSE ZWACDCALLEVENT.ZOUTCOME
         END Disconnected_cause,
-        ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING as 'Contact ID'
+        ZWACDCALLEVENTPARTICIPANT.ZJIDSTRING as 'Contact ID',
+        {aggregate_columns},
+        {event_columns},
+        ZWACDCALLEVENT.Z1CALLEVENTS
         {contact_info if contacts_db else ''}
     FROM ZWACDCALLEVENT, ZWACDCALLEVENTPARTICIPANT
+    {aggregate_join}
     {tables_join if contacts_db else ''}
     WHERE ZWACDCALLEVENT.Z1CALLEVENTS = ZWACDCALLEVENTPARTICIPANT.Z1PARTICIPANTS
     '''
@@ -173,7 +329,16 @@ def whatsAppCallHistory(context):
         'Duration H:M:S',
         'Direction',
         'Disconnected cause',
-        'Contact ID']
+        'Contact ID',
+        'Incoming (as stored)',
+        'Video Call',
+        'Missed',
+        'Missed Reason (as stored)',
+        'Bytes Sent',
+        'Bytes Received',
+        'Call ID',
+        'Group JID',
+        'Aggregate Event ID']
 
     if contacts_db:
         attach_query = attach_sqlite_db_readonly(contacts_db, 'ContactsV2')
@@ -188,9 +353,12 @@ def whatsAppCallHistory(context):
         end_time = convert_cocoa_core_data_ts_to_utc(record[1])
 
         record_data = [
-            start_time, end_time, record[2], record[3], record[4], record[5]]
+            start_time, end_time, record[2], record[3], record[4], record[5],
+            _stored(record[6]), _flag(record[7]), _flag(record[8]), _stored(record[9]),
+            _stored(record[10]), _stored(record[11]), _stored(record[12]), _stored(record[13]),
+            _stored(record[14])]
         if contacts_db:
-            record_data.extend([record[6], record[7]])
+            record_data.extend([record[15], record[16]])
         data_list.append(
             tuple(record_data))
 
@@ -248,6 +416,7 @@ def whatsAppMessages(context):
     source_path = get_file_path(files_found, 'ChatStorage.sqlite')
     contacts_db = get_file_path(files_found, 'ContactsV2.sqlite')
     data_list = []
+    contacts = None
 
     query = '''
     SELECT
@@ -315,28 +484,14 @@ def whatsAppMessages(context):
         number_forward = ''
         from_forward = ''
         if metadata:
-            try:
-                decoded_data, _ = blackboxprotobuf.decode_message(metadata)
-                number_forward = f'{decoded_data.get("17", "")}'
-                forward_id = decoded_data.get("21")
-                from_forward = forward_id.decode("utf-8") if isinstance(forward_id, bytes) else ''
-                if contacts_db and from_forward:
-                    attach_query = attach_sqlite_db_readonly(contacts_db, 'ContactsV2')
-                    query_contact = f"""
-                                SELECT
-                                    ZWHATSAPPID,
-                                    ZFULLNAME,
-                                    ZPHONENUMBER
-                                FROM ContactsV2.ZWAADDRESSBOOKCONTACT
-                                WHERE ZWHATSAPPID = '{from_forward}'
-                            """
-                    contact_records = list( get_sqlite_db_records(source_path, query_contact, attach_query) )
-                    if contact_records:
-                        forwardedwhatsappid, fullname, phone = contact_records[0]
-                        from_forward = f"{fullname} ({phone}) - ({forwardedwhatsappid})"
-
-            except (TypeError, ValueError, KeyError):
-                pass
+            number_forward, from_forward = _read_forward_fields(metadata)
+            if from_forward:
+                if contacts is None:
+                    contacts = _forwarder_contacts(contacts_db)
+                contact = contacts.get(from_forward)
+                if contact:
+                    fullname, phone = contact
+                    from_forward = f"{fullname} ({phone}) - ({from_forward})"
 
         lon = record['ZLONGITUDE'] if record['ZMESSAGETYPE'] == 5 else ''
         lat = record['ZLATITUDE'] if record['ZMESSAGETYPE'] == 5 else ''

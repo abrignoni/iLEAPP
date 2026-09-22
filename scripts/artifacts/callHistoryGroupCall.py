@@ -1,7 +1,9 @@
 __artifacts_v2__ = {
     "callHistoryGroupCall": {
         "name": "Call History - Group Call",
-        "description": "Extract Call History",
+        "description": "Calls from the CallHistory store (ZCALLRECORD with its remote participant "
+                       "handles), with start and end, service, type, direction, participant "
+                       "numbers, duration, FaceTime data, disconnect cause, country and location.",
         "author": "@SQLMcGee",
         "creation_date": "2025-02-05",
         "last_update_date": "2026-07-31",
@@ -31,7 +33,9 @@ __artifacts_v2__ = {
     },
     "callHistoryInteractionC": {
         "name": "interactionC Call History - Group Call",
-        "description": "Extract Call History",
+        "description": "Call interactions from CoreDuet's interactionC.db (ZINTERACTIONS with "
+                       "their recipients), with start and end, app bundle id, direction, display "
+                       "name, number and duration.",
         "author": "@SQLMcGee",
         "creation_date": "2025-02-05",
         "last_update_date": "2026-07-31",

@@ -9,8 +9,8 @@ __artifacts_v2__ = {
         'last_update_date': '2025-10-07',
         "requirements": "none",
         "category": "OS Updates",
-        "notes": "Parses migration records found in the Photos.sqlite database. May assist in determining history of "
-                 "iOS versions history Based on SQL Queries written by Scott Koenig https://theforensicscooter.com/",
+        "notes": "Parses migration records found in the Photos.sqlite database. Based on SQL "
+                 "queries written by Scott Koenig, https://theforensicscooter.com/",
         "paths": ('*/PhotoData/Photos.sqlite*',),
         "output_types": "standard",
         'artifact_icon': "chevrons-up",

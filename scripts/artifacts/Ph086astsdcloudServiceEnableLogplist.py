@@ -2,14 +2,14 @@ __artifacts_v2__ = {
 'Ph086assetsdcloudServiceEnableLogPlist': {
 'name': 'Ph086-assetsd-cloud-Service-Enable-Log-Plist',
 'description': 'Parses basic data from */PhotoData/private/com.apple.assetsd/cloudServiceEnableLog.plist'
-' which is a plist that tracks when Cloud Photos Library (CPL) has been enabled.'
+' which is a plist that records when iCloud Photo Library (CPL) was enabled or disabled.'
 ' Based on research and published blogs written by Scott Koenig'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+' https://theforensicscooter.com/2022/05/02/photos-sqlite-query-documentation-notable-artifacts/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'version': '5.0',
 'date': '2025-01-05',
-'last_update_date': '2026-07-31',
+'last_update_date': '2026-09-12',
 'requirements': 'Acquisition that contains assetsd cloudServiceEnableLog.plist',
 'category': 'Photos.sqlite',
 'notes': '',
@@ -60,7 +60,7 @@ def Ph086assetsdcloudServiceEnableLogPlist(context):
             data_list.append((timestamputc, servicetype, enabledstate))
 
     data_headers = (
-    'TimestampUTC',
+    ('TimestampUTC', 'datetime'),
     'Service-Type',
     'Enabled-State')
     return data_headers, data_list, source_path

@@ -10,7 +10,7 @@
 __artifacts_v2__ = {    
     "linkedin_account": {
         "name": "LinkedIn - Account",
-        "description": "Existing account in LinkedIn App. The Public Identifier can be used to visit the public profile on the LinkedIn Website (https://www.linkedin.com/in/[Public Identifier])",
+        "description": "Existing account in LinkedIn App, with the Public Identifier as stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-10-01",
         "last_update_date": "2026-06-15",
