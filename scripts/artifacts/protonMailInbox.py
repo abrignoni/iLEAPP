@@ -32,7 +32,9 @@ __artifacts_v2__ = {
                  "text; the store holds the HTML the app rendered, and Body is the readable text "
                  "extracted from it (tags, styling and repeated whitespace removed). Each link's "
                  "place in the text is marked [n], and Links lists the link targets by those "
-                 "numbers, as stored; a repeated target keeps its first number. The unmodified "
+                 "numbers, as stored; a repeated target keeps its first number. A link with no "
+                 "words of its own, such as a linked image, still gets a marker, so the words just "
+                 "before a marker are not always the link's text. The unmodified "
                  "HTML stays in the source database. Folder is resolved from the app's own "
                  "labels table. From Me is derived by comparing the message sender to the account's "
                  "own addresses. The Attachment column shows the first cached attachment file for the "
@@ -135,8 +137,9 @@ def _body_text_and_links(html_body):
 
     Tags are dropped and whitespace runs collapse to one space. Each link's place in
     the text is marked [n], and the second value lists the targets by those numbers,
-    as stored. A repeated target keeps its first number, and a marker with no text
-    beside it is a link that carried none, such as a linked image."""
+    as stored. A repeated target keeps its first number. A link with no words of its
+    own, such as a linked image, still gets a marker, so the words just before a marker
+    are not always the link's text."""
     if not html_body:
         return '', ''
     soup = BeautifulSoup(html_body, 'html.parser')
