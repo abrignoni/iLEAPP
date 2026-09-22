@@ -34,15 +34,33 @@ __artifacts_v2__ = {
                  "the numeric user id the message records, which is a link the store keeps rather "
                  "than a correlation; a sender with no matching user row is reported with the id and "
                  "a blank name. Type is reported as stored: no mapping for the integer was "
-                 "recoverable, because the client is closed source. "
+                 "recoverable, because the client is closed source. Media renders the local file a message's "
+                 "decrypted attachment names, inline on that message's own row: the attachment and "
+                 "the file name share a token, and the file is matched inside the message's own "
+                 "chat folder, so it is a link the store records rather than a correlation. Five of "
+                 "the six media messages on the device with media resolved to a file this way; a "
+                 "message with no media, or whose file the store no longer holds, has a blank "
+                 "Media column, and the Chat Media artifact lists every kept file including those. "
                  "Field mapping was done against two private samples; no sample data is recorded for "
                  "them. A Message.sqlite that does not carry this client's own table and column "
                  "layout is skipped and logged, so another app's file of the same name cannot be "
                  "reported as KakaoTalk.",
         "paths": ('*/Library/PrivateDocuments/Message.sqlite*',
-                  '*/Library/PrivateDocuments/Talk.sqlite*'),
+                  '*/Library/PrivateDocuments/Talk.sqlite*',
+                  '*/Library/PrivateDocuments/chat/*/*',
+                  '*/Library/PrivateDocuments/chatVideo/*/*',
+                  '*/Library/PrivateDocuments/chatAudio/*/*'),
         "output_types": "standard",
-        "artifact_icon": "message-circle"
+        "artifact_icon": "message-circle",
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Chat ID",
+                "textColumn": "Message",
+                "timeColumn": "Sent",
+                "senderColumn": "Sender Name",
+                "mediaColumn": "Media"
+            }
+        },
     },
     "kakaoTalkChats": {
         "name": "KakaoTalk - Chats",
@@ -136,11 +154,11 @@ __artifacts_v2__ = {
                  "file sits in is named with a chat id, which is the link the store records, so each "
                  "file is attributed to a chat rather than correlated to one: on the device with "
                  "media, seven distinct chat folder ids appeared, five of them present in the chat "
-                 "table and two not, and those two are reported with the id and no room name. **The link stops "
-                 "at the chat.** The message row's own attachment column is encrypted, so nothing in "
-                 "the extraction ties a file to an individual message, and no guess from size or "
-                 "time is made. That is why the media is not rendered on the message rows and this "
-                 "artifact exists separately. Files whose name begins with a thumbnail marker are "
+                 "table and two not, and those two are reported with the id and no room name. This artifact lists every media "
+                 "file the client kept, including one whose message the store no longer holds, which "
+                 "the Messages artifact cannot. Where a message's decrypted attachment names the file, "
+                 "the Messages artifact also renders it inline on that message's own row, so the two "
+                 "are complementary. Files whose name begins with a thumbnail marker are "
                  "the client's own reduced copies and are labelled as such rather than dropped. Chat Room "
                  "Name was blank on every media row of the devices tested: the media in these folders "
                  "belonged to chats the store left without a room name, and the one chat that did carry "
@@ -282,6 +300,42 @@ def _chats_by_id(talk_path):
     return chats
 
 
+def _media_index(media_files):
+    """Per chat id, the media files under that chat's folder, non-thumbnails first.
+
+    A file's own folder is named with the chat id, so a message's media is looked up in
+    its chat and then matched by the token the decrypted attachment shares with the name.
+    """
+    index = {}
+    for path in media_files or []:
+        found = MEDIA_DIR.search(path.replace('\\', '/'))
+        if not found:
+            continue
+        name = os.path.basename(path.replace('\\', '/'))
+        index.setdefault(found.group('chatid'), []).append((name, path))
+    for chat_id in index:
+        index[chat_id].sort(key=lambda item: bool(THUMB.search(item[0])))
+    return index
+
+
+def _attachment_media(attachment_json, chat_id, media_by_chat):
+    """The local media file a message's decrypted attachment names, or ''.
+
+    The attachment carries tokens (in its url, thumbnailUrl and key fields) that also appear
+    in the local file's name; the file is matched inside the message's own chat only, so the
+    link is the token the store records rather than a correlation.
+    """
+    if not attachment_json or chat_id not in media_by_chat:
+        return ''
+    tokens = set(re.findall(r'[A-Za-z0-9_-]{16,}', attachment_json))
+    if not tokens:
+        return ''
+    for name, path in media_by_chat[chat_id]:
+        if any(token in name for token in tokens):
+            return path
+    return ''
+
+
 @artifact_processor
 def kakaoTalkMessages(context):
     data_headers = (
@@ -293,6 +347,7 @@ def kakaoTalkMessages(context):
         'Sender Name',
         'Type',
         'Message',
+        ('Media', 'media'),
         'Attachment',
         'Server Log ID',
         'Source File',
@@ -305,6 +360,7 @@ def kakaoTalkMessages(context):
         if not message_path:
             continue
         users = _users_by_id(entry.get('talk'))
+        media_by_chat = _media_index(entry.get('media'))
         query = ('SELECT sentAt, readAt, updateAt, chatId, userId, type, message, attachment, '
                  'serverLogId FROM Message')
         rows = 0
@@ -312,6 +368,10 @@ def kakaoTalkMessages(context):
             sender = str(row[4]) if row[4] is not None else ''
             message = _decrypt_field(sender, row[6])
             attachment = _decrypt_field(sender, row[7])
+            media_ref = ''
+            media_path = _attachment_media(attachment, str(row[3]), media_by_chat)
+            if media_path:
+                media_ref = check_in_media(media_path, os.path.basename(media_path)) or ''
             data_list.append((
                 convert_cocoa_core_data_ts_to_utc(row[0]) if row[0] else '',
                 convert_cocoa_core_data_ts_to_utc(row[1]) if row[1] else '',
@@ -321,6 +381,7 @@ def kakaoTalkMessages(context):
                 users.get(sender, ''),
                 row[5] if row[5] is not None else '',
                 message if message is not None else (row[6] or ''),
+                media_ref,
                 attachment if attachment is not None else (row[7] or ''),
                 row[8] if row[8] is not None else '',
                 context.get_relative_path(message_path),
