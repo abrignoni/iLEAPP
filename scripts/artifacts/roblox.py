@@ -133,6 +133,11 @@ __artifacts_v2__ = {
                  "records that the client fetched the content, not that a person saw it. The score "
                  "column is not reported: on the device tested it tracked the access time to within "
                  "milliseconds on every row, so it would be a second copy of a column already shown. "
+                 "Chat and direct messages were not found persisted on the device tested. The WebKit "
+                 "network cache under the app container held the chat feature's JavaScript bundles and "
+                 "chat API metadata responses rather than message content, and no database or cache "
+                 "entry in the container carried message bodies, so this module reports no Roblox chat. "
+                 "An absent message here is not evidence a conversation did not happen. "
                  "Field mapping was done against a single private sample; no sample data is recorded "
                  "for it.",
         "paths": ('*/Library/Application Support/rbx-storage.db*',),
