@@ -6,16 +6,28 @@ __artifacts_v2__ = {
     
     "zangi_messages": {
         "name": "Zangi Messenger - Messages",
-        "description": "Messages from the Zangi Messenger database (ZZANGIMESSAGE joined to its "
-                       "conversation, group and contact tables), with direction, sender, chat "
-                       "name, text, message type and the attachment file where the app kept one.",
+        "description": "Messages from the Zangi Messenger database, joined to its conversation, "
+                       "group and contact tables, with direction, sender, chat name, text, "
+                       "message type and the attachment file where the app kept one. Reads two "
+                       "database layouts: the older ZZANGIMESSAGE table and the newer ZZMESSAGE "
+                       "family, whichever a database carries.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-22",
         "requirements": "pathlib",
         "category": "Chats",
-        "notes": "Message type mappings observed in testing (app version 5.6.7); not vendor-documented.",
+        "notes": "Message type mappings observed in testing (app version 5.6.7); not "
+                 "vendor-documented. Message type codes with no mapping are reported as stored. "
+                 "The module reads two database layouts and produces the same columns from each: "
+                 "the older single ZZANGIMESSAGE table, and the newer layout where message data "
+                 "moved to a ZZMESSAGE table with per-message sender rows in ZZMESSAGEUSER and "
+                 "attachments in ZZMESSAGEMEDIA. The layout is selected per database from the "
+                 "table present. The newer layout, including its sender, chat-name, media-path "
+                 "and timestamp mapping, was field mapped from a private sample; no sample data "
+                 "recorded. ZMESSAGETIME on the newer layout is read as a Cocoa/Core Data "
+                 "timestamp, and Direction is derived from ZISRECEIVED (0 outgoing, 1 incoming), "
+                 "both observed in that sample.",
         "paths": (  
             '*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/*/image/*/msgId*',
@@ -69,10 +81,12 @@ __artifacts_v2__ = {
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-22",
         "requirements": "",
         "category": "Accounts",
-        "notes": "",
+        "notes": "The ZUSER columns are selected per database from the columns present, so a "
+                 "column absent on a given app version (ZSTATUS is missing on an older layout "
+                 "seen in a private sample) is reported blank rather than failing the query.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -86,7 +100,8 @@ from pathlib import Path
 
 from scripts.ilapfuncs import artifact_processor, \
     convert_unix_ts_to_utc, get_sqlite_db_records, \
-    convert_cocoa_core_data_ts_to_utc, check_in_media
+    convert_cocoa_core_data_ts_to_utc, check_in_media, \
+    does_table_exist_in_db
 
 @artifact_processor
 def zangi_messages(context):
@@ -94,7 +109,9 @@ def zangi_messages(context):
                    and not x.endswith('journal')]
     data_list = []
 
-    query = '''
+    # Older layout: a single ZZANGIMESSAGE table with inline media columns. Kept so
+    # extractions from earlier app versions keep parsing.
+    query_legacy = '''
         SELECT
             zm.ZMESSAGETIME [Message Timestamp],
             zm.ZMESSAGE [Message Text],
@@ -161,6 +178,78 @@ def zangi_messages(context):
         LEFT JOIN ZCONTACT chat_ct          ON chat_ct.Z_PK = chat_lnk.Z_4CONTACT;
     '''
 
+    # Newer layout: message data moved to ZZMESSAGE, with the sender in a per-message
+    # ZZMESSAGEUSER row and the attachment in a per-message ZZMESSAGEMEDIA row. Returns
+    # the same columns in the same order as the legacy query so the row handling below is
+    # shared. Message type codes with no mapping are returned as stored.
+    query_new = '''
+        SELECT
+            zm.ZMESSAGETIME [Message Timestamp],
+            zm.ZMESSAGE [Message Text],
+            CASE
+                WHEN grp.Z_PK IS NOT NULL THEN 'Group'
+                ELSE 'Direct'
+            END [Conversation Type],
+            CASE zm.ZTYPE
+                WHEN 0   THEN 'Text'
+                WHEN 1   THEN 'Image/Media'
+                WHEN 2   THEN 'Video'
+                WHEN 3   THEN 'Location'
+                WHEN 4   THEN 'Voice note'
+                WHEN 8   THEN 'Link/Share'
+                WHEN 9   THEN 'File/Document'
+                WHEN 101 THEN 'System message'
+                WHEN 115 THEN 'Group event'
+                WHEN 160 THEN 'Call start'
+                WHEN 175 THEN 'Call end'
+                ELSE CAST(zm.ZTYPE AS TEXT)
+            END [Message Type],
+            zm.ZMESSAGEID [Message ID],
+            COALESCE(
+                NULLIF(grp.ZUID, ''),
+                NULLIF(cnv.ZGROUPUID, ''),
+                CAST(cnv.ZUID AS TEXT)
+            ) [Conversation ID],
+            COALESCE(
+                NULLIF(TRIM(gpf.ZNAME), ''),
+                NULLIF(TRIM(cnv.ZGROUPNAME), ''),
+                NULLIF(TRIM(chat_ct.ZDISPLAYNAME), ''),
+                NULLIF(TRIM(COALESCE(chat_ct.ZFIRSTNAME, '') || ' ' || COALESCE(chat_ct.ZLASTNAME, '')), ''),
+                chat_cn.ZFULLNUMBER,
+                CAST(cnv.ZUID AS TEXT)
+            ) [Chat Name],
+            COALESCE(
+                NULLIF(TRIM(snd_ct.ZDISPLAYNAME), ''),
+                NULLIF(TRIM(COALESCE(snd_ct.ZFIRSTNAME, '') || ' ' || COALESCE(snd_ct.ZLASTNAME, '')), ''),
+                snd_cn.ZFULLNUMBER,
+                mu.ZFULLNUMBER
+            ) [Sender Name],
+            COALESCE(snd_cn.ZFULLNUMBER, mu.ZFULLNUMBER) [Sender Number],
+            CASE
+                WHEN zm.ZISRECEIVED = 0 THEN 'Outgoing'
+                WHEN zm.ZISRECEIVED = 1 THEN 'Incoming'
+                ELSE 'Unknown'
+            END [Direction],
+            COALESCE(
+                NULLIF(mm.ZFILEREMOTEPATH, ''),
+                NULLIF(mm.ZMEDIAASSETSLIBRARYURL, '')
+            ) [Media Path],
+            mm.ZFILEEXTENSION [Media Extension],
+            zm.ZMESSAGEINFO [Message Info]
+        FROM ZZMESSAGE zm
+        LEFT JOIN ZCONVERSATION cnv         ON cnv.Z_PK = zm.ZCONVERSATION
+        LEFT JOIN ZGROUP grp                ON grp.ZCONVERSATION = cnv.Z_PK
+        LEFT JOIN ZGROUPPROFILE gpf         ON gpf.ZGROUP = grp.Z_PK
+        LEFT JOIN ZZMESSAGEUSER mu          ON mu.ZMESSAGE = zm.Z_PK
+        LEFT JOIN ZCONTACTNUMBER snd_cn     ON snd_cn.Z_PK = mu.ZCONTACTNUMBER
+        LEFT JOIN Z_4CONTACTNUMBER snd_lnk  ON snd_lnk.Z_5CONTACTNUMBER = snd_cn.Z_PK
+        LEFT JOIN ZCONTACT snd_ct           ON snd_ct.Z_PK = snd_lnk.Z_4CONTACT
+        LEFT JOIN ZZMESSAGEMEDIA mm         ON mm.ZMESSAGE = zm.Z_PK
+        LEFT JOIN ZCONTACTNUMBER chat_cn    ON chat_cn.Z_PK = cnv.ZMEMBER
+        LEFT JOIN Z_4CONTACTNUMBER chat_lnk ON chat_lnk.Z_5CONTACTNUMBER = chat_cn.Z_PK
+        LEFT JOIN ZCONTACT chat_ct          ON chat_ct.Z_PK = chat_lnk.Z_4CONTACT;
+    '''
+
     db_files = []
     media_files = []
     for file_found in files_found:
@@ -217,6 +306,12 @@ def zangi_messages(context):
 
     for main_db in db_files:
         source_db = context.get_relative_path(main_db)
+        if does_table_exist_in_db(main_db, 'ZZMESSAGE'):
+            query = query_new
+        elif does_table_exist_in_db(main_db, 'ZZANGIMESSAGE'):
+            query = query_legacy
+        else:
+            continue
         db_records = get_sqlite_db_records(main_db, query)
 
         for row in db_records:
@@ -371,23 +466,24 @@ def zangi_accounts(context):
     main_db = ''
     data_list = []
 
-    query = '''
-            SELECT
-                ZSTATUSLASTSYNCTIME [Last Sync Time],
-                ZNUMBER [Account ID],
-                ZNICKNAME [Account Name],
-                ZLASTNAME [Last Name],
-                ZNAME [First Name],ZNICKNAME [Account Name],
-                ZNEWPASSCODE [Passcode],
-                ZPASSWORD [Password],
-                ZPINCODE [PIN Code],
-                ZSHAREDHIDECONVERSATIONPIN [HIDE CONVERSATION PIN],
-                ZUSEREMAIL [Account Mail],
-                ZSTATUS [Account Status],
-                ZUSERREGSTATUS [Registration Status],
-                ZCOUNTRY [Country]
-            FROM ZUSER
-            '''
+    # ZUSER columns in the order the data_headers below expect them. Selected per database
+    # from the columns present, so a column absent on a given app version (ZSTATUS is
+    # missing on an older layout) is returned as NULL instead of failing the whole query.
+    account_columns = (
+        'ZSTATUSLASTSYNCTIME',
+        'ZNUMBER',
+        'ZNICKNAME',
+        'ZLASTNAME',
+        'ZNAME',
+        'ZNEWPASSCODE',
+        'ZPASSWORD',
+        'ZPINCODE',
+        'ZSHAREDHIDECONVERSATIONPIN',
+        'ZUSEREMAIL',
+        'ZSTATUS',
+        'ZUSERREGSTATUS',
+        'ZCOUNTRY',
+    )
 
     source_files = set()
     data_headers = (    ('Last Sync Timestamp', 'datetime'),
@@ -410,6 +506,16 @@ def zangi_accounts(context):
         main_db = str(file_found)
         source_files.add(main_db)
         source_db = context.get_relative_path(main_db)
+
+        if not does_table_exist_in_db(main_db, 'ZUSER'):
+            continue
+
+        present_columns = {r['name'].upper()
+                           for r in get_sqlite_db_records(
+                               main_db, "PRAGMA table_info('ZUSER')")}
+        select_columns = ', '.join(
+            col if col in present_columns else 'NULL' for col in account_columns)
+        query = f'SELECT {select_columns} FROM ZUSER'
 
         db_records = get_sqlite_db_records(main_db, query)
 
