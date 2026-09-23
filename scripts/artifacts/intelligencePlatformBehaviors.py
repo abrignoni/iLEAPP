@@ -12,19 +12,23 @@ __artifacts_v2__ = {
         "notes": "Reads behaviors.db under IntelligencePlatform (the 'knowledged' graph). "
                  "The behaviorEventsExtended table is a running log of device behaviors, "
                  "each with a behaviorType code, a behaviorIdentifier and a timestamp. The "
-                 "behaviorType code is resolved to a category from the histogramKey_<name> "
-                 "tables shipped in the same database, by matching each category table's "
-                 "identifiers back to the events, so the resolution is exact for the device "
-                 "that produced the store. Categories seen include app launch, app intent, "
-                 "point-of-interest category, focus mode, CarPlay, device locked, "
-                 "micro-location visit, airplane mode, Wi-Fi event, charging event, "
-                 "location-of-interest visit and person interaction. The identifier is "
+                 "behaviorType code is the 1-based position of the category in the ordered "
+                 "histogramKey_<name> tables shipped in the same database, so it resolves "
+                 "to that category. This was verified against every code that carried data "
+                 "on a tested image, where the position matched the code exactly. The "
+                 "categories, in order, are app launch, app intent, point-of-interest "
+                 "category, semantic location, focus mode, CarPlay, device locked, "
+                 "micro-location visit, airplane mode, Wi-Fi event, Bluetooth event, "
+                 "charging event, link action, HomeKit accessory event, location-of-"
+                 "interest visit, person interaction, photos person interaction and entity "
+                 "interaction. The identifier is "
                  "reported as stored: for an app launch it is a bundle id, for a Wi-Fi "
                  "event a connect or disconnect with a network name, for a person "
                  "interaction a handle reference. Some behaviorType codes (seen as 19, 20 "
-                 "and 21) are not named by any histogramKey table and are the bulk of the "
-                 "rows; they are location-cluster entry events whose identifier is an "
-                 "opaque cluster id, and their code is reported as stored. This store was "
+                 "and 21) are past the last histogramKey table, so the store does not name "
+                 "them, and they are the bulk of the rows; their identifiers are Enter and "
+                 "Exit events keyed by an opaque 64-bit location-cluster id, and the code "
+                 "is reported as stored. This store was "
                  "seen on iOS 17 and is not present on the tested iOS 18.3 and later "
                  "images, so it is a source specific to that window. The behaviors are "
                  "recorded by the system, so a row is not evidence a person performed the "
@@ -48,20 +52,16 @@ from scripts.ilapfuncs import artifact_processor, get_file_path, \
 
 
 def _category_map(cur):
-    """Derive {behaviorType: category label} by matching each histogramKey_<name>
-    table's identifiers back to behaviorEventsExtended, so a code resolves to the
-    category whose identifiers carry it. Codes no table names are left unmapped."""
-    mapping = {}
+    """Return {behaviorType: category label}. The behaviorType code is the 1-based
+    position of the category in the ordered histogramKey_<name> tables shipped in the
+    database. This was verified against every code that carried data on a tested image,
+    where the position matched the code exactly, so it also names the categories whose
+    table is empty on a given device. Codes past the last table are left unmapped."""
     tables = [row[0] for row in cur.execute(
         "select name from sqlite_master where type='table' "
-        "and name like 'histogramKey\\_%' escape '\\'")]
-    for table in tables:
-        label = table[len("histogramKey_"):]
-        for (behavior_type,) in cur.execute(
-                f'select distinct b.behaviorType from behaviorEventsExtended b '
-                f'join "{table}" k on b.behaviorIdentifier = k.behaviorIdentifier'):
-            mapping[behavior_type] = label
-    return mapping
+        "and name like 'histogramKey\\_%' escape '\\' order by rowid")]
+    return {index + 1: table[len("histogramKey_"):]
+            for index, table in enumerate(tables)}
 
 
 @artifact_processor
