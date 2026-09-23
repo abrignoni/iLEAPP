@@ -143,5 +143,85 @@ class TestZipRepeatedMemberNames(unittest.TestCase):
         self.assertEqual(self.seeker.search('*/log.db-wal', return_on_first_hit=True), first[0])
 
 
+class TestZipWithoutRepeatedMemberNames(unittest.TestCase):
+    """The ordinary archive: every name distinct, so the seeker need not walk the members.
+
+    Every real extraction is this case. The seeker used to group all 630,560 members of
+    one to find out, which measured 138 MB. ZipFile has already keyed its own dict on the
+    member name by then, so a short dict means a repeat and an equal one means none.
+    """
+
+    ENTRIES = (
+        ('a/first.db', b'ONE', (2024, 1, 1, 9, 0, 0)),
+        ('b/second.db-wal', b'TWO', (2024, 1, 1, 10, 0, 0)),
+        ('c/dir/', b'', (2024, 1, 1, 11, 0, 0)),
+        ('d/third.xml', b'THREE', (2024, 1, 1, 12, 0, 0)),
+    )
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix='leapp_seeker_zip_distinct_')
+        self.zip_path = os.path.join(self.tmp, 'distinct.zip')
+        self.data_folder = os.path.join(self.tmp, 'data')
+        with zipfile.ZipFile(self.zip_path, 'w') as archive:
+            for name, content, date_time in self.ENTRIES:
+                archive.writestr(zipfile.ZipInfo(name, date_time=date_time), content)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_every_name_is_listed_once_and_nothing_is_flagged_as_repeated(self):
+        seeker = FileSeekerZip(self.zip_path, self.data_folder)
+        self.addCleanup(seeker.cleanup)
+        self.assertEqual(seeker._search_names,  # pylint: disable=protected-access
+                         ['a/first.db', 'b/second.db-wal', 'c/dir/', 'd/third.xml'])
+        self.assertEqual(seeker._chosen, {})  # pylint: disable=protected-access
+        self.assertEqual(seeker._other_versions, {})  # pylint: disable=protected-access
+
+    def test_searching_still_finds_and_stages_each_member(self):
+        seeker = FileSeekerZip(self.zip_path, self.data_folder)
+        self.addCleanup(seeker.cleanup)
+        found = seeker.search('*/second.db-wal')
+        self.assertEqual(len(found), 1)
+        with open(found[0], 'rb') as fin:
+            self.assertEqual(fin.read(), b'TWO')
+        self.assertEqual(seeker.file_infos[found[0]].source_path, 'b/second.db-wal')
+
+    def test_the_members_are_never_walked_when_no_name_repeats(self):
+        """The one infolist() call in the class is the walk. It must not run here.
+
+        Without this the cheap path could be dropped and every test above would still
+        pass, because the walk returns the same answer. It just costs 138 MB on a real
+        archive to do so.
+        """
+        original = zipfile.ZipFile.infolist
+
+        def refuse(self):
+            raise AssertionError('the member walk ran on an archive with no repeated names')
+
+        zipfile.ZipFile.infolist = refuse
+        self.addCleanup(setattr, zipfile.ZipFile, 'infolist', original)
+        seeker = FileSeekerZip(self.zip_path, self.data_folder)
+        self.addCleanup(seeker.cleanup)
+        self.assertEqual(len(seeker._search_names), 4)  # pylint: disable=protected-access
+
+    def test_the_walk_still_runs_when_a_name_does_repeat(self):
+        """The control for the test above: the same probe must fire on a repeated name."""
+        repeated = os.path.join(self.tmp, 'repeats.zip')
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            with zipfile.ZipFile(repeated, 'w') as archive:
+                archive.writestr('a/first.db', b'ONE')
+                archive.writestr('a/first.db', b'ONE AGAIN')
+        original = zipfile.ZipFile.infolist
+
+        def refuse(self):
+            raise AssertionError('walk ran')
+
+        zipfile.ZipFile.infolist = refuse
+        self.addCleanup(setattr, zipfile.ZipFile, 'infolist', original)
+        with self.assertRaises(AssertionError):
+            FileSeekerZip(repeated, os.path.join(self.tmp, 'data2'))
+
+
 if __name__ == '__main__':
     unittest.main()

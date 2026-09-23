@@ -57,8 +57,14 @@ def clean_data(obj):
 def user_defaults(context):
     files_found = context.get_files_found()
     applications = {}
-    data_list = []
     source_dirs = set()
+    data_headers = (
+        "Application Bundle ID",
+        "Application Container ID",
+        "Key Name",
+        "Item",
+        "Source File",
+    )
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -73,6 +79,10 @@ def user_defaults(context):
         if bundle_id:
             container_id = pathlib.Path(file_found).parent.name
             applications[container_id] = bundle_id
+
+    results = context.create_artifact_result(
+        headers=data_headers,
+    )
 
     for file_found in files_found:
         file_found = str(file_found)
@@ -90,7 +100,7 @@ def user_defaults(context):
             source_dirs.add(str(pathlib.Path(file_found).parent))
             source_file = context.get_relative_path(file_found)
             for key, item in plist.items():
-                data_list.append((
+                results.add_row((
                     bundle_id,
                     container_id,
                     key,
@@ -98,12 +108,5 @@ def user_defaults(context):
                     source_file,
                 ))
 
-    data_headers = (
-        "Application Bundle ID",
-        "Application Container ID",
-        "Key Name",
-        "Item",
-        "Source File",
-    )
-
-    return data_headers, data_list, "\n".join(sorted(source_dirs))
+    results.set_source_path("\n".join(sorted(source_dirs)))
+    return results

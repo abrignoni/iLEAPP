@@ -1,0 +1,42 @@
+{
+  "case1": {
+    "description": "",
+    "maker": "",
+    "make_data": {
+      "input_data_path": "sysdiagnose_2025.04.07_08-06-18-0700_iPhone-OS_iPhone_20A362.tar.gz",
+      "os": "Linux-7.1.13-200.fc44.x86_64-x86_64-with-glibc2.43",
+      "timestamp": "2026-09-20T11:24:44.849609",
+      "last_commit": {
+        "hash": "91bd0da9e8817ed019f3015da822df6ae60c8af2",
+        "author_name": "Mathis DESAULTY",
+        "author_email": "desaultym16@gmail.com",
+        "date": "2026-09-18T09:12:21+02:00",
+        "message": "description changes"
+      }
+    },
+    "artifacts": {
+      "sysdiagnoseProcess": {
+        "search_patterns": [
+          "*/ps.txt",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      },
+      "sysdiagnoseProcessTree": {
+        "search_patterns": [
+          "*/ps.txt",
+          "*/sysdiagnose_*.tar.gz"
+        ],
+        "file_count": 1,
+        "expected_output": {
+          "headers": [],
+          "data": []
+        }
+      }
+    }
+  }
+}

@@ -1452,7 +1452,7 @@ def _corrected_utc(raw_ts, stamps, offsets):
     return convert_unix_ts_to_utc(raw_ts + offset), int(round(offset))
 
 
-def _parse_powerlog_table(context, table, columns, row_builder, optional=(),
+def _parse_powerlog_table(context, headers, table, columns, row_builder, optional=(),
                           extension=".PLSQL", offset_prefix=TIME_OFFSET_TABLE):
     """Run one query shape over every matching telemetry db found.
 
@@ -1461,8 +1461,14 @@ def _parse_powerlog_table(context, table, columns, row_builder, optional=(),
     selected as NULL where a given file's schema lacks them, so row shape
     stays fixed across iOS versions.
     row_builder(corrected_ts, offset, row, evidence_path) -> tuple.
+
+    Rows go to LAVA as they are read rather than being collected first. The
+    largest of these tables runs to six figures on one device, and the core
+    replays the rows from LAVA for the other outputs, so nothing here has to
+    hold them. headers is needed up front because the row writer registers the
+    table from them on the first row.
     """
-    data_list = []
+    results = context.create_artifact_result(headers=headers)
     sources = _powerlog_sources(context, extension)
     for db_path, evidence_path in sources:
         actual_table = _resolve_table(db_path, table)
@@ -1483,9 +1489,9 @@ def _parse_powerlog_table(context, table, columns, row_builder, optional=(),
                 ORDER BY timestamp
             '''):
             ts, offset = _corrected_utc(row[0], stamps, offsets)
-            data_list.append(row_builder(ts, offset, row, relative_path))
+            results.add_row(row_builder(ts, offset, row, relative_path))
     source = "See source paths in data" if sources else ""
-    return data_list, source
+    return results, source
 
 
 def _end_utc(start_dt, raw_start, raw_end):
@@ -1511,15 +1517,15 @@ def powerlogApplicationRuntime(context):
         "Screen-on Time (seconds)", "In-Call Background Time (seconds)",
         "In-Call Screen-on Time (seconds)", "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLAppTimeService_Aggregate_AppRunTime",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLAppTimeService_Aggregate_AppRunTime",
         ("timestamp", "BundleID", "BackgroundTime", "ScreenOnTime",
          "InCallBackgroundTime", "InCallScreenOnTime"),
         lambda ts, offset, row, rel: (
             ts, row[1], row[2], row[3], row[4], row[5], offset, rel),
         optional=("InCallBackgroundTime", "InCallScreenOnTime"),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1528,12 +1534,12 @@ def powerlogBatteryLevel(context):
         ("Timestamp", "datetime"), "Battery Level (%)", "Is Charging",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLBatteryAgent_EventBackward_BatteryUI",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLBatteryAgent_EventBackward_BatteryUI",
         ("timestamp", "Level", "IsCharging"),
         lambda ts, offset, row, rel: (ts, row[1], _yes_no(row[2]), offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1542,13 +1548,13 @@ def powerlogDevicePowerState(context):
         ("Timestamp", "datetime"), "Event (as stored)", "State (as stored)",
         "Reason (as stored)", "UUID", "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLSleepWakeAgent_EventForward_PowerState",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLSleepWakeAgent_EventForward_PowerState",
         ("timestamp", "Event", "State", "Reason", "UUID"),
         lambda ts, offset, row, rel: (
             ts, row[1], row[2], row[3], row[4], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1557,13 +1563,13 @@ def powerlogAppState(context):
         ("Timestamp", "datetime"), "Identifier", "PID", "State (as stored)",
         "Reason (as stored)", "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLApplicationAgent_EventForward_Application",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLApplicationAgent_EventForward_Application",
         ("timestamp", "Identifier", "pid", "State", "Reason"),
         lambda ts, offset, row, rel: (
             ts, row[1], row[2], row[3], row[4], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1572,12 +1578,12 @@ def powerlogDeviceLock(context):
         ("Timestamp", "datetime"), "Locked", "Time Offset (seconds)",
         "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLSpringBoardAgent_EventForward_SBLock",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLSpringBoardAgent_EventForward_SBLock",
         ("timestamp", "Locked"),
         lambda ts, offset, row, rel: (ts, _yes_no(row[1]), offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1586,12 +1592,12 @@ def powerlogAutolock(context):
         ("Timestamp", "datetime"), "AutoLockType (as stored)",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLSpringBoardAgent_EventPoint_SBAutoLock",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLSpringBoardAgent_EventPoint_SBAutoLock",
         ("timestamp", "AutoLockType"),
         lambda ts, offset, row, rel: (ts, row[1], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1600,12 +1606,12 @@ def powerlogTorch(context):
         ("Timestamp", "datetime"), "Bundle ID", "Level (as stored)",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLCameraAgent_EventForward_Torch",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLCameraAgent_EventForward_Torch",
         ("timestamp", "BundleId", "Level"),
         lambda ts, offset, row, rel: (ts, row[1], row[2], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1615,13 +1621,13 @@ def powerlogDisplayState(context):
         "lux (as stored)", "mNits (as stored)", "Time Offset (seconds)",
         "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLDisplayAgent_EventForward_Display",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLDisplayAgent_EventForward_Display",
         ("timestamp", "Brightness", "SliderValue", "lux", "mNits"),
         lambda ts, offset, row, rel: (
             ts, row[1], row[2], row[3], row[4], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1631,8 +1637,8 @@ def powerlogAudioRouting(context):
         "Headphones Connected", "BT Endpoint Type", "Active PID",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLAudioAgent_EventForward_Routing",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLAudioAgent_EventForward_Routing",
         ("timestamp", "Active", "ActiveRoute", "OutputCategory",
          "HeadphonesConnected", "BTEndpointType", "ActivePID"),
         lambda ts, offset, row, rel: (
@@ -1640,7 +1646,7 @@ def powerlogAudioRouting(context):
             row[6], offset, rel),
         optional=("BTEndpointType", "ActivePID"),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1651,15 +1657,15 @@ def powerlogAdapter(context):
         "SystemLoad (as stored)", "AdapterEfficiencyLoss (as stored)",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLBatteryAgent_EventBackward_Adapter",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLBatteryAgent_EventBackward_Adapter",
         ("timestamp", "SystemInputVoltage", "SystemInputCurrent",
          "SystemPowerIn", "SystemLoad", "AdapterEfficiencyLoss"),
         lambda ts, offset, row, rel: (
             ts, row[1], row[2], row[3], row[4], row[5], offset, rel),
         optional=("SystemInputVoltage", "SystemInputCurrent"),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1668,12 +1674,12 @@ def powerlogCameraState(context):
         ("Timestamp", "datetime"), "Bundle ID", "CameraType (as stored)",
         "State (as stored)", "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "PLCameraAgent_EventForward_Camera",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "PLCameraAgent_EventForward_Camera",
         ("timestamp", "BundleId", "CameraType", "State"),
         lambda ts, offset, row, rel: (ts, row[1], row[2], row[3], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1684,14 +1690,14 @@ def powerlogNeuralEngineModelLoad(context):
         "Cache Hit (as stored)", "Precompiled (as stored)",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "ANE_modelLoad_1_2",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "ANE_modelLoad_1_2",
         ("timestamp", "csIdentity", "modelURL", "modelSize",
          "modelLoadingTime", "cacheHit", "isPrecompiled"),
         lambda ts, offset, row, rel: (
             ts, row[1], row[2], row[3], row[4], row[5], row[6], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1700,12 +1706,12 @@ def powerlogNeuralEngineModelUnload(context):
         ("Timestamp", "datetime"), "Identity", "Model URL",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "ANE_modelUnload_1_2",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "ANE_modelUnload_1_2",
         ("timestamp", "csIdentity", "modelURL"),
         lambda ts, offset, row, rel: (ts, row[1], row[2], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 @artifact_processor
 def powerlogGenerativeSummarization(context):
     data_headers = (
@@ -1713,15 +1719,15 @@ def powerlogGenerativeSummarization(context):
         "kind (as stored)", "exitReason (as stored)", "isUrgent (as stored)",
         "Request Identifier", "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "GenerativeFunctionMetrics_Summarization_1_2",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "GenerativeFunctionMetrics_Summarization_1_2",
         ("timestamp", "timestampEnd", "bundleID", "kind", "exitReason",
          "isUrgent", "requestIdentifier"),
         lambda ts, offset, row, rel: (
             ts, _end_utc(ts, row[0], row[1]), row[2], row[3], row[4], row[5],
             row[6], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1733,15 +1739,15 @@ def powerlogGenerativeTextRequests(context):
         "qos (as stored)", "Request Identifier", "Time Offset (seconds)",
         "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "GenerativeFunctionMetrics_tgiExecuteRequest_1_2",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "GenerativeFunctionMetrics_tgiExecuteRequest_1_2",
         ("timestamp", "timestampEnd", "requestType", "errorType",
          "inputTokensCount", "outputTokensCount", "qos", "requestIdentifier"),
         lambda ts, offset, row, rel: (
             ts, _end_utc(ts, row[0], row[1]), row[2], row[3], row[4], row[5],
             row[6], row[7], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1752,8 +1758,8 @@ def powerlogGenerativeInferenceRequests(context):
         "error (as stored)", "requestType (as stored)", "Session Identifier",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "GenerativeFunctionMetrics_mmExecuteRequest_1_2",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "GenerativeFunctionMetrics_mmExecuteRequest_1_2",
         ("timestamp", "timestampEnd", "useCaseIdentifier",
          "createdByBundleIdentifier", "onBehalfOfBundleIdentifier",
          "inferenceProviderIdentifier", "error", "requestType",
@@ -1762,7 +1768,7 @@ def powerlogGenerativeInferenceRequests(context):
             ts, _end_utc(ts, row[0], row[1]), row[2], row[3], row[4], row[5],
             row[6], row[7], row[8], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1773,15 +1779,15 @@ def powerlogGenerativeAssetLoad(context):
         "result (as stored)", "Session Identifier", "Time Offset (seconds)",
         "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "GenerativeFunctionMetrics_assetLoad_1_2",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "GenerativeFunctionMetrics_assetLoad_1_2",
         ("timestamp", "timestampEnd", "catalogResourceIdentifier", "loadType",
          "reason", "result", "sessionIdentifier"),
         lambda ts, offset, row, rel: (
             ts, _end_utc(ts, row[0], row[1]), row[2], row[3], row[4], row[5],
             row[6], offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1790,12 +1796,12 @@ def powerlogGenerativeOptIn(context):
         ("Timestamp", "datetime"), "Enabled", "Time Offset (seconds)",
         "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "GenerativeFunctionMetrics_OptIn_1_2",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "GenerativeFunctionMetrics_OptIn_1_2",
         ("timestamp", "Enabled"),
         lambda ts, offset, row, rel: (ts, _yes_no(row[1]), offset, rel),
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 EPSQL_OFFSET = "PPTStorageOperator_TimeOffset"
 BGSQL_OFFSET = "BackgroundProcessing_TimeOffset"
@@ -1808,8 +1814,8 @@ def powerTelemetryBatteryDataDaily(context):
         "Nominal Charge Capacity (as stored)", "Charging Voltage (as stored)",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "BatteryDataCollection_BDC_Daily",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "BatteryDataCollection_BDC_Daily",
         ("timestamp", "CycleCount", "MaxCapacityPercent",
          "NominalChargeCapacity", "ChargingVoltage"),
         lambda ts, offset, row, rel: (
@@ -1817,7 +1823,7 @@ def powerTelemetryBatteryDataDaily(context):
         optional=("MaxCapacityPercent",),
         extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1828,8 +1834,8 @@ def powerTelemetrySmartCharging(context):
         "DecisionMaker (as stored)", "InflowState (as stored)",
         "ModeOfOperation (as stored)", "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "BatteryDataCollection_BDC_SmartCharging",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "BatteryDataCollection_BDC_SmartCharging",
         ("timestamp", "ChargeLimit", "ChargingState", "CheckPoint",
          "DecisionMaker", "InflowState", "ModeOfOperation"),
         lambda ts, offset, row, rel: (
@@ -1837,7 +1843,7 @@ def powerTelemetrySmartCharging(context):
         optional=("DecisionMaker",),
         extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1848,8 +1854,8 @@ def powerTelemetryBatteryHardware(context):
         "YWW (as stored)", "Gas Gauge Firmware (as stored)",
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "BatteryDataCollection_BDC_Once",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "BatteryDataCollection_BDC_Once",
         ("timestamp", "DesignCapacity", "ChemID", "AlgoChemID", "EEEE", "YWW",
          "GasGaugeFirmwareVersion"),
         lambda ts, offset, row, rel: (
@@ -1857,7 +1863,7 @@ def powerTelemetryBatteryHardware(context):
         optional=("GasGaugeFirmwareVersion",),
         extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1869,8 +1875,8 @@ def powerTelemetryBatteryTrustedDaily(context):
         ("Trusted Date Of First Use", "datetime"),
         "Time Offset (seconds)", "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "BatteryTrustedData_Daily",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "BatteryTrustedData_Daily",
         ("timestamp", "TrustedCycleCount", "TrustedMaximumCapacity",
          "TrustedLifeTimeMaxWRdc", "TrustedDateOfFirstUse"),
         lambda ts, offset, row, rel: (
@@ -1878,7 +1884,7 @@ def powerTelemetryBatteryTrustedDaily(context):
             offset, rel),
         extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1889,8 +1895,8 @@ def powerTelemetryBackgroundTaskInstances(context):
         "Started On Battery", "Task ID", "Time Offset (seconds)",
         "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "BackgroundProcessing_TaskInstanceData",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "BackgroundProcessing_TaskInstanceData",
         ("timestamp", "ProcessName", "PID", "StartDate", "EndDate",
          "StartedOnBattery", "TaskID"),
         lambda ts, offset, row, rel: (
@@ -1899,7 +1905,7 @@ def powerTelemetryBackgroundTaskInstances(context):
             rel),
         extension=".BGSQL", offset_prefix=BGSQL_OFFSET,
     )
-    return data_headers, data_list, source
+    return data_headers, results, source
 
 
 @artifact_processor
@@ -1909,12 +1915,12 @@ def powerTelemetryBackgroundTaskMetadata(context):
         "Group Name", "Launch Reason", "Task ID", "Time Offset (seconds)",
         "Source File",
     )
-    data_list, source = _parse_powerlog_table(
-        context, "BackgroundProcessing_TaskMetadata",
+    results, source = _parse_powerlog_table(
+        context, data_headers, "BackgroundProcessing_TaskMetadata",
         ("timestamp", "BundleID", "Name", "ServiceName", "GroupName",
          "LaunchReason", "TaskID"),
         lambda ts, offset, row, rel: (
             ts, row[1], row[2], row[3], row[4], row[5], row[6], offset, rel),
         extension=".BGSQL", offset_prefix=BGSQL_OFFSET,
     )
-    return data_headers, data_list, source
+    return data_headers, results, source

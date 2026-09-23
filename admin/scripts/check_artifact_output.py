@@ -17,9 +17,15 @@ Every finding here has shipped in a merged artifact at least once:
   sparse-lead        the first column is a timestamp that is empty on most rows, so the
                      table leads with a blank and sorts on nothing.
 
-A column is NOT reported when the artifact's own notes name it. That is the documented way
-to keep a uniform column: say in the notes that it was uniform and why it still earns its
-place. So this check enforces the rule rather than second-guessing it.
+A finding is NOT reported when the artifact's own notes address that finding: a sentence
+naming the column (or, for identical-columns, both columns) and saying what this check
+would otherwise say about it. That is the documented way to keep a uniform column: write
+in the notes that it was uniform and why it still earns its place.
+
+The key is the finding, not the column. A column named for an unrelated reason no longer
+silences a real defect: a note explaining that ps_thread.txt puts %CPU in its 4th column
+does not certify that the %CPU column of ps.txt is uniform. The column name also has to
+appear as a word, so "timezone" and "timestamp" no longer silence a column named TIME.
 
 Scaling is checked separately with --compare, which takes the report of the same profile
 run against a tree holding the same container twice plus a second tenant. Per artifact:
@@ -52,14 +58,63 @@ IGNORED = {'source file', 'source files', 'source path', 'source paths'}
 QUALIFIER = re.compile(r'\s*\((?:as stored|seconds|utc|local)[^)]*\)\s*$', re.I)
 
 
+# A finding is silenced only by prose that addresses that finding. Each vocabulary is the
+# way the notes in this repo already describe its defect; an unlisted phrasing reports the
+# finding rather than hiding it, which is the safe direction for a check like this.
+SHAPES = {
+    'empty-column': re.compile(
+        r'empt|blank|no value|without a value|not populated|unpopulated|unset|'
+        r'never (?:filled|set|populated|written)|absent|not recorded|not present|'
+        r'no data|nothing|null|(?:carries|carried|holds|held|has|had) no', re.I),
+    'constant-column': re.compile(
+        r'constant|uniform|one value|single value|same value|one distinct|only value|'
+        r'did not vary|does not vary|never varies|unchanged|invariant|'
+        r'(?:on|across|for) (?:all|every)\s+[\d,]*\s*rows?|every row|all rows', re.I),
+    'identical-columns': re.compile(
+        r'identical|the same|same as|duplicat|copy of|copies|mirror|equal|matches', re.I),
+}
+
+# Split on sentence enders and on a newline, so one bullet cannot borrow its neighbour's
+# vocabulary. A finding needs its column and its vocabulary in the SAME sentence. A colon
+# is not an ender: "these are blank: A, B and C" is one statement about A, B and C.
+SENTENCE = re.compile(r'(?<=[.;!?])\s+|\n+')
+
+
+def column_pattern(column):
+    """A whole-word matcher for a column name, tolerating a plural or possessive.
+
+    "Timestamp" matches "timestamps" because that is the same column being described.
+    It does not match "zitunessubtitle" or "timezone", which name something else.
+    """
+    bare = QUALIFIER.sub('', column).strip().lower()
+    if not bare:
+        return None
+    return re.compile(r"(?<![0-9a-z])" + re.escape(bare) + r"(?:'s|\u2019s|es|s)?(?![0-9a-z])")
+
+
 def named_in(notes, *columns):
-    """Whether the notes name every one of these columns, qualifier or not."""
+    """Whether the notes name every one of these columns as a word, qualifier or not."""
     lowered = notes.lower()
     for column in columns:
-        bare = QUALIFIER.sub('', column).strip().lower()
-        if not bare or bare not in lowered:
+        pattern = column_pattern(column)
+        if pattern is None or not pattern.search(lowered):
             return False
     return True
+
+
+def documented(notes, kind, *columns):
+    """Whether some sentence names every column AND says what this finding would say."""
+    shape = SHAPES.get(kind)
+    if shape is None:
+        return False
+    patterns = [column_pattern(c) for c in columns]
+    if any(p is None for p in patterns):
+        return False
+    for sentence in SENTENCE.split(notes):
+        lowered = sentence.lower()
+        if all(p.search(lowered) for p in patterns) and shape.search(sentence):
+            return True
+    return False
 
 
 def artifact_notes(repo_root):
@@ -129,20 +184,28 @@ def check_table(columns, rows, notes):
     total = len(rows)
 
     series = {c: [(r.get(c) or '') for r in rows] for c in columns}
+
+    def record(kind, message, *involved):
+        """Keep a finding unless the notes address it; say so when only the name is there."""
+        if documented(notes, kind, *involved):
+            return
+        if named_in(mentioned, *involved):
+            message += ' (the notes name it, but not as this finding)'
+        findings.append((kind, message))
+
     for column in columns:
         if column.lower() in IGNORED:
             continue
         values = series[column]
         filled = sum(1 for v in values if v != '')
         distinct = len(set(values))
-        if named_in(mentioned, column):
-            continue
         if filled == 0:
-            findings.append(('empty-column', f'{column!r} has no value on any of {total} rows'))
+            record('empty-column',
+                   f'{column!r} has no value on any of {total} rows', column)
         elif distinct == 1 and total >= MIN_ROWS_FOR_CONSTANT:
-            findings.append(('constant-column',
-                             f'{column!r} holds one value on all {total} rows: '
-                             f'{values[0][:40]!r}'))
+            record('constant-column',
+                   f'{column!r} holds one value on all {total} rows: {values[0][:40]!r}',
+                   column)
 
     for index, first in enumerate(columns):
         if first.lower() in IGNORED:
@@ -151,11 +214,10 @@ def check_table(columns, rows, notes):
             if second.lower() in IGNORED:
                 continue
             left, right = series[first], series[second]
-            if named_in(mentioned, first, second):
-                continue
             if left == right and len(set(left)) > 1 and any(v != '' for v in left):
-                findings.append(('identical-columns',
-                                 f'{first!r} and {second!r} are identical on all {total} rows'))
+                record('identical-columns',
+                       f'{first!r} and {second!r} are identical on all {total} rows',
+                       first, second)
 
     lead = columns[0] if columns else ''
     if lead and lead.lower() not in IGNORED:
@@ -243,8 +305,9 @@ def main():
     print(f'\nChecked {checked} artifact export(s): '
           f'{total_findings or "nothing"} to look at.')
     if total_findings:
-        print('A column named in its artifact\'s notes is not reported, so the documented way '
-              'to keep a uniform column is to say so in the notes.')
+        print('A finding whose artifact notes already say what it says is not reported, so '
+              'the documented way to keep a uniform column is a sentence in the notes that '
+              'names the column and states it was uniform.')
     return 1 if (args.strict and total_findings) else 0
 
 

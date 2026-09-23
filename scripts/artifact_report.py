@@ -88,6 +88,7 @@ class ArtifactHtmlReport:
         table_style='',
         table_id='dtBasicExample',
         html_no_escape=[],
+        row_count=None,
         row_limit=None,
         full_data_locations=None
     ):
@@ -116,6 +117,7 @@ class ArtifactHtmlReport:
 
             html_no_escape  : if html_escape=True, list of columns not to escape
 
+            row_count       : Optional precomputed row count for streaming data_list iterables
             row_limit      : Rows above which the table is left off the page and a notice
                              written instead; None uses HTML_TABLE_ROW_LIMIT, 0 means no limit
 
@@ -127,7 +129,7 @@ class ArtifactHtmlReport:
         if (not self.report_file):
             raise ValueError('Output report file is closed/unavailable!')
 
-        num_entries = len(data_list)
+        num_entries = row_count if row_count is not None else len(data_list)
         if write_total:
             self.write_minor_header(f'Total number of entries: {num_entries}', 'h6')
         if write_location:

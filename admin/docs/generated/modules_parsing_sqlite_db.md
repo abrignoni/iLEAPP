@@ -70,6 +70,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | biomeIntelligenceEntity |
 | biomeSync |
 | booking |
+| botim |
 | box |
 | brave |
 | bumble |
@@ -115,6 +116,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | instagramThreads |
 | installHistory |
 | interactionCcontacts |
+| kakaoTalk |
 | keyboard |
 | keyboardInputContexts |
 | keychain |
@@ -157,6 +159,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | recents |
 | reddit |
 | reminders |
+| roblox |
 | safariBookmarks |
 | safariCache |
 | safariFavicons |
@@ -176,6 +179,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | swissmeteo |
 | tcc |
 | teleguard |
+| telekomMail |
 | textNow |
 | threeBars |
 | tikTok |
@@ -194,9 +198,11 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | viber |
 | vipps |
 | vippsContacts |
+| vk |
 | voiceRecordings |
 | voicemail |
 | waze |
+| weChat |
 | whatsApp |
 | whatsAppExtended |
 | wickr |
@@ -250,6 +256,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | mapsSync |
 | nest |
 | netflix |
+| odnoklassniki |
 | serialNumber |
 | swissmeteo |
 | teams |

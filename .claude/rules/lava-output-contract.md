@@ -33,6 +33,10 @@ HTML + TSV + LAVA + timeline, `"all"` adds KML, `"lava_only"` writes only the da
   manifest**, so moving the whole output folder is safe.
 - Record counts shown in LAVA come from `record_count` in the manifest, not a live
   `COUNT(*)`. An artifact that writes rows without updating the count displays as empty.
+- **`extraction_path` is relative to the report root**, typically `media/<sha1>.<ext>`.
+  LAVA joins that onto the folder that contains the manifest. A copy under
+  `_HTML/media/` is for the HTML report, not a LAVA requirement; lava-only output
+  is valid with files only under `media/`.
 
 ## SQL identifiers must be quoted on both sides
 
