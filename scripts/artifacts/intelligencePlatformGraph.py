@@ -54,7 +54,8 @@ __artifacts_v2__ = {
         "name": "Intelligence Platform Knowledge Graph - Events",
         "description": "Dated events the on-device knowledge graph inferred, such as "
                        "location visits and calendar events, with their imputed start "
-                       "and end times.",
+                       "and end times, and for a location visit the referenced place "
+                       "resolved to a name, address and coordinates.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-23",
@@ -71,18 +72,24 @@ __artifacts_v2__ = {
                  "not reported. Predicate and class codes "
                  "are resolved from the ontology.db shipped in the same folder. Events are "
                  "inferred by the system, so an event is not evidence the user was present "
-                 "or confirmed it. The location reference is reported as stored and is not "
-                 "resolved to a place name here. Confidence is the value the graph "
-                 "recorded, not a measurement made here, and can hold one value across "
-                 "every event on a device that stored few of them. Retired events are "
-                 "read from the expired_event_graph table alongside the live event_graph "
-                 "and flagged in the Expired column. The IntelligencePlatform graph "
+                 "or confirmed it. The location reference is reported as stored (an "
+                 "'md:<id>' pointer whose number is the modeled place node's id) and is "
+                 "also resolved here to that place's name, composed address, latitude and "
+                 "longitude by reading the referenced node from the entity tables "
+                 "(stable_graph, then expired_stable_graph). A location visit therefore "
+                 "carries coordinates and is written to KML; calendar and other events "
+                 "with no location leave the location columns blank. Confidence is the "
+                 "value the graph recorded, not a measurement made here, and can hold one "
+                 "value across every event on a device that stored few of them. Retired "
+                 "events are read from the expired_event_graph table alongside the live "
+                 "event_graph and flagged in the Expired column. The IntelligencePlatform "
+                 "graph "
                  "databases were described by 0x11 Forensics and Consulting, 'That is one "
                  "smart Apple', 0x11forensicssc.com, 2026-07-21.",
         "paths": (
             '*/mobile/Library/IntelligencePlatform/graph.db*',
             '*/mobile/Library/IntelligencePlatform/ontology.db*'),
-        "output_types": "standard",
+        "output_types": "all",
         "artifact_icon": "map-pin",
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | 1032 rows",
@@ -244,6 +251,55 @@ def _cocoa(value):
         return None
 
 
+def _first(values):
+    """Return the first non-empty value as text, else ''."""
+    for value in values:
+        text = '' if value is None else str(value)
+        if text:
+            return text
+    return ''
+
+
+def _place_lookup(files_found, predicates):
+    """Map each modeled node's subject id to its resolved (name, composed address,
+    latitude, longitude), gathered from the live and expired entity tables. An event
+    references its location by node id (object 'md:<id>'), so this turns that pointer
+    into the place the graph modeled. The live stable_graph wins over the expired
+    table when a node is in both."""
+    lookup = {}
+    for table_name in ("stable_graph", "expired_stable_graph"):
+        rows, _ = _read_triples(files_found, table_name)
+        for subject, ent in _group_by_subject(rows, predicates).items():
+            number = _first(_part(ent, 'has address', 'sub thoroughfare'))
+            street = _first(_part(ent, 'has address', 'full street address'))
+            city = _first(_part(ent, 'has address', 'city'))
+            region = _first(_part(ent, 'has address', 'administrative district'))
+            postal = _first(_part(ent, 'has address', 'postal code'))
+            name = _first(_part(ent, 'has address', 'name'))
+            lat, lon = _coords(ent)
+            line1 = ' '.join(p for p in (number, street) if p)
+            region_zip = ' '.join(p for p in (region, postal) if p)
+            address = ', '.join(p for p in (line1, city, region_zip) if p)
+            if subject not in lookup and (name or address or lat or lon):
+                lookup[subject] = (name, address, lat, lon)
+    return lookup
+
+
+def _resolve_location(ent, places):
+    """Resolve an event's location reference ('md:<id>') to the modeled place's
+    (name, address, latitude, longitude). Returns blanks when the event has no
+    location or the reference does not resolve to a modeled node."""
+    for ref in _part(ent, 'has location relationship', 'has location'):
+        if isinstance(ref, str) and ref.startswith('md:'):
+            try:
+                node = int(ref[3:])
+            except ValueError:
+                continue
+            if node in places:
+                return places[node]
+    return '', '', '', ''
+
+
 @artifact_processor
 def intelligencePlatformEntities(context):
     files_found = context.get_files_found()
@@ -306,6 +362,7 @@ def intelligencePlatformEntities(context):
 def intelligencePlatformEvents(context):
     files_found = context.get_files_found()
     predicates, classes = _load_ontology(files_found)
+    places = _place_lookup(files_found, predicates)
 
     data_list = []
     source_path = ''
@@ -321,12 +378,17 @@ def intelligencePlatformEvents(context):
             ends = [_cocoa(v) for v in _part(ent, 'has date', 'imputed end time')]
             starts = [s for s in starts if s]
             ends = [e for e in ends if e]
+            loc_name, loc_addr, loc_lat, loc_lon = _resolve_location(ent, places)
             data_list.append((
                 min(starts) if starts else '',
                 max(ends) if ends else '',
                 _join(classes.get(v, v) for v in _base(ent, 'is a')),
                 _join(_base(ent, 'name')),
                 _join(_part(ent, 'has location relationship', 'has location')),
+                loc_name,
+                loc_addr,
+                loc_lat,
+                loc_lon,
                 round(ent['confidence'], 4),
                 expired,
                 str(subject)))
@@ -337,6 +399,10 @@ def intelligencePlatformEvents(context):
         'Event Type',
         'Name',
         'Location (as stored)',
+        'Location Name',
+        'Location Address',
+        'Latitude',
+        'Longitude',
         'Confidence',
         'Expired',
         'Event ID')
