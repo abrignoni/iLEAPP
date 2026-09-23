@@ -26,22 +26,27 @@ __artifacts_v2__ = {
                  "inferred by the system from several sources, so an entity is not "
                  "evidence the user created or confirmed it. Columns are a union across "
                  "entity types, so a person entity leaves the software and place columns "
-                 "blank and the reverse.",
+                 "blank and the reverse. Entries the graph has retired are read from the "
+                 "expired_stable_graph table alongside the live stable_graph and flagged "
+                 "in the Expired column, so superseded knowledge is still reported. The "
+                 "IntelligencePlatform graph databases and the ontology-code resolution "
+                 "were described by 0x11 Forensics and Consulting, 'That is one smart "
+                 "Apple', 0x11forensicssc.com, 2026-07-21.",
         "paths": (
             '*/mobile/Library/IntelligencePlatform/graph.db*',
             '*/mobile/Library/IntelligencePlatform/ontology.db*'),
         "output_types": "all",
         "artifact_icon": "share-2",
         "sample_data": {
-            "otto_ios17": "iOS 17.5.1 | 1321 rows",
+            "otto_ios17": "iOS 17.5.1 | 1322 rows",
+            "dexter_ios18": "iOS 18.3.2 | 575 rows",
+            "hc_ios26": "iOS 26.5 | 356 rows",
+            "falken_ios26": "iOS 26 | 325 rows",
             "felix_ios17": "iOS 17.6.1 | 314 rows",
-            "fsfull002_ios17": "iOS 17.1 | 263 rows",
-            "cookbook_ios1751": "iOS 17.5.1 | 250 rows",
-            "dexter_ios18": "iOS 18.3.2 | 544 rows",
+            "iphone12_ios18": "iOS 18.7 | 305 rows",
             "hc_ios18_7": "iOS 18.7.8 | 304 rows",
-            "iphone12_ios18": "iOS 18.7 | 304 rows",
-            "hc_ios26": "iOS 26.5 | 350 rows",
-            "falken_ios26": "iOS 26 | 323 rows",
+            "fsfull002_ios17": "iOS 17.1 | 268 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 252 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
         },
     },
@@ -69,22 +74,64 @@ __artifacts_v2__ = {
                  "or confirmed it. The location reference is reported as stored and is not "
                  "resolved to a place name here. Confidence is the value the graph "
                  "recorded, not a measurement made here, and can hold one value across "
-                 "every event on a device that stored few of them.",
+                 "every event on a device that stored few of them. Retired events are "
+                 "read from the expired_event_graph table alongside the live event_graph "
+                 "and flagged in the Expired column. The IntelligencePlatform graph "
+                 "databases were described by 0x11 Forensics and Consulting, 'That is one "
+                 "smart Apple', 0x11forensicssc.com, 2026-07-21.",
         "paths": (
             '*/mobile/Library/IntelligencePlatform/graph.db*',
             '*/mobile/Library/IntelligencePlatform/ontology.db*'),
         "output_types": "standard",
         "artifact_icon": "map-pin",
         "sample_data": {
-            "dexter_ios18": "iOS 18.3.2 | 554 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1032 rows",
+            "otto_ios17": "iOS 17.5.1 | 38 rows",
+            "hc_ios26": "iOS 26.5 | 35 rows",
             "felix_ios17": "iOS 17.6.1 | 33 rows",
-            "hc_ios26": "iOS 26.5 | 28 rows",
-            "falken_ios26": "iOS 26 | 22 rows",
-            "otto_ios17": "iOS 17.5.1 | 20 rows",
-            "fsfull002_ios17": "iOS 17.1 | 6 rows",
-            "iphone12_ios18": "iOS 18.7 | 6 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 4 rows",
-            "cookbook_ios1751": "iOS 17.5.1 | 1 rows",
+            "falken_ios26": "iOS 26 | 27 rows",
+            "fsfull002_ios17": "iOS 17.1 | 24 rows",
+            "iphone12_ios18": "iOS 18.7 | 7 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 5 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 2 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
+        },
+    },
+    "intelligencePlatformInteractions": {
+        "name": "Intelligence Platform Knowledge Graph - Interactions",
+        "description": "Messages and calls the on-device knowledge graph recorded as "
+                       "interactions, with the contact handle, app, direction and time.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-23",
+        "last_update_date": "2026-09-23",
+        "requirements": "none",
+        "category": "Knowledge Graph",
+        "notes": "Reads the interaction view the 'knowledged' graph keeps at "
+                 "IntelligencePlatform/Artifacts/siri/remembers/view.db (present on iOS 17 "
+                 "and later). Each interaction is a message or call the system recorded, "
+                 "joined to the person handle it involved through the interactionEntities "
+                 "table. One row is emitted per interaction, with the handle or handles "
+                 "(more than one for a group message) in the Handles column. Domain, "
+                 "interaction type, app bundle id, direction and duration are reported as "
+                 "stored; direction is an integer whose meaning is not resolved here. These "
+                 "are the graph's own record of interactions and can repeat what an app's "
+                 "own database holds, but they can also outlive it. The store was described "
+                 "by 0x11 Forensics and Consulting, 'That is one smart Apple', "
+                 "0x11forensicssc.com, 2026-07-21.",
+        "paths": (
+            '*/mobile/Library/IntelligencePlatform/Artifacts/siri/remembers/view.db*',),
+        "output_types": "standard",
+        "artifact_icon": "message-square",
+        "sample_data": {
+            "otto_ios17": "iOS 17.5.1 | 2835 rows",
+            "dexter_ios18": "iOS 18.3.2 | 952 rows",
+            "falken_ios26": "iOS 26 | 253 rows",
+            "hc_ios26": "iOS 26.5 | 122 rows",
+            "felix_ios17": "iOS 17.6.1 | 37 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 27 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 15 rows",
+            "fsfull002_ios17": "iOS 17.1 | 0 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
         },
     },
@@ -201,33 +248,37 @@ def _cocoa(value):
 def intelligencePlatformEntities(context):
     files_found = context.get_files_found()
     predicates, classes = _load_ontology(files_found)
-    rows, graph_path = _read_triples(files_found, "stable_graph")
-    entities = _group_by_subject(rows, predicates)
 
     data_list = []
-    source_path = context.get_relative_path(graph_path) if graph_path else ''
-    for subject, ent in entities.items():
-        entity_type = _join(classes.get(v, v) for v in _base(ent, 'is a'))
-        identifiers = _join(
-            _part(ent, 'identifier', 'username')
-            + _part(ent, 'identifier', 'identifier id'))
-        data_list.append((
-            convert_cocoa_core_data_ts_to_utc(ent['timestamp']) if ent['timestamp'] else '',
-            entity_type,
-            _join(_base(ent, 'name')),
-            _join(_base(ent, 'first name')),
-            _join(_base(ent, 'family name')),
-            _join(_part(ent, 'entity alias relationship', 'also known as')),
-            _join(_part(ent, 'has contact information', 'phone number')),
-            _join(_part(ent, 'has contact information', 'email address')),
-            _join(_part(ent, 'has contact information', 'contact label')),
-            identifiers,
-            _join(_part(ent, 'has address', 'full street address')),
-            *_coords(ent),
-            _join(_base(ent, 'bundle id') + _base(ent, 'application identifier')),
-            _join(_base(ent, 'same as')),
-            round(ent['confidence'], 4),
-            str(subject)))
+    source_path = ''
+    # stable_graph holds live entities; expired_stable_graph holds entries the graph
+    # has since retired. Both share the same schema and are reported together, tagged.
+    for table_name, expired in (("stable_graph", "No"), ("expired_stable_graph", "Yes")):
+        rows, graph_path = _read_triples(files_found, table_name)
+        if graph_path and not source_path:
+            source_path = context.get_relative_path(graph_path)
+        for subject, ent in _group_by_subject(rows, predicates).items():
+            identifiers = _join(
+                _part(ent, 'identifier', 'username')
+                + _part(ent, 'identifier', 'identifier id'))
+            data_list.append((
+                convert_cocoa_core_data_ts_to_utc(ent['timestamp']) if ent['timestamp'] else '',
+                _join(classes.get(v, v) for v in _base(ent, 'is a')),
+                _join(_base(ent, 'name')),
+                _join(_base(ent, 'first name')),
+                _join(_base(ent, 'family name')),
+                _join(_part(ent, 'entity alias relationship', 'also known as')),
+                _join(_part(ent, 'has contact information', 'phone number')),
+                _join(_part(ent, 'has contact information', 'email address')),
+                _join(_part(ent, 'has contact information', 'contact label')),
+                identifiers,
+                _join(_part(ent, 'has address', 'full street address')),
+                *_coords(ent),
+                _join(_base(ent, 'bundle id') + _base(ent, 'application identifier')),
+                _join(_base(ent, 'same as')),
+                round(ent['confidence'], 4),
+                expired,
+                str(subject)))
 
     data_headers = (
         ('Latest Timestamp', 'datetime'),
@@ -246,6 +297,7 @@ def intelligencePlatformEntities(context):
         'App Bundle ID',
         'Same As',
         'Confidence',
+        'Expired',
         'Entity ID')
     return data_headers, data_list, source_path
 
@@ -254,26 +306,30 @@ def intelligencePlatformEntities(context):
 def intelligencePlatformEvents(context):
     files_found = context.get_files_found()
     predicates, classes = _load_ontology(files_found)
-    rows, graph_path = _read_triples(files_found, "event_graph")
-    events = _group_by_subject(rows, predicates)
 
     data_list = []
-    source_path = context.get_relative_path(graph_path) if graph_path else ''
-    for subject, ent in events.items():
-        starts = [_cocoa(v) for v in
-                  _part(ent, 'has date', 'imputed start time')
-                  + _part(ent, 'has date', 'imputed occurrence date')]
-        ends = [_cocoa(v) for v in _part(ent, 'has date', 'imputed end time')]
-        starts = [s for s in starts if s]
-        ends = [e for e in ends if e]
-        data_list.append((
-            min(starts) if starts else '',
-            max(ends) if ends else '',
-            _join(classes.get(v, v) for v in _base(ent, 'is a')),
-            _join(_base(ent, 'name')),
-            _join(_part(ent, 'has location relationship', 'has location')),
-            round(ent['confidence'], 4),
-            str(subject)))
+    source_path = ''
+    # event_graph holds live events; expired_event_graph holds retired ones.
+    for table_name, expired in (("event_graph", "No"), ("expired_event_graph", "Yes")):
+        rows, graph_path = _read_triples(files_found, table_name)
+        if graph_path and not source_path:
+            source_path = context.get_relative_path(graph_path)
+        for subject, ent in _group_by_subject(rows, predicates).items():
+            starts = [_cocoa(v) for v in
+                      _part(ent, 'has date', 'imputed start time')
+                      + _part(ent, 'has date', 'imputed occurrence date')]
+            ends = [_cocoa(v) for v in _part(ent, 'has date', 'imputed end time')]
+            starts = [s for s in starts if s]
+            ends = [e for e in ends if e]
+            data_list.append((
+                min(starts) if starts else '',
+                max(ends) if ends else '',
+                _join(classes.get(v, v) for v in _base(ent, 'is a')),
+                _join(_base(ent, 'name')),
+                _join(_part(ent, 'has location relationship', 'has location')),
+                round(ent['confidence'], 4),
+                expired,
+                str(subject)))
 
     data_headers = (
         ('Imputed Start Time', 'datetime'),
@@ -282,5 +338,53 @@ def intelligencePlatformEvents(context):
         'Name',
         'Location (as stored)',
         'Confidence',
+        'Expired',
         'Event ID')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def intelligencePlatformInteractions(context):
+    files_found = context.get_files_found()
+    view_path = get_file_path(files_found, "view.db")
+    data_list = []
+    source_path = context.get_relative_path(view_path) if view_path else ''
+    if view_path and does_table_exist_in_db(view_path, "interactions"):
+        db = open_sqlite_db_readonly(view_path)
+        if db is not None:
+            cur = db.cursor()
+            # The person handle(s) for each interaction, joined through the reified
+            # interactionEntities table. A group message carries more than one.
+            handles = {}
+            if does_table_exist_in_db(view_path, "interactionEntities") and \
+                    does_table_exist_in_db(view_path, "entities"):
+                for interaction_rowid, handle_id in cur.execute(
+                        "select ie.interactionRowid, e.id from interactionEntities ie "
+                        "join entities e on e.rowid = ie.entityRowid "
+                        "where e.type = 'PersonHandle'"):
+                    handles.setdefault(interaction_rowid, []).append(handle_id)
+            for (rowid, iid, domain, itype, bundle, direction, start, duration) in \
+                    cur.execute(
+                        "select rowid, id, domain, type, bundleId, direction, "
+                        "startDate, durationSeconds from interactions"):
+                data_list.append((
+                    convert_cocoa_core_data_ts_to_utc(start) if start else '',
+                    domain,
+                    itype,
+                    direction,
+                    bundle,
+                    duration,
+                    _join(handles.get(rowid, [])),
+                    iid))
+            db.close()
+
+    data_headers = (
+        ('Start Date', 'datetime'),
+        'Domain',
+        'Interaction Type',
+        'Direction (as stored)',
+        'App Bundle ID',
+        'Duration (Seconds)',
+        ('Handles', 'phonenumber'),
+        'Interaction ID')
     return data_headers, data_list, source_path
