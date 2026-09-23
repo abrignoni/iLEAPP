@@ -256,6 +256,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | mapsSync |
 | nest |
 | netflix |
+| odnoklassniki |
 | serialNumber |
 | swissmeteo |
 | teams |
