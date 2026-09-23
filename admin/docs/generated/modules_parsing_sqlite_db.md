@@ -198,6 +198,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | viber |
 | vipps |
 | vippsContacts |
+| vk |
 | voiceRecordings |
 | voicemail |
 | waze |
