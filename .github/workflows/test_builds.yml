@@ -81,6 +81,12 @@ jobs:
           bin\unifiedlog_iterator.exe --help
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
+      - name: Check the third-party notices cover the fetched parser
+        # The binary statically links Rust crates under their own licenses, and the
+        # committed notices file carries their texts. This compares the crate versions
+        # whose source paths the binary embeds with that file, without network access.
+        run: python admin/scripts/make_unifiedlog_notices.py --verify bin\unifiedlog_iterator.exe
+
       - name: Build CLI and GUI with PyInstaller
         working-directory: scripts/pyinstaller
         run: |
@@ -121,9 +127,11 @@ jobs:
         # nothing else installed. A onefile exe unpacks at runtime, so check the
         # build manifest: Analysis-00.toc records everything PyInstaller packed.
         run: |
-          if (-not (Select-String -Path build_tmp\ileapp\Analysis-00.toc -Pattern "unifiedlog_iterator.exe" -Quiet)) {
-            Write-Error "unifiedlog_iterator.exe was not bundled into the CLI build"
-            exit 1
+          foreach ($needle in 'unifiedlog_iterator.exe', 'LICENSE-unifiedlog_iterator', 'THIRD-PARTY-NOTICES-unifiedlog_iterator.txt') {
+            if (-not (Select-String -Path build_tmp\ileapp\Analysis-00.toc -Pattern $needle -SimpleMatch -Quiet)) {
+              Write-Error "$needle was not bundled into the CLI build"
+              exit 1
+            }
           }
 
       - name: Package artifact
@@ -132,6 +140,7 @@ jobs:
           Copy-Item dist_build\ileapp.exe artifact\
           Copy-Item dist_build\ileappGUI.exe artifact\
           Copy-Item bin\LICENSE-unifiedlog_iterator artifact\
+          Copy-Item bin\THIRD-PARTY-NOTICES-unifiedlog_iterator.txt artifact\
 
       - uses: actions/upload-artifact@v4
         with:
@@ -180,6 +189,9 @@ jobs:
         # this proves it. arm64 gets the gnu build (no musl published upstream).
         run: bin/unifiedlog_iterator --help
 
+      - name: Check the third-party notices cover the fetched parser
+        run: python admin/scripts/make_unifiedlog_notices.py --verify bin/unifiedlog_iterator
+
       - name: Build CLI and GUI with PyInstaller
         working-directory: scripts/pyinstaller
         run: |
@@ -206,16 +218,18 @@ jobs:
         # The workpath subfolder is named after the spec file: ileapp_Linux here,
         # not ileapp as on Windows.
         run: |
-          if ! grep -q "unifiedlog_iterator" build_tmp/ileapp_Linux/Analysis-00.toc; then
-            echo "unifiedlog_iterator was not bundled into the CLI build"
-            exit 1
-          fi
+          for needle in unifiedlog_iterator LICENSE-unifiedlog_iterator THIRD-PARTY-NOTICES-unifiedlog_iterator.txt; do
+            if ! grep -qF "$needle" build_tmp/ileapp_Linux/Analysis-00.toc; then
+              echo "$needle was not bundled into the CLI build"
+              exit 1
+            fi
+          done
 
       - name: Package artifact
         run: |
           mkdir artifact
           cp dist_build/ileapp dist_build/ileappGUI artifact/
-          cp bin/LICENSE-unifiedlog_iterator artifact/
+          cp bin/LICENSE-unifiedlog_iterator bin/THIRD-PARTY-NOTICES-unifiedlog_iterator.txt artifact/
 
       - uses: actions/upload-artifact@v4
         with:

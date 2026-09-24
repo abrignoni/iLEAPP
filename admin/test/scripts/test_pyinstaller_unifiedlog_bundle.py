@@ -1,4 +1,4 @@
-"""Every PyInstaller spec must bundle the Unified Log parser, and its license with it.
+"""Every PyInstaller spec must bundle the Unified Log parser, its license and its notices.
 
 There are six spec files, one per (CLI, GUI) x (Windows, macOS, Linux). A new spec, or a
 spec someone regenerates with `pyi-makespec`, silently goes back to `binaries=[]`, and the
@@ -8,10 +8,11 @@ platform's release. Nothing else in the test suite would notice.
 The specs are plain Python evaluated by PyInstaller, so they are exec'd here with stubbed
 PyInstaller globals and the resulting Analysis arguments inspected.
 
-The license check is not decoration. unifiedlog_iterator is Apache-2.0 and this project is
-MIT; section 4(a) requires that anyone receiving a redistribution also receives the
-license. A build that ships the binary without it is a licensing defect, so the helper
-raises rather than quietly omitting it.
+The license and notices checks are not decoration. unifiedlog_iterator is Apache-2.0 and
+this project is MIT; section 4(a) requires that anyone receiving a redistribution also
+receives the license, and the binary statically links Rust crates under their own licenses,
+whose texts the notices file carries. A build that ships the binary without either is a
+licensing defect, so the helper raises rather than quietly omitting it.
 """
 import pathlib
 import sys
@@ -105,6 +106,7 @@ class TestSpecsBundleTheParser(unittest.TestCase):
             path.write_bytes(b'not a real binary')
             path.chmod(0o755)
         (pathlib.Path(cls.tmpdir) / unifiedlog_binary.LICENSE_NAME).write_text('Apache-2.0')
+        (pathlib.Path(cls.tmpdir) / unifiedlog_binary.NOTICES_NAME).write_text('notices')
 
     @classmethod
     def tearDownClass(cls):
@@ -127,6 +129,10 @@ class TestSpecsBundleTheParser(unittest.TestCase):
                     any(dest == 'bin' and unifiedlog_binary.LICENSE_NAME in src
                         for src, dest in datas),
                     f'{name} bundles the parser without its Apache-2.0 license')
+                self.assertTrue(
+                    any(dest == 'bin' and unifiedlog_binary.NOTICES_NAME in src
+                        for src, dest in datas),
+                    f'{name} bundles the parser without its third-party notices')
 
     def test_specs_keep_their_own_datas(self):
         # The license is appended to each spec's existing datas; dropping the originals
@@ -200,8 +206,22 @@ class TestBuildsWithoutTheBinary(unittest.TestCase):
         path = pathlib.Path(self.tmpdir) / 'unifiedlog_iterator'
         path.write_bytes(b'x')
         path.chmod(0o755)
+        (pathlib.Path(self.tmpdir) / unifiedlog_binary.NOTICES_NAME).write_text('notices')
         with self.assertRaises(SystemExit):
             unifiedlog_binary.unifiedlog_datas()
+
+    def test_binary_without_notices_is_refused(self):
+        path = pathlib.Path(self.tmpdir) / 'unifiedlog_iterator'
+        path.write_bytes(b'x')
+        path.chmod(0o755)
+        (pathlib.Path(self.tmpdir) / unifiedlog_binary.LICENSE_NAME).write_text('Apache-2.0')
+        with self.assertRaises(SystemExit):
+            unifiedlog_binary.unifiedlog_datas()
+
+    def test_the_committed_notices_file_is_where_the_helper_looks(self):
+        # The notices file is committed, not fetched, so a checkout always has it.
+        self.assertTrue((REPO_ROOT / 'bin' / unifiedlog_binary.NOTICES_NAME).is_file())
+        self.assertEqual(pathlib.Path(self.original_bin_dir), REPO_ROOT / 'bin')
 
 
 class TestRuntimeAndBuildAgreeOnLocation(unittest.TestCase):

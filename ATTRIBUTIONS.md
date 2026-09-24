@@ -18,4 +18,6 @@
 - Apple Unified Log `.tracev3` parsing provided by the `unifiedlog_iterator` binary from
   [`macos-UnifiedLogs`](https://github.com/mandiant/macos-UnifiedLogs) by Mandiant.
   Licensed under [Apache-2.0](https://github.com/mandiant/macos-UnifiedLogs/blob/main/LICENSE).
-  Redistributed unmodified in builds that include it; see `bin/PROVENANCE.md`.
+  Redistributed unmodified in builds that include it; see `bin/PROVENANCE.md`. The Rust
+  crates it links are listed, with their license texts, in
+  `bin/THIRD-PARTY-NOTICES-unifiedlog_iterator.txt`.
