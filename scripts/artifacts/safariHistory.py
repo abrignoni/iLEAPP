@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Safari web history visits",
         "author": "@KevinPagano3",
         "creation_date": "2023-02-14",
-        "last_update_date": "2026-07-30",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": (
@@ -85,6 +85,12 @@ def safariHistory(context):
         CASE history_visits.origin WHEN 0 THEN 'Local Device' WHEN 1 THEN 'iCloud Synced Device' END
     FROM history_visits
     LEFT JOIN history_items ON history_visits.history_item = history_items.id
+    ORDER BY
+        CASE
+            WHEN history_visits.visit_time > 978307200 THEN history_visits.visit_time
+            ELSE history_visits.visit_time + 978307200
+        END,
+        history_visits.id
     '''
     for source_path in source_paths:
         profile = _profile_name(source_path)
