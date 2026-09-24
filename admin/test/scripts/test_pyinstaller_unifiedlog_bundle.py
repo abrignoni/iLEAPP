@@ -15,6 +15,7 @@ whose texts the notices file carries. A build that ships the binary without eith
 licensing defect, so the helper raises rather than quietly omitting it.
 """
 import pathlib
+import shutil
 import sys
 import tempfile
 import types
@@ -111,6 +112,7 @@ class TestSpecsBundleTheParser(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         unifiedlog_binary.BIN_DIR = cls.original_bin_dir
+        shutil.rmtree(cls.tmpdir, ignore_errors=True)
 
     def test_the_expected_specs_exist(self):
         # A spec added without being added here would not be covered by the checks below.
@@ -192,6 +194,7 @@ class TestBuildsWithoutTheBinary(unittest.TestCase):
         self.original_bin_dir = unifiedlog_binary.BIN_DIR
         unifiedlog_binary.BIN_DIR = self.tmpdir
         self.addCleanup(setattr, unifiedlog_binary, 'BIN_DIR', self.original_bin_dir)
+        self.addCleanup(shutil.rmtree, self.tmpdir, True)
 
     def test_absent_binary_yields_empty_lists(self):
         self.assertEqual(unifiedlog_binary.unifiedlog_binaries(), [])
