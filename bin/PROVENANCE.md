@@ -119,14 +119,16 @@ never slower.
 
 ## License obligations
 
-Apache-2.0 permits redistribution inside this MIT-licensed project. Two things must hold
-for any build that includes the binary:
+Apache-2.0 permits redistribution inside this MIT-licensed project. For any build that
+includes the binary:
 
-- `LICENSE-unifiedlog_iterator` ships alongside it. The PyInstaller specs refuse to build
-  if the binary is present and the license is not.
+- `LICENSE-unifiedlog_iterator` ships alongside it.
+- `THIRD-PARTY-NOTICES-unifiedlog_iterator.txt` ships alongside it. The binary statically
+  links Rust crates published under their own licenses; every one of the 57 on the list
+  offers MIT or Apache-2.0, alone or as one of the choices its declared license gives.
+  Upstream's release archive carries only its own LICENSE, so the notices are generated
+  here by `admin/scripts/make_unifiedlog_notices.py` and committed. Its `--verify` option
+  checks a fetched binary against the committed file without network access, and the test
+  builds run it after fetching.
+- The PyInstaller specs refuse to build when the binary is present and either file is not.
 - Attribution stays in `ATTRIBUTIONS.md`.
-
-The published binary statically links its Rust dependencies, which carry their own
-(predominantly MIT and Apache-2.0) licenses. Upstream ships only its own LICENSE in the
-release archive, and that is what is redistributed here. A build that wants a complete
-third-party notice file would need to generate one from the upstream crate graph.
