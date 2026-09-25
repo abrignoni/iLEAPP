@@ -169,7 +169,7 @@ def safariCache(context):
     FROM cfurl_cache_response AS response
     LEFT JOIN cfurl_cache_receiver_data AS receiver ON receiver.entry_ID = response.entry_ID
     LEFT JOIN cfurl_cache_blob_data AS blob ON blob.entry_ID = response.entry_ID
-    ORDER BY response.time_stamp
+    ORDER BY response.time_stamp, response.rowid, receiver.rowid, blob.rowid
     '''
 
     for record in get_sqlite_db_records(source_path, query):

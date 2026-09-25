@@ -75,7 +75,7 @@ def tcc(context):
         {access}
         {',prompt_count' if prompt_count_exists else ''}
     FROM access
-    ORDER BY client
+    ORDER BY client, access.rowid
     '''
 
     if last_modified_timestamp_exists:

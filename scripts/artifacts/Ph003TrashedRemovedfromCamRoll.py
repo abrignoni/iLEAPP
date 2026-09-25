@@ -322,7 +322,7 @@ def Ph003_1TrashedRecentlyDeletedPhDaPsql(context):
             LEFT JOIN ZASSETCONTRIBUTOR zAssetContrib ON zAssetContrib.Z3LIBRARYSCOPEASSETCONTRIBUTORS = zAsset.Z_PK
             LEFT JOIN ZSHAREPARTICIPANT SPLzSharePartic ON SPLzSharePartic.Z_PK = zAssetContrib.ZPARTICIPANT
         WHERE zAsset.ZTRASHEDSTATE = 1
-        ORDER BY zAsset.ZTRASHEDSTATE
+        ORDER BY zAsset.ZTRASHEDSTATE, zAsset.rowid, zAddAssetAttr.rowid, zCldMast.rowid, SPLzShare.rowid, zAssetContrib.rowid, SPLzSharePartic.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

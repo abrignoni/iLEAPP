@@ -516,7 +516,8 @@ _CLIENT_MESSAGES_QUERY = """
     LEFT JOIN client_attachment_store_keys
         ON client_attachments.content_token = client_attachment_store_keys.content_token
     LEFT JOIN _user_info
-    ORDER BY client_messages.display_ts_ms ASC
+    ORDER BY client_messages.display_ts_ms ASC, client_messages.rowid{transport_order},
+        contacts.rowid, client_attachments.rowid, client_attachment_store_keys.rowid, _user_info.rowid
     """
 
 _TRANSPORT_JOIN = """LEFT JOIN fb_transport_contacts
@@ -538,10 +539,11 @@ _SENDER_ID_DIRECT = "client_messages.sender_contact_pk"
 def _client_messages_query(has_transport_contacts):
     if has_transport_contacts:
         return _CLIENT_MESSAGES_QUERY.format(
-            sender_id=_SENDER_ID_VIA_TRANSPORT, transport_join=_TRANSPORT_JOIN
+            sender_id=_SENDER_ID_VIA_TRANSPORT, transport_join=_TRANSPORT_JOIN,
+            transport_order=', fb_transport_contacts.rowid'
         )
     return _CLIENT_MESSAGES_QUERY.format(
-        sender_id=_SENDER_ID_DIRECT, transport_join=""
+        sender_id=_SENDER_ID_DIRECT, transport_join="", transport_order=""
     )
 
 

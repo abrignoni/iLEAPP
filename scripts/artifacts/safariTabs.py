@@ -262,7 +262,7 @@ def safariTabsDatabase(context):
         LEFT JOIN bookmarks AS parent ON parent.id = tab.parent
         LEFT JOIN tab_context ON tab_context.tab_id = tab.id
         WHERE tab.url IS NOT NULL AND trim(tab.url) != '' AND COALESCE(tab.deleted, 0) = 0
-        ORDER BY tab.order_index
+        ORDER BY tab.order_index, tab.id
     """
     for row in get_sqlite_db_records(source_path, query):
         # Safari keeps the per-tab timestamps and state in two binary plists rather

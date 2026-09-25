@@ -330,7 +330,7 @@ def knowledgeC_DevicePluginStatus(context):
         FROM ZOBJECT
         LEFT OUTER JOIN ZSTRUCTUREDMETADATA ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK
         WHERE ZOBJECT.ZSTREAMNAME = '/device/isPluggedIn'
-        ORDER BY ZOBJECT.ZSTARTDATE
+        ORDER BY ZOBJECT.ZSTARTDATE, ZOBJECT.Z_PK
         ''')
 
         all_rows = cursor.fetchall()
@@ -405,7 +405,7 @@ def knowledgeC_MediaPlaying(context):
         FROM ZOBJECT
         LEFT OUTER JOIN ZSTRUCTUREDMETADATA ON ZOBJECT.ZSTRUCTUREDMETADATA = ZSTRUCTUREDMETADATA.Z_PK
         WHERE ZOBJECT.ZSTREAMNAME = '/media/nowPlaying' AND ZOBJECT.ZVALUESTRING != ''
-        ORDER BY ZOBJECT.ZSTARTDATE
+        ORDER BY ZOBJECT.ZSTARTDATE, ZOBJECT.Z_PK
         ''')
 
         all_rows = cursor.fetchall()
@@ -498,7 +498,7 @@ def knowledgeC_AppUsage(context):
                    ZVALUESTRING
             FROM ZOBJECT
             WHERE ZSTREAMNAME = '/app/usage'
-            ORDER BY ZOBJECT.ZSTARTDATE''')
+            ORDER BY ZOBJECT.ZSTARTDATE, ZOBJECT.Z_PK''')
 
         all_rows = cursor.fetchall()
 
@@ -542,7 +542,7 @@ def knowledgeC_AppUsage_EndTime(context):
                    ZVALUESTRING
             FROM ZOBJECT
             WHERE ZSTREAMNAME = '/app/usage'
-            ORDER BY ZOBJECT.ZENDDATE''')
+            ORDER BY ZOBJECT.ZENDDATE, ZOBJECT.rowid''')
 
         all_rows = cursor.fetchall()
 
@@ -627,7 +627,7 @@ def knowledgeC_isBacklit(context):
                    END AS 'Device Screen Status'
             FROM ZOBJECT
             WHERE ZSTREAMNAME = '/display/isBacklit'
-            ORDER BY ZOBJECT.ZSTARTDATE''')
+            ORDER BY ZOBJECT.ZSTARTDATE, ZOBJECT.rowid''')
 
         all_rows = cursor.fetchall()
 

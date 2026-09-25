@@ -455,7 +455,7 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
             LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z27AlbumLists.Z_2ALBUMLISTS
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zAddAssetAttr.ZSYNDICATIONIDENTIFIER IS NOT NULL
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, SWYConverszGenAlbum.rowid, z27AlbumLists.rowid, zAlbumList.rowid, zCldMast.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -1575,7 +1575,7 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
             LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z27AlbumLists.Z_2ALBUMLISTS
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
         WHERE zAddAssetAttr.ZSYNDICATIONIDENTIFIER IS NOT NULL
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, SWYConverszGenAlbum.rowid, z27AlbumLists.rowid, zAlbumList.rowid, zCldMast.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

@@ -56,7 +56,7 @@ def wifiAnalyticsGeotags(context):
         FROM ZGEOTAG
         LEFT JOIN ZBSS ON ZBSS.Z_PK = ZGEOTAG.ZBSS
         LEFT JOIN ZNETWORK ON ZNETWORK.Z_PK = ZBSS.ZNETWORK
-        ORDER BY ZGEOTAG.ZDATE
+        ORDER BY ZGEOTAG.ZDATE, ZGEOTAG.rowid, ZBSS.rowid, ZNETWORK.rowid
     """
     for row in get_sqlite_db_records(source_path, query):
         values = tuple(row)

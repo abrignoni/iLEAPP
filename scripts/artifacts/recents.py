@@ -69,7 +69,7 @@ def appleRecents(context):
         FROM recents
         LEFT JOIN contacts ON recents.ROWID = contacts.recent_id
         LEFT JOIN metadata ON metadata.recent_id = recents.ROWID
-        ORDER BY recents.last_date DESC
+        ORDER BY recents.last_date DESC, recents.rowid, contacts.rowid, metadata.rowid
     """
     for row in get_sqlite_db_records(source_path, query):
         metadata_value = row[7]

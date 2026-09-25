@@ -54,7 +54,7 @@ def get_bluetoothOtherLE(context):
             Uuid
             FROM
             OtherDevices
-            order by Name desc
+            order by Name desc, OtherDevices.rowid
             """)
 
             all_rows = cursor.fetchall()

@@ -2191,7 +2191,7 @@ def foursquare_swarm_venues_history(context):
     FROM ZFSVENUE AS "V"
     LEFT JOIN ZFSCATEGORY AS "C" ON (V.ZPRIMARYCATEGORY = C.Z_PK)
     LEFT JOIN ZFSUSER AS "U" ON (V.ZMAYOR = U.Z_PK)
-    ORDER BY V.ZLASTVISITEDAT DESC
+    ORDER BY V.ZLASTVISITEDAT DESC, V.rowid, C.rowid, U.rowid
     '''
 
     db_records = list( get_sqlite_db_records(source_path, query) )
@@ -2374,7 +2374,7 @@ def foursquare_swarm_photos(context):
     LEFT JOIN ZFSTIP AS "T" ON (P.ZTIP = T.Z_PK)
     LEFT JOIN ZFSVENUE AS "V" ON (V.Z_PK = COALESCE(P.ZVENUE, P.ZPREVIEWVENUE, CI.ZVENUE, T.ZVENUE))
     LEFT JOIN ZFSUSER AS "U" ON (P.ZUSER = U.Z_PK)
-    ORDER BY P.ZCREATEDAT DESC
+    ORDER BY P.ZCREATEDAT DESC, P.rowid, CI.rowid, T.rowid, V.rowid, U.rowid
     '''
 
     db_records = list( get_sqlite_db_records(source_path, query) )

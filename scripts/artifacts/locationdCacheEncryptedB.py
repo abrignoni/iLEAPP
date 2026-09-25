@@ -172,7 +172,7 @@ def locationdWifiLocations(context):
     query = f'''
     SELECT {columns}
     FROM WifiLocation
-    ORDER BY Timestamp
+    ORDER BY Timestamp, WifiLocation.rowid
     '''
 
     for record in get_sqlite_db_records(source_path, query):
@@ -318,7 +318,7 @@ def locationdWifiTiles(context):
            MaximumAltitude, NumberOfIndexEntries, NumberOfInputPoints, ExpirationAge,
            Version, Flags
     FROM WifiTileHeader
-    ORDER BY AccessTimestamp
+    ORDER BY AccessTimestamp, WifiTileHeader.rowid
     '''
 
     for record in get_sqlite_db_records(source_path, query):

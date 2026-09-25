@@ -73,7 +73,7 @@ def personalizationPortraitLocations(context):
                CASE loc_records.is_sync_eligible WHEN 1 THEN 'Yes' WHEN 0 THEN 'No' END
         FROM loc_records
         LEFT JOIN sources ON loc_records.source_id = sources.id
-        ORDER BY sources.seconds_from_1970
+        ORDER BY sources.seconds_from_1970, loc_records.rowid, sources.rowid
     """
     for row in get_sqlite_db_records(source_path, query):
         values = tuple(row)

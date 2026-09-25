@@ -650,7 +650,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
         WHERE (zAsset.ZLATITUDE > 0) OR
           (zExtAttr.ZLATITUDE > 0)
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -1462,7 +1462,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
         WHERE (zAsset.ZLATITUDE > 0) OR
           (zExtAttr.ZLATITUDE > 0)
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

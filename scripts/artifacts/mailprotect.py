@@ -134,7 +134,7 @@ LEFT JOIN main.mailboxes ON main.mailboxes.ROWID = main.messages.mailbox
 LEFT JOIN PI.subjects ON PI.subjects.ROWID = main.messages.subject
 LEFT JOIN PI.addresses ON PI.addresses.ROWID = main.messages.sender
 LEFT JOIN PI.summaries ON PI.summaries.ROWID = main.messages.summary
-ORDER BY main.messages.date_received
+ORDER BY main.messages.date_received, main.messages.ROWID
 '''
 
 
