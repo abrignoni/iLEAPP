@@ -492,6 +492,77 @@ class ThirdAuditShapes(unittest.TestCase):
         '''), [('leak', 1)])
 
 
+class RowsBuiltWithoutAppend(unittest.TestCase):
+    """fitbit.py built its rows with a comprehension assigned to the row list, and the
+    checker only read rows passed to append or extend, so a staged path in nine
+    artifacts reached the report unflagged."""
+
+    def _cols(self, source):
+        return sorted((f[1], f[5]) for f in findings_for(source))
+
+    def test_a_comprehension_assigned_to_the_row_list_is_read(self):
+        self.assertEqual(self._cols('''
+            def _find(files_found, suffix):
+                for file_found in files_found:
+                    if file_found.endswith(suffix):
+                        return file_found
+                return ''
+
+            @artifact_processor
+            def leak(context):
+                src = _find(context.get_files_found(), 'device_database')
+                rows = [(1, 'a'), (2, 'b')]
+                data_list = [(r[0], r[1], src) for r in rows]
+                return (), data_list, src
+        '''), [('leak', 2)])
+
+    def test_rows_joined_with_plus_are_read(self):
+        found = findings_for('''
+            @artifact_processor
+            def leak(context):
+                src = context.get_files_found()[0]
+                rows = []
+                data_list = [(r[0],) + tuple(r[1:]) + (src,) for r in rows]
+                return (), data_list, src
+        ''')
+        self.assertEqual([(f[1], f[4]) for f in found], [('leak', 'src')])
+
+    def test_a_row_literal_and_a_returned_comprehension_are_read(self):
+        self.assertEqual(self._cols('''
+            @artifact_processor
+            def literal(context):
+                src = context.get_files_found()[0]
+                data_list = [('a', src)]
+                return (), data_list, src
+
+            @artifact_processor
+            def returned(files_found, report_folder, seeker, wrap):
+                return (), [(f, 'x') for f in files_found], ''
+        '''), [('literal', 1), ('returned', 0)])
+
+    def test_a_reduced_path_in_a_comprehension_is_accepted(self):
+        self.assertEqual(findings_for('''
+            @artifact_processor
+            def fine(context):
+                src = context.get_files_found()[0]
+                rel = context.get_relative_path(src)
+                rows = []
+                data_list = [(r[0], rel) for r in rows]
+                return (), data_list, src
+        '''), [])
+
+    def test_only_the_path_position_of_a_record_is_reported(self):
+        self.assertEqual(self._cols('''
+            @artifact_processor
+            def leak(files_found, report_folder, seeker, wrap):
+                records = []
+                for file_found in files_found:
+                    records.append(('name', file_found))
+                data_list = [(rec[0], rec[1]) for rec in records]
+                return (), data_list, ''
+        '''), [('leak', 1)])
+
+
 class TheRepoItself(unittest.TestCase):
     def test_no_artifact_in_this_repo_leaks_a_local_path(self):
         self.assertEqual(crlp.main.__module__, 'check_report_local_paths')
