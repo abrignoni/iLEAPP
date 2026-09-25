@@ -146,7 +146,7 @@ def viber_settings(context):
         '_autoBackupLastRunTime',
         '_lastBackupStartDate',
         '_birthdate')
-    ORDER BY value
+    ORDER BY value, Data.rowid
     '''
 
     data_headers = ('Setting', 'Value')

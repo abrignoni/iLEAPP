@@ -2224,7 +2224,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0  
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zMedAnlyAstAttr.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -5205,7 +5205,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
             LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0  
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zMedAnlyAstAttr.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

@@ -127,7 +127,7 @@ def notesPasswordProtected(context):
             FROM {TABLE}
             WHERE ZISPASSWORDPROTECTED = 1
               AND ({wrapped} IS NOT NULL OR {hint} IS NOT NULL)
-            ORDER BY {creation}
+            ORDER BY {creation}, Z_PK
         '''
         rows = list(get_sqlite_db_records(file_found, query))
         if not rows:

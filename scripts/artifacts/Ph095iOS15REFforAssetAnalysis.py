@@ -2179,7 +2179,7 @@ def Ph095_1iOS15RefforAssetAnalysisPhDaPsql(context):
 			LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
 			LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
 			LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
-		ORDER BY zAsset.ZADDEDDATE
+		ORDER BY zAsset.ZADDEDDATE, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zIntResou.rowid, zSceneP.rowid, z27Assets.rowid, zGenAlbum.rowid, zUnmAdj.rowid, z26AlbumLists.rowid, zAlbumList.rowid, ParentzGenAlbum.rowid, SWYConverszGenAlbum.rowid, zAssetDes.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zCldRes.rowid, zAssetAnalyState.rowid, zMedAnlyAstAttr.rowid, zCompAssetAttr.rowid, zCharRecogAttr.rowid, zVisualSearchAttr.rowid, zCldFeedEnt.rowid, zCldSharedComment.rowid, zCldSharedCommentLiked.rowid, zCldShareAlbumInvRec.rowid, SPLzShare.rowid, SPLzSharePartic.rowid, zShare.rowid, zSharePartic.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

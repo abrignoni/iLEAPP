@@ -445,7 +445,7 @@ def google_drive_items(context):
            (SELECT value FROM item_properties
             WHERE key = 'offlineStatus' AND item_stable_id = stable_id) AS offline_status
     FROM items
-    ORDER BY created_date
+    ORDER BY created_date, items.rowid
     '''
     for db_path in _cello_dbs(files_found):
         source_files.add(db_path)

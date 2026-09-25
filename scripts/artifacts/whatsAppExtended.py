@@ -275,7 +275,7 @@ def whatsAppGroupEvents(context):
         FROM ZWAMESSAGE m
         LEFT JOIN ZWACHATSESSION cs ON cs.Z_PK = m.ZCHATSESSION
         WHERE m.ZGROUPEVENTTYPE IS NOT NULL AND m.ZGROUPEVENTTYPE != 0
-        ORDER BY m.ZMESSAGEDATE
+        ORDER BY m.ZMESSAGEDATE, m.rowid, cs.rowid
         '''
         for record in get_sqlite_db_records(source_path, query):
             data_list.append((
@@ -299,7 +299,7 @@ def whatsAppGroupMembershipChanges(context):
         query = '''
         SELECT ZCHANGEDATE, ZCHANGETYPE, ZGROUPJID, ZMEMBERJIDS
         FROM ZWAGROUPMEMBERSCHANGE
-        ORDER BY ZCHANGEDATE
+        ORDER BY ZCHANGEDATE, ZWAGROUPMEMBERSCHANGE.rowid
         '''
         for record in get_sqlite_db_records(source_path, query):
             data_list.append((

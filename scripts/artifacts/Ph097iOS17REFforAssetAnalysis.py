@@ -2721,7 +2721,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 			LEFT JOIN ZSUGGESTION SBKAzSugg ON SBKAzSugg.Z_PK = z3SuggBKA.Z_59SUGGESTIONSBEINGKEYASSETS
 			LEFT JOIN Z_3SUGGESTIONSBEINGREPRESENTATIVEASSETS z3SuggBRA ON z3SuggBRA.Z_3REPRESENTATIVEASSETS1 = zAsset.Z_PK
 			LEFT JOIN ZSUGGESTION SBRAzSugg ON SBRAzSugg.Z_PK = z3SuggBRA.Z_59SUGGESTIONSBEINGREPRESENTATIVEASSETS
-		ORDER BY zAsset.ZADDEDDATE
+		ORDER BY zAsset.ZADDEDDATE, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zIntResou.rowid, zSceneP.rowid, z28Assets.rowid, zGenAlbum.rowid, zUnmAdj.rowid, z27AlbumLists.rowid, zAlbumList.rowid, ParentzGenAlbum.rowid, SWYConverszGenAlbum.rowid, zAssetDes.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zCldRes.rowid, zAssetAnalyState.rowid, zMedAnlyAstAttr.rowid, zPhotoAnalysisAssetAttr.rowid, zCompAssetAttr.rowid, zCharRecogAttr.rowid, zVisualSearchAttr.rowid, zCldFeedEnt.rowid, zCldSharedComment.rowid, zCldSharedCommentLiked.rowid, zCldShareAlbumInvRec.rowid, SPLzShare.rowid, SPLzSharePartic.rowid, zShare.rowid, zSharePartic.rowid, zAssetContrib.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid, z3MemoryBCAs.rowid, zMemory.rowid, z3MemoryBCUAs.rowid, z3MemoryBECAs.rowid, z3MemoryBMCAs.rowid, z3MemoryBRAs.rowid, z3MemoryBUCAs.rowid, zUserFeedback.rowid, zMoment.rowid, z3SuggBKA.rowid, SBKAzSugg.rowid, z3SuggBRA.rowid, SBRAzSugg.rowid
 		'''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -10475,7 +10475,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 			LEFT JOIN ZSUGGESTION SBKAzSugg ON SBKAzSugg.Z_PK = z3SuggBKA.Z_58SUGGESTIONSBEINGKEYASSETS
 			LEFT JOIN Z_3SUGGESTIONSBEINGREPRESENTATIVEASSETS z3SuggBRA ON z3SuggBRA.Z_3REPRESENTATIVEASSETS1 = zAsset.Z_PK
 			LEFT JOIN ZSUGGESTION SBRAzSugg ON SBRAzSugg.Z_PK = z3SuggBRA.Z_58SUGGESTIONSBEINGREPRESENTATIVEASSETS
-		ORDER BY zAsset.ZADDEDDATE
+		ORDER BY zAsset.ZADDEDDATE, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zIntResou.rowid, zSceneP.rowid, z28Assets.rowid, zGenAlbum.rowid, zUnmAdj.rowid, z27AlbumLists.rowid, zAlbumList.rowid, ParentzGenAlbum.rowid, SWYConverszGenAlbum.rowid, zAssetDes.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zCldRes.rowid, zAssetAnalyState.rowid, zMedAnlyAstAttr.rowid, zPhotoAnalysisAssetAttr.rowid, zCompAssetAttr.rowid, zCharRecogAttr.rowid, zVisualSearchAttr.rowid, zCldFeedEnt.rowid, zCldSharedComment.rowid, zCldSharedCommentLiked.rowid, zCldShareAlbumInvRec.rowid, SPLzShare.rowid, SPLzSharePartic.rowid, zShare.rowid, zSharePartic.rowid, zAssetContrib.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid, z3MemoryBCAs.rowid, zMemory.rowid, z3MemoryBCUAs.rowid, z3MemoryBECAs.rowid, z3MemoryBMCAs.rowid, z3MemoryBRAs.rowid, z3MemoryBUCAs.rowid, zUserFeedback.rowid, zMoment.rowid, z3SuggBKA.rowid, SBKAzSugg.rowid, z3SuggBRA.rowid, SBRAzSugg.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

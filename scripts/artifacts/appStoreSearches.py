@@ -83,7 +83,7 @@ def appStoreSearches(context):
     SELECT entry_ID, request_key, time_stamp
     FROM cfurl_cache_response
     WHERE request_key LIKE '%/search%'
-    ORDER BY time_stamp
+    ORDER BY time_stamp, cfurl_cache_response.rowid
     '''
 
     for record in get_sqlite_db_records(source_path, query):
@@ -123,7 +123,7 @@ def appStoreCachedRequests(context):
     query = '''
     SELECT entry_ID, request_key, time_stamp
     FROM cfurl_cache_response
-    ORDER BY time_stamp
+    ORDER BY time_stamp, cfurl_cache_response.rowid
     '''
 
     results = context.create_artifact_result(

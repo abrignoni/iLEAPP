@@ -471,7 +471,7 @@ def Ph001_1AssetBasicDataPhDaPsql(context):
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zCldMast.rowid
         '''
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
@@ -1018,7 +1018,7 @@ def Ph001_2AssetBasicDataSyndPL(context):
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zCldMast.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

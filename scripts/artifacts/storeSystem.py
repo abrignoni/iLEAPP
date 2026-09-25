@@ -183,7 +183,7 @@ def storeSystemAppInstalls(context):
     query = f'''
     SELECT {columns}
     FROM app_install
-    ORDER BY timestamp
+    ORDER BY timestamp, app_install.rowid
     '''
 
     for record in get_sqlite_db_records(source_path, query):
@@ -296,14 +296,16 @@ def storeSystemAppPackages(context):
     available = _existing_columns(source_path, 'app_package')
     columns = ', '.join(f'app_package.{column}' for column in wanted if column in available)
     join = ''
+    join_order = ''
     if does_table_exist_in_db(source_path, 'app_install'):
         columns += ', app_install.bundle_id, app_install.bundle_name'
         join = 'LEFT JOIN app_install ON app_install.pid = app_package.parent_id'
+        join_order = ', app_install.rowid'
     query = f'''
     SELECT {columns}
     FROM app_package
     {join}
-    ORDER BY app_package.timestamp
+    ORDER BY app_package.timestamp, app_package.rowid{join_order}
     '''
 
     for record in get_sqlite_db_records(source_path, query):

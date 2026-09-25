@@ -323,7 +323,7 @@ def googleMapsSemanticSegments(context):
                        segment_type, semantic_segment, shown_in_timeline, is_finalized,
                        hierarchy_level, segment_id, obfuscated_gaia_id
                 FROM semantic_segment_table
-                ORDER BY start_timestamp_seconds DESC
+                ORDER BY start_timestamp_seconds DESC, semantic_segment_table.rowid
             ''')
         except sqlite3.Error as ex:
             logfunc(f'Unable to read semantic_segment_table in {file_found}: {ex}')
@@ -425,7 +425,7 @@ def googleMapsPlaceIndex(context):
             db_records = get_sqlite_db_records(file_found, '''
                 SELECT time_inserted, s2_cell_id, length(s2_cell_with_places)
                 FROM l1_table
-                ORDER BY time_inserted DESC
+                ORDER BY time_inserted DESC, l1_table.rowid
             ''')
         except sqlite3.Error as ex:
             logfunc(f'Unable to read l1_table in {file_found}: {ex}')

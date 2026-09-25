@@ -2086,7 +2086,7 @@ def Ph002_1AssetBasicGenAlbumDataPhDaPsql(context):
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
             LEFT JOIN ZGENERICALBUM SWYConverszGenAlbum ON SWYConverszGenAlbum.Z_PK = zAsset.ZCONVERSATION
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, z28Assets.rowid, zGenAlbum.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, SWYConverszGenAlbum.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -5249,7 +5249,7 @@ def Ph002_2AssetBasicConversationDataSyndPL(context):
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
             LEFT JOIN ZGENERICALBUM SWYConverszGenAlbum ON SWYConverszGenAlbum.Z_PK = zAsset.ZCONVERSATION
-        ORDER BY zAsset.ZDATECREATED
+        ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, z28Assets.rowid, zGenAlbum.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, SWYConverszGenAlbum.rowid
         '''
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))

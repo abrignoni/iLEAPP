@@ -1486,7 +1486,7 @@ def _parse_powerlog_table(context, headers, table, columns, row_builder, optiona
         for row in get_sqlite_db_records(db_path, f'''
                 SELECT {", ".join(select_parts)}
                 FROM "{actual_table}"
-                ORDER BY timestamp
+                ORDER BY timestamp, rowid
             '''):
             ts, offset = _corrected_utc(row[0], stamps, offsets)
             results.add_row(row_builder(ts, offset, row, relative_path))

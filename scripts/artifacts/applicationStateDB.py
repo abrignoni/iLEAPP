@@ -159,7 +159,7 @@ _query = '''SELECT application_identifier_tab.application_identifier,
              FROM kvs LEFT JOIN application_identifier_tab
              ON application_identifier_tab.id = kvs.application_identifier
              LEFT JOIN key_tab ON kvs.key = key_tab.id
-             ORDER BY application_identifier_tab.id
+             ORDER BY application_identifier_tab.id, kvs.rowid, application_identifier_tab.rowid, key_tab.rowid
           '''
 
 

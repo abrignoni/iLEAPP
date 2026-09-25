@@ -164,7 +164,7 @@ def get_applePodcastsEpisodes(context):
         ZBYTESIZE,
         ZPLAYSTATE
         FROM ZMTEPISODE
-        ORDER BY ZMETADATATIMESTAMP
+        ORDER BY ZMETADATATIMESTAMP, ZMTEPISODE.rowid
         '''
 
     for file_found in context.get_files_found():
