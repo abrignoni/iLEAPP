@@ -248,6 +248,70 @@ __artifacts_v2__ = {
             "magnet_ios16": "iOS 16.1.1 | 183 rows",
         }
     },
+    "health_distance_walking_running": {
+        "name": "Health - Walking + Running Distance",
+        "description": "Walking and running distance samples from the samples table of "
+                       "healthdb_secure.sqlite, with start and end, distance in meters, "
+                       "kilometers and miles, duration and the writing device's id and model.",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-09-25",
+        "last_update_date": "2026-09-25",
+        "requirements": "none",
+        "category": "Health",
+        "notes": "Reads samples whose data_type is 8 and that have a row in quantity_samples "
+                 "and a data_provenances record. "
+                 "The Health database names this type itself: on 17 of the tested images, "
+                 "the chart records in its shared_summaries table pair "
+                 "HKQuantityTypeIdentifierDistanceWalkingRunning with data type 8 and "
+                 "HKQuantityTypeIdentifierStepCount with data type 7. Sarah Edwards "
+                 "(@iamevltwin, mac4n6.com) also documented data_type 8 as a distance in "
+                 "meters in her APOLLO research; this query was written independently from "
+                 "the live schema. The stored quantity is in meters: on 205 of the 226 chart "
+                 "buckets those records store in meters, the type 8 samples in the bucket "
+                 "add up to its total, and the 10 samples on each of hickman_ios13, "
+                 "hickman_ios14 and iphone11_ios17 that recorded an original unit carried km "
+                 "and stored exactly 1,000 times the original value. Distance (Kilometers) "
+                 "and Distance (Miles) are computed from the meters value. "
+                 "Samples with no quantity_samples row are not reported: 3,293 on "
+                 "hickman_ios14 and 12 on hickman_ios13, none on the other tested images. "
+                 "Health - Steps skips such samples the same way. Device ID is the origin "
+                 "product type from data_provenances. Each writing device, such as an "
+                 "iPhone and an Apple Watch, stores its own samples, and they can "
+                 "cover the same time: on iphone11_ios17, 4,852 of 18,682 samples overlap "
+                 "a sample with a different Device ID, so adding up rows across devices can "
+                 "count the same period more than once. Device ID and Device Model held one "
+                 "value on every row of 8 of the 20 tested images with rows, each of which "
+                 "carried samples from one device. Other distance kinds Health can record, "
+                 "such as cycling or swimming, are not read by this artifact; workout "
+                 "distance is reported in Health - Workouts. On ctf2020_ios12, "
+                 "healthdb_secure.sqlite is an 8-byte file that is not a database.",
+        "paths": ("*Health/healthdb_secure.sqlite*",),
+        "output_types": "standard",
+        "artifact_icon": "activity",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1860 rows",
+            "felix_ios17": "iOS 17.6.1 | 316 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1023 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 218 rows",
+            "iphone11_ios17": "iOS 17.3 | 18682 rows",
+            "iphone12_ios18": "iOS 18.7 | 370 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 49 rows",
+            "otto_ios17": "iOS 17.5.1 | 3266 rows",
+            "abe_ios16": "iOS 16.5 | 3339 rows",
+            "felix23_ios16": "iOS 16.5 | 80 rows",
+            "hickman_ios13": "iOS 13.3.1 | 5832 rows",
+            "hickman_ios14": "iOS 14.3 | 12728 rows",
+            "jess_ios15": "iOS 15.0.2 | 133 rows",
+            "magnet_ios16": "iOS 16.1.1 | 183 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 107 rows",
+            "cookbook_ios1751": "iOS 17.5.1 | 101 rows",
+            "hc_ios26": "iOS 26.5.2 | 263 rows",
+            "hexordia_ios1651": "iOS 16.5.1 | 252 rows",
+            "iphone14plus_ios18_mvs2025": "iOS 18.0 | 120 rows",
+            "falken_ios26": "iOS 26.2.1 | 92 rows",
+        }
+    },
     "health_height": {
         "name": "Health - Height Samples",
         "description": "Height samples recorded in Health; samples may be "
@@ -1117,6 +1181,47 @@ def health_steps(context):
         hardware = context.lookup_metadata('apple_device_id_to_model', record[4])
         data_list.append((start_timestamp, end_timestamp, record[2], record[3],
                           record[4], hardware))
+
+    return data_headers, data_list, data_source
+
+
+@artifact_processor
+def health_distance_walking_running(context):
+    """ See artifact description """
+    data_source = context.get_source_file_path('healthdb_secure.sqlite')
+    data_list = []
+
+    query = '''
+    SELECT
+        samples.start_date,
+        samples.end_date,
+        quantity_samples.quantity,
+        samples.end_date - samples.start_date,
+        data_provenances.origin_product_type
+    FROM samples
+    JOIN quantity_samples ON quantity_samples.data_id = samples.data_id
+    JOIN objects ON objects.data_id = samples.data_id
+    JOIN data_provenances ON data_provenances.ROWID = objects.provenance
+    WHERE samples.data_type = 8
+    ORDER BY samples.start_date, samples.data_id
+    '''
+
+    data_headers = (
+        ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Distance (Meters)',
+        'Distance (Kilometers)', 'Distance (Miles)', 'Duration (Seconds)',
+        'Device ID', 'Device Model')
+
+    db_records = get_sqlite_db_records(data_source, query)
+
+    for record in db_records:
+        start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
+        end_timestamp = convert_cocoa_core_data_ts_to_utc(record[1])
+        meters = record[2]
+        kilometers = round(meters / 1000, 3) if meters is not None else None
+        miles = round(meters / 1609.344, 3) if meters is not None else None
+        hardware = context.lookup_metadata('apple_device_id_to_model', record[4])
+        data_list.append((start_timestamp, end_timestamp, meters, kilometers, miles,
+                          record[3], record[4], hardware))
 
     return data_headers, data_list, data_source
 
