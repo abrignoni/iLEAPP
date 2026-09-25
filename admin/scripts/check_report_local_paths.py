@@ -77,6 +77,13 @@ helper was then removed from all five cores, so this check no longer models it. 
 call with a tainted argument clears the taint here, so a framework helper that hands its
 argument back unchanged when it cannot do its job has to be modelled by name.
 
+A fifth shape, 2026-09-25: rows built in one expression were never read. The check
+looked only at values passed to `append` and `extend`, so a row list written as a
+comprehension, `data_list = [(r[0], r[1], src) for r in rows]`, reached the report
+unchecked. fitbit.py put the staged database path in the last column of nine artifacts
+that way. Assignments and `+=` to a row list, a row list written into the return tuple,
+row literals, and rows joined with `+` are now read too.
+
 Usage:
   check_report_local_paths.py [--root REPO_ROOT] [--verbose]
 
@@ -189,6 +196,33 @@ def _names_in_target(target):
                 out.append((name, index))
         return out
     return []
+
+
+def _row_columns(row):
+    """(column, expression) for a row written as a tuple or as tuples joined with `+`.
+
+    A part whose length is not known (`tuple(r[2:])`) makes every later column unknown,
+    reported as None; the part itself is kept whole so a path inside it is still seen."""
+    parts = []
+
+    def flatten(node):
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+            flatten(node.left)
+            flatten(node.right)
+        else:
+            parts.append(node)
+
+    flatten(row)
+    columns, offset = [], 0
+    for part in parts:
+        if isinstance(part, (ast.Tuple, ast.List)):
+            for element in part.elts:
+                columns.append((offset, element))
+                offset = None if offset is None else offset + 1
+        else:
+            columns.append((offset, part))
+            offset = None
+    return columns
 
 
 class FunctionScan:
@@ -308,6 +342,41 @@ class FunctionScan:
             if isinstance(spec, frozenset):
                 return spec
         return None
+
+    def built_row_elements(self, value):
+        """(column, expression) for every path in rows built without `append`.
+
+        Covers a list or tuple literal of rows and a comprehension whose element is a
+        row, `data_list = [(ts, msg, path) for ts, msg in records]`. Loop names bound from
+        a tainted iterable count as tainted while the element is read, by position when
+        the iterable yields records."""
+        if isinstance(value, (ast.List, ast.Tuple)):
+            found = []
+            for row in value.elts:
+                if isinstance(row, (ast.Tuple, ast.List)):
+                    found.extend((i, e) for i, e in enumerate(row.elts) if self.is_tainted(e))
+            return found
+        if not (isinstance(value, (ast.ListComp, ast.GeneratorExp))
+                and isinstance(value.elt, (ast.Tuple, ast.List, ast.BinOp))):
+            return []
+        saved_tainted, saved_positions = self.tainted, dict(self.positions)
+        try:
+            for gen in value.generators:
+                iterable = gen.iter
+                positions = self._positions_of(iterable)
+                source = isinstance(iterable, ast.Name) and iterable.id in TAINT_PARAM_NAMES
+                if positions is not None:
+                    if isinstance(gen.target, ast.Name):
+                        self.tainted = self.tainted | {gen.target.id}
+                        self.positions[gen.target.id] = positions
+                    else:
+                        self.tainted = self.tainted | {
+                            n for n, i in _names_in_target(gen.target) if i in positions}
+                elif (source or self.is_tainted(iterable)) and isinstance(gen.target, ast.Name):
+                    self.tainted = self.tainted | {gen.target.id}
+            return [(i, e) for i, e in _row_columns(value.elt) if self.is_tainted(e)]
+        finally:
+            self.tainted, self.positions = saved_tainted, saved_positions
 
     @staticmethod
     def _sanitizes(node):
@@ -583,7 +652,28 @@ def scan_function(func, module, streaming, helpers=None):
             return
         found.append((line, kind, expr, column))
 
+    def is_row_list(name):
+        if not any(hint in name.lower() for hint in ROW_VARS):
+            return False
+        return reaching is None or name in reaching
+
     for node in ast.walk(func):
+        # Rows built in one expression rather than appended one at a time: an
+        # assignment or `+=` to the row list, or a row list written into the return.
+        built = []
+        if isinstance(node, ast.Assign):
+            built = [node.value] if any(isinstance(t, ast.Name) and is_row_list(t.id)
+                                        for t in node.targets) else []
+        elif isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name) \
+                and is_row_list(node.target.id):
+            built = [node.value]
+        elif isinstance(node, ast.Return) and isinstance(node.value, ast.Tuple) \
+                and len(node.value.elts) >= 2:
+            built = [node.value.elts[1]]
+        for value in built:
+            for index, element in scan.built_row_elements(value):
+                record(node.lineno, 'row-value', ast.unparse(element), index)
+
         if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
                 and node.func.attr == 'write_artifact_data_table' and len(node.args) >= 3):
             if scan.is_tainted(node.args[2]):
@@ -674,7 +764,10 @@ def main():
     if violations:
         print(f'Local filesystem paths reaching report output ({len(violations)}):')
         for module, func, line, kind, expr, column in violations:
-            where = f'column {column}' if column is not None else '"located at" line'
+            if kind == 'located-at':
+                where = '"located at" line'
+            else:
+                where = f'column {column}' if column is not None else 'a column after one of unknown width'
             print(f'  {module}:{line}  {func}()  {kind}  {where}')
             print(f'      {expr}')
         print()
