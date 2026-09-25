@@ -495,6 +495,9 @@ class RawImageSeekerTest(unittest.TestCase):
                    'FAT32': qnxprobe.Fat32Walker,
                    'exFAT': qnxprobe.ExfatWalker, 'NTFS': qnxprobe.NtfsWalker,
                    'HFS+': qnxprobe.HfsPlusWalker, 'APFS': qnxprobe.ApfsWalker,
+                   'SquashFS': qnxprobe.SquashfsWalker, 'JFFS2': qnxprobe.Jffs2Walker,
+                   'UBI': qnxprobe.UbiWalker, 'UBIFS': qnxprobe.UbifsWalker,
+                   'YAFFS': qnxprobe.YaffsWalker,
                    'QNX IFS': qnxprobe.IfsWalker}
         names = [name.strip() for name in RAW_IMAGE_FILESYSTEMS.split(',')]
         self.assertEqual(sorted(names), sorted(walkers))

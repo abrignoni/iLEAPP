@@ -26,6 +26,7 @@ its fields checked for internal consistency before it is reported CONFIRMED.
 Read-only throughout. Never writes to the image.
 """
 import os, re, struct, sys, datetime, json, time, uuid, zipfile, bisect, collections, itertools
+import binascii
 import array
 
 # ewfprobe is vendored beside this file (see vendored.json) so an EnCase/EWF
@@ -42,7 +43,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.30"
+QNXPROBE_VERSION = "1.33"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -551,25 +552,174 @@ def parse_mbr(fh):
     return out
 
 
-def parse_gpt(fh):
-    """Parse the GPT at LBA 1. Returns list of (idx, name, type_guid, start, end)."""
-    hdr = read_at(fh, SECTOR, 92)
+# The GPT header is at LBA 1, the second logical block (UEFI 2.10 section
+# 5.3.1), so its byte offset IS the logical sector size, and every LBA in the
+# header, in the partition entries and in the protective MBR counts sectors of
+# that size. Most disks use 512. 4Kn drives and UFS LUN images use 4096, and
+# read as 512 they show no partition table at all. Only these two are probed.
+GPT_SECTOR_SIZES = (512, 4096)
+# The largest partition entry array read. The header's CRC is checked before
+# the array is, so this bounds a table that is valid but absurd, not noise.
+GPT_MAX_ARRAY_BYTES = 16 << 20
+
+
+class GptTable(list):
+    """What parse_gpt returns: [(idx, name, type_guid, first, last)] as before,
+    plus sector_size, the logical sector the header was found in, and
+    header_lba, 1 for the primary header or the last LBA when the backup was
+    read. first and last count sectors of sector_size, so a partition starts
+    at byte first * table.sector_size, which is first * SECTOR only at 512."""
+    sector_size = SECTOR
+    header_lba = 1
+
+
+def _gpt_header_problem(hdr, ss, lba):
+    """Why the header read from this LBA cannot be trusted, or "" if it can.
+
+    The checks and offsets are UEFI 2.10 section 5.3.2, Table 5.5 (GPT Header):
+    HeaderSize at 12 must be at least 92 and no larger than the logical block;
+    HeaderCRC32 at 16 is the CRC32 of HeaderSize bytes with that field set to
+    zero; MyLBA at 24 must name the block the header was read from. The same
+    checks, in the same order, are is_gpt_valid() in Linux
+    block/partitions/efi.c (v6.12, commit adc21867, lines 355 to 391). The
+    kernel also requires the usable range to lie within the disk; that check
+    is left out here on purpose, because the first segment of a split image
+    holds a table describing more than the file holds, and that has to be
+    reported as a short image (short_regions), not as a disk with no table.
+    """
+    hsize = struct.unpack_from("<I", hdr, 12)[0]
+    if not 92 <= hsize <= ss:
+        return f"HeaderSize {hsize} is not between 92 and the {ss}-byte sector"
+    want = struct.unpack_from("<I", hdr, 16)[0]
+    # binascii.crc32 is the CRC the spec names: the Ethernet polynomial seeded
+    # with ~0 and inverted at the end, which is how efi.c's efi_crc32 (lines
+    # 119 to 123) builds it from the kernel's own crc32.
+    got = binascii.crc32(hdr[:16] + b"\x00" * 4 + hdr[20:hsize]) & 0xFFFFFFFF
+    if got != want:
+        return f"HeaderCRC32 0x{want:08x} does not match the header (0x{got:08x})"
+    my_lba = struct.unpack_from("<Q", hdr, 24)[0]
+    if my_lba != lba:
+        return f"MyLBA is {my_lba}, and the header was read from LBA {lba}"
+    return ""
+
+
+def _gpt_at(fh, ss, lba):
+    """(GptTable or None, why) for a header at this LBA of ss-byte sectors.
+
+    why is None when there is no "EFI PART" signature there at all, a reason
+    when there is one and it fails a check, and "" when the table is used.
+    Entries are read per Table 5.6 (GPT Partition Entry): PartitionTypeGUID at
+    0 (all zero means the entry is unused), StartingLBA at 32, EndingLBA at 40,
+    PartitionName at 56 for 72 bytes.
+    """
+    hdr = read_at(fh, lba * ss, ss)
     if len(hdr) < 92 or hdr[0:8] != b"EFI PART":
-        return None
-    ent_lba, n_ent, ent_sz = struct.unpack_from("<QII", hdr, 72)
-    out = []
-    for i in range(min(n_ent, 256)):
-        raw = read_at(fh, ent_lba * SECTOR + i * ent_sz, ent_sz)
-        if len(raw) < 56:
-            break
+        return None, None
+    why = _gpt_header_problem(hdr, ss, lba)
+    if why:
+        return None, why
+    # Table 5.5: PartitionEntryLBA at 72, NumberOfPartitionEntries at 80,
+    # SizeOfPartitionEntry at 84 (128 x 2^n now; earlier versions of the spec
+    # allowed any multiple of 8), and at 88 the CRC32 of
+    # NumberOfPartitionEntries * SizeOfPartitionEntry bytes.
+    ent_lba, n_ent, ent_sz, arr_crc = struct.unpack_from("<QIII", hdr, 72)
+    nbytes = n_ent * ent_sz
+    if ent_sz < 128 or ent_sz % 8:
+        return None, f"SizeOfPartitionEntry {ent_sz} is not a multiple of 8 of at least 128"
+    if nbytes > GPT_MAX_ARRAY_BYTES:
+        return None, (f"the entry array would be {nbytes:,} bytes, more than "
+                      f"the {GPT_MAX_ARRAY_BYTES:,} read")
+    arr = read_at(fh, ent_lba * ss, nbytes)
+    if len(arr) < nbytes:
+        return None, f"the entry array at LBA {ent_lba} lies past the end of the file"
+    if binascii.crc32(arr) & 0xFFFFFFFF != arr_crc:
+        return None, (f"PartitionEntryArrayCRC32 0x{arr_crc:08x} does not match "
+                      f"the entry array")
+    table = GptTable()
+    table.sector_size, table.header_lba = ss, lba
+    for i in range(n_ent):
+        raw = arr[i * ent_sz:(i + 1) * ent_sz]
         tguid = raw[0:16]
         if tguid == b"\x00" * 16:
             continue
         first, last = struct.unpack_from("<QQ", raw, 32)
-        name = raw[56:ent_sz].decode("utf-16-le", "replace").rstrip("\x00").strip()
+        name = raw[56:128].decode("utf-16-le", "replace").rstrip("\x00").strip()
         g = uuid.UUID(bytes_le=tguid)
-        out.append((i + 1, name, str(g), first, last))
-    return out
+        table.append((i + 1, name, str(g), first, last))
+    return table, ""
+
+
+def _has_protective_mbr(fh):
+    """True when sector 0 ends 0x55AA and one of its four records is type 0xEE,
+    the GPT protective type (UEFI 2.10 section 5.2.2 and Table 5.4)."""
+    mbr = read_at(fh, 0, 512)
+    return (len(mbr) == 512 and mbr[510:512] == b"\x55\xaa"
+            and any(mbr[446 + 16 * i + 4] == 0xEE for i in range(4)))
+
+
+def read_gpt(fh):
+    """(table, rejected): the GPT to use, and every header that was refused.
+
+    table is a GptTable, or None when no header validates. rejected lists
+    (byte offset, reason) for every "EFI PART" signature found that failed a
+    check, so a report can say a table was there and why it was not used,
+    rather than showing a disk with no partition table.
+
+    The primary header at LBA 1 is tried at 512 and then at 4096 bytes a
+    sector; the first that validates, with an entry array matching its CRC,
+    is used. When none does, section 5.3.2 says "the backup GPT is used
+    instead and it is located on the last logical block on the disk", so that
+    block is tried at each size. The same section warns that a disk
+    reformatted to a legacy MBR can keep a stale GPT in its last block, so the
+    backup is only read when sector 0 holds a 0xEE record. Linux likewise
+    reads no GPT unless sector 0 is a protective or hybrid MBR (efi.c
+    find_valid_gpt, lines 597 to 612), and reads the backup only when forced
+    to (lines 617 to 622); util-linux sfdisk 2.41.3 reads the backup when the
+    primary is corrupt, as the spec says. Nothing is ever written back.
+    """
+    rejected = []
+    for ss in GPT_SECTOR_SIZES:
+        table, why = _gpt_at(fh, ss, 1)
+        if table is not None:
+            return table, rejected
+        if why:
+            rejected.append((ss, why))
+    if _has_protective_mbr(fh):
+        try:
+            size = image_size(fh)
+        except (OSError, AttributeError, ValueError):
+            size = None
+        for ss in GPT_SECTOR_SIZES:
+            last = (size // ss - 1) if size else 0
+            if last < 2:
+                continue
+            table, why = _gpt_at(fh, ss, last)
+            if table is not None:
+                return table, rejected
+            if why:
+                rejected.append((last * ss, why))
+    return None, rejected
+
+
+def parse_gpt(fh):
+    """The primary GPT as a GptTable of (idx, name, type_guid, first, last), or None.
+
+    first and last are in the table's own logical sectors: multiply by the
+    returned table's sector_size, not by SECTOR, to reach a byte offset.
+    """
+    return read_gpt(fh)[0]
+
+
+def disk_sector_size(fh):
+    """The logical sector size partition LBAs on this image count: the one a
+    valid GPT was found at, else 512. The legacy and protective MBR count the
+    same logical blocks (UEFI 2.10 Table 5.2, SizeInLBA "in LBA units of logical
+    blocks"; Table 5.4, the protective StartingLBA is 1, "the LBA of the GPT
+    Partition Header"), so this is the unit for both tables."""
+    gpt = parse_gpt(fh)
+    # An empty table is falsy: a valid GPT with no used entry still names the
+    # sector size, so the test is for no table, not for no entries.
+    return gpt.sector_size if gpt is not None else SECTOR
 
 
 # ---------------------------------------------------------------------------
@@ -628,7 +778,11 @@ S_IFMT, S_IFREG = 0o170000, 0o100000     # the format bits, and a regular file
 def _fmt_time(v):
     """Per-file mtime. Unlike a superblock stamp, an epoch-era value here is
     ordinary on an embedded image (files staged before the clock was set), so
-    it is shown rather than suppressed."""
+    it is shown rather than suppressed. None is a time the filesystem does not
+    record at all (a raw UBI volume, YAFFS's built-in directories), and is
+    shown as nothing rather than as a date."""
+    if v is None:
+        return ""
     try:
         return datetime.datetime.fromtimestamp(
             v, datetime.timezone.utc).strftime("%Y-%m-%d")
@@ -5487,6 +5641,2257 @@ class EfsWalker:
         yield bytes(out[:size]) if size else bytes(out)
 
 
+# ---------------------------------------------------------------------------
+# Decompressors for the Linux flash filesystems (SquashFS, JFFS2, UBIFS)
+#
+# zlib, raw deflate, xz and legacy lzma are in the standard library. LZO and
+# LZ4 are not, and both are small enough to carry as pure-Python decoders, the
+# same way the UCL decoder above is carried for QNX IFS. zstd is in the
+# standard library from Python 3.14 (compression.zstd); on an older Python a
+# zstd-compressed file is named and reported as not read, never guessed at.
+# ---------------------------------------------------------------------------
+class DecompressError(Exception):
+    """Compressed bytes this reader could not turn back into the original."""
+
+
+def _copy_match(out, dist, length):
+    """Append `length` bytes copied from `dist` bytes back in `out`. A copy
+    that overlaps what it writes (dist < length) repeats the last `dist` bytes,
+    which is what a byte-at-a-time copy does."""
+    if dist <= 0 or dist > len(out):
+        raise DecompressError(f"match reaches {dist} bytes back, before the start")
+    start = len(out) - dist
+    if dist >= length:
+        out += out[start:start + length]
+    else:
+        pat = bytes(out[start:])
+        reps, rem = divmod(length, dist)
+        out += pat * reps + pat[:rem]
+
+
+def _lzo_ext(src, ip, base):
+    """A variable-length count: every zero byte adds 255, then the first
+    non-zero byte and `base` are added. Returns (count, ip)."""
+    zeros = 0
+    while src[ip] == 0:
+        zeros += 1
+        ip += 1
+    return base + zeros * 255 + src[ip], ip + 1
+
+
+def lzo1x_decompress(src, limit=None):
+    """Decode an LZO1X stream, both bitstream versions the Linux kernel reads.
+
+    Written from Documentation/staging/lzo.rst, which describes the stream
+    lib/lzo/lzo1x_decompress_safe.c accepts; the end-of-stream test follows
+    that file. The stream ends at a 16..31 instruction whose distance works out
+    to zero, which is 0x11 0x00 0x00. `limit` caps the output, as a block's
+    known size does.
+
+    Only bitstream version 0 is read. Version 1 (LZO-RLE, announced by a
+    leading 17 and a version byte) is what zram writes; SquashFS, JFFS2 and
+    UBIFS are written with plain LZO1X (squashfs-tools through liblzo2, the
+    kernel's jffs2 and ubifs through lzo1x_1_compress), so a version 1 stream
+    is refused rather than decoded by untested code.
+    """
+    src = bytes(src)
+    n = len(src)
+    if n < 3:
+        raise DecompressError("LZO stream shorter than its end marker")
+    out = bytearray()
+    ip = 0
+    if n >= 5 and src[0] == 17:
+        raise DecompressError("LZO-RLE (bitstream version 1) is not read here")
+    try:
+        t = src[ip]
+        state = 0
+        if t > 17:                                   # first byte: a literal run
+            ip += 1
+            t -= 17
+            out += src[ip:ip + t]
+            ip += t
+            state = t if t < 4 else 4
+        while True:
+            t = src[ip]
+            ip += 1
+            if t < 16:
+                if state == 0:                       # 0000LLLL: long literal run
+                    if t == 0:
+                        t, ip = _lzo_ext(src, ip, 15)
+                    t += 3
+                    if ip + t > n:
+                        raise DecompressError("literal run past the end of the input")
+                    out += src[ip:ip + t]
+                    ip += t
+                    state = 4
+                    continue
+                if state != 4:                       # 0000DDSS: 2 bytes, <= 1 KiB back
+                    nxt = t & 3
+                    dist = (t >> 2) + (src[ip] << 2) + 1
+                    ip += 1
+                    _copy_match(out, dist, 2)
+                else:                                # 0000DDSS: 3 bytes, 2..3 KiB back
+                    nxt = t & 3
+                    dist = (t >> 2) + (src[ip] << 2) + 2049
+                    ip += 1
+                    _copy_match(out, dist, 3)
+            elif t >= 64:                            # 01LDDDSS / 1LLDDDSS
+                nxt = t & 3
+                dist = ((t >> 2) & 7) + (src[ip] << 3) + 1
+                ip += 1
+                _copy_match(out, dist, (t >> 5) + 1)
+            elif t >= 32:                            # 001LLLLL + LE16
+                length = t & 31
+                if length == 0:
+                    length, ip = _lzo_ext(src, ip, 31)
+                v = src[ip] | (src[ip + 1] << 8)
+                ip += 2
+                nxt = v & 3
+                _copy_match(out, (v >> 2) + 1, length + 2)
+            else:                                    # 0001HLLL + LE16
+                length = t & 7
+                if length == 0:
+                    length, ip = _lzo_ext(src, ip, 7)
+                v = src[ip] | (src[ip + 1] << 8)
+                ip += 2
+                nxt = v & 3
+                dist = ((t & 8) << 11) + (v >> 2)
+                if dist == 0:                        # end of stream
+                    if length + 2 != 3:
+                        raise DecompressError("malformed LZO end marker")
+                    break
+                _copy_match(out, dist + 0x4000, length + 2)
+            state = nxt                              # then copy 0..3 literals
+            if nxt:
+                out += src[ip:ip + nxt]
+                ip += nxt
+            if limit is not None and len(out) > limit:
+                raise DecompressError("LZO output larger than the block it fills")
+    except IndexError:
+        raise DecompressError("LZO stream ends inside an instruction") from None
+    return bytes(out)
+
+
+def lz4_block_decompress(src, limit=None):
+    """Decode one LZ4 block (no frame), as lz4/doc/lz4_Block_format.md at
+    v1.10.0 defines it: sequences of a token, literals, a 2-byte offset and a
+    match; the last sequence carries literals only."""
+    src = bytes(src)
+    n = len(src)
+    out = bytearray()
+    ip = 0
+    try:
+        while True:
+            token = src[ip]
+            ip += 1
+            lit = token >> 4
+            if lit == 15:
+                while True:
+                    b = src[ip]
+                    ip += 1
+                    lit += b
+                    if b != 255:
+                        break
+            if ip + lit > n:
+                raise DecompressError("LZ4 literals run past the end of the input")
+            out += src[ip:ip + lit]
+            ip += lit
+            if ip >= n:
+                break                                # the last sequence has no match
+            off = src[ip] | (src[ip + 1] << 8)
+            ip += 2
+            if off == 0:
+                raise DecompressError("LZ4 match offset of zero")
+            ml = token & 15
+            if ml == 15:
+                while True:
+                    b = src[ip]
+                    ip += 1
+                    ml += b
+                    if b != 255:
+                        break
+            _copy_match(out, off, ml + 4)
+            if limit is not None and len(out) > limit:
+                raise DecompressError("LZ4 output larger than the block it fills")
+    except IndexError:
+        raise DecompressError("LZ4 block ends inside a sequence") from None
+    return bytes(out)
+
+
+def _zstd_module():
+    try:
+        from compression import zstd              # Python 3.14 and later
+        return zstd
+    except ImportError:
+        return None
+
+
+def zstd_decompress(src):
+    z = _zstd_module()
+    if z is None:
+        raise DecompressError("zstd needs Python 3.14 or later (compression.zstd); "
+                              "this Python does not carry it")
+    try:
+        return z.decompress(bytes(src))
+    except Exception as exc:                        # ZstdError, not a stable name
+        raise DecompressError(f"zstd: {exc}") from None
+
+
+# ---------------------------------------------------------------------------
+# SquashFS 4.0
+#
+# Every structure and constant is read from the Linux kernel's own driver at
+# v7.0 (commit 028ef9c96e96197026887c0f092424679298aae8):
+#
+#   SQUASHFS_MAGIC 0x73717368 ("hsqs")      include/uapi/linux/magic.h:20
+#   struct squashfs_super_block             fs/squashfs/squashfs_fs.h:241
+#   inode layouts, dir header and entry     fs/squashfs/squashfs_fs.h:270-422
+#   fragment entry                          fs/squashfs/squashfs_fs.h:424
+#   metadata block: le16 length, bit 15     fs/squashfs/block.c squashfs_read_data
+#     set = stored uncompressed, 8 KiB max  fs/squashfs/squashfs_fs.h:19,106
+#   data block: le32 length, bit 24 set =   fs/squashfs/squashfs_fs.h:113
+#     stored uncompressed; 0 = a hole       fs/squashfs/file.c
+#   the stored mode carries no type bits;   fs/squashfs/inode.c squashfs_new_inode
+#     the type comes from inode_type
+#   a directory's size counts 3 bytes for   fs/squashfs/dir.c squashfs_readdir
+#     the "." and ".." it does not store
+#   inode reference = metadata block << 16  fs/squashfs/squashfs_fs.h:130,
+#     | offset, relative to the inode table   fs/squashfs/namei.c
+#
+# Version 4.0 is always little endian. The 1.x to 3.x layouts (and their big
+# endian "sqsh" form) are recognised and reported, not walked.
+# ---------------------------------------------------------------------------
+SQUASHFS_MAGIC = 0x73717368
+SQFS_METADATA_SIZE = 8192
+SQFS_INVALID_FRAG = 0xFFFFFFFF
+SQFS_COMP = {1: "gzip", 2: "lzma", 3: "lzo", 4: "xz", 5: "lz4", 6: "zstd"}
+SQFS_TYPE_MODE = {1: S_IFDIR, 2: S_IFREG, 3: S_IFLNK, 4: 0o060000, 5: 0o020000,
+                  6: 0o010000, 7: 0o140000, 8: S_IFDIR, 9: S_IFREG, 10: S_IFLNK,
+                  11: 0o060000, 12: 0o020000, 13: 0o010000, 14: 0o140000}
+SQFS_FLAGS = ((0, "inodes stored uncompressed"), (1, "data stored uncompressed"),
+              (3, "fragments stored uncompressed"), (4, "no fragments"),
+              (5, "always fragments"), (6, "duplicates removed"),
+              (7, "exportable (NFS)"), (10, "compressor options present"))
+
+
+class SquashfsUnreadable(Exception):
+    """A SquashFS structure or file this reader cannot hand back; the message
+    says which and why."""
+
+
+def _sqfs_decompress(comp, data, limit):
+    """Turn one compressed SquashFS block back into its bytes. The wrappers are
+    fs/squashfs/{zlib,xz,lzo,lz4,zstd}_wrapper.c: gzip is a zlib stream with its
+    header, xz is the .xz container, lzo is raw LZO1X and lz4 a raw LZ4 block.
+    lzma (id 2) is not read by the kernel at all (decompressor.c lists it as
+    unsupported). squashfs-tools 4.7.5 writes it as an lzma-alone stream
+    encoded with its size unknown, so it ends in an end marker, then overwrites
+    the header's 8-byte size field with the real size; its own decoder puts the
+    "unknown" value (all 0xFF) back before decoding and keeps that many bytes
+    (squashfs-tools/lzma_xz_wrapper.c lzma_compress and lzma_uncompress, at
+    708c59ae), and so does this."""
+    import lzma, zlib
+    try:
+        if comp == 1:
+            return zlib.decompress(data)
+        if comp == 4:
+            return lzma.decompress(data, format=lzma.FORMAT_XZ)
+        if comp == 2:
+            if len(data) < 13:
+                raise DecompressError("lzma block shorter than its header")
+            want = struct.unpack_from("<I", data, 5)[0]
+            out = lzma.decompress(data[:5] + b"\xff" * 8 + data[13:],
+                                  format=lzma.FORMAT_ALONE)
+            return out[:want]
+        if comp == 3:
+            return lzo1x_decompress(data, limit)
+        if comp == 5:
+            return lz4_block_decompress(data, limit)
+        if comp == 6:
+            return zstd_decompress(data)
+    except (zlib.error, lzma.LZMAError) as exc:
+        raise DecompressError(f"{SQFS_COMP.get(comp)}: {exc}") from None
+    raise DecompressError(f"compression id {comp} is not one SquashFS defines")
+
+
+class SquashfsWalker:
+    """List and read a SquashFS 4.0 image. A node is an inode reference (the
+    metadata block's offset in the inode table, shifted left 16, plus the byte
+    offset inside it), which is what a directory entry records, so a hard link
+    is one node reached by two names."""
+
+    def __init__(self, fh, base):
+        self.fh, self.base = fh, base
+        sb = read_at(fh, base, 96)
+        if len(sb) < 96 or struct.unpack_from("<I", sb, 0)[0] != SQUASHFS_MAGIC:
+            raise SquashfsUnreadable("no SquashFS superblock")
+        (self.inodes, self.mkfs_time, self.block_size, self.fragments,
+         self.comp, self.block_log, self.flags, self.no_ids, major, minor) = \
+            struct.unpack_from("<IIIIHHHHHH", sb, 4)
+        if (major, minor) != (4, 0):
+            raise SquashfsUnreadable(f"version {major}.{minor}; only 4.0 is read")
+        if not (4096 <= self.block_size <= 1048576) or \
+                self.block_size != 1 << self.block_log:
+            raise SquashfsUnreadable("block size and block log disagree")
+        (self.root_ref, self.bytes_used, self.id_table, self.xattr_table,
+         self.inode_table, self.dir_table, self.frag_table, self.lookup_table) = \
+            struct.unpack_from("<QQQQQQQQ", sb, 32)
+        if not (self.inode_table < self.dir_table <= self.bytes_used):
+            raise SquashfsUnreadable("inode and directory tables out of order")
+        self._meta = {}
+        self._ids = None
+        self._frag_index = None
+        # Many small files share one fragment block, so the last few blocks are
+        # kept decompressed, as the kernel's fragment cache does (super.c,
+        # SQUASHFS_CACHED_FRAGMENTS).
+        self._frags = collections.OrderedDict()
+
+    root = property(lambda self: self.root_ref)
+
+    # -- metadata ----------------------------------------------------------
+    def _meta_block(self, pos):
+        """(bytes, next_pos) for the metadata block starting `pos` bytes into
+        the image: a le16 header then up to 8 KiB, compressed unless bit 15."""
+        hit = self._meta.get(pos)
+        if hit is not None:
+            return hit
+        hdr = read_at(self.fh, self.base + pos, 2)
+        if len(hdr) < 2:
+            raise SquashfsUnreadable(f"metadata block at {pos:#x} lies past the image")
+        raw = struct.unpack("<H", hdr)[0]
+        length = raw & 0x7FFF or 0x8000
+        stored = read_at(self.fh, self.base + pos + 2, length)
+        if len(stored) < length:
+            raise SquashfsUnreadable(f"metadata block at {pos:#x} is cut short")
+        data = stored if raw & 0x8000 else _sqfs_decompress(self.comp, stored, SQFS_METADATA_SIZE)
+        out = (data, pos + 2 + length)
+        if len(self._meta) < 8192:
+            self._meta[pos] = out
+        return out
+
+    def _meta_read(self, pos, off, n):
+        """n bytes of metadata starting `off` bytes into the block at `pos`,
+        following on into the next blocks. Returns (bytes, pos, off) with the
+        position just past what was read."""
+        out = bytearray()
+        while True:
+            data, nxt = self._meta_block(pos)
+            take = data[off:off + n - len(out)]
+            out += take
+            off += len(take)
+            if len(out) >= n:
+                if off >= len(data):
+                    pos, off = nxt, off - len(data)
+                return bytes(out), pos, off
+            if not data:
+                raise SquashfsUnreadable("empty metadata block")
+            pos, off = nxt, off - len(data)
+
+    def _table(self, start, count, entry_size):
+        """A lookup table: a list of le64 pointers at `start`, each to a
+        metadata block holding the next 8 KiB of `count` fixed-size entries."""
+        nblocks = (count * entry_size + SQFS_METADATA_SIZE - 1) // SQFS_METADATA_SIZE
+        ptrs = read_at(self.fh, self.base + start, nblocks * 8)
+        if len(ptrs) < nblocks * 8:
+            raise SquashfsUnreadable("lookup table lies past the image")
+        out = bytearray()
+        for (p,) in struct.iter_unpack("<Q", ptrs):
+            out += self._meta_block(p)[0]
+        return bytes(out[:count * entry_size])
+
+    def uid_gid(self, idx):
+        if self._ids is None:
+            raw = self._table(self.id_table, self.no_ids, 4)
+            self._ids = [v for (v,) in struct.iter_unpack("<I", raw)]
+        return self._ids[idx] if idx < len(self._ids) else None
+
+    def _fragment(self, index):
+        """(start, stored_size_word) for a fragment table entry."""
+        if self._frag_index is None:
+            self._frag_index = self._table(self.frag_table, self.fragments, 16)
+        if index >= self.fragments:
+            raise SquashfsUnreadable(f"fragment {index} is beyond the table")
+        start, size = struct.unpack_from("<QI", self._frag_index, index * 16)
+        return start, size
+
+    def _fragment_block(self, index):
+        hit = self._frags.get(index)
+        if hit is not None:
+            self._frags.move_to_end(index)
+            return hit
+        fstart, fword = self._fragment(index)
+        if fword >> 25:
+            raise SquashfsUnreadable(f"fragment {index} records an impossible length")
+        stored = fword & 0xFFFFFF
+        raw = read_at(self.fh, self.base + fstart, stored)
+        block = raw if fword & (1 << 24) else \
+            _sqfs_decompress(self.comp, raw, self.block_size)
+        self._frags[index] = block
+        while len(self._frags) > 8:
+            self._frags.popitem(last=False)
+        return block
+
+    # -- inodes ------------------------------------------------------------
+    def inode(self, ref):
+        pos, off = self.inode_table + (ref >> 16), ref & 0xFFFF
+        base, pos, off = self._meta_read(pos, off, 16)
+        itype, mode, uid, gid, mtime, number = struct.unpack("<HHHHII", base)
+        if itype not in SQFS_TYPE_MODE:
+            raise SquashfsUnreadable(f"inode {ref:#x} has unknown type {itype}")
+        ino = dict(type=itype, mode=(mode & 0o7777) | SQFS_TYPE_MODE[itype],
+                   uid=uid, gid=gid, mtime=mtime, number=number, size=0)
+        if itype == 2:                               # basic file
+            b, pos, off = self._meta_read(pos, off, 16)
+            start, frag, foff, size = struct.unpack("<IIII", b)
+            ino.update(start=start, frag=frag, frag_off=foff, size=size, sparse=0)
+        elif itype == 9:                             # extended file
+            b, pos, off = self._meta_read(pos, off, 40)
+            start, size, sparse, nlink, frag, foff, _xattr = struct.unpack("<QQQIIII", b)
+            ino.update(start=start, frag=frag, frag_off=foff, size=size, sparse=sparse)
+        elif itype == 1:                             # basic directory
+            b, pos, off = self._meta_read(pos, off, 16)
+            start, _nlink, size, doff, parent = struct.unpack("<IIHHI", b)
+            ino.update(dir_start=start, dir_off=doff, size=size, parent=parent)
+        elif itype == 8:                             # extended directory
+            b, pos, off = self._meta_read(pos, off, 24)
+            _nlink, size, start, parent, _icount, doff, _xattr = struct.unpack("<IIIIHHI", b)
+            ino.update(dir_start=start, dir_off=doff, size=size, parent=parent)
+        elif itype in (3, 10):                       # symlink
+            b, pos, off = self._meta_read(pos, off, 8)
+            _nlink, tlen = struct.unpack("<II", b)
+            if tlen > 65536:
+                raise SquashfsUnreadable(f"symlink {ref:#x} claims {tlen} bytes")
+            target, pos, off = self._meta_read(pos, off, tlen)
+            ino.update(target=target, size=tlen)
+        if itype in (2, 9):
+            ino["list_pos"], ino["list_off"] = pos, off
+        return ino
+
+    def entry(self, ref):
+        try:
+            ino = self.inode(ref)
+        except (SquashfsUnreadable, DecompressError, struct.error):
+            return None
+        return ino["mode"], ino["size"], ino["mtime"]
+
+    def readlink(self, ref):
+        ino = self.inode(ref)
+        return ino.get("target", b"").decode("utf-8", "surrogateescape")
+
+    def listdir(self, ref):
+        try:
+            ino = self.inode(ref)
+        except (SquashfsUnreadable, DecompressError, struct.error):
+            return []
+        if ino["type"] not in (1, 8):
+            return []
+        out = []
+        pos, off = self.dir_table + ino["dir_start"], ino["dir_off"]
+        left = ino["size"] - 3                       # "." and ".." are not stored
+        try:
+            while left > 0:
+                hdr, pos, off = self._meta_read(pos, off, 12)
+                left -= 12
+                count, start, base_num = struct.unpack("<III", hdr)
+                if count + 1 > 256:
+                    raise SquashfsUnreadable("directory header counts more than 256")
+                for _ in range(count + 1):
+                    ent, pos, off = self._meta_read(pos, off, 8)
+                    ioff, _delta, _dtype, nlen = struct.unpack("<HhHH", ent)
+                    if nlen + 1 > 256:
+                        raise SquashfsUnreadable("directory entry name over 256 bytes")
+                    name, pos, off = self._meta_read(pos, off, nlen + 1)
+                    left -= 8 + nlen + 1
+                    out.append((name.decode("utf-8", "surrogateescape"),
+                                (start << 16) | ioff))
+        except (SquashfsUnreadable, DecompressError, struct.error):
+            pass                                     # report what was read
+        return out
+
+    # -- file data ---------------------------------------------------------
+    def read_file(self, ref, size):
+        ino = self.inode(ref)
+        if ino["type"] not in (2, 9):
+            return
+        fsize, bs = ino["size"], self.block_size
+        has_frag = ino["frag"] != SQFS_INVALID_FRAG
+        nblocks = fsize // bs if has_frag else (fsize + bs - 1) // bs
+        sizes = b""
+        if nblocks:
+            sizes, _p, _o = self._meta_read(ino["list_pos"], ino["list_off"], nblocks * 4)
+        pos = ino["start"]
+        left = min(size, fsize)
+        for i in range(nblocks):
+            if left <= 0:
+                return
+            word = struct.unpack_from("<I", sizes, i * 4)[0]
+            want = min(bs, fsize - i * bs)
+            if word == 0:                            # a hole: no bytes stored
+                data = bytes(want)
+            else:
+                if word >> 25:
+                    raise SquashfsUnreadable(f"block {i} of inode {ref:#x} records an "
+                                             f"impossible length word {word:#x}")
+                stored = word & 0xFFFFFF
+                raw = read_at(self.fh, self.base + pos, stored)
+                pos += stored
+                data = raw if word & (1 << 24) else _sqfs_decompress(self.comp, raw, bs)
+                if len(data) < want:
+                    data += bytes(want - len(data))
+            take = data[:min(want, left)]
+            yield take
+            left -= len(take)
+        if has_frag and left > 0:
+            block = self._fragment_block(ino["frag"])
+            tail = block[ino["frag_off"]:ino["frag_off"] + left]
+            if len(tail) < left:
+                tail += bytes(left - len(tail))
+            yield tail
+
+
+def identify_squashfs(fh, base, size=None):
+    """Return ("squashfs", lines) for a SquashFS image at base, else None.
+
+    "hsqs" at offset 0 names the little-endian layout and "sqsh" the big-endian
+    one of the 1.x to 3.x versions; s_major/s_minor sit at offset 28 in every
+    version. Only 4.0 is walked, and it is accepted only when its block size is
+    a power of two in 4 KiB..1 MiB that agrees with block_log, its compression
+    id is one the format defines, and its root inode reads back as a
+    directory, the checks super.c applies before it will mount.
+    """
+    sb = read_at(fh, base, 96)
+    if len(sb) < 32:
+        return None
+    if sb[:4] not in (b"hsqs", b"sqsh"):
+        return None
+    endian = "<" if sb[:4] == b"hsqs" else ">"
+    major, minor = struct.unpack_from(endian + "HH", sb, 28)
+    if (major, minor) != (4, 0) or endian == ">":
+        if not (1 <= major <= 3):
+            return None
+        return "squashfs", [
+            f"version      {major}.{minor} "
+            f"({'big' if endian == '>' else 'little'} endian)",
+            "contents     a pre-4.0 layout, reported here but not walked; the Linux "
+            "kernel's own driver refuses them too (fs/squashfs/super.c)"]
+    try:
+        w = SquashfsWalker(fh, base)
+    except SquashfsUnreadable:
+        return None
+    if w.comp not in SQFS_COMP:
+        return None
+    try:
+        root = w.inode(w.root)
+        root_ok = root["type"] in (1, 8)
+    except (SquashfsUnreadable, DecompressError, struct.error, ValueError):
+        root_ok = False
+    flags = [name for bit, name in SQFS_FLAGS if w.flags >> bit & 1]
+    lines = [
+        "version      4.0",
+        f"compression  {SQFS_COMP[w.comp]}",
+        f"block size   {w.block_size:,} bytes",
+        f"made         {stamp(w.mkfs_time)}   (mkfs_time as stored; mksquashfs "
+        "records its build time here unless told otherwise)",
+        f"inodes       {w.inodes:,}   fragments {w.fragments:,}   ids {w.no_ids:,}",
+        f"bytes used   {human(w.bytes_used)}",
+    ]
+    if flags:
+        lines.append("flags        " + ", ".join(flags))
+    if size is not None and w.bytes_used > size:
+        lines.append(f"note         the image records {human(w.bytes_used)} but the region "
+                     f"holds {human(size)}, so its end is missing")
+    if w.comp == 6 and _zstd_module() is None:
+        lines.append("note         zstd compressed; this Python has no zstd (3.14 adds "
+                     "it), so the listing may be short and no file can be read")
+    if not root_ok:
+        if w.comp == 6 and _zstd_module() is None:
+            return "squashfs", lines
+        return None
+    return "squashfs", lines
+
+
+class NandDataView:
+    """A raw NAND dump read as its page data alone: after each `page` bytes of
+    data the dump holds `spare` bytes of spare (OOB) area, which a chip-off
+    reader captures and a filesystem never sees. UBI and JFFS2 lay their
+    structures across pages, so they are read through this view; YAFFS reads
+    the spare itself and needs no view."""
+
+    def __init__(self, fh, base, size, page, spare):
+        self.fh, self.base, self.page, self.spare = fh, base, page, spare
+        self.size = (size // (page + spare)) * page
+        self.name = getattr(fh, "name", "")
+        self._pos = 0
+
+    def seek(self, offset, whence=0):
+        self._pos = offset if whence == 0 else (self._pos + offset if whence == 1
+                                                else self.size + offset)
+        return self._pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        if n is None or n < 0:
+            n = max(self.size - self._pos, 0)
+        out = bytearray()
+        pos, end = self._pos, min(self._pos + n, self.size)
+        while pos < end:
+            pg, off = divmod(pos, self.page)
+            take = min(self.page - off, end - pos)
+            chunk = read_at(self.fh, self.base + pg * (self.page + self.spare) + off, take)
+            out += chunk
+            if len(chunk) < take:
+                break
+            pos += take
+        self._pos = pos
+        return bytes(out)
+
+
+def nand_views(fh, base, size):
+    """(page, spare, view) for each common NAND geometry whose whole pages fill
+    the region exactly, the same geometries the YAFFS layout search tries."""
+    for page, spare in YAFFS_GEOMETRIES:
+        if size and size % (page + spare) == 0:
+            yield page, spare, NandDataView(fh, base, size, page, spare)
+
+
+# ---------------------------------------------------------------------------
+# JFFS2
+#
+# A log of nodes with no superblock: the filesystem is whatever nodes the
+# region holds. Every structure is read from the Linux kernel at v7.0 (commit
+# 028ef9c96e96197026887c0f092424679298aae8):
+#
+#   magic 0x1985, the old 0x1984, node types  include/uapi/linux/jffs2.h:24-69
+#   struct jffs2_unknown_node (12 bytes)      include/uapi/linux/jffs2.h:102
+#   struct jffs2_raw_dirent (40 + name)       include/uapi/linux/jffs2.h:111
+#   struct jffs2_raw_inode (68 + data)        include/uapi/linux/jffs2.h:135
+#   compression ids                           include/uapi/linux/jffs2.h:41-48
+#   header CRC: crc32 of the first 8 bytes    fs/jffs2/scan.c jffs2_scan_eraseblock
+#     with the ACCURATE bit (0x2000) set; a
+#     node with that bit cleared is obsolete
+#   nodes are 4-byte aligned (PAD)            fs/jffs2/nodelist.h
+#   the newest version of a name in a         fs/jffs2/readinode.c
+#     directory wins, and ino 0 unlinks it;     read_direntry, jffs2_add_fd_to_list
+#   the newest inode node carries the mode,   fs/jffs2/readinode.c
+#     owner and times, and a regular file is    jffs2_do_read_inode_internal
+#     cut to that node's isize; data ranges
+#     from newer versions overwrite older ones
+#   the root is inode 1 and may have no inode fs/jffs2/readinode.c:1199-1201
+#     node of its own
+#   a node whose data fails its CRC is        fs/jffs2/readinode.c
+#     obsolete, and older data shows through    check_node_data
+#
+# Kernel crc32() is crc32_le with seed 0 and no inversion, which is zlib's
+# crc32 with its pre- and post-inversion undone.
+# ---------------------------------------------------------------------------
+JFFS2_MAGIC = 0x1985
+JFFS2_OLD_MAGIC = 0x1984
+JFFS2_ACCURATE = 0x2000
+JFFS2_DIRENT, JFFS2_INODE = 0xE001, 0xE002
+JFFS2_CLEANMARKER, JFFS2_PADDING, JFFS2_SUMMARY = 0x2003, 0x2004, 0x2006
+JFFS2_XATTR, JFFS2_XREF = 0xE008, 0xE009
+JFFS2_COMPR = {0: "none", 1: "zero", 2: "rtime", 3: "rubinmips", 4: "copy",
+               5: "dynrubin", 6: "zlib", 7: "lzo"}
+JFFS2_ROOT_INO = 1
+JFFS2_SCAN_CHUNK = 1 << 22
+
+
+class Jffs2Unreadable(Exception):
+    """JFFS2 content this reader cannot hand back; the message says why."""
+
+
+def _kcrc32(data):
+    """The kernel's crc32(0, data, len): crc32_le, no pre- or post-inversion."""
+    import zlib
+    return zlib.crc32(data, 0xFFFFFFFF) ^ 0xFFFFFFFF
+
+
+def _rtime_decompress(src, dsize):
+    """fs/jffs2/compr_rtime.c: pairs of (literal byte, repeat count). After
+    each literal the decoder copies `repeat` bytes starting where the previous
+    occurrence of that same literal value ended, byte by byte."""
+    out = bytearray()
+    positions = [0] * 256
+    ip = 0
+    try:
+        while len(out) < dsize:
+            value = src[ip]
+            repeat = src[ip + 1]
+            ip += 2
+            out.append(value)
+            back = positions[value]
+            positions[value] = len(out)
+            if repeat:
+                if len(out) + repeat > dsize:
+                    raise DecompressError("rtime run past the node's data size")
+                for _ in range(repeat):
+                    out.append(out[back])
+                    back += 1
+    except IndexError:
+        raise DecompressError("rtime data ends early") from None
+    return bytes(out)
+
+
+def _jffs2_zlib(src, dsize):
+    """fs/jffs2/compr_zlib.c: a stream with a valid zlib header and no preset
+    dictionary is inflated raw after the header (so the Adler-32 is not
+    checked), anything else as a zlib stream."""
+    import zlib
+    if (len(src) > 2 and not (src[1] & 0x20) and (src[0] & 0x0F) == 8
+            and not ((src[0] << 8) + src[1]) % 31):
+        d = zlib.decompressobj(-((src[0] >> 4) + 8))
+        body = src[2:]
+    else:
+        d = zlib.decompressobj()
+        body = src
+    try:
+        return d.decompress(body, dsize)
+    except zlib.error as exc:
+        raise DecompressError(f"zlib: {exc}") from None
+
+
+def jffs2_decompress(compr, src, dsize):
+    compr &= 0xFF
+    if compr == 0:
+        return bytes(src[:dsize])
+    if compr == 1:
+        return bytes(dsize)
+    if compr == 2:
+        return _rtime_decompress(src, dsize)
+    if compr == 6:
+        return _jffs2_zlib(src, dsize)
+    if compr == 7:
+        return lzo1x_decompress(src, dsize)[:dsize]
+    raise DecompressError(f"JFFS2 compression {JFFS2_COMPR.get(compr, hex(compr))} "
+                          "is not read here")
+
+
+class Jffs2Walker:
+    """List and read a JFFS2 filesystem by scanning every node in the region.
+    A node is an inode number; the root is inode 1."""
+
+    root = JFFS2_ROOT_INO
+
+    def __init__(self, fh, base, size=None, endian=None, nand_fallback=True):
+        self.fh, self.base = fh, base
+        if size is None:
+            size = image_size(fh) - base
+        self.size = size
+        self.endian = endian
+        self.nand = None
+        self._reset()
+        self._scan()
+        if not self.stats["valid"]:
+            raise Jffs2Unreadable("no JFFS2 node with a valid header CRC")
+        # On a raw NAND dump the spare bytes after each page split any node
+        # that crosses a page: its header CRC still holds and its body or data
+        # does not. When any node fails that way, each common NAND geometry is
+        # tried with the spare stripped; one is kept only if it reads strictly
+        # fewer failing nodes and at least as many good ones, so damage on a
+        # dump with no spare never turns into a geometry.
+        if nand_fallback and self.stats["bad"]:
+            best = (self.stats["inode"] + self.stats["dirent"], self.stats["bad"], None)
+            for page, spare, view in nand_views(fh, base, size):
+                trial = Jffs2Walker(view, 0, view.size, endian=self.endian,
+                                    nand_fallback=False)
+                good = trial.stats["inode"] + trial.stats["dirent"]
+                if trial.stats["bad"] < best[1] and good >= best[0]:
+                    best = (good, trial.stats["bad"], trial)
+                    trial.nand = (page, spare)
+            if best[2] is not None:
+                self.__dict__.update(best[2].__dict__)
+        self._resolved = {}
+
+    def _reset(self):
+        self.inodes = collections.defaultdict(list)   # ino -> [inode node records]
+        self.dirents = collections.defaultdict(dict)  # pino -> {name: (version, ino, type, mctime)}
+        self.stats = collections.Counter()
+
+    def _scan(self):
+        """Walk the region a 4 MiB chunk at a time, checking every 4-byte
+        aligned magic for a header whose CRC holds. A node the header vouches
+        for is read whole (it may cross into the next chunk) and skipped past;
+        anything else moves the search on by 4 bytes."""
+        magics = [m for m, e in ((b"\x85\x19", "<"), (b"\x19\x85", ">"))
+                  if self.endian in (None, e)]
+        pos = 0
+        while pos < self.size:
+            chunk = read_at(self.fh, self.base + pos, min(JFFS2_SCAN_CHUNK, self.size - pos))
+            if not chunk:
+                break
+            i = 0
+            while i < len(chunk):
+                hits = [h for h in (chunk.find(m, i) for m in magics) if h >= 0]
+                if not hits:
+                    i = len(chunk)
+                    break
+                j = min(hits)
+                if j % 4:
+                    i = j + 1
+                    continue
+                hdr = chunk[j:j + 12]
+                if len(hdr) < 12:
+                    hdr = read_at(self.fh, self.base + pos + j, 12)
+                e = "<" if chunk[j] == 0x85 else ">"
+                i = j + (self._node(pos + j, hdr, e) or 4)
+            pos += i
+
+    def _node(self, off, hdr, e):
+        """Record the node at `off` if its header CRC holds. Returns how far to
+        advance (its padded length), or 0 if this is not a node."""
+        if len(hdr) < 12:
+            return 0
+        magic, ntype, totlen, hcrc = struct.unpack(e + "HHII", hdr)
+        if magic != JFFS2_MAGIC:
+            return 0
+        check = struct.pack(e + "HHI", magic, ntype | JFFS2_ACCURATE, totlen)
+        if _kcrc32(check) != hcrc or totlen < 12 or totlen > self.size - off:
+            return 0
+        if self.endian is None:
+            self.endian = e
+        self.stats["valid"] += 1
+        padded = (totlen + 3) & ~3
+        if not ntype & JFFS2_ACCURATE:
+            self.stats["obsolete"] += 1
+            return padded
+        if ntype == JFFS2_DIRENT:
+            self._dirent(off, totlen, e)
+        elif ntype == JFFS2_INODE:
+            self._inode(off, totlen, e)
+        else:
+            self.stats[{JFFS2_CLEANMARKER: "cleanmarker", JFFS2_PADDING: "padding",
+                        JFFS2_SUMMARY: "summary", JFFS2_XATTR: "xattr",
+                        JFFS2_XREF: "xref"}.get(ntype, "other")] += 1
+        return padded
+
+    def _dirent(self, off, totlen, e):
+        raw = read_at(self.fh, self.base + off, totlen)
+        if len(raw) < 40:
+            self.stats["bad"] += 1
+            return
+        pino, version, ino, mctime, nsize, dtype = struct.unpack_from(e + "IIIIBB", raw, 12)
+        node_crc, name_crc = struct.unpack_from(e + "II", raw, 32)
+        name = raw[40:40 + nsize]
+        if (_kcrc32(raw[:32]) != node_crc or len(name) < nsize
+                or _kcrc32(name) != name_crc or 40 + nsize > totlen):
+            self.stats["bad"] += 1
+            return
+        self.stats["dirent"] += 1
+        name = name.decode("utf-8", "surrogateescape")
+        cur = self.dirents[pino].get(name)
+        if cur is None or version > cur[0]:
+            self.dirents[pino][name] = (version, ino, dtype, mctime)
+
+    def _inode(self, off, totlen, e):
+        raw = read_at(self.fh, self.base + off, 68)
+        if len(raw) < 68:
+            self.stats["bad"] += 1
+            return
+        (ino, version, mode, uid, gid, isize, atime, mtime, ctime, doff, csize,
+         dsize, compr, usercompr, flags, data_crc, node_crc) = \
+            struct.unpack_from(e + "IIIHHIIIIIIIBBHII", raw, 12)
+        if (_kcrc32(raw[:60]) != node_crc or doff > isize
+                or ((csize + 68 + 3) & ~3) != ((totlen + 3) & ~3)):
+            self.stats["bad"] += 1
+            return
+        # A node whose data fails its CRC is dropped as the kernel drops it
+        # (fs/jffs2/readinode.c check_node_data marks it obsolete), so an older
+        # node for the same range shows through rather than the file failing.
+        data = read_at(self.fh, self.base + off + 68, csize) if csize else b""
+        if len(data) < csize or _kcrc32(data) != data_crc:
+            self.stats["bad"] += 1
+            self.stats["data CRC failures"] += 1
+            return
+        self.stats["inode"] += 1
+        self.stats["compr_" + JFFS2_COMPR.get(compr, hex(compr))] += bool(csize)
+        self.inodes[ino].append(dict(off=off, version=version, mode=mode, uid=uid,
+                                     gid=gid, isize=isize, mtime=mtime, ctime=ctime,
+                                     atime=atime, doff=doff, csize=csize, dsize=dsize,
+                                     compr=compr, data_crc=data_crc))
+
+    # -- the tree ------------------------------------------------------------
+    def _latest(self, ino):
+        nodes = self.inodes.get(ino)
+        return max(nodes, key=lambda n: n["version"]) if nodes else None
+
+    def entry(self, ino):
+        latest = self._latest(ino)
+        if latest is None:
+            if ino == JFFS2_ROOT_INO or self.dirents.get(ino):
+                return (S_IFDIR | 0o755, 0, 0)
+            return None
+        mode, mtime = latest["mode"], latest["mtime"]
+        if mode & S_IFMT == S_IFDIR:
+            ents = self.dirents.get(ino, {})
+            newest = max(ents.values(), key=lambda v: v[0], default=None)
+            if newest and newest[0] > latest["version"]:
+                mtime = newest[3]
+            return (mode, 0, mtime)
+        if mode & S_IFMT == S_IFLNK:
+            return (mode, latest["isize"] or latest["dsize"], mtime)
+        return (mode, latest["isize"], mtime)
+
+    def listdir(self, ino):
+        out = []
+        for name, (_ver, target, _t, _m) in self.dirents.get(ino, {}).items():
+            if target and target != ino:
+                out.append((name, target))
+        return sorted(out)
+
+    def _data(self, node):
+        raw = read_at(self.fh, self.base + node["off"] + 68, node["csize"])
+        if len(raw) < node["csize"] or _kcrc32(raw) != node["data_crc"]:
+            raise Jffs2Unreadable(f"data of node at {node['off']:#x} fails its CRC")
+        return jffs2_decompress(node["compr"], raw, node["dsize"])
+
+    def readlink(self, ino):
+        latest = self._latest(ino)
+        return self._data(latest).decode("utf-8", "surrogateescape") if latest else ""
+
+    def read_file(self, ino, size):
+        """The file rebuilt from every data node, oldest version first so a
+        newer range overwrites an older one; unwritten ranges are holes."""
+        latest = self._latest(ino)
+        if latest is None or latest["mode"] & S_IFMT != S_IFREG:
+            return
+        isize = latest["isize"]
+        buf = bytearray(isize)
+        for node in sorted(self.inodes[ino], key=lambda n: n["version"]):
+            if not node["dsize"] or node["doff"] >= isize:
+                continue
+            data = self._data(node)
+            end = min(node["doff"] + node["dsize"], isize)
+            buf[node["doff"]:end] = data[:end - node["doff"]].ljust(end - node["doff"], b"\0")
+        view = memoryview(buf)[:min(size, isize)]
+        for i in range(0, len(view), 1 << 20):
+            yield bytes(view[i:i + (1 << 20)])
+
+
+JFFS2_LEAD_MAX = 64 << 20      # how much erased flash may come before the first node
+
+
+def _jffs2_first_node(fh, base, size):
+    """(endian, magic) of the node a JFFS2 region opens with, or None.
+
+    The region may open with erased flash (0xFF): after garbage collection whole
+    eraseblocks at the start can be empty. The first byte that is not 0xFF must
+    begin a 4-byte aligned node magic whose header CRC holds."""
+    pos, limit = 0, min(size, JFFS2_LEAD_MAX)
+    while pos < limit:
+        chunk = read_at(fh, base + pos, min(65536, limit - pos))
+        if not chunk:
+            return None
+        rest = chunk.lstrip(b"\xff")
+        if rest:
+            pos += len(chunk) - len(rest)
+            break
+        pos += len(chunk)
+    else:
+        return None
+    pos -= pos % 4
+    head = read_at(fh, base + pos, 12)
+    for m, e in ((b"\x85\x19", "<"), (b"\x19\x85", ">"), (b"\x84\x19", "<"), (b"\x19\x84", ">")):
+        j = head.find(m)
+        if j < 0 or j % 4 or len(head) - j < 12 or head[:j].strip(b"\xff"):
+            continue
+        magic, ntype, totlen, hcrc = struct.unpack_from(e + "HHII", head, j)
+        chk = struct.pack(e + "HHI", magic, ntype | JFFS2_ACCURATE, totlen)
+        if _kcrc32(chk) == hcrc:
+            return e, magic
+    return None
+
+
+def identify_jffs2(fh, base, size=None):
+    """Return ("jffs2", lines) when the region starts with JFFS2 nodes.
+
+    JFFS2 has no superblock, so the test is structural: the region's first
+    bytes that are not erased flash (0xFF) must open a 4-byte aligned node whose
+    header CRC holds, and a scan of the whole region must find inode or
+    directory nodes. The old 0x1984 magic (the first JFFS2 layout) is reported,
+    not walked.
+
+    A raw NAND dump holds each page's spare bytes after its data, and on NAND
+    JFFS2 keeps its clean markers there, so the spare is not 0xFF and the test
+    fails on the dump as taken. Each common NAND geometry is then tried with
+    the spare stripped, and the one that reads the most inode and directory
+    nodes, then the fewest damaged ones, is kept.
+    """
+    if size is None:
+        size = image_size(fh) - base
+    found = _jffs2_first_node(fh, base, size)
+    if found is not None:
+        e, magic = found
+        if magic == JFFS2_OLD_MAGIC:
+            return "jffs2", ["layout       the pre-release 0x1984 magic; reported, not walked"]
+        try:
+            w = Jffs2Walker(fh, base, size, endian=e)
+        except Jffs2Unreadable:
+            return None
+    else:
+        best = None
+        for page, spare, view in nand_views(fh, base, size):
+            f = _jffs2_first_node(view, 0, view.size)
+            if f is None or f[1] == JFFS2_OLD_MAGIC:
+                continue
+            try:
+                trial = Jffs2Walker(view, 0, view.size, endian=f[0], nand_fallback=False)
+            except Jffs2Unreadable:
+                continue
+            rank = (trial.stats["inode"] + trial.stats["dirent"], -trial.stats["bad"])
+            if best is None or rank > best[0]:
+                trial.nand = (page, spare)
+                best = (rank, trial)
+        if best is None:
+            return None
+        w = best[1]
+    _remember_walker(fh, base, size, "jffs2", w)
+    s = w.stats
+    if not (s["inode"] or s["dirent"]):
+        return None
+    comps = sorted(k[6:] for k, v in s.items() if k.startswith("compr_") and v)
+    live = sum(1 for ents in w.dirents.values() for v in ents.values() if v[1])
+    orphans = sum(1 for ents in w.dirents.values() for v in ents.values()
+                  if v[1] and v[1] not in w.inodes and not w.dirents.get(v[1]))
+    lines = [
+        f"byte order   {'little' if w.endian == '<' else 'big'} endian",
+    ] + ([f"NAND         a raw dump: {w.nand[0]}-byte pages each followed by {w.nand[1]} "
+          "spare bytes, read with the spare stripped"] if w.nand else []) + [
+        f"nodes        {s['valid']:,} with a valid header: {s['inode']:,} inode, "
+        f"{s['dirent']:,} directory entry, {s['obsolete']:,} marked obsolete",
+        f"entries      {live:,} names currently linked, {len(w.inodes):,} inodes "
+        "with data nodes",
+        f"compression  {', '.join(comps) if comps else 'none used'}",
+    ]
+    if s["bad"]:
+        lines.append(f"damaged      {s['bad']:,} nodes whose header CRC held but whose body "
+                     f"or data CRC did not ({s['data CRC failures']:,} data); dropped, as the "
+                     "kernel drops them")
+    if orphans:
+        lines.append(f"note         {orphans:,} linked names lead to an inode with no readable "
+                     "node; they are not listed")
+    unread = [c for c in comps if c not in ("none", "zero", "rtime", "zlib", "lzo")]
+    if unread:
+        lines.append(f"note         {', '.join(unread)} compressed data is not read here")
+    return "jffs2", lines
+
+
+# ---------------------------------------------------------------------------
+# UBI and UBIFS
+#
+# UBI is the volume layer under UBIFS on raw NAND: every physical eraseblock
+# (PEB) opens with an erase counter (EC) header and, once mapped, a volume
+# identifier (VID) header naming the volume and logical eraseblock (LEB) it
+# holds. Read from the Linux kernel at v7.0 (commit
+# 028ef9c96e96197026887c0f092424679298aae8):
+#
+#   struct ubi_ec_hdr, "UBI#", 64 bytes     drivers/mtd/ubi/ubi-media.h:29,147
+#   struct ubi_vid_hdr, "UBI!", 64 bytes    drivers/mtd/ubi/ubi-media.h:31,268
+#   header CRCs: crc32 seeded 0xFFFFFFFF     drivers/mtd/ubi/ubi-media.h:26,
+#     over all but the last 4 bytes             110-111
+#   layout volume 0x7FFFEFFF holds the        drivers/mtd/ubi/ubi-media.h:294,298
+#     volume table, 172-byte records          drivers/mtd/ubi/ubi-media.h:312,355
+#   of two copies of a LEB the higher sqnum   drivers/mtd/ubi/attach.c
+#     wins, unless it is a copy (copy_flag)     ubi_compare_lebs
+#     whose data CRC fails
+#   a static volume's LEB holds data_size     drivers/mtd/ubi/attach.c,
+#     bytes; an unmapped LEB reads as 0xFF      drivers/mtd/ubi/eba.c
+#
+# The PEB size is recorded nowhere; it is the distance between EC headers.
+# ---------------------------------------------------------------------------
+UBI_EC_MAGIC, UBI_VID_MAGIC = b"UBI#", b"UBI!"
+UBI_LAYOUT_VOL = 0x7FFFEFFF
+UBI_VTBL_REC = 172
+UBI_VOL_NAMES = {1: "dynamic", 2: "static"}
+UBI_NODE_SHIFT = 56
+UBI_CONTAINER = (1 << 63) - 1
+
+
+class UbiUnreadable(Exception):
+    """A UBI structure this reader cannot use; the message says which."""
+
+
+def _ubi_crc(data):
+    """The kernel's crc32(UBI_CRC32_INIT, ...): crc32_le seeded 0xFFFFFFFF
+    with no final inversion, which is zlib's crc32 with its output inverted."""
+    import zlib
+    return zlib.crc32(data) ^ 0xFFFFFFFF
+
+
+def _ubi_ec(raw):
+    """(vid_hdr_offset, data_offset, image_seq, ec) of a valid EC header, or None."""
+    if len(raw) < 64 or raw[:4] != UBI_EC_MAGIC:
+        return None
+    if _ubi_crc(raw[:60]) != struct.unpack_from(">I", raw, 60)[0]:
+        return None
+    ec, vid, data, seq = struct.unpack_from(">QIII", raw, 8)
+    return vid, data, seq, ec
+
+
+def _ubi_vid(raw):
+    if len(raw) < 64 or raw[:4] != UBI_VID_MAGIC:
+        return None
+    if _ubi_crc(raw[:60]) != struct.unpack_from(">I", raw, 60)[0]:
+        return None
+    vol_type, copy_flag, compat, vol_id, lnum = struct.unpack_from(">BBBII", raw, 5)
+    data_size, used_ebs, data_pad, data_crc = struct.unpack_from(">IIII", raw, 20)
+    sqnum = struct.unpack_from(">Q", raw, 40)[0]
+    return dict(vol_type=vol_type, copy_flag=copy_flag, vol_id=vol_id, lnum=lnum,
+                data_size=data_size, used_ebs=used_ebs, data_pad=data_pad,
+                data_crc=data_crc, sqnum=sqnum)
+
+
+def ubi_peb_size(fh, base, size):
+    """The PEB size, found as the distance to the next valid EC header of the
+    same image, tried at every 1 KiB step up to 8 MiB. None when there is
+    only one PEB (a region that small cannot be told apart)."""
+    first = _ubi_ec(read_at(fh, base, 64))
+    if first is None:
+        return None
+    step = 1024
+    limit = min(size, 8 << 20)
+    pos = step
+    while pos < limit:
+        chunk = read_at(fh, base + pos, min(1 << 20, limit - pos))
+        if not chunk:
+            break
+        j = chunk.find(UBI_EC_MAGIC)
+        while j >= 0:
+            if (pos + j) % step == 0:
+                ec = _ubi_ec(chunk[j:j + 64] if j + 64 <= len(chunk)
+                             else read_at(fh, base + pos + j, 64))
+                if ec and ec[2] == first[2]:
+                    return pos + j
+            j = chunk.find(UBI_EC_MAGIC, j + 1)
+        pos += len(chunk)
+    return None
+
+
+class UbiImage:
+    """The PEB map and volume table of a UBI image at `base`."""
+
+    def __init__(self, fh, base, size=None):
+        self.fh, self.base = fh, base
+        if size is None:
+            size = image_size(fh) - base
+        ec0 = _ubi_ec(read_at(fh, base, 64))
+        if ec0 is None:
+            raise UbiUnreadable("no UBI erase counter header at the start")
+        self.vid_off, self.data_off, self.image_seq, _ = ec0
+        self.peb = ubi_peb_size(fh, base, size) or size
+        if not (0 < self.vid_off < self.peb and 0 < self.data_off < self.peb):
+            raise UbiUnreadable("EC header offsets do not fit the eraseblock")
+        self.leb_size = self.peb - self.data_off
+        self.npebs = size // self.peb
+        self.stats = collections.Counter()
+        cands = collections.defaultdict(list)
+        for p in range(self.npebs):
+            at = base + p * self.peb
+            ec = _ubi_ec(read_at(fh, at, 64))
+            if ec is None:
+                self.stats["no EC header"] += 1
+                continue
+            if ec[2] != self.image_seq:
+                self.stats["other image_seq"] += 1
+                continue
+            vid = _ubi_vid(read_at(fh, at + ec[0], 64))
+            if vid is None:
+                self.stats["free"] += 1
+                continue
+            self.stats["mapped"] += 1
+            vid["peb"] = p
+            vid["data_at"] = at + ec[1]
+            cands[(vid["vol_id"], vid["lnum"])].append(vid)
+        self.map = {}
+        for key, vids in cands.items():
+            vids.sort(key=lambda v: v["sqnum"], reverse=True)
+            for i, v in enumerate(vids):
+                if v["copy_flag"] and not self._data_ok(v):
+                    self.stats["copy with a bad data CRC, older copy used"] += 1
+                    continue
+                self.map[key] = v
+                # An older copy still on the flash (left by a rewrite or a move
+                # that was cut short) holds that block's earlier contents.
+                if len(vids) - i - 1:
+                    self.stats["an older copy of a block, not the one read"] += len(vids) - i - 1
+                break
+        self.volumes = self._volume_table()
+
+    def _data_ok(self, vid):
+        data = read_at(self.fh, vid["data_at"], vid["data_size"])
+        return len(data) == vid["data_size"] and _ubi_crc(data) == vid["data_crc"]
+
+    def _volume_table(self):
+        """The volume table from whichever layout volume copy reads, with
+        vtbl_ok saying whether one did."""
+        self.vtbl_ok = True
+        for lnum in (0, 1):
+            vid = self.map.get((UBI_LAYOUT_VOL, lnum))
+            if vid is None:
+                continue
+            raw = read_at(self.fh, vid["data_at"], self.leb_size)
+            vols = []
+            ok = True
+            for i in range(min(128, len(raw) // UBI_VTBL_REC)):
+                rec = raw[i * UBI_VTBL_REC:(i + 1) * UBI_VTBL_REC]
+                if _ubi_crc(rec[:168]) != struct.unpack_from(">I", rec, 168)[0]:
+                    ok = False
+                    break
+                reserved, align, data_pad, vtype, upd, nlen = struct.unpack_from(">IIIBBH", rec, 0)
+                if not reserved:
+                    continue
+                name = rec[16:16 + min(nlen, 127)].decode("utf-8", "replace")
+                vols.append(dict(id=i, name=name, type=vtype, reserved=reserved,
+                                 data_pad=data_pad, update_marker=upd,
+                                 flags=rec[144]))
+            if ok:
+                return vols
+        # No readable table: offer every volume id that has mapped LEBs.
+        self.vtbl_ok = False
+        ids = sorted({k[0] for k in self.map if k[0] < UBI_LAYOUT_VOL})
+        return [dict(id=i, name=f"vol{i}", type=0, reserved=0, data_pad=0,
+                     update_marker=0, flags=0) for i in ids]
+
+    def volume_view(self, vol):
+        return UbiVolumeView(self, vol)
+
+
+class UbiVolumeView:
+    """One UBI volume read as a flat file: LEB n at n * usable LEB size, an
+    unmapped LEB as 0xFF, a static volume ending where its data ends."""
+
+    def __init__(self, ubi, vol):
+        self.ubi, self.vol = ubi, vol
+        self.leb = ubi.leb_size - vol["data_pad"]
+        lebs = {k[1]: v for k, v in ubi.map.items() if k[0] == vol["id"]}
+        self.lebs = lebs
+        self.name = vol["name"]
+        if vol["type"] == 2 and lebs:
+            used = next(iter(lebs.values()))["used_ebs"]
+            last = lebs.get(used - 1)
+            self.size = (used - 1) * self.leb + (last["data_size"] if last else self.leb)
+        else:
+            self.size = ((max(lebs) + 1) if lebs else 0) * self.leb
+        self._pos = 0
+
+    def seek(self, offset, whence=0):
+        self._pos = offset if whence == 0 else (self._pos + offset if whence == 1
+                                                else self.size + offset)
+        return self._pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        if n is None or n < 0:
+            n = max(self.size - self._pos, 0)
+        out = bytearray()
+        pos = self._pos
+        end = min(pos + n, self.size)
+        while pos < end:
+            lnum, off = divmod(pos, self.leb)
+            take = min(self.leb - off, end - pos)
+            vid = self.lebs.get(lnum)
+            if vid is None:
+                out += b"\xff" * take
+            else:
+                chunk = read_at(self.ubi.fh, vid["data_at"] + off, take)
+                out += chunk
+                if len(chunk) < take:
+                    break
+            pos += take
+        self._pos = pos
+        return bytes(out)
+
+
+class UbiWalker:
+    """A UBI image as a directory of its volumes. A volume that holds UBIFS or
+    SquashFS is walked as that filesystem under the volume's name; any other
+    volume (a kernel, a device tree, an environment) is one regular file of
+    the volume's bytes. A node carries the volume index in its top bits and
+    the inner filesystem's own node below them."""
+
+    root = UBI_CONTAINER
+
+    def __init__(self, fh, base, size=None):
+        if size is None:
+            size = image_size(fh) - base
+        self.ubi, self.nand = UbiImage(fh, base, size), None
+        # On a raw NAND dump the spare bytes after each page shift everything
+        # past an eraseblock's first page. The EC and VID headers may still read
+        # (a VID header in a 512-byte subpage lies inside the first page), but
+        # the volume table, whose data starts at a later page, cannot. When it
+        # does not read, each common NAND geometry is tried with the spare
+        # stripped, and the first whose volume table reads is kept.
+        if not self.ubi.vtbl_ok:
+            for page, spare, view in nand_views(fh, base, size):
+                try:
+                    trial = UbiImage(view, 0, view.size)
+                except UbiUnreadable:
+                    continue
+                if trial.vtbl_ok:
+                    self.ubi, self.nand = trial, (page, spare)
+                    break
+        self.inner = []                        # (volume, view, walker or None, note)
+        for vol in self.ubi.volumes:
+            view = self.ubi.volume_view(vol)
+            walker, kind = None, "raw"
+            head = view.read(8) if view.size else b""
+            view.seek(0)
+            try:
+                if head[:4] == b"hsqs":
+                    walker, kind = SquashfsWalker(view, 0), "squashfs"
+                elif struct.unpack_from("<I", head.ljust(4, b"\0"))[0] == UBIFS_MAGIC:
+                    walker, kind = UbifsWalker(view, 0), "ubifs"
+            except Exception as exc:          # a volume that will not open is a file
+                walker, kind = None, f"raw ({type(exc).__name__}: {exc})"
+            self.inner.append((vol, view, walker, kind))
+
+    def _split(self, node):
+        return node >> UBI_NODE_SHIFT, node & ((1 << UBI_NODE_SHIFT) - 1)
+
+    def _vol_node(self, i):
+        vol, view, walker, _ = self.inner[i]
+        return (i << UBI_NODE_SHIFT) | (walker.root if walker else 0)
+
+    def listdir(self, node):
+        if node == UBI_CONTAINER:
+            return [(vol["name"] or f"vol{vol['id']}", self._vol_node(i))
+                    for i, (vol, _v, _w, _k) in enumerate(self.inner)]
+        i, inner = self._split(node)
+        walker = self.inner[i][2]
+        if walker is None:
+            return []
+        return [(name, (i << UBI_NODE_SHIFT) | child) for name, child in walker.listdir(inner)]
+
+    def entry(self, node):
+        # UBI records no time for a volume, so a volume that is not a
+        # filesystem, and the container above the volumes, have none (None).
+        if node == UBI_CONTAINER:
+            return (S_IFDIR | 0o755, 0, None)
+        i, inner = self._split(node)
+        vol, view, walker, _ = self.inner[i]
+        if walker is None:
+            return (S_IFREG | 0o444, view.size, None)
+        return walker.entry(inner)
+
+    def readlink(self, node):
+        i, inner = self._split(node)
+        return self.inner[i][2].readlink(inner)
+
+    def read_file(self, node, size):
+        i, inner = self._split(node)
+        vol, view, walker, _ = self.inner[i]
+        if walker is None:
+            view.seek(0)
+            left = min(size, view.size)
+            while left > 0:
+                chunk = view.read(min(left, 1 << 20))
+                if not chunk:
+                    return
+                yield chunk
+                left -= len(chunk)
+            return
+        for chunk in walker.read_file(inner, size):
+            yield chunk
+
+
+def identify_ubi(fh, base, size=None):
+    """Return ("ubi", lines) for a UBI image at base: an EC header whose CRC
+    holds, a volume table that reads, and at least one mapped eraseblock."""
+    if _ubi_ec(read_at(fh, base, 64)) is None:
+        return None
+    if size is None:
+        size = image_size(fh) - base
+    try:
+        w = UbiWalker(fh, base, size)
+    except UbiUnreadable:
+        return None
+    _remember_walker(fh, base, size, "ubi", w)
+    u = w.ubi
+    if not u.stats["mapped"]:
+        return None
+    lines = [
+        f"eraseblocks  {u.npebs:,} of {human(u.peb)}   ({u.stats['mapped']:,} mapped, "
+        f"{u.stats['free']:,} free)",
+        f"layout       VID header at {u.vid_off}, data at {u.data_off}, so each "
+        f"logical eraseblock holds {human(u.leb_size)}",
+        f"image_seq    {u.image_seq:#010x}",
+    ]
+    if w.nand:
+        lines.insert(0, f"NAND         a raw dump: {w.nand[0]}-byte pages each followed by "
+                        f"{w.nand[1]} spare bytes, read with the spare stripped")
+    for vol, view, walker, kind in w.inner:
+        lines.append(f"volume {vol['id']:<5} {vol['name'] or '(no name)'}: "
+                     f"{UBI_VOL_NAMES.get(vol['type'], 'unknown')}, {human(view.size)}, {kind}"
+                     + ("; interrupted update marker set" if vol["update_marker"] else ""))
+    odd = {k: v for k, v in u.stats.items() if k not in ("mapped", "free")}
+    for k, v in sorted(odd.items()):
+        lines.append(f"note         {v:,} eraseblock(s): {k}")
+    return "ubi", lines
+
+
+# ---------------------------------------------------------------------------
+# UBIFS, from the same kernel tree:
+#
+#   struct ubifs_ch, magic 0x06101831        fs/ubifs/ubifs-media.h:25, ubifs_ch
+#   node CRC: crc32 seeded 0xFFFFFFFF over    fs/ubifs/io.c ubifs_check_node
+#     the node from byte 8 to its end
+#   superblock LEB 0, master LEBs 1 and 2,    fs/ubifs/ubifs-media.h:227-231
+#     log from LEB 3
+#   inode, data, dent, trun, idx node layouts fs/ubifs/ubifs-media.h
+#   8-byte key: le32 inode, then type << 29   fs/ubifs/key.h, ubifs-media.h:199
+#     | block or name hash
+#   index branch: lnum, offs, len, key and    fs/ubifs/misc.h ubifs_idx_branch
+#     (on authenticated volumes) a hash
+#   journal: from the master's log LEB, a CS  fs/ubifs/replay.c replay_log_leb,
+#     node then REF nodes naming bud LEBs;      replay_bud, apply_replay_entry,
+#     bud nodes are applied in sqnum order;     inode_still_linked,
+#     nlink 0 removes an inode unless its       trun_remove_range
+#     last inode node relinks it; a dent with
+#     inum 0 removes the name; a truncation
+#     node drops the whole blocks past new_size
+#   data node compression: LZO1X, raw deflate fs/ubifs/compress.c,
+#     (the kernel's "deflate"), zstd            crypto/deflate.c
+#   a missing data block is a hole            fs/ubifs/file.c read_block
+# ---------------------------------------------------------------------------
+UBIFS_MAGIC = 0x06101831
+(UBIFS_INO_NODE, UBIFS_DATA_NODE, UBIFS_DENT_NODE, UBIFS_XENT_NODE, UBIFS_TRUN_NODE,
+ UBIFS_PAD_NODE, UBIFS_SB_NODE, UBIFS_MST_NODE, UBIFS_REF_NODE, UBIFS_IDX_NODE,
+ UBIFS_CS_NODE) = range(11)
+UBIFS_KEY_INO, UBIFS_KEY_DATA, UBIFS_KEY_DENT, UBIFS_KEY_XENT = range(4)
+UBIFS_COMPR = {0: "none", 1: "lzo", 2: "zlib", 3: "zstd"}
+UBIFS_BLOCK = 4096
+UBIFS_LOG_LNUM = 3
+UBIFS_CRYPT_FL = 0x40
+UBIFS_FLG_ENCRYPTION = 0x10
+UBIFS_FLG_AUTHENTICATION = 0x20
+UBIFS_MST_DIRTY = 1
+
+
+class UbifsUnreadable(Exception):
+    """A UBIFS structure or file this reader cannot hand back."""
+
+
+def ubifs_decompress(ctype, data, limit):
+    import zlib
+    if ctype == 0:
+        return bytes(data)
+    if ctype == 1:
+        return lzo1x_decompress(data, limit)
+    if ctype == 2:
+        try:
+            return zlib.decompress(bytes(data), -15)
+        except zlib.error as exc:
+            raise DecompressError(f"deflate: {exc}") from None
+    if ctype == 3:
+        return zstd_decompress(data)
+    raise DecompressError(f"UBIFS compression type {ctype} is not one the format defines")
+
+
+class UbifsWalker:
+    """List and read a UBIFS volume: the committed index, with the journal
+    replayed over it. The volume is a flat file of LEBs (a UBI volume view, or
+    the output of mkfs.ubifs itself); a node is an inode number."""
+
+    root = 1
+
+    def __init__(self, fh, base):
+        self.fh, self.base = fh, base
+        self.leb_size = 0                      # LEB 0 is read before the size is known
+        sb = self._node(0, 0)
+        if sb is None or sb[20] != UBIFS_SB_NODE:
+            raise UbifsUnreadable("no UBIFS superblock node at LEB 0")
+        (self.key_hash, self.key_fmt, self.flags, self.min_io, self.leb_size,
+         self.leb_cnt, _max_leb, _max_bud, self.log_lebs, self.lpt_lebs,
+         self.orph_lebs, _jheads, self.fanout, _lsave, self.fmt_version,
+         self.default_compr) = struct.unpack_from("<BBIIIIIQIIIIIIIH", sb, 26)
+        self.uuid = sb[108:124].hex()
+        if self.key_fmt != 0:
+            raise UbifsUnreadable(f"key format {self.key_fmt}; only the simple format exists")
+        if not (4096 <= self.leb_size <= 16 << 20):
+            raise UbifsUnreadable("implausible LEB size")
+        self.master = self._master()
+        if self.master is None:
+            raise UbifsUnreadable("no master node reads in LEB 1 or 2")
+        self.stats = collections.Counter()
+        self.inodes, self.data, self.dents = {}, collections.defaultdict(dict), \
+            collections.defaultdict(dict)
+        self._walk_index()
+        self._replay()
+        self._ino_cache = {}
+
+    # -- nodes ---------------------------------------------------------------
+    def _node(self, lnum, offs, length=None, want=None):
+        """The node at lnum:offs if its magic and CRC hold, else None."""
+        at = self.base + lnum * self.leb_size + offs
+        head = read_at(self.fh, at, 24)
+        if len(head) < 24 or struct.unpack_from("<I", head, 0)[0] != UBIFS_MAGIC:
+            return None
+        nlen = struct.unpack_from("<I", head, 16)[0]
+        if nlen < 24 or nlen > 1 << 20 or (length is not None and nlen != length):
+            return None
+        raw = read_at(self.fh, at, nlen)
+        if len(raw) < nlen or _ubi_crc(raw[8:]) != struct.unpack_from("<I", raw, 4)[0]:
+            return None
+        if want is not None and raw[20] != want:
+            return None
+        return raw
+
+    def _scan_leb(self, lnum, offs):
+        """Every valid node in LEB lnum from offs on, as (offs, raw), stepping
+        over padding nodes and 0xCE padding bytes, stopping at erased space or
+        at the first thing that is not a node."""
+        buf = read_at(self.fh, self.base + lnum * self.leb_size, self.leb_size)
+        out = []
+        while offs + 24 <= len(buf):
+            magic = struct.unpack_from("<I", buf, offs)[0]
+            if magic == 0xFFFFFFFF:
+                break
+            if magic != UBIFS_MAGIC:
+                pad = 0
+                while pad < 28 and offs + pad < len(buf) and buf[offs + pad] == 0xCE:
+                    pad += 1
+                if not pad or pad & 7:
+                    break
+                offs += pad
+                continue
+            nlen = struct.unpack_from("<I", buf, offs + 16)[0]
+            raw = buf[offs:offs + nlen]
+            if nlen < 24 or len(raw) < nlen or \
+                    _ubi_crc(raw[8:]) != struct.unpack_from("<I", raw, 4)[0]:
+                break
+            if raw[20] == UBIFS_PAD_NODE:
+                offs += nlen + struct.unpack_from("<I", raw, 24)[0]
+                continue
+            out.append((offs, raw))
+            offs += (nlen + 7) & ~7
+        return out
+
+    def _master(self):
+        best = None
+        for lnum in (1, 2):
+            for _offs, raw in self._scan_leb(lnum, 0):
+                if raw[20] != UBIFS_MST_NODE:
+                    continue
+                sq = struct.unpack_from("<Q", raw, 8)[0]
+                if best is None or sq > best[0]:
+                    best = (sq, raw)
+            if best:
+                break
+        if best is None:
+            return None
+        raw = best[1]
+        (highest, cmt_no, flags, log_lnum, root_lnum, root_offs, root_len, _gc,
+         _ihl, _iho, _isize, total_free, total_dirty, total_used, total_dead,
+         total_dark) = struct.unpack_from("<QQIIIIIIIIQQQQQQ", raw, 24)
+        return dict(highest_inum=highest, cmt_no=cmt_no, flags=flags, log_lnum=log_lnum,
+                    root=(root_lnum, root_offs, root_len), total_free=total_free,
+                    total_used=total_used, total_dirty=total_dirty)
+
+    @staticmethod
+    def _key(raw, at):
+        inum, word = struct.unpack_from("<II", raw, at)
+        return inum, word >> 29, word & 0x1FFFFFFF
+
+    # -- the committed index -------------------------------------------------
+    def _walk_index(self):
+        stack = [self.master["root"]]
+        seen = set()
+        while stack:
+            lnum, offs, nlen = stack.pop()
+            if (lnum, offs) in seen or len(seen) > 5_000_000:
+                continue
+            seen.add((lnum, offs))
+            raw = self._node(lnum, offs, nlen, UBIFS_IDX_NODE)
+            if raw is None:
+                self.stats["unreadable index nodes"] += 1
+                continue
+            count, level = struct.unpack_from("<HH", raw, 24)
+            if not count:
+                continue
+            bsz = (nlen - 28) // count
+            for b in range(count):
+                at = 28 + b * bsz
+                blnum, boffs, blen = struct.unpack_from("<III", raw, at)
+                if level:
+                    stack.append((blnum, boffs, blen))
+                else:
+                    self._leaf(raw, at + 12, (blnum, boffs, blen))
+
+    def _leaf(self, raw, key_at, loc):
+        inum, ktype, low = self._key(raw, key_at)
+        if ktype == UBIFS_KEY_INO:
+            self.inodes[inum] = loc
+        elif ktype == UBIFS_KEY_DATA:
+            self.data[inum][low] = loc
+        elif ktype == UBIFS_KEY_DENT:
+            node = self._node(loc[0], loc[1], loc[2], UBIFS_DENT_NODE)
+            if node is None:
+                self.stats["unreadable directory entries"] += 1
+                return
+            target, dtype, name = self._dent(node)
+            self.dents[inum][name] = (target, dtype)
+        elif ktype == UBIFS_KEY_XENT:
+            self.stats["extended attributes"] += 1
+
+    @staticmethod
+    def _dent(raw):
+        target = struct.unpack_from("<Q", raw, 40)[0]
+        dtype, nlen = raw[49], struct.unpack_from("<H", raw, 50)[0]
+        return target, dtype, raw[56:56 + nlen].decode("utf-8", "surrogateescape")
+
+    # -- the journal ---------------------------------------------------------
+    def _replay(self):
+        m = self.master
+        buds, seen_buds = [], set()
+        lnum = m["log_lnum"]
+        cs_sqnum = None
+        for _ in range(self.log_lebs):
+            nodes = self._scan_leb(lnum, 0)
+            if not nodes:
+                break
+            if cs_sqnum is None:
+                first = nodes[0][1]
+                if first[20] != UBIFS_CS_NODE or \
+                        struct.unpack_from("<Q", first, 24)[0] != m["cmt_no"]:
+                    self.stats["log does not open with this commit"] += 1
+                    return
+                cs_sqnum = struct.unpack_from("<Q", first, 8)[0]
+            elif struct.unpack_from("<Q", nodes[0][1], 8)[0] < cs_sqnum:
+                break                               # older, already committed
+            for _offs, raw in nodes:
+                if raw[20] == UBIFS_REF_NODE:
+                    blnum, boffs, jhead = struct.unpack_from("<III", raw, 24)
+                    if blnum not in seen_buds:
+                        seen_buds.add(blnum)
+                        buds.append((blnum, boffs))
+            lnum += 1
+            if lnum >= UBIFS_LOG_LNUM + self.log_lebs:
+                lnum = UBIFS_LOG_LNUM
+            if lnum == m["log_lnum"]:
+                break
+        entries = []
+        for blnum, boffs in buds:
+            for offs, raw in self._scan_leb(blnum, boffs):
+                sq = struct.unpack_from("<Q", raw, 8)[0]
+                entries.append((sq, blnum, offs, raw))
+        entries.sort(key=lambda e: e[0])
+        self.stats["journal nodes replayed"] = len(entries)
+        last_ino = {}
+        for sq, blnum, offs, raw in entries:
+            if raw[20] == UBIFS_INO_NODE:
+                last_ino[struct.unpack_from("<I", raw, 24)[0]] = struct.unpack_from("<I", raw, 92)[0]
+        for sq, blnum, offs, raw in entries:
+            loc = (blnum, offs, len(raw))
+            t = raw[20]
+            if t == UBIFS_INO_NODE:
+                inum = struct.unpack_from("<I", raw, 24)[0]
+                if struct.unpack_from("<I", raw, 92)[0] == 0:        # nlink 0
+                    if last_ino.get(inum, 0) == 0:
+                        self.inodes.pop(inum, None)
+                        self.data.pop(inum, None)
+                else:
+                    self.inodes[inum] = loc
+            elif t == UBIFS_DATA_NODE:
+                inum, _kt, block = self._key(raw, 24)
+                self.data[inum][block] = loc
+            elif t == UBIFS_DENT_NODE:
+                parent = self._key(raw, 24)[0]
+                target, dtype, name = self._dent(raw)
+                if target:
+                    self.dents[parent][name] = (target, dtype)
+                else:
+                    self.dents[parent].pop(name, None)
+            elif t == UBIFS_TRUN_NODE:
+                inum = struct.unpack_from("<I", raw, 24)[0]
+                old, new = struct.unpack_from("<QQ", raw, 40)
+                lo = (new + UBIFS_BLOCK - 1) // UBIFS_BLOCK
+                hi = old // UBIFS_BLOCK - (0 if old % UBIFS_BLOCK else 1)
+                blocks = self.data.get(inum, {})
+                for blk in [b for b in blocks if lo <= b <= hi]:
+                    del blocks[blk]
+
+    # -- the tree -----------------------------------------------------------
+    def _ino(self, inum):
+        hit = self._ino_cache.get(inum)
+        if hit is not None:
+            return hit
+        loc = self.inodes.get(inum)
+        raw = self._node(loc[0], loc[1], loc[2], UBIFS_INO_NODE) if loc else None
+        if raw is None:
+            return None
+        size, _at, _ct, mtime = struct.unpack_from("<QQQQ", raw, 48)
+        nlink, uid, gid, mode, flags, dlen = struct.unpack_from("<IIIIII", raw, 92)
+        ino = dict(size=size, mtime=mtime, nlink=nlink, uid=uid, gid=gid, mode=mode,
+                   flags=flags, data=raw[160:160 + dlen])
+        if len(self._ino_cache) < 65536:
+            self._ino_cache[inum] = ino
+        return ino
+
+    def entry(self, inum):
+        ino = self._ino(inum)
+        if ino is None:
+            return None
+        return ino["mode"], ino["size"], ino["mtime"]
+
+    def listdir(self, inum):
+        return sorted((name, t) for name, (t, _dt) in self.dents.get(inum, {}).items())
+
+    def readlink(self, inum):
+        ino = self._ino(inum)
+        return ino["data"].decode("utf-8", "surrogateescape") if ino else ""
+
+    def read_file(self, inum, size):
+        ino = self._ino(inum)
+        if ino is None or ino["mode"] & S_IFMT != S_IFREG:
+            return
+        if ino["flags"] & UBIFS_CRYPT_FL:
+            raise UbifsUnreadable("the file is encrypted (fscrypt); its content is not read")
+        fsize = ino["size"]
+        blocks = self.data.get(inum, {})
+        left = min(size, fsize)
+        for blk in range((fsize + UBIFS_BLOCK - 1) // UBIFS_BLOCK):
+            if left <= 0:
+                return
+            loc = blocks.get(blk)
+            if loc is None:
+                out = bytes(UBIFS_BLOCK)                    # a hole
+            else:
+                raw = self._node(loc[0], loc[1], loc[2], UBIFS_DATA_NODE)
+                if raw is None:
+                    raise UbifsUnreadable(f"data node for block {blk} does not read")
+                dsize, ctype = struct.unpack_from("<IH", raw, 40)
+                out = ubifs_decompress(ctype, raw[48:], UBIFS_BLOCK)
+                if len(out) != dsize:
+                    raise UbifsUnreadable(f"block {blk} inflates to {len(out)} bytes, "
+                                          f"not the {dsize} its node records")
+                out = out.ljust(UBIFS_BLOCK, b"\0")
+            take = out[:min(UBIFS_BLOCK, left)]
+            yield take
+            left -= len(take)
+
+
+def identify_ubifs(fh, base, size=None):
+    """Return ("ubifs", lines) for a UBIFS volume whose superblock node sits at
+    base, as mkfs.ubifs writes it before ubinize wraps it in UBI."""
+    head = read_at(fh, base, 24)
+    if len(head) < 24 or struct.unpack_from("<I", head, 0)[0] != UBIFS_MAGIC \
+            or head[20] != UBIFS_SB_NODE:
+        return None
+    try:
+        w = UbifsWalker(fh, base)
+    except UbifsUnreadable:
+        return None
+    if size is None:
+        size = image_size(fh) - base
+    _remember_walker(fh, base, size, "ubifs", w)
+    return "ubifs", ubifs_lines(w)
+
+
+def ubifs_lines(w):
+    m = w.master
+    lines = [
+        f"format       version {w.fmt_version}, {human(w.leb_size)} LEBs, "
+        f"{w.leb_cnt:,} in use",
+        f"compression  {UBIFS_COMPR.get(w.default_compr, w.default_compr)} by default",
+        f"uuid         {w.uuid}",
+        f"inodes       {len(w.inodes):,} in the index and journal, "
+        f"highest number {m['highest_inum']:,}",
+        f"commit       number {m['cmt_no']:,}, "
+        + ("NOT cleanly unmounted, so it may have been live at acquisition"
+           if m["flags"] & UBIFS_MST_DIRTY else "cleanly unmounted"),
+    ]
+    if w.stats["journal nodes replayed"]:
+        lines.append(f"journal      {w.stats['journal nodes replayed']:,} nodes written "
+                     "since the last commit, replayed over the index")
+    if w.flags & UBIFS_FLG_ENCRYPTION:
+        lines.append("note         fscrypt is enabled; encrypted files and their names "
+                     "are not read")
+    if w.flags & UBIFS_FLG_AUTHENTICATION:
+        lines.append("note         authenticated volume; hashes are not checked here")
+    for k in ("unreadable index nodes", "unreadable directory entries",
+              "log does not open with this commit"):
+        if w.stats[k]:
+            lines.append(f"damaged      {w.stats[k]:,} {k}")
+    return lines
+
+
+# ---------------------------------------------------------------------------
+# YAFFS1 and YAFFS2
+#
+# NAND filesystems with no superblock: each page (a "chunk") carries its tags
+# in the page's spare (OOB) bytes, and the filesystem is rebuilt from the tags.
+# Read from Aleph One's yaffs2 at commit 474b3acb927d27b2305618aaf24456b9d33fe91b
+# (github.com/Aleph-One-Ltd/yaffs2), and the on-disk offsets were printed with
+# offsetof() from that tree's own headers:
+#
+#   struct yaffs_obj_hdr, 512 bytes; name at    core/yaffs_guts.h yaffs_obj_hdr
+#     10 (256), mode 268, uid 272, gid 276,
+#     atime 280, mtime 284, ctime 288, size
+#     292, equiv 296, alias 300 (160), rdev
+#     460, 64-bit times 464/472/480, size
+#     high 496, is_shrink 508
+#   object ids: root 1, lost+found 2,          core/yaffs_guts.h:94-100
+#     unlinked 3, deleted 4, block summary 0x10
+#   sequence numbers 0x1000..0xefffff00        core/yaffs_guts.h:123-124
+#   YAFFS2 packed tags: seq, obj, chunk,       core/yaffs_packedtags2.h/.c
+#     n_bytes (16 bytes) then tag ECC; an
+#     object header's tags may carry its type
+#     (obj id top nibble) and parent (chunk id
+#     with 0x80000000 set)
+#   YAFFS2 scan: blocks newest sequence first, core/yaffs_yaffs2.c yaffs2_scan_chunk
+#     chunks last first; the first header and
+#     the first copy of each data chunk win;
+#     data past a shrink or past the newest
+#     header's size (for older chunks) is dead;
+#     size is the newest header's, or the data
+#     written after it when that runs longer;
+#     summary chunks, tags failing their ECC and
+#     data chunks over a page are ignored
+#   YAFFS1 spare: tags in bytes 0-3, 6-7, 11-12 core/yaffs_guts.h yaffs_spare,
+#     page_status (byte 4) with fewer than 7    core/yaffs_tagscompat.c,
+#     bits set marks a deleted chunk; of two    core/yaffs_yaffs1.c
+#     copies the newer has serial (old + 1) % 4;
+#     a file's size is where its furthest live
+#     chunk ends (the header's size only under a
+#     driver setting the flash does not record)
+#   64-bit size and time: used unless their    core/yaffs_guts.c yaffs_oh_to_size,
+#     high word is 0xffffffff                   yaffs_oh_time_fetch
+#
+# The page and spare sizes are recorded nowhere, and on a device the tags sit
+# wherever the NAND controller leaves the spare free, so both are found by
+# trying the common geometries and every tag offset and keeping the one whose
+# tags are consistent.
+# ---------------------------------------------------------------------------
+YAFFS_ROOT, YAFFS_LOSTNFOUND, YAFFS_UNLINKED, YAFFS_DELETED = 1, 2, 3, 4
+YAFFS_OBJECTID_SUMMARY = 0x10
+YAFFS_SEQ_LO, YAFFS_SEQ_HI = 0x00001000, 0xEFFFFF00
+YAFFS_TYPES = {1: "file", 2: "symlink", 3: "directory", 4: "hardlink", 5: "special"}
+YAFFS_TYPE_MODE = {1: S_IFREG, 2: S_IFLNK, 3: S_IFDIR}
+YAFFS_EXTRA_HDR, YAFFS_EXTRA_SHRINK = 0x80000000, 0x40000000
+YAFFS_GEOMETRIES = ((2048, 64), (4096, 128), (4096, 224), (4096, 256), (512, 16),
+                    (8192, 256), (8192, 448), (8192, 512), (8192, 640), (2048, 128),
+                    (16384, 1280))
+
+
+class YaffsUnreadable(Exception):
+    """A YAFFS image this reader cannot rebuild; the message says why."""
+
+
+def _yaffs2_line_parity(b):
+    """The two line parities YAFFS2 stores in its tag ECC (core/yaffs_ecc.c
+    yaffs_ecc_calc_other): over the 16 tag bytes, the XOR of the index of
+    every byte with an odd number of set bits, and of its complement."""
+    lp = lpp = 0
+    for i, v in enumerate(b):
+        if bin(v).count("1") & 1:
+            lp ^= i
+            lpp ^= ~i & 0xFFFFFFFF
+    return lp, lpp
+
+
+def _yaffs2_tags(spare, off, e):
+    """Packed YAFFS2 tags at `off` in the spare, or None when they are not
+    plausible tags (erased, or values no writer produces)."""
+    raw = spare[off:off + 16]
+    if len(raw) < 16 or raw == b"\xff" * 16:
+        return None
+    seq, obj, chunk, nbytes = struct.unpack(e + "IIII", raw)
+    if not (YAFFS_SEQ_LO <= seq < YAFFS_SEQ_HI):
+        return None
+    t = dict(seq=seq, obj=obj & 0x0FFFFFFF, chunk=chunk, n_bytes=nbytes, extra=None)
+    if chunk & YAFFS_EXTRA_HDR:
+        t.update(chunk=0, n_bytes=0,
+                 extra=dict(parent=chunk & 0x0FFFFFFF, shrink=bool(chunk & YAFFS_EXTRA_SHRINK),
+                            type=obj >> 28, size_or_equiv=nbytes))
+    elif obj >> 28:
+        return None
+    if not 0 < t["obj"] < (1 << 18) or t["chunk"] >= (1 << 20):
+        return None
+    ecc = spare[off + 16:off + 28]
+    if len(ecc) == 12 and ecc != b"\xff" * 12:
+        lp, lpp = struct.unpack_from(e + "II", ecc, 4)
+        t["ecc_ok"] = (lp, lpp) == _yaffs2_line_parity(raw)
+    return t
+
+
+def _yaffs1_tags(spare):
+    """YAFFS1 tags from a 16-byte spare, or None: the 8 tag bytes are spread
+    through the spare (struct yaffs_spare) and carry a 12-bit ECC that must
+    hold (mkyaffsimage.c yaffs_calc_tags_ecc: the XOR of the 1-based index
+    of every set bit, with the ECC field itself cleared)."""
+    if len(spare) < 16 or spare == b"\xff" * 16:
+        return None
+    b = bytes(spare[0:4] + spare[6:8] + spare[11:13])
+    w0, w1 = struct.unpack("<II", b)
+    stored = (w1 >> 18) & 0xFFF
+    clear = struct.pack("<II", w0, w1 & ~(0xFFF << 18))
+    ecc = bit = 0
+    for v in clear:
+        for j in range(8):
+            bit += 1
+            if v >> j & 1:
+                ecc ^= bit
+    if ecc != stored:
+        return None
+    return dict(obj=w1 & 0x3FFFF, chunk=w0 & 0xFFFFF, serial=(w0 >> 20) & 3,
+                n_bytes=(w0 >> 22) & 0x3FF,
+                deleted=bin(spare[4]).count("1") < 7)
+
+
+def _yaffs_header(data, e):
+    """The fields of a struct yaffs_obj_hdr, or None if it is not one."""
+    if len(data) < 512:
+        return None
+    otype, parent = struct.unpack_from(e + "II", data, 0)
+    if otype not in YAFFS_TYPES:
+        return None
+    name = data[10:10 + 255].split(b"\0")[0]         # YAFFS_MAX_NAME_LENGTH
+    (mode, uid, gid, atime, mtime, ctime, size_lo, equiv) = struct.unpack_from(e + "IIIIIIIi", data, 268)
+    alias = data[300:300 + 159].split(b"\0")[0]      # YAFFS_MAX_ALIAS_LENGTH
+    rdev = struct.unpack_from(e + "I", data, 460)[0]
+    wm = struct.unpack_from(e + "II", data, 480)
+    size_hi, _res, shadows, shrink = struct.unpack_from(e + "IIiI", data, 496)
+    return dict(type=otype, parent=parent, name=name.decode("utf-8", "surrogateescape"),
+                mode=mode, uid=uid, gid=gid, rdev=rdev, equiv=equiv,
+                mtime=mtime if wm[1] == 0xFFFFFFFF else (wm[1] << 32) | wm[0],
+                size=size_lo if size_hi == 0xFFFFFFFF else (size_hi << 32) | size_lo,
+                alias=alias.decode("utf-8", "surrogateescape"),
+                shrink=shrink not in (0, 0xFFFFFFFF))
+
+
+def yaffs_layout(fh, base, size, sample=256):
+    """(version, chunk, spare, tag offset, tag byte order, header byte order)
+    for a YAFFS image at base, or None.
+
+    Every common page/spare geometry the region allows is tried over its first
+    `sample` pages, and for YAFFS2 every tag offset in the spare and both byte
+    orders. A geometry with no page shaped like an object header is skipped, and
+    a tag offset whose first 16 used pages mostly fail is dropped early. A
+    layout qualifies when at least 90% of the non-erased spares (and
+    at least 8) hold plausible tags, and at least 90% of the chunks those tags
+    call object headers parse as object headers; among those, the one whose
+    tag ECC line parities hold, then the one explaining the most headers, wins.
+    The tag and header byte orders are decided apart: upstream mkyaffs2image's
+    "convert" swaps its headers and, at the pinned commit, not its tags
+    (utils/mkyaffs2image.c little_to_big_endian is compiled out)."""
+    best = None
+    for chunk, spare in YAFFS_GEOMETRIES:
+        page = chunk + spare
+        n = min(sample, size // page)
+        if n < 8:
+            continue
+        raw = read_at(fh, base, n * page)
+        used = [(raw[i * page:i * page + chunk], raw[i * page + chunk:(i + 1) * page])
+                for i in range(len(raw) // page)]
+        used = [(d, s) for d, s in used if s != b"\xff" * spare]
+        if len(used) < 8:
+            continue
+        # A geometry with no page shaped like an object header cannot be YAFFS;
+        # checking that first keeps the tag search off regions that are not.
+        if not any(_yaffs_header(d, he) for d, _s in used for he in ("<", ">")):
+            continue
+        trials = []
+        if (chunk, spare) == (512, 16):
+            trials.append((1, 0, "<", lambda s: _yaffs1_tags(s)))
+        for off in range(0, spare - 15):
+            for e in ("<", ">"):
+                trials.append((2, off, e, lambda s, off=off, e=e: _yaffs2_tags(s, off, e)))
+        for version, off, e, decode in trials:
+            if sum(1 for _d, s in used[:16] if decode(s)) < 0.9 * min(16, len(used)):
+                continue                   # most tag offsets fail on the first pages
+            good = claimed = eccs = 0
+            parsed = {"<": 0, ">": 0}
+            for d, s in used:
+                t = decode(s)
+                if not t:
+                    continue
+                good += 1
+                eccs += t.get("ecc_ok", False)
+                if t["chunk"] == 0:
+                    claimed += 1
+                    for he in ("<", ">"):
+                        if _yaffs_header(d, he):
+                            parsed[he] += 1
+            hdr_e = max(parsed, key=parsed.get)
+            if not (good >= 8 and good >= 0.9 * len(used) and claimed
+                    and parsed[hdr_e] >= 0.9 * claimed):
+                continue
+            rank = (version == 1 or eccs >= 0.9 * good, parsed[hdr_e], good / len(used))
+            if best is None or rank > best[0]:
+                best = (rank, (version, chunk, spare, off, e, hdr_e))
+    return best[1] if best else None
+
+
+class YaffsWalker:
+    """List and read a YAFFS1 or YAFFS2 image. A node is an object id; the
+    root is object 1."""
+
+    root = YAFFS_ROOT
+
+    def __init__(self, fh, base, size=None, layout=None):
+        self.fh, self.base = fh, base
+        if size is None:
+            size = image_size(fh) - base
+        layout = layout or yaffs_layout(fh, base, size)
+        if layout is None:
+            raise YaffsUnreadable("no YAFFS page and spare layout fits this region")
+        self.version, self.chunk, self.spare, self.tag_off, self.e, self.he = layout
+        self.page = self.chunk + self.spare
+        self.npages = size // self.page
+        self.stats = collections.Counter()
+        self.objs = {}
+        if self.version == 2:
+            self._scan2()
+        else:
+            self._scan1()
+        self.children = collections.defaultdict(list)
+        for oid, o in self.objs.items():
+            h = o.get("hdr")
+            if h and oid != YAFFS_ROOT:
+                # An unlinked or deleted object's parent is 3 or 4, which no
+                # listing reaches from the root.
+                self.children[h["parent"]].append(oid)
+
+    def _pages(self):
+        """(page index, data, spare) for every page, read 64 pages at a time."""
+        step = 64
+        for first in range(0, self.npages, step):
+            n = min(step, self.npages - first)
+            raw = read_at(self.fh, self.base + first * self.page, n * self.page)
+            for i in range(len(raw) // self.page):
+                at = i * self.page
+                yield first + i, raw[at:at + self.chunk], raw[at + self.chunk:at + self.page]
+
+    def _obj(self, oid):
+        o = self.objs.get(oid)
+        if o is None:
+            o = self.objs[oid] = dict(chunks={}, stored=0, shrink=None, hdr=None)
+        return o
+
+    def _scan2(self):
+        entries = []
+        for idx, data, spare in self._pages():
+            t = _yaffs2_tags(spare, self.tag_off, self.e)
+            if t is None:
+                continue
+            self.stats["chunks"] += 1
+            # What yaffs2_scan_chunk ignores: a block summary chunk, tags whose
+            # ECC does not hold, a data chunk claiming more than a page.
+            if t["obj"] == YAFFS_OBJECTID_SUMMARY:
+                self.stats["block summary chunks"] += 1
+                continue
+            if t.get("ecc_ok") is False:
+                self.stats["chunks whose tag ECC does not hold"] += 1
+                continue
+            if t["chunk"] > 0 and t["n_bytes"] > self.chunk:
+                self.stats["data chunks claiming more than a page"] += 1
+                continue
+            hdr = None
+            if t["chunk"] == 0:
+                hdr = _yaffs_header(data, self.he)
+                if hdr is None:
+                    self.stats["headers that do not parse"] += 1
+                    continue
+            entries.append((t["seq"], idx, t, hdr))
+        entries.sort(key=lambda x: (x[0], x[1]), reverse=True)   # newest first
+        self.max_seq = entries[0][0] if entries else 0
+        for _seq, idx, t, hdr in entries:
+            o = self._obj(t["obj"])
+            if hdr is None:                                    # a data chunk
+                base = (t["chunk"] - 1) * self.chunk
+                if o["hdr"] is not None and o["hdr"]["type"] != 1:
+                    continue
+                if o["shrink"] is not None and base >= o["shrink"]:
+                    self.stats["data chunks past a shrink or resize"] += 1
+                    continue
+                if t["chunk"] not in o["chunks"]:
+                    o["chunks"][t["chunk"]] = (idx, t["n_bytes"])
+                    if o["hdr"] is None:
+                        o["stored"] = max(o["stored"], base + t["n_bytes"])
+                continue
+            if o["hdr"] is not None:                           # an older header
+                if o["hdr"]["type"] == 1 and hdr["type"] == 1:
+                    this, shrink = hdr["size"], hdr["shrink"]
+                    if hdr["parent"] in (YAFFS_DELETED, YAFFS_UNLINKED):
+                        this, shrink = 0, True
+                    if shrink and (o["shrink"] is None or o["shrink"] > this):
+                        o["shrink"] = this
+                self.stats["older headers"] += 1
+                continue
+            o["hdr"] = hdr
+            if hdr["type"] == 1:
+                if o["stored"] < hdr["size"]:
+                    o["stored"] = hdr["size"]
+                if o["shrink"] is None or o["shrink"] > hdr["size"]:
+                    o["shrink"] = hdr["size"]
+
+    def _scan1(self):
+        for idx, data, spare in self._pages():
+            t = _yaffs1_tags(spare)
+            if t is None:
+                continue
+            self.stats["chunks"] += 1
+            if t["deleted"]:
+                self.stats["chunks marked deleted"] += 1
+                continue
+            o = self._obj(t["obj"])
+            if t["chunk"] == 0:
+                hdr = _yaffs_header(data, self.he)
+                if hdr is None:
+                    self.stats["headers that do not parse"] += 1
+                    continue
+                cur = o.get("hdr_serial")
+                if o["hdr"] is None or (cur + 1) & 3 == t["serial"]:
+                    o["hdr"], o["hdr_serial"] = hdr, t["serial"]
+                continue
+            cur = o["chunks"].get(t["chunk"])
+            if cur is not None and cur[2] == t["serial"]:
+                # Two live copies with one serial: nothing on the flash orders
+                # them. YAFFS's scan keeps the first it finds, and so does this.
+                self.stats["duplicate chunks their serial numbers do not order"] += 1
+            if cur is None or (cur[2] + 1) & 3 == t["serial"]:
+                o["chunks"][t["chunk"]] = (idx, t["n_bytes"], t["serial"])
+        self.max_seq = 0
+        # YAFFS1 sizes a file by where its furthest live data chunk ends, not by
+        # its header, unless the driver sets use_header_file_size
+        # (core/yaffs_yaffs1.c yaffs1_scan), a setting the flash does not record.
+        for o in self.objs.values():
+            ends = [(c - 1) * self.chunk + v[1] for c, v in o["chunks"].items()]
+            o["stored"] = max(ends, default=0)
+
+    # -- the tree -----------------------------------------------------------
+    def _resolve(self, oid, depth=0):
+        """A hard link's object is the object it names."""
+        o = self.objs.get(oid)
+        if o and o["hdr"] and o["hdr"]["type"] == 4 and depth < 8:
+            return self._resolve(o["hdr"]["equiv"], depth + 1)
+        return oid
+
+    def entry(self, oid):
+        if oid in (YAFFS_ROOT, YAFFS_LOSTNFOUND) and not (self.objs.get(oid) or {}).get("hdr"):
+            # With no header on the flash, YAFFS makes these at mount time
+            # (core/yaffs_guts.c yaffs_create_fake_dir) with the modes of
+            # direct/ydirectenv.h:99-100 and the clock of that mount, which is
+            # not evidence, so no time is reported for them (None).
+            return (S_IFDIR | (0o755 if oid == YAFFS_ROOT else 0o700), 0, None)
+        o = self.objs.get(self._resolve(oid))
+        h = o and o["hdr"]
+        if not h:
+            return None
+        # The type comes from the header, as YAFFS's own stat does it
+        # (direct/yaffsfs.c yaffsfs_DoStat): YAFFS's direct interface stores only
+        # permission bits in yst_mode while the Linux driver and mkyaffs2image
+        # store the whole mode. A special file keeps the type yst_mode carries.
+        mode = (h["mode"] & 0o7777) | YAFFS_TYPE_MODE.get(h["type"], h["mode"] & S_IFMT)
+        if h["type"] == 1:
+            return (mode, o["stored"], h["mtime"])
+        if h["type"] == 2:
+            return (mode, len(h["alias"].encode("utf-8", "surrogateescape")), h["mtime"])
+        return (mode, 0, h["mtime"])
+
+    def listdir(self, oid):
+        out = []
+        if oid == YAFFS_ROOT:
+            # lost+found is a directory YAFFS keeps for every volume and lists
+            # under the root whether or not it has a header on the flash.
+            out.append(("lost+found", YAFFS_LOSTNFOUND))
+        for child in self.children.get(oid, ()):
+            if child == YAFFS_LOSTNFOUND:
+                continue
+            name = self.objs[child]["hdr"]["name"]
+            if name:
+                out.append((name, child))
+        return sorted(out)
+
+    def readlink(self, oid):
+        o = self.objs.get(self._resolve(oid))
+        return o["hdr"]["alias"] if o and o["hdr"] else ""
+
+    def read_file(self, oid, size):
+        o = self.objs.get(self._resolve(oid))
+        if not o or not o["hdr"] or o["hdr"]["type"] != 1:
+            return
+        fsize = o["stored"]
+        left = min(size, fsize)
+        for c in range(1, (fsize + self.chunk - 1) // self.chunk + 1):
+            if left <= 0:
+                return
+            hit = o["chunks"].get(c)
+            if hit is None:
+                data = bytes(self.chunk)                      # never written: a hole
+            else:
+                data = read_at(self.fh, self.base + hit[0] * self.page, self.chunk)
+                data = data[:hit[1]].ljust(self.chunk, b"\0")
+            take = data[:min(self.chunk, left)]
+            yield take
+            left -= len(take)
+
+
+def identify_yaffs(fh, base, size=None):
+    """Return ("yaffs2" or "yaffs1", lines) when the region holds YAFFS pages
+    with their spare bytes; see yaffs_layout for how the layout is decided."""
+    if size is None:
+        size = image_size(fh) - base
+    lay = yaffs_layout(fh, base, size)
+    if lay is None:
+        return None
+    try:
+        w = YaffsWalker(fh, base, size, lay)
+    except YaffsUnreadable:
+        return None
+    _remember_walker(fh, base, size, f"yaffs{w.version}", w)
+    s = w.stats
+    live = sum(1 for oid, o in w.objs.items() if o["hdr"] and
+               o["hdr"]["parent"] not in (YAFFS_UNLINKED, YAFFS_DELETED))
+    gone = sum(1 for o in w.objs.values() if o["hdr"] and
+               o["hdr"]["parent"] in (YAFFS_UNLINKED, YAFFS_DELETED))
+    kind = f"yaffs{w.version}"
+    lines = [
+        f"layout       {w.chunk}-byte pages with {w.spare}-byte spare"
+        + (f", tags at spare offset {w.tag_off} ({'little' if w.e == '<' else 'big'} endian)"
+           if w.version == 2 else "")
+        + f", headers {'little' if w.he == '<' else 'big'} endian",
+        f"chunks       {s['chunks']:,} in use of {w.npages:,} pages",
+        f"objects      {live:,} with a live name, {gone:,} whose newest header files "
+        "them as unlinked or deleted",
+    ]
+    if w.version == 2:
+        lines.append(f"sequence     highest block sequence number {w.max_seq:#x}")
+    if s["data chunks past a shrink or resize"]:
+        lines.append(f"note         {s['data chunks past a shrink or resize']:,} data chunks lie "
+                     "outside their object's current extent (a later truncation or "
+                     "deletion); their bytes are still on the flash and are not listed")
+    for k in ("headers that do not parse", "chunks marked deleted",
+              "chunks whose tag ECC does not hold", "data chunks claiming more than a page",
+              "duplicate chunks their serial numbers do not order"):
+        if s[k]:
+            lines.append(f"note         {s[k]:,} {k}")
+    return kind, lines
+
+
+# identify_fs() builds a flash filesystem's whole tree to decide what it is, so
+# the walker it built is kept for the walker_for() call that usually follows on
+# the same image and offset, rather than scanning the flash a second time.
+_FLASH_WALKERS = collections.OrderedDict()
+
+
+def _remember_walker(fh, base, size, kind, walker):
+    _FLASH_WALKERS[(id(fh), base, size, kind)] = (fh, walker)
+    while len(_FLASH_WALKERS) > 4:
+        _FLASH_WALKERS.popitem(last=False)
+    return walker
+
+
+def _cached_walker(fh, base, size, kind, build):
+    hit = _FLASH_WALKERS.get((id(fh), base, size, kind))
+    if hit is not None and hit[0] is fh:
+        return hit[1]
+    return _remember_walker(fh, base, size, kind, build())
+
+
 def print_tree(w, num, depth, maxdepth, budget, indent=0, pad=6):
     # A walker that keeps readings rather than instants (FAT32, exFAT) is listed
     # through listdir_records(), so the reading is printed and not the 0 that
@@ -5502,8 +7907,10 @@ def print_tree(w, num, depth, maxdepth, budget, indent=0, pad=6):
         if not ent:
             continue
         mode, size, mtime = ent
-        isdir = bool(mode & S_IFDIR)
-        kind = "dir " if isdir else ("link" if mode & S_IFLNK == S_IFLNK else "file")
+        fmt = mode & S_IFMT
+        isdir = fmt == S_IFDIR          # the format bits: a block device shares S_IFDIR's bit
+        kind = ("dir " if isdir else "link" if fmt == S_IFLNK
+                else "file" if fmt == S_IFREG else "spec")
         col = max(12, 44 - 2 * indent)
         shown = "" if isdir else f"{human(size):>11}"
         when = _fmt_reading(recorded) if readings else _fmt_time(mtime)
@@ -5810,6 +8217,8 @@ class IfsWalker:
 # ---------------------------------------------------------------------------
 def _zip_time(v):
     d = None
+    if v is None:                       # no time recorded: the zip's earliest
+        return (1980, 1, 1, 0, 0, 0)
     try:
         d = datetime.datetime.fromtimestamp(v, datetime.timezone.utc)
     except (OverflowError, OSError, ValueError):
@@ -5847,7 +8256,7 @@ def collect(w, num, prefix="", depth=0, seen=None, out=None, times=None):
             kept = {k: v for k, v in recorded.items() if v}
             if kept:
                 times[path] = kept
-        if mode & S_IFDIR:
+        if mode & S_IFMT == S_IFDIR:    # not mode & S_IFDIR, which a block device also has
             collect(w, ino, path, depth + 1, seen, out, times)
         elif (mode & 0o170000) == 0o100000:          # regular files only
             out.append((path, ino, size, mtime))
@@ -5882,10 +8291,10 @@ def walk_all(w):
     agree on every consistent volume measured and differ on 4 entries of
     313,652 on one acquisition whose directory indexes and records disagree.
 
-    A directory is decided here by the format bits of the mode rather than by
-    ``mode & S_IFDIR``, which ``collect()`` uses: the latter is also true of a
-    block device, whose format bits share that one. No image in the test set
-    carries one, which is why the two agree everywhere it has been measured.
+    A directory is decided here, as in ``collect()``, by the format bits of the
+    mode rather than by ``mode & S_IFDIR``, which is also true of a block
+    device, whose format bits share that one. The JFFS2 fixtures carry a block
+    device, which the looser test would have walked into as a directory.
     """
     fast = getattr(w, "listing", None)
     if fast is not None:
@@ -6078,7 +8487,7 @@ def sample_encryption(w, limit=400):
             if seen >= limit:
                 break
             ent = w.entry(ino)
-            if ent and ent[0] & S_IFDIR and len(queue) < 512:
+            if ent and ent[0] & S_IFMT == S_IFDIR and len(queue) < 512:
                 queue.append(ino)
     return enc, seen
 
@@ -6202,6 +8611,16 @@ def walker_for(kind, fh, base, size=None):
         return EtfsWalker(fh, base, size, P) if P else None
     if kind == "QNX IFS boot image":
         return IfsWalker(fh, base)
+    if kind == "squashfs":
+        return SquashfsWalker(fh, base)
+    if kind == "ubifs":
+        return _cached_walker(fh, base, size, kind, lambda: UbifsWalker(fh, base))
+    if kind == "ubi":
+        return _cached_walker(fh, base, size, kind, lambda: UbiWalker(fh, base, size))
+    if kind == "jffs2":
+        return _cached_walker(fh, base, size, kind, lambda: Jffs2Walker(fh, base, size))
+    if kind in ("yaffs1", "yaffs2"):
+        return _cached_walker(fh, base, size, kind, lambda: YaffsWalker(fh, base, size))
     return None
 
 
@@ -6513,6 +8932,16 @@ def identify_fs(fh, base, size=None):
     if q4:
         return q4
 
+    # The Linux flash filesystems next, for the same reason: each is accepted
+    # only on a structure it checks (a SquashFS superblock that reads back to a
+    # root directory, a UBI or UBIFS header whose CRC holds, a JFFS2 node whose
+    # header CRC holds at the start of the region), where ext's test is a bare
+    # magic that compressed or node data can carry by chance.
+    for ident in (identify_squashfs, identify_ubi, identify_ubifs, identify_jffs2):
+        found = ident(fh, base, size)
+        if found:
+            return found
+
     sb = read_at(fh, base + EXT_SB_OFF, 1024)
     if len(sb) == 1024 and _e(sb, "magic", 2) == EXT_MAGIC:
         bs = 1024 << _e(sb, "log_block_size")
@@ -6579,6 +9008,13 @@ def identify_fs(fh, base, size=None):
     etfs = identify_etfs(fh, base, size)
     if etfs:
         return etfs
+
+    # YAFFS last: it has no magic at all, so it is found by trying page and
+    # spare layouts, which is the costliest test and the one least specific to
+    # any single offset.
+    yaffs = identify_yaffs(fh, base, size)
+    if yaffs:
+        return yaffs
 
     # Not ext, not qnx6, not IFS, not FAT, not a QNX flash filesystem. Report
     # the leading bytes so there is a lead to follow, rather than inventing a
@@ -6661,6 +9097,90 @@ def volume_name(part_idx, lba, label=""):
 EXT_PARTITION_TYPES = (0x05, 0x0f, 0x85)
 
 
+# A raw NOR or NAND dump has no partition table: the kernel learns the MTD
+# partitions from the device tree or its command line, which the dump does not
+# carry. The bootloader usually sits at offset 0, so nothing is recognised
+# there, and the filesystems start further in at eraseblock boundaries. They
+# are found here by their own headers, each checked the way identification
+# checks it, and each given its own extent.
+FLASH_SCAN_MAX = 8 << 30          # a bigger unpartitioned image is not a flash chip
+FLASH_ALIGN = 4096                # every eraseblock size is a multiple of this
+
+
+def flash_regions(fh, size):
+    """[(label, base, size)] for the flash filesystems found inside an image
+    with no partition table, in image order. Only aligned offsets are tried:
+
+      SquashFS  "hsqs" whose superblock and root inode read (identify_squashfs);
+                its extent is the bytes_used it records, rounded up to 4 KiB
+      UBI       an erase counter header whose CRC holds; its extent runs over
+                the following eraseblocks that carry a header of the same
+                image_seq or are erased
+      JFFS2     a node whose header CRC holds; JFFS2 has no size of its own, so
+                its extent runs to the next filesystem found, or the end
+
+    Returns [] when the image is larger than FLASH_SCAN_MAX or holds none."""
+    if size > FLASH_SCAN_MAX:
+        return []
+    hits = set()
+    step = 1 << 20
+    pos = 0
+    while pos < size:
+        chunk = read_at(fh, pos, min(step + 16, size - pos))
+        if not chunk:
+            break
+        for magic in (b"hsqs", b"UBI#", b"\x85\x19", b"\x19\x85"):
+            j = chunk.find(magic)
+            while 0 <= j < step:
+                if (pos + j) % FLASH_ALIGN == 0:
+                    hits.add((pos + j, magic))
+                j = chunk.find(magic, j + 1)
+        pos += step
+    found, taken_to = [], 0
+    for off, magic in sorted(hits):
+        if off < taken_to:
+            continue
+        if magic == b"hsqs":
+            if not identify_squashfs(fh, off, size - off):
+                continue
+            used = struct.unpack("<Q", read_at(fh, off + 40, 8))[0]
+            ext = min(size - off, -(-used // FLASH_ALIGN) * FLASH_ALIGN)
+            found.append(["squashfs", off, ext])
+        elif magic == b"UBI#":
+            ec = _ubi_ec(read_at(fh, off, 64))
+            if ec is None:
+                continue
+            peb = ubi_peb_size(fh, off, size - off) or (size - off)
+            end = off + peb
+            while end + peb <= size:
+                head = read_at(fh, end, 64)
+                nxt = _ubi_ec(head)
+                if nxt is not None and nxt[2] == ec[2]:
+                    end += peb
+                elif head == b"\xff" * 64 and read_at(fh, end, peb).strip(b"\xff") == b"":
+                    end += peb
+                else:
+                    break
+            found.append(["ubi", off, end - off])
+        else:
+            e = "<" if magic == b"\x85\x19" else ">"
+            hdr = read_at(fh, off, 12)
+            m, ntype, totlen, hcrc = struct.unpack(e + "HHII", hdr)
+            if m != JFFS2_MAGIC or _kcrc32(struct.pack(e + "HHI", m, ntype | JFFS2_ACCURATE,
+                                                       totlen)) != hcrc:
+                continue
+            if found and found[-1][0] == "jffs2":
+                continue                          # still inside the same JFFS2
+            found.append(["jffs2", off, None])
+        if found[-1][2] is not None:
+            taken_to = found[-1][1] + found[-1][2]
+    for i, reg in enumerate(found):              # JFFS2 runs up to what follows it
+        if reg[2] is None:
+            nxt = next((r[1] for r in found[i + 1:] if r[1] > reg[1]), size)
+            reg[2] = nxt - reg[1]
+    return [(f"flash @{off:#x} {kind}", off, ext) for kind, off, ext in found]
+
+
 def partition_regions(fh, size):
     """(regions, names, containers, protective) for an image, as main() sees them.
 
@@ -6674,11 +9194,15 @@ def partition_regions(fh, size):
     """
     regions, names = [], {}
     containers, protective = set(), set()
+    # Read first, reported last: the sector size the GPT header was found at is
+    # the unit every LBA on this disk counts, the MBR's included.
+    gpt = parse_gpt(fh)
+    ss = gpt.sector_size if gpt is not None else SECTOR
     parts = parse_mbr(fh)
     if parts:
         for idx, t, st, cnt in parts:
-            regions.append((f"MBR part {idx}", st * SECTOR, cnt * SECTOR))
-            names[st * SECTOR] = volume_name(idx, st)
+            regions.append((f"MBR part {idx}", st * ss, cnt * ss))
+            names[st * ss] = volume_name(idx, st)
             if t in EXT_PARTITION_TYPES:
                 containers.add(f"MBR part {idx}")
             if t == 0xEE:
@@ -6689,28 +9213,32 @@ def partition_regions(fh, size):
                 continue
             base, cur, n = st, st, 0
             while cur and n < 64:
-                ebr = read_at(fh, cur * SECTOR, 512)
+                ebr = read_at(fh, cur * ss, 512)
                 if len(ebr) < 512 or ebr[510:512] != b"\x55\xaa":
                     break
                 e1, e2 = ebr[446:462], ebr[462:478]
                 lst, lcnt = struct.unpack("<II", e1[8:16])
                 if lcnt:
                     astart = cur + lst
-                    regions.append((f"logical @{astart}", astart * SECTOR, lcnt * SECTOR))
+                    regions.append((f"logical @{astart}", astart * ss, lcnt * ss))
                     logical_idx += 1
-                    names[astart * SECTOR] = volume_name(logical_idx, astart)
+                    names[astart * ss] = volume_name(logical_idx, astart)
                 nxt = struct.unpack("<I", e2[8:12])[0]
                 cur = (base + nxt) if nxt else 0
                 n += 1
-    gpt = parse_gpt(fh)
     if gpt:
         for idx, name, _g, first, last in gpt:
-            sz = (last - first + 1) * SECTOR
-            regions.append((f"GPT part {idx} {name[:20]}", first * SECTOR, sz))
-            names[first * SECTOR] = volume_name(idx, first, name)
+            sz = (last - first + 1) * ss
+            regions.append((f"GPT part {idx} {name[:20]}", first * ss, sz))
+            names[first * ss] = volume_name(idx, first, name)
     if not regions:
-        regions.append(("whole image", 0, size))
-        names[0] = volume_name(None, 0)
+        flash = [] if identify_fs(fh, 0, size)[0] else flash_regions(fh, size)
+        for label, base, rsize in flash:
+            regions.append((label, base, rsize))
+            names[base] = volume_name(None, base // SECTOR)
+        if not flash:
+            regions.append(("whole image", 0, size))
+            names[0] = volume_name(None, 0)
     return regions, names, containers, protective
 
 
@@ -6735,7 +9263,9 @@ def volumes(fh, size=None):
     Each dict carries:
         label       the region as the report names it ("GPT part 3 storage")
         base, size  byte offset and byte length of the region
-        lba         base in sectors, the identity an extraction is named by
+        lba         base in the disk's logical sectors (4096 bytes on a disk
+                    whose GPT header is at byte 4096, else 512), the identity
+                    an extraction is named by
         kind        "qnx6", "ext4", "fat32", "ntfs", ..., "extended container",
                     or "not recognised"
         name        the directory the volume extracts under (volume_name)
@@ -6755,6 +9285,7 @@ def volumes(fh, size=None):
     if size is None:
         size = image_size(fh)
     regions, names, containers, protective = partition_regions(fh, size)
+    ss = disk_sector_size(fh)
     missing = {start: gap for _lab, start, _rs, gap in
                short_regions(size, regions, skip=protective)}
     out, qnx6_labels = [], set()
@@ -6768,8 +9299,8 @@ def volumes(fh, size=None):
         if best is None:
             continue
         qnx6_labels.add(label)
-        vol = dict(label=label, base=base, size=rsize, lba=base // SECTOR, kind="qnx6",
-                   name=names.get(base) or f"lba{base // SECTOR}",
+        vol = dict(label=label, base=base, size=rsize, lba=base // ss, kind="qnx6",
+                   name=names.get(base) or f"lba{base // ss}",
                    detail=f"serial {best[1]['serial']:,}, "
                           f"volumeid {best[1]['volumeid'].hex()} (as stored)",
                    missing_past_end=missing.get(base, 0))
@@ -6783,14 +9314,14 @@ def volumes(fh, size=None):
         if label in qnx6_labels or label in protective:
             continue
         if label in containers:
-            out.append(dict(label=label, base=base, size=rsize, lba=base // SECTOR,
+            out.append(dict(label=label, base=base, size=rsize, lba=base // ss,
                             kind="extended container", name="", detail="",
                             missing_past_end=missing.get(base, 0),
                             note="holds the logical volumes, nothing to walk"))
             continue
         kind, lines = identify_fs(fh, base, rsize)
-        stem = names.get(base) or f"lba{base // SECTOR}"
-        vol = dict(label=label, base=base, size=rsize, lba=base // SECTOR,
+        stem = names.get(base) or f"lba{base // ss}"
+        vol = dict(label=label, base=base, size=rsize, lba=base // ss,
                    kind=kind or "not recognised", name=stem,
                    detail="; ".join(lines[:2]), missing_past_end=missing.get(base, 0))
         try:
@@ -6854,6 +9385,12 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
     containers, protective = set(), set()
     vol_names = {}                    # byte offset -> canonical extract name
     with image as fh:
+        # The GPT is read before the MBR is reported, because the sector size
+        # its header was found at is the unit of every LBA on this disk,
+        # the MBR's included (disk_sector_size).
+        gpt, gpt_rejected = read_gpt(fh)
+        ss = gpt.sector_size if gpt is not None else SECTOR
+        image_rec["sector_bytes"] = ss
         parts = parse_mbr(fh)
         if parts is None:
             print("  MBR      none (no 0x55AA signature at offset 510, or "
@@ -6864,10 +9401,10 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                   + ("  (0xEE = GPT protective)" if gpt_prot else ""))
             for idx, t, st, cnt in parts:
                 tag = f"   <- {MBR_QNX_TYPES[t]}" if t in MBR_QNX_TYPES else ""
-                print(f"    {idx}  type 0x{t:02x}  LBA {st:<12,} {human(cnt*SECTOR):>10}{tag}")
-                regions.append((f"MBR part {idx}", st * SECTOR))
-                sized_regions.append((f"MBR part {idx}", st * SECTOR, cnt * SECTOR))
-                vol_names[st * SECTOR] = volume_name(idx, st)
+                print(f"    {idx}  type 0x{t:02x}  LBA {st:<12,} {human(cnt*ss):>10}{tag}")
+                regions.append((f"MBR part {idx}", st * ss))
+                sized_regions.append((f"MBR part {idx}", st * ss, cnt * ss))
+                vol_names[st * ss] = volume_name(idx, st)
                 if t in (0x05, 0x0f, 0x85):
                     containers.add(f"MBR part {idx}")
                 if t == 0xEE:
@@ -6882,7 +9419,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                 continue
             base, cur, n = st, st, 0
             while cur and n < 64:
-                ebr = read_at(fh, cur * SECTOR, 512)
+                ebr = read_at(fh, cur * ss, 512)
                 if len(ebr) < 512 or ebr[510:512] != b"\x55\xaa":
                     break
                 e1 = ebr[446:462]; e2 = ebr[462:478]
@@ -6891,34 +9428,53 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                     astart = cur + lst
                     tag = f"   <- {MBR_QNX_TYPES[lt]}" if lt in MBR_QNX_TYPES else ""
                     print(f"      logical  type 0x{lt:02x}  LBA {astart:<12,}"
-                          f" {human(lcnt*SECTOR):>10}{tag}")
-                    regions.append((f"logical @{astart}", astart * SECTOR))
-                    sized_regions.append((f"logical @{astart}", astart * SECTOR,
-                                          lcnt * SECTOR))
+                          f" {human(lcnt*ss):>10}{tag}")
+                    regions.append((f"logical @{astart}", astart * ss))
+                    sized_regions.append((f"logical @{astart}", astart * ss,
+                                          lcnt * ss))
                     logical_idx += 1
-                    vol_names[astart * SECTOR] = volume_name(logical_idx, astart)
+                    vol_names[astart * ss] = volume_name(logical_idx, astart)
                 nxt = struct.unpack("<I", e2[8:12])[0]
                 cur = (base + nxt) if nxt else 0
                 n += 1
 
-        gpt = parse_gpt(fh)
-        if gpt:
-            print(f"\n  GPT      valid, {len(gpt)} partition entries")
+        for at, why in gpt_rejected:
+            # A header that fails its own checks is not used, and saying so
+            # keeps "not trusted" from reading as "no partition table".
+            print(f"\n  GPT      header signature at byte {at:,} NOT USED: {why}")
+        if gpt is not None:
+            print(f"\n  GPT      valid, {len(gpt)} partition entries"
+                  + (f", {ss}-byte logical sectors" if ss != SECTOR else "")
+                  + (f", from the backup header at LBA {gpt.header_lba:,}"
+                     if gpt.header_lba != 1 else ""))
             for idx, name, g, first, last in gpt:
-                sz = (last - first + 1) * SECTOR
+                sz = (last - first + 1) * ss
                 print(f"    {idx:>3}  {name[:26]:<26} {human(sz):>10}  LBA {first:,}")
-                regions.append((f"GPT part {idx} {name[:20]}", first * SECTOR))
-                sized_regions.append((f"GPT part {idx} {name[:20]}", first * SECTOR, sz))
-                vol_names[first * SECTOR] = volume_name(idx, first, name)
+                regions.append((f"GPT part {idx} {name[:20]}", first * ss))
+                sized_regions.append((f"GPT part {idx} {name[:20]}", first * ss, sz))
+                vol_names[first * ss] = volume_name(idx, first, name)
 
         # No partition table at all (a whole-disk filesystem, or a bare region
         # such as an ETFS flash dump) means no regions were recorded. Treat the
         # whole image as one region so it still reaches identify_fs and the
         # walkers, named lba0 by the volume_name fallback.
         if not sized_regions:
-            sized_regions.append(("whole image", 0, size))
-            regions.append(("whole image", 0))
-            vol_names[0] = volume_name(None, 0)
+            # With nothing recognised at offset 0 either, it may be a raw flash
+            # dump: look for the filesystems inside it (flash_regions).
+            flash = [] if identify_fs(fh, 0, size)[0] else flash_regions(fh, size)
+            if flash:
+                print(f"\n  FLASH    no partition table and nothing recognised at offset 0; "
+                      f"{len(flash)} flash filesystem(s) found by their own headers")
+                for label, base, rsize in flash:
+                    print(f"    {label[len('flash '):]:<22} {human(rsize):>10}  "
+                          f"at byte {base:,}")
+                    sized_regions.append((label, base, rsize))
+                    regions.append((label, base))
+                    vol_names[base] = volume_name(None, base // SECTOR)
+            else:
+                sized_regions.append(("whole image", 0, size))
+                regions.append(("whole image", 0))
+                vol_names[0] = volume_name(None, 0)
 
         # A partition table describes a whole disk and the file may hold only
         # the front of it. FTK Imager and its peers split a raw image into
@@ -7110,7 +9666,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                     print(f"        could not walk this filesystem: {exc}")
 
             if zf is not None and base is not None and wanted:
-                vol = vol_names.get(base) or f"lba{base // SECTOR}"
+                vol = vol_names.get(base) or f"lba{base // ss}"
                 print(f"\n      EXTRACTING to {extract}  as {vol}/")
                 try:
                     w = Qnx6Walker(fh, base, sorted(act["at"])[0] - base)
@@ -7124,7 +9680,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                         rsize = next((r[2] for r in sized_regions if r[1] == base), None)
                         manifest.append({
                             "volume": vol, **image_rec,
-                            "lba": base // SECTOR, "offset_bytes": base,
+                            "lba": base // ss, "offset_bytes": base,
                             "partition_size_bytes": rsize,
                             "filesystem": "qnx6",
                             "volume_id_as_stored": sb["volumeid"].hex(),
@@ -7205,7 +9761,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                     except Exception as exc:
                         print(f"        could not walk this filesystem: {exc}")
                 if zf is not None and kind and kind.startswith("ext") and wanted:
-                    stem = vol_names.get(b) or f"lba{b // SECTOR}"
+                    stem = vol_names.get(b) or f"lba{b // ss}"
                     suffix = sanitize_volume_label(ext_name) if ext_name else ""
                     vol = (f"{stem}_{suffix}"
                            if suffix and not stem.endswith(f"_{suffix}") else stem)
@@ -7222,7 +9778,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                             _u = read_at(fh, b + EXT_SB_OFF, 1024)
                             manifest.append({
                                 "volume": vol, **image_rec,
-                                "lba": b // SECTOR, "offset_bytes": b,
+                                "lba": b // ss, "offset_bytes": b,
                                 "partition_size_bytes": sz,
                                 "filesystem": kind,
                                 "uuid": _u[EXT_F["uuid"]:EXT_F["uuid"] + 16].hex(),
@@ -7246,7 +9802,8 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                         print(f"        could not extract: {exc}")
 
                 if kind in ("fat32", "exfat", "ntfs", "f2fs", "hfs+", "hfsx", "apfs",
-                            "etfs", "efs", "qnx4") and wanted:
+                            "etfs", "efs", "qnx4", "squashfs", "jffs2", "ubi",
+                            "ubifs", "yaffs1", "yaffs2") and wanted:
                     if do_list:
                         print(f"        CONTENTS  (depth {list_depth})")
                         try:
@@ -7255,7 +9812,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                         except Exception as exc:
                             print(f"        could not walk this filesystem: {exc}")
                     if zf is not None:
-                        vol = vol_names.get(b) or f"lba{b // SECTOR}"
+                        vol = vol_names.get(b) or f"lba{b // ss}"
                         print(f"        EXTRACTING to {extract}  as {vol}/")
                         try:
                             w = walker_for(kind, fh, b, sz)
@@ -7268,7 +9825,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                             if manifest is not None:
                                 manifest.append({
                                     "volume": vol, **image_rec,
-                                    "lba": b // SECTOR, "offset_bytes": b,
+                                    "lba": b // ss, "offset_bytes": b,
                                     "partition_size_bytes": sz, "filesystem": kind,
                                     "files": f_, "bytes": wr,
                                     "symlinks_or_special_skipped": sk,
@@ -7310,7 +9867,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                             except Exception as exc:
                                 print(f"        could not walk this filesystem: {exc}")
                         if zf is not None:
-                            vol = vol_names.get(b) or f"lba{b // SECTOR}"
+                            vol = vol_names.get(b) or f"lba{b // ss}"
                             print(f"        EXTRACTING to {extract}  as {vol}/")
                             try:
                                 ents = collect(w, w.root)
@@ -7322,7 +9879,7 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                                 if manifest is not None:
                                     manifest.append({
                                         "volume": vol, **image_rec,
-                                        "lba": b // SECTOR, "offset_bytes": b,
+                                        "lba": b // ss, "offset_bytes": b,
                                         "partition_size_bytes": sz,
                                         "filesystem": "qnx_ifs",
                                         "compression": w.compress,
@@ -7929,6 +10486,195 @@ def _tree_walk_for_check(w):
                     yield item
 
     return walk(w.root, "", 0)
+
+
+def _flash_listing(path, style):
+    """{path: (mode, size or None, mtime, target or None)} from an oracle list.
+
+    style "stat" is the fixture scripts' own "octal-mode size mtime path" (from
+    Python's lstat on the source tree, or from YAFFS reading its image back);
+    style "lln" is unsquashfs -lln, whose times are to the minute, whose device
+    lines carry "major, minor" where the size goes, and whose paths start
+    "squashfs-root"."""
+    types = {"d": S_IFDIR, "-": S_IFREG, "l": S_IFLNK, "c": 0o020000,
+             "b": 0o060000, "p": 0o010000, "s": 0o140000}
+    out = {}
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.rstrip("\n")
+            if not line:
+                continue
+            if style == "stat":
+                mode, size, mtime, name = line.split(" ", 3)
+                out[name] = (int(mode, 8), int(size), int(mtime), None)
+                continue
+            perms, _owner, rest = line.split(None, 2)
+            if perms[0] in "cb":
+                _maj, _min, day, hm, name = rest.split(None, 4)
+                size = None
+            else:
+                size, day, hm, name = rest.split(None, 3)
+                size = int(size)
+            target = None
+            if " -> " in name:
+                name, target = name.split(" -> ", 1)
+            name = "" if name == "squashfs-root" else name[len("squashfs-root/"):]
+            bits = sum(1 << (8 - i) for i, c in enumerate(perms[1:10]) if c != "-")
+            when = datetime.datetime.strptime(f"{day} {hm}", "%Y-%m-%d %H:%M")
+            out[name] = (types[perms[0]] | bits, size,
+                         int(when.replace(tzinfo=datetime.timezone.utc).timestamp()), target)
+    return out
+
+
+def _flash_fixture_check(image_gz, hashes, listing=None, style="stat", prefix="",
+                         loose_times=(), corrupt=None, allow_extra=()):
+    """Read a committed flash filesystem fixture through identify_fs() and
+    walker_for(), and hold it against its oracle lists. Returns a dict:
+
+      kind        what identify_fs() called it
+      files       [matched, expected, missing, different] against `hashes`,
+                  a sha256sum list whose paths are taken under `prefix`
+      entries     [agreeing, expected, first disagreements] against `listing`:
+                  file type and permission bits, size (not for directories,
+                  whose sizes the formats record differently or not at all),
+                  modification time (to the minute for "lln"), symlink target
+      extra       entries the reader lists under `prefix` that `listing` does
+                  not have (a deleted or renamed-away name still showing),
+                  other than those named in `allow_extra`
+      corrupt     (needle, xor) flips one byte of the decompressed image at the
+                  first occurrence of `needle` before it is read: the control
+                  that shows the content check can report a difference.
+
+    `loose_times` names entries whose time is not on the flash (a directory
+    the reader's own writer invents at mount time) and so is not compared.
+    """
+    import gzip, hashlib, io as _io
+    with gzip.open(image_gz, "rb") as gz:
+        raw = bytearray(gz.read())
+    if corrupt is not None:
+        at = raw.find(corrupt[0])
+        if at >= 0:
+            raw[at] ^= corrupt[1]
+    img = _io.BytesIO(bytes(raw))
+    size = len(raw)
+    kind = (identify_fs(img, 0, size) or (None,))[0]
+    w = walker_for(kind, img, 0, size) if kind else None
+    res = dict(kind=kind, files=[0, 0, 0, 0], entries=[0, 0, []], extra=[])
+    if w is None:
+        return res
+    got = {p: (node, mode, sz, mt) for p, node, mode, sz, mt, _r in walk_all(w)}
+    want = {}
+    with open(hashes, encoding="utf-8") as fh:
+        for line in fh:
+            if line.strip():
+                digest, path = line.rstrip("\n").split("  ", 1)
+                want[prefix + path] = digest
+    files = res["files"]
+    files[1] = len(want)
+    for path, digest in want.items():
+        g = got.get(path)
+        if g is None:
+            files[2] += 1
+            continue
+        h, n = hashlib.sha256(), 0
+        try:
+            for chunk in w.read_file(g[0], g[2]):
+                h.update(chunk)
+                n += len(chunk)
+        except Exception:                            # pylint: disable=broad-except
+            files[3] += 1
+            continue
+        if n == g[2] and h.hexdigest() == digest:
+            files[0] += 1
+        else:
+            files[3] += 1
+    if listing:
+        exp = _flash_listing(listing, style)
+        ent = res["entries"]
+        ent[1] = len(exp)
+        for path, (mode, sz, mt, target) in exp.items():
+            g = got.get(prefix + path) if path else None
+            if not path:
+                root = w.entry(w.root)
+                g = (w.root, root[0], root[1], root[2]) if root else None
+            why = None
+            if g is None:
+                why = "missing"
+            elif g[1] != mode:
+                why = f"mode {g[1]:o}, not {mode:o}"
+            elif sz is not None and mode & S_IFMT != S_IFDIR and g[2] != sz:
+                why = f"size {g[2]}, not {sz}"
+            elif path not in loose_times and (g[3] // 60 * 60 if style == "lln" else g[3]) != mt:
+                why = f"time {g[3]}, not {mt}"
+            elif target is not None and w.readlink(g[0]) != target:
+                why = "symlink target"
+            if why:
+                if len(ent[2]) < 3:
+                    ent[2].append(f"{path or '/'}: {why}")
+            else:
+                ent[0] += 1
+        res["extra"] = sorted(p[len(prefix):] for p in got
+                              if p.startswith(prefix) and p[len(prefix):] not in exp
+                              and p[len(prefix):] not in allow_extra)
+    return res
+
+
+def _gpt_test_image(ss, volume, first_lba, name, type_guid, used=True):
+    """A whole disk image with one GPT partition holding ``volume``, for the
+    self-test: a protective MBR at LBA 0, the primary header at LBA 1 and its
+    entry array from LBA 2, the partition at ``first_lba``, and the backup array
+    and header at the end, every LBA counting ``ss``-byte sectors.
+
+    The layout is UEFI 2.10 section 5.2.3 (Table 5.4, the protective MBR
+    record) and section 5.3.2 (Table 5.5, the header; Table 5.6, an entry).
+    The offsets are written out here rather than shared with read_gpt(), so the
+    reader is checked against the table as the spec gives it. Its output was
+    also read by The Sleuth Kit's mmls (-b 4096) and util-linux sfdisk
+    (--sector-size 4096), which placed the partition where this says it is.
+    """
+    n_ent, ent_sz = 128, 128
+    arr_lbas = -(-n_ent * ent_sz // ss)
+    part_lbas = -(-len(volume) // ss)
+    last_lba = first_lba + part_lbas - 1
+    total = last_lba + 1 + arr_lbas + 1          # then the backup array and header
+    img = bytearray(total * ss)
+
+    # Table 5.4: type 0xEE from LBA 1 for the rest of the disk
+    rec = bytearray(16)
+    rec[1:4] = b"\x00\x02\x00"                    # StartingCHS 0x000200
+    rec[4] = 0xEE
+    rec[5:8] = b"\xff\xff\xff"
+    struct.pack_into("<II", rec, 8, 1, min(total - 1, 0xFFFFFFFF))
+    img[446:462] = rec
+    img[510:512] = b"\x55\xaa"
+
+    ent = bytearray(ent_sz)
+    ent[0:16] = uuid.UUID(type_guid).bytes_le
+    ent[16:32] = uuid.UUID("5a6b7c8d-0000-4000-8000-00000000c0de").bytes_le
+    struct.pack_into("<QQQ", ent, 32, first_lba, last_lba, 0)
+    ent[56:56 + 2 * len(name)] = name.encode("utf-16-le")
+    # used=False leaves every entry zero: a valid table with no partition in it
+    arr = (bytes(ent) if used else bytes(ent_sz)) + bytes(ent_sz * (n_ent - 1))
+
+    def header(my_lba, alt_lba, arr_lba):
+        h = bytearray(92)
+        h[0:8] = b"EFI PART"
+        struct.pack_into("<III", h, 8, 0x00010000, 92, 0)
+        struct.pack_into("<QQQQ", h, 24, my_lba, alt_lba,
+                         2 + arr_lbas, total - 2 - arr_lbas)
+        h[56:72] = uuid.UUID("0d15c0de-0000-4000-8000-000000000001").bytes_le
+        struct.pack_into("<QIII", h, 72, arr_lba, n_ent, ent_sz,
+                         binascii.crc32(arr) & 0xFFFFFFFF)
+        struct.pack_into("<I", h, 16, binascii.crc32(bytes(h)) & 0xFFFFFFFF)
+        return bytes(h)
+
+    img[ss:ss + 92] = header(1, total - 1, 2)
+    img[2 * ss:2 * ss + len(arr)] = arr
+    img[first_lba * ss:first_lba * ss + len(volume)] = volume
+    back_arr = total - 1 - arr_lbas
+    img[back_arr * ss:back_arr * ss + len(arr)] = arr
+    img[(total - 1) * ss:(total - 1) * ss + 92] = header(total - 1, 1, back_arr)
+    return img
 
 
 def _walk_all_agreement(image_gz, break_it=None):
@@ -9669,6 +12415,192 @@ def self_test():
                   + (f", {emiss} missing" if emiss else "")
                   + (f", {ediff} different" if ediff else "") + ")" + ebroke)
 
+        # GPT at 512 and 4096 bytes a sector. A 4Kn drive or a UFS LUN image
+        # keeps its GPT header at byte 4096 and counts every LBA in 4096-byte
+        # sectors; read as 512 it shows no partition table at all. The same
+        # ext4 fixture goes into a GPT built for each size and has to be found
+        # at the byte its entry names, identified, and walked with every file
+        # matching what sha256sum recorded over its source tree.
+        #
+        # 0xCBF43926 is the check value the CRC RevEng catalogue gives for
+        # CRC-32/ISO-HDLC over "123456789". It is written out so that a wrong
+        # CRC shared by _gpt_test_image and read_gpt cannot pass the rest.
+        crc_ok = binascii.crc32(b"123456789") == 0xCBF43926
+        if not crc_ok:
+            ok = False
+        print(f"  [{'PASS' if crc_ok else 'FAIL'}] the GPT CRC is CRC-32/ISO-HDLC "
+              "(check value 0xCBF43926)")
+        gpt_fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "tests", "fixtures", "ext4-sparse.img.gz")
+        if not (os.path.isfile(gpt_fix) and os.path.isfile(ext_want)):
+            print("  [SKIP] the ext4-sparse fixture is not beside this script, so the "
+                  "4096-byte-sector GPT was not built")
+        else:
+            import hashlib
+            with gzip.open(gpt_fix, "rb") as gz:
+                gvol = gz.read()
+            gwant = {}
+            with open(ext_want, encoding="utf-8") as lf:
+                for line in lf:
+                    line = line.rstrip("\n")
+                    if line and not line.startswith("#"):
+                        digest, path = line.split("  ", 1)
+                        gwant[path] = digest
+            LINUX_FS = "0fc63daf-8483-4772-8e79-3d69d8477de4"   # Linux filesystem data
+
+            def gpt_walk(img_bytes):
+                """(table, rejected, [GPT volumes], files matching the list)."""
+                gfh = io.BytesIO(bytes(img_bytes))
+                gtab, grej = read_gpt(gfh)
+                gvols = [v for v in volumes(gfh, len(img_bytes))
+                         if v["label"].startswith("GPT part")]
+                matched = 0
+                for v in gvols:
+                    w = v.get("walker")
+                    if w is None:
+                        continue
+                    for path, ino, sz, _mt in collect(w, w.root):
+                        if sz is None or path not in gwant:
+                            continue
+                        h = hashlib.sha256()
+                        for chunk in w.read_file(ino, sz):
+                            h.update(chunk)
+                        matched += h.hexdigest() == gwant[path]
+                return gtab, grej, gvols, matched
+
+            # sector size, first LBA, last LBA and the partition's byte offset,
+            # written out rather than computed from the builder
+            for gss, gfirst, glast, gbase in ((4096, 300, 6443, 1228800),
+                                              (512, 2048, 51199, 1048576)):
+                gimg = _gpt_test_image(gss, gvol, gfirst, "sparse", LINUX_FS)
+                try:
+                    gtab, grej, gvols, gmatch = gpt_walk(gimg)
+                    gregs = partition_regions(io.BytesIO(bytes(gimg)), len(gimg))[0]
+                    gcond = (gtab == [(1, "sparse", LINUX_FS, gfirst, glast)]
+                             and gtab.sector_size == gss and gtab.header_lba == 1
+                             and not grej and len(gvols) == 1
+                             and gvols[0]["base"] == gbase
+                             and gvols[0]["size"] == len(gvol)
+                             and gvols[0]["kind"] == "ext4"
+                             and gvols[0]["lba"] == gfirst
+                             and gvols[0]["name"].startswith(f"p1_lba{gfirst}_")
+                             and gmatch == len(gwant)
+                             # the protective MBR record counts the same sectors
+                             and gregs[0][:2] == ("MBR part 1", gss))
+                    gdetail = (f"at byte {gvols[0]['base']:,}, {gmatch} of "
+                               f"{len(gwant)} files match" if gvols else "no volume")
+                except Exception as exc:             # pylint: disable=broad-except
+                    gcond, gdetail = False, f"raised {type(exc).__name__}: {exc}"
+                if not gcond:
+                    ok = False
+                print(f"  [{'PASS' if gcond else 'FAIL'}] a GPT of {gss}-byte sectors "
+                      f"puts the ext4 fixture at LBA {gfirst}, byte {gbase:,}, and it "
+                      f"walks ({gdetail})")
+
+            g4k = _gpt_test_image(4096, gvol, 300, "sparse", LINUX_FS)
+            # the fixture really needs the 4096 probe: at 512 there is no header
+            at512 = _gpt_at(io.BytesIO(bytes(g4k)), 512, 1)
+            n4k = len(g4k) // 4096
+            back = (n4k - 1) * 4096
+
+            def spoiled(*cuts, mbr_type=None, my_lba=None):
+                """A copy of the 4096-byte image with bytes flipped at each offset,
+                the protective record's type changed, or the primary's MyLBA
+                rewritten with its CRC recomputed so only MyLBA is wrong."""
+                bad = bytearray(g4k)
+                for at in cuts:
+                    bad[at] ^= 0xFF
+                if mbr_type is not None:
+                    bad[446 + 4] = mbr_type
+                if my_lba is not None:
+                    struct.pack_into("<Q", bad, 4096 + 24, my_lba)
+                    struct.pack_into("<I", bad, 4096 + 16, 0)
+                    struct.pack_into("<I", bad, 4096 + 16, binascii.crc32(
+                        bytes(bad[4096:4096 + 92])) & 0xFFFFFFFF)
+                return bad
+
+            def refused_as(bad, want_lba, *reasons):
+                """The table read from want_lba (None: no table at all), with every
+                reason named among the refusals, and the fixture still at byte
+                1,228,800 whenever a table is used."""
+                gtab, grej, gvols, gmatch = gpt_walk(bad)
+                said = " / ".join(why for _at, why in grej)
+                if want_lba is None:
+                    good = gtab is None and not gvols
+                else:
+                    good = (gtab is not None and gtab.header_lba == want_lba
+                            and gtab.sector_size == 4096 and len(gvols) == 1
+                            and gvols[0]["base"] == 1228800 and gmatch == len(gwant))
+                return good and all(r in said for r in reasons), said
+
+            cases = [
+                ("read as 512-byte sectors the 4096 image has no header at LBA 1",
+                 at512 == (None, None), ""),
+            ]
+            for label, bad, want_lba, reasons in (
+                    ("a primary header that fails its CRC is not used, and the "
+                     "backup at the last LBA is", spoiled(4096 + 40), n4k - 1,
+                     ("HeaderCRC32",)),
+                    ("a primary entry array that fails its CRC is not used, and the "
+                     "backup is", spoiled(2 * 4096 + 60), n4k - 1,
+                     ("PartitionEntryArrayCRC32",)),
+                    ("a primary header whose MyLBA is not 1 is not used",
+                     spoiled(my_lba=2), n4k - 1, ("MyLBA is 2",)),
+                    ("with both headers spoiled there is no table",
+                     spoiled(4096 + 40, back + 40), None,
+                     ("HeaderCRC32",)),
+                    ("without a 0xEE record in sector 0 the backup is not read, "
+                     "since it may be a stale GPT", spoiled(4096 + 40, mbr_type=0x83),
+                     None, ("HeaderCRC32",))):
+                try:
+                    good, said = refused_as(bad, want_lba, *reasons)
+                except Exception as exc:             # pylint: disable=broad-except
+                    good, said = False, f"raised {type(exc).__name__}: {exc}"
+                cases.append((label, good, said))
+            # The first segment of a split image: the primary validates, the
+            # partition runs past the end of the file, and that is reported as
+            # missing bytes, not as a disk with no partition table.
+            try:
+                g4k_cut = bytes(g4k[:2 << 20])
+                cvols = [v for v in volumes(io.BytesIO(g4k_cut), len(g4k_cut))
+                         if v["label"].startswith("GPT part")]
+                cgood = (len(cvols) == 1 and cvols[0]["base"] == 1228800
+                         and cvols[0]["missing_past_end"] == 1228800 + len(gvol) - len(g4k_cut))
+                csaid = (f"{cvols[0]['missing_past_end']:,} bytes past the end"
+                         if cvols else "no GPT volume")
+            except Exception as exc:                 # pylint: disable=broad-except
+                cgood, csaid = False, f"raised {type(exc).__name__}: {exc}"
+            cases.append(("a 4096 GPT cut short still names its partition, reaching "
+                          "past the end of the file", cgood, csaid))
+            # A valid 4096 GPT with no used entry is still a 4096 disk. An empty
+            # GptTable is falsy, so a truthiness test counted this disk in 512
+            # and looked for a hybrid MBR record's volume at an eighth of its
+            # offset.
+            try:
+                gempty = _gpt_test_image(4096, gvol, 300, "sparse", LINUX_FS, used=False)
+                ghyb = bytearray(16)
+                ghyb[4] = 0x83
+                struct.pack_into("<II", ghyb, 8, 300, len(gvol) // 4096)
+                gempty[462:478] = ghyb
+                efh = io.BytesIO(bytes(gempty))
+                etab = parse_gpt(efh)
+                evols = [v for v in volumes(efh, len(gempty)) if v["label"] == "MBR part 2"]
+                egood = (etab is not None and etab == [] and etab.sector_size == 4096
+                         and disk_sector_size(efh) == 4096 and len(evols) == 1
+                         and evols[0]["base"] == 1228800 and evols[0]["kind"] == "ext4"
+                         and evols[0]["lba"] == 300)
+                esaid = (f"the hybrid record's volume at byte {evols[0]['base']:,}, "
+                         f"{evols[0]['kind']}" if evols else "no MBR volume")
+            except Exception as exc:                 # pylint: disable=broad-except
+                egood, esaid = False, f"raised {type(exc).__name__}: {exc}"
+            cases.append(("a valid 4096 GPT with no used entry still counts the MBR in "
+                          "4096-byte sectors", egood, esaid))
+            for label, cond, said in cases:
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] {label}"
+                      + (f" ({said})" if said else ""))
+
         # F2FS detection rejects the negatives: an all-zero region, the right
         # magic with a wrong reserved inode number, and the right magic with an
         # impossible block size. Each must return None, so a chance 4-byte match
@@ -10039,6 +12971,299 @@ def self_test():
         print(f"  [{'PASS' if cut_cond else 'FAIL'}] volumes() reports a volume the "
               f"image is too short for as missing bytes ({cut_detail})")
 
+        # The Linux flash filesystems, each against oracles its reader never
+        # touches: sha256sum over the tree the image was built from, that tree's
+        # own stat listing (or unsquashfs -lln for SquashFS), and for the YAFFS
+        # image with history, what YAFFS's own code reads back from it. Every
+        # compressor each writer offers has an image; see tools/make_*.sh.
+        fx = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests", "fixtures")
+        sq = [(f"squashfs-{c}", "squashfs", "squashfs.src.sha256", "squashfs.lln", "lln", "", (),
+               f"SquashFS {what}")
+              for c, what in (("gzip", "gzip"), ("xz", "xz with an ARM BCJ filter"),
+                              ("lzma", "legacy lzma"), ("lzo", "lzo"), ("lz4", "lz4 (HC)"),
+                              ("zstd", "zstd"), ("none", "uncompressed"),
+                              ("small", "4 KiB blocks, gzip"))]
+        jf = [(f"jffs2-{c}", "jffs2", "jffs2.src.sha256", "jffs2.src.stat", "stat", "", ("dev",),
+               f"JFFS2 {what}")
+              for c, what in (("le-zlib", "little endian, zlib"), ("be-zlib", "big endian, zlib"),
+                              ("le-lzo", "lzo"), ("le-rtime", "rtime"), ("le-none", "uncompressed"),
+                              ("le-sum", "with erase block summary nodes"))]
+        ub = [("ubifs-lzo", "ubifs", "ubifs.src.sha256", "ubifs.src.stat", "stat", "", (),
+               "UBIFS bare mkfs.ubifs image, lzo")]
+        for c, what in (("nand-lzo", "NAND, lzo"), ("nand-zlib", "NAND, zlib"),
+                        ("nand-zstd", "NAND, zstd"), ("nand-none", "NAND, uncompressed"),
+                        ("nor", "NOR, lzo")):
+            ub += [(f"ubi-{c}", "ubi", "ubifs.src.sha256", "ubifs.src.stat", "stat", "rootfs_data/",
+                    (), f"UBI {what}: the UBIFS volume"),
+                   (f"ubi-{c}", "ubi", "ubi.rootfs.sha256", None, "stat", "rootfs/", (),
+                    f"UBI {what}: the SquashFS static volume"),
+                   (f"ubi-{c}", "ubi", "ubi.kernel.sha256", None, "stat", "", (),
+                    f"UBI {what}: the raw static volume")]
+        ya = [(f"yaffs2-{c}", "yaffs2", "yaffs.src.sha256", "yaffs.src.stat", "stat", "", (),
+               f"YAFFS2 {what}")
+              for c, what in (("le", "mkyaffs2image"),
+                              ("be", "mkyaffs2image convert (big-endian headers)"),
+                              ("oob2", "tags at spare offset 2"))]
+        ya += [("yaffs1", "yaffs1", "yaffs.src.sha256", "yaffs.src.stat", "stat", "", (),
+                "YAFFS1 mkyaffsimage"),
+               ("yaffs2-history", "yaffs2", "yaffs2.history.sha256", "yaffs2.history.stat", "stat",
+                "", ("lost+found",),
+                "YAFFS2 with history (overwrites, a shrink then a write past the old data, "
+                "holes, deletion, garbage collection, a file never closed), against YAFFS's "
+                "own read-back"),
+               ("yaffs1-history", "yaffs1", "yaffs1.history.sha256", "yaffs1.history.stat", "stat",
+                "", ("lost+found",),
+                "YAFFS1 with the same history, ending in a power cut during garbage "
+                "collection, against YAFFS's own read-back"),
+               ("yaffs1cut-history", "yaffs1", "yaffs1cut.history.sha256",
+                "yaffs1cut.history.stat", "stat", "", ("lost+found",),
+                "YAFFS1 power cut in a rewrite: two live copies with different bytes that "
+                "only their serial numbers order, against YAFFS's own read-back")]
+        # And images the Linux kernel's own drivers wrote with history and read
+        # back (tools/make_kernel_flash_fixtures.sh): JFFS2 on NOR, where the
+        # kernel marks superseded nodes obsolete, JFFS2 on NAND, where it cannot
+        # and only version numbers order them, and UBIFS in UBI imaged while
+        # mounted, so the history since the last commit is in the journal. The
+        # two NAND images were taken with nanddump --oob.
+        kh = [("jffs2-nor-history", "jffs2", "jffs2-nor.history.sha256",
+               "jffs2-nor.history.stat", "stat", "", (),
+               "JFFS2 on NOR written with history by the Linux kernel, against the "
+               "kernel's own read-back"),
+              ("jffs2-nand-history", "jffs2", "jffs2-nand.history.sha256",
+               "jffs2-nand.history.stat", "stat", "", (),
+               "JFFS2 on NAND written with history by the Linux kernel and taken with "
+               "nanddump --oob, against the kernel's own read-back"),
+              ("ubi-nand-history", "ubi", "ubi-nand.history.sha256", "ubi-nand.history.stat",
+               "stat", "rootfs_data/", (),
+               "UBIFS written with history by the Linux kernel and taken with nanddump "
+               "--oob while mounted, against the kernel's own read-back"),
+              ("ubi-nand-history", "ubi", "ubi-nand.history.kernel.sha256", None, "stat", "",
+               (), "a static UBI volume the kernel wrote with ubiupdatevol, from the same image")]
+        for stem, want_kind, hashes, listing, style, prefix, loose, label in sq + jf + ub + ya + kh:
+            img = os.path.join(fx, stem + ".img.gz")
+            if not (os.path.isfile(img) and os.path.isfile(os.path.join(fx, hashes))):
+                print(f"  [SKIP] {stem} is not beside this script, so {label} was not checked")
+                continue
+            if (stem.endswith("zstd") and _zstd_module() is None
+                    and (not stem.startswith("ubi-") or prefix == "rootfs_data/")):
+                print(f"  [SKIP] {label}: this Python has no zstd (3.14 adds compression.zstd)")
+                continue
+            # Names the reader lists that the source tree cannot: device nodes
+            # mkfs.jffs2 made from its device table, and the lost+found YAFFS
+            # lists on every volume.
+            allow = (("dev/null", "dev/sda") if stem.startswith("jffs2-le-") or stem == "jffs2-be-zlib"
+                     else ("lost+found",) if stem in ("yaffs1", "yaffs2-le", "yaffs2-be", "yaffs2-oob2")
+                     else ())
+            try:
+                r = _flash_fixture_check(img, os.path.join(fx, hashes),
+                                         os.path.join(fx, listing) if listing else None,
+                                         style, prefix, loose, allow_extra=allow)
+                broke = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                r = dict(kind=None, files=[0, 0, 0, 0], entries=[0, 0, []], extra=[])
+                broke = f"; raised {type(exc).__name__}: {exc}"
+            (got, want, miss, diff), (eok, ewant, ebad) = r["files"], r["entries"]
+            cond = (r["kind"] == want_kind and want and got == want and eok == ewant
+                    and not r["extra"] and not broke)
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] {label}: {got} of {want} files match "
+                  f"{hashes}" + (f", {eok} of {ewant} entries agree with {listing}"
+                                 if listing else "")
+                  + f" (identified as {r['kind']}"
+                  + (f", {miss} missing" if miss else "") + (f", {diff} different" if diff else "")
+                  + ")" + ("; " + "; ".join(ebad) if ebad else "")
+                  + (f"; listed but not in {listing}: " + ", ".join(r["extra"][:3])
+                     if r["extra"] else "") + broke)
+
+        # The kernel-written images are only worth having while they carry the
+        # history they exist to test: superseded JFFS2 nodes marked obsolete on
+        # NOR and left valid on NAND (more directory entry nodes than linked
+        # names, none obsolete), a UBIFS journal with nodes to replay, and in
+        # UBI the two older copies of the static volume's blocks.
+        khist = [os.path.join(fx, f"{n}-history.img.gz") for n in ("jffs2-nor", "jffs2-nand", "ubi-nand")]
+        if all(os.path.isfile(f) for f in khist):
+            import gzip as _gz, io as _io
+            kw = []
+            for f, kind in zip(khist, ("jffs2", "jffs2", "ubi")):
+                kimg = _io.BytesIO(_gz.open(f, "rb").read())
+                kw.append(walker_for(kind, kimg, 0, len(kimg.getvalue())))
+            nor_s, nand_w, ubi_w = kw[0].stats, kw[1], kw[2]
+            nand_live = sum(1 for ents in nand_w.dirents.values() for v in ents.values() if v[1])
+            ubifs = [w for _v, _vw, w, k in ubi_w.inner if k == "ubifs"]
+            replayed = ubifs[0].stats["journal nodes replayed"] if ubifs else 0
+            older = ubi_w.ubi.stats["an older copy of a block, not the one read"]
+            hcond = (nor_s["obsolete"] > 0 and nand_w.nand == (2048, 64)
+                     and nand_w.stats["obsolete"] == 0 and nand_w.stats["dirent"] > nand_live
+                     and ubi_w.nand == (2048, 64) and replayed > 0 and older == 2)
+            if not hcond:
+                ok = False
+            print(f"  [{'PASS' if hcond else 'FAIL'}] the kernel-written images carry history: "
+                  f"JFFS2 on NOR has {nor_s['obsolete']} nodes marked obsolete, JFFS2 on NAND "
+                  f"{nand_w.stats['dirent']} directory entry nodes for {nand_live} linked names "
+                  f"with {nand_w.stats['obsolete']} obsolete, UBIFS {replayed} journal nodes "
+                  f"to replay, and UBI {older} older copies of the static volume's blocks; both "
+                  f"NAND dumps read as {nand_w.nand} and {ubi_w.nand} pages with the spare "
+                  f"stripped")
+
+        # JFFS2 device nodes come from a devtable, so the devtable is their
+        # oracle: a character and a block device, with its permissions.
+        jdev = os.path.join(fx, "jffs2-le-zlib.img.gz")
+        if os.path.isfile(jdev):
+            import gzip as _gz, io as _io
+            dimg = _io.BytesIO(_gz.open(jdev, "rb").read())
+            dw = walker_for("jffs2", dimg, 0, len(dimg.getvalue()))
+            dnodes = dict(dw.listdir(dict(dw.listdir(dw.root))["dev"]))
+            dmodes = {n: dw.entry(i)[0] for n, i in dnodes.items()}
+            # collect() must count the block device as a special file, not
+            # walk into it: its format bits share S_IFDIR's bit.
+            dspecial = sorted(p for p, _i, sz, _m in collect(dw, dw.root)
+                              if sz is None and p.startswith("dev/"))
+            dcond = (dmodes == {"null": 0o020666, "sda": 0o060660}
+                     and dspecial == ["dev/null", "dev/sda"])
+            if not dcond:
+                ok = False
+            print(f"  [{'PASS' if dcond else 'FAIL'}] JFFS2 device nodes carry the type and "
+                  f"permissions the devtable gave them (null a character device 0666, sda a "
+                  f"block device 0660; got "
+                  + ", ".join(f"{n} {m:o}" for n, m in sorted(dmodes.items()))
+                  + f"), and collect() reports both as special files, not directories "
+                  f"({', '.join(dspecial) or 'none'})")
+
+        # A time the filesystem does not record is reported as none, never as
+        # 1970-01-01: UBI keeps no time for a volume, and YAFFS makes its root and
+        # lost+found at mount time when the flash holds no header for them.
+        uraw, yraw = os.path.join(fx, "ubi-nand-lzo.img.gz"), os.path.join(fx, "yaffs2-le.img.gz")
+        if os.path.isfile(uraw) and os.path.isfile(yraw):
+            import contextlib as _ctx, gzip as _gz, io as _io
+            uimg = _io.BytesIO(_gz.open(uraw, "rb").read())
+            uw = walker_for("ubi", uimg, 0, len(uimg.getvalue()))
+            k_mtime = uw.entry(dict(uw.listdir(uw.root))["kernel"])[2]
+            yimg = _io.BytesIO(_gz.open(yraw, "rb").read())
+            yw = walker_for("yaffs2", yimg, 0, len(yimg.getvalue()))
+            lf_mtime = yw.entry(dict(yw.listdir(yw.root))["lost+found"])[2]
+            shown = _io.StringIO()
+            with _ctx.redirect_stdout(shown):
+                print_tree(uw, uw.root, 1, 1, [50])
+                print_tree(yw, yw.root, 1, 1, [50])
+            kline = [ln for ln in shown.getvalue().splitlines() if " kernel " in ln]
+            tcond = (k_mtime is None and lf_mtime is None and len(kline) == 1
+                     and "1970" not in shown.getvalue()
+                     and _zip_time(None) == (1980, 1, 1, 0, 0, 0))
+            if not tcond:
+                ok = False
+            print(f"  [{'PASS' if tcond else 'FAIL'}] a raw UBI volume and YAFFS's lost+found, "
+                  f"which record no time, report none (got {k_mtime!r} and {lf_mtime!r}), and "
+                  f"the listing shows no date for them: "
+                  f"{kline[0].strip() if kline else 'no kernel line'!r}")
+
+        # A raw flash dump has no partition table and a bootloader at offset 0,
+        # so its filesystems are found by their own headers (flash_regions). A
+        # NOR dump is built here from two fixtures: 1.25 MiB of bytes no
+        # filesystem claims, then the SquashFS image and the JFFS2 image each
+        # at a 64 KiB boundary, then erased flash. volumes() must find exactly
+        # those two, at those offsets, and read them. The control: the same
+        # images with the SquashFS at offset 0, where it is recognised as the
+        # whole image, must not be split, because discovery runs only when
+        # nothing is recognised there.
+        sqf, jff = os.path.join(fx, "squashfs-gzip.img.gz"), os.path.join(fx, "jffs2-le-zlib.img.gz")
+        if os.path.isfile(sqf) and os.path.isfile(jff):
+            import gzip as _gz, io as _io, random as _rnd
+            sq_raw, jf_raw = _gz.open(sqf, "rb").read(), _gz.open(jff, "rb").read()
+            padto = lambda b, a: b + b"\xff" * (-len(b) % a)
+            lead = _rnd.Random(7).randbytes(0x140000)
+            nor = lead + padto(sq_raw, 65536) + padto(jf_raw, 65536)
+            nor += b"\xff" * ((4 << 20) - len(nor))
+            want_at = {0x140000: "squashfs", 0x140000 + len(padto(sq_raw, 65536)): "jffs2"}
+            vols = volumes(_io.BytesIO(nor), len(nor))
+            got_at = {v["base"]: v["kind"] for v in vols}
+            files_read = sum(1 for v in vols if v.get("walker")
+                             for _e in collect(v["walker"], v["walker"].root))
+            fcond = got_at == want_at and files_read == 612 + 3 + 310 + 3
+            if not fcond:
+                ok = False
+            print(f"  [{'PASS' if fcond else 'FAIL'}] a raw NOR dump with no partition table "
+                  f"has its SquashFS and JFFS2 found by their own headers at "
+                  + ", ".join(f"{k} {b:#x}" for b, k in sorted(got_at.items()))
+                  + f" ({files_read} entries collected)")
+            whole = padto(sq_raw, 65536) + padto(jf_raw, 65536)
+            wv = volumes(_io.BytesIO(whole), len(whole))
+            wcond = [(v["label"], v["kind"]) for v in wv] == [("whole image", "squashfs")]
+            if not wcond:
+                ok = False
+            print(f"  [{'PASS' if wcond else 'FAIL'}] and an image recognised at offset 0 is "
+                  f"not searched for more ("
+                  + ", ".join(f"{v['label']} {v['kind']}" for v in wv) + ")")
+
+        # A chip-off NAND dump keeps each page's spare (OOB) bytes after it. UBI
+        # and JFFS2 lay data across pages, so they are read with the spare
+        # stripped (NandDataView). Two such dumps are built here from the
+        # fixtures, each 2048-byte page followed by 64 spare bytes holding a
+        # bad-block marker and bytes standing in for ECC, and every file must
+        # read back; the geometry is not given, the readers find it.
+        ubf = os.path.join(fx, "ubi-nand-lzo.img.gz")
+        if os.path.isfile(ubf) and os.path.isfile(jff):
+            import gzip as _gz, io as _io, random as _rnd, hashlib as _hl
+            r = _rnd.Random(11)
+
+            def _with_oob(data, page=2048, spare=64):
+                out = bytearray()
+                for at in range(0, len(data), page):
+                    pg = data[at:at + page].ljust(page, b"\xff")
+                    out += pg + b"\xff\xff" + (r.randbytes(spare - 2) if pg.strip(b"\xff")
+                                                 else b"\xff" * (spare - 2))
+                return bytes(out)
+
+            for label, raw, prefix, lst in (
+                    ("UBI", _gz.open(ubf, "rb").read(), "rootfs_data/", "ubifs.src.sha256"),
+                    ("JFFS2", padto(_gz.open(jff, "rb").read(), 65536), "", "jffs2.src.sha256")):
+                dump = _with_oob(raw)
+                vols = volumes(_io.BytesIO(dump), len(dump))
+                w = vols[0].get("walker") if len(vols) == 1 else None
+                want = {}
+                with open(os.path.join(fx, lst), encoding="utf-8") as fh_:
+                    for line in fh_:
+                        d, pth = line.rstrip("\n").split("  ", 1)
+                        want[prefix + pth] = d
+                got = {pth: (i, sz) for pth, i, sz, _m in (collect(w, w.root) if w else [])
+                       if sz is not None}
+                okn = sum(1 for pth, d in want.items() if pth in got and _hl.sha256(
+                    b"".join(w.read_file(*got[pth]))).hexdigest() == d)
+                geo = getattr(w, "nand", None)
+                ocond = okn == len(want) and geo == (2048, 64)
+                if not ocond:
+                    ok = False
+                print(f"  [{'PASS' if ocond else 'FAIL'}] {label} in a raw NAND dump with its "
+                      f"spare bytes: geometry found as {geo}, {okn} of {len(want)} files match")
+
+        # The controls. One byte of one file's stored bytes is flipped in each
+        # family's uncompressed image, and exactly that file must come back
+        # different: a content check that has never reported a difference says
+        # nothing. (In UBIFS the node's CRC catches it and the file is refused;
+        # in JFFS2 the node is dropped as the kernel drops it, and a file whose
+        # only node that was is no longer listed; YAFFS keeps no data CRC, so
+        # the bytes differ.)
+        for stem, hashes, prefix, label in (
+                ("squashfs-none", "squashfs.src.sha256", "", "SquashFS"),
+                ("jffs2-le-none", "jffs2.src.sha256", "", "JFFS2"),
+                ("ubi-nand-none", "ubifs.src.sha256", "rootfs_data/", "UBIFS in UBI"),
+                ("yaffs2-le", "yaffs.src.sha256", "", "YAFFS2")):
+            img = os.path.join(fx, stem + ".img.gz")
+            if not os.path.isfile(img):
+                continue
+            try:
+                r = _flash_fixture_check(img, os.path.join(fx, hashes), prefix=prefix,
+                                         corrupt=(b"deep file\n", 0x20))
+                got, want, miss, diff = r["files"]
+            except Exception:                        # pylint: disable=broad-except
+                got, want, miss, diff = 0, 0, 0, 0
+            ccond = miss + diff == 1 and got == want - 1
+            if not ccond:
+                ok = False
+            print(f"  [{'PASS' if ccond else 'FAIL'}] and the {label} check reports the one "
+                  f"file whose stored bytes were altered ({diff} different, {miss} no longer "
+                  f"listed, {got} of {want} still matching)")
+
         # walk_all() takes a faster route on the walkers that offer one. It has
         # to report exactly what a walk of the directory tree reports, so every
         # committed fixture is walked both ways and every field compared.
@@ -10047,7 +13272,9 @@ def self_test():
         checked, all_rows, all_wrong, fast_seen = 0, 0, 0, []
         for stem in ("ntfs-fixture", "apfs-fixture", "hfsplus-fixture",
                      "ext4-sparse", "ext2-sparse", "fat32-deleted",
-                     "exfat-deleted", "f2fs-fixture"):
+                     "exfat-deleted", "f2fs-fixture", "squashfs-gzip",
+                     "jffs2-le-zlib", "ubi-nand-lzo", "yaffs2-history",
+                     "yaffs1-history"):
             fix = os.path.join(here, stem + ".img.gz")
             if not os.path.isfile(fix):
                 continue
@@ -10393,7 +13620,7 @@ what it checks, and where the constants come from:
   partition and retries at +0 if the magic is wrong. Little endian is tried
   first, then big endian. This tool does the same, for the whole image, for
   every MBR primary, every logical volume in the extended chain, and every
-  GPT partition.
+  GPT partition, on disks of 512-byte or 4096-byte sectors.
 
   A bare 4-byte magic match is not a finding: expect roughly one by chance
   per 256 MiB scanned. Every candidate is parsed as a superblock and its
@@ -10502,6 +13729,55 @@ what it checks, and where the constants come from:
   the one candidate partition (a Ford Sync G4 slot named boot_fs) turned out
   to carry a RAW0 container, not QNX4.
 
+  For the Linux flash filesystems, from the Linux kernel at v7.0 (commit
+  028ef9c96e96197026887c0f092424679298aae8):
+  SQUASHFS_MAGIC     0x73717368   linux/include/uapi/linux/magic.h:20
+  struct squashfs_super_block     linux/fs/squashfs/squashfs_fs.h:241
+  JFFS2_MAGIC_BITMASK    0x1985   linux/include/uapi/linux/jffs2.h:25
+  struct jffs2_raw_inode          linux/include/uapi/linux/jffs2.h:135
+  UBI_EC_HDR_MAGIC   0x55424923   linux/drivers/mtd/ubi/ubi-media.h:29
+  UBI_VID_HDR_MAGIC  0x55424921   linux/drivers/mtd/ubi/ubi-media.h:31
+  struct ubi_vtbl_record          linux/drivers/mtd/ubi/ubi-media.h:355
+  UBIFS_NODE_MAGIC   0x06101831   linux/fs/ubifs/ubifs-media.h:25
+
+  How each reader chooses among versions and copies follows the code that
+  makes the choice: fs/jffs2/readinode.c for JFFS2, drivers/mtd/ubi/attach.c
+  ubi_compare_lebs for UBI, fs/ubifs/replay.c for the UBIFS journal. LZO1X
+  is decoded from lib/lzo/lzo1x_decompress_safe.c and LZ4 from lz4's
+  lz4_Block_format.md at v1.10.0, both carried as pure Python; zstd needs
+  Python 3.14 (compression.zstd). SquashFS 4.0 is walked, 1.x to 3.x only
+  reported.
+
+  For YAFFS1 and YAFFS2, from Aleph One's yaffs2 at commit
+  474b3acb927d27b2305618aaf24456b9d33fe91b:
+  object ids, root 1 .. 0x10      yaffs2/core/yaffs_guts.h:94-100
+  struct yaffs_spare              yaffs2/core/yaffs_guts.h:225
+  struct yaffs_obj_hdr            yaffs2/core/yaffs_guts.h:330
+  YAFFS2 packed tags              yaffs2/core/yaffs_packedtags2.c
+  YAFFS2 scan rules               yaffs2/core/yaffs_yaffs2.c yaffs2_scan_chunk
+
+  YAFFS records no page size, spare size or tag position, so eleven common
+  page and spare sizes, and for YAFFS2 every tag offset and both byte orders,
+  are tried; a layout is kept only when 90% of the used spares hold plausible
+  tags and 90% of the pages they call headers parse as headers.
+
+  Each flash reader is validated against images the format's own tools wrote
+  (squashfs-tools 4.7.5, mtd-utils 2.3.0, yaffs2's image makers) and against
+  oracles it never touches: sha256sum and stat over the source tree, and
+  unsquashfs -lln. Those tools leave no history, so JFFS2, UBI and UBIFS are
+  also validated against images the Linux kernel's own drivers wrote with
+  history (overwrites, deletion, renames, truncation, garbage collection, a
+  UBIFS journal not yet committed, older copies of UBI blocks) and read back,
+  and YAFFS against images YAFFS's own code wrote and read back the same way.
+  The NAND ones come from the kernel's simulated chip (nandsim), taken with
+  nanddump --oob. None has yet been run against flash from a real device.
+
+  A flash dump with no partition table and nothing recognised at offset 0 is
+  searched at every 4 KiB boundary for SquashFS, UBI and JFFS2, each reported
+  under FLASH as its own volume. For UBI and JFFS2 in a NAND dump that still
+  carries its spare bytes, the common page and spare sizes are tried and the
+  spare is stripped.
+
   --list walks qnx6 through the same block resolution the kernel uses in
   qnx6_block_map(), including multi-level indirect trees and long filenames
   held out of line in the Longfile tree, and walks ext through its extent
@@ -10518,9 +13794,11 @@ if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser(
         prog="qnxprobe.py",
-        description="Read QNX6, QNX4, ETFS, EFS, ext2/3/4, FAT32, exFAT, NTFS, HFS+ and APFS "
-                    "filesystems, and QNX IFS boot images, out of raw disk "
-                    "images: identify each by its own on-disk structure rather "
+        description="Read QNX6, QNX4, ETFS, EFS, ext2/3/4, F2FS, FAT32, exFAT, NTFS, HFS+ and "
+                    "APFS filesystems, the Linux flash filesystems SquashFS, JFFS2, "
+                    "UBI/UBIFS and YAFFS1/YAFFS2, and QNX IFS boot images, out of "
+                    "raw disk images and flash dumps: identify each by its own "
+                    "on-disk structure rather "
                     "than trusting a partition type byte, list, and extract to a "
                     "zip with a provenance manifest. No mounting, no admin "
                     "rights, standard library only.",

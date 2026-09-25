@@ -6,8 +6,10 @@ For maintainers, and shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP.
 segment of a split set) or an EnCase/EWF acquisition (`.E01` and its segments)
 and reads it in place: no mounting, no administrator rights, and no copy of the
 image or of its files anywhere but the files an artifact asks for. Its NTFS,
-FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS and QNX IFS volumes
-are searched directly.
+FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2,
+UBI/UBIFS, YAFFS and QNX IFS volumes are searched directly, on disks of 512-byte
+or 4096-byte sectors: a GPT whose header sits at byte 4096, as on a UFS LUN image
+or a 4Kn drive, has its partitions counted in 4096-byte sectors.
 
 ## Where the pieces are
 
@@ -80,6 +82,11 @@ for it, so no report field carries a zone the evidence never had.
   decompressed, and one under per-file encryption (the norm on a current
   Android `userdata`) is listed and its content refused rather than staged as
   ciphertext.
+- zstd-compressed SquashFS and UBIFS need Python 3.14 or later
+  (`compression.zstd`), which the builds made by `test_builds.yml` use. Run from
+  source on an older Python, a zstd SquashFS is listed as a volume with no files,
+  and the run log does not say why; a zstd-compressed UBIFS file is listed and
+  not staged, and the log names the reason.
 - An encrypted volume (Android file-based encryption, iOS data protection,
   FileVault, BitLocker) reads, but its names or contents are ciphertext.
 
