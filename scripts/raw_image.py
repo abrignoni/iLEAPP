@@ -57,7 +57,7 @@ RAW_IMAGE_SUFFIXES = ('img', 'bin', 'dd', 'raw', '001', 'e01')
 # asserts each entry here has a walker in the vendored copy, so the two cannot
 # drift apart quietly.
 RAW_IMAGE_FILESYSTEMS = ('QNX6, QNX4, ETFS, EFS, ext2/3/4, F2FS, FAT32, exFAT, NTFS, '
-                         'HFS+, APFS, QNX IFS')
+                         'HFS+, APFS, SquashFS, JFFS2, UBI, UBIFS, YAFFS, QNX IFS')
 RAW_IMAGE_LABEL = f'Raw disk image or acquisition ({RAW_IMAGE_FILESYSTEMS})'
 
 # A directory this deep in a walk is a loop in the tree, not a directory.
