@@ -488,6 +488,30 @@ class RawImageSeekerTest(unittest.TestCase):
         self.assertIs(sys.modules['ewfprobe'], ewfprobe)
         self.assertIs(qnxprobe.ewfprobe, ewfprobe)
 
+    def test_a_socket_or_block_device_is_not_walked_as_a_directory(self):
+        # S_IFDIR is 0o040000, and a socket (0o140000) and a block device
+        # (0o060000) both carry that bit. Tested alone it lists them as
+        # directories and descends into them; on a macOS APFS volume that was
+        # 47 sockets under private/var listed as directories.
+        class _Walker:
+            root = 1
+            children = {1: [('d', 2), ('sock', 3), ('blk', 4), ('f', 5)],
+                        2: [('inner', 6)], 3: [('ghost', 7)], 4: [('ghost', 8)]}
+            modes = {2: 0o040755, 3: 0o140755, 4: 0o060660, 5: 0o100644,
+                     6: 0o100644, 7: 0o100644, 8: 0o100644}
+
+            def listdir(self, node):
+                return list(self.children.get(node, ()))
+
+            def entry(self, node):
+                return self.modes[node], 3, 0
+
+        seeker = FileSeekerRaw.__new__(FileSeekerRaw)
+        seeker.name_list, seeker._entries = [], {}  # pylint: disable=protected-access
+        files, dirs, _route = seeker._walk(_Walker(), 'v')  # pylint: disable=protected-access
+        self.assertEqual(sorted(seeker.name_list), ['v/d/', 'v/d/inner', 'v/f'])
+        self.assertEqual((files, dirs), (2, 1))
+
     def test_the_filesystem_list_names_only_kinds_the_reader_walks(self):
         walkers = {'QNX6': qnxprobe.Qnx6Walker, 'QNX4': qnxprobe.Qnx4Walker,
                    'ETFS': qnxprobe.EtfsWalker, 'EFS': qnxprobe.EfsWalker,

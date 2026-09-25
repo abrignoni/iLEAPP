@@ -85,8 +85,8 @@ for it, so no report field carries a zone the evidence never had.
 - zstd-compressed SquashFS and UBIFS need Python 3.14 or later
   (`compression.zstd`), which the builds made by `test_builds.yml` use. Run from
   source on an older Python, a zstd SquashFS is listed as a volume with no files,
-  and the run log does not say why; a zstd-compressed UBIFS file is listed and
-  not staged, and the log names the reason.
+  and the run log gives the reason on that volume's line; a zstd-compressed UBIFS
+  file is listed and not staged, and the log names the reason.
 - An encrypted volume (Android file-based encryption, iOS data protection,
   FileVault, BitLocker) reads, but its names or contents are ciphertext.
 

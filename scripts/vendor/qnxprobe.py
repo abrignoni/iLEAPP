@@ -43,7 +43,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.33"
+QNXPROBE_VERSION = "1.34"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -5818,6 +5818,13 @@ def lz4_block_decompress(src, limit=None):
     return bytes(out)
 
 
+# What a zstd SquashFS says on a Python with no zstd. identify_fs() reports it
+# among its lines and the walker carries it as its note, which volumes() passes
+# on, so a listing that comes back empty says why wherever the volume is shown.
+SQUASHFS_NO_ZSTD_NOTE = ("zstd compressed; this Python has no zstd (3.14 adds it), so "
+                         "the listing may be short and no file can be read")
+
+
 def _zstd_module():
     try:
         from compression import zstd              # Python 3.14 and later
@@ -6078,6 +6085,15 @@ class SquashfsWalker:
         ino = self.inode(ref)
         return ino.get("target", b"").decode("utf-8", "surrogateescape")
 
+    @property
+    def note(self):
+        """Why this volume cannot be read on this Python, or None. listdir()
+        answers an empty list when its directory table cannot be decompressed,
+        so volumes() carries this beside the volume to say why."""
+        if self.comp == 6 and _zstd_module() is None:
+            return SQUASHFS_NO_ZSTD_NOTE
+        return None
+
     def listdir(self, ref):
         try:
             ino = self.inode(ref)
@@ -6201,8 +6217,7 @@ def identify_squashfs(fh, base, size=None):
         lines.append(f"note         the image records {human(w.bytes_used)} but the region "
                      f"holds {human(size)}, so its end is missing")
     if w.comp == 6 and _zstd_module() is None:
-        lines.append("note         zstd compressed; this Python has no zstd (3.14 adds "
-                     "it), so the listing may be short and no file can be read")
+        lines.append("note         " + SQUASHFS_NO_ZSTD_NOTE)
     if not root_ok:
         if w.comp == 6 and _zstd_module() is None:
             return "squashfs", lines
@@ -9343,6 +9358,12 @@ def volumes(fh, size=None):
             vol["note"] = f"contents not read: {exc}"
         except Exception as exc:
             vol["note"] = f"could not walk this filesystem: {exc}"
+        # A walker that is built but cannot read its volume here says why, for
+        # a zstd SquashFS on a Python without zstd, whose listing comes back
+        # empty rather than raising.
+        wnote = getattr(vol.get("walker"), "note", None)
+        if wnote and "note" not in vol:
+            vol["note"] = wnote
         out.append(vol)
     return out
 
@@ -13039,6 +13060,35 @@ def self_test():
                "--oob while mounted, against the kernel's own read-back"),
               ("ubi-nand-history", "ubi", "ubi-nand.history.kernel.sha256", None, "stat", "",
                (), "a static UBI volume the kernel wrote with ubiupdatevol, from the same image")]
+        # A zstd SquashFS on a Python with no zstd lists nothing, since its
+        # directory tables are compressed too, and the walker answers an empty
+        # listing rather than raising. volumes() has to say why beside the
+        # volume, or it reads as an empty filesystem. The missing module is
+        # simulated, so this runs on every Python.
+        zst_img = os.path.join(fx, "squashfs-zstd.img.gz")
+        if not os.path.isfile(zst_img):
+            print("  [SKIP] squashfs-zstd is not beside this script, so the note a "
+                  "Python without zstd gives was not checked")
+        else:
+            with gzip.open(zst_img, "rb") as gz:
+                zst_bytes = gz.read()
+            zst_globals = globals()
+            zst_real = zst_globals["_zstd_module"]
+            try:
+                zst_globals["_zstd_module"] = lambda: None
+                zst_hidden = volumes(io.BytesIO(zst_bytes), len(zst_bytes))
+            finally:
+                zst_globals["_zstd_module"] = zst_real
+            zst_shown = volumes(io.BytesIO(zst_bytes), len(zst_bytes))
+            zst_cond = (len(zst_hidden) == 1 and zst_hidden[0]["kind"] == "squashfs"
+                        and zst_hidden[0].get("note") == SQUASHFS_NO_ZSTD_NOTE
+                        and len(zst_shown) == 1
+                        and (zst_shown[0].get("note") is None) == (zst_real() is not None))
+            if not zst_cond:
+                ok = False
+            print(f"  [{'PASS' if zst_cond else 'FAIL'}] a zstd SquashFS on a Python "
+                  f"without zstd carries a note saying why it lists nothing, and none "
+                  f"where zstd is present")
         for stem, want_kind, hashes, listing, style, prefix, loose, label in sq + jf + ub + ya + kh:
             img = os.path.join(fx, stem + ".img.gz")
             if not (os.path.isfile(img) and os.path.isfile(os.path.join(fx, hashes))):
