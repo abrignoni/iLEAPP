@@ -302,7 +302,8 @@ def sms(context):
         report = ArtifactHtmlReport('SMS & iMessage - Messages (Threaded)')
         report.start_artifact_report(context.get_report_folder(), 'SMS & iMessage - Messages (Threaded)')
         report.add_script()
-        report.write_lead_text(f'SMS & iMessage Messages (Threaded) located at: {source_path}')
+        report.write_lead_text(
+            f'SMS & iMessage Messages (Threaded) located at: {context.get_relative_path(source_path)}')
         report.write_raw_html(chat_HTML)
         report.add_script(render_chat(sms_df))
         report.end_artifact_report()
