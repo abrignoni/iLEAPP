@@ -179,12 +179,14 @@ def _python_text(value):
     """
     The text Python itself would print for a float or a boolean, or the value unchanged.
 
-    An untyped LAVA column is TEXT, and SQLite renders a bound float into it at 15
-    significant digits and a boolean as 1 or 0. The HTML, TSV, timeline and KML writers
-    print the Python value, so rows replayed out of LAVA would otherwise read
-    35.6595662310191 where the list path wrote 35.65956623101914, and 1 where it wrote
-    True. Storing Python's own text keeps the replayed outputs identical to the list
-    path's; _restore_lava_value turns it back into the value.
+    An untyped LAVA column is TEXT, so a float or boolean bound as a number is turned into
+    text by SQLite, and that text depends on the SQLite library the run links. Through
+    3.51 a float is rounded to 15 significant digits, so 35.65956623101914 is stored as
+    35.6595662310191; 3.52.0 and later round to 17 (https://sqlite.org/releaselog/3_53_0.html),
+    so 670162.147879839 is stored as 670162.14787983894. A boolean is stored as 1 or 0.
+    The HTML, TSV, timeline and KML writers print the Python value, so storing Python's own
+    text keeps LAVA identical to them on every SQLite version; _restore_lava_value turns it
+    back into the value when streamed rows are replayed.
     """
 
     if isinstance(value, bool):
@@ -194,7 +196,7 @@ def _python_text(value):
     return value
 
 
-def _prepare_lava_value(value, column_type=None, keep_python_text=False):
+def _prepare_lava_value(value, column_type=None):
     """
     Convert a Python value into the representation stored in the LAVA SQLite table.
 
@@ -202,16 +204,15 @@ def _prepare_lava_value(value, column_type=None, keep_python_text=False):
     column types, such as phonenumber, remain normal SQLite TEXT values while their
     type metadata stays available in the LAVA artifact metadata.
 
-    keep_python_text stores a float or boolean in an untyped column as the text Python
-    prints for it (see _python_text). Rows that will be replayed for the other outputs
-    ask for it; the list path does not, so its stored values are unchanged.
+    A float or boolean in an untyped column is stored as the text Python prints for it
+    (see _python_text), whether the artifact returned a list or streamed its rows.
     """
 
     if isinstance(value, (dict, list)):
         return json.dumps(value)
 
-    if keep_python_text and column_type is None:
-        return _python_text(value)
+    if column_type is None:
+        value = _python_text(value)
 
     type_handlers = {
         'datetime': _prepare_datetime_value,
@@ -626,12 +627,12 @@ def lava_insert_sqlite_data(
         column_map,  # pylint: disable=unused-argument
         batch_size=10000,
         async_write=False,
-        queue_size=5000,
-        keep_python_text=False):
+        queue_size=5000):
     """
     Insert data into a SQLite database table with automatic column sanitization and type conversion.
     This function handles the insertion of multiple rows of data into a specified SQLite table,
     with special handling for complex data types (dict, list) and object-column type conversions.
+    Floats and booleans in untyped columns are stored as the text Python prints for them.
     Args:
         table_name (str): The name of the SQLite table to insert data into.
         data (iterable): Rows to insert, where each row is a sequence of values
@@ -645,8 +646,6 @@ def lava_insert_sqlite_data(
         batch_size (int): Maximum rows to insert per SQLite executemany call.
         async_write (bool): If True, prepare and insert rows on a writer thread.
         queue_size (int): Maximum rows waiting for the async writer.
-        keep_python_text (bool): Store floats and booleans in untyped columns as the text
-                                 Python prints for them, for rows that will be replayed.
     Returns:
         int: Number of rows inserted.
     """
@@ -670,7 +669,7 @@ def lava_insert_sqlite_data(
             row = tuple(row)
         processed_row = []
         for index, value in enumerate(row):
-            processed_row.append(_prepare_lava_value(value, column_types[index], keep_python_text))
+            processed_row.append(_prepare_lava_value(value, column_types[index]))
         return tuple(processed_row)
 
     if async_write:

@@ -171,7 +171,6 @@ class ArtifactResult:
             batch_size=self.batch_size,
             async_write=self.async_write,
             queue_size=self.queue_size,
-            keep_python_text=True,
         )
         self.row_count += inserted_count
 

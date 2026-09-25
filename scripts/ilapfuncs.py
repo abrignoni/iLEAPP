@@ -65,7 +65,7 @@ from scripts.html_safe import esc, safe_local_path
 from scripts.lavafuncs import lava_process_artifact, lava_insert_sqlite_data, lava_iter_artifact_rows, \
     lava_get_media_item, \
     lava_insert_sqlite_media_item, lava_insert_sqlite_media_references, lava_get_media_references, \
-    lava_get_full_media_info, lava_update_record_count, bind_dates_as_text
+    lava_get_full_media_info, lava_update_record_count, bind_dates_as_text, _python_text
 
 os.path.basename = lru_cache(maxsize=None)(os.path.basename)
 
@@ -1318,7 +1318,9 @@ def kmlgen(report_folder, kmlactivity, data_list, data_headers):
             pnt.name = times
             pnt.description = f"{times_header}: {times} - {kmlactivity}"
             pnt.coords = [(lon, lat)]
-            data.append((bind_dates_as_text(times), lat, lon, kmlactivity))
+            # Python's text for the coordinates, as the .kml file carries: bound as floats,
+            # the text SQLite stores depends on its version (see lavafuncs._python_text).
+            data.append((bind_dates_as_text(times), _python_text(lat), _python_text(lon), kmlactivity))
 
     if len(data) > 0:
         report_folder = report_folder.rstrip('/')

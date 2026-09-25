@@ -12,6 +12,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+import warnings
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
@@ -19,7 +20,7 @@ sys.path.insert(0, str(REPO_ROOT))
 from scripts import lavafuncs  # pylint: disable=wrong-import-position
 from scripts.context import Context  # pylint: disable=wrong-import-position
 from leapp_functions.app.artifact_result import ArtifactResult  # pylint: disable=wrong-import-position
-from scripts.ilapfuncs import artifact_processor, OutputParameters  # pylint: disable=wrong-import-position
+from scripts.ilapfuncs import artifact_processor, kmlgen, OutputParameters  # pylint: disable=wrong-import-position
 
 UTC = datetime.timezone.utc
 STAMP = datetime.datetime(2022, 3, 4, 12, 34, 56, tzinfo=UTC)
@@ -281,8 +282,10 @@ class TestARaisingModuleLeavesNothingBehind(ArtifactResultTestCase):
         self.assertNotIn('Probe Category', lavafuncs.lava_data['artifacts'])
 
 class TestReplayKeepsPythonText(ArtifactResultTestCase):
-    """Floats and booleans in untyped columns replay exactly as the list path prints them,
-    while the list path's own stored values are unchanged."""
+    """Floats and booleans in untyped LAVA columns, and the coordinates kmlgen keeps in
+    _latlong.db, are stored as the text Python prints for them. The stored text is then the
+    same whatever SQLite library the run links, matches the HTML, TSV and KML output, and
+    replays as the original values."""
 
     def setUp(self):
         super().setUp()
@@ -299,24 +302,53 @@ class TestReplayKeepsPythonText(ArtifactResultTestCase):
         replayed = list(lavafuncs.lava_iter_artifact_rows(
             result.table_name, headers, result.object_columns, result.row_count))
         self.assertEqual(replayed, rows)
-        # The stored text is Python's own rendering, not SQLite's 15-digit one.
+        # The stored text is Python's own rendering, not SQLite's, which depends on its version.
         stored = lavafuncs.lava_db.execute(
             f'SELECT latitude, flag FROM {lavafuncs.quote_sql_name(result.table_name)} ORDER BY rowid').fetchall()
         self.assertEqual(stored, [('35.65956623101914', 'True'), ('-78.87282251025944', 'False')])
 
-    def test_list_path_storage_is_unchanged(self):
-        headers = ('Latitude', 'Flag', 'When')
+    def test_list_path_stores_python_text(self):
+        headers = ('Latitude', 'Flag', ('When', 'datetime'))
         table, object_columns, column_map = lavafuncs.lava_process_artifact(
-            'Unit Category', 'unit_module', 'List Artifact', (headers[0], headers[1], (headers[2], 'datetime')),
-            1, func_name='list_artifact')
+            'Unit Category', 'unit_module', 'List Artifact', headers, 2, func_name='list_artifact')
         lavafuncs.lava_insert_sqlite_data(
-            table, [(35.65956623101914, True, '2024-07-21T15:16:47.357843+00:00')],
-            object_columns, (headers[0], headers[1], (headers[2], 'datetime')), column_map)
+            table, [(35.65956623101914, True, '2024-07-21T15:16:47.357843+00:00'),
+                    (670162.147879839, False, '2024-07-21T15:16:47.357843+00:00')],
+            object_columns, headers, column_map)
         stored = lavafuncs.lava_db.execute(
-            f'SELECT latitude, flag, "when" FROM {lavafuncs.quote_sql_name(table)}').fetchone()
-        # SQLite's rendering of a bound float and boolean into TEXT columns, and a whole-second
-        # int epoch for an ISO string: what the list path stored before this change.
-        self.assertEqual(stored, ('35.6595662310191', '1', 1721575007))
+            f'SELECT latitude, flag, "when" FROM {lavafuncs.quote_sql_name(table)} ORDER BY rowid').fetchall()
+        # Bound as numbers, SQLite 3.51 and earlier store the first float as 35.6595662310191,
+        # 3.52.0 and later store the second as 670162.14787983894, and both store a boolean as
+        # 1 or 0. The datetime column still stores the whole-second epoch.
+        self.assertEqual(stored, [('35.65956623101914', 'True', 1721575007),
+                                  ('670162.147879839', 'False', 1721575007)])
+
+    def test_streamed_dates_in_an_untyped_column_are_bound_as_text(self):
+        # As on the list path, sqlite3's default date adapters, deprecated from Python 3.12,
+        # never see a value, and the stored text is what they wrote.
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            result = Context.create_artifact_result(headers=HEADERS)
+            for row in ROWS:
+                result.add_row(row)
+            result.close()
+        self.assertEqual([w for w in caught if issubclass(w.category, DeprecationWarning)
+                          and 'adapter' in str(w.message)], [])
+        stored = [row[0] for row in lavafuncs.lava_db.execute(
+            f'SELECT moment FROM {lavafuncs.quote_sql_name(result.table_name)} ORDER BY rowid')]
+        self.assertEqual(stored, MOMENT_TEXT)
+
+    def test_kml_sidecar_stores_python_text_for_coordinates(self):
+        report_folder = pathlib.Path(self.tmpdir, 'category', 'artifact')
+        report_folder.mkdir(parents=True)
+        kmlgen(str(report_folder), 'Python Text', [(STAMP, 35.65956623101914, -78.87282251025944)],
+               ['Timestamp', 'Latitude', 'Longitude'])
+        db = sqlite3.connect(pathlib.Path(self.tmpdir, '_KML Exports', '_latlong.db'))
+        stored = db.execute('SELECT latitude, longitude FROM data').fetchall()
+        db.close()
+        # Bound as numbers these read 35.6595662310191 and -78.8728225102594 through
+        # SQLite 3.51, and 35.659566231019142 and -78.872822510259439 from 3.52.0.
+        self.assertEqual(stored, [('35.65956623101914', '-78.87282251025944')])
 
     def test_python_text_restore_is_exact_and_leaves_other_text_alone(self):
         restore = lavafuncs._restore_lava_value  # pylint: disable=protected-access
