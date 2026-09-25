@@ -286,7 +286,9 @@ class FileSeekerRaw(FileSeekerBase):
                     continue
                 mode, size, mtime = ent
                 member = f'{path}/{child_name}'
-                if mode & qnxprobe.S_IFDIR:
+                # The format bits, not the directory bit alone: a socket (0o140000)
+                # and a block device (0o060000) carry S_IFDIR's bit too.
+                if mode & qnxprobe.S_IFMT == qnxprobe.S_IFDIR:
                     self.name_list.append(member + '/')
                     self._entries[member + '/'] = None
                     dirs += 1
