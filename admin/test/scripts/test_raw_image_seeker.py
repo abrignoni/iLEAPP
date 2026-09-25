@@ -506,9 +506,6 @@ class RawImageSeekerTest(unittest.TestCase):
             def entry(self, node):
                 return self.modes[node], 3, 0
 
-            def read_file(self, node, size):
-                return iter(())
-
         seeker = FileSeekerRaw.__new__(FileSeekerRaw)
         seeker.name_list, seeker._entries = [], {}  # pylint: disable=protected-access
         files, dirs, _route = seeker._walk(_Walker(), 'v')  # pylint: disable=protected-access
