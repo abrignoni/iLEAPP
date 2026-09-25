@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Search-engine queries extracted from Safari History.db (search?q= URLs)",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": "The history_visits.origin value is reported as stored. Community documentation describes 1 as a visit synced from another iCloud device, but no primary source was located.",
@@ -73,6 +73,12 @@ def safariWebsearch(context):
     FROM history_items, history_visits
     WHERE history_items.id = history_visits.history_item
         AND history_items.url LIKE '%search?q=%'
+    ORDER BY
+        CASE
+            WHEN history_visits.visit_time > 978307200 THEN history_visits.visit_time
+            ELSE history_visits.visit_time + 978307200
+        END,
+        history_visits.id
     '''
     for row in get_sqlite_db_records(source_path, query):
         url = row[1] or ''
