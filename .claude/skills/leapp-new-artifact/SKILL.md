@@ -222,7 +222,9 @@ notes**. What clears it is a sentence naming the column and saying what the chec
 "ChargeLimit held 100 on all 247 rows" clears it and "ChargeLimit is an integer code reported
 as stored" does not. The key is the finding, not the column: naming a column for an unrelated
 reason does not silence a defect, and the name has to appear as a word, so "timestamp" and
-"timezone" do not stand in for a column named TIME. An empty column on a messages or location
+"timezone" do not stand in for a column named TIME. A one-word header has to be written as the
+header spells it, because most one-word headers are ordinary words: "Name held an empty string"
+clears an empty Name column, "a name not applied" does not. An empty column on a messages or location
 artifact is frequently a forensic negative worth stating (no group chats, no disappearing
 timers, coarse location denied), not a column to delete.
 

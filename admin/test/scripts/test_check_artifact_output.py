@@ -154,7 +154,7 @@ class SilencedOnTheFindingNotTheColumn(unittest.TestCase):
     def test_a_plural_still_names_the_column(self):
         rows = [{'A': 'x', 'Timestamp': ''} for _ in range(3)]
         findings = coa.check_table(['A', 'Timestamp'], rows,
-                                   notes='The timestamps were blank on every row.')
+                                   notes='Timestamps were blank on every row.')
         self.assertNotIn('empty-column', _kinds(findings))
 
     def test_a_colon_list_is_one_statement(self):
@@ -182,6 +182,53 @@ class SilencedOnTheFindingNotTheColumn(unittest.TestCase):
         findings = coa.check_table(self.COLUMNS, self.CONSTANT, notes=notes)
         hinted = [m for k, m in findings if "'%CPU'" in m]
         self.assertTrue(hinted and 'not as this finding' in hinted[0])
+
+
+class OneWordHeadersAreMatchedAsSpelled(unittest.TestCase):
+    """A one-word header is usually an ordinary word, so prose uses it by accident.
+
+    A real case: biomeSync's notes said a HomePod row's OS Version "is left blank"
+    and that tvOS is "a name not applied to a HomePod". That one sentence held the
+    word name and the word blank, and it silenced an empty Name column on every
+    tested image.
+    """
+
+    EMPTY_NAME = [{'A': str(i), 'Name': ''} for i in range(3)]
+
+    def test_the_word_used_in_prose_does_not_silence(self):
+        notes = 'It is left blank for these rows, a name not applied to them.'
+        findings = coa.check_table(['A', 'Name'], self.EMPTY_NAME, notes=notes)
+        self.assertIn('empty-column', _kinds(findings))
+
+    def test_the_header_as_spelled_does_silence(self):
+        notes = 'Name held an empty string on all 3 rows.'
+        findings = coa.check_table(['A', 'Name'], self.EMPTY_NAME, notes=notes)
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_lower_case_prose_does_not_name_a_capitalised_header(self):
+        rows = [{'A': 'x', 'Timestamp': ''} for _ in range(3)]
+        findings = coa.check_table(['A', 'Timestamp'], rows,
+                                   notes='The timestamps were blank on every row.')
+        self.assertIn('empty-column', _kinds(findings))
+
+    def test_a_lower_case_header_matches_at_the_start_of_a_sentence(self):
+        rows = [{'A': str(i), 'direction': ''} for i in range(3)]
+        findings = coa.check_table(['A', 'direction'], rows,
+                                   notes='Direction was blank on every row.')
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_a_header_of_several_words_matches_in_any_case(self):
+        rows = [{'A': str(i), 'Last Sync Timestamp': ''} for i in range(3)]
+        findings = coa.check_table(['A', 'Last Sync Timestamp'], rows,
+                                   notes='The last sync timestamp was empty on every row.')
+        self.assertNotIn('empty-column', _kinds(findings))
+
+    def test_the_hint_uses_the_same_rule(self):
+        rows = [{'A': str(i), 'Value': ''} for i in range(3)]
+        prose = coa.check_table(['A', 'Value'], rows, notes='A holds the value as stored.')
+        self.assertTrue(all('not as this finding' not in m for _, m in prose))
+        named = coa.check_table(['A', 'Value'], rows, notes='Value is read from the store.')
+        self.assertTrue(any('not as this finding' in m for _, m in named))
 
 
 if __name__ == '__main__':
