@@ -27,9 +27,11 @@ An NTFS alternate data stream is a member too, named ``<file>:<stream>`` as
 Windows names it (``.../Downloads/setup.exe:Zone.Identifier``,
 ``.../$Extend/$UsnJrnl:$J``), and ``:<stream>`` on the root directory. A stream
 is matched only by a pattern whose last segment names one, that is, holds a
-``:``. Every pattern written before streams were members holds none, so none of
-them is handed a stream: ``*/Recent/*`` still returns the shortcuts in Recent and
-not their ``Zone.Identifier`` streams, which a shortcut parser would misread.
+``:``. A pattern without one is handed exactly what it was before: ``*/Recent/*``
+still returns the shortcuts in Recent and not their ``Zone.Identifier`` streams,
+which a shortcut parser would misread. A pattern that holds a ``:`` because the
+file name it looks for does (a few in the cores do) still matches every file it
+did, and also any stream whose ``<file>:<stream>`` name fits it.
 The reader decides what a stream holds: it starts at the first stored cluster, so
 ``$J`` comes out at the size of its records rather than of the gigabytes of hole
 Windows leaves in front of them, and a stream that stores nothing
