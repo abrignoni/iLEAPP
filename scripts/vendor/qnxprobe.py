@@ -43,7 +43,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.34"
+QNXPROBE_VERSION = "1.36"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -6313,8 +6313,80 @@ JFFS2_ROOT_INO = 1
 JFFS2_SCAN_CHUNK = 1 << 22
 
 
+class FlashDeletedFile:
+    """One deleted file a YAFFS2, JFFS2 or UBIFS volume still holds.
+
+    These filesystems never rewrite in place: a change goes to a new page or
+    node and the old one stays until garbage collection erases its block, so a
+    deleted file's last name, size and content can outlive the deletion.
+
+    ``name`` and ``parent`` (the parent directory's node in the walker) come
+    from the newest record that named the file before it was deleted;
+    ``parent_path`` is that directory's path when it still exists, else None.
+    ``size``, ``mode`` and ``mtime`` (Unix seconds, as the filesystem stores
+    them) come from its newest header or inode before the deletion.
+    ``recoverable`` says whether every page or block that size needs is still
+    on the flash; ``missing`` counts the ones that are not. A block that was
+    erased and one that was never written (a hole) look the same, so either
+    refuses the read, and ``reason`` says so. ``ident`` is the YAFFS object id
+    or the inode number, as ``kind`` ("yaffs2", "jffs2", "ubifs") names it.
+    ``is_dir`` is always False: only files are recovered. ``note`` is empty,
+    or says what the recovery had to decide that the flash does not record.
+    """
+
+    __slots__ = ("name", "parent", "parent_path", "is_dir", "size", "mode", "mtime",
+                 "recoverable", "reason", "missing", "ident", "kind", "note", "_plan",
+                 "_walker")
+
+    def __init__(self, kind, ident, name, parent, parent_path, size, mode, mtime,
+                 n_missing, plan, walker):
+        self.kind, self.ident, self.name = kind, ident, name
+        self.parent, self.parent_path = parent, parent_path
+        self.is_dir = False
+        self.size, self.mode, self.mtime = size, mode, mtime
+        self.missing = n_missing
+        self.recoverable = not n_missing
+        unit = "page" if kind == "yaffs2" else "block" if kind == "ubifs" else "byte"
+        self.reason = "" if not n_missing else (
+            f"{n_missing:,} {unit}{'s' if n_missing != 1 else ''} of its recorded size "
+            "no longer on the flash (erased, or a hole never written)")
+        self.note = ""
+        self._plan, self._walker = plan, walker
+
+    def __repr__(self):
+        state = "recoverable" if self.recoverable else f"not recoverable ({self.reason})"
+        return (f"FlashDeletedFile({self.kind} {self.ident}, name={self.name!r}, "
+                f"size={self.size}, {state})")
+
+
+def _live_dir_paths(walker, limit=1_000_000):
+    """{directory node: path under the root} for every live directory, so a
+    deleted file can say where its folder is. The root's path is ""."""
+    paths, stack, seen = {walker.root: ""}, [walker.root], 0
+    while stack and seen < limit:
+        node = stack.pop()
+        for name, child in walker.listdir(node):
+            seen += 1
+            if child in paths:
+                continue
+            ent = walker.entry(child)
+            if ent and ent[0] & S_IFMT == S_IFDIR:
+                base = paths[node]
+                paths[child] = f"{base}/{name}" if base else name
+                stack.append(child)
+    return paths
+
+
 class Jffs2Unreadable(Exception):
     """JFFS2 content this reader cannot hand back; the message says why."""
+
+
+def _jffs2_accurate(raw, e):
+    """A node's bytes with the ACCURATE bit of its node type set again, as they
+    were when its CRCs were computed: jffs2_mark_node_obsolete clears only
+    that bit, on flash that allows it (fs/jffs2/nodemgmt.c:787 at v7.0)."""
+    ntype = struct.unpack_from(e + "H", raw, 2)[0] | JFFS2_ACCURATE
+    return raw[:2] + struct.pack(e + "H", ntype) + raw[4:]
 
 
 def _kcrc32(data):
@@ -6423,6 +6495,11 @@ class Jffs2Walker:
         self.inodes = collections.defaultdict(list)   # ino -> [inode node records]
         self.dirents = collections.defaultdict(dict)  # pino -> {name: (version, ino, type, mctime)}
         self.stats = collections.Counter()
+        # For recover_deleted(): every dirent the scan read, and where each node
+        # the kernel marked obsolete sits (on NOR, JFFS2 marks a node it
+        # supersedes or frees by clearing one bit; its bytes are untouched).
+        self.all_dirents = []                         # (version, pino, name, ino, mctime)
+        self.obsolete = []                            # (offset, node type, endian)
 
     def _scan(self):
         """Walk the region a 4 MiB chunk at a time, checking every 4-byte
@@ -6470,6 +6547,8 @@ class Jffs2Walker:
         padded = (totlen + 3) & ~3
         if not ntype & JFFS2_ACCURATE:
             self.stats["obsolete"] += 1
+            if (ntype | JFFS2_ACCURATE) in (JFFS2_DIRENT, JFFS2_INODE):
+                self.obsolete.append((off, ntype | JFFS2_ACCURATE, e))
             return padded
         if ntype == JFFS2_DIRENT:
             self._dirent(off, totlen, e)
@@ -6481,50 +6560,75 @@ class Jffs2Walker:
                         JFFS2_XREF: "xref"}.get(ntype, "other")] += 1
         return padded
 
-    def _dirent(self, off, totlen, e):
+    def _parse_dirent(self, off, totlen, e, obsolete=False):
+        """(pino, version, ino, mctime, dtype, name) for a dirent whose CRCs
+        hold, else None. The header CRC is checked by the caller. An obsolete
+        node's CRCs were computed with the ACCURATE bit still set, which the
+        kernel cleared afterwards, so it is set again before they are checked."""
         raw = read_at(self.fh, self.base + off, totlen)
         if len(raw) < 40:
-            self.stats["bad"] += 1
-            return
+            return None
+        if obsolete:
+            raw = _jffs2_accurate(raw, e)
         pino, version, ino, mctime, nsize, dtype = struct.unpack_from(e + "IIIIBB", raw, 12)
         node_crc, name_crc = struct.unpack_from(e + "II", raw, 32)
         name = raw[40:40 + nsize]
         if (_kcrc32(raw[:32]) != node_crc or len(name) < nsize
                 or _kcrc32(name) != name_crc or 40 + nsize > totlen):
+            return None
+        return pino, version, ino, mctime, dtype, name.decode("utf-8", "surrogateescape")
+
+    def _dirent(self, off, totlen, e):
+        d = self._parse_dirent(off, totlen, e)
+        if d is None:
             self.stats["bad"] += 1
             return
+        pino, version, ino, mctime, dtype, name = d
         self.stats["dirent"] += 1
-        name = name.decode("utf-8", "surrogateescape")
+        self.all_dirents.append((version, pino, name, ino, mctime))
         cur = self.dirents[pino].get(name)
         if cur is None or version > cur[0]:
             self.dirents[pino][name] = (version, ino, dtype, mctime)
 
-    def _inode(self, off, totlen, e):
+    def _parse_inode(self, off, totlen, e, obsolete=False):
+        """(ino, record) for an inode node whose node CRC holds, else None;
+        the record's "data_ok" says whether its data CRC holds too. See
+        _parse_dirent for `obsolete`."""
         raw = read_at(self.fh, self.base + off, 68)
         if len(raw) < 68:
-            self.stats["bad"] += 1
-            return
+            return None
+        if obsolete:
+            raw = _jffs2_accurate(raw, e)
         (ino, version, mode, uid, gid, isize, atime, mtime, ctime, doff, csize,
          dsize, compr, usercompr, flags, data_crc, node_crc) = \
             struct.unpack_from(e + "IIIHHIIIIIIIBBHII", raw, 12)
         if (_kcrc32(raw[:60]) != node_crc or doff > isize
                 or ((csize + 68 + 3) & ~3) != ((totlen + 3) & ~3)):
+            return None
+        data = read_at(self.fh, self.base + off + 68, csize) if csize else b""
+        return ino, dict(off=off, version=version, mode=mode, uid=uid,
+                         gid=gid, isize=isize, mtime=mtime, ctime=ctime,
+                         atime=atime, doff=doff, csize=csize, dsize=dsize,
+                         compr=compr, data_crc=data_crc,
+                         data_ok=len(data) == csize and _kcrc32(data) == data_crc)
+
+    def _inode(self, off, totlen, e):
+        got = self._parse_inode(off, totlen, e)
+        if got is None:
             self.stats["bad"] += 1
             return
+        ino, rec = got
         # A node whose data fails its CRC is dropped as the kernel drops it
         # (fs/jffs2/readinode.c check_node_data marks it obsolete), so an older
         # node for the same range shows through rather than the file failing.
-        data = read_at(self.fh, self.base + off + 68, csize) if csize else b""
-        if len(data) < csize or _kcrc32(data) != data_crc:
+        if not rec.pop("data_ok"):
             self.stats["bad"] += 1
             self.stats["data CRC failures"] += 1
             return
         self.stats["inode"] += 1
-        self.stats["compr_" + JFFS2_COMPR.get(compr, hex(compr))] += bool(csize)
-        self.inodes[ino].append(dict(off=off, version=version, mode=mode, uid=uid,
-                                     gid=gid, isize=isize, mtime=mtime, ctime=ctime,
-                                     atime=atime, doff=doff, csize=csize, dsize=dsize,
-                                     compr=compr, data_crc=data_crc))
+        compr = JFFS2_COMPR.get(rec["compr"], hex(rec["compr"]))
+        self.stats["compr_" + compr] += bool(rec["csize"])
+        self.inodes[ino].append(rec)
 
     # -- the tree ------------------------------------------------------------
     def _latest(self, ino):
@@ -6583,6 +6687,87 @@ class Jffs2Walker:
         for i in range(0, len(view), 1 << 20):
             yield bytes(view[i:i + (1 << 20)])
 
+
+    # -- deleted files ---------------------------------------------------------
+    def recover_deleted(self):
+        """Yield a FlashDeletedFile for every regular file whose inode nodes
+        are still on the flash but that no live name reaches.
+
+        JFFS2 deletes a name by writing a dirent pointing at inode 0, and frees
+        the inode's nodes without erasing them: on NOR it clears their
+        ACCURATE bit (their bytes are untouched), on NAND it cannot, so they
+        stay valid. A deleted file is rebuilt from all of its nodes, obsolete
+        or not, oldest version first, as read_file() rebuilds a live one, and
+        named from the newest dirent that pointed at it. JFFS2 writes a hole as
+        a node too, so a range no node covers is missing, not a hole. Two nodes
+        of one inode with the same version mean the number served more than one
+        file, and that inode is refused rather than mixed."""
+        live, stack = {JFFS2_ROOT_INO}, [JFFS2_ROOT_INO]
+        while stack:
+            for _name, (_v, ino, _t, _m) in self.dirents.get(stack.pop(), {}).items():
+                if ino and ino not in live:
+                    live.add(ino)
+                    stack.append(ino)
+        nodes = collections.defaultdict(list)
+        for ino, recs in self.inodes.items():
+            if ino not in live:
+                nodes[ino].extend(recs)
+        names = list(self.all_dirents)
+        for off, ntype, e in self.obsolete:
+            hdr = read_at(self.fh, self.base + off, 12)
+            if len(hdr) < 12:
+                continue
+            totlen = struct.unpack_from(e + "I", hdr, 4)[0]
+            if ntype == JFFS2_INODE:
+                got = self._parse_inode(off, totlen, e, obsolete=True)
+                if got and got[0] not in live and got[1].pop("data_ok"):
+                    nodes[got[0]].append(got[1])
+            else:
+                d = self._parse_dirent(off, totlen, e, obsolete=True)
+                if d:
+                    pino, version, ino, mctime, _dtype, name = d
+                    names.append((version, pino, name, ino, mctime))
+        named = {}
+        for version, pino, name, ino, _mctime in names:
+            if ino in nodes and (ino not in named or version > named[ino][0]):
+                named[ino] = (version, pino, name)
+        paths = _live_dir_paths(self)
+        for ino in sorted(nodes):
+            recs = sorted(nodes[ino], key=lambda n: n["version"])
+            latest = recs[-1]
+            if latest["mode"] & S_IFMT != S_IFREG:
+                continue
+            isize = latest["isize"]
+            covered = bytearray(isize)
+            for n in recs:
+                if n["dsize"] and n["doff"] < isize:
+                    end = min(n["doff"] + n["dsize"], isize)
+                    covered[n["doff"]:end] = b"\x01" * (end - n["doff"])
+            gap = isize - sum(covered)
+            if len({n["version"] for n in recs}) != len(recs):
+                gap = gap or isize or 1
+            _v, pino, name = named.get(ino, (0, None, ""))
+            e = FlashDeletedFile("jffs2", ino, name, pino, paths.get(pino), isize,
+                                 latest["mode"], latest["mtime"], gap, recs, self)
+            if gap and len({n["version"] for n in recs}) != len(recs):
+                e.reason = "the inode number was used by more than one file"
+            yield e
+
+    def read_deleted(self, entry, size=None):
+        """The content of a recoverable deleted file (recover_deleted())."""
+        if not entry.recoverable:
+            raise Jffs2Unreadable(f"deleted file {entry.name!r} is not recoverable: {entry.reason}")
+        # pylint: disable=protected-access
+        buf = bytearray(entry.size)
+        for node in entry._plan:                       # oldest version first
+            if not node["dsize"] or node["doff"] >= entry.size:
+                continue
+            data = self._data(node)
+            end = min(node["doff"] + node["dsize"], entry.size)
+            buf[node["doff"]:end] = data[:end - node["doff"]].ljust(end - node["doff"], b"\0")
+        view = memoryview(buf)[:entry.size if size is None else min(size, entry.size)]
+        for i in range(0, len(view), 1 << 20):
+            yield bytes(view[i:i + (1 << 20)])
 
 JFFS2_LEAD_MAX = 64 << 20      # how much erased flash may come before the first node
 
@@ -7011,6 +7196,27 @@ class UbiWalker:
         for chunk in walker.read_file(inner, size):
             yield chunk
 
+    def recover_deleted(self):
+        """Deleted files from every UBIFS volume (UbifsWalker.recover_deleted),
+        with the parent's node and path given the way this walker lists them:
+        under the volume's name."""
+        for i, (vol, _view, walker, kind) in enumerate(self.inner):
+            if kind != "ubifs":
+                continue
+            top = vol["name"] or f"vol{vol['id']}"
+            for e in walker.recover_deleted():
+                if e.parent is not None:
+                    e.parent = (i << UBI_NODE_SHIFT) | e.parent
+                if e.parent_path is not None:
+                    e.parent_path = f"{top}/{e.parent_path}" if e.parent_path else top
+                yield e
+
+    def read_deleted(self, entry, size=None):
+        """The content of a recoverable deleted file, read by the UBIFS walker
+        of the volume it came from."""
+        # pylint: disable=protected-access
+        return entry._walker.read_deleted(entry, size)
+
 
 def identify_ubi(fh, base, size=None):
     """Return ("ubi", lines) for a UBI image at base: an EC header whose CRC
@@ -7079,6 +7285,7 @@ UBIFS_KEY_INO, UBIFS_KEY_DATA, UBIFS_KEY_DENT, UBIFS_KEY_XENT = range(4)
 UBIFS_COMPR = {0: "none", 1: "lzo", 2: "zlib", 3: "zstd"}
 UBIFS_BLOCK = 4096
 UBIFS_LOG_LNUM = 3
+UBIFS_XATTR_FL = 0x20                  # fs/ubifs/ubifs-media.h:330
 UBIFS_CRYPT_FL = 0x40
 UBIFS_FLG_ENCRYPTION = 0x10
 UBIFS_FLG_AUTHENTICATION = 0x20
@@ -7103,6 +7310,16 @@ def ubifs_decompress(ctype, data, limit):
     if ctype == 3:
         return zstd_decompress(data)
     raise DecompressError(f"UBIFS compression type {ctype} is not one the format defines")
+
+
+def _ubifs_truncate(blocks, old, new):
+    """Drop from {block: location} the whole blocks a truncation node from
+    size `old` to `new` removes, as fs/ubifs/replay.c trun_remove_range does.
+    The journal replay and deleted-file recovery share it."""
+    lo = (new + UBIFS_BLOCK - 1) // UBIFS_BLOCK
+    hi = old // UBIFS_BLOCK - (0 if old % UBIFS_BLOCK else 1)
+    for blk in [b for b in blocks if lo <= b <= hi]:
+        del blocks[blk]
 
 
 class UbifsWalker:
@@ -7322,11 +7539,7 @@ class UbifsWalker:
             elif t == UBIFS_TRUN_NODE:
                 inum = struct.unpack_from("<I", raw, 24)[0]
                 old, new = struct.unpack_from("<QQ", raw, 40)
-                lo = (new + UBIFS_BLOCK - 1) // UBIFS_BLOCK
-                hi = old // UBIFS_BLOCK - (0 if old % UBIFS_BLOCK else 1)
-                blocks = self.data.get(inum, {})
-                for blk in [b for b in blocks if lo <= b <= hi]:
-                    del blocks[blk]
+                _ubifs_truncate(self.data.get(inum, {}), old, new)
 
     # -- the tree -----------------------------------------------------------
     def _ino(self, inum):
@@ -7384,6 +7597,100 @@ class UbifsWalker:
                                           f"not the {dsize} its node records")
                 out = out.ljust(UBIFS_BLOCK, b"\0")
             take = out[:min(UBIFS_BLOCK, left)]
+            yield take
+            left -= len(take)
+
+    # -- deleted files ---------------------------------------------------------
+    def recover_deleted(self):
+        """Yield a FlashDeletedFile for every regular file whose inode node is
+        still in the main area but that the index and journal no longer hold.
+
+        UBIFS deletes a file by writing an inode node with nlink 0 and a
+        directory entry node pointing at inode 0; its data nodes stay in their
+        LEBs until garbage collection moves the live nodes out and erases the
+        LEB. Every node carries a sequence number that orders all writes on the
+        volume, so a deleted inode's data and truncation nodes are replayed in
+        that order up to the deletion, as _replay() replays the journal. Its
+        size and mode come from its newest inode node with a link, and its name
+        from the newest directory entry that pointed at it. Only the LEBs the
+        volume maps now are read: an older copy of a LEB that UBI still holds is
+        not. An extended attribute's inode is not a file and is skipped."""
+        main_first = UBIFS_LOG_LNUM + self.log_lebs + self.lpt_lebs + self.orph_lebs
+        inos, datas, truns = (collections.defaultdict(list) for _ in range(3))
+        names = collections.defaultdict(list)
+        for lnum in range(main_first, self.leb_cnt):
+            for offs, raw in self._scan_leb(lnum, 0):
+                t = raw[20]
+                sq = struct.unpack_from("<Q", raw, 8)[0]
+                if t == UBIFS_DENT_NODE:
+                    parent = self._key(raw, 24)[0]
+                    target, _dtype, name = self._dent(raw)
+                    if target and target not in self.inodes:
+                        names[target].append((sq, parent, name))
+                    continue
+                inum = struct.unpack_from("<I", raw, 24)[0]
+                if inum in self.inodes:
+                    continue
+                if t == UBIFS_INO_NODE:
+                    size, _at, _ct, mtime = struct.unpack_from("<QQQQ", raw, 48)
+                    nlink, _uid, _gid, mode, flags = struct.unpack_from("<IIIII", raw, 92)
+                    inos[inum].append((sq, nlink, size, mtime, mode, flags))
+                elif t == UBIFS_DATA_NODE:
+                    datas[inum].append((sq, self._key(raw, 24)[2], (lnum, offs, len(raw))))
+                elif t == UBIFS_TRUN_NODE:
+                    old, new = struct.unpack_from("<QQ", raw, 40)
+                    truns[inum].append((sq, old, new))
+        paths = _live_dir_paths(self)
+        for inum in sorted(inos):
+            recs = sorted(set(inos[inum]))
+            linked = [r for r in recs if r[1]]
+            if not linked:
+                continue
+            last = linked[-1]
+            _sq, _nl, size, mtime, mode, flags = last
+            if mode & S_IFMT != S_IFREG or flags & UBIFS_XATTR_FL:
+                continue
+            cut = next((r[0] for r in recs if r[0] > last[0] and not r[1]), None)
+            events = sorted([(sq, 0, blk, loc) for sq, blk, loc in datas.get(inum, ())]
+                            + [(sq, 1, old, new) for sq, old, new in truns.get(inum, ())])
+            blocks = {}
+            for sq, kind, a, b in events:
+                if cut is not None and sq >= cut:
+                    break
+                if kind == 0:
+                    blocks[a] = b
+                else:
+                    _ubifs_truncate(blocks, a, b)
+            need = (size + UBIFS_BLOCK - 1) // UBIFS_BLOCK
+            gap = sum(1 for blk in range(need) if blk not in blocks)
+            named = [n for n in names.get(inum, ()) if cut is None or n[0] < cut]
+            _nsq, parent, name = max(named) if named else (0, None, "")
+            e = FlashDeletedFile("ubifs", inum, name, parent, paths.get(parent), size, mode,
+                                 mtime, gap, dict(blocks=blocks), self)
+            if flags & UBIFS_CRYPT_FL:
+                e.recoverable, e.reason = False, "the file was encrypted (fscrypt)"
+            yield e
+
+    def read_deleted(self, entry, size=None):
+        """The content of a recoverable deleted file (recover_deleted())."""
+        if not entry.recoverable:
+            raise UbifsUnreadable(f"deleted file {entry.name!r} is not recoverable: {entry.reason}")
+        # pylint: disable=protected-access
+        blocks = entry._plan["blocks"]
+        left = entry.size if size is None else min(size, entry.size)
+        for blk in range((entry.size + UBIFS_BLOCK - 1) // UBIFS_BLOCK):
+            if left <= 0:
+                return
+            lnum, offs, nlen = blocks[blk]
+            raw = self._node(lnum, offs, nlen, UBIFS_DATA_NODE)
+            if raw is None:
+                raise UbifsUnreadable(f"data node for block {blk} does not read")
+            dsize, ctype = struct.unpack_from("<IH", raw, 40)
+            out = ubifs_decompress(ctype, raw[48:], UBIFS_BLOCK)
+            if len(out) != dsize:
+                raise UbifsUnreadable(f"block {blk} inflates to {len(out)} bytes, "
+                                      f"not the {dsize} its node records")
+            take = out.ljust(UBIFS_BLOCK, b"\0")[:min(UBIFS_BLOCK, left)]
             yield take
             left -= len(take)
 
@@ -7577,7 +7884,51 @@ def _yaffs_header(data, e):
                 shrink=shrink not in (0, 0xFFFFFFFF))
 
 
-def yaffs_layout(fh, base, size, sample=256):
+def _yaffs_tag_trials(chunk, spare):
+    """(version, tag offset, byte order, decoder) for every tag placement a
+    geometry allows: YAFFS1 tags on 512+16, and YAFFS2 packed tags at every
+    offset in the spare in both byte orders."""
+    trials = []
+    if (chunk, spare) == (512, 16):
+        trials.append((1, 0, "<", lambda s: _yaffs1_tags(s)))
+    for off in range(0, spare - 15):
+        for e in ("<", ">"):
+            trials.append((2, off, e, lambda s, off=off, e=e: _yaffs2_tags(s, off, e)))
+    return trials
+
+
+def _yaffs_tags_fit(decode, used):
+    """True when the decoder finds plausible tags on at least 90% of the
+    first 16 used pages; it gives up as soon as that is out of reach."""
+    first = used[:16]
+    allowed = len(first) - 0.9 * len(first)
+    misses = 0
+    for _d, s in first:
+        if not decode(s):
+            misses += 1
+            if misses > allowed:
+                return False
+    return True
+
+
+def _yaffs_pages(fh, base, size, chunk, spare, n, windows):
+    """(data, spare) for the used pages of `windows` runs of n pages spread
+    evenly over the region, the first at its start and the last at its end."""
+    page = chunk + spare
+    total = size // page
+    if windows <= 1 or total <= n * windows:
+        spans = [(0, min(n, total) if windows <= 1 else total)]
+    else:
+        spans = [((total - n) * i // (windows - 1), n) for i in range(windows)]
+    used = []
+    for first, count in spans:
+        raw = read_at(fh, base + first * page, count * page)
+        used += [(raw[i * page:i * page + chunk], raw[i * page + chunk:(i + 1) * page])
+                 for i in range(len(raw) // page)]
+    return [(d, s) for d, s in used if s != b"\xff" * spare]
+
+
+def yaffs_layout(fh, base, size, sample=256, windows=16):
     """(version, chunk, spare, tag offset, tag byte order, header byte order)
     for a YAFFS image at base, or None.
 
@@ -7591,31 +7942,53 @@ def yaffs_layout(fh, base, size, sample=256):
     tag ECC line parities hold, then the one explaining the most headers, wins.
     The tag and header byte orders are decided apart: upstream mkyaffs2image's
     "convert" swaps its headers and, at the pinned commit, not its tags
-    (utils/mkyaffs2image.c little_to_big_endian is compiled out)."""
+    (utils/mkyaffs2image.c little_to_big_endian is compiled out).
+
+    YAFFS writes to whichever block garbage collection freed, and its scan
+    orders blocks by sequence number, not by place, so the start of a real
+    partition can hold only data chunks, or only erased blocks. On the DFRWS
+    2011 Case 2 /cache partition the first object header is at page 3,968.
+    When the first pages hold tags that fit but no header, or too few used
+    pages, the same test is run again over `windows` runs spread across the
+    whole region. Those runs cover the same stretch of bytes for every
+    geometry (`sample` pages of 2048+64 each), so a geometry that is a
+    multiple of the real one (8192+256 over 2048+64 pages) cannot see more
+    headers than the real one does; sampling more pages from the start alone
+    let exactly that alias win on the Case 2 partition."""
+    best, hint = _yaffs_layout_in(
+        fh, base, size, lambda chunk, spare: min(sample, size // (chunk + spare)), 1)
+    if best is None and hint:
+        span = sample * (2048 + 64)
+        best, _hint = _yaffs_layout_in(
+            fh, base, size, lambda chunk, spare: max(8, span // (chunk + spare)), windows)
+    return best
+
+
+def _yaffs_layout_in(fh, base, size, pages_for, windows):
+    """The best layout over the sampled pages, and whether the pages hinted
+    at YAFFS without settling it (see yaffs_layout)."""
     best = None
+    hint = False
     for chunk, spare in YAFFS_GEOMETRIES:
-        page = chunk + spare
-        n = min(sample, size // page)
+        n = pages_for(chunk, spare)
         if n < 8:
             continue
-        raw = read_at(fh, base, n * page)
-        used = [(raw[i * page:i * page + chunk], raw[i * page + chunk:(i + 1) * page])
-                for i in range(len(raw) // page)]
-        used = [(d, s) for d, s in used if s != b"\xff" * spare]
+        used = _yaffs_pages(fh, base, size, chunk, spare, n, windows)
         if len(used) < 8:
+            # Erased flash: nothing to decide from here, but more of the
+            # region may hold YAFFS.
+            hint = hint or n * (chunk + spare) < size
             continue
-        # A geometry with no page shaped like an object header cannot be YAFFS;
-        # checking that first keeps the tag search off regions that are not.
+        trials = _yaffs_tag_trials(chunk, spare)
+        # A geometry with no page shaped like an object header cannot be YAFFS
+        # on these pages; checking that first keeps the tag search off regions
+        # that are not. Tags that fit anyway say the headers may lie further on.
         if not any(_yaffs_header(d, he) for d, _s in used for he in ("<", ">")):
+            if not hint and any(_yaffs_tags_fit(dec, used) for _v, _o, _e, dec in trials):
+                hint = True
             continue
-        trials = []
-        if (chunk, spare) == (512, 16):
-            trials.append((1, 0, "<", lambda s: _yaffs1_tags(s)))
-        for off in range(0, spare - 15):
-            for e in ("<", ">"):
-                trials.append((2, off, e, lambda s, off=off, e=e: _yaffs2_tags(s, off, e)))
         for version, off, e, decode in trials:
-            if sum(1 for _d, s in used[:16] if decode(s)) < 0.9 * min(16, len(used)):
+            if not _yaffs_tags_fit(decode, used):
                 continue                   # most tag offsets fail on the first pages
             good = claimed = eccs = 0
             parsed = {"<": 0, ">": 0}
@@ -7633,11 +8006,13 @@ def yaffs_layout(fh, base, size, sample=256):
             hdr_e = max(parsed, key=parsed.get)
             if not (good >= 8 and good >= 0.9 * len(used) and claimed
                     and parsed[hdr_e] >= 0.9 * claimed):
+                if good >= 0.9 * len(used) and not claimed:
+                    hint = True
                 continue
             rank = (version == 1 or eccs >= 0.9 * good, parsed[hdr_e], good / len(used))
             if best is None or rank > best[0]:
                 best = (rank, (version, chunk, spare, off, e, hdr_e))
-    return best[1] if best else None
+    return (best[1] if best else None), hint
 
 
 class YaffsWalker:
@@ -7713,35 +8088,41 @@ class YaffsWalker:
             entries.append((t["seq"], idx, t, hdr))
         entries.sort(key=lambda x: (x[0], x[1]), reverse=True)   # newest first
         self.max_seq = entries[0][0] if entries else 0
+        self._entries = entries
         for _seq, idx, t, hdr in entries:
-            o = self._obj(t["obj"])
-            if hdr is None:                                    # a data chunk
-                base = (t["chunk"] - 1) * self.chunk
-                if o["hdr"] is not None and o["hdr"]["type"] != 1:
-                    continue
-                if o["shrink"] is not None and base >= o["shrink"]:
-                    self.stats["data chunks past a shrink or resize"] += 1
-                    continue
-                if t["chunk"] not in o["chunks"]:
-                    o["chunks"][t["chunk"]] = (idx, t["n_bytes"])
-                    if o["hdr"] is None:
-                        o["stored"] = max(o["stored"], base + t["n_bytes"])
-                continue
-            if o["hdr"] is not None:                           # an older header
-                if o["hdr"]["type"] == 1 and hdr["type"] == 1:
-                    this, shrink = hdr["size"], hdr["shrink"]
-                    if hdr["parent"] in (YAFFS_DELETED, YAFFS_UNLINKED):
-                        this, shrink = 0, True
-                    if shrink and (o["shrink"] is None or o["shrink"] > this):
-                        o["shrink"] = this
-                self.stats["older headers"] += 1
-                continue
-            o["hdr"] = hdr
-            if hdr["type"] == 1:
-                if o["stored"] < hdr["size"]:
-                    o["stored"] = hdr["size"]
-                if o["shrink"] is None or o["shrink"] > hdr["size"]:
-                    o["shrink"] = hdr["size"]
+            self._take2(self._obj(t["obj"]), idx, t, hdr, self.stats)
+
+    def _take2(self, o, idx, t, hdr, stats):
+        """Apply one chunk to its object, the chunks coming newest first, as
+        yaffs2_scan_chunk does. recover_deleted() replays a deleted object's
+        chunks through the same rules."""
+        if hdr is None:                                        # a data chunk
+            base = (t["chunk"] - 1) * self.chunk
+            if o["hdr"] is not None and o["hdr"]["type"] != 1:
+                return
+            if o["shrink"] is not None and base >= o["shrink"]:
+                stats["data chunks past a shrink or resize"] += 1
+                return
+            if t["chunk"] not in o["chunks"]:
+                o["chunks"][t["chunk"]] = (idx, t["n_bytes"])
+                if o["hdr"] is None:
+                    o["stored"] = max(o["stored"], base + t["n_bytes"])
+            return
+        if o["hdr"] is not None:                               # an older header
+            if o["hdr"]["type"] == 1 and hdr["type"] == 1:
+                this, shrink = hdr["size"], hdr["shrink"]
+                if hdr["parent"] in (YAFFS_DELETED, YAFFS_UNLINKED):
+                    this, shrink = 0, True
+                if shrink and (o["shrink"] is None or o["shrink"] > this):
+                    o["shrink"] = this
+            stats["older headers"] += 1
+            return
+        o["hdr"] = hdr
+        if hdr["type"] == 1:
+            if o["stored"] < hdr["size"]:
+                o["stored"] = hdr["size"]
+            if o["shrink"] is None or o["shrink"] > hdr["size"]:
+                o["shrink"] = hdr["size"]
 
     def _scan1(self):
         for idx, data, spare in self._pages():
@@ -7840,6 +8221,96 @@ class YaffsWalker:
             else:
                 data = read_at(self.fh, self.base + hit[0] * self.page, self.chunk)
                 data = data[:hit[1]].ljust(self.chunk, b"\0")
+            take = data[:min(self.chunk, left)]
+            yield take
+            left -= len(take)
+
+    # -- deleted files ---------------------------------------------------------
+    def recover_deleted(self):
+        """Yield a FlashDeletedFile for every deleted YAFFS2 file whose header
+        from before the deletion is still on the flash.
+
+        YAFFS2 deletes a file by writing a new header that files it under the
+        unlinked or deleted directory (objects 3 and 4); its old headers and
+        data chunks stay until garbage collection erases their blocks. Each
+        object's headers are read oldest first and cut at every such header,
+        so an object id YAFFS reused for a later file still gives back the
+        file it held before. A deleted file is rebuilt by replaying, newest
+        first and through the same rules as the live scan, the chunks written
+        before its deletion. Those rules keep an earlier file with the same id
+        out: its own deletion header counts as a shrink to 0, as it does in
+        YAFFS's scan (core/yaffs_yaffs2.c:1357-1361 at the pinned commit), so
+        none of its data chunks is taken.
+
+        YAFFS1 is not recovered: its chunks are ordered only by a 2-bit
+        serial number, which cannot say which copy of a page a deleted file
+        last held."""
+        if self.version != 2:
+            return
+        by_obj = collections.defaultdict(list)
+        for seq, idx, t, hdr in self._entries:
+            by_obj[t["obj"]].append((seq, idx, t, hdr))
+        paths = _live_dir_paths(self)
+        for oid in sorted(by_obj):
+            if oid in (YAFFS_ROOT, YAFFS_LOSTNFOUND, YAFFS_UNLINKED, YAFFS_DELETED):
+                continue
+            ents = sorted(by_obj[oid], key=lambda x: (x[0], x[1]))  # oldest first
+            lives = []
+            for seq, idx, _t, hdr in ents:
+                if hdr is None:
+                    continue
+                if hdr["parent"] not in (YAFFS_DELETED, YAFFS_UNLINKED):
+                    lives.append(((seq, idx), hdr))
+                    continue
+                if lives and lives[-1][1]["type"] == 1:
+                    end, note = (seq, idx), ""
+                    # Deleting a YAFFS2 file first resizes it to 0, which writes
+                    # a header in its own directory with size 0 and no shrink
+                    # flag (core/yaffs_guts.c:3664 in yaffs_del_file, and :3598 in
+                    # yaffs_resize_file), and only then files it under the
+                    # deleted directory. That header is the deletion's, so the
+                    # file is rebuilt as the header before it describes it.
+                    last, hdr_used = lives[-1][1], lives[-1][1]
+                    if (len(lives) > 1 and last["size"] == 0 and not last["shrink"]
+                            and lives[-2][1]["parent"] == last["parent"]
+                            and lives[-2][1]["name"] == last["name"]):
+                        end, hdr_used = lives[-1][0], lives[-2][1]
+                        note = ("the header just before the deletion records size 0; YAFFS2 "
+                                "writes that header itself when it deletes a file, and a file "
+                                "truncated to 0 just before its deletion leaves the same header, "
+                                "so this is the file as the header before that one describes it")
+                    e = self._deleted2(oid, ents, end, hdr_used, paths)
+                    e.note = note if e.size else ""
+                    yield e
+                lives = []
+
+    def _deleted2(self, oid, ents, end, h, paths):
+        """The file object `oid` held just before `end`, whose newest header
+        before `end` is `h`."""
+        o = dict(chunks={}, stored=0, shrink=None, hdr=None)
+        scratch = collections.Counter()
+        for seq, idx, t, hdr in reversed(ents):                 # newest first
+            if (seq, idx) < end:
+                self._take2(o, idx, t, hdr, scratch)
+        need = (o["stored"] + self.chunk - 1) // self.chunk
+        gap = sum(1 for c in range(1, need + 1) if c not in o["chunks"])
+        return FlashDeletedFile("yaffs2", oid, h["name"], h["parent"], paths.get(h["parent"]),
+                                o["stored"], (h["mode"] & 0o7777) | S_IFREG, h["mtime"],
+                                gap, o, self)
+
+    def read_deleted(self, entry, size=None):
+        """The content of a recoverable deleted file (recover_deleted())."""
+        if not entry.recoverable:
+            raise YaffsUnreadable(f"deleted file {entry.name!r} is not recoverable: {entry.reason}")
+        # pylint: disable=protected-access
+        o = entry._plan
+        left = entry.size if size is None else min(size, entry.size)
+        for c in range(1, (entry.size + self.chunk - 1) // self.chunk + 1):
+            if left <= 0:
+                return
+            idx, nbytes = o["chunks"][c]
+            data = read_at(self.fh, self.base + idx * self.page, self.chunk)
+            data = data[:nbytes].ljust(self.chunk, b"\0")
             take = data[:min(self.chunk, left)]
             yield take
             left -= len(take)
@@ -10547,8 +11018,54 @@ def _flash_listing(path, style):
     return out
 
 
+def _flash_deleted_check(image_gz, want, churn_name, churn_hashes):
+    """recover_deleted() on a history fixture, held against what the fixture's
+    writer put in the files it deleted. `want` maps a deleted file's name to
+    the bytes the writer gave it; `churn_name` tests a name for the churn files
+    written and deleted to force garbage collection, whose possible contents
+    are `churn_hashes`. Returns (problems, found, refused): every named file in
+    `want` must come back recoverable with exactly those bytes, every other
+    recovered file must be a churn file with churn content or be refused, and
+    reading a refused one must raise."""
+    import gzip, hashlib, io
+    with gzip.open(image_gz, "rb") as gz:
+        raw = gz.read()
+    fh = io.BytesIO(raw)
+    kind = (identify_fs(fh, 0, len(raw)) or (None,))[0]
+    w = walker_for(kind, fh, 0, len(raw)) if kind else None
+    if w is None or not hasattr(w, "recover_deleted"):
+        return [f"identified as {kind}, with no recover_deleted()"], 0, 0
+    problems, seen, found, n_refused = [], set(), 0, 0
+    for e in w.recover_deleted():
+        if not e.recoverable:
+            n_refused += 1
+            try:
+                for _chunk in w.read_deleted(e):
+                    pass
+                problems.append(f"{e.name!r} is refused but read_deleted() read it")
+            except Exception:                        # pylint: disable=broad-except
+                pass
+            if e.name in want:
+                problems.append(f"{e.name!r} refused: {e.reason}")
+            continue
+        found += 1
+        got = b"".join(w.read_deleted(e))
+        if e.name in want:
+            seen.add(e.name)
+            if got != want[e.name]:
+                problems.append(f"{e.name!r}: {len(got)} bytes, "
+                                f"not the {len(want[e.name])} written")
+        elif churn_name(e.name):
+            if hashlib.sha256(got).hexdigest() not in churn_hashes:
+                problems.append(f"{e.name!r} ({e.kind} {e.ident}) is not any churn file's content")
+        else:
+            problems.append(f"{e.name!r} recovered, and the fixture deleted no such file")
+    problems += [f"{n!r} not recovered" for n in sorted(set(want) - seen)]
+    return problems, found, n_refused
+
+
 def _flash_fixture_check(image_gz, hashes, listing=None, style="stat", prefix="",
-                         loose_times=(), corrupt=None, allow_extra=()):
+                         loose_times=(), corrupt=None, allow_extra=(), front=None):
     """Read a committed flash filesystem fixture through identify_fs() and
     walker_for(), and hold it against its oracle lists. Returns a dict:
 
@@ -10565,6 +11082,10 @@ def _flash_fixture_check(image_gz, hashes, listing=None, style="stat", prefix=""
       corrupt     (needle, xor) flips one byte of the decompressed image at the
                   first occurrence of `needle` before it is read: the control
                   that shows the content check can report a difference.
+      front       (block bytes, block numbers) moves those blocks, in that
+                  order, to the start of the image before it is read. YAFFS2
+                  orders blocks by sequence number, not by place, so the
+                  image still holds the same filesystem.
 
     `loose_times` names entries whose time is not on the flash (a directory
     the reader's own writer invents at mount time) and so is not compared.
@@ -10572,6 +11093,11 @@ def _flash_fixture_check(image_gz, hashes, listing=None, style="stat", prefix=""
     import gzip, hashlib, io as _io
     with gzip.open(image_gz, "rb") as gz:
         raw = bytearray(gz.read())
+    if front is not None:
+        bsize, first = front
+        blocks = [bytes(raw[i:i + bsize]) for i in range(0, len(raw), bsize)]
+        raw = bytearray(b"".join([blocks[i] for i in first]
+                                 + [b for i, b in enumerate(blocks) if i not in first]))
     if corrupt is not None:
         at = raw.find(corrupt[0])
         if at >= 0:
@@ -13125,6 +13651,80 @@ def self_test():
                   + ")" + ("; " + "; ".join(ebad) if ebad else "")
                   + (f"; listed but not in {listing}: " + ", ".join(r["extra"][:3])
                      if r["extra"] else "") + broke)
+
+        # YAFFS writes wherever garbage collection freed a block, so a real
+        # partition can open on blocks holding only data chunks, or only
+        # erased pages (the DFRWS 2011 Case 2 /cache partition: first object
+        # header at page 3,968). The history image with such blocks moved to
+        # its start holds the same filesystem, as YAFFS's own core reads it,
+        # and must still be found and read.
+        hist = os.path.join(fx, "yaffs2-history.img.gz")
+        if os.path.isfile(hist):
+            for first, what in (((1, 23, 25, 27, 28), "five blocks of data chunks and no header"),
+                                ((8, 9, 10, 14, 15, 17, 19), "seven erased blocks")):
+                r = _flash_fixture_check(hist, os.path.join(fx, "yaffs2.history.sha256"),
+                                         os.path.join(fx, "yaffs2.history.stat"), "stat", "",
+                                         ("lost+found",), front=(64 * 2112, first))
+                (got, want, miss, diff), (eok, ewant, ebad) = r["files"], r["entries"]
+                cond = (r["kind"] == "yaffs2" and want and got == want and eok == ewant
+                        and not r["extra"])
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] YAFFS2 history image opening on {what}: "
+                      f"{got} of {want} files match, {eok} of {ewant} entries agree "
+                      f"(identified as {r['kind']})")
+
+        # Deleted files, held against what each fixture's writer put in them.
+        # tools/yaffs_history.c fills a file with numbered lines (text()); the
+        # kernel history in tools/make_kernel_flash_fixtures.sh with a repeated
+        # line, and each churn file with one block of random.Random(2026).
+        import hashlib as _hl
+        import random as _rnd
+
+        def _ytext(n, tag):
+            out, seed = bytearray(), 0
+            while len(out) < n:
+                out += f"{tag} line {seed:06d} of the yaffs history fixture\n".encode()
+                seed += 1
+            return bytes(out[:n])
+
+        def _ktext(n, tag):
+            line = (tag + " kernel history line\n").encode()
+            return (line * (n // len(line) + 1))[:n]
+
+        def _kchurn(n):
+            r = _rnd.Random(2026)
+            return {_hl.sha256(r.randbytes(4096) * 64).hexdigest() for _ in range(n)}
+
+        kwant = {"gone.txt": _ktext(3000, "deleted"),
+                 "target.txt": b"the file that gets replaced\n"}
+        # The NAND image holds nothing partly erased; the other three each
+        # hold at least one file whose pages were only partly erased.
+        for stem, want, churn_name, churn, label, must_refuse in (
+                ("yaffs2-history", {"deleted.txt": _ytext(30000, "deleted")},
+                 lambda n: n.startswith("churn_"),
+                 {_hl.sha256(_ytext(600000, "churn")).hexdigest()}, "YAFFS2", True),
+                ("jffs2-nor-history", kwant, lambda n: n in ("churn.bin", ""), _kchurn(32),
+                 "JFFS2 on NOR (freed nodes marked obsolete)", True),
+                ("jffs2-nand-history", kwant, lambda n: n in ("churn.bin", ""), _kchurn(32),
+                 "JFFS2 on NAND", False),
+                ("ubi-nand-history", kwant, lambda n: n in ("churn.bin", ""), _kchurn(24),
+                 "UBIFS in UBI", True)):
+            img = os.path.join(fx, stem + ".img.gz")
+            if not os.path.isfile(img):
+                print(f"  [SKIP] {stem} is not beside this script, so {label} deleted-file "
+                      f"recovery was not checked")
+                continue
+            problems, found, n_refused = _flash_deleted_check(img, want, churn_name, churn)
+            cond = not problems and found >= len(want) and (n_refused or not must_refuse)
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] {label}: deleted files recovered with the "
+                  f"bytes the writer gave them ({', '.join(sorted(want))}; {found} recovered, "
+                  f"{n_refused} refused as partly erased)"
+                  + ("; " + "; ".join(problems[:4]) if problems else "")
+                  + ("" if n_refused or not must_refuse
+                     else "; nothing was refused, so the refusal is untested"))
 
         # The kernel-written images are only worth having while they carry the
         # history they exist to test: superseded JFFS2 nodes marked obsolete on
