@@ -26,6 +26,11 @@ The key is the finding, not the column. A column named for an unrelated reason n
 silences a real defect: a note explaining that ps_thread.txt puts %CPU in its 4th column
 does not certify that the %CPU column of ps.txt is uniform. The column name also has to
 appear as a word, so "timezone" and "timestamp" no longer silence a column named TIME.
+A one-word header must appear as the header spells it, because most one-word headers are
+ordinary words: "a name not applied" no longer silences a column named Name, while
+"Name held an empty string" does. A header written in lower case also matches with a
+capital first letter, for the start of a sentence. Headers of several words match in any
+case.
 
 Scaling is checked separately with --compare, which takes the report of the same profile
 run against a tree holding the same container twice plus a second tenant. Per artifact:
@@ -83,21 +88,32 @@ SENTENCE = re.compile(r'(?<=[.;!?])\s+|\n+')
 def column_pattern(column):
     """A whole-word matcher for a column name, tolerating a plural or possessive.
 
-    "Timestamp" matches "timestamps" because that is the same column being described.
+    "Timestamp" matches "Timestamps" because that is the same column being described.
     It does not match "zitunessubtitle" or "timezone", which name something else.
+
+    A one-word header is matched as the header spells it, so the column Name is not
+    named by "a name not applied" and the column Value is not named by "no value". A
+    lower-case header also matches with its first letter capitalised. A header of
+    several words is matched in any case, since prose rarely repeats one by accident.
     """
-    bare = QUALIFIER.sub('', column).strip().lower()
+    bare = QUALIFIER.sub('', column).strip()
     if not bare:
         return None
-    return re.compile(r"(?<![0-9a-z])" + re.escape(bare) + r"(?:'s|\u2019s|es|s)?(?![0-9a-z])")
+    suffix = r"(?:'s|\u2019s|es|s)?(?![0-9A-Za-z])"
+    if re.search(r'\s', bare):
+        return re.compile(r"(?<![0-9A-Za-z])" + re.escape(bare) + suffix, re.I)
+    spellings = [bare]
+    if bare[0].islower():
+        spellings.append(bare[0].upper() + bare[1:])
+    alternatives = '|'.join(re.escape(spelling) for spelling in spellings)
+    return re.compile(r"(?<![0-9A-Za-z])(?:" + alternatives + r")" + suffix)
 
 
 def named_in(notes, *columns):
     """Whether the notes name every one of these columns as a word, qualifier or not."""
-    lowered = notes.lower()
     for column in columns:
         pattern = column_pattern(column)
-        if pattern is None or not pattern.search(lowered):
+        if pattern is None or not pattern.search(notes):
             return False
     return True
 
@@ -111,8 +127,7 @@ def documented(notes, kind, *columns):
     if any(p is None for p in patterns):
         return False
     for sentence in SENTENCE.split(notes):
-        lowered = sentence.lower()
-        if all(p.search(lowered) for p in patterns) and shape.search(sentence):
+        if all(p.search(sentence) for p in patterns) and shape.search(sentence):
             return True
     return False
 
@@ -180,7 +195,6 @@ def check_table(columns, rows, notes):
     findings = []
     if not rows:
         return findings
-    mentioned = notes.lower()
     total = len(rows)
 
     series = {c: [(r.get(c) or '') for r in rows] for c in columns}
@@ -189,7 +203,7 @@ def check_table(columns, rows, notes):
         """Keep a finding unless the notes address it; say so when only the name is there."""
         if documented(notes, kind, *involved):
             return
-        if named_in(mentioned, *involved):
+        if named_in(notes, *involved):
             message += ' (the notes name it, but not as this finding)'
         findings.append((kind, message))
 
