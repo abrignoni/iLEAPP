@@ -32,7 +32,8 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import scripts.raw_image as raw_image  # pylint: disable=wrong-import-position
 from scripts.raw_image import (  # pylint: disable=wrong-import-position
-    RAW_IMAGE_FILESYSTEMS, RAW_IMAGE_SUFFIXES, FileSeekerRaw, split_image_sibling)
+    RAW_IMAGE_FILESYSTEMS, RAW_IMAGE_SUFFIXES, FileSeekerRaw, names_a_stream,
+    split_image_sibling)
 from scripts.vendor import ewfprobe, qnxprobe  # pylint: disable=wrong-import-position
 
 FIXTURES = REPO_ROOT / 'admin' / 'test' / 'data' / 'raw_images'
@@ -41,6 +42,8 @@ FIXTURES = REPO_ROOT / 'admin' / 'test' / 'data' / 'raw_images'
 def _hash_list(path):
     out = {}
     for line in path.read_text(encoding='utf-8').splitlines():
+        if line.startswith('#'):
+            continue
         digest, _, rel = line.partition('  ')
         if rel:
             out[rel.strip()] = digest.strip()
@@ -153,7 +156,8 @@ class RawImageSeekerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.work = tempfile.mkdtemp(prefix='raw_image_test_')
-        for stem in ('ntfs-fixture', 'fat32-deleted', 'exfat-deleted', 'apfs-fixture'):
+        for stem in ('ntfs-fixture', 'fat32-deleted', 'exfat-deleted', 'apfs-fixture',
+                     'ntfs-streams'):
             with gzip.open(FIXTURES / f'{stem}.img.gz', 'rb') as src, \
                     open(os.path.join(cls.work, f'{stem}.img'), 'wb') as dst:
                 shutil.copyfileobj(src, dst)
@@ -161,10 +165,12 @@ class RawImageSeekerTest(unittest.TestCase):
         cls.fat32 = os.path.join(cls.work, 'fat32-deleted.img')
         cls.exfat = os.path.join(cls.work, 'exfat-deleted.img')
         cls.apfs = os.path.join(cls.work, 'apfs-fixture.img')
+        cls.streams = os.path.join(cls.work, 'ntfs-streams.img')
         cls.ntfs_hashes = _hash_list(FIXTURES / 'ntfs-fixture.sha256')
         cls.fat32_hashes = _hash_list(FIXTURES / 'fat32-deleted.live.sha256')
         cls.exfat_hashes = _hash_list(FIXTURES / 'exfat-deleted.live.sha256')
         cls.apfs_hashes = _hash_list(FIXTURES / 'apfs-fixture.sha256')
+        cls.stream_hashes = _hash_list(FIXTURES / 'ntfs-streams.sha256')
 
     @classmethod
     def tearDownClass(cls):
@@ -270,7 +276,8 @@ class RawImageSeekerTest(unittest.TestCase):
     # with the faster route taken away.
 
     def _members(self, image, **patches):
-        """(member list, {member: (node, size, mtime, reading)}) from a fresh seeker."""
+        """(member list, {member: (node, size, mtime, reading)}, stream list) from
+        a fresh seeker."""
         self.data = tempfile.mkdtemp(prefix='raw_image_data_')
         self.addCleanup(shutil.rmtree, self.data, True)
         with contextlib.ExitStack() as stack:
@@ -282,7 +289,7 @@ class RawImageSeekerTest(unittest.TestCase):
         entries = {member: None if entry is None else
                    (repr(entry.node), entry.size, entry.mtime, entry.reading)
                    for member, entry in seeker._entries.items()}  # pylint: disable=protected-access
-        return list(seeker.name_list), entries
+        return list(seeker.name_list), entries, list(seeker.stream_list)
 
     def test_ntfs_is_listed_in_one_pass_and_matches_the_tree_walk(self):
         fast = self._members(self.ntfs)
@@ -341,10 +348,133 @@ class RawImageSeekerTest(unittest.TestCase):
                 if row[0] == 'many/file_0001.txt':
                     yield ('many/file_0001.txt', row[1] + 100000) + row[2:]
 
-        names, entries = self._members(self.ntfs, ntfs={'listing': doubled})
+        names, entries, _streams = self._members(self.ntfs, ntfs={'listing': doubled})
         self.assertEqual(names.count('lba0/many/file_0001.txt'), 1)
         self.assertNotEqual(entries['lba0/many/file_0001.txt'][0], repr(100000))
         self.assertIn('claimed by more than one record', self.log.text())
+
+    # ---- NTFS alternate data streams --------------------------------------------
+    #
+    # ntfs-streams.img holds streams in each shape the reader has a rule for, and its
+    # hash list is The Sleuth Kit's reading of each stream from its first stored
+    # cluster, which is what the reader returns (see the README beside it). A
+    # stream is a member only a pattern naming a stream can reach, so every
+    # pattern written before streams were members is handed exactly what it was.
+
+    def _staged_streams(self, seeker, pattern):
+        """{path:stream within the volume: staged path} for a stream pattern."""
+        found = seeker.search(pattern)
+        out = {}
+        for staged in found:
+            source = seeker.file_infos[staged].source_path
+            self.assertTrue(source.startswith('lba0/'), source)
+            out[source[len('lba0/'):]] = staged
+        return out
+
+    def test_every_ntfs_stream_matches_the_independent_hash_list(self):
+        seeker = self._seeker(self.streams)
+        self.assertEqual(len(self.stream_hashes), 28)
+        staged = self._staged_streams(seeker, '*:*')
+        self.assertEqual(sorted(staged), sorted(self.stream_hashes))
+        differ = [rel for rel, digest in self.stream_hashes.items()
+                  if _sha256(staged[rel]) != digest]
+        self.assertEqual(differ, [])
+        self.assertEqual(len(seeker.stream_list), 28)
+
+    def test_a_pattern_that_names_no_stream_is_never_handed_one(self):
+        seeker = self._seeker(self.streams)
+        everything = seeker.search('*')
+        self.assertTrue(everything)
+        sources = [seeker.file_infos[path].source_path for path in everything]
+        self.assertEqual([s for s in sources if ':' in s], [])
+        downloads = seeker.search('*/downloads/*')
+        self.assertEqual(sorted(seeker.file_infos[p].source_path for p in downloads),
+                         ['lba0/downloads/', 'lba0/downloads/report.pdf',
+                          'lba0/downloads/setup.exe'])
+        self.assertTrue(set(seeker.name_list).isdisjoint(seeker.stream_list))
+
+    def test_zone_identifier_streams_are_staged_under_a_name_without_the_colon(self):
+        seeker = self._seeker(self.streams)
+        staged = self._staged_streams(seeker, '*:Zone.Identifier')
+        self.assertEqual(sorted(staged), ['downloads/report.pdf:Zone.Identifier',
+                                          'downloads/setup.exe:Zone.Identifier'])
+        for rel, path in staged.items():
+            self.assertEqual(_sha256(path), self.stream_hashes[rel])
+            self.assertNotIn(':', os.path.basename(path))
+        with open(staged['downloads/setup.exe:Zone.Identifier'], 'rb') as handle:
+            self.assertTrue(handle.read().startswith(b'[ZoneTransfer]\r\nZoneId=3\r\n'))
+
+    def test_a_stream_carries_its_file_s_dates(self):
+        seeker = self._seeker(self.streams)
+        stream = seeker.search('*/downloads/setup.exe:Zone.Identifier')[0]
+        host = seeker.search('*/downloads/setup.exe')[0]
+        self.assertGreater(seeker.file_infos[stream].modification_date, 1_600_000_000)
+        self.assertEqual(seeker.file_infos[stream].creation_date,
+                         seeker.file_infos[host].creation_date)
+        self.assertEqual(seeker.file_infos[stream].modification_date,
+                         seeker.file_infos[host].modification_date)
+
+    def test_the_journal_is_staged_from_its_first_stored_cluster(self):
+        # journal.bin:$J is the shape of $Extend/$UsnJrnl:$J: 1 MiB of hole, then
+        # records in 365 runs whose run list continues in a second MFT record.
+        # Its recorded size is 2,859,008 bytes; what is stored is 1,810,432.
+        seeker = self._seeker(self.streams)
+        staged = self._staged_streams(seeker, '*/journal.bin:$J')
+        self.assertEqual(list(staged), ['journal.bin:$J'])
+        path = staged['journal.bin:$J']
+        self.assertEqual(os.path.getsize(path), 1_810_432)
+        self.assertEqual(_sha256(path), self.stream_hashes['journal.bin:$J'])
+
+    def test_a_stream_that_stores_nothing_is_not_a_member(self):
+        seeker = self._seeker(self.streams)
+        self.assertNotIn('lba0/$BadClus:$Bad', seeker.stream_list)
+        self.assertNotIn('lba0/hollow.bin:nothing-stored', seeker.stream_list)
+        self.assertEqual(seeker.search('*:$Bad'), [])
+        self.assertIn('lba0/empty.txt:empty', seeker.stream_list)
+        self.assertEqual(os.path.getsize(seeker.search('*/empty.txt:empty')[0]), 0)
+
+    def test_streams_on_directories_and_the_root_are_members(self):
+        seeker = self._seeker(self.streams)
+        self.assertIn('lba0/folder:dirstream', seeker.stream_list)
+        self.assertIn('lba0/:rootstream', seeker.stream_list)
+        root = seeker.search('*/:rootstream')
+        self.assertEqual(len(root), 1)
+        self.assertEqual(_sha256(root[0]), self.stream_hashes[':rootstream'])
+
+    def test_streams_are_the_same_by_both_routes(self):
+        fast = self._members(self.streams)
+        slow = self._members(self.streams, ntfs={'listing': None})
+        self.assertEqual(len(fast[2]), 28)
+        self.assertEqual(fast, slow)
+
+    def test_the_run_log_counts_the_streams(self):
+        self._seeker(self.streams)
+        self.assertIn('and 28 alternate data streams, matched only by a pattern', self.log.text())
+        self.assertIn('members and 28 streams', self.log.text())
+
+    def test_a_reader_without_streams_leaves_the_members_as_they_were(self):
+        # a vendored qnxprobe older than 1.37 has no streams(); the seeker then
+        # lists exactly the members it did, and no stream
+        with_streams = self._members(self.streams)
+        without = self._members(self.streams, ntfs={'streams': None})
+        self.assertEqual(without[2], [])
+        self.assertEqual(without[0], with_streams[0])
+        self.assertNotIn('alternate data streams', self.log.text().split('Reading ')[-1])
+
+    def test_the_stream_on_the_file_fixture(self):
+        # the fixture every other NTFS test reads carries one stream of its own
+        seeker = self._seeker(self.ntfs)
+        found = seeker.search('*/ads.txt:hidden')
+        self.assertEqual(len(found), 1)
+        with open(found[0], 'rb') as handle:
+            self.assertEqual(handle.read(), b'the hidden stream\n')
+
+    def test_what_names_a_stream(self):
+        for pattern in ('*:Zone.Identifier', '*/$Extend/$UsnJrnl:$J', '*/:rootstream', '*:*',
+                        '*\\x.exe:Zone.Identifier'):
+            self.assertTrue(names_a_stream(pattern), pattern)
+        for pattern in ('*', '*/Recent/*', '*/c:/Users/*/NTUSER.DAT', '*/Windows/Prefetch/*.pf'):
+            self.assertFalse(names_a_stream(pattern), pattern)
 
     # ---- members and metadata ---------------------------------------------------
 
@@ -508,7 +638,7 @@ class RawImageSeekerTest(unittest.TestCase):
 
         seeker = FileSeekerRaw.__new__(FileSeekerRaw)
         seeker.name_list, seeker._entries = [], {}  # pylint: disable=protected-access
-        files, dirs, _route = seeker._walk(_Walker(), 'v')  # pylint: disable=protected-access
+        files, dirs, _streams, _route = seeker._walk(_Walker(), 'v')  # pylint: disable=protected-access
         self.assertEqual(sorted(seeker.name_list), ['v/d/', 'v/d/inner', 'v/f'])
         self.assertEqual((files, dirs), (2, 1))
 

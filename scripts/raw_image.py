@@ -23,6 +23,21 @@ and a label rides along as a suffix. Artifact patterns begin with ``*`` and
 ``*`` crosses ``/`` in fnmatch, so the prefix costs them nothing, and it is what
 the report's source path shows for each file.
 
+An NTFS alternate data stream is a member too, named ``<file>:<stream>`` as
+Windows names it (``.../Downloads/setup.exe:Zone.Identifier``,
+``.../$Extend/$UsnJrnl:$J``), and ``:<stream>`` on the root directory. A stream
+is matched only by a pattern whose last segment names one, that is, holds a
+``:``. A pattern without one is handed exactly what it was before: ``*/Recent/*``
+still returns the shortcuts in Recent and not their ``Zone.Identifier`` streams,
+which a shortcut parser would misread. A pattern that holds a ``:`` because the
+file name it looks for does (a few in the cores do) still matches every file it
+did, and also any stream whose ``<file>:<stream>`` name fits it.
+The reader decides what a stream holds: it starts at the first stored cluster, so
+``$J`` comes out at the size of its records rather than of the gigabytes of hole
+Windows leaves in front of them, and a stream that stores nothing
+(``$BadClus:$Bad``) is not listed at all. Streams need qnxprobe 1.37 or later;
+with an older vendored copy there are simply none.
+
 This file is shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP and is kept
 byte-identical across them. It names nothing specific to a platform; the
 platform is in the artifacts.
@@ -62,6 +77,13 @@ RAW_IMAGE_LABEL = f'Raw disk image or acquisition ({RAW_IMAGE_FILESYSTEMS})'
 
 # A directory this deep in a walk is a loop in the tree, not a directory.
 _MAX_DEPTH = 64
+
+
+def names_a_stream(filepattern):
+    """True when a pattern's last segment holds a ``:``, which is how a pattern
+    asks for an NTFS alternate data stream (``*:Zone.Identifier``,
+    ``*/$Extend/$UsnJrnl:$J``). Only such a pattern is matched against streams."""
+    return ':' in filepattern.replace('\\', '/').rpartition('/')[2]
 
 
 def split_image_sibling(image_path):
@@ -128,6 +150,10 @@ class FileSeekerRaw(FileSeekerBase):
     directory entries are, so a pattern that names a directory returns one here
     too. Symbolic links and special files are not members: they hold no bytes to
     stage, and the seekers stage bytes.
+
+    NTFS alternate data streams are members kept apart, in ``stream_list``, and
+    matched only by a pattern that names a stream (see ``names_a_stream``).
+    ``name_list`` is exactly what it was without them, order included.
     """
 
     def __init__(self, image_path, data_folder):
@@ -138,6 +164,7 @@ class FileSeekerRaw(FileSeekerBase):
         self.copied = {}
         self.file_infos = {}
         self.name_list = []
+        self.stream_list = []
         self.volumes = []
         self._entries = {}
         self._image = None
@@ -215,16 +242,21 @@ class FileSeekerRaw(FileSeekerBase):
             if walker is None:
                 continue
             started = timex.monotonic()
-            files, dirs, route = self._walk(walker, vol['name'])
+            files, dirs, streams, route = self._walk(walker, vol['name'])
             logfunc(f"  walked {vol['name']}: {files:,} files, {dirs:,} directories "
                     f"in {timex.monotonic() - started:.1f}s ({route})")
-        logfunc(f'File listing complete - {len(self.name_list):,} members')
+            if streams:
+                logfunc(f'    and {streams:,} alternate data streams, matched only by a '
+                        f'pattern that names one')
+        logfunc(f'File listing complete - {len(self.name_list):,} members'
+                + (f' and {len(self.stream_list):,} streams' if self.stream_list else ''))
 
     def _walk(self, walker, prefix):
-        """Register every file and directory under a volume's root.
+        """Register every file and directory under a volume's root, and the
+        alternate data streams of each when the walker has them.
 
-        Returns (files, directories, route), where route names how the entries
-        were read, for the run log.
+        Returns (files, directories, streams, route), where route names how the
+        entries were read, for the run log.
 
         A volume is walked one directory at a time: list its children, read each
         child's entry, descend. On NTFS that means reading every directory's index
@@ -255,6 +287,8 @@ class FileSeekerRaw(FileSeekerBase):
                     logfunc(f'  could not read the catalog in one pass ({type(exc).__name__}: '
                             f'{exc}); searching it once per lookup instead')
         files = dirs = 0
+        streams_of = getattr(walker, 'streams', None)
+        streams = self._add_streams(streams_of, walker, walker.root, prefix + '/', 0, '')
         seen = set()
         stack = [(walker.root, prefix, 0, '')]
         while stack:
@@ -298,7 +332,29 @@ class FileSeekerRaw(FileSeekerBase):
                     self.name_list.append(member)
                     self._entries[member] = _Entry(walker, child, size or 0, mtime or 0, reading)
                     files += 1
-        return files, dirs, route
+                else:
+                    continue
+                streams += self._add_streams(streams_of, walker, child, member,
+                                             mtime, reading)
+        return files, dirs, streams, route
+
+    def _add_streams(self, streams_of, walker, node, member, mtime, reading):
+        """Register the alternate data streams of one file or directory as
+        ``<member>:<stream>``, beside it but out of ``name_list``. Returns how
+        many. A stream carries its file's dates, since NTFS keeps none per
+        stream, and the size the reader will return for it."""
+        if streams_of is None:
+            return 0
+        try:
+            found = streams_of(node)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logfunc(f'Could not list the streams of {member}: {exc}')
+            return 0
+        for name, stream_node, size in found:
+            name = f'{member}:{name}'
+            self.stream_list.append(name)
+            self._entries[name] = _Entry(walker, stream_node, size or 0, mtime or 0, reading)
+        return len(found)
 
     @staticmethod
     def _one_pass_listing(walker):
@@ -353,7 +409,10 @@ class FileSeekerRaw(FileSeekerBase):
         pathlist = []
         pat = _compile_pattern(normcase(filepattern))
         root = normcase("root/")
-        for member in self.name_list:
+        members = self.name_list
+        if self.stream_list and names_a_stream(filepattern):
+            members = self.name_list + self.stream_list
+        for member in members:
             if pat(root + normcase(member)) is None:
                 continue
             if member not in self.copied or force:

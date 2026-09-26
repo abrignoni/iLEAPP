@@ -43,7 +43,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.36"
+QNXPROBE_VERSION = "1.37"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -2676,6 +2676,22 @@ class _NtfsAttr:
         return bool(self.flags & NTFS_ATTR_ENCRYPTED)
 
 
+class NtfsStreamRef(collections.namedtuple("NtfsStreamRef", "record name")):
+    """The node of one alternate data stream: the MFT record that holds it and
+    the stream's name.
+
+    A walker's node is whatever its read_file(), entry() and stamps() take, and
+    a caller that stages files hands the node back without looking inside it.
+    Giving a stream a node of its own is what lets such a caller read one with
+    no new call. It is a type of its own rather than a bare tuple so that a
+    caller that must keep streams apart from files, because a pattern that
+    matches a folder's files should not also match their streams, can tell
+    which is which with isinstance().
+    """
+
+    __slots__ = ()
+
+
 class NtfsDeletedFile:
     """One file whose MFT record is free but still describes it.
 
@@ -2718,8 +2734,11 @@ class NtfsWalker:
     What it does not read: an encrypted file's content, which needs a key the
     volume does not hold. Those are listed with their recorded size and refuse
     to be read rather than yielding the ciphertext as though it were the file.
-    Only the unnamed $DATA stream is the file's content; a named stream is
-    reported through named_streams() and never as a file of its own.
+    Only the unnamed $DATA stream is the file's content. A named stream, an
+    alternate data stream, has a node of its own (NtfsStreamRef) that
+    read_file(), entry() and stamps() take; streams() names a record's streams
+    and listing(streams=True) lists them beside their files. Nothing lists a
+    stream unless it is asked to.
     """
 
     root = NTFS_ROOT
@@ -3057,21 +3076,7 @@ class NtfsWalker:
         if data.resident:
             yield data.value[:want]
             return
-        if data.compressed:
-            yield from self._read_compressed(data, want)
-            return
-        real = min(want, data.init_size) if data.init_size else 0
-        done = 0
-        while done < real:
-            chunk = self._read_runs(data.runs, min(1 << 20, real - done), done)
-            if not chunk:
-                break
-            yield chunk
-            done += len(chunk)
-        while done < want:
-            take = min(1 << 20, want - done)
-            yield b"\x00" * take
-            done += take
+        yield from self._read_nonresident(data, want)
 
     def volume_label(self):
         """The volume label, from the $VOLUME_NAME attribute of record 3, or None
@@ -3102,6 +3107,13 @@ class NtfsWalker:
         return num
 
     def entry(self, num):
+        if isinstance(num, NtfsStreamRef):
+            # A stream has no dates of its own: NTFS keeps them per record, so
+            # a stream carries its file's, as a listing of it shows them.
+            got = self._stream(num)
+            if got is None:
+                return None
+            return (0o100644, got[2], _ntfs_std_times(self._record(num.record))[1])
         attrs = self._record(num)
         if not attrs:
             return None
@@ -3122,7 +3134,10 @@ class NtfsWalker:
         are instants rather than readings: FILETIME counts from a UTC epoch, so
         unlike a FAT or exFAT stamp these can be placed on a timeline. The record
         is cached, so asking after ``entry`` reads nothing more from the image.
+        A stream's are its file's, which is all NTFS records.
         """
+        if isinstance(num, NtfsStreamRef):
+            num = num.record
         return _ntfs_std_times(self._record(num))
 
     # -- the whole volume in one pass --------------------------------------
@@ -3132,8 +3147,15 @@ class NtfsWalker:
     # it names and is not a file of its own.
     _BASE_REF = 0x20
 
-    def listing(self):
+    def listing(self, streams=False):
         """Every entry on the volume, built from $MFT in record order.
+
+        With ``streams``, each entry's alternate data streams follow it as
+        entries of their own, named "path:stream" as Windows names them, with an
+        NtfsStreamRef as the node, a regular file's mode, the size streams()
+        gives and the file's modified time. A stream on the root directory is
+        named ":stream". Off by default, so a caller that asked for the files
+        of a volume is never handed their streams as though they were files.
 
         A tree walk learns a directory's children by reading its index, so it
         reads an $INDEX_ALLOCATION block per directory and reaches MFT records
@@ -3270,6 +3292,13 @@ class NtfsWalker:
             resolved[num] = got
             return got
 
+        if streams:
+            # The root is the one directory with no name of its own, so it is
+            # never an entry below and its streams are given here.
+            root_mtime = _ntfs_std_times(self._record(NTFS_ROOT))[1]
+            for sname, sref, ssize in self.streams(NTFS_ROOT):
+                yield (f":{sname}", sref, 0o100644, ssize, root_mtime, None)
+
         for num, here in names.items():
             if num == NTFS_ROOT:
                 continue
@@ -3277,11 +3306,15 @@ class NtfsWalker:
             if not ent:
                 continue
             mode, size, mtime = ent
+            extra = self.streams(num) if streams else ()
             for ref, name in here:
                 base = path_of(ref)
                 if base is None:
                     continue                        # no path to the root
-                yield (f"{base}/{name}" if base else name, num, mode, size, mtime, None)
+                path = f"{base}/{name}" if base else name
+                yield (path, num, mode, size, mtime, None)
+                for sname, sref, ssize in extra:
+                    yield (f"{path}:{sname}", sref, 0o100644, ssize, mtime, None)
 
     def free_extents(self, min_bytes=0):
         """[(byte offset, length)] for the runs of space the volume says are free.
@@ -3345,12 +3378,90 @@ class NtfsWalker:
     def named_streams(self, num):
         """[(name, size)] for every alternate data stream on this record. A named
         stream is content the file's own size does not account for, so it is worth
-        reporting; it is not listed as a file, because it has no name of its own."""
-        out = []
+        reporting; it is not listed as a file, because it has no name of its own.
+        The size is the recorded one, holes included: this is what --list prints
+        beside a file. streams() is what reads them.
+
+        A stream whose run list outgrew its record is in several attributes,
+        one per record, and is named once: $UsnJrnl:$J on a volume of any age
+        is, and before 1.37 --list printed it once per record, the rest at 0 B."""
+        out, seen = [], set()
         for a in self._record(num):
-            if a.type == NTFS_DATA and a.name:
-                out.append((a.name, len(a.value) if a.resident else a.data_size))
+            if a.type == NTFS_DATA and a.name and a.name not in seen:
+                seen.add(a.name)
+                data = self._data_attr(num, a.name)
+                out.append((a.name, len(data.value) if data.resident else data.data_size))
         return out
+
+    def streams(self, num):
+        """[(name, NtfsStreamRef, size)] for the alternate data streams of this
+        record that store anything, in the order the record holds them. The
+        NtfsStreamRef is the node read_file(), entry() and stamps() take.
+
+        ``size`` is what read_file() returns for the stream, and it is not
+        always the recorded size, because of two rules about holes:
+
+        **A hole at the front of a stream is not read.** The stream is read
+        from its first stored cluster. $Extend/$UsnJrnl:$J is why: Windows
+        frees the front of the change journal as it grows and leaves a hole
+        where it was, so the stream's recorded size runs to gigabytes and all
+        but its last few megabytes read as zeros. Handing those zeros to a
+        caller that copies the stream to disk writes gigabytes for nothing, and
+        a USN journal parser loses nothing without them, because every record
+        carries its own offset in the stream as its USN. front_hole() gives the
+        bytes skipped, so the true offset of anything read is never lost.
+
+        **A stream that is all hole is not listed.** $BadClus:$Bad is why: its
+        recorded size is the whole volume and a healthy disk stores none of it.
+        A stream of no bytes is listed, since it is not a hole but a stream that
+        was created empty, and its being there can be the evidence.
+
+        A hole after the first stored cluster is content and reads as zeros, as
+        it does in a file.
+        """
+        out, seen = [], set()
+        for a in self._record(num):
+            if a.type != NTFS_DATA or not a.name or a.name in seen:
+                continue
+            seen.add(a.name)                    # a stream split over records is one stream
+            ref = NtfsStreamRef(num, a.name)
+            got = self._stream(ref)
+            if got is not None:
+                out.append((a.name, ref, got[2]))
+        return out
+
+    def front_hole(self, ref):
+        """The bytes of hole read_file() skips at the front of this stream, 0
+        when it starts with stored data, None when there is no such stream or
+        it stores nothing. Add it to an offset into what read_file() returned
+        to have the offset into the stream as NTFS records it."""
+        got = self._stream(ref)
+        return None if got is None else got[1]
+
+    def _stream(self, ref):
+        """(attribute, bytes of hole at the front, bytes read_file() returns)
+        for one named stream, or None when the record holds no stream of that
+        name or the stream stores nothing. See streams() for the rules."""
+        if not ref.name:
+            return None                         # the unnamed stream is the file itself
+        data = self._data_attr(ref.record, ref.name)
+        if data is None:
+            return None
+        if data.resident:
+            return data, 0, len(data.value)
+        if not data.data_size:
+            return data, 0, 0
+        vcn = 0
+        for lcn, count in data.runs:
+            if lcn is not None:
+                break
+            vcn += count
+        else:
+            return None                         # every cluster of it is a hole
+        skip = vcn * self.cluster
+        if skip >= data.data_size:
+            return None
+        return data, skip, data.data_size - skip
 
     def listdir(self, num):
         """(name, record) for every entry of a directory index.
@@ -3424,6 +3535,9 @@ class NtfsWalker:
             pos += elen
 
     def read_file(self, num, size):
+        if isinstance(num, NtfsStreamRef):
+            yield from self._read_stream(num, size)
+            return
         data = self._data_attr(num)
         if data is None:
             return
@@ -3434,31 +3548,56 @@ class NtfsWalker:
             raise NtfsUnreadable("the file is encrypted and the volume holds no key")
         want = size if size is not None else data.data_size
         want = min(want, data.data_size) if data.data_size else want
-        if data.compressed:
-            yield from self._read_compressed(data, want)
+        yield from self._read_nonresident(data, want)
+
+    def _read_stream(self, ref, size):
+        """An alternate data stream's bytes, from its first stored cluster:
+        the rules are in streams(). Nothing at all for a stream that stores
+        nothing, which streams() does not list."""
+        got = self._stream(ref)
+        if got is None:
             return
-        # Everything past the initialized size reads as zero even though the
-        # clusters are allocated and still hold whatever was there before. A
-        # database that preallocates its file is the common case: two on this
-        # Windows volume differed from The Sleuth Kit's reading by exactly that
-        # tail until it was honoured. The stale bytes are slack, not content.
-        real = min(want, data.init_size) if data.init_size else 0
-        done = 0
-        while done < real:
-            chunk = self._read_runs(data.runs, min(1 << 20, real - done), done)
+        data, skip, total = got
+        want = total if size is None else min(size, total)
+        if data.resident:
+            yield data.value[:want]
+            return
+        if data.encrypted:
+            raise NtfsUnreadable(
+                f"the stream {ref.name!r} is encrypted and the volume holds no key")
+        yield from self._read_nonresident(data, want, skip)
+
+    def _read_nonresident(self, data, want, start=0):
+        """Yield ``want`` bytes of a non-resident attribute from byte ``start``.
+
+        Everything past the initialized size reads as zero even though the
+        clusters are allocated and still hold whatever was there before. A
+        database that preallocates its file is the common case: two on a
+        Windows volume differed from The Sleuth Kit's reading by exactly that
+        tail until it was honoured. The stale bytes are slack, not content.
+        """
+        if data.compressed:
+            yield from self._read_compressed(data, want, start)
+            return
+        end = start + want
+        real = max(start, min(end, data.init_size)) if data.init_size else start
+        pos = start
+        while pos < real:
+            chunk = self._read_runs(data.runs, min(1 << 20, real - pos), pos)
             if not chunk:
                 break
             yield chunk
-            done += len(chunk)
-        while done < want:
-            take = min(1 << 20, want - done)
+            pos += len(chunk)
+        while pos < end:
+            take = min(1 << 20, end - pos)
             yield b"\x00" * take
-            done += take
+            pos += take
 
-    def _read_compressed(self, data, want):
+    def _read_compressed(self, data, want, start=0):
         """A compressed $DATA is stored in units of 2**comp_unit clusters. A unit
         whose runs are shorter than the unit is compressed and inflated with
-        LZNT1; one stored at full length was left uncompressed."""
+        LZNT1; one stored at full length was left uncompressed. ``start`` is a
+        byte offset; reading begins at the unit that holds it."""
         unit = (1 << data.comp_unit) * self.cluster
         vcn_per_unit = 1 << data.comp_unit
         produced = 0
@@ -3468,16 +3607,19 @@ class NtfsWalker:
             table.append((vcn, lcn, count))
             vcn += count
         total_vcn = vcn
-        for start in range(0, total_vcn, vcn_per_unit):
+        drop = start % unit
+        for first in range((start // unit) * vcn_per_unit, total_vcn, vcn_per_unit):
             if produced >= want:
                 break
-            raw = self._unit_bytes(table, start, vcn_per_unit)
+            raw = self._unit_bytes(table, first, vcn_per_unit)
             if raw is None:                       # wholly sparse unit
                 out = b"\x00" * unit
             elif len(raw) >= unit:
                 out = raw[:unit]
             else:
                 out = _lznt1_decompress(raw, unit)
+            if drop:
+                out, drop = out[drop:], 0
             take = min(len(out), want - produced)
             yield out[:take]
             produced += take
@@ -10841,6 +10983,86 @@ def _ntfs_fixture_check(image_gz, listing):
     return matched, len(want), missing, different
 
 
+def _ntfs_streams_check(image_gz, listing, break_it=None):
+    """Read every alternate data stream of the committed stream fixture through
+    listing(streams=True) and compare each against the hash The Sleuth Kit's
+    icat gave for the same stream from its first stored cluster on.
+
+    The listing has to name exactly the streams the manifest does: one more is
+    a stream that should not have been listed ($BadClus:$Bad, whose recorded
+    size is the whole volume, is the one that matters), one fewer a stream
+    lost. Around that it holds the rules a caller relies on: the default
+    listing names no stream and is otherwise the same, a stream's entry()
+    gives the size read_file() returns, its stamps() are its file's, and the
+    hole at the front of the $J-shaped stream is the 1 MiB the fixture's
+    writer left there. ``break_it`` takes the walker and returns one with a
+    rule broken, for the control that proves the comparison can fail.
+
+    Returns (matched, expected, missing, extra, different, failures).
+    """
+    import gzip, hashlib, io
+    with gzip.open(image_gz, "rb") as gz:
+        img = io.BytesIO(gz.read())
+    want = {}
+    with open(listing, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            digest, path = line.split("  ", 1)
+            want[path] = digest
+    w = NtfsWalker(img, 0)
+    if break_it is not None:
+        w = break_it(w)
+    rows = list(w.listing(streams=True))
+    have = {path: (node, size) for path, node, _m, size, _t, _r in rows
+            if isinstance(node, NtfsStreamRef)}
+    failures = []
+    named = sum(1 for r in rows if isinstance(r[1], NtfsStreamRef))
+    if named != len(have):
+        # journal.bin:$J lies in two records, and is one stream
+        failures.append(f"{named - len(have)} stream(s) listed more than once")
+    files_only = [r for r in rows if not isinstance(r[1], NtfsStreamRef)]
+    if list(w.listing()) != files_only:
+        failures.append("the default listing is not the stream listing without its streams")
+    matched = different = 0
+    for path, digest in want.items():
+        got = have.get(path)
+        if got is None:
+            continue
+        node, size = got
+        h, read = hashlib.sha256(), 0
+        try:
+            for chunk in w.read_file(node, size):
+                h.update(chunk)
+                read += len(chunk)
+        except NtfsUnreadable:
+            different += 1
+            continue
+        if read == size and h.hexdigest() == digest:
+            matched += 1
+        else:
+            different += 1
+        ent = w.entry(node)
+        if not ent or ent[1] != size:
+            failures.append(f"{path}: entry() gives {ent and ent[1]}, the listing {size}")
+        if w.stamps(node) != w.stamps(node.record):
+            failures.append(f"{path}: stamps() is not its file's")
+    j = have.get("journal.bin:$J")
+    if j is None or w.front_hole(j[0]) != 1 << 20:
+        failures.append(f"journal.bin:$J: front_hole() is "
+                        f"{j and w.front_hole(j[0])}, not the 1,048,576 bytes written")
+    if j is not None:
+        # what --list prints beside the file: each stream once, at its recorded size
+        shown = w.named_streams(j[0].record)
+        want_shown = [("$Max", 32), ("$J", (1 << 20) + j[1])]
+        if sorted(shown) != sorted(want_shown):
+            failures.append(f"journal.bin: named_streams() gives {shown}, not {want_shown}")
+    missing = sum(1 for p in want if p not in have)
+    extra = sum(1 for p in have if p not in want)
+    return matched, len(want), missing, extra, different, failures
+
+
 def _ntfs_times_check(image_gz):
     """Compare the instants the walker reads for live and deleted NTFS files
     against what The Sleuth Kit's istat printed for the same records.
@@ -13422,6 +13644,71 @@ def self_test():
                   f"({tchecked} live files checked"
                   + (f"; {tfail[0]}" if tfail else "") + ")")
 
+        # Alternate data streams, from a second NTFS fixture built for them (see
+        # tools/make_ntfs_streams_fixture.sh), then the same comparison with each
+        # hole rule broken in turn: a check that cannot fail proves nothing.
+        ads_fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "tests", "fixtures", "ntfs-streams.img.gz")
+        ads_want = ads_fix[:-len(".img.gz")] + ".sha256"
+
+        def _no_front_skip(w):
+            """The walker, reading a stream's front hole as zeros."""
+            real = w._stream                         # pylint: disable=protected-access
+
+            def _stream(ref):
+                got = real(ref)
+                if got is None or not got[1]:
+                    return got
+                return got[0], 0, got[2] + got[1]
+            w._stream = _stream                      # pylint: disable=protected-access
+            return w
+
+        def _list_all_hole(w):
+            """The walker, listing a stream that stores nothing."""
+            real = w._stream                         # pylint: disable=protected-access
+
+            def _stream(ref):
+                got = real(ref)
+                if got is not None:
+                    return got
+                data = w._data_attr(ref.record, ref.name)   # pylint: disable=protected-access
+                return None if data is None else (data, 0, data.data_size)
+            w._stream = _stream                      # pylint: disable=protected-access
+            return w
+
+        if os.path.isfile(ads_fix) and os.path.isfile(ads_want):
+            try:
+                sgot, swant, smiss, sextra, sdiff, sfail = _ntfs_streams_check(ads_fix, ads_want)
+            except Exception as exc:                 # pylint: disable=broad-except
+                sgot = swant = smiss = sextra = sdiff = 0
+                sfail = [f"the check raised {type(exc).__name__}: {exc}"]
+            scond = sgot and sgot == swant and not (smiss or sextra or sdiff or sfail)
+            if not scond:
+                ok = False
+            print(f"  [{'PASS' if scond else 'FAIL'}] every alternate data stream of the "
+                  f"NTFS stream fixture matches what icat read from its first stored "
+                  f"cluster, and no stream that stores nothing is listed "
+                  f"({sgot} of {swant}"
+                  + (f", {smiss} missing" if smiss else "")
+                  + (f", {sextra} listed that should not be" if sextra else "")
+                  + (f", {sdiff} different" if sdiff else "")
+                  + (f"; {sfail[0]}" if sfail else "") + ")")
+            for label, broken, key in (
+                    ("reads the hole at the front of a stream", _no_front_skip, 4),
+                    ("lists a stream that stores nothing", _list_all_hole, 3)):
+                try:
+                    bad = _ntfs_streams_check(ads_fix, ads_want, break_it=broken)[key]
+                except Exception:                    # pylint: disable=broad-except
+                    bad = 0
+                ccond = bad > 0
+                if not ccond:
+                    ok = False
+                print(f"  [{'PASS' if ccond else 'FAIL'}] and that check fails for a "
+                      f"reader that {label} ({bad} found)")
+        else:
+            print("  [SKIP] the NTFS stream fixture is not beside this script, so "
+                  "alternate data streams were not compared against it")
+
         for label, stem, wcls in (("FAT32", "fat32-deleted", Fat32Walker),
                                   ("exFAT", "exfat-deleted", ExfatWalker)):
             fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -13920,7 +14207,7 @@ def self_test():
         here = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                             "tests", "fixtures")
         checked, all_rows, all_wrong, fast_seen = 0, 0, 0, []
-        for stem in ("ntfs-fixture", "apfs-fixture", "hfsplus-fixture",
+        for stem in ("ntfs-fixture", "ntfs-streams", "apfs-fixture", "hfsplus-fixture",
                      "ext4-sparse", "ext2-sparse", "fat32-deleted",
                      "exfat-deleted", "f2fs-fixture", "squashfs-gzip",
                      "jffs2-le-zlib", "ubi-nand-lzo", "yaffs2-history",
