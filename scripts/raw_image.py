@@ -72,10 +72,11 @@ from scripts.vendor import qnxprobe  # noqa: E402
 # selection in the GUI; an image named anything else is still reachable from the
 # command line with -t raw. An .E01, .s01 or .Ex01 is the first segment of its set
 # and the reader joins the rest, and so is a .001; an .aff inside a folder whose
-# name ends .afd brings every file of that folder. A .dmg or .sparseimage is one
-# file.
+# name ends .afd brings every file of that folder. A .dmg is one file, or the first
+# of the .dmgpart files hdiutil segment splits it into. A .sparseimage is one file,
+# and a .sparsebundle is a folder, which a Mac's file dialog lists as one item.
 RAW_IMAGE_SUFFIXES = ('img', 'bin', 'dd', 'raw', '001', 'e01', 's01', 'ex01', 'aff',
-                      'dmg', 'sparseimage')
+                      'dmg', 'sparseimage', 'sparsebundle')
 
 # What the vendored reader walks, for the file dialog and the -t help. A test
 # asserts each entry here has a walker in the vendored copy, so the two cannot
@@ -86,6 +87,17 @@ RAW_IMAGE_LABEL = f'Raw disk image or acquisition ({RAW_IMAGE_FILESYSTEMS})'
 
 # A directory this deep in a walk is a loop in the tree, not a directory.
 _MAX_DEPTH = 64
+
+
+def names_an_image_folder(path):
+    """True when ``path`` is a folder the reader opens as one disk image: an Apple
+    sparse bundle, recognised by its Info.plist whatever the folder is called, or an
+    AFD folder of AFF files. Chosen with a folder dialog, such a folder is not an
+    extraction whose files are the evidence, so the GUI reads it as a raw image.
+    An encrypted sparse bundle counts too, so that the reader refuses it by name
+    rather than the run walking its band files."""
+    return (os.path.isdir(path) and
+            qnxprobe.acquisition_format(path) in ('SPARSEBUNDLE', 'AFD', 'DMG_ENCRYPTED'))
 
 
 def names_a_stream(filepattern):

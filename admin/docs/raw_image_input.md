@@ -5,7 +5,8 @@ For maintainers, and shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP.
 `-t raw` takes a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001`
 segment of a split set) or an acquisition (EnCase/EWF `.E01`, SMART `.s01`, EWF2
 `.Ex01`, AFF `.aff`, or an AFD folder of AFF files, each with its segments or
-files, or an Apple `.dmg` or `.sparseimage`) and reads it in place: no mounting, no administrator rights, and no copy of the
+files, or an Apple `.dmg`, with any `.dmgpart` files `hdiutil segment` split it into,
+`.sparseimage`, or `.sparsebundle` folder) and reads it in place: no mounting, no administrator rights, and no copy of the
 image or of its files anywhere but the files an artifact asks for. Its NTFS,
 FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2,
 UBI/UBIFS, YAFFS and QNX IFS volumes are searched directly, on disks of 512-byte
@@ -25,17 +26,23 @@ or a 4Kn drive, has its partitions counted in 4096-byte sectors.
   leapps-org/leapps-parity confirm they match.
 - The entry point adds one `-t` choice, one dispatch branch and a `finally` that
   calls `seeker.cleanup()` on every exit. The GUI maps the conventional image
-  extensions onto `raw` and lists them in the file dialog.
+  extensions onto `raw` and lists them in the file dialog. A folder the reader opens
+  as one disk image, an Apple sparse bundle or an AFD folder, is mapped onto `raw` too
+  when it is chosen with the folder button (`names_an_image_folder`), so it is not
+  walked as a folder of extracted files. On a Mac the file dialog lists a
+  `.sparsebundle` as one item; on Windows and Linux it is a folder.
 - `admin/test/scripts/test_raw_image_seeker.py` checks staged bytes against
   independent hash lists over the fixtures in `admin/test/data/raw_images/`,
-  including an E01 set, an AFF file, an AFD folder, a `.dmg`, a `.sparseimage` and a
-  split set built at test time, and an L01 and an encrypted `.dmg` that must be
-  refused.
+  including an E01 set, an AFF file, an AFD folder, a `.dmg`, a `.dmg` split into
+  `.dmgpart` files, a `.sparseimage`, a sparse bundle and a split set built at test
+  time, and an L01, an encrypted `.dmg`, an encrypted sparse bundle and a `.dmgpart`
+  opened on its own that must be refused.
 
 ## How it reads
 
 `FileSeekerRaw` opens the image through the reader's `open_image()` (which joins
-a split set, reads an EWF, EWF2, AFF or AFD acquisition or an Apple disk image, and
+a split set, reads an EWF, EWF2, AFF or AFD acquisition or an Apple disk image (a
+`.dmg` and its `.dmgpart` files, a `.sparseimage`, or a sparse bundle folder), and
 refuses EnCase L01 logical evidence, which holds files rather than a disk, and an
 encrypted Apple disk image, which needs its password), asks `volumes()` for every volume the reader's
 own report would name, walks each readable volume once for its directory tree,

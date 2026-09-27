@@ -214,11 +214,13 @@ python ileapp.py -t raw -i /path/to/acquisition.E01 -o /path/to/output/
 `raw` reads a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001` segment of
 a split set), or an acquisition and the segments or files beside it (EnCase/EWF
 `.E01`, SMART `.s01`, EWF2 `.Ex01`, AFF `.aff`, any `.aff` in an AFD folder, or an Apple
-`.dmg` or `.sparseimage`), in place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
+`.dmg`, with any `.dmgpart` files beside it, `.sparseimage` or `.sparsebundle` folder), in
+place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
 F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS
 volumes are searched directly, and
 only the files an artifact asks for are read out of the image. The GUI picks
-`raw` on its own for those extensions. See `admin/docs/raw_image_input.md`.
+`raw` on its own for those extensions, and for a sparse bundle or AFD folder chosen with
+its folder button. See `admin/docs/raw_image_input.md`.
 
 `tar` also reads an xz-compressed tar (`.tar.xz`), and the GUI picks `tar` for that
 extension. A compressed tar, `.tar.gz` included, is decompressed once into the report folder
