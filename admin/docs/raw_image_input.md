@@ -40,7 +40,7 @@ or a 4Kn drive, has its partitions counted in 4096-byte sectors.
   one, a damaged encrypted header and a `.dmgpart` opened on its own that must be
   refused.
 
-## Encrypted Apple disk images
+## Encrypted images
 
 An Apple disk image encrypted with a password (`hdiutil -encryption`: a `.dmg`, a
 split one, a `.sparseimage` or a sparse bundle) opens with that password, which the
@@ -56,6 +56,13 @@ it; nothing writes it to the report, the log or the history. A password is never
 taken as an argument's value, which would put it in the process list and the shell
 history. An image that will not open for another reason (a damaged header, no cipher
 package) is reported by name rather than asked about again.
+
+An E01, SMART or raw (dd) set FTK Imager encrypted with AD encryption opens the same
+way, with the same prompts and options. Every file of such a set is encrypted and only
+the first carries the header, so an E01 or SMART set is opened from its first file and
+a raw set from any of its numbered files (`.001`, `.002`, ...); the reader decrypts and
+joins them itself, and the run log names the set as the reader reports it rather than
+as a split image. `needs_password(path)` answers for both kinds.
 
 ## How it reads
 

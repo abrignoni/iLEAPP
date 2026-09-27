@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.41"
+QNXPROBE_VERSION = "1.42"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -148,7 +148,8 @@ class ImageUnreadable(Exception):
 
 
 class ImagePasswordError(ImageUnreadable):
-    """An encrypted Apple disk image was opened without its password (``wrong`` is
+    """An encrypted image (an Apple disk image, or an acquisition FTK Imager wrote
+    with AD encryption) was opened without its password (``wrong`` is
     False) or with one that does not open it (``wrong`` is True). A caller that
     asks for the password can tell the two apart and ask again."""
 
@@ -176,6 +177,12 @@ UDIF_TRAILER = b"koly"
 SPARSEIMAGE_SIGNATURE = b"sprs"
 DMG_ENCRYPTED_SIGNATURE = b"encrcdsa"
 SPARSEBUNDLE_TYPE = "com.apple.diskimage.sparsebundle"
+# FTK Imager's AD encryption wraps every file of an E01, SMART or raw (dd) set; only
+# the first file begins with this header, so a later numbered file of a raw set is
+# recognised by its first sibling.
+ADCRYPT_SIGNATURE = b"ADCRYPT\x00"
+# The containers that open only with a password, by acquisition_format()'s label.
+PASSWORD_FORMATS = ("DMG_ENCRYPTED", "AD_ENCRYPTED")
 
 # What each container is called in a message, by acquisition_format()'s label.
 _ACQUISITION_NAMES = {
@@ -187,6 +194,8 @@ _ACQUISITION_NAMES = {
     "SPARSEIMAGE": "an Apple sparse image (.sparseimage)",
     "SPARSEBUNDLE": "an Apple sparse bundle (a .sparsebundle folder)",
     "DMG_ENCRYPTED": "an encrypted Apple disk image (.dmg, .sparseimage or .sparsebundle)",
+    "AD_ENCRYPTED": "an acquisition FTK Imager encrypted with AD encryption (.E01, .s01 "
+                    "or .001)",
 }
 
 
@@ -227,10 +236,30 @@ def _sparsebundle_kind(path):
     return "SPARSEBUNDLE"
 
 
+def _numbered_first(path):
+    """The first file (.000 or .001, with the same stem and number of digits) of the
+    numbered set path would belong to, when it is on disk, else None."""
+    folder, name = os.path.split(os.path.abspath(path))
+    stem, dot, suffix = name.rpartition(".")
+    if not dot or not stem or not (suffix.isascii() and suffix.isdigit()):
+        return None
+    for number in (0, 1):
+        first = os.path.join(folder, f"{stem}.{number:0{len(suffix)}d}")
+        if os.path.isfile(first):
+            return first
+    return None
+
+
+def needs_password(path):
+    """True when path is an image that opens only with its password: an encrypted
+    Apple disk image, or an acquisition FTK Imager encrypted with AD encryption."""
+    return acquisition_format(path) in PASSWORD_FORMATS
+
+
 def acquisition_format(path):
     """What acquisition container path is: "EWF", "EWF2", "AFF", "AFD", "UDIF",
-    "SPARSEIMAGE", "SPARSEBUNDLE", "L01", "Lx01" or "DMG_ENCRYPTED", or None for
-    anything else, which is read as a raw image.
+    "SPARSEIMAGE", "SPARSEBUNDLE", "L01", "Lx01", "DMG_ENCRYPTED" or
+    "AD_ENCRYPTED", or None for anything else, which is read as a raw image.
 
     An AFD is a folder whose name ends .afd holding AFF files, the form AFFLIB
     writes when an image is split; it is recognised from the folder or from any
@@ -265,6 +294,8 @@ def acquisition_format(path):
         return "Lx01"
     if head == DMG_ENCRYPTED_SIGNATURE:
         return "DMG_ENCRYPTED"
+    if head == ADCRYPT_SIGNATURE:
+        return "AD_ENCRYPTED"
     if head[:4] == SPARSEIMAGE_SIGNATURE:
         return "SPARSEIMAGE"
     try:
@@ -276,6 +307,9 @@ def acquisition_format(path):
                     return "UDIF"
     except OSError:
         return None
+    first = _numbered_first(path)
+    if first and _first_bytes(first) == ADCRYPT_SIGNATURE:
+        return "AD_ENCRYPTED"
     return None
 
 
@@ -480,7 +514,8 @@ def image_size(fh):
 def open_image(path, segments=None, password=None):
     """Open an image read-only: the one file, or every segment of the split
     image it belongs to, joined. segments is split_segments(path) when the
-    caller already has it. password opens an encrypted Apple disk image (a str,
+    caller already has it. password opens an encrypted Apple disk image or an
+    acquisition FTK Imager encrypted with AD encryption (a str,
     used as UTF-8, or bytes); without it, or with one that does not open the
     image, ImagePasswordError is raised. Other images ignore it."""
     kind = acquisition_format(path)
@@ -505,7 +540,7 @@ def open_image(path, segments=None, password=None):
         # ewfprobe joins the segments or files of the set itself, from the
         # format's own records rather than from the file names, and refuses an
         # incomplete set.
-        if kind != "DMG_ENCRYPTED":
+        if kind not in PASSWORD_FORMATS:
             return ewfprobe.open_ewf(path)
         # ewfprobe decrypts it, given the password; without the optional cipher
         # package it refuses the image, naming the package
@@ -532,6 +567,7 @@ _ACQUISITION_LABELS = {
     "SPARSEIMAGE": "an Apple sparse image",
     "SPARSEBUNDLE": "an Apple sparse bundle",
     "UDRW": "an Apple read-write disk image",
+    "RAW": "a raw (dd) image",
 }
 
 
@@ -10169,7 +10205,7 @@ def volumes(fh, size=None):
 
 def open_image_trying(path, segments=None, passwords=()):
     """open_image with the first of ``passwords`` that opens it, for an encrypted
-    Apple disk image; any other image opens with none. Raises ImagePasswordError
+    Apple disk image or an AD-encrypted acquisition; any other image opens with none. Raises ImagePasswordError
     when none of them does (wrong is True) or none was given (wrong is False)."""
     last = None
     for password in list(passwords) or [None]:
@@ -10201,7 +10237,10 @@ def _cli_passwords(files, env_names):
 def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
          extract=None, only=None, zf=None, do_triage=False, exclude=None,
          reporter=None, manifest=None, passwords=()):
-    segments = split_segments(path)      # a set that is not whole raises SplitImageError
+    # a set that is not whole raises SplitImageError; an acquisition's reader joins
+    # its own files (an AD-encrypted raw set is numbered like a split image, and its
+    # files are ciphertext until the reader decrypts them)
+    segments = [] if acquisition_format(path) else split_segments(path)
     image = open_image_trying(path, segments, passwords)
     size = image_size(image)
     print("=" * 78)
@@ -12504,6 +12543,7 @@ def self_test():
             "UDIF_TRAILER": (UDIF_TRAILER, b"koly"),
             "SPARSEIMAGE_SIGNATURE": (SPARSEIMAGE_SIGNATURE, b"sprs"),
             "DMG_ENCRYPTED_SIGNATURE": (DMG_ENCRYPTED_SIGNATURE, b"encrcdsa"),
+            "ADCRYPT_SIGNATURE": (ADCRYPT_SIGNATURE, b"ADCRYPT\x00"),
             "SPARSEBUNDLE_TYPE": (SPARSEBUNDLE_TYPE, "com.apple.diskimage.sparsebundle"),
         }
         for const, (have, want) in TRUE_SIGS.items():
@@ -12536,6 +12576,10 @@ def self_test():
             fh.write(b"\x00" * 4096 + TRUE_SIGS["UDIF_TRAILER"][1] + b"\x00" * 508)
         sparse_fake = _fake("fake.sparseimage", TRUE_SIGS["SPARSEIMAGE_SIGNATURE"][1])
         enc_fake = _fake("enc.dmg", TRUE_SIGS["DMG_ENCRYPTED_SIGNATURE"][1])
+        ad_first = _fake("ad_fake.0001", TRUE_SIGS["ADCRYPT_SIGNATURE"][1])
+        ad_second = _fake("ad_fake.0002", b"\x5a" * 8)
+        plain_second = _fake("plain_fake.0002", b"\x00" * 8)
+        _fake("plain_fake.0001", b"\x00" * 8)
 
         def _bundle(name, token=b"", kind=None):
             folder = os.path.join(d, name)
@@ -12614,6 +12658,14 @@ def self_test():
                  "refused by it, not read",
                  saved_reader is None or (_ewf_refused_by_reader(enc_fake)
                                           and _ewf_refused_by_reader(bundle_enc))),
+                ("an AD-encrypted set is named by its first file's header, from any "
+                 "of its numbered files, and a plain numbered set is not one",
+                 [acquisition_format(q) for q in (ad_first, ad_second, plain_second)]
+                 == ["AD_ENCRYPTED", "AD_ENCRYPTED", None]
+                 and needs_password(ad_second) and not needs_password(plain_second)),
+                ("without the vendored reader an AD-encrypted set is refused, saying "
+                 "what is missing",
+                 "ewfprobe" in (_refusal(ad_second, None) or "")),
                 ("a sparse bundle is named by its Info.plist, an encrypted one by its "
                  "token, and a folder of another type is not one",
                  [acquisition_format(q) for q in (bundle_fake, bundle_enc, bundle_other)]
@@ -12682,6 +12734,54 @@ def self_test():
                      _opened_with(["not it"]) == "wrong"),
                     ("of several passwords, the one that opens it is used",
                      _opened_with(["not it", enc_password.encode()]) is True)):
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
+            # An AD-encrypted raw set of two files, built by hand the way FTK Imager
+            # writes one, with the layout values written out again here: AES-CTR
+            # with a little-endian counter, file i under i << 64, the header in the
+            # first file only, the file key encrypted under PBKDF2-HMAC-SHA1 of the
+            # password's SHA-512. Numbered with four digits, so the build's count
+            # of the .001 images the self-test leaves behind is unchanged.
+            ad_disk = bytes(range(256)) * 12                 # 3 KiB, two files
+            ad_key, ad_salt = bytes(range(32, 64)), bytes(range(16))
+            ecb_for = lambda key: cipher.new(key, cipher.MODE_ECB)   # noqa: E731
+
+            def _ctr(key, data, first):
+                ecb = ecb_for(key)
+                stream = b"".join(ecb.encrypt((first + i).to_bytes(16, "little"))
+                                  for i in range(-(-len(data) // 16)))
+                return bytes(a ^ b for a, b in zip(data, stream))
+
+            made = hashlib.pbkdf2_hmac("sha1", hashlib.sha512(enc_password.encode()).digest(),
+                                       ad_salt, 1000, 32)
+            wrapped = _ctr(made, ad_key, 0)
+            ad_head = (struct.pack("<8sIIhhh2sIIIIII", b"ADCRYPT\x00", 1, 512, -1, -1, -1,
+                                   b"\x00\x00", 3, 2, 1000, 16, 32, 64)
+                       + ad_salt + wrapped + hmac.new(made, wrapped, "sha512").digest())
+            ad_paths = [os.path.join(d, "ad_real.0001"), os.path.join(d, "ad_real.0002")]
+            with open(ad_paths[0], "wb") as fh:
+                fh.write(ad_head.ljust(512, b"\0") + _ctr(ad_key, ad_disk[:2048], 0))
+            with open(ad_paths[1], "wb") as fh:
+                fh.write(_ctr(ad_key, ad_disk[2048:], 1 << 64))
+
+            def _ad_opened_with(passwords):
+                try:
+                    with open_image_trying(ad_paths[1], None, passwords) as handle:
+                        handle.seek(0)
+                        return handle.read(len(ad_disk) + 1) == ad_disk
+                except ImagePasswordError as exc:
+                    return "wrong" if exc.wrong else "required"
+
+            for label, cond in (
+                    ("an AD-encrypted raw set opens from its second file with its "
+                     "password and reads the disk across both files",
+                     _ad_opened_with([enc_password]) is True),
+                    ("without its password it is refused as needing one, and with a "
+                     "wrong one as a wrong one",
+                     _ad_opened_with([]) == "required"
+                     and _ad_opened_with(["not it"]) == "wrong")):
                 if not cond:
                     ok = False
                 print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
@@ -15182,11 +15282,12 @@ if __name__ == "__main__":
                          "stderr, for a caller driving this as a subprocess. stdout, "
                          "the human readable report, is unchanged")
     ap.add_argument("--password-file", metavar="FILE", action="append", default=[],
-                    help="for an encrypted Apple disk image: a password, the first line "
+                    help="for an encrypted image (an Apple disk image or an AD-encrypted "
+                         "FTK Imager acquisition): a password, the first line "
                          "of FILE. Repeatable; each image opens with the first "
                          "password that opens it")
     ap.add_argument("--password-env", metavar="NAME", action="append", default=[],
-                    help="for an encrypted Apple disk image: a password, from the "
+                    help="for an encrypted image: a password, from the "
                          "environment variable NAME. Repeatable. Without either, "
                          "qnxprobe asks at a terminal. A password is never taken as an "
                          "argument, which would show in the process list")

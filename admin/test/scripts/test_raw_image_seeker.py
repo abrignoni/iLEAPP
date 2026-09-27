@@ -10,7 +10,8 @@ under test.
 The E01, AFF, AFD, Apple disk image and split-segment paths are exercised by
 wrapping the same NTFS fixture at test time: small EWF, AFF, UDIF and sparse image
 writers live in this file (copied from ewfprobe's own test suite, MIT), and a split
-set is the raw image cut into numbered pieces.
+set is the raw image cut into numbered pieces. FTK Imager's AD encryption is written
+here too, around a raw set and an E01 set, with the cipher library's CTR mode.
 The expected values are the fixture's, written out, never read back from the
 seeker.
 """
@@ -337,6 +338,38 @@ def write_encrypted_sparsebundle(folder, data, band=1 << 20):
         with open(os.path.join(folder, 'bands', name), 'wb') as handle:
             handle.write(content)
     return folder
+
+
+AD_PASSWORD = 'raw-image-ad-password'
+
+
+def write_adcrypt(plain_files, out_files, password=AD_PASSWORD):
+    """Each of ``plain_files`` encrypted into ``out_files`` as FTK Imager's AD
+    encryption writes a set: one AES-256 key, the 512-byte header in the first file
+    only, file i in CTR mode from counter i << 64, the counter little endian, and the
+    key encrypted under PBKDF2-HMAC-SHA1 of the password's SHA-512."""
+    import hmac  # pylint: disable=import-outside-toplevel
+    from Crypto.Cipher import AES  # pylint: disable=import-outside-toplevel
+    from Crypto.Util import Counter  # pylint: disable=import-outside-toplevel
+
+    def ctr(key, data, first):
+        counter = Counter.new(128, initial_value=first, little_endian=True)
+        return AES.new(key, AES.MODE_CTR, counter=counter).encrypt(data)
+
+    rng = __import__('random').Random(9)
+    file_key, salt = rng.randbytes(32), rng.randbytes(16)
+    made = hashlib.pbkdf2_hmac('sha1', hashlib.sha512(password.encode()).digest(), salt,
+                               1000, 32)
+    wrapped = ctr(made, file_key, 0)
+    header = (struct.pack('<8sIIhhh2sIIIIII', b'ADCRYPT\x00', 1, 512, -1, -1, -1,
+                          b'\x00\x00', 3, 2, 1000, 16, 32, 64)
+              + salt + wrapped + hmac.new(made, wrapped, 'sha512').digest()).ljust(512, b'\0')
+    for index, (src, dst) in enumerate(zip(plain_files, out_files)):
+        with open(src, 'rb') as handle:
+            body = ctr(file_key, handle.read(), index << 64)
+        with open(dst, 'wb') as handle:
+            handle.write((header if index == 0 else b'') + body)
+    return out_files
 
 
 def with_mbr(volume_bytes, start_lba=2048):
@@ -947,6 +980,68 @@ class RawImageSeekerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'damaged.dmg could not be opened: .*version 0'):
             with mock.patch.dict(os.environ, {'RAW_IMAGE_TEST_PW': ENC_PASSWORD}):
                 raw_image.cli_image_password(path, password_env='RAW_IMAGE_TEST_PW')
+
+    def _ad_raw_set(self):
+        """The NTFS fixture as a raw set of two files FTK Imager encrypted."""
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        folder = tempfile.mkdtemp(prefix='raw_image_ad_', dir=self.work)
+        half = len(data) // 2 // 512 * 512
+        plain = []
+        for index, piece in enumerate((data[:half], data[half:]), start=1):
+            plain.append(os.path.join(folder, f'plain.{index:03d}'))
+            with open(plain[-1], 'wb') as handle:
+                handle.write(piece)
+        out = [os.path.join(folder, f'evidence.{index:03d}') for index in (1, 2)]
+        return write_adcrypt(plain, out)
+
+    def test_an_ad_encrypted_raw_set_reads_with_its_password_from_either_file(self):
+        first, second = self._ad_raw_set()
+        self.assertTrue(raw_image.needs_password(first))
+        self.assertTrue(raw_image.needs_password(second))
+        seeker = FileSeekerRaw(second, self.data, password=AD_PASSWORD)
+        self.addCleanup(seeker.cleanup)
+        text = self.log.text()
+        self.assertIn('a raw (dd) image of 2 segments, joined by the reader: evidence.001 '
+                      '.. evidence.002, encrypted (AES-256-CTR) and opened with its password',
+                      text)
+        self.assertNotIn('one segment of a split image', text)
+        self.assertNotIn('segments joined in order', text)
+        self.assertEqual(seeker.name_list, self._seeker(self.ntfs).name_list)
+        for rel in ('many/file_0007.txt', 'many/file_0400.txt'):
+            found = seeker.search(f'*/{rel}')
+            self.assertEqual(_sha256(found[0]), self.ntfs_hashes[rel])
+        self.assertNotIn(AD_PASSWORD, repr(vars(seeker)))
+
+    def test_an_ad_encrypted_e01_set_reads_with_its_password(self):
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        folder = tempfile.mkdtemp(prefix='raw_image_ad_e01_', dir=self.work)
+        plain = write_ewf(folder, 'plain', data, chunks_per_segment=200)
+        self.assertGreater(len(plain), 1)
+        out = write_adcrypt(plain, [p.replace('plain.', 'evidence.') for p in plain])
+        self.assertTrue(raw_image.needs_password(out[0]))
+        seeker = FileSeekerRaw(out[0], self.data, password=AD_PASSWORD)
+        self.addCleanup(seeker.cleanup)
+        self.assertIn(f'an EWF acquisition of {len(out)} segments', self.log.text())
+        found = seeker.search('*/many/file_0007.txt')
+        self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
+
+    def test_an_ad_encrypted_set_without_its_password_is_refused_as_such(self):
+        first, _second = self._ad_raw_set()
+        with self.assertRaises(qnxprobe.ImagePasswordError) as caught:
+            FileSeekerRaw(first, self.data)
+        self.assertFalse(caught.exception.wrong)
+        with self.assertRaises(qnxprobe.ImagePasswordError) as caught:
+            FileSeekerRaw(first, self.data, password='not it')
+        self.assertTrue(caught.exception.wrong)
+        with mock.patch.object(raw_image.sys, 'stdin', None):
+            with self.assertRaisesRegex(ValueError, 'evidence.001 is an acquisition FTK Imager '
+                                        'encrypted with AD encryption and opens only'):
+                raw_image.cli_image_password(first)
+        with mock.patch.dict(os.environ, {'RAW_IMAGE_TEST_PW': AD_PASSWORD}):
+            self.assertEqual(raw_image.cli_image_password(first, password_env='RAW_IMAGE_TEST_PW'),
+                             AD_PASSWORD)
 
     def test_an_l01_is_refused_as_logical_evidence(self):
         folder = tempfile.mkdtemp(prefix='raw_image_l01_', dir=self.work)
