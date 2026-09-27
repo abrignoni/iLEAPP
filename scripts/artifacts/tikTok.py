@@ -224,7 +224,7 @@ __artifacts_v2__ = {
                        "timestamp, reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-29",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -236,9 +236,11 @@ __artifacts_v2__ = {
             "(Documents/kAWEPublishLocalVideoStorageFolder/publish_video_local_<aid>.mp4) "
             "and in kAWEPublishLocalVideoCacheFile.plist, which maps each aid to a video "
             "id. Whether an entry means the video was viewed or prefetched is not "
-            "established here. The Account ID column is the file name's numeric prefix, "
-            "which on the tested image matches the ChatFiles account folder name (the "
-            "local account uid). An iOS app container is a GUID directory, so the store's "
+            "established here. The Account ID column is the file name's numeric prefix, which on "
+            "the tested image matches the ChatFiles account folder name (the local account uid). "
+            "One store is read per account in the TikTok container, so Account ID names the file "
+            "each row came from, and the report's located-at line gives the path of every store "
+            "that returned rows. An iOS app container is a GUID directory, so the store's "
             "path alone does not identify the owning app. Each matched database is "
             "attributed to the app named by its container's own "
             ".com.apple.mobile_container_manager.metadata.plist (a path reconstructed "
@@ -698,30 +700,29 @@ def tiktok_watch_history(context):
     history_dbs = [str(file_found) for file_found in files_found
                    if str(file_found).endswith("_history_WCDB.sqlite")]
     data_list = []
-    source_path = ""
+    sources = []
 
     for file_found in _tiktok_owned(history_dbs, _container_owners(files_found)):
-        source_path = source_path or file_found
         account_id = basename(file_found).split("_", 1)[0]
-        source_file = context.get_relative_path(file_found)
-        for aid, timestamp in get_sqlite_db_records(
-                file_found,
-                "SELECT aid, timestamp FROM kTableName_history ORDER BY timestamp"):
+        records = list(get_sqlite_db_records(
+            file_found,
+            "SELECT aid, timestamp FROM kTableName_history ORDER BY timestamp"))
+        if records:
+            sources.append(file_found)
+        for aid, timestamp in records:
             data_list.append((
                 _convert_tiktok_timestamp(timestamp),
                 aid,
                 account_id,
-                source_file,
             ))
 
     data_headers = (
         ("Timestamp", "datetime"),
         "aid (as stored)",
         "Account ID",
-        "Source File",
     )
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, "\n".join(sources)
 
 
 @artifact_processor
