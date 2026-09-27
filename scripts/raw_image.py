@@ -3,10 +3,12 @@
 A raw image (``.img``, ``.dd``, ``.bin``, a numbered ``.001`` segment of a split
 set) or an acquisition (EnCase/EWF ``.E01``, SMART ``.s01``, EWF2 ``.Ex01``, AFF
 ``.aff``, or an AFD folder of AFF files, each with the segments or files beside
-it) is read in place, without mounting and without administrator rights, through
-the reader vendored in ``scripts/vendor/`` (qnxprobe, with ewfprobe beside it for
-the acquisitions). EnCase logical evidence (``.L01``) holds copies of files rather
-than a disk, and the reader refuses it with a message saying so. The reader
+it, or an Apple disk image, ``.dmg`` or ``.sparseimage``) is read in place, without
+mounting and without administrator rights, through the reader vendored in
+``scripts/vendor/`` (qnxprobe, with ewfprobe beside it for the acquisitions).
+EnCase logical evidence (``.L01``) holds copies of files rather than a disk, and an
+encrypted Apple disk image needs its password; the reader refuses both with a
+message saying so. The reader
 finds the partitions, identifies each volume by its own on-disk structure and
 walks its directory tree; this module turns that into the same contract the zip
 seeker offers: a list of member names to match artifact patterns against, and a
@@ -70,8 +72,10 @@ from scripts.vendor import qnxprobe  # noqa: E402
 # selection in the GUI; an image named anything else is still reachable from the
 # command line with -t raw. An .E01, .s01 or .Ex01 is the first segment of its set
 # and the reader joins the rest, and so is a .001; an .aff inside a folder whose
-# name ends .afd brings every file of that folder.
-RAW_IMAGE_SUFFIXES = ('img', 'bin', 'dd', 'raw', '001', 'e01', 's01', 'ex01', 'aff')
+# name ends .afd brings every file of that folder. A .dmg or .sparseimage is one
+# file.
+RAW_IMAGE_SUFFIXES = ('img', 'bin', 'dd', 'raw', '001', 'e01', 's01', 'ex01', 'aff',
+                      'dmg', 'sparseimage')
 
 # What the vendored reader walks, for the file dialog and the -t help. A test
 # asserts each entry here has a walker in the vendored copy, so the two cannot

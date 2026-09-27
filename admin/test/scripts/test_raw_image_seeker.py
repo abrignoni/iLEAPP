@@ -7,10 +7,10 @@ and SHA-256 written by a different reader (see the README there), so a staged
 copy is checked against what an independent reader saw, not against the reader
 under test.
 
-The E01, AFF, AFD and split-segment paths are exercised by wrapping the same
-NTFS fixture at test time: small EWF and AFF writers live in this file (copied
-from ewfprobe's own test suite, MIT), and a split set is the raw image cut into
-numbered pieces.
+The E01, AFF, AFD, Apple disk image and split-segment paths are exercised by
+wrapping the same NTFS fixture at test time: small EWF, AFF, UDIF and sparse image
+writers live in this file (copied from ewfprobe's own test suite, MIT), and a split
+set is the raw image cut into numbered pieces.
 The expected values are the fixture's, written out, never read back from the
 seeker.
 """
@@ -19,6 +19,7 @@ import gzip
 import hashlib
 import os
 import pathlib
+import plistlib
 import shutil
 import struct
 import sys
@@ -149,6 +150,62 @@ def write_aff(path, data, pages, page_size, image_size=None):
         if image_size is not None:
             _aff_segment(out, "imagesize",
                          struct.pack(">II", image_size & 0xFFFFFFFF, image_size >> 32), 2)
+    return path
+
+
+# ---- minimal Apple disk image writers, from ewfprobe's test suite -------------
+
+def _udif_checksum(value):
+    return struct.pack(">II", 2, 32) + struct.pack(">I", value) + bytes(124)
+
+
+def write_udif(path, data, chunk_sectors=2048):
+    """Write data as a UDIF (.dmg) image of zlib chunks, the form hdiutil's UDZO
+    uses, with its block table in the property list and the koly trailer."""
+    sectors = len(data) // 512
+    fork, entries, at = bytearray(), [], 0
+    while at < sectors:
+        count = min(chunk_sectors, sectors - at)
+        blob = zlib.compress(data[at * 512:(at + count) * 512])
+        entries.append((0x80000005, 0, at, count, len(fork), len(blob)))
+        fork += blob
+        at += count
+    entries.append((0xFFFFFFFF, 0, at, 0, len(fork), 0))
+    crc = zlib.crc32(data[:sectors * 512])
+    mish = struct.pack(">4sIQQQII24x", b"mish", 1, 0, sectors, 0, 0, len(entries))
+    mish += _udif_checksum(crc) + struct.pack(">I", len(entries))
+    mish += b"".join(struct.pack(">IIQQQQ", *e) for e in entries)
+    body = plistlib.dumps({"resource-fork": {"blkx": [{"Name": "whole disk", "Data": mish}]}})
+    with open(path, "wb") as out:
+        out.write(fork)
+        xml_offset = out.tell()
+        out.write(body)
+        trailer = struct.pack(">4sIIIQQQQQII", b"koly", 4, 512, 1, 0, 0, len(fork), 0, 0, 1, 1)
+        trailer += bytes(16) + _udif_checksum(zlib.crc32(fork))
+        trailer += struct.pack(">QQ", xml_offset, len(body)) + bytes(120)
+        trailer += _udif_checksum(zlib.crc32(struct.pack(">I", crc)))
+        trailer += struct.pack(">IQ", 1, sectors) + bytes(12)
+        out.write(trailer)
+    return path
+
+
+def write_sparseimage(path, data, band_sectors=2048):
+    """Write data as a sparse image (.sparseimage): a 4096-byte header listing the
+    stored 1 MiB bands, then the bands, zero bands left out, as hdiutil writes one
+    that fits a single header."""
+    band = band_sectors * 512
+    sectors = len(data) // 512
+    stored = [b for b in range(-(-sectors // band_sectors))
+              if any(data[b * band:(b + 1) * band])]
+    assert len(stored) <= 1008
+    head = bytearray(4096)
+    struct.pack_into(">4sIIII", head, 0, b"sprs", 3, band_sectors, 1, sectors)
+    struct.pack_into(">QQ", head, 20, 0, sectors)
+    struct.pack_into(f">{len(stored)}I", head, 64, *[b + 1 for b in stored])
+    with open(path, "wb") as out:
+        out.write(head)
+        for b in stored:
+            out.write(data[b * band:(b + 1) * band].ljust(band, b"\x00"))
     return path
 
 
@@ -587,6 +644,39 @@ class RawImageSeekerTest(unittest.TestCase):
         self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
         self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
 
+    def test_a_dmg_reads_like_the_raw_image(self):
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        folder = tempfile.mkdtemp(prefix='raw_image_dmg_', dir=self.work)
+        path = write_udif(os.path.join(folder, 'ntfs.dmg'), data)
+        seeker = self._seeker(path)
+        self.assertIn('an Apple disk image of one file', self.log.text())
+        found = seeker.search('*/many/file_0007.txt')
+        self.assertEqual(len(found), 1)
+        self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
+        self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
+
+    def test_a_sparseimage_reads_like_the_raw_image(self):
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        folder = tempfile.mkdtemp(prefix='raw_image_sparse_', dir=self.work)
+        path = write_sparseimage(os.path.join(folder, 'ntfs.sparseimage'), data)
+        seeker = self._seeker(path)
+        self.assertIn('an Apple sparse image of one file', self.log.text())
+        found = seeker.search('*/many/file_0007.txt')
+        self.assertEqual(len(found), 1)
+        self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
+        self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
+
+    def test_an_encrypted_dmg_is_refused(self):
+        folder = tempfile.mkdtemp(prefix='raw_image_enc_', dir=self.work)
+        path = os.path.join(folder, 'locked.dmg')
+        with open(path, 'wb') as handle:
+            handle.write(b'encrcdsa' + b'\x00' * 8192)
+        with self.assertRaises(qnxprobe.ImageUnreadable) as caught:
+            FileSeekerRaw(path, self.data)
+        self.assertIn('encrypted Apple disk image', str(caught.exception))
+
     def test_an_l01_is_refused_as_logical_evidence(self):
         folder = tempfile.mkdtemp(prefix='raw_image_l01_', dir=self.work)
         path = os.path.join(folder, 'evidence.L01')
@@ -728,7 +818,8 @@ class RawImageSeekerTest(unittest.TestCase):
                 self.assertTrue(callable(getattr(cls, method)), f'{cls.__name__}.{method}')
 
     def test_gui_suffixes_cover_the_conventional_names(self):
-        for suffix in ('img', 'dd', 'bin', 'raw', '001', 'e01', 's01', 'ex01', 'aff'):
+        for suffix in ('img', 'dd', 'bin', 'raw', '001', 'e01', 's01', 'ex01', 'aff', 'dmg',
+                       'sparseimage'):
             self.assertIn(suffix, RAW_IMAGE_SUFFIXES)
         self.assertNotIn('zip', RAW_IMAGE_SUFFIXES)
 

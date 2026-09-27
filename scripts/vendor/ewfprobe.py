@@ -6,8 +6,10 @@ segments, and presents the original disk as an ordinary seekable file object,
 so anything that can read a raw image can read an E01 without changing how it
 reads. It also reads Ex01 (EWF2), the format EnCase 7 introduced, and AFF, the
 Advanced Forensic Format that AFFLIB and FTK Imager write, as a single .aff file or
-as an AFD directory of them. From an L01, EnCase's logical evidence, it lists the
-files collected and reads each one's content.
+as an AFD directory of them, and Apple disk images: UDIF (.dmg), compressed with
+zlib, bzip2, LZMA or ADC or stored, and sparse images (.sparseimage). An LZFSE
+.dmg (ULFO) needs the optional pyliblzfse package. From an L01, EnCase's logical
+evidence, it lists the files collected and reads each one's content.
 
     with ewfprobe.open_ewf("evidence.E01") as img:
         img.seek(0)
@@ -25,15 +27,19 @@ and reimplementing a documented format is what keeps it that way. The AFF
 reader is written from AFFLIB's own documentation, the segment names and flag
 values in its public header, include/afflib/afflib.h, and, for AFD, how
 lib/vnode_afd.cpp finds and joins the files of one (sshock/AFFLIBv3); no AFFLIB
-code is copied.
+code is copied. The Apple disk image readers follow Joachim Metz, "Mac OS disk
+image types" (libyal/libmodi documentation) and "ADC compressed data format"
+(libyal/libfmos documentation), with the checksum rules and the sparse image's
+continuation headers measured on images hdiutil wrote; no libmodi code is copied.
 
 Scope. This reads EWF-E01, the format EnCase 6 and 7 and FTK Imager write and
 by far the most common one in the field, EWF-S01, the variant ASR Data's SMART
 writes, EWF2-Ex01, which EnCase 7 and later write, AFF, including AFD, and
-EWF-L01 logical evidence. It does not read Lx01 logical evidence, encrypted Ex01
-images (the encryption is not publicly documented), Ex01 images compressed with
-bzip2 (no sample exists to validate against), encrypted AFF, or AFM (AFF metadata
-beside split raw files), and it never writes.
+EWF-L01 logical evidence, UDIF and sparse Apple disk images. It does not read Lx01
+logical evidence, encrypted Apple disk images, segmented .dmg files, sparse bundles,
+encrypted Ex01 images (the encryption is not publicly documented), Ex01 images
+compressed with bzip2 (no sample exists to validate against), encrypted AFF, or AFM
+(AFF metadata beside split raw files), and it never writes.
 
 An image whose content is encrypted at rest, by BitLocker or FileVault or an
 encrypted APFS volume, reads back as the ciphertext that was acquired: the
@@ -48,13 +54,23 @@ import errno
 import hashlib
 import io
 import os
+import plistlib
 import re
 import struct
 import sys
 import zlib
 from collections import OrderedDict
 
-__version__ = "0.2.0"
+try:                    # standard library, but a Python built without them lacks them
+    import bz2
+except ImportError:
+    bz2 = None
+try:
+    import lzma
+except ImportError:
+    lzma = None
+
+__version__ = "0.3.0"
 
 # ---------------------------------------------------------------- constants
 
@@ -192,6 +208,48 @@ L01_FLAG_FOLDER = 0x02000000                    # the opr (flags) values the rea
 L01_FLAG_SPARSE = 0x04000000
 _L01_TIMES = ("cr", "ac", "wr", "mo", "dl", "aq")
 
+# Apple disk images. A UDIF image (.dmg) keeps a 512-byte "koly" trailer at the
+# very end of the file; its XML property list lists block tables ("mish"), each a
+# run of chunks that are stored raw, compressed, or not stored at all (zeros).
+# From Joachim Metz, "Mac OS disk image types", libyal/libmodi documentation, and
+# the block-table rules libmodi's own code applies (libmodi_handle.c at 8fc5088);
+# the checksum rules were measured on images hdiutil wrote. An uncompressed
+# read-write image (UDRW) is plain disk bytes with no trailer and needs no reader.
+UDIF_TRAILER_SIGNATURE = b"koly"
+UDIF_TRAILER_SIZE = 512
+_UDIF_TRAILER = struct.Struct(">4sIIIQQQQQII")  # through the segment count
+_UDIF_ZERO = 0x00000000
+_UDIF_RAW = 0x00000001
+_UDIF_IGNORE = 0x00000002                       # not stored, reads as zeros
+_UDIF_COMMENT = 0x7FFFFFFE
+_UDIF_END = 0xFFFFFFFF
+_UDIF_CODECS = {0x80000004: "ADC", 0x80000005: "zlib", 0x80000006: "bzip2",
+                0x80000007: "LZFSE", 0x80000008: "LZMA"}
+_UDIF_MAX_COMPRESSED_SECTORS = 2048             # libmodi refuses a larger chunk
+# Checksum types, as the trailer and each block table record them.
+_UDIF_CHECKSUMS = {2: "CRC32", 4: "MD5"}
+FORMAT_UDIF = "UDIF"
+# A sparse image (.sparseimage) is a 4096-byte header listing which 1 MiB bands of
+# the disk are stored, in the order they were written, then the bands. Measured on
+# images hdiutil wrote, beyond what the libmodi documentation covers: the sector
+# count is 64-bit at offset 28 (the 32-bit field at 16 holds its low half), and
+# once a header's 1,008 slots are used, the header at offset 20 names a
+# continuation header written after them, which holds 1,010 slots from offset 56
+# and names the next one at offset 12.
+SPARSEIMAGE_SIGNATURE = b"sprs"
+FORMAT_SPARSEIMAGE = "SPARSEIMAGE"
+_SPARSE_HEADER_SIZE = 4096
+# An encrypted Apple disk image begins with this; it needs its password.
+DMG_ENCRYPTED_SIGNATURE = b"encrcdsa"
+# Chunks of a UDIF or sparse image are served in fixed virtual chunks of this size.
+_APPLE_VIRTUAL_CHUNK = 1 << 20
+_APPLE_RUN_CACHE = 8                            # decompressed UDIF chunks kept
+
+try:                                            # optional, for LZFSE (ULFO) images only
+    import liblzfse                             # the pyliblzfse package
+except ImportError:
+    liblzfse = None
+
 # How many decompressed chunks and open segment handles to keep. A chunk is
 # normally 32 KiB, so the cache is a couple of megabytes at the default.
 CHUNK_CACHE = 64
@@ -275,8 +333,10 @@ def _family(ext):
 
 def is_image(path) -> bool:
     """True when ``path`` is a disk image ewfprobe reads: a file beginning with the
-    EWF, EWF2 or AFF signature, or an AFD directory holding AFF files. An L01 holds
-    files rather than a disk; is_logical_evidence answers for it."""
+    EWF, EWF2 or AFF signature, an AFD directory holding AFF files, or an Apple
+    UDIF (.dmg) or sparse image (.sparseimage). An L01 holds files rather than a
+    disk; is_logical_evidence answers for it. An encrypted Apple disk image is not
+    one: it needs its password."""
     if os.path.isdir(path):
         afd = _afd_directory(path)
         try:
@@ -287,9 +347,32 @@ def is_image(path) -> bool:
             return False
     try:
         with open(path, "rb") as fh:
-            return fh.read(8) in (SIGNATURE, SIGNATURE_V2, AF_HEADER)
+            if fh.read(8) in (SIGNATURE, SIGNATURE_V2, AF_HEADER):
+                return True
     except OSError:
         return False
+    return apple_image_kind(path) in (FORMAT_UDIF, FORMAT_SPARSEIMAGE)
+
+
+def apple_image_kind(path):
+    """``"UDIF"``, ``"SPARSEIMAGE"`` or ``"ENCRYPTED"`` for an Apple disk image,
+    else None. A UDIF image is recognised by its trailer, so an uncompressed
+    read-write image, which has none, is None here: it is plain disk bytes."""
+    try:
+        size = os.path.getsize(path)
+        with open(path, "rb") as fh:
+            head = fh.read(8)
+            if head == DMG_ENCRYPTED_SIGNATURE:
+                return "ENCRYPTED"
+            if head[:4] == SPARSEIMAGE_SIGNATURE:
+                return FORMAT_SPARSEIMAGE
+            if size >= UDIF_TRAILER_SIZE:
+                fh.seek(size - UDIF_TRAILER_SIZE)
+                if fh.read(4) == UDIF_TRAILER_SIGNATURE:
+                    return FORMAT_UDIF
+    except OSError:
+        return None
+    return None
 
 
 def is_logical_evidence(path) -> bool:
@@ -583,6 +666,57 @@ def _af_quad(entry):
     return (high << 32) | low
 
 
+class _Crc32:
+    """zlib.crc32 behind the hashlib interface, as a UDIF image's type 2 checksum."""
+
+    def __init__(self):
+        self.value = 0
+
+    def update(self, data):
+        self.value = zlib.crc32(data, self.value)
+
+    def hexdigest(self):
+        return f"{self.value & 0xFFFFFFFF:08x}"
+
+
+def _adc_decompress(data, size):
+    """Apple Data Compression, from Joachim Metz, "ADC compressed data format"
+    (libyal/libfmos documentation). A byte with the high bit set starts a literal
+    run of (low 7 bits + 1) bytes; otherwise a back-reference copies earlier
+    output: with bit 6 set, (low 6 bits + 4) bytes from a 16-bit distance in the
+    next two bytes, else ((bits 2 to 5) + 3) bytes from a 10-bit distance made of
+    the low 2 bits and the next byte. A distance of 0 is the last byte written."""
+    out = bytearray()
+    i, n = 0, len(data)
+    while i < n and len(out) < size:
+        b = data[i]
+        if b & 0x80:
+            count = (b & 0x7F) + 1
+            if i + 1 + count > n:
+                raise EwfFormatError("an ADC literal runs past the end of its chunk")
+            out += data[i + 1:i + 1 + count]
+            i += 1 + count
+            continue
+        if b & 0x40:
+            if i + 2 >= n:
+                raise EwfFormatError("an ADC back-reference is cut short")
+            count = (b & 0x3F) + 4
+            distance = (data[i + 1] << 8) | data[i + 2]
+            i += 3
+        else:
+            if i + 1 >= n:
+                raise EwfFormatError("an ADC back-reference is cut short")
+            count = ((b >> 2) & 0x0F) + 3
+            distance = ((b & 0x03) << 8) | data[i + 1]
+            i += 2
+        start = len(out) - distance - 1
+        if start < 0:
+            raise EwfFormatError("an ADC back-reference points before the chunk's start")
+        for k in range(count):              # the source may overlap what is written
+            out.append(out[start + k])
+    return bytes(out)
+
+
 class _Table:
     """One table section: a run of chunk offsets sharing a base offset.
 
@@ -826,7 +960,7 @@ class EwfImage:
             self.paths = list(segments)
         elif self._afd:
             self.paths = _afd_members(self._afd)
-        elif _is_aff(path):
+        elif _is_aff(path) or apple_image_kind(path):
             self.paths = [os.path.abspath(path)]
         else:
             self.paths = ewf_segments(path)
@@ -858,6 +992,13 @@ class EwfImage:
         self.logical_root = None
         self.logical_entries: list[LogicalEntry] = []
         self._l01_media_size = None
+        # Apple disk images: the runs a UDIF image's block tables map, the sparse
+        # image's stored bands, and what the UDIF image records about itself.
+        self._runs: list[tuple[int, int, int, int, int]] = []
+        self._run_starts: list[int] = []
+        self._run_cache: OrderedDict[int, bytes] = OrderedDict()
+        self._bands: dict[int, int] = {}
+        self.udif = None
 
         self._tables: list[_Table] = []
         self._table_starts: list[int] = []
@@ -881,6 +1022,17 @@ class EwfImage:
         """Walk every segment once and build the chunk offset index."""
         with open(self.paths[0], "rb") as fh:
             magic = fh.read(8)
+        kind = apple_image_kind(self.paths[0])
+        if kind == "ENCRYPTED":
+            raise EwfFormatError(
+                f"{os.path.basename(self.paths[0])} is an encrypted Apple disk image "
+                f"(encrcdsa); it needs its password and ewfprobe does not read it")
+        if kind == FORMAT_SPARSEIMAGE:
+            self._index_sparseimage()
+            return
+        if kind == FORMAT_UDIF:
+            self._index_udif()
+            return
         if magic == LEF2_SIGNATURE:
             raise EwfFormatError(
                 f"{os.path.basename(self.paths[0])} is Lx01 logical evidence, which "
@@ -1321,12 +1473,9 @@ class EwfImage:
             except zlib.error as exc:
                 raise EwfFormatError(f"cannot inflate page {n}: {exc}") from exc
         if algorithm == AF_PAGE_COMP_ALG_LZMA:
-            try:
-                import lzma  # pylint: disable=import-outside-toplevel
-            except ImportError as exc:
+            if lzma is None:
                 raise EwfFormatError(
-                    f"page {n} is LZMA-compressed and this Python has no lzma module"
-                ) from exc
+                    f"page {n} is LZMA-compressed and this Python has no lzma module")
             try:
                 decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
                 return decoder.decompress(raw, max_length=self.chunk_size)
@@ -1334,6 +1483,342 @@ class EwfImage:
                 raise EwfFormatError(f"cannot decompress LZMA page {n}: {exc}") from exc
         raise EwfFormatError(f"page {n} uses compression algorithm {algorithm:#06x}, "
                              f"which ewfprobe does not read")
+
+    # -- Apple disk images ----------------------------------------------------
+
+    def _apple_finish(self, sectors, fmt):
+        """Fields every reader of the stream relies on, for a UDIF or sparse image."""
+        self.format = fmt
+        self.sector_size = 512
+        self.sector_count = sectors
+        self.media_size = sectors * 512
+        self.size = self.media_size
+        self.sizes = [os.path.getsize(p) for p in self.paths]
+        if fmt == FORMAT_UDIF:
+            self.chunk_size = _APPLE_VIRTUAL_CHUNK
+        self.sectors_per_chunk = self.chunk_size // 512
+        self.chunk_count = self._needed_chunks()
+        self._indexed_chunks = self.chunk_count
+
+    def _index_udif(self):
+        """Read the trailer and the block tables of a UDIF image into runs."""
+        path = self.paths[0]
+        name = os.path.basename(path)
+        fh = self._handle(0)
+        size = os.path.getsize(path)
+        fh.seek(size - UDIF_TRAILER_SIZE)
+        trailer = _read_exactly(fh, UDIF_TRAILER_SIZE)
+        (_sig, version, header_size, flags, _running, fork_offset, fork_size,
+         _rsrc_offset, _rsrc_size, segment_number,
+         segment_count) = _UDIF_TRAILER.unpack_from(trailer)
+        if header_size != UDIF_TRAILER_SIZE:
+            raise EwfFormatError(f"{name}: the UDIF trailer says it is {header_size} "
+                                 f"bytes, not {UDIF_TRAILER_SIZE}")
+        if segment_count > 1 or segment_number > 1:
+            raise EwfFormatError(
+                f"{name} is segment {segment_number} of {segment_count} of a segmented "
+                f"Apple disk image (a .dmg with .dmgpart files); segmented images are "
+                f"not read. Join them with hdiutil convert first.")
+        if fork_offset + fork_size > size - UDIF_TRAILER_SIZE:
+            raise EwfIncompleteSetError(
+                f"{name}: the data the trailer describes runs past the end of the file; "
+                f"the image is cut short")
+        xml_offset, xml_size = struct.unpack_from(">QQ", trailer, 216)
+        variant, sectors = struct.unpack_from(">IQ", trailer, 488)
+        if not xml_size:
+            raise EwfFormatError(
+                f"{name} carries no XML property list (an older image whose block "
+                f"tables are only in a resource fork), which is not read")
+        if xml_offset + xml_size > size:
+            raise EwfIncompleteSetError(f"{name}: the property list runs past the end "
+                                        f"of the file; the image is cut short")
+        fh.seek(xml_offset)
+        try:
+            plist = plistlib.loads(_read_exactly(fh, xml_size))
+            tables = plist["resource-fork"]["blkx"]
+        except Exception as exc:                # pylint: disable=broad-except
+            raise EwfFormatError(f"{name}: the property list could not be read: "
+                                 f"{exc}") from exc
+
+        def checksum(data, at):
+            kind, bits = struct.unpack_from(">II", data, at)
+            value = data[at + 8:at + 8 + bits // 8] if bits else b""
+            return {"type": _UDIF_CHECKSUMS.get(kind, f"type {kind}"),
+                    "code": kind, "value": value.hex()}
+
+        runs, partitions, codecs = [], [], set()
+        expected = 0
+        for t, table in enumerate(tables):
+            data = table.get("Data", b"") if isinstance(table, dict) else b""
+            if data[:4] != b"mish" or len(data) < 204:
+                raise EwfFormatError(f"{name}: block table {t} is not a mish table")
+            start, count = struct.unpack_from(">QQ", data, 8)
+            if start != expected:
+                raise EwfFormatError(
+                    f"{name}: block table {t} starts at sector {start} where the one "
+                    f"before it ended at {expected}")
+            entries = struct.unpack_from(">I", data, 200)[0]
+            if len(data) < 204 + 40 * entries:
+                raise EwfFormatError(f"{name}: block table {t} is shorter than the "
+                                     f"{entries} entries it declares")
+            first_run = len(runs)
+            for e in range(entries):
+                kind, _comment, rel, sectors_here, offset, length = struct.unpack_from(
+                    ">IIQQQQ", data, 204 + 40 * e)
+                if kind == _UDIF_COMMENT:
+                    continue
+                if kind == _UDIF_END:
+                    break
+                if start + rel != expected:
+                    raise EwfFormatError(
+                        f"{name}: block table {t} entry {e} starts at sector "
+                        f"{start + rel} where the previous entry ended at {expected}")
+                if not sectors_here:
+                    raise EwfFormatError(f"{name}: block table {t} entry {e} covers "
+                                         f"no sectors")
+                if kind in (_UDIF_ZERO, _UDIF_IGNORE):
+                    pass
+                elif kind == _UDIF_RAW or kind in _UDIF_CODECS:
+                    if kind == _UDIF_RAW and length != sectors_here * 512:
+                        raise EwfFormatError(
+                            f"{name}: block table {t} entry {e} stores {length} bytes "
+                            f"for {sectors_here} uncompressed sectors")
+                    if kind in _UDIF_CODECS:
+                        if sectors_here > _UDIF_MAX_COMPRESSED_SECTORS:
+                            raise EwfFormatError(
+                                f"{name}: block table {t} entry {e} is a compressed "
+                                f"chunk of {sectors_here} sectors, more than "
+                                f"{_UDIF_MAX_COMPRESSED_SECTORS}")
+                        codecs.add(_UDIF_CODECS[kind])
+                    if offset < fork_offset or offset + length > fork_offset + fork_size:
+                        raise EwfFormatError(
+                            f"{name}: block table {t} entry {e} points outside the "
+                            f"image's data")
+                else:
+                    raise EwfFormatError(
+                        f"{name}: block table {t} entry {e} has chunk type "
+                        f"0x{kind:08x}, which is not one ewfprobe knows")
+                runs.append((expected * 512, sectors_here * 512, kind, offset, length))
+                expected += sectors_here
+            if expected != start + count:
+                raise EwfFormatError(
+                    f"{name}: block table {t} declares {count} sectors and its entries "
+                    f"cover {expected - start}")
+            partitions.append({
+                "name": str(table.get("Name") or table.get("CFName") or ""),
+                "start_sector": start, "sector_count": count,
+                "checksum": checksum(data, 64), "runs": (first_run, len(runs)),
+            })
+        if expected != sectors:
+            raise EwfFormatError(
+                f"{name}: the block tables cover {expected} sectors and the trailer "
+                f"says the disk is {sectors}")
+        if "LZFSE" in codecs and liblzfse is None:
+            raise EwfFormatError(
+                f"{name} is compressed with LZFSE (an ULFO image), which needs the "
+                f"pyliblzfse package; install it, or convert the image with "
+                f"hdiutil convert -format UDZO")
+        self._runs = runs
+        self._run_starts = [r[0] for r in runs]
+        self.compression_level = ", ".join(sorted(codecs)) if codecs else "none"
+        self.udif = {
+            "version": version, "flags": flags, "variant": variant,
+            "data_fork": (fork_offset, fork_size),
+            "data_checksum": checksum(trailer, 80),
+            "master_checksum": checksum(trailer, 352),
+            "partitions": partitions,
+            "codecs": sorted(codecs),
+        }
+        self._apple_finish(sectors, FORMAT_UDIF)
+
+    def _decoded_run(self, i):
+        """The bytes a compressed UDIF chunk decodes to, cached."""
+        cached = self._run_cache.get(i)
+        if cached is not None:
+            self._run_cache.move_to_end(i)
+            return cached
+        start, length, kind, offset, stored = self._runs[i]
+        fh = self._handle(0)
+        fh.seek(offset)
+        blob = _read_exactly(fh, stored)
+        codec = _UDIF_CODECS[kind]
+        missing = {"bzip2": bz2, "LZMA": lzma}.get(codec, True)
+        if missing is None:
+            raise EwfFormatError(f"this Python has no {codec} module, which the chunk at "
+                                 f"sector {start // 512:,} needs")
+        try:
+            if codec == "zlib":
+                data = zlib.decompress(blob)
+            elif codec == "bzip2":
+                data = bz2.decompress(blob)
+            elif codec == "LZMA":
+                data = lzma.decompress(blob)
+            elif codec == "LZFSE":
+                data = liblzfse.decompress(blob)
+            else:
+                data = _adc_decompress(blob, length)
+        except Exception as exc:                # pylint: disable=broad-except
+            raise EwfFormatError(
+                f"the {codec} chunk at sector {start // 512:,} could not be "
+                f"decompressed: {exc}") from exc
+        if len(data) != length:
+            raise EwfFormatError(
+                f"the {codec} chunk at sector {start // 512:,} decompressed to "
+                f"{len(data)} bytes where its block table says {length}")
+        if len(self._run_cache) >= _APPLE_RUN_CACHE:
+            self._run_cache.popitem(last=False)
+        self._run_cache[i] = data
+        return data
+
+    def _run_bytes(self, i, a, b):
+        """Bytes a to b (relative to the run's start) of UDIF run i."""
+        _start, _length, kind, offset, _stored = self._runs[i]
+        if kind in (_UDIF_ZERO, _UDIF_IGNORE):
+            return bytes(b - a)
+        if kind == _UDIF_RAW:
+            fh = self._handle(0)
+            fh.seek(offset + a)
+            return _read_exactly(fh, b - a)
+        return self._decoded_run(i)[a:b]
+
+    def _chunk_data_udif(self, n):
+        start = n * self.chunk_size
+        end = min(start + self.chunk_size, self.media_size)
+        out = bytearray()
+        i = bisect.bisect_right(self._run_starts, start) - 1
+        pos = start
+        while pos < end:
+            run_start, run_length = self._runs[i][0], self._runs[i][1]
+            upto = min(end, run_start + run_length)
+            out += self._run_bytes(i, pos - run_start, upto - run_start)
+            pos = upto
+            i += 1
+        return bytes(out)
+
+    def _index_sparseimage(self):
+        """Read the header chain of a sparse image into a map of stored bands."""
+        path = self.paths[0]
+        name = os.path.basename(path)
+        fh = self._handle(0)
+        size = os.path.getsize(path)
+        head = _read_exactly(fh, _SPARSE_HEADER_SIZE)
+        version, per_band, _unknown, low = struct.unpack_from(">IIII", head, 4)
+        following, sectors = struct.unpack_from(">QQ", head, 20)
+        if version != 3:
+            raise EwfFormatError(f"{name} is a version {version} sparse image; only "
+                                 f"version 3, which hdiutil writes, is read")
+        if not per_band:
+            raise EwfFormatError(f"{name}: the sparse image header gives no band size")
+        if sectors & 0xFFFFFFFF != low:
+            raise EwfFormatError(
+                f"{name}: the sparse image header gives the disk as {sectors} sectors "
+                f"in one field and {low} in the other")
+        band = per_band * 512
+        count = -(-sectors // per_band)
+        bands: dict[int, int] = {}
+
+        def take(slots, base):
+            for slot, number in enumerate(slots):
+                if not number:
+                    continue
+                if number > count:
+                    raise EwfFormatError(f"{name}: a stored band is numbered {number} "
+                                         f"of a disk of {count} bands")
+                if number - 1 in bands:
+                    raise EwfFormatError(f"{name}: band {number} is stored twice")
+                offset = base + slot * band
+                want = min(band, sectors * 512 - (number - 1) * band)
+                if offset + want > size:
+                    raise EwfIncompleteSetError(
+                        f"{name} ends inside band {number}; the file is cut short")
+                bands[number - 1] = offset
+
+        take(struct.unpack_from(">1008I", head, 64), _SPARSE_HEADER_SIZE)
+        seen, sequence = set(), 0
+        while following:
+            if following in seen or following + _SPARSE_HEADER_SIZE > size:
+                raise EwfFormatError(f"{name}: the sparse image's header chain points "
+                                     f"to offset {following}, which cannot be a header")
+            seen.add(following)
+            fh.seek(following)
+            more = _read_exactly(fh, _SPARSE_HEADER_SIZE)
+            if more[:4] != SPARSEIMAGE_SIGNATURE:
+                raise EwfFormatError(f"{name}: no sparse image header at offset "
+                                     f"{following}, where the chain points")
+            number, _unknown, nxt = struct.unpack_from(">IIQ", more, 4)
+            if number != sequence:
+                raise EwfFormatError(f"{name}: continuation header {number} found where "
+                                     f"{sequence} was expected")
+            take(struct.unpack_from(">1010I", more, 56), following + _SPARSE_HEADER_SIZE)
+            following, sequence = nxt, sequence + 1
+        self._bands = bands
+        self.compression_level = "none"
+        self.chunk_size = band
+        self._apple_finish(sectors, FORMAT_SPARSEIMAGE)
+
+    def _chunk_data_sparse(self, n):
+        offset = self._bands.get(n)
+        want = min(self.chunk_size, self.media_size - n * self.chunk_size)
+        if offset is None:
+            return bytes(want)
+        fh = self._handle(0)
+        fh.seek(offset)
+        return _read_exactly(fh, want)
+
+    def _verify_udif(self, block, progress):
+        """Recompute what a UDIF image records about itself: the checksum of its
+        stored data, each block table's checksum over the chunks it stores, and the
+        master checksum over the checksums the tables record. Measured on hdiutil's own images: CRC32 (type 2)
+        or MD5 (type 4), and a block table's checksum leaves out the chunks that
+        are not stored."""
+        def hasher(code):
+            return (_Crc32() if code == 2 else hashlib.md5()) if code in (2, 4) else None
+
+        checks = []
+        fork_offset, fork_size = self.udif["data_fork"]
+        want = self.udif["data_checksum"]
+        h = hasher(want["code"])
+        if h is not None:
+            fh = self._handle(0)
+            fh.seek(fork_offset)
+            left = fork_size
+            while left:
+                piece = _read_exactly(fh, min(block, left))
+                h.update(piece)
+                left -= len(piece)
+            checks.append(("data", want["type"], want["value"], h.hexdigest()))
+        parts = []
+        for part in self.udif["partitions"]:
+            want = part["checksum"]
+            h = hasher(want["code"])
+            if h is None:
+                continue
+            first, last = part["runs"]
+            for i in range(first, last):
+                kind = self._runs[i][2]
+                if kind in (_UDIF_ZERO, _UDIF_IGNORE):
+                    continue
+                length = self._runs[i][1]
+                for a in range(0, length, block):
+                    h.update(self._run_bytes(i, a, min(length, a + block)))
+            got = h.hexdigest()
+            # the master checksum covers the checksums the tables record, so it
+            # says whether the tables are intact, apart from the data they describe
+            parts.append((want["code"], bytes.fromhex(want["value"])))
+            checks.append((f"block table {part['name'] or part['start_sector']}",
+                           want["type"], want["value"], got))
+            if progress:
+                progress(part["start_sector"] * 512 + part["sector_count"] * 512,
+                         self.media_size)
+        want = self.udif["master_checksum"]
+        h = hasher(want["code"])
+        if h is not None and parts and all(code == want["code"] for code, _ in parts):
+            for _code, value in parts:
+                h.update(value)
+            checks.append(("master", want["type"], want["value"], h.hexdigest()))
+        return [{"what": what, "algorithm": algo, "stored": stored,
+                 "computed": got, "match": stored == got}
+                for what, algo, stored, got in checks]
 
     def _parse_table_v2(self, fh, segment_index, offset, first_expected):
         fh.seek(offset)
@@ -1499,6 +1984,10 @@ class EwfImage:
         if self.format in (FORMAT_AFF, FORMAT_AFD):
             data = self._chunk_data_aff(n)
             return self._keep(n, data, want)
+        if self.format == FORMAT_UDIF:
+            return self._keep(n, self._chunk_data_udif(n), want)
+        if self.format == FORMAT_SPARSEIMAGE:
+            return self._keep(n, self._chunk_data_sparse(n), want)
 
         segment, start, end, compressed = self._chunk_location(n)
         fh = self._handle(segment)
@@ -1648,6 +2137,7 @@ class EwfImage:
             checked += 1
             if digest.hexdigest() != entry.md5:
                 mismatched.append(entry.path)
+        container = self._verify_udif(block, None) if self.format == FORMAT_UDIF else []
         return {
             "computed": computed,
             "stored": dict(self.stored_hashes),
@@ -1658,6 +2148,7 @@ class EwfImage:
             "missing_page_ranges": list(self.missing_page_ranges),
             "entry_md5_checked": checked,
             "entry_md5_mismatched": mismatched,
+            "container_checks": container,
         }
 
     def info(self):
@@ -1682,6 +2173,12 @@ class EwfImage:
             "entry_count": len(self.logical_entries),
             "entry_md5_count": sum(1 for e in self.logical_entries if e.md5),
             "metadata": dict(self.metadata),
+            "udif": None if self.udif is None else {
+                key: value for key, value in self.udif.items() if key != "partitions"},
+            "udif_partitions": [] if self.udif is None else [
+                {key: value for key, value in part.items() if key != "runs"}
+                for part in self.udif["partitions"]],
+            "stored_bands": len(self._bands) if self.format == FORMAT_SPARSEIMAGE else None,
         }
 
 
@@ -1730,11 +2227,25 @@ def _cmd_info(args):
                 print(f"sectors         {d['sector_count']:,}")
             else:
                 print("sector size     not recorded")
-            unit = "page size " if d["format"] in (FORMAT_AFF, FORMAT_AFD) else "chunk size"
-            print(f"{unit}      {d['chunk_size']:,} bytes "
-                  f"({d['sectors_per_chunk']} sectors)")
-            print(f"chunks          {d['indexed_chunks']:,} indexed, "
-                  f"{d['chunk_count']:,} declared")
+            if d["format"] == FORMAT_UDIF:
+                u = d["udif"]
+                print(f"block tables    {len(d['udif_partitions'])}")
+                for part in d["udif_partitions"]:
+                    print(f"  {part['start_sector']:>14,} +{part['sector_count']:<14,} "
+                          f"{_shown(part['name'])}")
+                for label, key in (("data checksum", "data_checksum"),
+                                   ("master checksum", "master_checksum")):
+                    c = u[key]
+                    print(f"{label:<16}{c['type']} {c['value'] or 'not recorded'}")
+            elif d["format"] == FORMAT_SPARSEIMAGE:
+                print(f"band size       {d['chunk_size']:,} bytes")
+                print(f"bands stored    {d['stored_bands']:,} of {d['chunk_count']:,}")
+            else:
+                unit = "page size " if d["format"] in (FORMAT_AFF, FORMAT_AFD) else "chunk size"
+                print(f"{unit}      {d['chunk_size']:,} bytes "
+                      f"({d['sectors_per_chunk']} sectors)")
+                print(f"chunks          {d['indexed_chunks']:,} indexed, "
+                      f"{d['chunk_count']:,} declared")
         print(f"compression     {d['compression_level'] or 'not recorded'}")
         if d["bad_sectors"] is not None:
             print(f"bad sectors     {d['bad_sectors']:,} recorded")
@@ -1776,6 +2287,12 @@ def _cmd_verify(args):
         if result["missing_page_count"]:
             print(f"pages not in the file, read as the bad-sector marker: "
                   f"{result['missing_page_count']:,}")
+        failed = [c for c in result["container_checks"] if not c["match"]]
+        for c in result["container_checks"]:
+            verdict = "matches" if c["match"] else f"DOES NOT MATCH stored {c['stored']}"
+            print(f"{c['algorithm']:<6}{c['computed']}   {verdict}  ({_shown(c['what'])})")
+        if failed:
+            return 1
         if result["entry_md5_checked"]:
             bad = result["entry_md5_mismatched"]
             print(f"entry MD5s      {result['entry_md5_checked']:,} checked, "
@@ -1786,6 +2303,10 @@ def _cmd_verify(args):
             if bad:
                 return 1
         if result["match"] is None:
+            if result["container_checks"]:
+                print("the image recorded no hash of the disk; the checksums it records "
+                      "of its own data all match")
+                return 0
             print("the acquisition recorded no hash, so nothing could be compared")
             return 0
         return 0 if result["match"] else 1
