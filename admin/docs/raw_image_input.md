@@ -34,17 +34,35 @@ or a 4Kn drive, has its partitions counted in 4096-byte sectors.
 - `admin/test/scripts/test_raw_image_seeker.py` checks staged bytes against
   independent hash lists over the fixtures in `admin/test/data/raw_images/`,
   including an E01 set, an AFF file, an AFD folder, a `.dmg`, a `.dmg` split into
-  `.dmgpart` files, a `.sparseimage`, a sparse bundle and a split set built at test
-  time, and an L01, an encrypted `.dmg`, an encrypted sparse bundle and a `.dmgpart`
-  opened on its own that must be refused.
+  `.dmgpart` files, a `.sparseimage`, a sparse bundle, an encrypted `.dmg` and an
+  encrypted sparse bundle (opened with their password) and a split set built at test
+  time, and an L01, an encrypted image opened without its password or with a wrong
+  one, a damaged encrypted header and a `.dmgpart` opened on its own that must be
+  refused.
+
+## Encrypted Apple disk images
+
+An Apple disk image encrypted with a password (`hdiutil -encryption`: a `.dmg`, a
+split one, a `.sparseimage` or a sparse bundle) opens with that password, which the
+vendored ewfprobe needs the `pycryptodome` package to use; the cores already require
+it. `needs_password(path)` says whether an image needs one. The GUI asks for it in a
+dialog when the run starts, checks it against the image (`password_opens`), and asks
+again after a wrong one; the command line takes it from `--image_password_file`
+(the file's first line) or `--image_password_env` (an environment variable), or asks
+at a terminal (`cli_image_password`), and checks it before the run. Either way it is
+handed to `crunch_artifacts(..., image_password=...)` and on to
+`FileSeekerRaw(..., password=...)`, which passes it to the reader and does not keep
+it; nothing writes it to the report, the log or the history. A password is never
+taken as an argument's value, which would put it in the process list and the shell
+history. An image that will not open for another reason (a damaged header, no cipher
+package) is reported by name rather than asked about again.
 
 ## How it reads
 
 `FileSeekerRaw` opens the image through the reader's `open_image()` (which joins
 a split set, reads an EWF, EWF2, AFF or AFD acquisition or an Apple disk image (a
 `.dmg` and its `.dmgpart` files, a `.sparseimage`, or a sparse bundle folder), and
-refuses EnCase L01 logical evidence, which holds files rather than a disk, and an
-encrypted Apple disk image, which needs its password), asks `volumes()` for every volume the reader's
+refuses EnCase L01 logical evidence, which holds files rather than a disk), asks `volumes()` for every volume the reader's
 own report would name, walks each readable volume once for its directory tree,
 and offers the run a member list in the shape the zip seeker offers: one name per
 file and one per directory (with a trailing slash), each prefixed by the volume's

@@ -9,8 +9,10 @@ Advanced Forensic Format that AFFLIB and FTK Imager write, as a single .aff file
 as an AFD directory of them, and Apple disk images: UDIF (.dmg), compressed with
 zlib, bzip2, LZMA or ADC or stored, including one split into .dmgpart segments,
 sparse images (.sparseimage) and sparse bundles (.sparsebundle). An LZFSE .dmg
-(ULFO) needs the optional pyliblzfse package. From an L01, EnCase's logical
-evidence, it lists the files collected and reads each one's content.
+(ULFO) needs the optional pyliblzfse package. An Apple disk image encrypted with a
+password (hdiutil -encryption, AES-128 or AES-256) opens with that password and
+needs the optional pycryptodome package. From an L01, EnCase's logical evidence, it
+lists the files collected and reads each one's content.
 
     with ewfprobe.open_ewf("evidence.E01") as img:
         img.seek(0)
@@ -32,13 +34,18 @@ code is copied. The Apple disk image readers follow Joachim Metz, "Mac OS disk
 image types" (libyal/libmodi documentation) and "ADC compressed data format"
 (libyal/libfmos documentation), with the checksum rules, the sparse image's
 continuation headers and the layout of a segmented .dmg measured on images
-hdiutil wrote; no libmodi code is copied.
+hdiutil wrote; no libmodi code is copied. The encrypted container (encrcdsa) is
+read from the layout two MIT-licensed readers publish, nlitsme/encrypteddmg and
+kev365/xways-imageio-dmg, with what differs on current macOS measured on images
+hdiutil wrote; no code from either is copied.
 
 Scope. This reads EWF-E01, the format EnCase 6 and 7 and FTK Imager write and
 by far the most common one in the field, EWF-S01, the variant ASR Data's SMART
 writes, EWF2-Ex01, which EnCase 7 and later write, AFF, including AFD, and
 EWF-L01 logical evidence, and UDIF, sparse image and sparse bundle Apple disk
-images. It does not read Lx01 logical evidence, encrypted Apple disk images,
+images, encrypted with a password or not. It does not read Lx01 logical evidence,
+an Apple disk image unlocked by a certificate or a keybag rather than a password,
+or one in the older version 1 encrypted format (cdsaencr),
 encrypted Ex01 images (the encryption is not publicly documented), Ex01 images
 compressed with bzip2 (no sample exists to validate against), encrypted AFF, or AFM
 (AFF metadata beside split raw files), and it never writes.
@@ -53,7 +60,9 @@ from __future__ import annotations
 import argparse
 import bisect
 import errno
+import getpass
 import hashlib
+import hmac
 import io
 import os
 import plistlib
@@ -72,7 +81,7 @@ try:
 except ImportError:
     lzma = None
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 # ---------------------------------------------------------------- constants
 
@@ -274,8 +283,54 @@ _SPARSE_HEADER_SIZE = 4096
 SPARSEBUNDLE_TYPE = "com.apple.diskimage.sparsebundle"
 FORMAT_SPARSEBUNDLE = "SPARSEBUNDLE"
 _SPARSEBUNDLE_PLIST_MAX = 1 << 20               # an Info.plist is a few hundred bytes
-# An encrypted Apple disk image begins with this; it needs its password.
+# An encrypted Apple disk image (hdiutil -encryption) begins with this: the
+# encrcdsa container, version 2. Its layout is from nlitsme/encrypteddmg,
+# readencrcdsa.py (EncrCdsaFile and PassphraseWrappedKey,
+# https://github.com/nlitsme/encrypteddmg/blob/626dac30710140ac488ea199cd14b5c450f2760b/readencrcdsa.py#L125-L198
+# and #L283-L417) and kev365/xways-imageio-dmg, encrypted_source.cpp
+# (https://github.com/kev365/xways-imageio-dmg/blob/406e738d1a43dfcb9d8f421d33a31d43078fb4b5/encrypted_source.cpp#L30-L98),
+# both MIT. The header records the cipher (AES-CBC, 128 or 256 bits), the size of
+# an encrypted block (512 bytes), how long the decrypted data is, where the
+# encrypted data starts, and key items. A password item holds the AES key and an
+# HMAC-SHA1 key, together, encrypted under a key made from the password with
+# PBKDF2-HMAC-SHA1; unwrapped they end "CKIE\0". Each block is decrypted on its
+# own, AES-CBC with the IV HMAC-SHA1(HMAC key, the block's number as 32 bits big
+# endian) cut to 16 bytes. Measured on images hdiutil wrote on macOS 26.6.2,
+# where the sources differ or say nothing: the key items are wrapped with
+# AES-192-CBC (algorithm 0x80000001, 192 key bits), the stored 8-byte IV padded
+# with zeros to 16, where both sources read 3DES (0x11), so both are read; each
+# band of an encrypted sparse bundle is encrypted on its own from its first byte,
+# the block number starting again at 0, and the token holds only the header; each
+# file of an encrypted segmented image is an encrcdsa container of its own; and
+# the password is used as the bytes given, with no Unicode normalisation. The
+# decrypted data is a UDIF image (its trailer ends it), a sparse image, or, for an
+# encrypted read-write image, the disk itself.
 DMG_ENCRYPTED_SIGNATURE = b"encrcdsa"
+_ENCRCDSA_HEADER = struct.Struct(">8s7L16sLQQL")  # through the count of key items
+_ENCRCDSA_ITEM = struct.Struct(">LQQ")             # unlock type, offset, size
+_ENCRCDSA_PASSWORD = struct.Struct(">LQL32sL32s5L")  # a password item, to its key blob
+_ENCRCDSA_HEAD_READ = 1 << 16                    # key items sit in the first bytes
+_ENCRCDSA_UNLOCK = {1: "password", 2: "certificate", 3: "keybag"}
+_ENCRCDSA_KEY_END = b"CKIE\x00"
+# the CSSM identifiers the header and its items record
+_CSSM_AES = 0x80000001
+_CSSM_3DES_3KEY = 0x11
+_CSSM_SHA1HMAC = 0x5B
+_CSSM_PBKDF2 = 0x67
+_CSSM_PADDING_PKCS7 = 7
+_CSSM_MODE_CBC_IV8 = 5
+_CSSM_MODE_CBC_PAD_IV8 = 6
+# The hdiutil images measured use 344,827 to 588,235 PBKDF2 rounds; far more than this
+# is a damaged or hostile header, refused rather than left to run for hours.
+_ENCRCDSA_MAX_ROUNDS = 50_000_000
+_ENCRCDSA_BLOCK_NUMBER = struct.Struct(">L")
+# The older version 1 container (cdsaencr) keeps its header at the end of the file,
+# which ends with the version, 1, and the signature (readencrcdsa.py, CdsaEncrFile,
+# #L465-L472). ewfprobe recognises it, to refuse it, and does not read it.
+_CDSAENCR_V1_END = b"\x00\x00\x00\x01cdsaencr"
+# An encrypted read-write image decrypts to the disk itself; hdiutil imageinfo
+# calls that format UDRW.
+FORMAT_UDRW = "UDRW"
 # Chunks of a UDIF or sparse image are served in fixed virtual chunks of this size.
 _APPLE_VIRTUAL_CHUNK = 1 << 20
 _APPLE_RUN_CACHE = 8                            # decompressed UDIF chunks kept
@@ -284,6 +339,13 @@ try:                                            # optional, for LZFSE (ULFO) ima
     import liblzfse                             # the pyliblzfse package
 except ImportError:
     liblzfse = None
+try:                                            # optional, for encrypted images only
+    from Crypto.Cipher import AES as _AES, DES3 as _DES3        # pycryptodome
+except ImportError:
+    try:
+        from Cryptodome.Cipher import AES as _AES, DES3 as _DES3    # pycryptodomex
+    except ImportError:
+        _AES = _DES3 = None
 
 # How many decompressed chunks and open segment handles to keep. A chunk is
 # normally 32 KiB, so the cache is a couple of megabytes at the default.
@@ -325,6 +387,20 @@ class EwfIncompleteSetError(EwfError):
     Raised rather than reading the segments that are present, because a partial
     set reads as a small clean image and reports its missing data as empty.
     """
+
+
+class EwfPasswordError(EwfFormatError):
+    """An encrypted Apple disk image was opened without its password, or with one
+    that does not open it. The two subclasses tell those apart, so a caller that
+    asks for the password can say which happened and ask again."""
+
+
+class EwfPasswordRequiredError(EwfPasswordError):
+    """The image is encrypted and no password was given."""
+
+
+class EwfWrongPasswordError(EwfPasswordError):
+    """The password given does not open the image."""
 
 
 # ------------------------------------------------------------- segment names
@@ -371,7 +447,8 @@ def is_image(path) -> bool:
     EWF, EWF2 or AFF signature, an AFD directory holding AFF files, or an Apple
     UDIF (.dmg), sparse image (.sparseimage) or sparse bundle (.sparsebundle). An
     L01 holds files rather than a disk; is_logical_evidence answers for it. An
-    encrypted Apple disk image is not one: it needs its password."""
+    encrypted Apple disk image is not counted, because it opens only with its
+    password; apple_image_kind reports it as ENCRYPTED."""
     if os.path.isdir(path):
         if apple_image_kind(path) == FORMAT_SPARSEBUNDLE:
             return True
@@ -408,11 +485,246 @@ def _sparsebundle_info(path):
     return None
 
 
+# ------------------------------------------------------------ encrypted images
+
+class _EncrcdsaKey:
+    """What opens one encrcdsa file: its AES and HMAC keys, the size of an encrypted
+    block, where its encrypted data starts and how long the decrypted data is, and,
+    for info(), the cipher, the key wrap and the PBKDF2 rounds."""
+
+    __slots__ = ("aes", "hmac", "block", "start", "length", "key_bits", "wrap", "rounds")
+
+    def __init__(self, aes, hmac_key, block, start, length, key_bits, wrap, rounds):
+        self.aes = aes
+        self.hmac = hmac_key
+        self.block = block
+        self.start = start
+        self.length = length
+        self.key_bits = key_bits
+        self.wrap = wrap
+        self.rounds = rounds
+
+    def __repr__(self):                         # never the keys
+        return f"<encrcdsa AES-{self.key_bits}, {self.length} bytes>"
+
+
+def _encrcdsa_v1(path):
+    """True when ``path`` ends the way a version 1 encrypted image (cdsaencr) does."""
+    try:
+        size = os.path.getsize(path)
+        if os.path.isdir(path) or size < len(_CDSAENCR_V1_END):
+            return False
+        with open(path, "rb") as fh:
+            fh.seek(size - len(_CDSAENCR_V1_END))
+            return fh.read(len(_CDSAENCR_V1_END)) == _CDSAENCR_V1_END
+    except OSError:
+        return False
+
+
+def _cbc_decrypt(ecb, iv, data, unit):
+    """CBC decryption of whole cipher blocks, done by an ECB cipher object and one
+    XOR with the IV and the ciphertext shifted by a block."""
+    chain = iv + data[:-unit]
+    return (int.from_bytes(ecb.decrypt(data), "big")
+            ^ int.from_bytes(chain, "big")).to_bytes(len(data), "big")
+
+
+def _encrcdsa_unlock(fh, name, password):
+    """The keys of the encrcdsa (version 2) file open in ``fh``, unwrapped with
+    ``password`` (a str, used as UTF-8, or bytes).
+
+    Raises EwfPasswordRequiredError when no password is given and
+    EwfWrongPasswordError when it opens none of the file's password items; a wrong
+    password is recognised by the padding and the "CKIE" mark the unwrapped keys end
+    with, which a wrong key does not produce. EwfFormatError for a layout that is not
+    read, and for an image that is opened with a certificate or a keybag.
+    """
+    fh.seek(0)
+    head = fh.read(_ENCRCDSA_HEAD_READ)
+    if len(head) < _ENCRCDSA_HEADER.size or head[:8] != DMG_ENCRYPTED_SIGNATURE:
+        raise EwfFormatError(f"{name} has no encrcdsa header")
+    (_sig, version, block_iv, mode, algorithm, key_bits, iv_algorithm, iv_bits, _guid,
+     block, length, start, count) = _ENCRCDSA_HEADER.unpack_from(head)
+    if version != 2:
+        raise EwfFormatError(f"{name} is encrcdsa version {version}; only version 2, "
+                             f"which hdiutil writes, is read")
+    if (algorithm, mode, block_iv) != (_CSSM_AES, _CSSM_MODE_CBC_IV8, 16) \
+            or key_bits not in (128, 256):
+        raise EwfFormatError(f"{name} is encrypted with algorithm {algorithm:#x}, mode "
+                             f"{mode}, a {key_bits}-bit key; only AES-CBC with a 128 or "
+                             f"256-bit key is read")
+    if (iv_algorithm, iv_bits) != (_CSSM_SHA1HMAC, 160):
+        raise EwfFormatError(f"{name} makes its block IVs with algorithm "
+                             f"{iv_algorithm:#x} ({iv_bits} bits); only HMAC-SHA1 is read")
+    if not block or block % 16:
+        raise EwfFormatError(f"{name}: an encrypted block of {block} bytes is not a "
+                             f"whole number of AES blocks")
+    if length > (1 << 32) * block:
+        raise EwfFormatError(f"{name}: its data runs past what a 32-bit block number "
+                             f"reaches, which is not read")
+    end = _ENCRCDSA_HEADER.size + count * _ENCRCDSA_ITEM.size
+    if not 0 < count <= 64 or end > len(head):
+        raise EwfFormatError(f"{name}: the encrcdsa header lists {count} key items")
+    items = [_ENCRCDSA_ITEM.unpack_from(head, _ENCRCDSA_HEADER.size + i * _ENCRCDSA_ITEM.size)
+             for i in range(count)]
+    passwords = [(offset, size) for kind, offset, size in items if kind == 1]
+    if not passwords:
+        kinds = " or ".join(sorted({_ENCRCDSA_UNLOCK.get(kind, f"key item of type {kind}")
+                                    for kind, _offset, _size in items}))
+        raise EwfFormatError(f"{name} is an encrypted Apple disk image opened with a "
+                             f"{kinds}, not a password; ewfprobe opens only one "
+                             f"encrypted with a password")
+    if _AES is None:
+        raise EwfFormatError(f"{name} is an encrypted Apple disk image; reading one needs "
+                             f"the optional pycryptodome package (pip install "
+                             f"pycryptodome), which this Python does not have")
+    if password is None:
+        raise EwfPasswordRequiredError(f"{name} is an encrypted Apple disk image and "
+                                       f"opens only with its password")
+    secret = password.encode("utf-8") if isinstance(password, str) else bytes(password)
+    for offset, size in passwords:
+        if size < _ENCRCDSA_PASSWORD.size or offset + size > len(head):
+            raise EwfFormatError(f"{name}: a password key item of {size} bytes at offset "
+                                 f"{offset} lies outside the header")
+        item = head[offset:offset + size]
+        (kdf, rounds, salt_length, salt, iv_length, iv, wrap_bits, wrap_algorithm,
+         padding, wrap_mode, blob_length) = _ENCRCDSA_PASSWORD.unpack_from(item)
+        if wrap_algorithm == _CSSM_AES and wrap_bits in (128, 192, 256):
+            cipher, wrap, unit = _AES, f"AES-{wrap_bits}", 16
+        elif wrap_algorithm == _CSSM_3DES_3KEY and wrap_bits == 192:
+            cipher, wrap, unit = _DES3, "3DES", 8
+        else:
+            raise EwfFormatError(f"{name}: a password key item is wrapped with algorithm "
+                                 f"{wrap_algorithm:#x} and a {wrap_bits}-bit key, which "
+                                 f"is not read")
+        blob = item[_ENCRCDSA_PASSWORD.size:_ENCRCDSA_PASSWORD.size + blob_length]
+        if (kdf, padding, wrap_mode) != (_CSSM_PBKDF2, _CSSM_PADDING_PKCS7,
+                                         _CSSM_MODE_CBC_PAD_IV8) \
+                or salt_length > 32 or iv_length > unit or not blob_length \
+                or blob_length % unit or len(blob) != blob_length:
+            raise EwfFormatError(f"{name}: a password key item is laid out in a way "
+                                 f"ewfprobe does not read")
+        if not 0 < rounds <= _ENCRCDSA_MAX_ROUNDS:
+            raise EwfFormatError(f"{name}: a password key item asks for {rounds:,} PBKDF2 "
+                                 f"rounds, which is not read")
+        derived = hashlib.pbkdf2_hmac("sha1", secret, salt[:salt_length], rounds, 32)
+        try:
+            ecb = cipher.new(derived[:wrap_bits // 8], cipher.MODE_ECB)
+        except ValueError:                      # a 3DES key that reduces to single DES
+            continue
+        plain = _cbc_decrypt(ecb, iv[:iv_length].ljust(unit, b"\0"), blob, unit)
+        pad = plain[-1]
+        if not 1 <= pad <= unit or plain[-pad:] != bytes([pad]) * pad:
+            continue
+        keys = plain[:-pad]
+        if not keys.endswith(_ENCRCDSA_KEY_END):
+            continue
+        keys = keys[:-len(_ENCRCDSA_KEY_END)]
+        if len(keys) != key_bits // 8 + iv_bits // 8:
+            raise EwfFormatError(f"{name}: the password opens a key item holding "
+                                 f"{len(keys)} bytes of keys, where AES-{key_bits} and "
+                                 f"HMAC-SHA1 need {key_bits // 8 + iv_bits // 8}")
+        return _EncrcdsaKey(keys[:key_bits // 8], keys[key_bits // 8:], block, start,
+                            length, key_bits, wrap, rounds)
+    raise EwfWrongPasswordError(f"the password does not open {name}")
+
+
+class _EncryptedFile:
+    """The decrypted content of an encrcdsa file, or of one band of an encrypted
+    sparse bundle, as a read-only file object: seek, tell, read, close. Only the
+    blocks a read covers are decrypted."""
+
+    def __init__(self, path, key, start, length, name):
+        self._fh = open(path, "rb")
+        self._ecb = _AES.new(key.aes, _AES.MODE_ECB)
+        self._hmac = key.hmac
+        self._block = key.block
+        self._start = start
+        self._name = name
+        self.size = length
+        self._pos = 0
+
+    def seek(self, offset, whence=os.SEEK_SET):
+        if whence == os.SEEK_SET:
+            pos = offset
+        elif whence == os.SEEK_CUR:
+            pos = self._pos + offset
+        elif whence == os.SEEK_END:
+            pos = self.size + offset
+        else:
+            raise ValueError(f"invalid whence ({whence})")
+        if pos < 0:
+            raise ValueError("negative seek position")
+        self._pos = pos
+        return pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        end = self.size if n is None or n < 0 else min(self.size, self._pos + n)
+        if end <= self._pos:
+            return b""
+        block = self._block
+        first = self._pos // block
+        count = (end - 1) // block - first + 1
+        self._fh.seek(self._start + first * block)
+        data = self._fh.read(count * block)
+        if len(data) != count * block:
+            raise EwfIncompleteSetError(f"{self._name} ends inside its encrypted data; "
+                                        f"the file is cut short")
+        # each block's IV is HMAC-SHA1 of its number, cut to 16 bytes; the chain a
+        # CBC decryption XORs with is that IV, then the block's own ciphertext
+        chain = b"".join(
+            hmac.digest(self._hmac, _ENCRCDSA_BLOCK_NUMBER.pack(first + i), "sha1")[:16]
+            + data[i * block:(i + 1) * block - 16] for i in range(count))
+        plain = (int.from_bytes(self._ecb.decrypt(data), "big")
+                 ^ int.from_bytes(chain, "big")).to_bytes(len(data), "big")
+        out = plain[self._pos - first * block:end - first * block]
+        self._pos = end
+        return out
+
+    def close(self):
+        self._fh.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
+
+
+def _open_content(path, password=None, keys=None):
+    """``path``'s content as (a file object, its size): the file itself, or, for an
+    encrypted Apple disk image, what it decrypts to. ``keys`` keeps each file's
+    unwrapped keys by path, so a file is unlocked once."""
+    keys = {} if keys is None else keys
+    key = keys.get(path, False)
+    if key is False:
+        name = os.path.basename(path)
+        with open(path, "rb") as fh:
+            key = (_encrcdsa_unlock(fh, name, password)
+                   if fh.read(8) == DMG_ENCRYPTED_SIGNATURE else None)
+        if key is not None and os.path.getsize(path) < key.start + -(
+                -key.length // key.block) * key.block:
+            raise EwfIncompleteSetError(f"{name} ends inside its encrypted data; the "
+                                        f"file is cut short")
+        keys[path] = key
+    if key is None:
+        return open(path, "rb"), os.path.getsize(path)
+    return (_EncryptedFile(path, key, key.start, key.length, os.path.basename(path)),
+            key.length)
+
+
 def apple_image_kind(path):
     """``"UDIF"``, ``"SPARSEIMAGE"``, ``"SPARSEBUNDLE"`` or ``"ENCRYPTED"`` for an
     Apple disk image, else None. A sparse bundle is a directory. A UDIF image is
     recognised by its trailer, so an uncompressed read-write image, which has none,
-    is None here: it is plain disk bytes."""
+    is None here: it is plain disk bytes. ``"ENCRYPTED"`` is any encrypted image,
+    a file or a sparse bundle, including one in the older version 1 format, which
+    is recognised in order to be refused; open_ewf opens a version 2 one with its
+    password."""
     if os.path.isdir(path):
         if _sparsebundle_info(path) is None:
             return None
@@ -437,24 +749,25 @@ def apple_image_kind(path):
                     return FORMAT_UDIF
     except OSError:
         return None
-    return None
+    return "ENCRYPTED" if _encrcdsa_v1(path) else None
 
 
-def _udif_trailer(path):
-    """The 512-byte trailer at the end of ``path``, else None."""
+def _udif_trailer(path, password=None, keys=None):
+    """The 512-byte trailer at the end of ``path``'s content (what it decrypts to,
+    for an encrypted image), else None."""
     try:
-        size = os.path.getsize(path)
-        if size < UDIF_TRAILER_SIZE:
-            return None
-        with open(path, "rb") as fh:
-            fh.seek(size - UDIF_TRAILER_SIZE)
-            trailer = fh.read(UDIF_TRAILER_SIZE)
+        fh, size = _open_content(path, password, keys)
     except OSError:
         return None
+    with fh:
+        if size < UDIF_TRAILER_SIZE:
+            return None
+        fh.seek(size - UDIF_TRAILER_SIZE)
+        trailer = fh.read(UDIF_TRAILER_SIZE)
     return trailer if trailer[:4] == UDIF_TRAILER_SIGNATURE else None
 
 
-def udif_segments(path) -> list[str]:
+def udif_segments(path, password=None, _keys=None) -> list[str]:
     """Every file of the UDIF image ``path`` names, in order: the one file, or for
     an image hdiutil segment split, the .dmg and the .dmgpart files beside it.
 
@@ -462,11 +775,14 @@ def udif_segments(path) -> list[str]:
     carry the first segment's identifier; each records which segment it is, so the
     set is found from what the files record, not from how they are named. Raises
     EwfIncompleteSetError when a segment is missing, and EwfFormatError for a
-    .dmgpart, which is not where a set is opened from.
+    .dmgpart, which is not where a set is opened from. The files of an encrypted
+    image are each encrypted on their own, so ``password`` is needed to read their
+    trailers.
     """
+    keys = {} if _keys is None else _keys
     first = os.path.abspath(path)
     name = os.path.basename(first)
-    trailer = _udif_trailer(first)
+    trailer = _udif_trailer(first, password, keys)
     if trailer is None:
         raise EwfFormatError(f"{name} has no UDIF trailer")
     number, count = struct.unpack_from(">II", trailer, 56)
@@ -479,11 +795,18 @@ def udif_segments(path) -> list[str]:
     ident = trailer[_UDIF_SEGMENT_ID]
     folder = os.path.dirname(first)
     found = {1: first}
+    unopened = []
     for entry in sorted(os.listdir(folder)):
         part = os.path.join(folder, entry)
         if not entry.lower().endswith(".dmgpart") or not os.path.isfile(part):
             continue
-        other = _udif_trailer(part)
+        try:
+            other = _udif_trailer(part, password, keys)
+        except EwfPasswordError:
+            unopened.append(entry)              # encrypted, and not with this password
+            continue
+        except EwfError:
+            continue
         if other is None or other[_UDIF_SEGMENT_ID] != ident:
             continue
         number, total = struct.unpack_from(">II", other, 56)
@@ -503,11 +826,14 @@ def udif_segments(path) -> list[str]:
         stem = name[:-4] if name.lower().endswith(".dmg") else name
         shown = ", ".join(str(k) for k in missing[:5])
         more = f" and {len(missing) - 5} more" if len(missing) > 5 else ""
+        locked = (f" {len(unopened)} encrypted .dmgpart file"
+                  f"{'s' if len(unopened) != 1 else ''} beside it did not open with the "
+                  f"password given, so could not be matched." if unopened else "")
         raise EwfIncompleteSetError(
             f"{name} is the first of {count} segments and segment {shown}{more} is "
             f"not beside it (hdiutil names them like {stem}.002.dmgpart). Put every "
             f"segment in one folder before opening it; reading only the segments "
-            f"present would report the missing data as empty.")
+            f"present would report the missing data as empty.{locked}")
     return [found[k] for k in range(1, count + 1)]
 
 
@@ -1088,9 +1414,17 @@ class EwfImage:
     ``media_size`` is the size of the disk that was acquired, which is what
     ``seek`` and ``read`` address. The segment files themselves are an
     implementation detail and their sizes are not it.
+
+    ``password`` opens an encrypted Apple disk image; it is used while the image is
+    indexed, to unwrap each file's keys, and is not kept. The unwrapped keys stay
+    in memory while the image is open, since every read needs them.
     """
 
-    def __init__(self, path, segments=None):
+    def __init__(self, path, segments=None, password=None):
+        self._password = password
+        self._keys: dict[str, object] = {}      # path -> _EncrcdsaKey, or None
+        self._band_key = None
+        self.encryption = None
         self._afd = None if segments else _afd_directory(path)
         if segments:
             self.paths = list(segments)
@@ -1144,7 +1478,10 @@ class EwfImage:
 
         self._tables: list[_Table] = []
         self._table_starts: list[int] = []
-        self._index()
+        try:
+            self._index()
+        finally:
+            self._password = None               # every file's keys are unwrapped by now
 
     # -- construction ------------------------------------------------------
 
@@ -1154,11 +1491,22 @@ class EwfImage:
             if len(self._handles) >= MAX_OPEN:
                 _old, stale = self._handles.popitem(last=False)
                 stale.close()
-            fh = open(self.paths[i], "rb")
+            fh = (open(self.paths[i], "rb") if self.encryption is None
+                  else self._content(self.paths[i])[0])
             self._handles[i] = fh
         else:
             self._handles.move_to_end(i)
         return fh
+
+    def _content(self, path):
+        """``path``'s content as (a file object, its size), decrypted when the file is
+        an encrypted Apple disk image; each file is unlocked once."""
+        return _open_content(path, self._password, self._keys)
+
+    def _content_size(self, path):
+        fh, size = self._content(path)
+        fh.close()
+        return size
 
     def _index(self):
         """Walk every segment once and build the chunk offset index."""
@@ -1168,12 +1516,8 @@ class EwfImage:
             with open(self.paths[0], "rb") as fh:
                 magic = fh.read(8)
         if kind == "ENCRYPTED":
-            what = ("an encrypted sparse bundle (its token file holds the encrcdsa "
-                    "header)" if os.path.isdir(self.paths[0]) else
-                    "an encrypted Apple disk image (encrcdsa)")
-            raise EwfFormatError(
-                f"{os.path.basename(self.paths[0])} is {what}; it needs its password "
-                f"and ewfprobe does not read it")
+            self._index_encrypted()
+            return
         if kind == FORMAT_SPARSEBUNDLE:
             self._index_sparsebundle()
             return
@@ -1645,18 +1989,66 @@ class EwfImage:
         self.size = self.media_size
         self.sizes = sizes if sizes is not None else [os.path.getsize(p)
                                                       for p in self.paths]
-        if fmt in (FORMAT_UDIF, FORMAT_SPARSEBUNDLE):
+        if fmt in (FORMAT_UDIF, FORMAT_SPARSEBUNDLE, FORMAT_UDRW):
             self.chunk_size = _APPLE_VIRTUAL_CHUNK
         self.sectors_per_chunk = self.chunk_size // 512
         self.chunk_count = self._needed_chunks()
         self._indexed_chunks = self.chunk_count
 
+    def _index_encrypted(self):
+        """Unlock an encrypted Apple disk image and index what it decrypts to: a UDIF
+        image, a sparse image, or the disk itself (an encrypted read-write image), or,
+        for a sparse bundle, what its bands decrypt to."""
+        path = self.paths[0]
+        name = os.path.basename(path)
+        if os.path.isdir(path):
+            with open(os.path.join(path, "token"), "rb") as fh:
+                self._band_key = _encrcdsa_unlock(fh, name, self._password)
+            self._note_encryption(self._band_key)
+            self._index_sparsebundle()
+            return
+        with open(path, "rb") as fh:
+            version_2 = fh.read(8) == DMG_ENCRYPTED_SIGNATURE
+        if not version_2:                       # apple_image_kind saw a version 1 end
+            raise EwfFormatError(f"{name} is an encrypted Apple disk image in the older "
+                                 f"version 1 format (cdsaencr), which ewfprobe does not "
+                                 f"read")
+        fh, size = self._content(path)
+        self._note_encryption(self._keys[path])
+        with fh:
+            head = fh.read(4)
+            tail = b""
+            if size >= UDIF_TRAILER_SIZE:
+                fh.seek(size - UDIF_TRAILER_SIZE)
+                tail = fh.read(4)
+        if head == SPARSEIMAGE_SIGNATURE:
+            self._index_sparseimage()
+        elif tail == UDIF_TRAILER_SIGNATURE:
+            self._index_udif()
+        else:
+            if size % 512:
+                raise EwfFormatError(f"{name} decrypts to {size:,} bytes, not a whole "
+                                     f"number of 512-byte sectors")
+            self.compression_level = "none"
+            self._apple_finish(size // 512, FORMAT_UDRW)
+
+    def _note_encryption(self, key):
+        self.encryption = {"container": "encrcdsa version 2",
+                           "cipher": f"AES-{key.key_bits}", "key_wrap": key.wrap,
+                           "kdf": "PBKDF2-HMAC-SHA1", "kdf_rounds": key.rounds}
+
+    def _chunk_data_udrw(self, n):
+        want = min(self.chunk_size, self.media_size - n * self.chunk_size)
+        fh = self._handle(0)
+        fh.seek(n * self.chunk_size)
+        return _read_exactly(fh, want)
+
     def _index_udif(self):
         """Read the trailer and the block tables of a UDIF image into runs."""
         path = self.paths[0]
         name = os.path.basename(path)
-        size = os.path.getsize(path)
-        trailer = _udif_trailer(path)
+        size = self._content_size(path)
+        trailer = _udif_trailer(path, self._password, self._keys)
         if trailer is None:
             raise EwfFormatError(f"{name} has no UDIF trailer")
         (_sig, version, header_size, flags, running, fork_offset, fork_size,
@@ -1666,7 +2058,7 @@ class EwfImage:
             raise EwfFormatError(f"{name}: the UDIF trailer says it is {header_size} "
                                  f"bytes, not {UDIF_TRAILER_SIZE}")
         if segment_number > 1:
-            udif_segments(path)                 # raises, naming the file to open
+            udif_segments(path, self._password, self._keys)  # raises, naming the file
         if fork_offset + fork_size > size - UDIF_TRAILER_SIZE:
             raise EwfIncompleteSetError(
                 f"{name}: the data the trailer describes runs past the end of the file; "
@@ -1685,12 +2077,13 @@ class EwfImage:
             if running:
                 raise EwfFormatError(f"{name}: the first segment says its data starts "
                                      f"at {running} in the image's data, not at 0")
-            self.paths = udif_segments(path)
+            self.paths = udif_segments(path, self._password, self._keys)
             joined = 0
             for index, part in enumerate(self.paths):
                 part_name = os.path.basename(part)
-                part_size = os.path.getsize(part)
-                t = trailer if index == 0 else _udif_trailer(part)
+                part_size = self._content_size(part)
+                t = trailer if index == 0 else _udif_trailer(part, self._password,
+                                                             self._keys)
                 (_s, _v, part_header, _f, part_running, part_offset, part_fork,
                  _ro, _rs, _n, _c) = _UDIF_TRAILER.unpack_from(t)
                 if part_header != UDIF_TRAILER_SIZE:
@@ -1908,7 +2301,8 @@ class EwfImage:
         path = self.paths[0]
         name = os.path.basename(path)
         fh = self._handle(0)
-        size = os.path.getsize(path)
+        size = self._content_size(path)
+        fh.seek(0)
         head = _read_exactly(fh, _SPARSE_HEADER_SIZE)
         version, per_band, _unknown, low = struct.unpack_from(">IIII", head, 4)
         following, sectors = struct.unpack_from(">QQ", head, 20)
@@ -2004,6 +2398,10 @@ class EwfImage:
             if number >= count:
                 beyond.append(entry)
                 continue
+            if self._band_key is not None and length % self._band_key.block:
+                raise EwfIncompleteSetError(
+                    f"{name}: band file {entry} ends inside an encrypted block of "
+                    f"{self._band_key.block} bytes; the file is cut short")
             if length > band:
                 oversized.append(entry)
             bands[number] = (entry, min(length, band))
@@ -2030,7 +2428,14 @@ class EwfImage:
             if len(self._band_handles) >= MAX_OPEN:
                 _old, stale = self._band_handles.popitem(last=False)
                 stale.close()
-            fh = open(os.path.join(self.paths[0], "bands", self._bands[number][0]), "rb")
+            entry = self._bands[number][0]
+            path = os.path.join(self.paths[0], "bands", entry)
+            if self._band_key is None:
+                fh = open(path, "rb")
+            else:
+                # each band is encrypted on its own, its block numbers from 0
+                fh = _EncryptedFile(path, self._band_key, 0, os.path.getsize(path),
+                                    f"band {entry} of {os.path.basename(self.paths[0])}")
             self._band_handles[number] = fh
         else:
             self._band_handles.move_to_end(number)
@@ -2295,6 +2700,8 @@ class EwfImage:
             return self._keep(n, self._chunk_data_sparse(n), want)
         if self.format == FORMAT_SPARSEBUNDLE:
             return self._keep(n, self._chunk_data_bundle(n), want)
+        if self.format == FORMAT_UDRW:
+            return self._keep(n, self._chunk_data_udrw(n), want)
 
         segment, start, end, compressed = self._chunk_location(n)
         fh = self._handle(segment)
@@ -2493,15 +2900,18 @@ class EwfImage:
                 for part in self.udif["partitions"]],
             "stored_bands": len(self._bands) if self.format == FORMAT_SPARSEIMAGE else None,
             "sparsebundle": None if self.sparsebundle is None else dict(self.sparsebundle),
+            "encryption": None if self.encryption is None else dict(self.encryption),
         }
 
 
-def open_ewf(path, segments=None) -> EwfImage:
+def open_ewf(path, segments=None, password=None) -> EwfImage:
     """Open an acquisition ewfprobe reads: an EWF, EWF2 or L01 set from any path in
     it, an AFF file, an AFD directory from the directory or any file in it, an Apple
     .dmg (a segmented one from its .dmg) or .sparseimage, or a sparse bundle from its
-    folder."""
-    return EwfImage(path, segments=segments)
+    folder. An encrypted Apple disk image opens with ``password`` (a str, used as
+    UTF-8, or bytes); without one it raises EwfPasswordRequiredError, and with one
+    that does not open it EwfWrongPasswordError."""
+    return EwfImage(path, segments=segments, password=password)
 
 
 open_image = open_ewf
@@ -2518,8 +2928,50 @@ def _size(n):
     return f"{v} B"
 
 
+def _cli_password(args):
+    """The password the command line names, from a file or an environment variable,
+    else None. Never an argument's value: that would show in the process list and in
+    shell history."""
+    if args.password_file:
+        try:
+            with open(args.password_file, "rb") as fh:
+                line = fh.read().split(b"\n", 1)[0]
+        except OSError as exc:
+            raise EwfFormatError(f"the password file could not be read: "
+                                 f"{exc.strerror or exc}") from None
+        return line[:-1] if line.endswith(b"\r") else line
+    if args.password_env:
+        if args.password_env not in os.environ:
+            raise EwfFormatError(f"the environment variable {args.password_env} is not set")
+        return os.environ[args.password_env]
+    return None
+
+
+def _open_cli(args):
+    """open_ewf for a command: an encrypted image opens with the password given by
+    --password-file or --password-env, or, at a terminal, one asked for (three
+    tries)."""
+    password = _cli_password(args)
+    asked = 0
+    while True:
+        try:
+            return open_ewf(args.image, password=password)
+        except EwfPasswordError as exc:
+            given = args.password_file or args.password_env
+            if given or not sys.stdin.isatty() or asked == 3:
+                if isinstance(exc, EwfPasswordRequiredError) and not given:
+                    raise EwfPasswordRequiredError(
+                        f"{exc}; give it with --password-file or --password-env, or run "
+                        f"ewfprobe at a terminal to be asked for it") from None
+                raise
+            if isinstance(exc, EwfWrongPasswordError):
+                print("ewfprobe: that password does not open the image", file=sys.stderr)
+            asked += 1
+            password = getpass.getpass(f"password for {os.path.basename(args.image)}: ")
+
+
 def _cmd_info(args):
-    with open_ewf(args.image) as img:
+    with _open_cli(args) as img:
         d = img.info()
         print(f"image           {os.path.basename(args.image)}")
         print(f"segments        {d['segment_count']} ({d['segments'][0]}"
@@ -2577,6 +3029,8 @@ def _cmd_info(args):
                         print(f"  {len(b[key]):,} {text}: {names}{more}")
                 if b["backup_matches"] is False:
                     print("Info.bckup      differs from Info.plist; Info.plist was used")
+            elif d["format"] == FORMAT_UDRW:
+                pass                            # the disk itself: no chunks or bands
             else:
                 unit = "page size " if d["format"] in (FORMAT_AFF, FORMAT_AFD) else "chunk size"
                 print(f"{unit}      {d['chunk_size']:,} bytes "
@@ -2589,6 +3043,10 @@ def _cmd_info(args):
         if d["missing_page_count"]:
             print(f"missing pages   {d['missing_page_count']:,}, read as the "
                   f"bad-sector marker")
+        if d["encryption"]:
+            e = d["encryption"]
+            print(f"encryption      {e['cipher']}, {e['container']}; key wrapped with "
+                  f"{e['key_wrap']}, {e['kdf']}, {e['kdf_rounds']:,} rounds")
         for name, value in d["stored_hashes"].items():
             print(f"stored {name:<9}{value}")
         if d["metadata"]:
@@ -2607,7 +3065,7 @@ def _progress(done, total):
 
 
 def _cmd_verify(args):
-    with open_ewf(args.image) as img:
+    with _open_cli(args) as img:
         result = img.verify(progress=None if args.quiet else _progress)
         if not args.quiet:
             sys.stderr.write("\r" + " " * 48 + "\r")
@@ -2655,7 +3113,7 @@ def _shown(text):
 
 
 def _cmd_files(args):
-    with open_ewf(args.image) as img:
+    with _open_cli(args) as img:
         if img.format != FORMAT_L01:
             raise EwfFormatError(f"{os.path.basename(args.image)} is a disk image, not "
                                  f"logical evidence; it holds no entry list")
@@ -2673,7 +3131,7 @@ def _cmd_files(args):
 def _cmd_export(args):
     if args.entry is not None:
         return _export_entry(args)
-    with open_ewf(args.image) as img:
+    with _open_cli(args) as img:
         total = img.media_size
         img.seek(args.offset)
         remaining = total - args.offset if args.length is None else args.length
@@ -2698,7 +3156,7 @@ def _cmd_export(args):
 
 
 def _export_entry(args):
-    with open_ewf(args.image) as img:
+    with _open_cli(args) as img:
         with img.open_entry(img.find_entry(args.entry)) as fh:
             out = sys.stdout.buffer if args.output == "-" else open(args.output, "wb")
             try:
@@ -2747,6 +3205,14 @@ def main(argv=None):
     s.add_argument("-q", "--quiet", action="store_true", help="no progress output")
     s.set_defaults(func=_cmd_export)
 
+    for s in sub.choices.values():
+        s.add_argument("--password-file", metavar="FILE", default=None,
+                       help="for an encrypted Apple disk image: read its password from "
+                            "the first line of FILE")
+        s.add_argument("--password-env", metavar="NAME", default=None,
+                       help="for an encrypted Apple disk image: take its password from "
+                            "the environment variable NAME. Without either, ewfprobe "
+                            "asks for it at a terminal")
     args = ap.parse_args(argv)
     try:
         status = args.func(args)

@@ -18,7 +18,7 @@ import leapp_functions.app.history as history
 from shutil import copy2
 from getpass import getpass
 from scripts.search_files import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from scripts.raw_image import FileSeekerRaw
+from scripts.raw_image import FileSeekerRaw, cli_image_password
 from scripts.ilapfuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from leapp_functions.app.output import validate_output_folder_available
 from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
@@ -200,6 +200,13 @@ def main():
     parser.add_argument('-o', '--output_path', required=False, action="store",
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
+    parser.add_argument('--image_password_file', required=False, action="store",
+                        help='For an encrypted Apple disk image (-t raw): read its password '
+                             'from the first line of this file')
+    parser.add_argument('--image_password_env', required=False, action="store",
+                        help='For an encrypted Apple disk image (-t raw): take its password '
+                             'from this environment variable. Without either, it is asked '
+                             'for at a terminal')
     parser.add_argument('-tz', '--timezone', required=False, action="store", default='UTC', type=str, help="Timezone name (e.g., 'America/New_York')")
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
                         help='Do not wrap text for output of data files')
@@ -371,6 +378,17 @@ def main():
         if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
+    # An encrypted Apple disk image opens only with its password: from a file or an
+    # environment variable, or asked for at a terminal, and checked before the run.
+    image_password = None
+    if extracttype == 'raw':
+        try:
+            image_password = cli_image_password(input_path, args.image_password_file,
+                                                args.image_password_env)
+        except ValueError as exc:
+            print(exc)
+            return
+
     out_params = OutputParameters(output_path, custom_output_folder)
     Context.set_output_params(out_params)
 
@@ -381,7 +399,7 @@ def main():
     history.record_output_path(output_path)
 
     crunch_successful = crunch_artifacts(selected_plugins, extracttype, input_path, out_params, wrap_text, loader, casedata, time_offset,
-        profile_filename, itunes_backup_password)
+        profile_filename, itunes_backup_password, image_password=image_password)
 
     lava_finalize_output(out_params.output_folder_base)
     if crunch_successful:
@@ -391,7 +409,8 @@ def main():
 
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
-        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, itunes_backup_password=None, decryption_keys=None):
+        loader: plugin_loader.PluginLoader, casedata, time_offset, profile_filename, itunes_backup_password=None, decryption_keys=None,
+        image_password=None):
     start = process_time()
     start_wall = perf_counter()
 
@@ -419,7 +438,7 @@ def crunch_artifacts(
             seeker = FileSeekerZip(input_path, out_params.data_folder)
 
         elif extracttype == 'raw':
-            seeker = FileSeekerRaw(input_path, out_params.data_folder)
+            seeker = FileSeekerRaw(input_path, out_params.data_folder, password=image_password)
 
         elif extracttype == 'itunes':
             itunes_backup_type = get_itunes_backup_type(input_path)
