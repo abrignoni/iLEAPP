@@ -43,7 +43,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.38"
+QNXPROBE_VERSION = "1.39"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -154,6 +154,12 @@ EWF2_SIGNATURE = b"EVF2\x0d\x0a\x81\x00"        # EWF2-Ex01
 AFF_SIGNATURE  = b"AFF10\x0d\x0a\x00"           # AFF, and every file of an AFD
 L01_SIGNATURE  = b"LVF\x09\x0d\x0a\xff\x00"     # EnCase logical evidence (L01)
 LX01_SIGNATURE = b"LEF2\x0d\x0a\x81\x00"        # EWF2 logical evidence (Lx01)
+# Apple disk images. A UDIF image (.dmg) ends in a 512-byte trailer beginning
+# "koly"; an uncompressed read-write image has none and is plain disk bytes, read
+# as raw. A sparse image begins "sprs", an encrypted one "encrcdsa".
+UDIF_TRAILER = b"koly"
+SPARSEIMAGE_SIGNATURE = b"sprs"
+DMG_ENCRYPTED_SIGNATURE = b"encrcdsa"
 
 # What each container is called in a message, by acquisition_format()'s label.
 _ACQUISITION_NAMES = {
@@ -161,6 +167,8 @@ _ACQUISITION_NAMES = {
     "EWF2": "an EWF2 acquisition (.Ex01)",
     "AFF": "an AFF acquisition (.aff)",
     "AFD": "an AFD acquisition (a .afd folder of AFF files)",
+    "UDIF": "an Apple disk image (.dmg)",
+    "SPARSEIMAGE": "an Apple sparse image (.sparseimage)",
 }
 
 
@@ -185,8 +193,9 @@ def _afd_folder(path):
 
 
 def acquisition_format(path):
-    """What acquisition container path is: "EWF", "EWF2", "AFF", "AFD", "L01" or
-    "Lx01", or None for anything else, which is read as a raw image.
+    """What acquisition container path is: "EWF", "EWF2", "AFF", "AFD", "UDIF",
+    "SPARSEIMAGE", "L01", "Lx01" or "DMG_ENCRYPTED", or None for anything else,
+    which is read as a raw image.
 
     An AFD is a folder whose name ends .afd holding AFF files, the form AFFLIB
     writes when an image is split; it is recognised from the folder or from any
@@ -215,6 +224,19 @@ def acquisition_format(path):
         return "L01"
     if head == LX01_SIGNATURE:
         return "Lx01"
+    if head == DMG_ENCRYPTED_SIGNATURE:
+        return "DMG_ENCRYPTED"
+    if head[:4] == SPARSEIMAGE_SIGNATURE:
+        return "SPARSEIMAGE"
+    try:
+        size = os.path.getsize(path)
+        if size >= 512:
+            with open(path, "rb") as fh:
+                fh.seek(size - 512)
+                if fh.read(4) == UDIF_TRAILER:
+                    return "UDIF"
+    except OSError:
+        return None
     return None
 
 
@@ -432,6 +454,11 @@ def open_image(path, segments=None):
             f"{name} is EnCase logical evidence ({kind}): it holds copies of "
             f"files, not a disk, so there is no partition table or filesystem "
             f"in it to read. For its files, {reader}.")
+    if kind == "DMG_ENCRYPTED":
+        raise ImageUnreadable(
+            f"{name} is an encrypted Apple disk image (encrcdsa); it needs its "
+            f"password. Attach it on a Mac with the password and image the result, "
+            f"or convert it with hdiutil convert.")
     if kind:
         if ewfprobe is None:
             raise ImageUnreadable(
@@ -457,6 +484,8 @@ _ACQUISITION_LABELS = {
     "EWF2-Ex01": "an EWF2 (Ex01) acquisition",
     "AFF": "an AFF acquisition",
     "AFD": "an AFD acquisition",
+    "UDIF": "an Apple disk image",
+    "SPARSEIMAGE": "an Apple sparse image",
 }
 
 
@@ -466,7 +495,7 @@ def describe_acquisition(image):
     parts = list(getattr(image, "paths", []) or [])
     fmt = getattr(image, "format", None)
     label = _ACQUISITION_LABELS.get(fmt, "an acquisition")
-    unit = "files" if fmt in ("AFF", "AFD") else "segments"
+    unit = "files" if fmt in ("AFF", "AFD", "UDIF", "SPARSEIMAGE") else "segments"
     if len(parts) > 1:
         return (f"{label} of {len(parts)} {unit}, joined by the reader: "
                 f"{os.path.basename(parts[0])} .. {os.path.basename(parts[-1])}")
@@ -12387,6 +12416,9 @@ def self_test():
             "AFF_SIGNATURE": (AFF_SIGNATURE, b"AFF10\r\n\x00"),
             "L01_SIGNATURE": (L01_SIGNATURE, b"LVF\t\r\n\xff\x00"),
             "LX01_SIGNATURE": (LX01_SIGNATURE, b"LEF2\r\n\x81\x00"),
+            "UDIF_TRAILER": (UDIF_TRAILER, b"koly"),
+            "SPARSEIMAGE_SIGNATURE": (SPARSEIMAGE_SIGNATURE, b"sprs"),
+            "DMG_ENCRYPTED_SIGNATURE": (DMG_ENCRYPTED_SIGNATURE, b"encrcdsa"),
         }
         for const, (have, want) in TRUE_SIGS.items():
             if have != want:
@@ -12413,6 +12445,11 @@ def self_test():
         os.makedirs(empty_afd, exist_ok=True)
         l01_fake = _fake("fake.L01", TRUE_SIGS["L01_SIGNATURE"][1])
         lx01_fake = _fake("fake.Lx01", TRUE_SIGS["LX01_SIGNATURE"][1])
+        dmg_fake = os.path.join(d, "fake.dmg")      # a trailer and nothing valid before it
+        with open(dmg_fake, "wb") as fh:
+            fh.write(b"\x00" * 4096 + TRUE_SIGS["UDIF_TRAILER"][1] + b"\x00" * 508)
+        sparse_fake = _fake("fake.sparseimage", TRUE_SIGS["SPARSEIMAGE_SIGNATURE"][1])
+        enc_fake = _fake("enc.dmg", TRUE_SIGS["DMG_ENCRYPTED_SIGNATURE"][1])
 
         def _refusal(path, reader):
             """The ImageUnreadable message open_image gives with or without the
@@ -12458,7 +12495,18 @@ def self_test():
                      for q in (l01_fake, lx01_fake) for r in (None, saved_reader))),
                 ("with the reader present a damaged Ex01 or AFF is refused by it",
                  saved_reader is None or (_ewf_refused_by_reader(ex01_fake)
-                                          and _ewf_refused_by_reader(aff_fake)))):
+                                          and _ewf_refused_by_reader(aff_fake))),
+                ("an Apple disk image is named by its trailer or its header",
+                 [acquisition_format(q) for q in (dmg_fake, sparse_fake, enc_fake)]
+                 == ["UDIF", "SPARSEIMAGE", "DMG_ENCRYPTED"]),
+                ("a .dmg or .sparseimage is never opened as raw bytes",
+                 not any(_opened_as_raw(q) for q in (dmg_fake, sparse_fake))),
+                ("without the vendored reader a .dmg is refused, saying what is missing",
+                 all("ewfprobe" in (_refusal(q, None) or "")
+                     for q in (dmg_fake, sparse_fake))),
+                ("an encrypted Apple disk image is refused, with or without the reader",
+                 all("encrypted Apple disk image" in (_refusal(enc_fake, r) or "")
+                     for r in (None, saved_reader)))):
             if not cond:
                 ok = False
             print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
