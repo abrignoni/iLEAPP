@@ -16,6 +16,13 @@ Every finding here has shipped in a merged artifact at least once:
                      case is a basename split on the wrong path separator.
   sparse-lead        the first column is a timestamp that is empty on most rows, so the
                      table leads with a blank and sorts on nothing.
+  source-column      a Source File, Source Path, Source Folder or Source Database column
+                     that another column already separates: every value of the other column
+                     sits beside one source, every source beside one value, and every source
+                     holds at least two rows. The report's located-at line and the LAVA
+                     source_path already name every file read, so the column repeats what the
+                     other one says. A match on one image can be a coincidence, so read the
+                     artifact before removing anything.
 
 A finding is NOT reported when the artifact's own notes address that finding: a sentence
 naming the column (or, for identical-columns, both columns) and saying what this check
@@ -48,6 +55,7 @@ REPORT_DIR is a report folder, the one holding "_TSV Exports". Exits 0 unless --
 
 import argparse
 import ast
+import collections
 import csv
 import glob
 import os
@@ -58,6 +66,9 @@ MIN_ROWS_FOR_CONSTANT = 3
 SPARSE_LEAD_FRACTION = 0.5
 # Columns that are bookkeeping rather than findings.
 IGNORED = {'source file', 'source files', 'source path', 'source paths'}
+# A column that names the file a row came from. A bare "Source" is left out: it is often a
+# data field (the app or sensor a record came from), not bookkeeping.
+SOURCE_COLUMN = re.compile(r'^source\s*(?:file|path|folder|db|database)s?$', re.I)
 # A header often carries a qualifier the prose does not repeat, so a note saying
 # "Disappearing TTL was empty" should silence a column headed "Disappearing TTL (as stored)".
 QUALIFIER = re.compile(r'\s*\((?:as stored|seconds|utc|local)[^)]*\)\s*$', re.I)
@@ -77,6 +88,11 @@ SHAPES = {
         r'(?:on|across|for) (?:all|every)\s+[\d,]*\s*rows?|every row|all rows', re.I),
     'identical-columns': re.compile(
         r'identical|the same|same as|duplicat|copy of|copies|mirror|equal|matches', re.I),
+    'source-column': re.compile(
+        r'identif|which (?:file|database|store|copy|profile|account)|more than one|'
+        r'second (?:copy|user|profile|account|database|file|store)|'
+        r'per (?:user|profile|account|copy|file|database|store)|separat|distinguish|apart|'
+        r'not unique|coinciden', re.I),
 }
 
 # Split on sentence enders and on a newline, so one bullet cannot borrow its neighbour's
@@ -190,6 +206,49 @@ def looks_like_a_time(values):
     return False
 
 
+def separates(values, files):
+    """Whether a column pairs one to one with the files: one value per file, one file per value.
+
+    A blank value does not identify anything, and a rendered time that happens to differ
+    per file is a property of that image rather than a name for the file, so neither counts.
+    """
+    if any(v == '' for v in values) or looks_like_a_time(values):
+        return False
+    file_of, value_of = {}, {}
+    for value, name in zip(values, files):
+        if file_of.setdefault(value, name) != name or value_of.setdefault(name, value) != value:
+            return False
+    return True
+
+
+def source_column_findings(columns, series, notes):
+    """The source-column findings for one artifact's export."""
+    findings = []
+    total = len(next(iter(series.values()), []))
+    for source in columns:
+        if not SOURCE_COLUMN.match(QUALIFIER.sub('', source).strip()):
+            continue
+        files = series[source]
+        per_file = collections.Counter(files)
+        # Two files at least, each on two rows at least: a value that holds across the
+        # rows of every file is evidence, one that pairs with a single row is not.
+        if len(set(files) - {''}) < 2 or min(per_file.values()) < 2:
+            continue
+        separating = [other for other in columns
+                      if other != source and separates(series[other], files)]
+        if not separating:
+            continue
+        if any(documented(notes, 'source-column', source, other) for other in separating):
+            continue
+        names = ', '.join(repr(other) for other in separating[:3])
+        message = (f'{source!r} names {len(set(files))} files on {total} rows, and {names} '
+                   f'already separate{"s" if len(separating) == 1 else ""} them one to one')
+        if any(named_in(notes, source, other) for other in separating):
+            message += ' (the notes name it, but not as this finding)'
+        findings.append(('source-column', message))
+    return findings
+
+
 def check_table(columns, rows, notes):
     """The findings for one artifact's export."""
     findings = []
@@ -232,6 +291,8 @@ def check_table(columns, rows, notes):
                 record('identical-columns',
                        f'{first!r} and {second!r} are identical on all {total} rows',
                        first, second)
+
+    findings.extend(source_column_findings(columns, series, notes))
 
     lead = columns[0] if columns else ''
     if lead and lead.lower() not in IGNORED:
