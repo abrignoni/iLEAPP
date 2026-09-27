@@ -87,12 +87,18 @@ __artifacts_v2__ = {
                        "(one store per source application).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
                  "Documents which intent phrases installed apps registered with the system."
-                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
+                 " The Modified column comes from the store's instance table, "
+                 "or metacontent_provenance.written_date on stores without one (observed on iOS "
+                 "26). Source App is the sourceIdentifier folder name the Set.db sits under, and "
+                 "each such folder holds one Database/Set.db. On the five registered images that "
+                 "carry these stores (dexter_ios18, hc_ios18_7, iphone12_ios18, hc_ios26 and "
+                 "falken_ios26) no Source App had a second store, so the report's located-at line "
+                 "names the file each row came from.",
         "paths": ('*/Biome/sets/Default/App.Shortcut.Phrase/*/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -108,11 +114,17 @@ __artifacts_v2__ = {
                        "Biome Set.db stores (can include user content names such as note titles and board names).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
-                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
+                 " The Modified column comes from the store's instance table, "
+                 "or metacontent_provenance.written_date on stores without one (observed on iOS "
+                 "26). Source App is the sourceIdentifier folder name the Set.db sits under, and "
+                 "each such folder holds one Database/Set.db. On the five registered images that "
+                 "carry these stores (dexter_ios18, hc_ios18_7, iphone12_ios18, hc_ios26 and "
+                 "falken_ios26) no Source App had a second store, so the report's located-at line "
+                 "names the file each row came from.",
         "paths": ('*/Biome/sets/Default/App.Shortcut.Entity/*/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "database",
@@ -289,8 +301,7 @@ def biomeSetsSignificantLocations(context):
 
 @artifact_processor
 def biomeSetsShortcutPhrases(context):
-    data_headers = (('Modified', 'datetime'), 'Source App', 'Phrase', 'Phrase Template', 'Intent URL',
-                    'Source File')
+    data_headers = (('Modified', 'datetime'), 'Source App', 'Phrase', 'Phrase Template', 'Intent URL')
     data_list = []
     source_paths = set()
     for file_found in context.get_files_found():
@@ -301,14 +312,14 @@ def biomeSetsShortcutPhrases(context):
         source_app = _source_app(file_found)
         for modified, message in _set_records(file_found):
             data_list.append((modified, source_app, _text(message, '1'), _text(message, '2'),
-                              _text(message, '4'), context.get_relative_path(file_found)))
+                              _text(message, '4')))
     return data_headers, data_list, '\n'.join(sorted(source_paths))
 
 
 @artifact_processor
 def biomeSetsShortcutEntities(context):
     data_headers = (('Modified', 'datetime'), 'Source App', 'Entity Name', 'Entity Identifier', 'Entity Type',
-                    'Query Provider', 'Source File')
+                    'Query Provider')
     data_list = []
     source_paths = set()
     for file_found in context.get_files_found():
@@ -319,6 +330,5 @@ def biomeSetsShortcutEntities(context):
         source_app = _source_app(file_found)
         for modified, message in _set_records(file_found):
             data_list.append((modified, source_app, _text(message, '1'), _text(message, '2'),
-                              _text(message, '3'), _text(message, '4'),
-                              context.get_relative_path(file_found)))
+                              _text(message, '3'), _text(message, '4')))
     return data_headers, data_list, '\n'.join(sorted(source_paths))
