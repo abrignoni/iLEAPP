@@ -3,8 +3,9 @@
 For maintainers, and shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP.
 
 `-t raw` takes a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001`
-segment of a split set) or an EnCase/EWF acquisition (`.E01` and its segments)
-and reads it in place: no mounting, no administrator rights, and no copy of the
+segment of a split set) or an acquisition (EnCase/EWF `.E01`, SMART `.s01`, EWF2
+`.Ex01`, AFF `.aff`, or an AFD folder of AFF files, each with its segments or
+files) and reads it in place: no mounting, no administrator rights, and no copy of the
 image or of its files anywhere but the files an artifact asks for. Its NTFS,
 FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2,
 UBI/UBIFS, YAFFS and QNX IFS volumes are searched directly, on disks of 512-byte
@@ -27,12 +28,14 @@ or a 4Kn drive, has its partitions counted in 4096-byte sectors.
   extensions onto `raw` and lists them in the file dialog.
 - `admin/test/scripts/test_raw_image_seeker.py` checks staged bytes against
   independent hash lists over the fixtures in `admin/test/data/raw_images/`,
-  including an E01 set and a split set built at test time.
+  including an E01 set, an AFF file, an AFD folder and a split set built at test
+  time, and an L01 that must be refused.
 
 ## How it reads
 
 `FileSeekerRaw` opens the image through the reader's `open_image()` (which joins
-a split set and reads an EWF set), asks `volumes()` for every volume the reader's
+a split set, reads an EWF, EWF2, AFF or AFD acquisition, and refuses EnCase L01
+logical evidence, which holds files rather than a disk), asks `volumes()` for every volume the reader's
 own report would name, walks each readable volume once for its directory tree,
 and offers the run a member list in the shape the zip seeker offers: one name per
 file and one per directory (with a trailing slash), each prefixed by the volume's

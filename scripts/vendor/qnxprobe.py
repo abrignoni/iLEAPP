@@ -43,7 +43,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.37"
+QNXPROBE_VERSION = "1.38"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -145,7 +145,77 @@ class ImageUnreadable(Exception):
     """This tool cannot open the image, and the message says why."""
 
 
-EWF_SIGNATURE = b"EVF\x09\x0d\x0a\xff\x00"
+# The first eight bytes of each acquisition container the vendored ewfprobe
+# knows, as libewf and AFFLIB write them. They are checked here rather than in
+# ewfprobe so an acquisition is still recognised, and refused with a useful
+# message, when the reader is absent.
+EWF_SIGNATURE  = b"EVF\x09\x0d\x0a\xff\x00"     # EWF-E01, and SMART .s01
+EWF2_SIGNATURE = b"EVF2\x0d\x0a\x81\x00"        # EWF2-Ex01
+AFF_SIGNATURE  = b"AFF10\x0d\x0a\x00"           # AFF, and every file of an AFD
+L01_SIGNATURE  = b"LVF\x09\x0d\x0a\xff\x00"     # EnCase logical evidence (L01)
+LX01_SIGNATURE = b"LEF2\x0d\x0a\x81\x00"        # EWF2 logical evidence (Lx01)
+
+# What each container is called in a message, by acquisition_format()'s label.
+_ACQUISITION_NAMES = {
+    "EWF": "an EnCase/EWF acquisition (.E01, or SMART .s01)",
+    "EWF2": "an EWF2 acquisition (.Ex01)",
+    "AFF": "an AFF acquisition (.aff)",
+    "AFD": "an AFD acquisition (a .afd folder of AFF files)",
+}
+
+
+def _first_bytes(path, n=8):
+    try:
+        with open(path, "rb") as fh:
+            return fh.read(n)
+    except OSError:
+        return b""
+
+
+def _afd_folder(path):
+    """The .afd folder path names, as the folder itself or as an .aff file in
+    it, the same rule ewfprobe opens a whole AFD by."""
+    full = os.path.abspath(path)
+    if os.path.isdir(full):
+        return full if full.lower().endswith(".afd") else None
+    parent = os.path.dirname(full)
+    if full.lower().endswith(".aff") and parent.lower().endswith(".afd"):
+        return parent
+    return None
+
+
+def acquisition_format(path):
+    """What acquisition container path is: "EWF", "EWF2", "AFF", "AFD", "L01" or
+    "Lx01", or None for anything else, which is read as a raw image.
+
+    An AFD is a folder whose name ends .afd holding AFF files, the form AFFLIB
+    writes when an image is split; it is recognised from the folder or from any
+    AFF file in it, because one file holds only some of the image. L01 and Lx01
+    are logical evidence: they hold copies of files, not a disk.
+    """
+    if os.path.isdir(path):
+        folder = _afd_folder(path)
+        try:
+            names = os.listdir(folder) if folder else []
+        except OSError:
+            return None
+        if any(n.lower().endswith(".aff")
+               and _first_bytes(os.path.join(folder, n)) == AFF_SIGNATURE
+               for n in names):
+            return "AFD"
+        return None
+    head = _first_bytes(path)
+    if head == EWF_SIGNATURE:
+        return "EWF"
+    if head == EWF2_SIGNATURE:
+        return "EWF2"
+    if head == AFF_SIGNATURE:
+        return "AFD" if _afd_folder(path) else "AFF"
+    if head == L01_SIGNATURE:
+        return "L01"
+    if head == LX01_SIGNATURE:
+        return "Lx01"
+    return None
 
 
 def _ewf_refused_by_reader(path):
@@ -163,16 +233,13 @@ def _ewf_refused_by_reader(path):
 
 
 def looks_like_ewf(path):
-    """True when the file begins with the EWF signature.
+    """True when the file begins with the EWF (.E01, SMART .s01) or EWF2 (.Ex01)
+    signature: a set whose segments ewfprobe.ewf_segments names.
 
-    Checked here rather than in ewfprobe so an .E01 is still recognised, and
-    refused with a useful message, when the vendored reader is absent.
+    AFF and AFD are acquisitions too, but not EWF sets, so they are not answered
+    here; acquisition_format() names every container open_image() reads.
     """
-    try:
-        with open(path, "rb") as fh:
-            return fh.read(8) == EWF_SIGNATURE
-    except OSError:
-        return False
+    return acquisition_format(path) in ("EWF", "EWF2")
 
 
 class SplitImageError(Exception):
@@ -353,21 +420,57 @@ def open_image(path, segments=None):
     """Open an image read-only: the one file, or every segment of the split
     image it belongs to, joined. segments is split_segments(path) when the
     caller already has it."""
-    if looks_like_ewf(path):
+    kind = acquisition_format(path)
+    name = os.path.basename(os.path.normpath(path))
+    if kind in ("L01", "Lx01"):
+        # Read as raw bytes this would hold no partition table and no
+        # filesystem, and the run would report an empty disk.
+        reader = ("ewfprobe lists and exports them (ewfprobe.py files, "
+                  "ewfprobe.py export --entry)" if kind == "L01" else
+                  "the vendored ewfprobe does not read Lx01")
+        raise ImageUnreadable(
+            f"{name} is EnCase logical evidence ({kind}): it holds copies of "
+            f"files, not a disk, so there is no partition table or filesystem "
+            f"in it to read. For its files, {reader}.")
+    if kind:
         if ewfprobe is None:
             raise ImageUnreadable(
-                f"{os.path.basename(path)} is an EnCase/EWF (.E01) acquisition. "
+                f"{name} is {_ACQUISITION_NAMES[kind]}. "
                 f"Reading one needs ewfprobe.py beside this script; it is "
                 f"normally vendored here (see vendored.json) and is missing. "
                 f"Export the image to raw, or put ewfprobe.py back.")
-        # ewfprobe joins the segments of the set itself, from the format's own
-        # records rather than from the file names, and refuses an incomplete set.
+        # ewfprobe joins the segments or files of the set itself, from the
+        # format's own records rather than from the file names, and refuses an
+        # incomplete set.
         return ewfprobe.open_ewf(path)
     if segments is None:
         segments = split_segments(path)
     if segments:
         return SegmentedImage(segments)
     return open(path, "rb")
+
+
+# The container ewfprobe reports, by its format label, as a run describes it.
+_ACQUISITION_LABELS = {
+    "EWF-E01": "an EWF acquisition",
+    "EWF-S01": "a SMART (EWF-S01) acquisition",
+    "EWF2-Ex01": "an EWF2 (Ex01) acquisition",
+    "AFF": "an AFF acquisition",
+    "AFD": "an AFD acquisition",
+}
+
+
+def describe_acquisition(image):
+    """'an EWF acquisition of 3 segments, joined by the reader: x.E01 .. x.E03'
+    for an image open_image() handed to ewfprobe."""
+    parts = list(getattr(image, "paths", []) or [])
+    fmt = getattr(image, "format", None)
+    label = _ACQUISITION_LABELS.get(fmt, "an acquisition")
+    unit = "files" if fmt in ("AFF", "AFD") else "segments"
+    if len(parts) > 1:
+        return (f"{label} of {len(parts)} {unit}, joined by the reader: "
+                f"{os.path.basename(parts[0])} .. {os.path.basename(parts[-1])}")
+    return f"{label} of one {unit[:-1]}"
 
 
 def describe_segment_sizes(sizes):
@@ -9994,12 +10097,8 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
         print(f"  one segment of a split image: {len(segments)} segments joined, "
               f"{os.path.basename(segments[0])} .. {os.path.basename(segments[-1])}")
         print(f"    {describe_segment_sizes(image.sizes)}")
-    elif len(ewf_parts) > 1:
-        print(f"  an EWF acquisition of {len(ewf_parts)} segments, joined by the "
-              f"reader: {os.path.basename(ewf_parts[0])} .. "
-              f"{os.path.basename(ewf_parts[-1])}")
     elif ewf_parts:
-        print("  an EWF acquisition of one segment")
+        print(f"  {describe_acquisition(image)}")
     print(f"  {size:,} bytes ({human(size)})")
     print("=" * 78)
     # what volumes.json ties each volume to: the one file, or the first
@@ -12276,6 +12375,90 @@ def self_test():
                 ("with the reader present a damaged acquisition is refused by "
                  "it, not read",
                  saved_reader is None or _ewf_refused_by_reader(ewf_fake))):
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
+        # The other containers ewfprobe reads, and the logical evidence it
+        # does not hand over as a disk. As above, every signature is written out
+        # again from the format sources rather than taken from the constants.
+        TRUE_SIGS = {
+            "EWF2_SIGNATURE": (EWF2_SIGNATURE, b"EVF2\r\n\x81\x00"),
+            "AFF_SIGNATURE": (AFF_SIGNATURE, b"AFF10\r\n\x00"),
+            "L01_SIGNATURE": (L01_SIGNATURE, b"LVF\t\r\n\xff\x00"),
+            "LX01_SIGNATURE": (LX01_SIGNATURE, b"LEF2\r\n\x81\x00"),
+        }
+        for const, (have, want) in TRUE_SIGS.items():
+            if have != want:
+                ok = False
+                print(f"  [FAIL] {const} is {have!r}, expected {want!r}")
+
+        def _fake(name, signature):
+            path = os.path.join(d, name)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "wb") as fh:
+                fh.write(signature + b"\x00" * 4096)
+            return path
+
+        ex01_fake = _fake("fake.Ex01", TRUE_SIGS["EWF2_SIGNATURE"][1])
+        aff_fake = _fake("fake.aff", TRUE_SIGS["AFF_SIGNATURE"][1])
+        afd_dir = os.path.join(d, "fake.afd")
+        afd_member = _fake(os.path.join("fake.afd", "file_000.aff"),
+                           TRUE_SIGS["AFF_SIGNATURE"][1])
+        afd_stray = _fake(os.path.join("fake.afd", "copy.bin"),
+                          TRUE_SIGS["AFF_SIGNATURE"][1])
+        not_afd_dir = os.path.join(d, "not_an_afd")
+        _fake(os.path.join("not_an_afd", "file_000.aff"), TRUE_SIGS["AFF_SIGNATURE"][1])
+        empty_afd = os.path.join(d, "empty.afd")
+        os.makedirs(empty_afd, exist_ok=True)
+        l01_fake = _fake("fake.L01", TRUE_SIGS["L01_SIGNATURE"][1])
+        lx01_fake = _fake("fake.Lx01", TRUE_SIGS["LX01_SIGNATURE"][1])
+
+        def _refusal(path, reader):
+            """The ImageUnreadable message open_image gives with or without the
+            vendored reader, or None when it did not refuse that way."""
+            saved = ewfprobe
+            try:
+                globals()["ewfprobe"] = reader
+                try:
+                    handle = open_image(path)
+                except ImageUnreadable as exc:
+                    return str(exc)
+                except Exception:
+                    return None
+                handle.close()
+                return None
+            finally:
+                globals()["ewfprobe"] = saved
+
+        for label, cond in (
+                ("an Ex01 is an EWF set, and an AFF or L01 is not",
+                 looks_like_ewf(ex01_fake) and not looks_like_ewf(aff_fake)
+                 and not looks_like_ewf(l01_fake)),
+                ("each container is named by its own signature",
+                 [acquisition_format(q) for q in (ewf_fake, ex01_fake, aff_fake,
+                                                  l01_fake, lx01_fake, not_ewf)]
+                 == ["EWF", "EWF2", "AFF", "L01", "Lx01", None]),
+                ("an AFD is recognised from its folder and from a file in it",
+                 acquisition_format(afd_dir) == "AFD"
+                 and acquisition_format(afd_member) == "AFD"),
+                ("a folder not named .afd, or an .afd with no AFF file, is not one",
+                 acquisition_format(not_afd_dir) is None
+                 and acquisition_format(empty_afd) is None),
+                ("an AFF file not named .aff is read alone, as ewfprobe opens it",
+                 acquisition_format(afd_stray) == "AFF"),
+                ("an Ex01, an AFF and an AFD are never opened as raw bytes",
+                 not any(_opened_as_raw(q) for q in (ex01_fake, aff_fake, afd_member))),
+                ("without the vendored reader each is refused, saying what is missing",
+                 all("ewfprobe" in (_refusal(q, None) or "")
+                     for q in (ex01_fake, aff_fake, afd_dir))),
+                ("L01 and Lx01 are refused as logical evidence, with or without "
+                 "the reader",
+                 all("logical evidence" in (_refusal(q, r) or "")
+                     for q in (l01_fake, lx01_fake) for r in (None, saved_reader))),
+                ("with the reader present a damaged Ex01 or AFF is refused by it",
+                 saved_reader is None or (_ewf_refused_by_reader(ex01_fake)
+                                          and _ewf_refused_by_reader(aff_fake)))):
             if not cond:
                 ok = False
             print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
@@ -14808,9 +14991,12 @@ if __name__ == "__main__":
                      extract=args.extract, only=args.only, zf=zf,
                      do_triage=args.triage, exclude=args.exclude,
                      reporter=reporter, manifest=manifest)
-            except (SplitImageError, ImageUnreadable) as exc:
-                # a segment set that is not whole, or an image this tool cannot open: said out loud and left
-                # unread, never joined around, and the exit status says so
+            except (SplitImageError, ImageUnreadable,
+                    *((ewfprobe.EwfError,) if ewfprobe is not None else ())) as exc:
+                # a segment set that is not whole, an image this tool cannot open,
+                # or an acquisition its reader refuses as damaged or incomplete:
+                # said out loud and left unread, never joined around, and the
+                # exit status says so
                 print("=" * 78)
                 print(p)
                 print(f"  REFUSED: {exc}")
