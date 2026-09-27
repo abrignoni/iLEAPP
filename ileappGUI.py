@@ -17,7 +17,8 @@ from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
 from scripts.search_files import *
-from scripts.raw_image import RAW_IMAGE_LABEL, RAW_IMAGE_SUFFIXES, names_an_image_folder
+from scripts.raw_image import (RAW_IMAGE_LABEL, RAW_IMAGE_SUFFIXES, names_an_image_folder,
+                               needs_password, ask_image_password)
 from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
 from scripts.modules_to_exclude import modules_to_exclude
@@ -531,6 +532,13 @@ def process(casedata):
     is_valid, extracttype, decryption_keys = ValidateInput()
 
     if is_valid:
+        # An encrypted Apple disk image opens only with its password: asked for here,
+        # checked against the image, and handed to the run, never stored.
+        image_password = None
+        if extracttype == 'raw' and needs_password(input_entry.get()):
+            image_password = ask_image_password(main_window, input_entry.get())
+            if image_password is None:
+                return
         GuiWindow.window_handle = main_window
         input_path = input_entry.get()
         output_folder = output_entry.get()
@@ -582,14 +590,15 @@ def process(casedata):
         worker = threading.Thread(
             target=run_crunch,
             args=(GuiWindow.message_queue, selected_modules, extracttype, input_path,
-                  out_params, wrap_text, casedata, time_offset, decryption_keys),
+                  out_params, wrap_text, casedata, time_offset, decryption_keys,
+                  image_password),
             daemon=True)
         worker.start()
         main_window.after(CRUNCH_POLL_MS, poll_crunch, GuiWindow.message_queue, out_params)
 
 
 def run_crunch(message_queue, selected_modules, extracttype, input_path, out_params, wrap_text,
-               case_info, time_offset, decryption_keys):
+               case_info, time_offset, decryption_keys, image_password=None):
     '''Do the processing off the main thread. Touches no widget; reports on the queue.'''
     try:
         # LAVA's SQLite connection is opened here rather than in process(): a sqlite3
@@ -598,7 +607,8 @@ def run_crunch(message_queue, selected_modules, extracttype, input_path, out_par
         initialize_lava(input_path, out_params.output_folder_base, extracttype, profile_filename)
         crunch_successful = ileapp.crunch_artifacts(
             selected_modules, extracttype, input_path, out_params, wrap_text,
-            loader, case_info, time_offset, profile_filename, None, decryption_keys)
+            loader, case_info, time_offset, profile_filename, None, decryption_keys,
+            image_password=image_password)
         lava_finalize_output(out_params.output_folder_base)
     except Exception:  # pylint: disable=broad-exception-caught
         # Without this the GUI would poll an empty queue forever and look hung for real.

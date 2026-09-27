@@ -6,9 +6,11 @@ set) or an acquisition (EnCase/EWF ``.E01``, SMART ``.s01``, EWF2 ``.Ex01``, AFF
 it, or an Apple disk image, ``.dmg`` or ``.sparseimage``) is read in place, without
 mounting and without administrator rights, through the reader vendored in
 ``scripts/vendor/`` (qnxprobe, with ewfprobe beside it for the acquisitions).
-EnCase logical evidence (``.L01``) holds copies of files rather than a disk, and an
-encrypted Apple disk image needs its password; the reader refuses both with a
-message saying so. The reader
+EnCase logical evidence (``.L01``) holds copies of files rather than a disk, and the
+reader refuses it with a message saying so. An Apple disk image encrypted with a
+password opens with that password, which the GUI asks for and the command line
+takes from ``--image_password_file`` or ``--image_password_env``, or asks for at a
+terminal; it is checked against the image before the run and never stored. The reader
 finds the partitions, identifies each volume by its own on-disk structure and
 walks its directory tree; this module turns that into the same contract the zip
 seeker offers: a list of member names to match artifact patterns against, and a
@@ -48,6 +50,7 @@ byte-identical across them. It names nothing specific to a platform; the
 platform is in the artifacts.
 """
 
+import getpass
 import os
 import sys
 import time as timex
@@ -94,10 +97,95 @@ def names_an_image_folder(path):
     sparse bundle, recognised by its Info.plist whatever the folder is called, or an
     AFD folder of AFF files. Chosen with a folder dialog, such a folder is not an
     extraction whose files are the evidence, so the GUI reads it as a raw image.
-    An encrypted sparse bundle counts too, so that the reader refuses it by name
+    An encrypted sparse bundle counts too, so that it is opened with its password
     rather than the run walking its band files."""
     return (os.path.isdir(path) and
             qnxprobe.acquisition_format(path) in ('SPARSEBUNDLE', 'AFD', 'DMG_ENCRYPTED'))
+
+
+def needs_password(path):
+    """True when ``path`` is an Apple disk image encrypted with a password, which the
+    reader opens only with that password."""
+    return qnxprobe.acquisition_format(path) == 'DMG_ENCRYPTED'
+
+
+def _open_errors():
+    """What stops an image opening for a reason other than its password: asking
+    again would not help, so it is reported rather than asked about."""
+    return (qnxprobe.ImageUnreadable, OSError, _ewfprobe.EwfError)
+
+
+def password_opens(path, password):
+    """True when ``password`` opens the encrypted image at ``path``, False when it
+    does not. Anything else that stops it opening (no cipher package, a damaged
+    image) is raised."""
+    try:
+        qnxprobe.open_image(path, password=password).close()
+    except qnxprobe.ImagePasswordError:
+        return False
+    return True
+
+
+def cli_image_password(path, password_file=None, password_env=None):
+    """The password for an encrypted Apple disk image, for the command line: the
+    first line of ``password_file``, else the environment variable ``password_env``,
+    else, at a terminal, asked for (three tries). None for an image that needs none.
+
+    Raises ValueError, saying why, when no password that opens the image was given.
+    A password is never taken as an argument's value, which would show in the
+    process list and the shell history.
+    """
+    if not needs_password(path):
+        return None
+    name = os.path.basename(os.path.normpath(path))
+    try:
+        if password_file:
+            with open(password_file, 'rb') as fh:
+                first = fh.read().split(b'\n', 1)[0]
+            password = first[:-1] if first.endswith(b'\r') else first
+        elif password_env:
+            if password_env not in os.environ:
+                raise ValueError(f'the environment variable {password_env} is not set')
+            password = os.environ[password_env]
+        elif sys.stdin is not None and sys.stdin.isatty():
+            for _ in range(3):
+                password = getpass.getpass(f'Password for {name}: ')
+                if password_opens(path, password):
+                    return password
+                print('That password does not open the image.', file=sys.stderr)
+            raise ValueError(f'the password does not open {name}')
+        else:
+            raise ValueError(f'{name} is an encrypted Apple disk image and opens only '
+                             f'with its password; give it with --image_password_file '
+                             f'or --image_password_env, or run at a terminal to be '
+                             f'asked for it')
+        if not password_opens(path, password):
+            raise ValueError(f'the password does not open {name}')
+    except _open_errors() as exc:
+        raise ValueError(f'{name} could not be opened: {exc}') from None
+    return password
+
+
+def ask_image_password(parent, path):
+    """The password for an encrypted Apple disk image, asked for in a dialog over
+    ``parent`` until it opens the image. None when the examiner cancels, or when the
+    image will not open for another reason, which is shown."""
+    from tkinter import messagebox, simpledialog  # pylint: disable=import-outside-toplevel
+    name = os.path.basename(os.path.normpath(path))
+    prompt = f'{name} is an encrypted Apple disk image. Its password:'
+    while True:
+        password = simpledialog.askstring('Encrypted disk image', prompt, show='*',
+                                          parent=parent)
+        if password is None:
+            return None
+        try:
+            if password_opens(path, password):
+                return password
+        except _open_errors() as exc:
+            messagebox.showerror('Error', f'{name} could not be opened:\n{exc}',
+                                 parent=parent)
+            return None
+        prompt = f'That password does not open {name}. Its password:'
 
 
 def names_a_stream(filepattern):
@@ -177,7 +265,7 @@ class FileSeekerRaw(FileSeekerBase):
     ``name_list`` is exactly what it was without them, order included.
     """
 
-    def __init__(self, image_path, data_folder):
+    def __init__(self, image_path, data_folder, password=None):
         FileSeekerBase.__init__(self)
         self.image_path = image_path
         self.data_folder = data_folder
@@ -190,7 +278,8 @@ class FileSeekerRaw(FileSeekerBase):
         self._entries = {}
         self._image = None
         try:
-            self._open()
+            # the password opens an encrypted Apple disk image and is not kept
+            self._open(password)
         except BaseException:
             # A failed or interrupted (Ctrl-C on a slow walk) build never binds an
             # object for the run's cleanup() to reach, so release the image here.
@@ -200,7 +289,7 @@ class FileSeekerRaw(FileSeekerBase):
 
     # ---- building the member list -------------------------------------------
 
-    def _open(self):
+    def _open(self, password=None):
         name = os.path.basename(self.image_path)
         logfunc(f'Reading {name} in place with the vendored qnxprobe '
                 f'{qnxprobe.QNXPROBE_VERSION}; only the files an artifact asks for '
@@ -214,7 +303,7 @@ class FileSeekerRaw(FileSeekerBase):
         # name, and the run stops with that message rather than reading half a
         # disk as though it were whole.
         segments = qnxprobe.split_segments(self.image_path)
-        self._image = qnxprobe.open_image(self.image_path, segments)
+        self._image = qnxprobe.open_image(self.image_path, segments, password=password)
         size = qnxprobe.image_size(self._image)
         if segments:
             logfunc(f'  {len(segments):,} segments joined in order, '

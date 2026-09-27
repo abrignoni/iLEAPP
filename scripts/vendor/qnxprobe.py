@@ -27,6 +27,7 @@ Read-only throughout. Never writes to the image.
 """
 import os, re, struct, sys, datetime, json, time, uuid, zipfile, bisect, collections, itertools
 import binascii
+import getpass
 import plistlib
 import array
 
@@ -44,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.40"
+QNXPROBE_VERSION = "1.41"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -146,6 +147,16 @@ class ImageUnreadable(Exception):
     """This tool cannot open the image, and the message says why."""
 
 
+class ImagePasswordError(ImageUnreadable):
+    """An encrypted Apple disk image was opened without its password (``wrong`` is
+    False) or with one that does not open it (``wrong`` is True). A caller that
+    asks for the password can tell the two apart and ask again."""
+
+    def __init__(self, message, wrong):
+        super().__init__(message)
+        self.wrong = wrong
+
+
 # The first eight bytes of each acquisition container the vendored ewfprobe
 # knows, as libewf and AFFLIB write them. They are checked here rather than in
 # ewfprobe so an acquisition is still recognised, and refused with a useful
@@ -175,6 +186,7 @@ _ACQUISITION_NAMES = {
     "UDIF": "an Apple disk image (.dmg)",
     "SPARSEIMAGE": "an Apple sparse image (.sparseimage)",
     "SPARSEBUNDLE": "an Apple sparse bundle (a .sparsebundle folder)",
+    "DMG_ENCRYPTED": "an encrypted Apple disk image (.dmg, .sparseimage or .sparsebundle)",
 }
 
 
@@ -465,10 +477,12 @@ def image_size(fh):
             fh.seek(here)
 
 
-def open_image(path, segments=None):
+def open_image(path, segments=None, password=None):
     """Open an image read-only: the one file, or every segment of the split
     image it belongs to, joined. segments is split_segments(path) when the
-    caller already has it."""
+    caller already has it. password opens an encrypted Apple disk image (a str,
+    used as UTF-8, or bytes); without it, or with one that does not open the
+    image, ImagePasswordError is raised. Other images ignore it."""
     kind = acquisition_format(path)
     name = os.path.basename(os.path.normpath(path))
     if kind in ("L01", "Lx01"):
@@ -481,13 +495,6 @@ def open_image(path, segments=None):
             f"{name} is EnCase logical evidence ({kind}): it holds copies of "
             f"files, not a disk, so there is no partition table or filesystem "
             f"in it to read. For its files, {reader}.")
-    if kind == "DMG_ENCRYPTED":
-        what = ("an encrypted Apple sparse bundle (its token file holds the encrcdsa "
-                "header)" if os.path.isdir(path) else
-                "an encrypted Apple disk image (encrcdsa)")
-        raise ImageUnreadable(
-            f"{name} is {what}; it needs its password. Attach it on a Mac with the "
-            f"password and image the result, or convert it with hdiutil convert.")
     if kind:
         if ewfprobe is None:
             raise ImageUnreadable(
@@ -498,7 +505,15 @@ def open_image(path, segments=None):
         # ewfprobe joins the segments or files of the set itself, from the
         # format's own records rather than from the file names, and refuses an
         # incomplete set.
-        return ewfprobe.open_ewf(path)
+        if kind != "DMG_ENCRYPTED":
+            return ewfprobe.open_ewf(path)
+        # ewfprobe decrypts it, given the password; without the optional cipher
+        # package it refuses the image, naming the package
+        try:
+            return ewfprobe.open_ewf(path, password=password)
+        except ewfprobe.EwfPasswordError as exc:
+            raise ImagePasswordError(
+                str(exc), isinstance(exc, ewfprobe.EwfWrongPasswordError)) from None
     if segments is None:
         segments = split_segments(path)
     if segments:
@@ -516,6 +531,7 @@ _ACQUISITION_LABELS = {
     "UDIF": "an Apple disk image",
     "SPARSEIMAGE": "an Apple sparse image",
     "SPARSEBUNDLE": "an Apple sparse bundle",
+    "UDRW": "an Apple read-write disk image",
 }
 
 
@@ -524,16 +540,20 @@ def describe_acquisition(image):
     for an image open_image() handed to ewfprobe."""
     parts = list(getattr(image, "paths", []) or [])
     fmt = getattr(image, "format", None)
+    crypt = getattr(image, "encryption", None)
+    locked = (f", encrypted ({crypt['cipher']}) and opened with its password"
+              if crypt else "")
     if fmt == "SPARSEBUNDLE":
         bundle = getattr(image, "sparsebundle", None) or {}
-        return (f"an Apple sparse bundle of {bundle.get('bands_stored', 0):,} stored "
-                f"band files, read by the reader")
+        stored = bundle.get("bands_stored", 0)
+        return (f"an Apple sparse bundle of {stored:,} stored band "
+                f"file{'' if stored == 1 else 's'}, read by the reader{locked}")
     label = _ACQUISITION_LABELS.get(fmt, "an acquisition")
-    unit = "files" if fmt in ("AFF", "AFD", "UDIF", "SPARSEIMAGE") else "segments"
+    unit = "files" if fmt in ("AFF", "AFD", "UDIF", "SPARSEIMAGE", "UDRW") else "segments"
     if len(parts) > 1:
         return (f"{label} of {len(parts)} {unit}, joined by the reader: "
-                f"{os.path.basename(parts[0])} .. {os.path.basename(parts[-1])}")
-    return f"{label} of one {unit[:-1]}"
+                f"{os.path.basename(parts[0])} .. {os.path.basename(parts[-1])}{locked}")
+    return f"{label} of one {unit[:-1]}{locked}"
 
 
 def describe_segment_sizes(sizes):
@@ -10147,11 +10167,42 @@ def volumes(fh, size=None):
     return out
 
 
+def open_image_trying(path, segments=None, passwords=()):
+    """open_image with the first of ``passwords`` that opens it, for an encrypted
+    Apple disk image; any other image opens with none. Raises ImagePasswordError
+    when none of them does (wrong is True) or none was given (wrong is False)."""
+    last = None
+    for password in list(passwords) or [None]:
+        try:
+            return open_image(path, segments, password=password)
+        except ImagePasswordError as exc:
+            last = exc
+    raise last
+
+
+def _cli_passwords(files, env_names):
+    """The passwords the command line names: the first line of each file, then each
+    environment variable, in that order. Exits naming what cannot be read."""
+    out = []
+    for path in files:
+        try:
+            with open(path, "rb") as handle:
+                first = handle.read().split(b"\n", 1)[0]
+        except OSError as exc:
+            sys.exit(f"the password file could not be read: {exc.strerror or exc}")
+        out.append(first[:-1] if first.endswith(b"\r") else first)
+    for var in env_names:
+        if var not in os.environ:
+            sys.exit(f"the environment variable {var} is not set")
+        out.append(os.environ[var])
+    return out
+
+
 def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
          extract=None, only=None, zf=None, do_triage=False, exclude=None,
-         reporter=None, manifest=None):
+         reporter=None, manifest=None, passwords=()):
     segments = split_segments(path)      # a set that is not whole raises SplitImageError
-    image = open_image(path, segments)
+    image = open_image_trying(path, segments, passwords)
     size = image_size(image)
     print("=" * 78)
     print(path)
@@ -12556,22 +12607,84 @@ def self_test():
                 ("without the vendored reader a .dmg is refused, saying what is missing",
                  all("ewfprobe" in (_refusal(q, None) or "")
                      for q in (dmg_fake, sparse_fake))),
-                ("an encrypted Apple disk image is refused, with or without the reader",
-                 all("encrypted Apple disk image" in (_refusal(enc_fake, r) or "")
-                     for r in (None, saved_reader))),
+                ("without the vendored reader an encrypted image is refused, saying "
+                 "what is missing",
+                 all("ewfprobe" in (_refusal(q, None) or "") for q in (enc_fake, bundle_enc))),
+                ("with the reader present an encrypted image with a damaged header is "
+                 "refused by it, not read",
+                 saved_reader is None or (_ewf_refused_by_reader(enc_fake)
+                                          and _ewf_refused_by_reader(bundle_enc))),
                 ("a sparse bundle is named by its Info.plist, an encrypted one by its "
                  "token, and a folder of another type is not one",
                  [acquisition_format(q) for q in (bundle_fake, bundle_enc, bundle_other)]
                  == ["SPARSEBUNDLE", "DMG_ENCRYPTED", None]),
                 ("without the vendored reader a sparse bundle is refused, saying what "
                  "is missing",
-                 "ewfprobe" in (_refusal(bundle_fake, None) or "")),
-                ("an encrypted sparse bundle is refused, with or without the reader",
-                 all("encrypted Apple sparse bundle" in (_refusal(bundle_enc, r) or "")
-                     for r in (None, saved_reader)))):
+                 "ewfprobe" in (_refusal(bundle_fake, None) or ""))):
             if not cond:
                 ok = False
             print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
+        # An encrypted image built by hand (encrcdsa version 2, AES-128, the keys
+        # wrapped with AES-192 as current hdiutil writes them), so opening with and
+        # without its password is tested against bytes ewfprobe did not write. The
+        # layout values are written out again here rather than taken from the
+        # reader. Reading one needs the optional cipher package, and so does this.
+        cipher = getattr(saved_reader, "_AES", None) if saved_reader is not None else None
+        if cipher is None:
+            print("  [SKIP] an encrypted image opens with its password (needs the "
+                  "vendored ewfprobe and the pycryptodome package)")
+        else:
+            import hashlib                  # pylint: disable=import-outside-toplevel
+            import hmac                     # pylint: disable=import-outside-toplevel
+            enc_disk = bytes(range(256)) * 16            # 4 KiB: eight 512-byte blocks
+            aes_key, hmac_key = bytes(range(16)), bytes(range(100, 120))
+            salt, wrap_iv = bytes(range(20)), bytes(range(8))
+            enc_password = "qnxprobe-self-test"
+
+            def _cbc(key, iv, data):
+                ecb = cipher.new(key, cipher.MODE_ECB)
+                out, prev = bytearray(), iv
+                for i in range(0, len(data), 16):
+                    prev = ecb.encrypt(bytes(a ^ b for a, b in zip(data[i:i + 16], prev)))
+                    out += prev
+                return bytes(out)
+
+            keydata = aes_key + hmac_key + b"CKIE\x00" + bytes([7]) * 7   # to 48 bytes
+            derived = hashlib.pbkdf2_hmac("sha1", enc_password.encode(), salt, 1000, 32)
+            blob = _cbc(derived[:24], wrap_iv + bytes(8), keydata)
+            item = struct.pack(">LQL32sL32s5L", 0x67, 1000, 20, salt, 8, wrap_iv, 192,
+                               0x80000001, 7, 6, len(blob)) + blob
+            head = (struct.pack(">8s7L16sLQQL", b"encrcdsa", 2, 16, 5, 0x80000001, 128,
+                                0x5B, 160, bytes(16), 512, len(enc_disk), 4096, 1)
+                    + struct.pack(">LQQ", 1, 0x60, len(item)) + item)
+            body = b"".join(
+                _cbc(aes_key, hmac.new(hmac_key, struct.pack(">L", n), "sha1").digest()[:16],
+                     enc_disk[n * 512:(n + 1) * 512]) for n in range(len(enc_disk) // 512))
+            enc_real = os.path.join(d, "enc_real.dmg")
+            with open(enc_real, "wb") as fh:
+                fh.write(head.ljust(4096, b"\0") + body)
+
+            def _opened_with(passwords):
+                try:
+                    with open_image_trying(enc_real, None, passwords) as handle:
+                        handle.seek(0)
+                        return handle.read(len(enc_disk)) == enc_disk
+                except ImagePasswordError as exc:
+                    return "wrong" if exc.wrong else "required"
+
+            for label, cond in (
+                    ("an encrypted image opens with its password and reads its disk",
+                     _opened_with([enc_password]) is True),
+                    ("without a password it is refused as needing one",
+                     _opened_with([]) == "required"),
+                    ("with a wrong password it is refused as a wrong one",
+                     _opened_with(["not it"]) == "wrong"),
+                    ("of several passwords, the one that opens it is used",
+                     _opened_with(["not it", enc_password.encode()]) is True)):
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
 
         # ---- APFS ----------------------------------------------------
         # A container superblock built by hand, so identification is tested
@@ -15068,6 +15181,15 @@ if __name__ == "__main__":
                     help="while extracting, emit one JSON progress object per line on "
                          "stderr, for a caller driving this as a subprocess. stdout, "
                          "the human readable report, is unchanged")
+    ap.add_argument("--password-file", metavar="FILE", action="append", default=[],
+                    help="for an encrypted Apple disk image: a password, the first line "
+                         "of FILE. Repeatable; each image opens with the first "
+                         "password that opens it")
+    ap.add_argument("--password-env", metavar="NAME", action="append", default=[],
+                    help="for an encrypted Apple disk image: a password, from the "
+                         "environment variable NAME. Repeatable. Without either, "
+                         "qnxprobe asks at a terminal. A password is never taken as an "
+                         "argument, which would show in the process list")
     ap.add_argument("--version", action="version",
                     version=f"qnxprobe {QNXPROBE_VERSION}")
     args = ap.parse_args()
@@ -15084,6 +15206,8 @@ if __name__ == "__main__":
     if missing:
         sys.exit("not found: " + ", ".join(missing))
 
+    given_passwords = _cli_passwords(args.password_file, args.password_env)
+
     reporter = ProgressEmitter() if args.progress else None
     manifest = []
     zf = None
@@ -15096,11 +15220,32 @@ if __name__ == "__main__":
     try:
         for p in args.image:
             try:
-                main(p, scan_limit_mib=args.scan_limit, do_list=args.list,
-                     list_depth=args.depth, list_max=args.list_max,
-                     extract=args.extract, only=args.only, zf=zf,
-                     do_triage=args.triage, exclude=args.exclude,
-                     reporter=reporter, manifest=manifest)
+                asked, tries = [], 0
+                while True:
+                    try:
+                        main(p, scan_limit_mib=args.scan_limit, do_list=args.list,
+                             list_depth=args.depth, list_max=args.list_max,
+                             extract=args.extract, only=args.only, zf=zf,
+                             do_triage=args.triage, exclude=args.exclude,
+                             reporter=reporter, manifest=manifest,
+                             passwords=given_passwords or asked)
+                        break
+                    except ImagePasswordError as exc:
+                        # asked for at a terminal only when none was given, three
+                        # tries; otherwise refused like any image that will not open
+                        if given_passwords or not sys.stdin.isatty() or tries == 3:
+                            if not given_passwords and not exc.wrong:
+                                raise ImagePasswordError(
+                                    f"{exc}; give it with --password-file or "
+                                    f"--password-env, or run qnxprobe at a terminal "
+                                    f"to be asked for it", False) from None
+                            raise
+                        if exc.wrong:
+                            print("that password does not open the image",
+                                  file=sys.stderr)
+                        asked = [getpass.getpass(
+                            f"password for {os.path.basename(os.path.normpath(p))}: ")]
+                        tries += 1
             except (SplitImageError, ImageUnreadable,
                     *((ewfprobe.EwfError,) if ewfprobe is not None else ())) as exc:
                 # a segment set that is not whole, an image this tool cannot open,
