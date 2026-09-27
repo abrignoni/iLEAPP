@@ -239,4 +239,4 @@ See [CLI Arguments](#cli-arguments) above, or run `python ileapp.py --help`.
 
 This traiging tool is the result of a collaborative effort of many people in the DFIR community.
 
-iLEAPP logo courtesy of Derek Eiri.
+iLEAPP logo courtesy of Kevin Pagano. The earlier iLEAPP logo was by Derek Eiri.
