@@ -27,6 +27,7 @@ Read-only throughout. Never writes to the image.
 """
 import os, re, struct, sys, datetime, json, time, uuid, zipfile, bisect, collections, itertools
 import binascii
+import plistlib
 import array
 
 # ewfprobe is vendored beside this file (see vendored.json) so an EnCase/EWF
@@ -43,7 +44,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.39"
+QNXPROBE_VERSION = "1.40"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -156,10 +157,14 @@ L01_SIGNATURE  = b"LVF\x09\x0d\x0a\xff\x00"     # EnCase logical evidence (L01)
 LX01_SIGNATURE = b"LEF2\x0d\x0a\x81\x00"        # EWF2 logical evidence (Lx01)
 # Apple disk images. A UDIF image (.dmg) ends in a 512-byte trailer beginning
 # "koly"; an uncompressed read-write image has none and is plain disk bytes, read
-# as raw. A sparse image begins "sprs", an encrypted one "encrcdsa".
+# as raw. A .dmgpart segment of a split .dmg ends in one too, and the reader names
+# the .dmg to open instead. A sparse image begins "sprs", an encrypted one
+# "encrcdsa". A sparse bundle is a folder whose Info.plist names the sparse bundle
+# type; an encrypted one keeps the encrcdsa header in its token file.
 UDIF_TRAILER = b"koly"
 SPARSEIMAGE_SIGNATURE = b"sprs"
 DMG_ENCRYPTED_SIGNATURE = b"encrcdsa"
+SPARSEBUNDLE_TYPE = "com.apple.diskimage.sparsebundle"
 
 # What each container is called in a message, by acquisition_format()'s label.
 _ACQUISITION_NAMES = {
@@ -169,6 +174,7 @@ _ACQUISITION_NAMES = {
     "AFD": "an AFD acquisition (a .afd folder of AFF files)",
     "UDIF": "an Apple disk image (.dmg)",
     "SPARSEIMAGE": "an Apple sparse image (.sparseimage)",
+    "SPARSEBUNDLE": "an Apple sparse bundle (a .sparsebundle folder)",
 }
 
 
@@ -192,17 +198,38 @@ def _afd_folder(path):
     return None
 
 
+def _sparsebundle_kind(path):
+    """"SPARSEBUNDLE" or "DMG_ENCRYPTED" for a sparse bundle folder, else None."""
+    plist = os.path.join(path, "Info.plist")
+    try:
+        if os.path.getsize(plist) > 1 << 20:
+            return None
+        with open(plist, "rb") as fh:
+            info = plistlib.load(fh)
+    except Exception:   # pylint: disable=broad-exception-caught  # a bad plist, any kind
+        return None
+    if not isinstance(info, dict) or info.get("diskimage-bundle-type") != SPARSEBUNDLE_TYPE:
+        return None
+    if _first_bytes(os.path.join(path, "token")) == DMG_ENCRYPTED_SIGNATURE:
+        return "DMG_ENCRYPTED"
+    return "SPARSEBUNDLE"
+
+
 def acquisition_format(path):
     """What acquisition container path is: "EWF", "EWF2", "AFF", "AFD", "UDIF",
-    "SPARSEIMAGE", "L01", "Lx01" or "DMG_ENCRYPTED", or None for anything else,
-    which is read as a raw image.
+    "SPARSEIMAGE", "SPARSEBUNDLE", "L01", "Lx01" or "DMG_ENCRYPTED", or None for
+    anything else, which is read as a raw image.
 
     An AFD is a folder whose name ends .afd holding AFF files, the form AFFLIB
     writes when an image is split; it is recognised from the folder or from any
-    AFF file in it, because one file holds only some of the image. L01 and Lx01
-    are logical evidence: they hold copies of files, not a disk.
+    AFF file in it, because one file holds only some of the image. A sparse bundle
+    is a folder too, recognised by its Info.plist whatever it is called. L01 and
+    Lx01 are logical evidence: they hold copies of files, not a disk.
     """
     if os.path.isdir(path):
+        bundle = _sparsebundle_kind(path)
+        if bundle:
+            return bundle
         folder = _afd_folder(path)
         try:
             names = os.listdir(folder) if folder else []
@@ -455,10 +482,12 @@ def open_image(path, segments=None):
             f"files, not a disk, so there is no partition table or filesystem "
             f"in it to read. For its files, {reader}.")
     if kind == "DMG_ENCRYPTED":
+        what = ("an encrypted Apple sparse bundle (its token file holds the encrcdsa "
+                "header)" if os.path.isdir(path) else
+                "an encrypted Apple disk image (encrcdsa)")
         raise ImageUnreadable(
-            f"{name} is an encrypted Apple disk image (encrcdsa); it needs its "
-            f"password. Attach it on a Mac with the password and image the result, "
-            f"or convert it with hdiutil convert.")
+            f"{name} is {what}; it needs its password. Attach it on a Mac with the "
+            f"password and image the result, or convert it with hdiutil convert.")
     if kind:
         if ewfprobe is None:
             raise ImageUnreadable(
@@ -486,6 +515,7 @@ _ACQUISITION_LABELS = {
     "AFD": "an AFD acquisition",
     "UDIF": "an Apple disk image",
     "SPARSEIMAGE": "an Apple sparse image",
+    "SPARSEBUNDLE": "an Apple sparse bundle",
 }
 
 
@@ -494,6 +524,10 @@ def describe_acquisition(image):
     for an image open_image() handed to ewfprobe."""
     parts = list(getattr(image, "paths", []) or [])
     fmt = getattr(image, "format", None)
+    if fmt == "SPARSEBUNDLE":
+        bundle = getattr(image, "sparsebundle", None) or {}
+        return (f"an Apple sparse bundle of {bundle.get('bands_stored', 0):,} stored "
+                f"band files, read by the reader")
     label = _ACQUISITION_LABELS.get(fmt, "an acquisition")
     unit = "files" if fmt in ("AFF", "AFD", "UDIF", "SPARSEIMAGE") else "segments"
     if len(parts) > 1:
@@ -12419,6 +12453,7 @@ def self_test():
             "UDIF_TRAILER": (UDIF_TRAILER, b"koly"),
             "SPARSEIMAGE_SIGNATURE": (SPARSEIMAGE_SIGNATURE, b"sprs"),
             "DMG_ENCRYPTED_SIGNATURE": (DMG_ENCRYPTED_SIGNATURE, b"encrcdsa"),
+            "SPARSEBUNDLE_TYPE": (SPARSEBUNDLE_TYPE, "com.apple.diskimage.sparsebundle"),
         }
         for const, (have, want) in TRUE_SIGS.items():
             if have != want:
@@ -12450,6 +12485,23 @@ def self_test():
             fh.write(b"\x00" * 4096 + TRUE_SIGS["UDIF_TRAILER"][1] + b"\x00" * 508)
         sparse_fake = _fake("fake.sparseimage", TRUE_SIGS["SPARSEIMAGE_SIGNATURE"][1])
         enc_fake = _fake("enc.dmg", TRUE_SIGS["DMG_ENCRYPTED_SIGNATURE"][1])
+
+        def _bundle(name, token=b"", kind=None):
+            folder = os.path.join(d, name)
+            os.makedirs(os.path.join(folder, "bands"), exist_ok=True)
+            info = {"band-size": 1 << 20, "bundle-backingstore-version": 1,
+                    "diskimage-bundle-type": kind or TRUE_SIGS["SPARSEBUNDLE_TYPE"][1],
+                    "size": 1 << 20}
+            with open(os.path.join(folder, "Info.plist"), "wb") as fh:
+                plistlib.dump(info, fh)
+            with open(os.path.join(folder, "token"), "wb") as fh:
+                fh.write(token)
+            return folder
+
+        bundle_fake = _bundle("fake.sparsebundle")
+        bundle_enc = _bundle("enc.sparsebundle",
+                             token=TRUE_SIGS["DMG_ENCRYPTED_SIGNATURE"][1] + bytes(64))
+        bundle_other = _bundle("other.sparsebundle", kind="com.example.other")
 
         def _refusal(path, reader):
             """The ImageUnreadable message open_image gives with or without the
@@ -12506,6 +12558,16 @@ def self_test():
                      for q in (dmg_fake, sparse_fake))),
                 ("an encrypted Apple disk image is refused, with or without the reader",
                  all("encrypted Apple disk image" in (_refusal(enc_fake, r) or "")
+                     for r in (None, saved_reader))),
+                ("a sparse bundle is named by its Info.plist, an encrypted one by its "
+                 "token, and a folder of another type is not one",
+                 [acquisition_format(q) for q in (bundle_fake, bundle_enc, bundle_other)]
+                 == ["SPARSEBUNDLE", "DMG_ENCRYPTED", None]),
+                ("without the vendored reader a sparse bundle is refused, saying what "
+                 "is missing",
+                 "ewfprobe" in (_refusal(bundle_fake, None) or "")),
+                ("an encrypted sparse bundle is refused, with or without the reader",
+                 all("encrypted Apple sparse bundle" in (_refusal(bundle_enc, r) or "")
                      for r in (None, saved_reader)))):
             if not cond:
                 ok = False

@@ -35,7 +35,7 @@ sys.path.insert(0, str(REPO_ROOT))
 import scripts.raw_image as raw_image  # pylint: disable=wrong-import-position
 from scripts.raw_image import (  # pylint: disable=wrong-import-position
     RAW_IMAGE_FILESYSTEMS, RAW_IMAGE_SUFFIXES, FileSeekerRaw, names_a_stream,
-    split_image_sibling)
+    names_an_image_folder, split_image_sibling)
 from scripts.vendor import ewfprobe, qnxprobe  # pylint: disable=wrong-import-position
 
 FIXTURES = REPO_ROOT / 'admin' / 'test' / 'data' / 'raw_images'
@@ -207,6 +207,67 @@ def write_sparseimage(path, data, band_sectors=2048):
         for b in stored:
             out.write(data[b * band:(b + 1) * band].ljust(band, b"\x00"))
     return path
+
+
+def write_segmented_udif(folder, stem, data, part_size, chunk_sectors=2048):
+    """Write data as a UDIF image split the way hdiutil segment splits one: the
+    data of all the segments laid end to end, the block table only in the first
+    (stem.dmg), and a trailer on every segment carrying one identifier, the segment
+    count, the segment's own number and where its data starts in the whole."""
+    sectors = len(data) // 512
+    fork, entries, at = bytearray(), [], 0
+    while at < sectors:
+        count = min(chunk_sectors, sectors - at)
+        blob = zlib.compress(data[at * 512:(at + count) * 512])
+        entries.append((0x80000005, 0, at, count, len(fork), len(blob)))
+        fork += blob
+        at += count
+    entries.append((0xFFFFFFFF, 0, at, 0, len(fork), 0))
+    crc = zlib.crc32(data[:sectors * 512])
+    mish = struct.pack(">4sIQQQII24x", b"mish", 1, 0, sectors, 0, 0, len(entries))
+    mish += _udif_checksum(crc) + struct.pack(">I", len(entries))
+    mish += b"".join(struct.pack(">IIQQQQ", *e) for e in entries)
+    tables = plistlib.dumps({"resource-fork": {"blkx": [{"Name": "whole disk", "Data": mish}]}})
+    pieces = [bytes(fork[i:i + part_size]) for i in range(0, len(fork), part_size)]
+    paths, running = [], 0
+    for number, piece in enumerate(pieces, 1):
+        path = os.path.join(folder, f"{stem}.dmg" if number == 1
+                            else f"{stem}.{number:03d}.dmgpart")
+        body = tables if number == 1 else plistlib.dumps({"resource-fork": {}})
+        with open(path, "wb") as out:
+            out.write(piece)
+            xml_offset = out.tell()
+            out.write(body)
+            trailer = struct.pack(">4sIIIQQQQQII", b"koly", 4, 512, 1, running, 0,
+                                  len(piece), 0, 0, number, len(pieces))
+            trailer += b"\x5a" * 16 + _udif_checksum(zlib.crc32(piece))
+            trailer += struct.pack(">QQ", xml_offset, len(body)) + bytes(120)
+            trailer += _udif_checksum(zlib.crc32(struct.pack(">I", crc)))
+            trailer += struct.pack(">IQ", 1, sectors) + bytes(12)
+            out.write(trailer)
+        paths.append(path)
+        running += len(piece)
+    return paths
+
+
+def write_sparsebundle(folder, data, band=1 << 20, token=b""):
+    """Write data as an Apple sparse bundle: Info.plist, a token file, and bands/
+    holding each band that is not all zeros, named in lowercase hexadecimal."""
+    os.makedirs(os.path.join(folder, "bands"))
+    info = {"CFBundleInfoDictionaryVersion": "6.0", "band-size": band,
+            "bundle-backingstore-version": 1,
+            "diskimage-bundle-type": "com.apple.diskimage.sparsebundle",
+            "size": len(data)}
+    with open(os.path.join(folder, "Info.plist"), "wb") as out:
+        plistlib.dump(info, out)
+    with open(os.path.join(folder, "token"), "wb") as out:
+        out.write(token)
+    for number in range(-(-len(data) // band)):
+        piece = data[number * band:(number + 1) * band]
+        if any(piece):
+            with open(os.path.join(folder, "bands", format(number, "x")), "wb") as out:
+                out.write(piece)
+    return folder
 
 
 def with_mbr(volume_bytes, start_lba=2048):
@@ -667,6 +728,69 @@ class RawImageSeekerTest(unittest.TestCase):
         self.assertEqual(len(found), 1)
         self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
         self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
+
+    def test_a_segmented_dmg_reads_like_the_raw_image(self):
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        folder = tempfile.mkdtemp(prefix='raw_image_dmgpart_', dir=self.work)
+        paths = write_segmented_udif(folder, 'ntfs', data, part_size=16 * 1024)
+        self.assertGreater(len(paths), 2)
+        seeker = self._seeker(paths[0])
+        self.assertIn(f'an Apple disk image of {len(paths)} files, joined by the reader: '
+                      f'ntfs.dmg .. {os.path.basename(paths[-1])}', self.log.text())
+        found = seeker.search('*/many/file_0007.txt')
+        self.assertEqual(len(found), 1)
+        self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
+        self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
+
+    def test_a_dmgpart_on_its_own_names_the_dmg_to_open(self):
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        folder = tempfile.mkdtemp(prefix='raw_image_dmgpart_', dir=self.work)
+        paths = write_segmented_udif(folder, 'ntfs', data, part_size=16 * 1024)
+        with self.assertRaises(Exception) as caught:
+            FileSeekerRaw(paths[1], self.data)
+        self.assertIn('open its first segment, the .dmg file', str(caught.exception))
+        os.remove(paths[2])
+        with self.assertRaises(Exception) as caught:
+            FileSeekerRaw(paths[0], self.data)
+        self.assertIn('segment 3 is not beside it', str(caught.exception))
+
+    def test_a_sparse_bundle_reads_like_the_raw_image(self):
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        folder = tempfile.mkdtemp(prefix='raw_image_bundle_', dir=self.work)
+        bundle = write_sparsebundle(os.path.join(folder, 'ntfs.sparsebundle'), data)
+        stored = len(os.listdir(os.path.join(bundle, 'bands')))
+        self.assertTrue(names_an_image_folder(bundle))
+        seeker = self._seeker(bundle)
+        self.assertIn(f'an Apple sparse bundle of {stored} stored band files',
+                      self.log.text())
+        found = seeker.search('*/many/file_0007.txt')
+        self.assertEqual(len(found), 1)
+        self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
+        self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
+
+    def test_an_encrypted_sparse_bundle_is_refused(self):
+        folder = tempfile.mkdtemp(prefix='raw_image_bundle_enc_', dir=self.work)
+        bundle = write_sparsebundle(os.path.join(folder, 'locked.sparsebundle'),
+                                    b'\x01' * 4096, token=b'encrcdsa' + bytes(1000))
+        self.assertTrue(names_an_image_folder(bundle))
+        with self.assertRaises(qnxprobe.ImageUnreadable) as caught:
+            FileSeekerRaw(bundle, self.data)
+        self.assertIn('encrypted Apple sparse bundle', str(caught.exception))
+
+    def test_only_an_image_folder_is_named_one(self):
+        folder = tempfile.mkdtemp(prefix='raw_image_folders_', dir=self.work)
+        plain = os.path.join(folder, 'extraction')
+        os.makedirs(os.path.join(plain, 'private', 'var'))
+        afd = os.path.join(folder, 'set.afd')
+        os.makedirs(afd)
+        with open(os.path.join(afd, 'file_000.aff'), 'wb') as handle:
+            handle.write(b'AFF10\r\n\x00' + bytes(64))
+        self.assertFalse(names_an_image_folder(plain))
+        self.assertTrue(names_an_image_folder(afd))
+        self.assertFalse(names_an_image_folder(os.path.join(afd, 'file_000.aff')))
 
     def test_an_encrypted_dmg_is_refused(self):
         folder = tempfile.mkdtemp(prefix='raw_image_enc_', dir=self.work)
