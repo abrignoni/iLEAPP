@@ -731,11 +731,11 @@ def select_input(button_type):
         input_filename = tk_filedialog.askopenfilename(parent=main_window,
                                                        title='Select a file',
                                                        filetypes=(('All supported files',
-                                                                   '*.tar *.zip *.gz *.xz *.img *.bin *.dd *.raw *.001 *.E01'),
+                                                                   '*.tar *.zip *.gz *.xz *.img *.bin *.dd *.raw *.001 *.E01 *.s01 *.Ex01 *.aff'),
                                                                   ('tar file', '*.tar'), ('zip file', '*.zip'),
                                                                   ('gz file', '*.gz'),
                                                                   ('tar.xz file', '*.xz'),
-                                                                  (RAW_IMAGE_LABEL, '*.img *.bin *.dd *.raw *.001 *.E01')))
+                                                                  (RAW_IMAGE_LABEL, '*.img *.bin *.dd *.raw *.001 *.E01 *.s01 *.Ex01 *.aff')))
     else:
         input_filename = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
     input_entry.delete(0, 'end')
@@ -1043,7 +1043,7 @@ leapps_logo_label.bind("<Button-1>", lambda e: open_website("https://leapps.org"
 ### Input output selection
 input_frame = ttk.LabelFrame(
     main_window,
-    text=' Select the file (tar, zip, gz, raw image, .E01 acquisition) or directory of the target iOS full file system extraction or a backup for parsing: ')
+    text=' Select the file (tar, zip, gz, raw image, E01, Ex01 or AFF acquisition) or directory of the target iOS full file system extraction or a backup for parsing: ')
 input_frame.pack(padx=14, pady=2, fill='x')
 input_entry = ttk.Entry(input_frame)
 input_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)

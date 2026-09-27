@@ -212,7 +212,8 @@ python ileapp.py -t raw -i /path/to/acquisition.E01 -o /path/to/output/
 ```
 
 `raw` reads a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001` segment of
-a split set), or an EnCase/EWF `.E01` acquisition and the segments beside it, in
+a split set), or an acquisition and the segments or files beside it (EnCase/EWF
+`.E01`, SMART `.s01`, EWF2 `.Ex01`, AFF `.aff`, or any `.aff` in an AFD folder), in
 place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
 F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS
 volumes are searched directly, and

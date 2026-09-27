@@ -1,15 +1,16 @@
 """Pin the raw image seeker (scripts/raw_image.py) against independent readings.
 
-FileSeekerRaw reads a disk image or an E01 acquisition in place through the
+FileSeekerRaw reads a disk image or an acquisition in place through the
 vendored qnxprobe and stages only the files an artifact's pattern selects. The
 fixtures under admin/test/data/raw_images/ each come with a list of their files
 and SHA-256 written by a different reader (see the README there), so a staged
 copy is checked against what an independent reader saw, not against the reader
 under test.
 
-The E01 and split-segment paths are exercised by wrapping the same NTFS fixture
-at test time: a small EWF writer lives in this file (copied from ewfprobe's own
-test suite, MIT), and a split set is the raw image cut into numbered pieces.
+The E01, AFF, AFD and split-segment paths are exercised by wrapping the same
+NTFS fixture at test time: small EWF and AFF writers live in this file (copied
+from ewfprobe's own test suite, MIT), and a split set is the raw image cut into
+numbered pieces.
 The expected values are the fixture's, written out, never read back from the
 seeker.
 """
@@ -124,6 +125,31 @@ def write_ewf(folder, stem, data, chunk_size=32768, sector_size=512, chunks_per_
             else:
                 _section(out, "next", b"", last=True)
     return paths
+
+
+# ---- a minimal AFF writer, from ewfprobe's test suite -------------------------
+
+def _aff_segment(out, name, data=b"", arg=0):
+    raw = name.encode("utf-8")
+    out.write(struct.pack(">4sIII", b"AFF\x00", len(raw), len(data), arg) + raw + data)
+    out.write(struct.pack(">4sI", b"ATT\x00", 16 + len(raw) + len(data) + 8))
+
+
+def write_aff(path, data, pages, page_size, image_size=None):
+    """Write the listed pages of data as an AFF file from AFFLIB's documented
+    layout: deflated pages, the sector and page size, and the image size when
+    given (AFFLIB writes it into one file of an AFD)."""
+    with open(path, "wb") as out:
+        out.write(b"AFF10\r\n\x00")
+        _aff_segment(out, "sectorsize", b"", 512)
+        _aff_segment(out, "pagesize", b"", page_size)
+        for n in pages:
+            page = data[n * page_size:(n + 1) * page_size]
+            _aff_segment(out, f"page{n}", zlib.compress(page, 6), 0x01)
+        if image_size is not None:
+            _aff_segment(out, "imagesize",
+                         struct.pack(">II", image_size & 0xFFFFFFFF, image_size >> 32), 2)
+    return path
 
 
 def with_mbr(volume_bytes, start_lba=2048):
@@ -528,6 +554,48 @@ class RawImageSeekerTest(unittest.TestCase):
         self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
         self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
 
+    def test_an_aff_reads_like_the_raw_image(self):
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        page = 1 << 20
+        pages = range(-(-len(data) // page))
+        folder = tempfile.mkdtemp(prefix='raw_image_aff_', dir=self.work)
+        path = write_aff(os.path.join(folder, 'ntfs.aff'), data, pages, page, len(data))
+        seeker = self._seeker(path)
+        self.assertIn('an AFF acquisition of one file', self.log.text())
+        found = seeker.search('*/many/file_0007.txt')
+        self.assertEqual(len(found), 1)
+        self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
+        self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
+
+    def test_an_afd_is_read_whole_from_any_one_file_in_it(self):
+        with open(self.ntfs, 'rb') as handle:
+            data = handle.read()
+        page = 1 << 20
+        count = -(-len(data) // page)
+        folder = os.path.join(tempfile.mkdtemp(prefix='raw_image_afd_', dir=self.work),
+                              'ntfs.afd')
+        os.mkdir(folder)
+        groups = [range(0, count // 2), range(count // 2, count)]
+        for index, pages in enumerate(groups):
+            write_aff(os.path.join(folder, f'file_{index:03d}.aff'), data, pages, page,
+                      len(data) if index == len(groups) - 1 else None)
+        seeker = self._seeker(os.path.join(folder, 'file_001.aff'))
+        self.assertIn('an AFD acquisition of 2 files', self.log.text())
+        found = seeker.search('*/many/file_0007.txt')
+        self.assertEqual(len(found), 1)
+        self.assertEqual(_sha256(found[0]), self.ntfs_hashes['many/file_0007.txt'])
+        self.assertEqual(len(seeker.name_list), len(self._seeker(self.ntfs).name_list))
+
+    def test_an_l01_is_refused_as_logical_evidence(self):
+        folder = tempfile.mkdtemp(prefix='raw_image_l01_', dir=self.work)
+        path = os.path.join(folder, 'evidence.L01')
+        with open(path, 'wb') as handle:
+            handle.write(b'LVF\t\r\n\xff\x00' + b'\x00' * 4096)
+        with self.assertRaises(qnxprobe.ImageUnreadable) as caught:
+            FileSeekerRaw(path, self.data)
+        self.assertIn('logical evidence', str(caught.exception))
+
     def test_a_split_set_is_joined_from_any_one_segment(self):
         folder = tempfile.mkdtemp(prefix='raw_image_split_', dir=self.work)
         with open(self.ntfs, 'rb') as handle:
@@ -660,7 +728,7 @@ class RawImageSeekerTest(unittest.TestCase):
                 self.assertTrue(callable(getattr(cls, method)), f'{cls.__name__}.{method}')
 
     def test_gui_suffixes_cover_the_conventional_names(self):
-        for suffix in ('img', 'dd', 'bin', 'raw', '001', 'e01'):
+        for suffix in ('img', 'dd', 'bin', 'raw', '001', 'e01', 's01', 'ex01', 'aff'):
             self.assertIn(suffix, RAW_IMAGE_SUFFIXES)
         self.assertNotIn('zip', RAW_IMAGE_SUFFIXES)
 

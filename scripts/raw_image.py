@@ -1,9 +1,12 @@
-"""Raw disk image and E01 acquisition input: the seeker behind ``-t raw``.
+"""Raw disk image and acquisition input: the seeker behind ``-t raw``.
 
 A raw image (``.img``, ``.dd``, ``.bin``, a numbered ``.001`` segment of a split
-set) or an EnCase/EWF acquisition (``.E01`` and its segments) is read in place,
-without mounting and without administrator rights, through the reader vendored
-in ``scripts/vendor/`` (qnxprobe, with ewfprobe beside it for EWF). The reader
+set) or an acquisition (EnCase/EWF ``.E01``, SMART ``.s01``, EWF2 ``.Ex01``, AFF
+``.aff``, or an AFD folder of AFF files, each with the segments or files beside
+it) is read in place, without mounting and without administrator rights, through
+the reader vendored in ``scripts/vendor/`` (qnxprobe, with ewfprobe beside it for
+the acquisitions). EnCase logical evidence (``.L01``) holds copies of files rather
+than a disk, and the reader refuses it with a message saying so. The reader
 finds the partitions, identifies each volume by its own on-disk structure and
 walks its directory tree; this module turns that into the same contract the zip
 seeker offers: a list of member names to match artifact patterns against, and a
@@ -51,22 +54,24 @@ from fnmatch import _compile_pattern
 from scripts.ilapfuncs import logfunc, sanitize_file_path
 from scripts.search_files import FileInfo, FileSeekerBase, normcase
 
-# qnxprobe reaches its EWF reader with a bare ``import ewfprobe``, falling back to
-# a sys.path insert of its own directory when that fails. Importing the vendored
-# copy through the package first and registering it under the bare name makes
-# the fallback unnecessary, which matters in a frozen (PyInstaller) build where
-# the vendored files are modules of the bundle rather than files on a path.
+# qnxprobe reaches its acquisition reader with a bare ``import ewfprobe``,
+# falling back to a sys.path insert of its own directory when that fails.
+# Importing the vendored copy through the package first and registering it
+# under the bare name makes the fallback unnecessary, which matters in a frozen
+# (PyInstaller) build where the vendored files are modules of the bundle rather
+# than files on a path.
 from scripts.vendor import ewfprobe as _ewfprobe   # noqa: E402  (order matters)
 sys.modules.setdefault('ewfprobe', _ewfprobe)
 from scripts.vendor import qnxprobe  # noqa: E402
 
-# Extensions conventionally given to a raw disk image, plus the one an
-# EnCase/EWF acquisition carries. Everything a raw image run needs is decided by
-# reading the image, so this list only has to get the file past type selection
-# in the GUI; an image named anything else is still reachable from the command
-# line with -t raw. An .E01 is the first segment of its set and the reader joins
-# the rest, and so is a .001.
-RAW_IMAGE_SUFFIXES = ('img', 'bin', 'dd', 'raw', '001', 'e01')
+# Extensions conventionally given to a raw disk image, plus those the
+# acquisitions the reader opens carry. Everything a raw image run needs is
+# decided by reading the image, so this list only has to get the file past type
+# selection in the GUI; an image named anything else is still reachable from the
+# command line with -t raw. An .E01, .s01 or .Ex01 is the first segment of its set
+# and the reader joins the rest, and so is a .001; an .aff inside a folder whose
+# name ends .afd brings every file of that folder.
+RAW_IMAGE_SUFFIXES = ('img', 'bin', 'dd', 'raw', '001', 'e01', 's01', 'ex01', 'aff')
 
 # What the vendored reader walks, for the file dialog and the -t help. A test
 # asserts each entry here has a walker in the vendored copy, so the two cannot
@@ -137,7 +142,7 @@ class _Entry:
 
 
 class FileSeekerRaw(FileSeekerBase):
-    """Search a raw disk image or E01 acquisition and stage the files that match.
+    """Search a raw disk image or an acquisition and stage the files that match.
 
     Built the way FileSeekerZip is, and used the same way by the run: ``search``
     matches a pattern against every member name, copies each match under the
@@ -195,17 +200,13 @@ class FileSeekerRaw(FileSeekerBase):
         segments = qnxprobe.split_segments(self.image_path)
         self._image = qnxprobe.open_image(self.image_path, segments)
         size = qnxprobe.image_size(self._image)
-        parts = list(getattr(self._image, 'paths', []) or [])
         if segments:
             logfunc(f'  {len(segments):,} segments joined in order, '
                     f'{os.path.basename(segments[0])} .. '
                     f'{os.path.basename(segments[-1])}')
-        elif len(parts) > 1:
-            logfunc(f'  an EWF acquisition of {len(parts):,} segments, joined by the '
-                    f'reader: {os.path.basename(parts[0])} .. '
-                    f'{os.path.basename(parts[-1])}')
-        elif parts:
-            logfunc('  an EWF acquisition of one segment')
+        elif getattr(self._image, 'paths', None):
+            # the container and its segment or file count, as the reader reports it
+            logfunc(f'  {qnxprobe.describe_acquisition(self._image)}')
         logfunc(f'  {size:,} bytes ({qnxprobe.human(size)})')
 
         self.volumes = qnxprobe.volumes(self._image, size)
