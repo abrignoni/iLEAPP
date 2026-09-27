@@ -231,5 +231,103 @@ class OneWordHeadersAreMatchedAsSpelled(unittest.TestCase):
         self.assertTrue(any('not as this finding' in m for _, m in named))
 
 
+class SourceColumn(unittest.TestCase):
+    """A Source column that another column already separates repeats what that column says.
+
+    The report's located-at line and the LAVA source_path name every file an artifact
+    read, so a Source File column earns a place only when nothing else in the row tells
+    the files apart. A Profile column that pairs one to one with the files is the case
+    this looks for: two Chrome profiles, each database beside exactly one profile name.
+    """
+
+    COLUMNS = ['Visited', 'URL', 'Profile', 'Source File']
+
+    def rows(self, profiles=('Default', 'Profile 1'), per_file=2):
+        return [{'Visited': f'2024-01-0{i + 1} 10:00:00', 'URL': f'u{f}{i}',
+                 'Profile': profile, 'Source File': f'app_chrome/{profile}/History'}
+                for f, profile in enumerate(profiles) for i in range(per_file)]
+
+    def test_flags_a_source_another_column_separates(self):
+        findings = coa.check_table(self.COLUMNS, self.rows(), notes='')
+        reported = [m for k, m in findings if k == 'source-column']
+        self.assertEqual(len(reported), 1)
+        self.assertIn("'Profile'", reported[0])
+
+    def test_one_file_is_not_judged(self):
+        findings = coa.check_table(self.COLUMNS, self.rows(profiles=('Default',)), notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_one_row_per_file_is_not_judged(self):
+        """With one row per file every unique column pairs with the files by accident."""
+        findings = coa.check_table(self.COLUMNS, self.rows(per_file=1), notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_file_with_one_row_is_not_evidence(self):
+        rows = self.rows(per_file=3)[:4]
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_column_that_varies_within_a_file_does_not_separate(self):
+        rows = self.rows()
+        rows[1]['Profile'] = 'Guest'
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_two_files_under_one_value_are_not_separated(self):
+        rows = self.rows()
+        for row in rows:
+            row['Profile'] = 'Default'
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_blank_value_names_nothing(self):
+        rows = self.rows()
+        for row in rows[:2]:
+            row['Profile'] = ''
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_time_that_differs_per_file_is_not_a_name(self):
+        rows = self.rows()
+        for row in rows:
+            row['Profile'] = 'x'
+            month = '02' if 'Default' in row['Source File'] else '03'
+            row['Visited'] = f'2024-{month}-01 00:00:00'
+        findings = coa.check_table(self.COLUMNS, rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_other_source_spellings_are_judged(self):
+        for header in ('Source Path', 'Source Database (as stored)', 'source db', 'Source Folders'):
+            rows = [dict(row, **{header: row['Source File']}) for row in self.rows()]
+            for row in rows:
+                del row['Source File']
+            columns = ['Visited', 'URL', 'Profile', header]
+            findings = coa.check_table(columns, rows, notes='')
+            self.assertIn('source-column', _kinds(findings), header)
+
+    def test_a_bare_source_is_a_data_field(self):
+        rows = [dict(row, Source=row['Source File']) for row in self.rows()]
+        for row in rows:
+            del row['Source File']
+        findings = coa.check_table(['Visited', 'URL', 'Profile', 'Source'], rows, notes='')
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_a_note_saying_why_it_stays_silences_it(self):
+        notes = ('Source File stays because Profile is not unique: two users can each '
+                 'hold a profile named Default.')
+        findings = coa.check_table(self.COLUMNS, self.rows(), notes=notes)
+        self.assertNotIn('source-column', _kinds(findings))
+
+    def test_naming_both_without_the_reason_leaves_a_hint(self):
+        notes = 'Source File is the database read.'
+        findings = coa.check_table(self.COLUMNS, self.rows(), notes=notes)
+        reported = [m for k, m in findings if k == 'source-column']
+        self.assertTrue(reported and 'not as this finding' not in reported[0])
+        both = 'Profile and Source File are read from the path.'
+        findings = coa.check_table(self.COLUMNS, self.rows(), notes=both)
+        reported = [m for k, m in findings if k == 'source-column']
+        self.assertTrue(reported and 'not as this finding' in reported[0])
+
+
 if __name__ == '__main__':
     unittest.main()
