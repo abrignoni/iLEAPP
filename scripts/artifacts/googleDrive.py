@@ -41,10 +41,16 @@ __artifacts_v2__ = {
                        "the locally stored copy of the file where one exists on the device",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-15",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-09-27",
         "requirements": "none",
         "category": "Google Drive",
-        "notes": "The cello.db store is written by Google's DriveKit library, which is embedded by several Google apps, so a store can sit in a container belonging to an app other than Google Drive. Across the tested images these stores were found in Google Drive, Google Docs, Google Sheets, Gmail and Google Chat containers, and three tested images carried one with no Google Drive container present. A store can also sit in an app extension container under Data/PluginKitPlugin, which is read the same way and reports the extension's own bundle id. The Container App column names the app that owns the container, read from that container's metadata property list, and is empty when the extraction carries no metadata property list for it. A row is evidence that the named app held this data; it does not establish that the Google Drive app was installed. One row per row of the items table of each cello.db under "
+        "notes": "The cello.db store is written by Google's DriveKit library, which is embedded by several Google apps, so a store can sit in a container belonging to an app other than Google Drive. Across the tested images these stores were found in Google Drive, Google Docs, Google Sheets, Gmail and Google Chat containers, and three tested images carried one with no Google Drive container present. A store can also sit in an app extension container under Data/PluginKitPlugin, which is read the same way and reports the extension's own bundle id. The Container App column names the app that owns the container, read from that container's metadata property list, "
+                 "and is empty when the extraction carries no metadata property list for it. "
+                 "Container App and Account ID "
+                 "do not separate two stores of one account whose containers"
+                 " carry "
+                 "no metadata property list, so Source Path names the store each row came from."
+                 " A row is evidence that the named app held this data; it does not establish that the Google Drive app was installed. One row per row of the items table of each cello.db under "
                  "Documents/drivekit/users/<account id>/. Timestamps are Unix milliseconds as "
                  "stored. The folder path is reconstructed by walking the stable_parents table; "
                  "every tested store had at most one parent per item. Offline Status is reported "
