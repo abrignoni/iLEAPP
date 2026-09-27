@@ -11,7 +11,8 @@ zlib, bzip2, LZMA or ADC or stored, including one split into .dmgpart segments,
 sparse images (.sparseimage) and sparse bundles (.sparsebundle). An LZFSE .dmg
 (ULFO) needs the optional pyliblzfse package. An Apple disk image encrypted with a
 password (hdiutil -encryption, AES-128 or AES-256) opens with that password and
-needs the optional pycryptodome package. From an L01, EnCase's logical evidence, it
+needs the optional pycryptodome package, and so does an E01, SMART or raw (dd) set
+FTK Imager encrypted with AD encryption. From an L01, EnCase's logical evidence, it
 lists the files collected and reads each one's content.
 
     with ewfprobe.open_ewf("evidence.E01") as img:
@@ -37,14 +38,18 @@ continuation headers and the layout of a segmented .dmg measured on images
 hdiutil wrote; no libmodi code is copied. The encrypted container (encrcdsa) is
 read from the layout two MIT-licensed readers publish, nlitsme/encrypteddmg and
 kev365/xways-imageio-dmg, with what differs on current macOS measured on images
-hdiutil wrote; no code from either is copied.
+hdiutil wrote; no code from either is copied. AD encryption follows the "AD
+encryption" section of the EWF documentation, with what it leaves open measured on
+sets FTK Imager wrote.
 
 Scope. This reads EWF-E01, the format EnCase 6 and 7 and FTK Imager write and
 by far the most common one in the field, EWF-S01, the variant ASR Data's SMART
 writes, EWF2-Ex01, which EnCase 7 and later write, AFF, including AFD, and
 EWF-L01 logical evidence, and UDIF, sparse image and sparse bundle Apple disk
-images, encrypted with a password or not. It does not read Lx01 logical evidence,
-an Apple disk image unlocked by a certificate or a keybag rather than a password,
+images, encrypted with a password or not, and AD-encrypted E01, SMART and raw sets.
+It does not read Lx01 logical evidence, an AD1 or an AD-encrypted image protected by
+a certificate, an Apple disk image unlocked by a certificate or a keybag rather than
+a password,
 or one in the older version 1 encrypted format (cdsaencr),
 encrypted Ex01 images (the encryption is not publicly documented), Ex01 images
 compressed with bzip2 (no sample exists to validate against), encrypted AFF, or AFM
@@ -81,7 +86,7 @@ try:
 except ImportError:
     lzma = None
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 # ---------------------------------------------------------------- constants
 
@@ -331,6 +336,32 @@ _CDSAENCR_V1_END = b"\x00\x00\x00\x01cdsaencr"
 # An encrypted read-write image decrypts to the disk itself; hdiutil imageinfo
 # calls that format UDRW.
 FORMAT_UDRW = "UDRW"
+# FTK Imager's AD encryption wraps every file of an acquisition in one container.
+# The layout is from Joachim Metz, "Expert Witness Compression Format (EWF)",
+# section "AD encryption" (libyal/libewf documentation, from AccessData's own
+# white paper): a header of its own size (512 bytes) in the first file only, then
+# the file encrypted with AES in CTR mode, the IV the file's index (from 0)
+# shifted left 64 bits and the counter little endian. The header holds a salt,
+# the file key encrypted with a key made from the password, and an HMAC of that
+# encrypted key. Measured on images FTK Imager 4.7.3.81 wrote (the test images of
+# fox-it/dissect.evidence, read as data only), where the documentation says
+# nothing: the key made from the password is PBKDF2-HMAC-SHA1 of the header's
+# hash (SHA-512 on every image seen) of the password, the file key is encrypted
+# with AES-CTR from counter 0 under it, the HMAC uses the header's hash, and the
+# password is its UTF-8 bytes. Also measured, on sets FTK Imager 4.7.3.61 wrote:
+# E01, SMART and raw (dd) output can be AD-encrypted (AFF has its own, different
+# encryption), every file of a set is encrypted, and only the first carries the
+# header, so a raw set's first file is its first fragment's bytes plus 512. A
+# container unlocked by a certificate keeps the salt encrypted with the
+# certificate's key; ewfprobe does not read those.
+ADCRYPT_SIGNATURE = b"ADCRYPT\x00"
+_ADCRYPT_HEADER = struct.Struct("<8sIIhhh2sIIIIII")  # through the HMAC length
+_ADCRYPT_CIPHERS = {1: 128, 2: 192, 3: 256}
+_ADCRYPT_HASHES = {1: "sha256", 2: "sha512"}
+_ADCRYPT_MAX_ITERATIONS = 50_000_000            # the images seen use 4,000
+AD1_SIGNATURE = b"ADSEGMENTEDFILE\x00"
+# An AD-encrypted raw (dd) image decrypts to the disk itself, in numbered files.
+FORMAT_RAW = "RAW"
 # Chunks of a UDIF or sparse image are served in fixed virtual chunks of this size.
 _APPLE_VIRTUAL_CHUNK = 1 << 20
 _APPLE_RUN_CACHE = 8                            # decompressed UDIF chunks kept
@@ -390,7 +421,8 @@ class EwfIncompleteSetError(EwfError):
 
 
 class EwfPasswordError(EwfFormatError):
-    """An encrypted Apple disk image was opened without its password, or with one
+    """An encrypted image (an Apple disk image, or an AD-encrypted acquisition) was
+    opened without its password, or with one
     that does not open it. The two subclasses tell those apart, so a caller that
     asks for the password can say which happened and ask again."""
 
@@ -695,6 +727,197 @@ class _EncryptedFile:
         return False
 
 
+class _AdcryptKey:
+    """What opens an AD-encrypted acquisition: the file key, where the first file's
+    data starts, and what the header recorded about how it was made."""
+
+    def __init__(self, key, start, key_bits, hash_name, iterations):
+        self.key = key
+        self.start = start
+        self.key_bits = key_bits
+        self.hash_name = hash_name
+        self.iterations = iterations
+
+
+class _AdcryptSegment:
+    """One file of an AD-encrypted set: the set's key and the file's index."""
+
+    def __init__(self, key, index):
+        self.key = key
+        self.index = index
+        self.start = key.start if index == 0 else 0
+
+
+def _ctr_le(ecb, data, counter):
+    """AES-CTR with a 128-bit little-endian counter, from ``counter``."""
+    blocks = -(-len(data) // 16)
+    stream = ecb.encrypt(b"".join((counter + i).to_bytes(16, "little")
+                                  for i in range(blocks)))[:len(data)]
+    return (int.from_bytes(data, "big")
+            ^ int.from_bytes(stream, "big")).to_bytes(len(data), "big")
+
+
+def is_adcrypt(path) -> bool:
+    """True when ``path`` begins with FTK Imager's AD encryption header."""
+    try:
+        with open(path, "rb") as fh:
+            return fh.read(8) == ADCRYPT_SIGNATURE
+    except OSError:
+        return False
+
+
+def _numbered_set(path):
+    """The files of the numbered set (.001, .002, ...) ``path`` belongs to, from its
+    lowest number, with the same stem and number of digits; stops at the first
+    number that is not on disk. [] when the suffix is not all digits."""
+    folder, name = os.path.split(os.path.abspath(path))
+    stem, dot, suffix = name.rpartition(".")
+    if not dot or not stem or not (suffix.isascii() and suffix.isdigit()):
+        return []
+    width = len(suffix)
+    try:
+        present = {entry for entry in os.listdir(folder)}
+    except OSError as exc:
+        raise EwfFormatError(f"cannot list the folder holding the image: {exc}") from exc
+    first = 0 if f"{stem}.{0:0{width}d}" in present else 1
+    out = []
+    number = first
+    while f"{stem}.{number:0{width}d}" in present:
+        out.append(os.path.join(folder, f"{stem}.{number:0{width}d}"))
+        number += 1
+    return out
+
+
+def _ewf_named(name):
+    """True when ``name`` has an EWF, SMART or EWF2 segment extension (E01, s01,
+    Ex01 and on), not a numbered raw one (001)."""
+    ext = name.rpartition(".")[2] if "." in name else ""
+    return (len(ext) in (3, 4) and ext[:1].isascii() and ext[:1].isalpha()
+            and _family(ext) in ("E", "s", "Ex") and ext[-2:].isalnum())
+
+
+def adcrypt_set(path):
+    """The files of the AD-encrypted set ``path`` belongs to, first file first, or
+    None when it is not one. Only the first file carries the header, so a later
+    numbered segment of a raw set is recognised by its first sibling; an EWF set
+    (E01, SMART, Ex01) is joined by its extension sequence from its first file."""
+    if os.path.isdir(path):
+        return None
+    if is_adcrypt(path):
+        name = os.path.basename(path)
+        ext = name.rpartition(".")[2] if "." in name else ""
+        if ext.isascii() and ext.isdigit():
+            return _numbered_set(path) or [os.path.abspath(path)]
+        if _ewf_named(name):
+            try:
+                return ewf_segments(path)
+            except EwfFormatError:
+                return [os.path.abspath(path)]
+        return [os.path.abspath(path)]
+    numbered = _numbered_set(path)
+    if numbered and is_adcrypt(numbered[0]):
+        return numbered
+    return None
+
+
+def _adcrypt_unlock(fh, name, password):
+    """The key of the AD-encrypted set whose first file is open in ``fh``."""
+    head = fh.read(_ADCRYPT_HEADER.size)
+    if len(head) != _ADCRYPT_HEADER.size or not head.startswith(ADCRYPT_SIGNATURE):
+        raise EwfFormatError(f"{name} has no AD encryption header")
+    (_sig, version, header_size, _passwords, _raw_keys, _certificates, _reserved,
+     cipher, hash_id, iterations, salt_len, key_len, hmac_len) = _ADCRYPT_HEADER.unpack(head)
+    if version != 1:
+        raise EwfFormatError(f"{name} is AD encryption version {version}; only version 1 "
+                             f"is read")
+    key_bits = _ADCRYPT_CIPHERS.get(cipher)
+    hash_name = _ADCRYPT_HASHES.get(hash_id)
+    if key_bits is None or hash_name is None:
+        raise EwfFormatError(f"{name}: the AD encryption header names cipher {cipher} "
+                             f"and hash {hash_id}, which are not AES and SHA-2")
+    if key_len != key_bits // 8 or hmac_len != hashlib.new(hash_name).digest_size:
+        raise EwfFormatError(f"{name}: the AD encryption header's key or HMAC length "
+                             f"does not fit AES-{key_bits} and {hash_name.upper()}")
+    if not 0 < iterations <= _ADCRYPT_MAX_ITERATIONS:
+        raise EwfFormatError(f"{name}: the AD encryption header asks for {iterations:,} "
+                             f"PBKDF2 iterations")
+    end = _ADCRYPT_HEADER.size + salt_len + key_len + hmac_len
+    if not 0 < salt_len <= 512 or header_size < end:
+        raise EwfFormatError(f"{name}: the AD encryption header's lengths do not fit its "
+                             f"{header_size}-byte size")
+    rest = fh.read(salt_len + key_len + hmac_len)
+    if len(rest) != salt_len + key_len + hmac_len:
+        raise EwfIncompleteSetError(f"{name} ends inside its AD encryption header")
+    salt, wrapped = rest[:salt_len], rest[salt_len:salt_len + key_len]
+    stored_hmac = rest[salt_len + key_len:]
+    if _AES is None:
+        raise EwfFormatError(f"{name} is encrypted with FTK Imager's AD encryption; "
+                             f"reading it needs the pycryptodome package")
+    if password is None:
+        raise EwfPasswordRequiredError(f"{name} is encrypted with FTK Imager's AD "
+                                       f"encryption and opens only with its password")
+    if isinstance(password, str):
+        password = password.encode("utf-8")
+    made = hashlib.pbkdf2_hmac("sha1", hashlib.new(hash_name, password).digest(), salt,
+                               iterations, key_len)
+    if not hmac.compare_digest(hmac.digest(made, wrapped, hash_name), stored_hmac):
+        raise EwfWrongPasswordError(f"the password does not open {name} (an image "
+                                    f"protected by a certificate is not read)")
+    key = _ctr_le(_AES.new(made, _AES.MODE_ECB), wrapped, 0)
+    return _AdcryptKey(key, header_size, key_bits, hash_name, iterations)
+
+
+class _AdcryptFile:
+    """One decrypted file of an AD-encrypted set, as a read-only file object."""
+
+    def __init__(self, path, segment):
+        self._fh = open(path, "rb")
+        self._ecb = _AES.new(segment.key.key, _AES.MODE_ECB)
+        self._start = segment.start
+        self._base = segment.index << 64
+        self.size = os.path.getsize(path) - segment.start
+        self._pos = 0
+
+    def seek(self, offset, whence=os.SEEK_SET):
+        if whence == os.SEEK_SET:
+            pos = offset
+        elif whence == os.SEEK_CUR:
+            pos = self._pos + offset
+        elif whence == os.SEEK_END:
+            pos = self.size + offset
+        else:
+            raise ValueError(f"invalid whence ({whence})")
+        if pos < 0:
+            raise ValueError("negative seek position")
+        self._pos = pos
+        return pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        end = self.size if n is None or n < 0 else min(self.size, self._pos + n)
+        if end <= self._pos:
+            return b""
+        first = self._pos // 16
+        self._fh.seek(self._start + first * 16)
+        data = self._fh.read(end - first * 16)
+        plain = _ctr_le(self._ecb, data, self._base + first)
+        out = plain[self._pos - first * 16:]
+        self._pos = end
+        return out
+
+    def close(self):
+        self._fh.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
+
+
 def _open_content(path, password=None, keys=None):
     """``path``'s content as (a file object, its size): the file itself, or, for an
     encrypted Apple disk image, what it decrypts to. ``keys`` keeps each file's
@@ -713,6 +936,9 @@ def _open_content(path, password=None, keys=None):
         keys[path] = key
     if key is None:
         return open(path, "rb"), os.path.getsize(path)
+    if isinstance(key, _AdcryptSegment):
+        fh = _AdcryptFile(path, key)
+        return fh, fh.size
     return (_EncryptedFile(path, key, key.start, key.length, os.path.basename(path)),
             key.length)
 
@@ -1432,6 +1658,8 @@ class EwfImage:
             self.paths = _afd_members(self._afd)
         elif _is_aff(path) or apple_image_kind(path):
             self.paths = [os.path.abspath(path)]
+        elif adcrypt_set(path):
+            self.paths = adcrypt_set(path)
         else:
             self.paths = ewf_segments(path)
         self._handles: OrderedDict[int, object] = OrderedDict()
@@ -1527,6 +1755,11 @@ class EwfImage:
         if kind == FORMAT_UDIF:
             self._index_udif()
             return
+        if magic == ADCRYPT_SIGNATURE:
+            magic = self._unlock_adcrypt()
+            if magic is None:
+                self._index_adcrypt_raw()
+                return
         if magic == LEF2_SIGNATURE:
             raise EwfFormatError(
                 f"{os.path.basename(self.paths[0])} is Lx01 logical evidence, which "
@@ -1543,7 +1776,8 @@ class EwfImage:
         last_name = None
         for i, path in enumerate(self.paths):
             fh = self._handle(i)
-            size_on_disk = os.path.getsize(path)
+            size_on_disk = (os.path.getsize(path) if self.encryption is None
+                            else self._content_size(path))
             expect_segment = i + 1
             for segno, name, offset, size, _next in _sections(fh, path):
                 if segno != expect_segment:
@@ -1989,7 +2223,7 @@ class EwfImage:
         self.size = self.media_size
         self.sizes = sizes if sizes is not None else [os.path.getsize(p)
                                                       for p in self.paths]
-        if fmt in (FORMAT_UDIF, FORMAT_SPARSEBUNDLE, FORMAT_UDRW):
+        if fmt in (FORMAT_UDIF, FORMAT_SPARSEBUNDLE, FORMAT_UDRW, FORMAT_RAW):
             self.chunk_size = _APPLE_VIRTUAL_CHUNK
         self.sectors_per_chunk = self.chunk_size // 512
         self.chunk_count = self._needed_chunks()
@@ -2031,6 +2265,68 @@ class EwfImage:
                                      f"number of 512-byte sectors")
             self.compression_level = "none"
             self._apple_finish(size // 512, FORMAT_UDRW)
+
+    def _unlock_adcrypt(self):
+        """Unlock an acquisition FTK Imager encrypted with AD encryption, so every
+        segment reads decrypted, and return the signature of what it holds."""
+        path = self.paths[0]
+        name = os.path.basename(path)
+        with open(path, "rb") as fh:
+            key = _adcrypt_unlock(fh, name, self._password)
+        for i, segment in enumerate(self.paths):
+            self._keys[segment] = _AdcryptSegment(key, i)
+        self.encryption = {"container": "AD encryption (FTK Imager)",
+                           "cipher": f"AES-{key.key_bits}-CTR",
+                           "key_wrap": f"AES-{key.key_bits}-CTR",
+                           "kdf": f"PBKDF2-HMAC-SHA1 of {key.hash_name.upper()}",
+                           "kdf_rounds": key.iterations}
+        fh, _size = self._content(path)
+        with fh:
+            inner = fh.read(len(AD1_SIGNATURE))
+        if inner == AD1_SIGNATURE:
+            raise EwfFormatError(f"{name} is an AD1 logical image, encrypted; ewfprobe "
+                                 f"reads disk images and does not read AD1")
+        if inner[:8] in (SIGNATURE, SIGNATURE_V2, LVF_SIGNATURE, LEF2_SIGNATURE):
+            return inner[:8]
+        if _ewf_named(name):
+            raise EwfFormatError(f"{name} is named as an EWF segment and decrypts to "
+                                 f"something that is not EWF")
+        return None                             # a raw (dd) image: the disk itself
+
+    def _index_adcrypt_raw(self):
+        """An AD-encrypted raw image: its files, decrypted and joined, are the disk."""
+        sizes = [self._content_size(p) for p in self.paths]
+        starts, total = [], 0
+        for size in sizes:
+            starts.append(total)
+            total += size
+        if total % 512:
+            raise EwfFormatError(f"{os.path.basename(self.paths[0])} decrypts to "
+                                 f"{total:,} bytes, not a whole number of 512-byte "
+                                 f"sectors")
+        self._raw_starts = starts
+        self._raw_sizes = sizes
+        self.compression_level = "none"
+        self._apple_finish(total // 512, FORMAT_RAW)
+
+    def _chunk_data_raw(self, n):
+        """Chunk ``n`` of a decrypted raw set, read across its files."""
+        pos = n * self.chunk_size
+        want = min(self.chunk_size, self.media_size - pos)
+        out = bytearray()
+        i = bisect.bisect_right(self._raw_starts, pos) - 1
+        while len(out) < want:
+            fh = self._handle(i)
+            fh.seek(pos + len(out) - self._raw_starts[i])
+            piece = fh.read(min(want - len(out),
+                                self._raw_starts[i] + self._raw_sizes[i] - pos - len(out)))
+            if not piece:
+                raise EwfIncompleteSetError(f"{os.path.basename(self.paths[i])} is "
+                                            f"shorter than the set needs")
+            out += piece
+            if pos + len(out) >= self._raw_starts[i] + self._raw_sizes[i]:
+                i += 1
+        return bytes(out)
 
     def _note_encryption(self, key):
         self.encryption = {"container": "encrcdsa version 2",
@@ -2107,10 +2403,14 @@ class EwfImage:
                 joined += part_fork
             low, high = 0, joined
         else:
-            # One file: a chunk's position is an offset into the file, the way
-            # libmodi and libdmg-hfsplus read it.
-            self._forks.append((0, 0, 0, fork_offset + fork_size))
-            low, high = fork_offset, fork_offset + fork_size
+            # One file: a chunk's position counts from the start of the data fork,
+            # which the trailer places. hdiutil writes the fork at 0, where this is
+            # also the file offset libmodi and libdmg-hfsplus read. Measured with a
+            # copy moved 512 bytes into the file: hdiutil attach reads it when the
+            # positions are left as they were and calls it corrupt when they are
+            # shifted by 512, so it adds the fork's offset, as 7-Zip and dmgwiz do.
+            self._forks.append((0, 0, fork_offset, fork_size))
+            low, high = 0, fork_size
         self._fork_starts = [f[1] for f in self._forks]
 
         if not xml_size:
@@ -2122,8 +2422,15 @@ class EwfImage:
                                         f"of the file; the image is cut short")
         fh = self._handle(0)
         fh.seek(xml_offset)
+        xml = _read_exactly(fh, xml_size)
+        # Some images count a byte or two past the end of the property list
+        # (citruz/dmgwiz issue 19); hdiutil attach reads such an image, measured
+        # with NUL and text bytes added, so what follows </plist> is not read.
+        end = xml.rfind(b"</plist>")
+        if end >= 0:
+            xml = xml[:end + len(b"</plist>")]
         try:
-            plist = plistlib.loads(_read_exactly(fh, xml_size))
+            plist = plistlib.loads(xml)
             tables = plist["resource-fork"]["blkx"]
         except Exception as exc:                # pylint: disable=broad-except
             raise EwfFormatError(f"{name}: the property list could not be read: "
@@ -2702,6 +3009,8 @@ class EwfImage:
             return self._keep(n, self._chunk_data_bundle(n), want)
         if self.format == FORMAT_UDRW:
             return self._keep(n, self._chunk_data_udrw(n), want)
+        if self.format == FORMAT_RAW:
+            return self._keep(n, self._chunk_data_raw(n), want)
 
         segment, start, end, compressed = self._chunk_location(n)
         fh = self._handle(segment)
@@ -2908,9 +3217,11 @@ def open_ewf(path, segments=None, password=None) -> EwfImage:
     """Open an acquisition ewfprobe reads: an EWF, EWF2 or L01 set from any path in
     it, an AFF file, an AFD directory from the directory or any file in it, an Apple
     .dmg (a segmented one from its .dmg) or .sparseimage, or a sparse bundle from its
-    folder. An encrypted Apple disk image opens with ``password`` (a str, used as
-    UTF-8, or bytes); without one it raises EwfPasswordRequiredError, and with one
-    that does not open it EwfWrongPasswordError."""
+    folder, or an AD-encrypted E01, SMART or raw set from its first file (a raw set
+    from any of its files). An encrypted Apple disk image or AD-encrypted set opens
+    with ``password`` (a str, used as UTF-8, or bytes); without one it raises
+    EwfPasswordRequiredError, and with one that does not open it
+    EwfWrongPasswordError."""
     return EwfImage(path, segments=segments, password=password)
 
 
@@ -3029,7 +3340,7 @@ def _cmd_info(args):
                         print(f"  {len(b[key]):,} {text}: {names}{more}")
                 if b["backup_matches"] is False:
                     print("Info.bckup      differs from Info.plist; Info.plist was used")
-            elif d["format"] == FORMAT_UDRW:
+            elif d["format"] in (FORMAT_UDRW, FORMAT_RAW):
                 pass                            # the disk itself: no chunks or bands
             else:
                 unit = "page size " if d["format"] in (FORMAT_AFF, FORMAT_AFD) else "chunk size"
@@ -3176,7 +3487,8 @@ def main(argv=None):
         prog="ewfprobe",
         description="Read an EnCase/EWF (.E01, .Ex01), SMART (.s01) or AFF (.aff, "
                     ".afd) forensic image, an Apple disk image (.dmg, .sparseimage, "
-                    ".sparsebundle), or EnCase logical evidence (.L01). Read only.")
+                    ".sparsebundle), an E01, SMART or raw set FTK Imager encrypted "
+                    "with AD encryption, or EnCase logical evidence (.L01). Read only.")
     ap.add_argument("--version", action="version", version=f"ewfprobe {__version__}")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
@@ -3207,12 +3519,12 @@ def main(argv=None):
 
     for s in sub.choices.values():
         s.add_argument("--password-file", metavar="FILE", default=None,
-                       help="for an encrypted Apple disk image: read its password from "
-                            "the first line of FILE")
+                       help="for an encrypted Apple disk image or AD-encrypted set: "
+                            "read its password from the first line of FILE")
         s.add_argument("--password-env", metavar="NAME", default=None,
-                       help="for an encrypted Apple disk image: take its password from "
-                            "the environment variable NAME. Without either, ewfprobe "
-                            "asks for it at a terminal")
+                       help="for an encrypted Apple disk image or AD-encrypted set: "
+                            "take its password from the environment variable NAME. "
+                            "Without either, ewfprobe asks for it at a terminal")
     args = ap.parse_args(argv)
     try:
         status = args.func(args)

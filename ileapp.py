@@ -201,12 +201,13 @@ def main():
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
     parser.add_argument('--image_password_file', required=False, action="store",
-                        help='For an encrypted Apple disk image (-t raw): read its password '
-                             'from the first line of this file')
+                        help='For an encrypted image (-t raw; an Apple disk image or an FTK Imager '
+                             'AD-encrypted set): read its password from the first line '
+                             'of this file')
     parser.add_argument('--image_password_env', required=False, action="store",
-                        help='For an encrypted Apple disk image (-t raw): take its password '
-                             'from this environment variable. Without either, it is asked '
-                             'for at a terminal')
+                        help='For an encrypted image (-t raw): take its password from this '
+                             'environment variable. Without either, it is asked for at a '
+                             'terminal')
     parser.add_argument('-tz', '--timezone', required=False, action="store", default='UTC', type=str, help="Timezone name (e.g., 'America/New_York')")
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
                         help='Do not wrap text for output of data files')
