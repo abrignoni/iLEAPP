@@ -20,8 +20,7 @@
 
 One executable, ileapp, is both programs. packaging/entrypoint.py opens the window when
 it is started without arguments, as a double-click starts it, and is the command line
-when it is given some, so tools that run `ileapp -t fs -i ... -o ...` see no change. The
-choice never depends on the file's name, so the executable may be renamed.
+when it is given some, so tools that run `ileapp -t fs -i ... -o ...` see no change.
 
 Signing belongs between the two phases. Sign dist/iLEAPP/ileapp.exe, or codesign
 dist/iLEAPP.app, after phase 1 and before phase 2, or the installer carries an unsigned

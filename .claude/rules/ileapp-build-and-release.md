@@ -21,8 +21,7 @@ way to run from source. The result is one executable, `ileapp`, and there is no 
 in a build. Started without arguments, as a double-click, the Start menu or the Finder
 start it, it opens the window. Given arguments it is the command line, exactly as before,
 so tools that run `ileapp -t fs -i ... -o ...` see no change. Where no window can open
-(Linux with no display, as over SSH) it prints the command line's help. The choice never
-depends on the file's name, so it may be renamed.
+(Linux with no display, as over SSH) it prints the command line's help.
 
 It is a console program. On Windows `hide_console="hide-early"`, which the old GUI build
 used, hides the console when nobody started it from one: from the desktop there is no

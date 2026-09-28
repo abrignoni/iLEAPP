@@ -6,8 +6,7 @@ tools that run `ileapp -t fs -i ... -o ...` see no difference. Where no window c
 as over SSH on Linux, it prints the command line's help instead of failing.
 
 packaging/ileapp.spec builds this file, not ileapp.py or ileappGUI.py, which stay the way
-to run iLEAPP from source. The choice depends on the arguments, never on the file's name,
-so the executable may be renamed.
+to run iLEAPP from source. The choice depends on the arguments.
 """
 
 import multiprocessing
