@@ -6,7 +6,7 @@ __artifacts_v2__ = {
         "description": "Extract information from the Info.plist file of an iTunes backup",
         "author": "@AlexisBrignoni - @johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2025-10-14",
+        "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "iTunes Backup",
         "notes": "",
@@ -20,7 +20,7 @@ __artifacts_v2__ = {
                        "Info.plist file of an iTunes backup",
         "author": "@johannplw",
         "creation_date": "2023-10-11",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "The storeCohort date substring's relationship to install time is "
@@ -33,15 +33,27 @@ __artifacts_v2__ = {
 
 
 import datetime
+import os
 import plistlib
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content, \
     check_in_embedded_media, device_info, logfunc, iOS
 
 
+def _backup_info_plist(context):
+    """Return the path to read the backup's Info.plist from, and the path to record.
+
+    The runner hands these artifacts the Info.plist at the root of the backup folder,
+    which the seeker never stages, so the path it gives is the backup's location on the
+    examiner's machine. The file is recorded by where it sits in the backup: at its root.
+    """
+    data_source = context.get_source_file_path('Info.plist')
+    return data_source, os.path.basename(data_source)
+
+
 @artifact_processor
 def itunes_backup_info(context):
     """ See artifact description """
-    data_source = context.get_source_file_path('Info.plist')
+    data_source, recorded_source = _backup_info_plist(context)
     data_list = []
     installed_apps = None
     apps = None
@@ -72,16 +84,16 @@ def itunes_backup_info(context):
             index = keys.index(info)
             info_key = data_list[index][0]
             value_key = data_list[index][1]
-            device_info("iTunes Backup Information", info_key, value_key, data_source)
+            device_info("iTunes Backup Information", info_key, value_key, recorded_source)
 
     data_headers = ('Property', 'Property Value')
-    return data_headers, data_list, data_source
+    return data_headers, data_list, recorded_source
 
 
 @artifact_processor
 def itunes_backup_installed_applications(context):
     """ See artifact description """
-    data_source = context.get_source_file_path('Info.plist')
+    data_source, recorded_source = _backup_info_plist(context)
     data_list = []
     installed_apps = None
     apps = None
@@ -134,7 +146,7 @@ def itunes_backup_installed_applications(context):
                 messages_extension = itunes_metadata.get('hasMessagesExtension', '')
                 icon = app_data.get('PlaceholderIcon', '')
                 if icon:
-                    icon_item = check_in_embedded_media(data_source, icon, item_name)
+                    icon_item = check_in_embedded_media(recorded_source, icon, item_name)
                 else:
                     icon_item = ''
 
@@ -156,4 +168,4 @@ def itunes_backup_installed_applications(context):
                     'Game Center Enabled', 'Game Center Ever Enabled',
                     'Messages Extension')
 
-    return data_headers, data_list, data_source
+    return data_headers, data_list, recorded_source
