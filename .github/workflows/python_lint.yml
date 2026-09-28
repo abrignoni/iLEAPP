@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           # Required to fetch the base branch for comparison
           fetch-depth: 0
@@ -26,14 +26,14 @@ jobs:
 
       - name: Get changed Python files
         id: changed-files-py
-        uses: tj-actions/changed-files@v46 # This action finds changed files
+        uses: tj-actions/changed-files@v47 # This action finds changed files
         with:
           files: |
             **.py
 
       - name: Set up Python
         if: steps.changed-files-py.outputs.any_changed == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
