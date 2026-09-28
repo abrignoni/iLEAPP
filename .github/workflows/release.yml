@@ -266,12 +266,13 @@ jobs:
           security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
           rm -f "$RUNNER_TEMP/notary.p8" "$RUNNER_TEMP/cert.p12"
 
-      # Release assets are single files, so the one-folder build is archived. The names
-      # carry the platform and the architecture, because a reader cannot tell from
-      # "iLEAPP-2026.5.0.dmg" whether it runs on their Mac. tar keeps the executable bits;
-      # the Windows zip has none to keep. They are gathered in release-assets/, not
-      # assets/ as in GLEAPP: iLEAPP's assets/ holds the window's images, and a rehearsal
-      # published them with the release and listed them in SHA256SUMS.txt.
+      # Release assets are single files: an installer or disk image per platform, and on
+      # Windows the one-folder build archived as a portable zip. Linux ships the AppImage
+      # alone. The names carry the platform and the architecture, because a reader cannot
+      # tell from "iLEAPP-2026.5.0.dmg" whether it runs on their Mac. They are gathered
+      # in release-assets/, not assets/ as in GLEAPP: iLEAPP's assets/ holds the window's
+      # images, and a rehearsal published them with the release and listed them in
+      # SHA256SUMS.txt.
       - name: Name the assets
         shell: bash
         run: |
@@ -288,7 +289,6 @@ jobs:
               ;;
             Linux)
               mv "dist/iLEAPP-$VERSION.AppImage" "release-assets/$STEM.AppImage"
-              tar -C dist -czf "release-assets/$STEM.tar.gz" iLEAPP
               ;;
           esac
           ls -l release-assets/

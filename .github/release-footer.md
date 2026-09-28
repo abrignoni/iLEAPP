@@ -9,8 +9,8 @@
 | Windows 11 on ARM | `-windows-arm64-setup.exe`, or `-windows-arm64-portable.zip` |
 | macOS, Apple silicon | `-macos-arm64.dmg` |
 | macOS, Intel | `-macos-x64.dmg` |
-| Linux, 64-bit Intel or AMD | `-linux-x64.AppImage`, or `-linux-x64.tar.gz` to run from a folder |
-| Linux on ARM | `-linux-arm64.AppImage`, or `-linux-arm64.tar.gz` |
+| Linux, 64-bit Intel or AMD | `-linux-x64.AppImage` |
+| Linux on ARM | `-linux-arm64.AppImage` |
 
 Every download holds one program, `ileapp`. Started without arguments, from the Start
 menu, the Applications folder or a double-click, it opens the window. Given arguments in a
@@ -22,9 +22,9 @@ terminal, it is the command line. On macOS the command line is inside the app:
 
 **For tools that run iLEAPP themselves.** The options, output and exit codes of `ileapp`
 are those of earlier releases, but the downloads changed shape: there is no `ileappGUI`
-any more, since `ileapp` without arguments opens the window, and outside the AppImage
-`ileapp` needs the folder it came in, so run it from that folder rather than copying the
-executable elsewhere on its own.
+any more, since `ileapp` without arguments opens the window. On Windows and macOS,
+`ileapp` needs the folder it came in, so run it from there rather than copying the
+executable elsewhere on its own; on Linux the AppImage is the whole program.
 
 ## First launch
 
@@ -35,8 +35,7 @@ The Windows binaries are not signed yet, so SmartScreen says "Windows protected 
 the first time. Choose More info, then Run anyway.
 
 On Linux, make the AppImage executable once (`chmod +x iLEAPP-*.AppImage`). It needs FUSE
-to start; where FUSE is not available, run it with `--appimage-extract-and-run`, or use the
-`.tar.gz`.
+to start; where FUSE is not available, run it with `--appimage-extract-and-run`.
 
 If you would rather not clear a warning, run from source instead; the README has the steps.
 

@@ -19,8 +19,8 @@ Download a pre-built release — no Python installation required.
 | Windows (ARM) | `iLEAPP-*-windows-arm64-setup.exe` or `iLEAPP-*-windows-arm64-portable.zip` |
 | macOS (Apple Silicon) | `iLEAPP-*-macos-arm64.dmg` |
 | macOS (Intel) | `iLEAPP-*-macos-x64.dmg` |
-| Linux (Intel/AMD) | `iLEAPP-*-linux-x64.AppImage` or `iLEAPP-*-linux-x64.tar.gz` |
-| Linux (ARM) | `iLEAPP-*-linux-arm64.AppImage` or `iLEAPP-*-linux-arm64.tar.gz` |
+| Linux (Intel/AMD) | `iLEAPP-*-linux-x64.AppImage` |
+| Linux (ARM) | `iLEAPP-*-linux-arm64.AppImage` |
 
 Each download holds one program, `ileapp`. `SHA256SUMS.txt` in each release lets you check a download.
 
@@ -30,16 +30,15 @@ the AppImage on Linux. Started without arguments, it opens the window; select yo
 type, source path, output folder, and modules to process.
 
 **CLI** — give `ileapp` arguments in a terminal and it runs as a command line instead. The
-output folder must already exist. Outside the AppImage, keep `ileapp` in its folder with
-the files beside it.
+output folder must already exist. On Windows, keep `ileapp.exe` in its folder with the
+files beside it.
 
 ```
 ileapp.exe -t zip -i C:\path\to\extraction.zip -o C:\path\to\output\
 ```
 
-On Linux, run the AppImage with the same arguments, or `ileapp` from the extracted
-`.tar.gz`. On macOS it is inside the app; to type just `ileapp` in a terminal, link it
-onto your PATH once:
+On Linux, run the AppImage with the same arguments. On macOS it is inside the app; to
+type just `ileapp` in a terminal, link it onto your PATH once:
 
 ```
 sudo ln -s /Applications/iLEAPP.app/Contents/MacOS/ileapp /usr/local/bin/ileapp

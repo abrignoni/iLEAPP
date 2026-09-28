@@ -123,7 +123,7 @@ requests that touch packaging.
 
 `release.yml` runs the same steps when a `v*` tag is pushed, refuses a tag that is not
 `v` + `leapp_version`, names the assets `iLEAPP-<version>-<platform>-<arch>` (setup.exe and
-portable.zip on Windows, .dmg on macOS, .AppImage and .tar.gz on Linux), adds
+portable.zip on Windows, .dmg on macOS, .AppImage on Linux; no Linux .tar.gz), adds
 `SHA256SUMS.txt`, and creates a **draft** release; publishing is a click. Dispatched by
 hand, it builds the assets without creating a release. `.github/release-footer.md` is
 appended to the notes. macOS is signed with a Developer ID, smoke-tested again as signed
@@ -136,5 +136,5 @@ are notarised, which holds only because of that refusal. Windows signing is not 
 
 These names replaced the per-program downloads (`ileappGUI-v*-Windows_x86_64.zip` and the
 like), which leapps.org and the README linked to. Tools such as Autopsy run `ileapp` from a
-release, and the footer tells them what changed for them: the executable needs its folder
-outside the AppImage, and `ileappGUI` is gone. Keep that note while those names are new.
+release, and the footer tells them what changed for them: on Windows and macOS the
+executable needs its folder, and `ileappGUI` is gone. Keep that note while those names are new.
