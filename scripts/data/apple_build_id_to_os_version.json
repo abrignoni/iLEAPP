@@ -947,6 +947,7 @@
     "23G83": "iOS 26.6.1",
     "23G90": "iOS 26.6.2",
     "23H24": "iOS 26.7",
+    "23H30": "iOS 26.7.1",
     "24A5355q": "iOS 27.0 beta 1",
     "24A5370h": "iOS 27.0 beta 2",
     "24A5380h": "iOS 27.0 beta 3",
@@ -959,6 +960,7 @@
     "24A427": "iOS 27.0",
     "24A437": "iOS 27.0",
     "24A8428": "iOS 27.0",
+    "24A446": "iOS 27.0.1",
     "24B5084k": "iOS 27.2 beta 1",
     "24B5089g": "iOS 27.2 beta 2"
   },
@@ -2486,6 +2488,7 @@
     "26A5425a": "macOS 27.0 beta 8",
     "26A425": "macOS 27.0",
     "26A428": "macOS 27.0",
+    "26A434": "macOS 27.0.1",
     "26B5086k": "macOS 27.2 beta 1",
     "26B5091g": "macOS 27.2 beta 2"
   },
@@ -2625,6 +2628,7 @@
     "24M5359a": "visionOS 27.0 beta 7",
     "24M5361a": "visionOS 27.0 beta 8",
     "24M362": "visionOS 27.0",
+    "24M372": "visionOS 27.0.1",
     "24N5088l": "visionOS 27.2 beta 1",
     "24N5093f": "visionOS 27.2 beta 2"
   },
@@ -3129,6 +3133,7 @@
     "24R363": "watchOS 27.0 RC",
     "24R364": "watchOS 27.0",
     "24R359": "watchOS 27.0",
+    "24R365": "watchOS 27.0.1",
     "24S5086l": "watchOS 27.2 beta 1",
     "24S5091f": "watchOS 27.2 beta 2"
   },
