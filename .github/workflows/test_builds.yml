@@ -156,16 +156,28 @@ jobs:
           python packaging/build.py installer
           ls -l dist/iLEAPP-*.AppImage
 
-      # On macOS the .app goes up inside its .dmg: an artifact zip keeps neither the
-      # bundle's symlinks nor its signature.
-      - name: Upload the build
+      # Windows and Linux ship the one-folder build as well as their installer.
+      - name: Upload the build (Windows, Linux)
+        if: runner.os != 'macOS'
         uses: actions/upload-artifact@v4
         with:
           name: ileapp-${{ matrix.os }}-test
           path: |
             dist/iLEAPP/
             dist/iLEAPP-Setup-*.exe
-            dist/iLEAPP-*.dmg
             dist/iLEAPP-*.AppImage
+          retention-days: 14
+          if-no-files-found: error
+
+      # macOS ships only the disk image. dist/iLEAPP/ is there too, the one-folder build
+      # PyInstaller copies into the .app, but nothing ships or tests it. The .app goes up
+      # inside its .dmg: an artifact zip keeps neither the bundle's symlinks nor its
+      # signature.
+      - name: Upload the build (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ileapp-${{ matrix.os }}-test
+          path: dist/iLEAPP-*.dmg
           retention-days: 14
           if-no-files-found: error
