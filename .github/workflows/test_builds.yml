@@ -63,9 +63,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           # Latest supported Python. astc-decomp-faster >= 1.1.5 publishes cp314
           # win_amd64 wheels on PyPI, and pyliblzfse cp314 wheels ship in whl_files.
@@ -167,7 +167,7 @@ jobs:
       # Windows and Linux ship the one-folder build as well as their installer.
       - name: Upload the build (Windows, Linux)
         if: runner.os != 'macOS'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ileapp-${{ matrix.name }}-test
           path: |
@@ -183,7 +183,7 @@ jobs:
       # signature.
       - name: Upload the build (macOS)
         if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ileapp-${{ matrix.name }}-test
           path: dist/iLEAPP-*.dmg
