@@ -295,7 +295,12 @@ def initialize_lava(input_path, output_path, input_type, profile_filename=None):
         "parser_info": {
             "leapp_name": leapp_name,
             "leapp_version": leapp_version,
-            "leapp_mode": "GUI" if "leappGUI" in sys.argv[0] else "CLI", 
+            # From source the script's name says which program runs. A build is one
+            # executable that opens the window when started without arguments, so there the
+            # GUI module having been loaded is what says it.
+            "leapp_mode": ("GUI" if "leappGUI" in sys.argv[0]
+                           or any(name.endswith("leappGUI") for name in sys.modules)
+                           else "CLI"),
             "package": "Source code" if not getattr(sys, 'frozen', False) else "Binary",
             "OS": platform(),
             "start_timestamp": int(datetime.datetime.now(datetime.timezone.utc).timestamp())

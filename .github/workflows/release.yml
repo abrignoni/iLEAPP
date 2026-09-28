@@ -1,0 +1,350 @@
+name: Release
+
+# Builds iLEAPP on each platform and architecture with packaging/build.py and attaches the
+# results to a GitHub Release. Pushing a tag like v2026.5.0 is the trigger; the release is
+# created as a DRAFT, so the assets can be checked before anyone can download them.
+#
+# The build and smoke steps are the ones test_builds.yml runs weekly on main, in the same
+# order. Keep the two in step: this workflow only runs when a tag is pushed, so it is the
+# weekly job that keeps the recipe honest between releases. workflow_dispatch builds every
+# platform and uploads the assets without creating a release, which is the way to
+# rehearse a release without publishing one.
+#
+# macOS is signed with a Developer ID and notarised when the MACOS_* secrets are set: the
+# .app is codesigned between phase 1 and phase 2, smoke-tested again as signed, then the
+# .dmg is signed, notarised and stapled. A tag refuses to publish an unsigned Mac build;
+# a workflow_dispatch rehearsal without the secrets still builds, unsigned.
+# The Windows executable and installer are not signed: that belongs between the phases
+# too, through packaging/build.py's --sign-tool for Inno Setup, and needs credentials of
+# its own.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+# One release at a time. A second tag pushed while this is running waits rather than
+# racing it to the same release page.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        # `os` is the runner and `name` what the job is called, as in test_builds.yml.
+        # `platform` goes into the asset names; the architecture there comes from the
+        # runner itself, never from these labels.
+        include:
+          - os: windows-latest
+            name: windows-x64
+            platform: windows
+          - os: windows-11-arm
+            name: windows-11-arm
+            platform: windows
+          - os: macos-latest
+            name: macos-apple_silicon
+            platform: macos
+          # Intel Macs. macos-latest is Apple silicon, so without this leg an Intel Mac
+          # gets nothing. GitHub drops x86_64 macOS entirely after macos-15-intel retires
+          # in 2027, at which point this leg has to go.
+          - os: macos-15-intel
+            name: macos-15-intel
+            platform: macos
+          # 22.04 for its glibc 2.35; see test_builds.yml.
+          - os: ubuntu-22.04
+            name: ubuntu-22.04-x64
+            platform: linux
+          - os: ubuntu-22.04-arm
+            name: ubuntu-22.04-arm
+            platform: linux
+    name: build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    # A step's `if` cannot read `secrets`, so whether macOS can be signed is decided here.
+    env:
+      MACOS_SIGN: ${{ secrets.MACOS_CERT_P12 != '' && 'yes' || '' }}
+    steps:
+      # A tag must not ship an unsigned Mac build by accident: Gatekeeper refuses its first
+      # launch, and an examiner is left clearing a warning on a forensic tool. Checked
+      # first, so a tag that cannot be signed stops before a build nobody can publish. A
+      # rehearsal (workflow_dispatch) without the secrets still builds, unsigned.
+      - name: macOS, refuse an unsigned release
+        if: runner.os == 'macOS' && github.ref_type == 'tag' && env.MACOS_SIGN != 'yes'
+        shell: bash
+        run: |
+          echo "::error::MACOS_CERT_P12 is not set; a tagged release must be signed and notarised on macOS"
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+
+      - name: Provide OpenSSL for the cryptography source build (Windows arm64 only)
+        # See test_builds.yml: cryptography publishes no win_arm64 wheels.
+        if: matrix.os == 'windows-11-arm'
+        shell: pwsh
+        run: |
+          $vcpkg = 'vcpkg'
+          if (-not (Get-Command vcpkg -ErrorAction SilentlyContinue)) {
+            git clone --depth 1 https://github.com/microsoft/vcpkg C:\vcpkg-local
+            & C:\vcpkg-local\bootstrap-vcpkg.bat
+            $vcpkg = 'C:\vcpkg-local\vcpkg.exe'
+          }
+          & $vcpkg install openssl:arm64-windows-static-md
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $roots = @('C:\vcpkg-local', $env:VCPKG_INSTALLATION_ROOT) | Where-Object { $_ }
+          $installed = $roots | ForEach-Object { Join-Path $_ 'installed\arm64-windows-static-md' } | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $installed) { Write-Error 'vcpkg OpenSSL install dir not found'; exit 1 }
+          "OPENSSL_DIR=$installed" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "OPENSSL_STATIC=1" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Linux, the window's toolkit and a display for its self-check
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q libtcl8.6 libtk8.6 xvfb
+          python -c "import tkinter" || { echo "tkinter unavailable in this Python"; exit 1; }
+
+      # The tag names the version the assets will be published under, and
+      # scripts/version_info.py names the version the app reports and writes into every
+      # report. A release where those disagree ships a binary that tells the examiner one
+      # thing while the download page says another, so the mismatch stops the build here
+      # rather than being found in the report of a case.
+      - name: Resolve the version, and check it against the tag
+        shell: bash
+        run: |
+          VERSION="$(python -c "import sys; sys.path.insert(0, 'packaging'); import build; print(build.read_version())")"
+          echo "scripts/version_info.py leapp_version = $VERSION"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            echo "tag = $GITHUB_REF_NAME"
+            if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+              echo "::error::tag $GITHUB_REF_NAME does not match leapp_version $VERSION (expected tag v$VERSION)"
+              exit 1
+            fi
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Fetch the Unified Log parser (digest-verified)
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install certifi
+          python admin/scripts/fetch_unifiedlog_iterator.py
+
+      - name: Check the third-party notices cover the fetched parser
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then PARSER=bin/unifiedlog_iterator.exe; else PARSER=bin/unifiedlog_iterator; fi
+          python admin/scripts/make_unifiedlog_notices.py --verify "$PARSER"
+
+      - name: Phase 1, the ileapp executable
+        shell: bash
+        run: python packaging/build.py exe
+
+      # The same checks test_builds.yml runs. An asset that fails any of them never
+      # reaches the release.
+      - name: Smoke test the build
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            xvfb-run -a python packaging/build.py smoke
+          else
+            python packaging/build.py smoke
+          fi
+
+      # A throwaway keychain holding only the Developer ID certificate, deleted by the
+      # last macOS step whatever happens.
+      - name: macOS, import the Developer ID certificate
+        if: runner.os == 'macOS' && env.MACOS_SIGN == 'yes'
+        shell: bash
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PW="$(openssl rand -base64 24)"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" \
+            -P "$MACOS_CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PW" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/cert.p12"
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+      # Between the phases: PyInstaller signs the bundle ad hoc while it builds, and the
+      # disk image must carry the Developer ID signature. Inside out, every Mach-O in the
+      # bundle first, the bundled Unified Log parser included, then the bundle itself with
+      # the entitlements the hardened runtime needs; --deep is not used to sign, as Apple
+      # advises. find does not follow symlinks, so the Frameworks/Resources cross-links of
+      # a PyInstaller bundle are signed once.
+      - name: macOS, sign the app
+        if: runner.os == 'macOS' && env.MACOS_SIGN == 'yes'
+        shell: bash
+        env:
+          ID: ${{ secrets.MACOS_SIGN_IDENTITY }}
+          TEAM: ${{ secrets.MACOS_TEAM_ID }}
+        run: |
+          APP=dist/iLEAPP.app
+          find "$APP/Contents" -type f ! -path "$APP/Contents/MacOS/ileapp" -print0 |
+            while IFS= read -r -d '' f; do
+              if file -b "$f" | grep -q 'Mach-O'; then
+                codesign --force --timestamp --options runtime --sign "$ID" "$f"
+              fi
+            done
+          codesign --force --timestamp --options runtime \
+            --entitlements packaging/entitlements.plist --sign "$ID" "$APP"
+          codesign --verify --strict --deep --verbose=2 "$APP"
+          python packaging/build.py verify "$APP" --subject "$TEAM"
+
+      # The hardened runtime is what breaks a frozen app, and the smoke test above ran the
+      # bundle before it had it. On macOS `smoke` runs the bundle's own executable.
+      - name: macOS, smoke test the signed app
+        if: runner.os == 'macOS' && env.MACOS_SIGN == 'yes'
+        shell: bash
+        run: python packaging/build.py smoke
+
+      - name: Phase 2, the installer (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          choco install innosetup --no-progress -y
+          python packaging/build.py installer
+
+      - name: Phase 2, the disk image (macOS) or the AppImage (Linux)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python packaging/build.py installer
+
+      # Notarising the .dmg covers the signed .app inside it, and the stapled ticket lets
+      # Gatekeeper accept it offline. A rejection prints Apple's log, which names the file.
+      - name: macOS, sign, notarise and staple the disk image
+        if: runner.os == 'macOS' && env.MACOS_SIGN == 'yes'
+        shell: bash
+        env:
+          ID: ${{ secrets.MACOS_SIGN_IDENTITY }}
+          NOTARY_KEY: ${{ secrets.MACOS_NOTARY_KEY }}
+          NOTARY_KEY_ID: ${{ secrets.MACOS_NOTARY_KEY_ID }}
+          NOTARY_ISSUER: ${{ secrets.MACOS_NOTARY_ISSUER_ID }}
+        run: |
+          DMG="dist/iLEAPP-$VERSION.dmg"
+          codesign --force --timestamp --sign "$ID" "$DMG"
+          printf '%s\n' "$NOTARY_KEY" > "$RUNNER_TEMP/notary.p8"
+          xcrun notarytool submit "$DMG" --key "$RUNNER_TEMP/notary.p8" \
+            --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER" \
+            --wait --output-format json | tee notary.json
+          SUB_ID="$(python -c 'import json; print(json.load(open("notary.json"))["id"])')"
+          STATUS="$(python -c 'import json; print(json.load(open("notary.json"))["status"])')"
+          if [ "$STATUS" != "Accepted" ]; then
+            xcrun notarytool log "$SUB_ID" --key "$RUNNER_TEMP/notary.p8" \
+              --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER"
+            echo "::error::notarisation $STATUS"
+            exit 1
+          fi
+          xcrun stapler staple "$DMG"
+          xcrun stapler validate "$DMG"
+          spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
+
+      - name: macOS, remove the signing keychain and key
+        if: always() && runner.os == 'macOS'
+        shell: bash
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/notary.p8" "$RUNNER_TEMP/cert.p12"
+
+      # Release assets are single files: an installer or disk image per platform, and on
+      # Windows the one-folder build archived as a portable zip. Linux ships the AppImage
+      # alone. The names carry the platform and the architecture, because a reader cannot
+      # tell from "iLEAPP-2026.5.0.dmg" whether it runs on their Mac. They are gathered
+      # in release-assets/, not assets/ as in GLEAPP: iLEAPP's assets/ holds the window's
+      # images, and a rehearsal published them with the release and listed them in
+      # SHA256SUMS.txt.
+      - name: Name the assets
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          ARCH="$(echo "$RUNNER_ARCH" | tr '[:upper:]' '[:lower:]')"
+          STEM="iLEAPP-$VERSION-${{ matrix.platform }}-$ARCH"
+          case "$RUNNER_OS" in
+            Windows)
+              powershell -NoProfile -Command "Compress-Archive -Path 'dist/iLEAPP/*' -DestinationPath 'release-assets/$STEM-portable.zip'"
+              mv "dist/iLEAPP-Setup-$VERSION.exe" "release-assets/$STEM-setup.exe"
+              ;;
+            macOS)
+              mv "dist/iLEAPP-$VERSION.dmg" "release-assets/$STEM.dmg"
+              ;;
+            Linux)
+              mv "dist/iLEAPP-$VERSION.AppImage" "release-assets/$STEM.AppImage"
+              ;;
+          esac
+          ls -l release-assets/
+
+      - name: Upload the assets
+        uses: actions/upload-artifact@v7
+        with:
+          name: assets-${{ matrix.name }}
+          path: release-assets/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Collect every platform's assets
+        uses: actions/download-artifact@v8
+        with:
+          path: release-assets
+          pattern: assets-*
+          merge-multiple: true
+
+      # An examiner who downloads a forensic tool should be able to check that what they
+      # got is what was built. The file is generated here, over the assets as they will be
+      # attached, rather than per platform, so one file covers them all.
+      - name: Checksums
+        shell: bash
+        run: |
+          cd release-assets
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      # A draft, so the assets and the generated notes can be read before the release is
+      # visible. Publishing it is a deliberate click, not a consequence of pushing a tag.
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Which file is for which platform, what the first launch does, and how to check
+          # a download against SHA256SUMS.txt live in .github/release-footer.md, so editing
+          # them needs no workflow change. gh's --generate-notes replaces notes rather than
+          # appending to them, so the changelog is generated through the API and the two
+          # are joined here.
+          gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+            -f tag_name="$GITHUB_REF_NAME" --jq .body > notes.md
+          cat .github/release-footer.md >> notes.md
+          test -s notes.md || { echo "::error::composed release notes are empty"; exit 1; }
+          gh release create "$GITHUB_REF_NAME" \
+            --draft \
+            --title "iLEAPP $GITHUB_REF_NAME" \
+            --notes-file notes.md \
+            release-assets/*
+          echo "Draft release created. Review the assets, then publish it."

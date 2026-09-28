@@ -233,8 +233,9 @@ none of them a file the seeker got wrong:
 ## Frozen builds
 
 The reader is imported as a module, so a PyInstaller build carries it like any
-other module; nothing is spawned. `test_builds.yml` runs the frozen CLI with
-`-t raw` on the NTFS fixture and requires the run log to show the walk. An
+other module; nothing is spawned. `python packaging/build.py smoke`, which
+`test_builds.yml` and `release.yml` run on every platform, runs the built executable
+with `-t raw` on the NTFS fixture and requires the run log to show the walk. An
 earlier design that ran the reader as a subprocess through `sys.executable`
 could not work frozen, because in a bundle that is the tool itself.
 

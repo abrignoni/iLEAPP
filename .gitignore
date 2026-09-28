@@ -97,6 +97,8 @@ __pypackages__/
 *.mo
 *.manifest
 *.spec
+# except the one packaging/build.py builds from
+!packaging/ileapp.spec
 pip-wheel-metadata/
 share/python-wheels/
 wheels/

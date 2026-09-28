@@ -130,5 +130,5 @@ includes the binary:
   here by `admin/scripts/make_unifiedlog_notices.py` and committed. Its `--verify` option
   checks a fetched binary against the committed file without network access, and the test
   builds run it after fetching.
-- The PyInstaller specs refuse to build when the binary is present and either file is not.
+- `packaging/build.py` refuses to build when the binary is present and either file is not.
 - Attribution stays in `ATTRIBUTIONS.md`.

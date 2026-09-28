@@ -241,6 +241,7 @@ def main():
                         help=("Path to a keychain file captured from the device. Some apps keep "
                               "their database key in the keychain, which is collected separately "
                               "from the file system extraction."))
+    parser.add_argument('--version', action='version', version=f'{leapp_name} {leapp_version}')
 
     # Check if no arguments were provided
     if len(sys.argv) == 1:
