@@ -271,6 +271,49 @@ def set_media_references(media_ref_id, media_id, module_name, artifact_name, nam
     ))
     lava_insert_sqlite_media_references(media_references)
 
+def _resolve_media_source(source_path):
+    '''
+    Find the staged file behind a media source path, and the path to record for it.
+
+    The recorded path is where the file sits in the evidence, never a path on the
+    examiner's machine:
+
+      1. A staged file the seeker holds a FileInfo for is recorded by that FileInfo,
+         whether or not the current artifact's files_found lists it.
+      2. A file read out of a staged archive, '<staged archive> >> <member>' as
+         get_sysdiagnose_files yields it, is recorded as the archive's evidence path
+         and the member. It is not looked up by its basename, which resolves it to any
+         other file of that name the artifact found.
+      3. Anything else is looked up through files_found.
+      4. A source still without a FileInfo is recorded without the data folder or
+         report folder in it (Context.get_relative_path), not as given.
+
+    Args:
+        source_path: The source path passed to check_in_media or check_in_embedded_media.
+    Returns:
+        (extraction_path, file_info, recorded_path). extraction_path and file_info are
+        None when no staged file was found.
+    '''
+    # A pathlib.Path resolved before, when the lookup only took its basename.
+    source_path = os.fspath(source_path)
+    seeker = Context.get_seeker()
+    file_info = seeker.file_infos.get(source_path)
+    if file_info:
+        return source_path, file_info, file_info.source_path
+
+    archive, separator, member = source_path.partition(' >> ')
+    if separator:
+        archive_info = seeker.file_infos.get(archive)
+        if archive_info:
+            return None, None, f'{archive_info.source_path}{separator}{member}'
+        return None, None, Context.get_relative_path(source_path)
+
+    extraction_path = Context.get_source_file_path(source_path)
+    file_info = seeker.file_infos.get(extraction_path)
+    if file_info:
+        return extraction_path, file_info, file_info.source_path
+    return extraction_path, None, Context.get_relative_path(source_path)
+
 def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, converted_file_path=None, force_type=None,
                     force_extension=None, force_creation_date=None, force_modification_date=None):
     '''
@@ -290,7 +333,6 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
         The media reference ID or None.
     '''
     output_params = Context.get_output_params()
-    seeker = Context.get_seeker()
 
     media_ref_id = get_media_references_id(media_id, Context.get_artifact_name(), name)
     if lava_get_media_references(media_ref_id):
@@ -316,12 +358,7 @@ def _check_in_media(media_id, source_path, is_embedded, name, media_data=None, c
         if suffix and not suffix.startswith('.'):
             suffix = f".{suffix}"
 
-        extraction_path = Context.get_source_file_path(source_path)
-        file_info = seeker.file_infos.get(extraction_path)
-        if file_info:
-            media_item.source_path = file_info.source_path
-        else:
-            media_item.source_path = source_path
+        extraction_path, file_info, media_item.source_path = _resolve_media_source(source_path)
 
         if is_embedded:
             media_item.created_at = force_creation_date if force_creation_date else 0
