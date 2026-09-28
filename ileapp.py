@@ -204,13 +204,14 @@ def main():
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
     parser.add_argument('--image_password_file', required=False, action="store",
                         help='For an encrypted image (-t raw; an Apple disk image, an encrypted '
-                             'AFF or an FTK Imager AD-encrypted set) or a BitLocker volume in an '
-                             'image: read its password (for BitLocker, a password or recovery '
-                             'password) from the first line of this file')
+                             'AFF or an FTK Imager AD-encrypted set), or a BitLocker or encrypted '
+                             'APFS volume in an image: read its password (for BitLocker, a '
+                             'password or recovery password; for APFS, a password or personal '
+                             'recovery key) from the first line of this file')
     parser.add_argument('--image_password_env', required=False, action="store",
-                        help='For an encrypted image or a BitLocker volume in one (-t raw): take '
-                             'its password from this environment variable. Without either, it '
-                             'is asked for at a terminal')
+                        help='For an encrypted image, or a BitLocker or encrypted APFS volume in '
+                             'one (-t raw): take its password from this environment variable. '
+                             'Without either, it is asked for at a terminal')
     parser.add_argument('--image_private_key', required=False, action="store",
                         help='For an image sealed to a certificate (-t raw; an Apple disk image, '
                              'an AFF or an FTK Imager AD-encrypted set): the certificate\'s RSA '
@@ -389,8 +390,8 @@ def main():
         if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
-    # An encrypted image opens only with what locked it, and a BitLocker volume in an
-    # image with its own key: from a file, an environment variable or the options
+    # An encrypted image opens only with what locked it, and a BitLocker or APFS volume
+    # in an image with its own key: from a file, an environment variable or the options
     # naming key files, or asked for at a terminal, and checked before the run.
     image_password = None
     if extracttype == 'raw':

@@ -1242,6 +1242,11 @@ BITLOCKER_KNOWN = {
 }
 BITLOCKER_PASSWORD = 'qnxprobe-bde-test'
 BITLOCKER_RECOVERY = '111111-222222-333333-444444-555555-666666-000011-000022'
+# qnxprobe's apfs-converted fixture (tools/make_apfs_converted_fixture.sh at a45821b):
+# an APFS volume macOS encrypted in place, its password and the hint it stores, test
+# values made for it.
+APFS_PASSWORD = 'qnxprobe-apfs-convert'
+APFS_HINT = 'the qnxprobe conversion test'
 
 try:
     import tkinter  # noqa: F401  pylint: disable=unused-import
@@ -1303,6 +1308,11 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
                 open(cls.bitlocker, 'wb') as dst:
             shutil.copyfileobj(src, dst)
         cls.bek = str(FIXTURES / 'bitlocker-xts128.BEK')
+        cls.apfs = os.path.join(cls.work, 'apfs-converted.sparseimage')
+        with gzip.open(FIXTURES / 'apfs-converted.sparseimage.gz', 'rb') as src, \
+                open(cls.apfs, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+        cls.apfs_hashes = _hash_list(FIXTURES / 'apfs-converted.sha256')
         # an RSA key of no certificate here, for the wrong-key cases
         from Crypto.PublicKey import RSA  # pylint: disable=import-outside-toplevel
         cls.stranger = os.path.join(cls.work, 'stranger.pem')
@@ -1491,6 +1501,92 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
             keys = raw_image.cli_image_keys(self.bitlocker)
         self.assertEqual(keys.bitlocker_secrets, [BITLOCKER_RECOVERY])
         self.assertIn('That does not open it.', err.getvalue())
+
+    def _apfs_members(self, keys):
+        data = tempfile.mkdtemp(prefix='raw_image_data_')     # one folder per seeker
+        self.addCleanup(shutil.rmtree, data, True)
+        seeker = FileSeekerRaw(self.apfs, data, password=keys)
+        self.addCleanup(seeker.cleanup)
+        files = [m for m in seeker.name_list if not m.endswith('/')]
+        return seeker, files
+
+    def _assert_apfs_files(self, seeker):
+        for rel, digest in self.apfs_hashes.items():
+            staged = seeker.search(f'*/CONVVOL/{rel}')
+            self.assertEqual(len(staged), 1, rel)
+            self.assertEqual(_sha256(staged[0]), digest, rel)
+
+    def test_an_encrypted_apfs_volume_opens_with_its_password(self):
+        """Every file macOS recorded stages with its hash once the password is given,
+        as the image's password or as an APFS one; without it, or with a wrong one, the
+        volume is named locked with its hint and holds no members."""
+        _seeker, files = self._apfs_members(None)
+        self.assertEqual(files, [])
+        self.assertIn('CONVVOL is encrypted, and its blocks are ciphertext', self.log.text())
+        self.assertIn(f'its passphrase hint, as stored: "{APFS_HINT}"', self.log.text())
+        for keys in (raw_image.ImageKeys(password=APFS_PASSWORD),
+                     raw_image.ImageKeys(apfs_secrets=[APFS_PASSWORD])):
+            seeker, files = self._apfs_members(keys)
+            self.assertTrue(set(f'CONVVOL/{rel}' for rel in self.apfs_hashes)
+                            <= {m.split('/', 1)[1] for m in files})
+            self._assert_apfs_files(seeker)
+        self.assertIn('CONVVOL is encrypted and was opened with a password', self.log.text())
+        _seeker, files = self._apfs_members(raw_image.ImageKeys(password='not it'))
+        self.assertEqual(files, [])
+
+    def test_the_command_line_takes_an_apfs_password_and_says_what_stays_locked(self):
+        password = os.path.join(self.work, 'apfs-password.txt')
+        with open(password, 'w', encoding='utf-8') as handle:
+            handle.write(APFS_PASSWORD + '\n')
+        with mock.patch.object(raw_image.sys, 'stdin', None), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(self.apfs)
+        self.assertIn('CONVVOL in ', err.getvalue())
+        self.assertIn('stays locked and its files are not searched', err.getvalue())
+        self.assertIn(APFS_HINT, err.getvalue())
+        self.assertIn('--image_password_file', err.getvalue())
+        self.assertEqual(self._apfs_members(keys)[1], [])
+        with mock.patch.object(raw_image.sys, 'stdin', None), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(self.apfs, password_file=password)
+        self.assertEqual(err.getvalue(), '')
+        self._assert_apfs_files(self._apfs_members(keys)[0])
+
+        class Terminal:
+            @staticmethod
+            def isatty():
+                return True
+        answers = iter(['not it', APFS_PASSWORD])
+        prompts = []
+
+        def getpass(prompt):
+            prompts.append(prompt)
+            return next(answers)
+        with mock.patch.object(raw_image.sys, 'stdin', Terminal()), \
+                mock.patch.object(raw_image.getpass, 'getpass', getpass), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(self.apfs)
+        self.assertEqual(keys.apfs_secrets, [APFS_PASSWORD])
+        self.assertIn('That does not open it.', err.getvalue())
+        self.assertIn(APFS_HINT, prompts[0])
+
+    @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
+    def test_the_gui_asks_for_an_apfs_password(self):
+        from tkinter import simpledialog  # pylint: disable=import-outside-toplevel
+        answers = iter(['not it', APFS_PASSWORD])
+        prompts = []
+
+        def askstring(_title, prompt, **_kw):
+            prompts.append(prompt)
+            return next(answers)
+        with mock.patch.object(simpledialog, 'askstring', askstring):
+            keys = raw_image.ask_image_keys(None, self.apfs)
+        self.assertEqual(keys.apfs_secrets, [APFS_PASSWORD])
+        self.assertIn(APFS_HINT, prompts[0])
+        self.assertTrue(prompts[1].startswith('That does not open it.'))
+        with mock.patch.object(simpledialog, 'askstring', lambda *a, **kw: None):
+            keys = raw_image.ask_image_keys(None, self.apfs)
+        self.assertEqual(keys.apfs_secrets, [])
 
     @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
     def test_the_gui_asks_for_a_private_key_and_a_bitlocker_startup_key(self):

@@ -44,8 +44,9 @@ or a 4Kn drive, has its partitions counted in 4096-byte sectors.
   `.dmgpart` files, a `.sparseimage`, a sparse bundle, an encrypted `.dmg` and an
   encrypted sparse bundle (opened with their password) and a split set built at test
   time; an AD1 against FTK Imager's own listing of it (live files, a stream, a
-  deleted entry left out), an AD1 sealed to a test certificate, and a BitLocker
-  volume opened with its password, recovery password or startup key; and a damaged
+  deleted entry left out), an AD1 sealed to a test certificate, a BitLocker
+  volume opened with its password, recovery password or startup key, and an APFS
+  volume macOS encrypted in place, opened with its password; and a damaged
   L01, an encrypted image opened without its password or with a wrong one, a damaged
   encrypted header and a `.dmgpart` opened on its own that must be refused.
 
@@ -59,18 +60,22 @@ sealed only to a certificate (`hdiutil -certificate`, `affcrypto`, or FTK Imager
 encryption given a certificate) opens instead with that certificate's RSA private key,
 unencrypted, as PEM or DER; `needs_private_key(path)` says so.
 
-What opens an image travels as `ImageKeys`: its password, a private key's path, and
-the secrets and startup key files of any BitLocker volume in it. The GUI asks for each
-in a dialog when the run starts (`ask_image_keys`): the password, or the key file, until
-one opens the image, then, for each BitLocker volume inside that nothing given opens,
-its password or recovery password, or, left empty, its startup key (`.BEK`) file;
-cancelling a BitLocker prompt leaves that volume locked. The command line
-(`cli_image_keys`) takes a password from `--image_password_file` (the file's first
-line) or `--image_password_env` (an environment variable), tried on the image and on
-each BitLocker volume as a password and as a recovery password, a private key from
-`--image_private_key`, and startup keys from `--bitlocker_key` (repeatable); at a
-terminal it asks for what is missing, and otherwise it names each BitLocker volume
-left locked on stderr and runs without it. Either way the keys are checked before the
+What opens an image travels as `ImageKeys`: its password, a private key's path, the
+secrets and startup key files of any BitLocker volume in it, and the passwords of any
+encrypted APFS volume in it. The GUI asks for each in a dialog when the run starts
+(`ask_image_keys`): the password, or the key file, until one opens the image, then, for
+each BitLocker volume inside that nothing given opens, its password or recovery
+password, or, left empty, its startup key (`.BEK`) file, and for each encrypted APFS
+volume nothing given opens, its password or personal recovery key, the prompt showing
+the passphrase hint the volume stores; cancelling a volume's prompt leaves that volume
+locked. The command line (`cli_image_keys`) takes a password from
+`--image_password_file` (the file's first line) or `--image_password_env` (an
+environment variable), tried on the image, on each BitLocker volume as a password and
+as a recovery password, and on each encrypted APFS volume as a password and as a
+personal recovery key, a private key from `--image_private_key`, and startup keys from
+`--bitlocker_key` (repeatable); at a terminal it asks for what is missing, and
+otherwise it names each BitLocker or APFS volume left locked on stderr and runs
+without it. Either way the keys are checked before the
 run, handed to `crunch_artifacts(..., image_password=...)` and on to
 `FileSeekerRaw(..., password=...)`, which passes them to the reader and does not keep
 them; nothing writes them to the report, the log or the history. A secret is never
@@ -88,6 +93,17 @@ volume are named as not read. Measured on five volumes Windows 11 encrypted
 staged with that hash, opened with a startup key, a recovery password, a password and
 a clear key.
 
+An APFS volume macOS encrypted in software (an external drive, or a Mac without a T2
+chip or Apple silicon) that the keys open is read decrypted, and the run log says so on
+its line (`CONVVOL is encrypted and was opened with a password, so its files are read
+decrypted`); one they do not open is listed as locked, with what would open it and the
+passphrase hint the volume stores, as stored, and nothing in it is searched. A volume
+with per-file keys, one caught part way through being encrypted, decrypted or given a
+new key, and the internal storage of a Mac with a T2 chip or Apple silicon (whose key
+Apple ties to the hardware) are named as not read. Measured on the fixture qnxprobe
+builds with `tools/make_apfs_converted_fixture.sh`, a volume macOS encrypted in place
+after files were written: every file macOS hashed staged with that hash.
+
 An E01, SMART or raw (dd) set FTK Imager encrypted with AD encryption opens the same
 way, with the same prompts and options. Every file of such a set is encrypted and only
 the first carries the header, so an E01 or SMART set is opened from its first file and
@@ -101,7 +117,8 @@ as a split image. `needs_password(path)` answers for both kinds.
 a split set, and reads an EWF, EWF2, AFF, AFM, AFD or AFF4 acquisition, an Apple disk
 image (a `.dmg` and its `.dmgpart` files, a `.sparseimage`, or a sparse bundle
 folder) or a virtual machine's disk), opens any BitLocker volume the keys open
-(`unlock_bitlocker()`), asks `volumes()` for every volume the reader's
+(`unlock_bitlocker()`) and any encrypted APFS volume they open (`unlock_apfs()`),
+asks `volumes()` for every volume the reader's
 own report would name, walks each readable volume once for its directory tree,
 and offers the run a member list in the shape the zip seeker offers: one name per
 file and one per directory (with a trailing slash), each prefixed by the volume's
@@ -185,8 +202,9 @@ for it, so no report field carries a zone the evidence never had.
   file is listed and not staged, and the log names the reason.
 - An encrypted volume (Android file-based encryption, iOS data protection,
   FileVault) reads, but its names or contents are ciphertext. An encrypted APFS
-  volume says on its line whether it was read in the clear or is locked. A BitLocker
-  volume is read when its keys are given (see above), and otherwise named as locked.
+  volume says on its line whether it was read in the clear, opened with a password
+  (see above) or is locked. A BitLocker volume is read when its keys are given (see
+  above), and otherwise named as locked.
 
 ## Comparing a raw run against a zip run
 

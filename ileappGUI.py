@@ -532,8 +532,8 @@ def process(casedata):
     is_valid, extracttype, decryption_keys = ValidateInput()
 
     if is_valid:
-        # An encrypted image opens only with what locked it, and a BitLocker volume
-        # in an image with its own key: asked for here, checked against the image,
+        # An encrypted image opens only with what locked it, and a BitLocker or APFS
+        # volume in an image with its own key: asked for here, checked against the image,
         # and handed to the run, never stored.
         image_password = None
         if extracttype == 'raw':
