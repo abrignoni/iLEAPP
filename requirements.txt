@@ -27,7 +27,6 @@ pillow_heif
 # CVEs. 5.29.6 is the minimum that clears CVE-2022-1941/2025-4565/2026-0994.
 protobuf==5.29.6
 pycryptodome
-pyinstaller
 
 # pyliblzfse for Windows on x64. The markers pin the machine as well as the OS:
 # these wheels are win_amd64, and on Windows-on-ARM pip would otherwise try to

@@ -13,24 +13,37 @@ Download a pre-built release — no Python installation required.
 - [LEAPPs Releases](https://leapps.org/releases) — browse all LEAPP family tools
 - [iLEAPP GitHub Releases](https://github.com/abrignoni/iLEAPP/releases) — direct downloads
 
-| Platform | GUI | CLI |
-| -------- | --- | --- |
-| Windows (Intel) | `ileappGUI-v*-Windows_x86_64.zip` | `ileapp-v*-Windows_x86_64.zip` |
-| Windows (ARM) | `ileappGUI-v*-Windows_arm64.zip` | `ileapp-v*-Windows_arm64.zip` |
-| macOS (Apple Silicon) | `ileappGUI-v*-macOS_Apple_Silicon.dmg` | `ileapp-v*-macOS_Apple_Silicon.zip` |
-| macOS (Intel) | `ileappGUI-v*-macOS_Mac_Intel.dmg` | `ileapp-v*-macOS_Mac_Intel.zip` |
-| Linux (Intel) | `ileappGUI-v*-Linux_x86_64.AppImage` | `ileapp-v*-Linux_x86_64.AppImage` |
-| Linux (ARM) | `ileappGUI-v*-Linux_arm64.AppImage` | `ileapp-v*-Linux_arm64.AppImage` |
+| Platform | Download |
+| -------- | -------- |
+| Windows (Intel/AMD) | `iLEAPP-*-windows-x64-setup.exe` (installer) or `iLEAPP-*-windows-x64-portable.zip` |
+| Windows (ARM) | `iLEAPP-*-windows-arm64-setup.exe` or `iLEAPP-*-windows-arm64-portable.zip` |
+| macOS (Apple Silicon) | `iLEAPP-*-macos-arm64.dmg` |
+| macOS (Intel) | `iLEAPP-*-macos-x64.dmg` |
+| Linux (Intel/AMD) | `iLEAPP-*-linux-x64.AppImage` or `iLEAPP-*-linux-x64.tar.gz` |
+| Linux (ARM) | `iLEAPP-*-linux-arm64.AppImage` or `iLEAPP-*-linux-arm64.tar.gz` |
 
-**GUI** — extract the download, run `ileappGUI`, then select your input type, source path, output folder, and modules to process.
+Each download holds one program, `ileapp`. `SHA256SUMS.txt` in each release lets you check a download.
 
-**CLI** — extract the download and run from a terminal. The output folder must already exist.
+**GUI** — open iLEAPP the usual way: from the Start menu after installing on Windows, by
+double-clicking `ileapp.exe` in the portable folder, iLEAPP in Applications on macOS, or
+the AppImage on Linux. Started without arguments, it opens the window; select your input
+type, source path, output folder, and modules to process.
+
+**CLI** — give `ileapp` arguments in a terminal and it runs as a command line instead. The
+output folder must already exist. Outside the AppImage, keep `ileapp` in its folder with
+the files beside it.
 
 ```
 ileapp.exe -t zip -i C:\path\to\extraction.zip -o C:\path\to\output\
 ```
 
-On macOS and Linux, use the `ileapp` binary from the extracted archive instead of `ileapp.exe`.
+On Linux, run the AppImage with the same arguments, or `ileapp` from the extracted
+`.tar.gz`. On macOS it is inside the app; to type just `ileapp` in a terminal, link it
+onto your PATH once:
+
+```
+sudo ln -s /Applications/iLEAPP.app/Contents/MacOS/ileapp /usr/local/bin/ileapp
+```
 
 ## Input Types
 
@@ -47,7 +60,7 @@ Encrypted iTunes/Finder backups (`-t itunes`) are supported. The GUI will prompt
 
 ## CLI Arguments
 
-These options apply only to the **CLI** build (`ileapp` / `ileapp.exe` / `python ileapp.py`). The GUI (`ileappGUI`) exposes the same settings through its interface instead of command-line flags.
+These options apply only to the **CLI** (`ileapp` / `ileapp.exe` given arguments, or `python ileapp.py`). The GUI (`ileapp` started without arguments, or `python ileappGUI.py`) exposes the same settings through its interface instead of command-line flags.
 
 Run `ileapp --help` (or `python ileapp.py --help` from source) for the built-in reference.
 
@@ -245,6 +258,23 @@ python ileappGUI.py
 ```
 
 See [CLI Arguments](#cli-arguments) above, or run `python ileapp.py --help`.
+
+### Building the binaries
+
+`packaging/build.py` builds `ileapp` with PyInstaller for the machine it runs on, from the
+same virtual environment. Run `python admin/scripts/fetch_unifiedlog_iterator.py` first to
+bundle the Unified Log parser.
+
+```
+python packaging/build.py exe          # dist/iLEAPP/, and dist/iLEAPP.app on macOS
+python packaging/build.py smoke        # run what it built, without opening a window
+python packaging/build.py installer    # Windows: Inno Setup installer; macOS: .dmg; Linux: AppImage
+```
+
+`exe --onefile` makes `dist/ileapp` (`dist\ileapp.exe` on Windows) as a single file
+instead. The Windows installer needs [Inno Setup](https://jrsoftware.org/isdl.php); on
+Linux, `smoke` needs a display, which `xvfb-run` provides. `python packaging/build.py --help`
+has the rest.
 
 ## Acknowledgements
 

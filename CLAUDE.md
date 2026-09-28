@@ -26,10 +26,13 @@ If something here ever contradicts `admin/docs/`, the doc wins and this file is 
   this, so run `ileapp.py` once before opening a PR.
 - **blackboxprotobuf is vendored** at `scripts/blackboxprotobuf/`. Import it as
   `from scripts import blackboxprotobuf`. Do not add the PyPI package; a test enforces this.
-- **Frozen builds need their imports declared.** PyInstaller cannot see the vendored
-  protobuf or PIL submodules, so the specs collect them explicitly. If you add a dependency
-  that is imported dynamically, expect a working dev run and a crashing frozen build, and
-  check `.github/workflows/test_builds.yml` covers it.
+- **Builds are made by `packaging/build.py`**, one PyInstaller spec for every platform and
+  one executable, `ileapp`, that opens the window without arguments. Every artifact module
+  is a hidden import, so what the artifacts import is followed without a list. What it
+  cannot follow is a name built at run time (`importlib.import_module(some_variable)`) or a
+  data file kept outside `scripts/`, `leapp_functions/` or `assets/`: expect a working dev
+  run and a broken build, and run `python packaging/build.py smoke` or `test_builds.yml`.
+  See `.claude/rules/ileapp-build-and-release.md`.
 
 ## Local corpora
 

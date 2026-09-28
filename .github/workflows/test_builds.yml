@@ -1,52 +1,76 @@
 name: Test builds
 
-# Build the CLI and GUI binaries with PyInstaller on every platform PyInstaller
-# cannot cross-build for, smoke-test them on their own architecture, and upload
-# them as workflow artifacts.
+# Builds iLEAPP with packaging/build.py on every platform and architecture it ships for,
+# runs what came out, builds each platform's installer, and uploads the lot. Nothing here
+# is a release; release.yml runs the same steps when a version tag is pushed. It exists so
+# every platform's build is produced and actually executed, without anyone owning the
+# hardware.
 #
-# Manual only. This is not the release pipeline; it exists so testable binaries can
-# be produced and actually executed per platform without anyone owning the hardware.
+# The smoke test is the point, not decoration. The frozen builds shipped a startup crash
+# for a long time (missing google.protobuf, PIL, leapp_functions) precisely because
+# nothing ever ran a built binary. `build.py smoke` runs the executable the ways a user
+# does: --version, a run over an empty extraction, a run over the NTFS raw fixture, the
+# bundled Unified Log parser, and the window's --selfcheck, which counts the artifacts
+# the build loaded against the source.
 #
-# The smoke tests are the point, not decoration: the frozen builds shipped a startup
-# crash for a long time (missing google.protobuf/PIL/leapp_functions) precisely
-# because nothing ever ran a built binary. Every step here that runs a binary is a
-# regression test for that class of failure.
+# Advisory rather than required, so a paths filter is fine here. A logic change inside an
+# existing module almost never breaks a build; packaging and dependency changes are where
+# the breaks come from, and the weekly build of main covers the rest.
 
 on:
   workflow_dispatch:
+  # Monday 06:00 UTC.
+  schedule:
+    - cron: '0 6 * * 1'
+  pull_request:
+    paths:
+      - 'packaging/**'
+      - 'requirements.txt'
+      - 'admin/scripts/fetch_unifiedlog_iterator.py'
+      - '.github/workflows/test_builds.yml'
 
 permissions:
   contents: read
 
 jobs:
-  build-windows:
+  build:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - runner: windows-latest
-            arch: x64
-          - runner: windows-11-arm
-            arch: arm64
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 45
+        os:
+          - windows-latest
+          # The Unified Log parser is the x64 build under Windows 11's emulation here,
+          # since Mandiant publishes no windows-arm64 parser, so passing on this leg also
+          # proves the path an ARM examiner relies on.
+          - windows-11-arm
+          - macos-latest
+          # Intel Macs. macos-latest is Apple silicon, and GitHub drops x86_64 macOS when
+          # macos-15-intel retires in 2027.
+          - macos-15-intel
+          # 22.04 rather than 24.04: a build runs only on the glibc it was made against or
+          # a newer one, and 22.04's 2.35 still covers the SIFT workstation and the LTS
+          # releases examiners keep.
+          - ubuntu-22.04
+          - ubuntu-22.04-arm
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           # Latest supported Python. astc-decomp-faster >= 1.1.5 publishes cp314
-          # win_amd64 wheels on PyPI, so the old cp312 wheel committed at the repo
-          # root is no longer needed here; pyliblzfse cp314 wheels ship in whl_files.
+          # win_amd64 wheels on PyPI, and pyliblzfse cp314 wheels ship in whl_files.
           python-version: '3.14'
 
-      - name: Provide OpenSSL for the cryptography source build (arm64 only)
+      - name: Provide OpenSSL for the cryptography source build (Windows arm64 only)
         # cryptography publishes no win_arm64 wheels at all (49.0.0 checked), so on
         # Windows-on-ARM pip builds it from source: Rust is on the runner already,
         # OpenSSL is not. Everything else heavy (numpy, pandas, pillow, mmh3,
         # pillow_heif) ships cp314 win_arm64 wheels, and pycryptodome covers it with
         # an abi3 wheel - cryptography is the one wall.
-        if: matrix.arch == 'arm64'
+        if: matrix.os == 'windows-11-arm'
+        shell: pwsh
         run: |
           $vcpkg = 'vcpkg'
           if (-not (Get-Command vcpkg -ErrorAction SilentlyContinue)) {
@@ -62,177 +86,86 @@ jobs:
           "OPENSSL_DIR=$installed" | Out-File -FilePath $env:GITHUB_ENV -Append
           "OPENSSL_STATIC=1" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Install dependencies
+      - name: Linux, the window's toolkit and a display for its self-check
+        # The window imports tkinter, and PyInstaller needs that import to succeed at
+        # analysis time; the hard check turns a missing toolkit into a readable failure.
+        # xvfb gives the --selfcheck a display.
+        if: runner.os == 'Linux'
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          sudo apt-get update -q
+          sudo apt-get install -y -q libtcl8.6 libtk8.6 xvfb
+          python -c "import tkinter" || { echo "tkinter unavailable in this Python"; exit 1; }
 
       - name: Fetch the Unified Log parser (digest-verified)
-        run: python admin/scripts/fetch_unifiedlog_iterator.py
-
-      - name: Smoke test the parser binary on Windows
-        # First time the Mandiant Windows build is executed anywhere in this
-        # project's pipeline. --help is used because unifiedlog_iterator exits
-        # non-zero on --version alone in some releases; either proves it runs.
-        # On the arm64 runner this is the x64 build under Windows 11's x64
-        # emulation - Mandiant publishes no windows-arm64 parser - so passing
-        # here also proves the emulation path an ARM examiner would rely on.
+        shell: bash
         run: |
-          bin\unifiedlog_iterator.exe --help
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+          python -m pip install --upgrade pip
+          python -m pip install certifi
+          python admin/scripts/fetch_unifiedlog_iterator.py
+
+      - name: Smoke test the parser binary
+        # --help because unifiedlog_iterator exits non-zero on --version alone in some
+        # releases. On Linux x64 this is the musl build, statically linked so it runs on
+        # any distribution; arm64 gets the gnu build, since no musl one is published.
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then bin/unifiedlog_iterator.exe --help; else bin/unifiedlog_iterator --help; fi
 
       - name: Check the third-party notices cover the fetched parser
         # The binary statically links Rust crates under their own licenses, and the
         # committed notices file carries their texts. This compares the crate versions
         # whose source paths the binary embeds with that file, without network access.
-        run: python admin/scripts/make_unifiedlog_notices.py --verify bin\unifiedlog_iterator.exe
-
-      - name: Build CLI and GUI with PyInstaller
-        working-directory: scripts/pyinstaller
+        shell: bash
         run: |
-          pyinstaller ileapp.spec --distpath ..\..\dist_build --workpath ..\..\build_tmp --noconfirm
-          pyinstaller ileappGUI.spec --distpath ..\..\dist_build --workpath ..\..\build_tmp --noconfirm
+          if [ "$RUNNER_OS" = "Windows" ]; then PARSER=bin/unifiedlog_iterator.exe; else PARSER=bin/unifiedlog_iterator; fi
+          python admin/scripts/make_unifiedlog_notices.py --verify "$PARSER"
 
-      - name: Smoke test the frozen CLI
-        # --help proves the exe survives its imports (the historical crash class).
-        # The empty-input run proves module loading, report generation, and clean
-        # exit end to end; it must succeed with "no data found" everywhere.
+      - name: Phase 1, the ileapp executable
+        shell: bash
+        run: python packaging/build.py exe
+
+      - name: Smoke test the build
+        shell: bash
         run: |
-          dist_build\ileapp.exe --help
-          if ($LASTEXITCODE -ne 0) { exit 1 }
-          New-Item -ItemType Directory -Path smoke_in, smoke_out | Out-Null
-          "placeholder" | Out-File smoke_in\placeholder.txt
-          dist_build\ileapp.exe -t fs -i smoke_in -o smoke_out
-          if ($LASTEXITCODE -ne 0) { exit 1 }
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            xvfb-run -a python packaging/build.py smoke
+          else
+            python packaging/build.py smoke
+          fi
 
-      # A raw image is read through the vendored reader imported as a module, which
-      # is the path a frozen build is most likely to break: an earlier design ran the
-      # reader as a subprocess through sys.executable, and in a bundle that is the
-      # tool itself, so -t raw could never work frozen and nothing smoke-tested it.
-      - name: Smoke test the frozen CLI on a raw image
-        shell: pwsh
+      - name: Phase 2, the installer (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
         run: |
-          New-Item -ItemType Directory -Path smoke_raw_out | Out-Null
-          python -c "import gzip, shutil; shutil.copyfileobj(gzip.open('admin/test/data/raw_images/ntfs-fixture.img.gz'), open('smoke_in/ntfs-fixture.img', 'wb'))"
-          dist_build\ileapp.exe -t raw -i smoke_in\ntfs-fixture.img -o smoke_raw_out
-          if ($LASTEXITCODE -ne 0) { exit 1 }
-          $log = Get-ChildItem -Path smoke_raw_out -Recurse -Filter "Screen_Output.html" | Select-Object -First 1
-          if (-not $log) { Write-Error "no run log was written"; exit 1 }
-          if (-not (Select-String -Path $log.FullName -Pattern "walked lba0: 4" -Quiet)) {
-            Write-Error "the frozen build did not walk the NTFS fixture"; exit 1
-          }
+          choco install innosetup --no-progress -y
+          python packaging/build.py installer
+          ls -l dist/iLEAPP-Setup-*.exe
 
-      - name: Verify the parser is bundled inside the frozen CLI
-        # The artifact must read tracev3 natively on the examiner's machine with
-        # nothing else installed. A onefile exe unpacks at runtime, so check the
-        # build manifest: Analysis-00.toc records everything PyInstaller packed.
+      - name: Phase 2, the disk image (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
         run: |
-          foreach ($needle in 'unifiedlog_iterator.exe', 'LICENSE-unifiedlog_iterator', 'THIRD-PARTY-NOTICES-unifiedlog_iterator.txt') {
-            if (-not (Select-String -Path build_tmp\ileapp\Analysis-00.toc -Pattern $needle -SimpleMatch -Quiet)) {
-              Write-Error "$needle was not bundled into the CLI build"
-              exit 1
-            }
-          }
+          python packaging/build.py installer
+          ls -l dist/iLEAPP-*.dmg
 
-      - name: Package artifact
+      # build.py runs the finished AppImage once and requires it to report the version.
+      - name: Phase 2, the AppImage (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
         run: |
-          New-Item -ItemType Directory -Path artifact | Out-Null
-          Copy-Item dist_build\ileapp.exe artifact\
-          Copy-Item dist_build\ileappGUI.exe artifact\
-          Copy-Item bin\LICENSE-unifiedlog_iterator artifact\
-          Copy-Item bin\THIRD-PARTY-NOTICES-unifiedlog_iterator.txt artifact\
+          python packaging/build.py installer
+          ls -l dist/iLEAPP-*.AppImage
 
-      - uses: actions/upload-artifact@v4
+      # On macOS the .app goes up inside its .dmg: an artifact zip keeps neither the
+      # bundle's symlinks nor its signature.
+      - name: Upload the build
+        uses: actions/upload-artifact@v4
         with:
-          name: ileapp-windows-${{ matrix.arch }}-test
-          path: artifact/
+          name: ileapp-${{ matrix.os }}-test
+          path: |
+            dist/iLEAPP/
+            dist/iLEAPP-Setup-*.exe
+            dist/iLEAPP-*.dmg
+            dist/iLEAPP-*.AppImage
           retention-days: 14
-
-  build-linux:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner: ubuntu-latest
-            arch: x64
-          - runner: ubuntu-24.04-arm
-            arch: arm64
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.14'
-
-      - name: Install tk libraries for the GUI build
-        # The GUI imports tkinter; PyInstaller needs the import to succeed at
-        # analysis time. The hard check turns a missing-toolkit problem into a
-        # readable failure instead of a cryptic PyInstaller one.
-        run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q libtcl8.6 libtk8.6
-          python -c "import tkinter" || { echo "tkinter unavailable in this Python"; exit 1; }
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Fetch the Unified Log parser (digest-verified)
-        run: python admin/scripts/fetch_unifiedlog_iterator.py
-
-      - name: Smoke test the parser binary on Linux
-        # On x64 this is the musl build's first execution anywhere in the
-        # pipeline - statically linked precisely so it runs on any distro, and
-        # this proves it. arm64 gets the gnu build (no musl published upstream).
-        run: bin/unifiedlog_iterator --help
-
-      - name: Check the third-party notices cover the fetched parser
-        run: python admin/scripts/make_unifiedlog_notices.py --verify bin/unifiedlog_iterator
-
-      - name: Build CLI and GUI with PyInstaller
-        working-directory: scripts/pyinstaller
-        run: |
-          pyinstaller ileapp_Linux.spec --distpath ../../dist_build --workpath ../../build_tmp --noconfirm
-          pyinstaller ileappGUI_Linux.spec --distpath ../../dist_build --workpath ../../build_tmp --noconfirm
-
-      - name: Smoke test the frozen CLI
-        run: |
-          dist_build/ileapp --help
-          mkdir smoke_in smoke_out
-          echo placeholder > smoke_in/placeholder.txt
-          dist_build/ileapp -t fs -i smoke_in -o smoke_out
-
-      # Same on Linux: the frozen build has to read a raw image through the vendored
-      # reader imported as a module, and the run log has to show the walk.
-      - name: Smoke test the frozen CLI on a raw image
-        run: |
-          mkdir smoke_raw_out
-          python -c "import gzip, shutil; shutil.copyfileobj(gzip.open('admin/test/data/raw_images/ntfs-fixture.img.gz'), open('smoke_in/ntfs-fixture.img', 'wb'))"
-          dist_build/ileapp -t raw -i smoke_in/ntfs-fixture.img -o smoke_raw_out
-          grep -rq "walked lba0: 4" smoke_raw_out --include="Screen_Output.html" || { echo "the frozen build did not walk the NTFS fixture"; exit 1; }
-
-      - name: Verify the parser is bundled inside the frozen CLI
-        # The workpath subfolder is named after the spec file: ileapp_Linux here,
-        # not ileapp as on Windows.
-        run: |
-          for needle in unifiedlog_iterator LICENSE-unifiedlog_iterator THIRD-PARTY-NOTICES-unifiedlog_iterator.txt; do
-            if ! grep -qF "$needle" build_tmp/ileapp_Linux/Analysis-00.toc; then
-              echo "$needle was not bundled into the CLI build"
-              exit 1
-            fi
-          done
-
-      - name: Package artifact
-        run: |
-          mkdir artifact
-          cp dist_build/ileapp dist_build/ileappGUI artifact/
-          cp bin/LICENSE-unifiedlog_iterator bin/THIRD-PARTY-NOTICES-unifiedlog_iterator.txt artifact/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ileapp-linux-${{ matrix.arch }}-test
-          path: artifact/
-          retention-days: 14
+          if-no-files-found: error

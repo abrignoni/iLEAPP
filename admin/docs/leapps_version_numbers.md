@@ -18,34 +18,30 @@ iLEAPP follows a semantic-style versioning system (`Major.Minor.Patch`):
 
 ## Files to Update
 
-When changing the version number, it must be updated in the following four locations to ensure consistency across CLI, GUI, and compiled executables.
+The version lives in one place, and changing it there is the whole change.
 
-### 1. `scripts/version_info.py`
-The primary source of truth for the version string within the application.
+### `scripts/version_info.py`
+The only source of the version string. The CLI and GUI report it, and it is written into
+every report.
 - Update the `leapp_version` variable.
 - **Example**: `leapp_version = '2.6.0-dev.0'`
 
-### 2. `scripts/pyinstaller/ileapp-file_version_info.txt`
-Metadata for the Windows CLI executable.
-- Update `filevers` and `prodvers` tuples. These must be four comma-separated integers.
-  - **Example**: `filevers=(2, 6, 0, 0), prodvers=(2, 6, 0, 0),`
-- Update `StringStruct('FileVersion', '...')` and `StringStruct('ProductVersion', '...')`.
-  - **Example**: `StringStruct('FileVersion', '2.6.0-dev.0'),`
+`packaging/build.py` reads it from there when it builds, so the Windows executable's
+version information, the macOS bundle's `Info.plist`, the installer and the disk image
+all follow it. Windows and macOS accept only numbers in those fields, so the build puts
+`2.6.0` there for `2.6.0-dev.0`; the full string stays everywhere else.
 
-### 3. `scripts/pyinstaller/ileappGUI-file_version_info.txt`
-Metadata for the Windows GUI executable.
-- Follow the same steps as the CLI text file above.
+## Releasing
 
-### 4. `scripts/pyinstaller/ileappGUI_macOS.spec`
-Configuration for the macOS application bundle.
-- Update the `version` parameter in the `BUNDLE` section at the end of the file.
-- **Example**: `version='2.6.0-dev.0'`
+Pushing a tag `v` + `leapp_version` (for example `v2.6.0`) runs
+`.github/workflows/release.yml`, which builds every platform and creates a **draft**
+release. It refuses a tag that does not match `leapp_version`, so set the release version
+first, tag that commit, then bump to the next `-dev.0`. It also refuses to publish while
+the repository lacks the `MACOS_*` secrets that sign and notarise the macOS disk images;
+`.claude/rules/ileapp-build-and-release.md` lists them.
 
 ## Summary Checklist
 - [ ] Update `scripts/version_info.py`
-- [ ] Update `scripts/pyinstaller/ileapp-file_version_info.txt`
-- [ ] Update `scripts/pyinstaller/ileappGUI-file_version_info.txt`
-- [ ] Update `scripts/pyinstaller/ileappGUI_macOS.spec`
 
 ## Reference Examples
 - [PR #1494: Update version number](https://github.com/abrignoni/iLEAPP/pull/1494/changes)

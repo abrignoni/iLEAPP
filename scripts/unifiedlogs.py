@@ -65,7 +65,7 @@ MAX_DIAGNOSTIC_LINE_LENGTH = 300
 def _bundled_binary_dirs():
     """Directories to search for a binary shipped with iLEAPP, frozen or from source.
 
-    Both point at 'bin': the PyInstaller specs place the executable there inside the
+    Both point at 'bin': packaging/build.py places the executable there inside the
     bundle, and admin/scripts/fetch_unifiedlog_iterator.py places it in the repository's
     bin/ for a source checkout. Keep the two in step; a mismatch means a build that
     bundles the parser cannot find it at runtime.
