@@ -61,6 +61,12 @@ jobs:
       - name: Stage from a directory input with and without the extended-length prefix
         run: python admin/test/scripts/test_seeker_source_path.py
 
+      # A link in a directory input is followed only when it resolves inside the input
+      # folder. Windows resolves links through drive letters and the extended-length
+      # prefix, so the check runs here with and without that prefix.
+      - name: Follow a link in a directory input only when it stays inside the input
+        run: python admin/test/scripts/test_seeker_dir_links.py
+
       # sanitize_file_path passes reserved device names (AUX, aux.dat, CON...) and names
       # ending in a dot or a space through unchanged, and registered extractions carry
       # both. Each is staged here through the tar and zip seekers, with and without the

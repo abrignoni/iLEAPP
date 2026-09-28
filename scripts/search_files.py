@@ -447,11 +447,19 @@ class FileSeekerDir(FileSeekerBase):
         build_files_list(directory): Recursively scans directory and populates _all_files list.
         search(filepattern, return_on_first_hit=False, force=False): Searches for files matching
             the given pattern, copies them to data_folder, and returns matching paths.
+    A symbolic link is followed only when its target, with every link on the way
+    resolved, is inside directory. A link to anywhere else (an absolute link such as
+    etc/localtime, or a relative one that climbs out) resolves on the examiner's own
+    machine, so nothing is staged for it: it is logged, its path is returned with no
+    file behind it, and file_infos holds the link's own times, so an artifact can
+    still report the link.
     """
 
     def __init__(self, directory, data_folder):
         FileSeekerBase.__init__(self)
         self.directory = directory
+        self._real_directory = os.path.normcase(os.path.realpath(directory))
+        self._links_outside = {}
         self._all_files = []
         self.data_folder = data_folder
         logfunc('Building files listing...')
@@ -473,6 +481,37 @@ class FileSeekerDir(FileSeekerBase):
         except OSError as ex:
             logfunc(f'Error reading {directory} ' + str(ex))
 
+    def _leaves_input(self, item):
+        '''True when item is a symbolic link whose target, with every link on the
+        way resolved, is not inside the input folder.'''
+        if not os.path.islink(item):
+            return False
+        target = os.path.normcase(os.path.realpath(item))
+        try:
+            return os.path.commonpath([self._real_directory, target]) != self._real_directory
+        except ValueError:
+            # A target on another drive (Windows).
+            return True
+
+    def _outside_link_path(self, item, data_path, source_path):
+        '''The data path returned for a link that resolves outside the input folder.
+        Nothing is written there. The first time, the link is logged and file_infos
+        records the link's own times.'''
+        if item not in self._links_outside:
+            data_path = self._unique_data_path(data_path, item, hash_source=source_path)
+            try:
+                link_text = os.readlink(item)
+                link_stat = os.lstat(item)
+            except OSError:
+                link_text = '(unreadable)'
+            else:
+                self.file_infos[data_path] = FileInfo(source_path, link_stat.st_ctime,
+                                                      link_stat.st_mtime)
+            logfunc(f"INFO: Link '{source_path}' points to '{link_text}', which resolves "
+                    "outside the input folder. Its target was not staged.")
+            self._links_outside[item] = data_path
+        return self._links_outside[item]
+
     def search(self, filepattern, return_on_first_hit=False, force=False):
         if filepattern in self.searched and not force:
             pathlist = self.searched[filepattern]
@@ -491,7 +530,9 @@ class FileSeekerDir(FileSeekerBase):
                 item_rel_path = os.path.relpath(item, self.directory)
                 source_path = item_rel_path.replace('\\', '/')
                 data_path = os.path.join(self.data_folder, item_rel_path)
-                if item not in self.copied or force:
+                if self._leaves_input(item):
+                    data_path = self._outside_link_path(item, data_path, source_path)
+                elif item not in self.copied or force:
                     try:
                         if os.path.isdir(item):
                             pass
