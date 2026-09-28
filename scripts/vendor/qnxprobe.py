@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.42"
+QNXPROBE_VERSION = "1.49"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -148,14 +148,18 @@ class ImageUnreadable(Exception):
 
 
 class ImagePasswordError(ImageUnreadable):
-    """An encrypted image (an Apple disk image, or an acquisition FTK Imager wrote
-    with AD encryption) was opened without its password (``wrong`` is
-    False) or with one that does not open it (``wrong`` is True). A caller that
-    asks for the password can tell the two apart and ask again."""
+    """An encrypted image (an Apple disk image, an acquisition FTK Imager wrote
+    with AD encryption, or an encrypted AFF) was opened without its password
+    (``wrong`` is False) or with one that does not open it (``wrong`` is True). A
+    caller that asks for the password can tell the two apart and ask again.
+    ``needs`` is "password", or "private key" for an AFF, an Apple disk image or an
+    AD-encrypted set sealed only to a certificate, which opens with that
+    certificate's private key instead."""
 
-    def __init__(self, message, wrong):
+    def __init__(self, message, wrong, needs="password"):
         super().__init__(message)
         self.wrong = wrong
+        self.needs = needs
 
 
 # The first eight bytes of each acquisition container the vendored ewfprobe
@@ -167,6 +171,18 @@ EWF2_SIGNATURE = b"EVF2\x0d\x0a\x81\x00"        # EWF2-Ex01
 AFF_SIGNATURE  = b"AFF10\x0d\x0a\x00"           # AFF, and every file of an AFD
 L01_SIGNATURE  = b"LVF\x09\x0d\x0a\xff\x00"     # EnCase logical evidence (L01)
 LX01_SIGNATURE = b"LEF2\x0d\x0a\x81\x00"        # EWF2 logical evidence (Lx01)
+AD1_SIGNATURE  = b"ADSEGMENTEDFILE\x00"        # FTK Imager logical evidence, every file
+# Virtual machine disks. A VHD ends in a 512-byte footer beginning "conectix" (511
+# bytes in images older than Virtual PC 2004), and a dynamic or differencing one also
+# begins with a copy of it; a VHDX begins "vhdxfile"; a VMDK is a text descriptor
+# beginning "# Disk DescriptorFile" or a sparse extent beginning "KDMV" (ESXi's
+# "COWD"); a QCOW begins "QFI\xfb" and its version, 1, 2 or 3.
+VHD_COOKIE = b"conectix"
+VHDX_SIGNATURE = b"vhdxfile"
+VMDK_DESCRIPTOR_START = b"# Disk DescriptorFile"
+VMDK_SPARSE_MAGIC = b"KDMV"
+VMDK_COWD_MAGIC = b"COWD"
+QCOW_MAGIC = b"QFI\xfb"
 # Apple disk images. A UDIF image (.dmg) ends in a 512-byte trailer beginning
 # "koly"; an uncompressed read-write image has none and is plain disk bytes, read
 # as raw. A .dmgpart segment of a split .dmg ends in one too, and the reader names
@@ -190,13 +206,93 @@ _ACQUISITION_NAMES = {
     "EWF2": "an EWF2 acquisition (.Ex01)",
     "AFF": "an AFF acquisition (.aff)",
     "AFD": "an AFD acquisition (a .afd folder of AFF files)",
+    "AFF4": "an AFF4 acquisition (.aff4)",
     "UDIF": "an Apple disk image (.dmg)",
     "SPARSEIMAGE": "an Apple sparse image (.sparseimage)",
     "SPARSEBUNDLE": "an Apple sparse bundle (a .sparsebundle folder)",
     "DMG_ENCRYPTED": "an encrypted Apple disk image (.dmg, .sparseimage or .sparsebundle)",
-    "AD_ENCRYPTED": "an acquisition FTK Imager encrypted with AD encryption (.E01, .s01 "
-                    "or .001)",
+    "AD_ENCRYPTED": "an acquisition FTK Imager encrypted with AD encryption (.E01, .s01, "
+                    ".001 or .ad1)",
+    "VHD": "a Microsoft virtual hard disk (.vhd)",
+    "VHDX": "a Microsoft virtual hard disk (.vhdx)",
+    "VMDK": "a VMware virtual disk (.vmdk)",
+    "QCOW": "a QEMU virtual disk (.qcow or .qcow2)",
 }
+
+
+ZIP_SIGNATURE = b"PK\x03\x04"
+
+
+def _is_aff4(path):
+    """ewfprobe's test when it is here; without it, the same two places it reads
+    (the first member's name, and the ZIP comment), so an AFF4 is still refused as
+    an acquisition rather than read as the bytes of a ZIP."""
+    if ewfprobe is not None and hasattr(ewfprobe, "is_aff4"):
+        return ewfprobe.is_aff4(path)
+    try:
+        with open(path, "rb") as fh:
+            head = fh.read(30)
+            if head[:4] != ZIP_SIGNATURE:
+                return False
+            if fh.read(struct.unpack_from("<H", head, 26)[0]) == b"container.description":
+                return True
+            fh.seek(0, os.SEEK_END)
+            fh.seek(max(0, fh.tell() - 65557))
+            tail = fh.read()
+    except (OSError, struct.error):
+        return False
+    at = tail.rfind(b"PK\x05\x06")
+    return at >= 0 and tail[at + 22:at + 29] == b"aff4://"
+
+
+def _virtual_disk_kind(path):
+    """ewfprobe's answer when it is here ("VHD", "VHDX", "VMDK", "QCOW" or None);
+    without it, the same bytes it reads (the first 512 and the last 512), so a
+    virtual disk is still refused as one rather than read as its container's bytes."""
+    if ewfprobe is not None and hasattr(ewfprobe, "virtual_disk_kind"):
+        return ewfprobe.virtual_disk_kind(path)
+    if os.path.isdir(path):
+        return None
+    try:
+        size = os.path.getsize(path)
+        with open(path, "rb") as fh:
+            head = fh.read(512)
+            fh.seek(max(0, size - 512))
+            tail = fh.read(512)
+    except OSError:
+        return None
+    text = head[3:] if head.startswith(b"\xef\xbb\xbf") else head
+    if head[:8] == VHDX_SIGNATURE:
+        return "VHDX"
+    if (head[:4] in (VMDK_SPARSE_MAGIC, VMDK_COWD_MAGIC)
+            or text[:len(VMDK_DESCRIPTOR_START)].lower() == VMDK_DESCRIPTOR_START.lower()):
+        return "VMDK"
+    if head[:4] == QCOW_MAGIC and head[4:8] in (b"\0\0\0\1", b"\0\0\0\2", b"\0\0\0\3"):
+        return "QCOW"
+    if VHD_COOKIE in (tail[:8], tail[1:9], head[:8]):
+        return "VHD"
+    return None
+
+
+def _aff_header_lost(path):
+    """True when an AFF segment stands where the AFF header belongs and its tail is
+    where its lengths put it, which is how AFFLIB 3.7.22's affcrypto -e leaves a file
+    it encrypts in place. ewfprobe reads such a file from its segments."""
+    try:
+        size = os.path.getsize(path)
+        with open(path, "rb") as fh:
+            head = fh.read(16)
+            if len(head) < 16 or head[:4] != b"AFF\x00":
+                return False
+            name_len, data_len = struct.unpack_from(">II", head, 4)
+            tail = 16 + name_len + data_len
+            if name_len > 1024 or tail + 8 > size:
+                return False
+            fh.seek(tail)
+            trailer = fh.read(8)
+    except (OSError, struct.error):
+        return False
+    return trailer[:4] == b"ATT\x00" and struct.unpack(">I", trailer[4:])[0] == tail + 8
 
 
 def _first_bytes(path, n=8):
@@ -250,22 +346,73 @@ def _numbered_first(path):
     return None
 
 
+def _ad1_first(path):
+    """The .ad1 of the AD1 set path would belong to (.ad1, .ad2, ...), when it is on
+    disk, else None."""
+    folder, name = os.path.split(os.path.abspath(path))
+    stem, dot, suffix = name.rpartition(".")
+    number = suffix[2:]
+    if not dot or suffix[:2].lower() != "ad" or not (number.isascii() and number.isdigit()):
+        return None
+    try:
+        present = {entry.lower(): entry for entry in os.listdir(folder)}
+    except OSError:
+        return None
+    first = present.get(f"{stem}.ad1".lower())
+    return os.path.join(folder, first) if first else None
+
+
+def _opens_with(path):
+    """What an encrypted image opens with, "password" or "private key", found by
+    opening it with neither, since an AD-encrypted set, an encrypted AFF or an Apple
+    disk image sealed only to a certificate asks for its private key instead. None
+    for an image that is not encrypted, or that the reader refuses for another reason
+    (which opening it will then report)."""
+    kind = acquisition_format(path)
+    if kind not in ("AD_ENCRYPTED", "AFF", "AFD", "DMG_ENCRYPTED"):
+        return None
+    if ewfprobe is None:        # refused on opening, naming the missing reader
+        return "password" if kind in ("AD_ENCRYPTED", "DMG_ENCRYPTED") else None
+    try:
+        ewfprobe.open_ewf(path).close()
+    except ewfprobe.EwfPasswordRequiredError as exc:
+        return getattr(exc, "needs", "password")
+    except ewfprobe.EwfError:
+        return None
+    return None
+
+
 def needs_password(path):
     """True when path is an image that opens only with its password: an encrypted
-    Apple disk image, or an acquisition FTK Imager encrypted with AD encryption."""
-    return acquisition_format(path) in PASSWORD_FORMATS
+    Apple disk image, an acquisition FTK Imager encrypted with AD encryption, or an
+    AFF encrypted with a passphrase. An image that a password or a certificate's
+    private key opens counts here, since either will do."""
+    return _opens_with(path) == "password"
+
+
+def needs_private_key(path):
+    """True when path is an AFF or an Apple disk image sealed only to a certificate,
+    which opens with that certificate's RSA private key rather than a password."""
+    return _opens_with(path) == "private key"
 
 
 def acquisition_format(path):
-    """What acquisition container path is: "EWF", "EWF2", "AFF", "AFD", "UDIF",
-    "SPARSEIMAGE", "SPARSEBUNDLE", "L01", "Lx01", "DMG_ENCRYPTED" or
-    "AD_ENCRYPTED", or None for anything else, which is read as a raw image.
+    """What acquisition container path is: "EWF", "EWF2", "AFF", "AFD", "AFF4",
+    "UDIF", "SPARSEIMAGE", "SPARSEBUNDLE", "L01", "Lx01", "AD1", "DMG_ENCRYPTED",
+    "AD_ENCRYPTED", or a virtual machine disk, "VHD", "VHDX", "VMDK" or "QCOW", or
+    None for anything else, which is read as a raw image. An
+    AFF4 is a ZIP, and is told from any other ZIP by the volume URI the AFF4
+    Standard (5.4) has its writer put in the ZIP comment or in a first member
+    named container.description.
 
     An AFD is a folder whose name ends .afd holding AFF files, the form AFFLIB
     writes when an image is split; it is recognised from the folder or from any
     AFF file in it, because one file holds only some of the image. A sparse bundle
-    is a folder too, recognised by its Info.plist whatever it is called. L01 and
-    Lx01 are logical evidence: they hold copies of files, not a disk.
+    is a folder too, recognised by its Info.plist whatever it is called. L01, Lx01
+    and FTK Imager's AD1 are logical evidence: they hold copies of files, not a
+    disk. An AD-encrypted AD1 set is recognised from any of its files by its .ad1.
+    A VMDK is recognised from its descriptor or from any of its sparse extents; a
+    flat extent holds the disk's bytes as they are and is read as raw.
     """
     if os.path.isdir(path):
         bundle = _sparsebundle_kind(path)
@@ -286,18 +433,25 @@ def acquisition_format(path):
         return "EWF"
     if head == EWF2_SIGNATURE:
         return "EWF2"
-    if head == AFF_SIGNATURE:
+    if head == AFF_SIGNATURE or _aff_header_lost(path):
         return "AFD" if _afd_folder(path) else "AFF"
     if head == L01_SIGNATURE:
         return "L01"
     if head == LX01_SIGNATURE:
         return "Lx01"
+    if head == AD1_SIGNATURE[:8] and _first_bytes(path, 16) == AD1_SIGNATURE:
+        return "AD1"
     if head == DMG_ENCRYPTED_SIGNATURE:
         return "DMG_ENCRYPTED"
     if head == ADCRYPT_SIGNATURE:
         return "AD_ENCRYPTED"
     if head[:4] == SPARSEIMAGE_SIGNATURE:
         return "SPARSEIMAGE"
+    if head[:4] == ZIP_SIGNATURE and _is_aff4(path):
+        return "AFF4"
+    virtual = _virtual_disk_kind(path)
+    if virtual:
+        return virtual
     try:
         size = os.path.getsize(path)
         if size >= 512:
@@ -307,7 +461,7 @@ def acquisition_format(path):
                     return "UDIF"
     except OSError:
         return None
-    first = _numbered_first(path)
+    first = _numbered_first(path) or _ad1_first(path)
     if first and _first_bytes(first) == ADCRYPT_SIGNATURE:
         return "AD_ENCRYPTED"
     return None
@@ -511,25 +665,22 @@ def image_size(fh):
             fh.seek(here)
 
 
-def open_image(path, segments=None, password=None):
+def open_image(path, segments=None, password=None, private_key=None):
     """Open an image read-only: the one file, or every segment of the split
     image it belongs to, joined. segments is split_segments(path) when the
-    caller already has it. password opens an encrypted Apple disk image or an
-    acquisition FTK Imager encrypted with AD encryption (a str,
-    used as UTF-8, or bytes); without it, or with one that does not open the
-    image, ImagePasswordError is raised. Other images ignore it."""
+    caller already has it. password opens an encrypted Apple disk image, an
+    acquisition FTK Imager encrypted with AD encryption or an encrypted AFF (a str,
+    used as UTF-8, or bytes), and private_key (a path to, or the bytes of, an
+    unencrypted PEM or DER RSA key) an AFF, an Apple disk image or an AD-encrypted set
+    sealed to a certificate; without what
+    opens it, or with one that does not, ImagePasswordError is raised. Other
+    images ignore both."""
     kind = acquisition_format(path)
     name = os.path.basename(os.path.normpath(path))
-    if kind in ("L01", "Lx01"):
+    if kind in ("L01", "Lx01", "AD1"):
         # Read as raw bytes this would hold no partition table and no
         # filesystem, and the run would report an empty disk.
-        reader = ("ewfprobe lists and exports them (ewfprobe.py files, "
-                  "ewfprobe.py export --entry)" if kind == "L01" else
-                  "the vendored ewfprobe does not read Lx01")
-        raise ImageUnreadable(
-            f"{name} is EnCase logical evidence ({kind}): it holds copies of "
-            f"files, not a disk, so there is no partition table or filesystem "
-            f"in it to read. For its files, {reader}.")
+        raise ImageUnreadable(_logical_refusal(name, kind))
     if kind:
         if ewfprobe is None:
             raise ImageUnreadable(
@@ -539,21 +690,40 @@ def open_image(path, segments=None, password=None):
                 f"Export the image to raw, or put ewfprobe.py back.")
         # ewfprobe joins the segments or files of the set itself, from the
         # format's own records rather than from the file names, and refuses an
-        # incomplete set.
-        if kind not in PASSWORD_FORMATS:
-            return ewfprobe.open_ewf(path)
-        # ewfprobe decrypts it, given the password; without the optional cipher
-        # package it refuses the image, naming the package
+        # incomplete set. It decrypts an encrypted image given what opens it; without
+        # the optional cipher package it refuses the image, naming the package.
+        given = {"password": password}
+        if private_key is not None:
+            given["private_key"] = private_key
         try:
-            return ewfprobe.open_ewf(path, password=password)
+            image = ewfprobe.open_ewf(path, **given)
         except ewfprobe.EwfPasswordError as exc:
             raise ImagePasswordError(
-                str(exc), isinstance(exc, ewfprobe.EwfWrongPasswordError)) from None
+                str(exc), isinstance(exc, ewfprobe.EwfWrongPasswordError),
+                getattr(exc, "needs", "password")) from None
+        # What an AD-encrypted set decrypts to can be logical evidence as well
+        inner = {"EWF-L01": "L01", "AD1": "AD1"}.get(getattr(image, "format", None))
+        if inner:
+            image.close()
+            raise ImageUnreadable(_logical_refusal(name, inner, encrypted=True))
+        return image
     if segments is None:
         segments = split_segments(path)
     if segments:
         return SegmentedImage(segments)
     return open(path, "rb")
+
+
+def _logical_refusal(name, kind, encrypted=False):
+    """Why logical evidence is not read as a disk, and what reads its files."""
+    maker = "FTK Imager" if kind == "AD1" else "EnCase"
+    reader = ("the vendored ewfprobe does not read Lx01" if kind == "Lx01" else
+              "ewfprobe lists and exports them (ewfprobe.py files, "
+              "ewfprobe.py export --entry)")
+    locked = ", encrypted with AD encryption" if encrypted else ""
+    return (f"{name} is {maker} logical evidence ({kind}){locked}: it holds copies of "
+            f"files, not a disk, so there is no partition table or filesystem in it "
+            f"to read. For its files, {reader}.")
 
 
 # The container ewfprobe reports, by its format label, as a run describes it.
@@ -563,11 +733,17 @@ _ACQUISITION_LABELS = {
     "EWF2-Ex01": "an EWF2 (Ex01) acquisition",
     "AFF": "an AFF acquisition",
     "AFD": "an AFD acquisition",
+    "AFF4": "an AFF4 acquisition",
     "UDIF": "an Apple disk image",
     "SPARSEIMAGE": "an Apple sparse image",
     "SPARSEBUNDLE": "an Apple sparse bundle",
     "UDRW": "an Apple read-write disk image",
+    "AFM": "an AFM acquisition",
     "RAW": "a raw (dd) image",
+    "VHD": "a VHD virtual disk",
+    "VHDX": "a VHDX virtual disk",
+    "VMDK": "a VMDK virtual disk",
+    "QCOW": "a QCOW virtual disk",
 }
 
 
@@ -577,7 +753,9 @@ def describe_acquisition(image):
     parts = list(getattr(image, "paths", []) or [])
     fmt = getattr(image, "format", None)
     crypt = getattr(image, "encryption", None)
-    locked = (f", encrypted ({crypt['cipher']}) and opened with its password"
+    opener = ("its private key" if str((crypt or {}).get("opened_with", ""))
+              .startswith("private key") else "its password")
+    locked = (f", encrypted ({crypt['cipher']}) and opened with {opener}"
               if crypt else "")
     if fmt == "SPARSEBUNDLE":
         bundle = getattr(image, "sparsebundle", None) or {}
@@ -585,11 +763,46 @@ def describe_acquisition(image):
         return (f"an Apple sparse bundle of {stored:,} stored band "
                 f"file{'' if stored == 1 else 's'}, read by the reader{locked}")
     label = _ACQUISITION_LABELS.get(fmt, "an acquisition")
-    unit = "files" if fmt in ("AFF", "AFD", "UDIF", "SPARSEIMAGE", "UDRW") else "segments"
+    unit = ("files" if fmt in ("AFF", "AFD", "AFM", "AFF4", "UDIF", "SPARSEIMAGE",
+                               "UDRW", "VHD", "VHDX", "VMDK", "QCOW")
+            else "segments")
+    # a differencing disk, delta or overlay is read through the disks under it
+    parents = [os.path.basename((getattr(q, "paths", None) or ["?"])[0])
+               for q in _parent_chain(image)]
+    over = ""
+    if len(parents) == 1:
+        over = f", over its parent {parents[0]}"
+    elif parents:
+        over = f", over its parents {', '.join(parents)} (nearest first)"
     if len(parts) > 1:
         return (f"{label} of {len(parts)} {unit}, joined by the reader: "
-                f"{os.path.basename(parts[0])} .. {os.path.basename(parts[-1])}{locked}")
-    return f"{label} of one {unit[:-1]}{locked}"
+                f"{os.path.basename(parts[0])} .. {os.path.basename(parts[-1])}"
+                f"{over}{locked}")
+    return f"{label} of one {unit[:-1]}{over}{locked}"
+
+
+def _parent_chain(image):
+    """The disks a virtual disk is read over (a differencing VHD or VHDX's parent, a
+    VMDK delta's, a QCOW overlay's backing file), nearest first; [] for any other
+    image. The reader caps a chain's length, and so does this."""
+    out, parent = [], getattr(image, "parent", None)
+    while parent is not None and len(out) < 64:
+        out.append(parent)
+        parent = getattr(parent, "parent", None)
+    return out
+
+
+def image_parents(image):
+    """Every file of the disks a virtual disk is read over, nearest disk first, each
+    as {"name", "bytes"}; [] for any other image."""
+    out = []
+    for parent in _parent_chain(image):
+        for q in list(getattr(parent, "paths", []) or []):
+            try:
+                out.append({"name": os.path.basename(q), "bytes": os.path.getsize(q)})
+            except OSError:
+                out.append({"name": os.path.basename(q), "bytes": None})
+    return out
 
 
 def describe_segment_sizes(sizes):
@@ -726,11 +939,12 @@ def parse_mbr(fh):
     mbr = read_at(fh, 0, 512)
     if len(mbr) < 512 or mbr[510:512] != b"\x55\xaa":
         return None
-    # A FAT, exFAT or NTFS boot sector also ends in 0x55AA, and its boot code
-    # sits where MBR partition entries would be, so it parses as four nonsense
-    # partitions. Its own type string at bytes 3..11 (exFAT, NTFS) or 82..90
-    # (FAT32) says it is a filesystem, not a partition table.
-    if (mbr[3:11] in (b"EXFAT   ", b"NTFS    ")
+    # A FAT, exFAT, NTFS or BitLocker boot sector also ends in 0x55AA, and its
+    # boot code sits where MBR partition entries would be, so it parses as four
+    # nonsense partitions. Its own type string at bytes 3..11 (exFAT, NTFS,
+    # BitLocker's "-FVE-FS-") or 82..90 (FAT32) says it is a volume, not a
+    # partition table.
+    if (mbr[3:11] in (b"EXFAT   ", b"NTFS    ", BDE_SIGNATURE)
             or mbr[82:90] == b"FAT32   " or mbr[54:62] == b"FAT16   "):
         return None
     # A QNX4 boot block can also end in 0x55AA (the dinit boot sector does).
@@ -3998,6 +4212,12 @@ APFS_PRIMED_TYPES = frozenset((APFS_TYPE_INODE, APFS_TYPE_XATTR, APFS_TYPE_DIR_R
 APFS_PRIME_MAX_RECORDS = 4_000_000
 
 APFS_INCOMPAT_CASE_INSENSITIVE          = 0x0000000000000001
+# apfs_superblock_t.apfs_fs_flags, and its "volume isn't encrypted" bit (Apple File
+# System Reference, 2020-06-22: apfs_superblock_t and Volume Flags). A volume
+# without the bit is encrypted; whether its blocks are ciphertext in an image is
+# a separate question, answered from the blocks (ApfsWalker.encryption).
+APFS_FS_FLAGS_OFF                       = 264
+APFS_FS_UNENCRYPTED                     = 0x0000000000000001
 APFS_INCOMPAT_NORMALIZATION_INSENSITIVE = 0x0000000000000008
 
 APFS_INO_EXT_TYPE_DSTREAM = 8   # the extended field holding a file's size
@@ -4036,13 +4256,18 @@ def _apfs_fletcher_ok(block):
     """
     if len(block) < APFS_OBJ_HDR:
         return False
+    return struct.unpack_from("<Q", block, 0)[0] == _apfs_fletcher(block)
+
+
+def _apfs_fletcher(block):
+    """The Fletcher-64 checksum of everything after a block's first eight bytes."""
     lo = hi = 0
     for off in range(8, len(block) - 3, 4):
         lo = (lo + struct.unpack_from("<I", block, off)[0]) % 0xFFFFFFFF
         hi = (hi + lo) % 0xFFFFFFFF
     c1 = (0xFFFFFFFF - ((lo + hi) % 0xFFFFFFFF)) % 0xFFFFFFFF
     c2 = (0xFFFFFFFF - ((lo + c1) % 0xFFFFFFFF)) % 0xFFFFFFFF
-    return struct.unpack_from("<Q", block, 0)[0] == ((c2 << 32) | c1)
+    return (c2 << 32) | c1
 
 
 class _ApfsBtree:
@@ -4166,9 +4391,10 @@ class ApfsWalker:
     and their extended fields, file extents including sparse ones, symbolic
     links, and files compressed with the decmpfs attribute in its zlib forms.
 
-    What it does not read: an encrypted volume, and a file compressed with LZVN
-    or LZFSE, which are not in the standard library. Both are reported rather
-    than guessed at.
+    What it does not read: an encrypted volume whose blocks are ciphertext in
+    the image, and a file compressed with LZVN or LZFSE, which are not in the
+    standard library. Both are reported rather than guessed at. An encrypted
+    volume whose blocks the image holds decrypted is read (see encryption()).
     """
 
     root = APFS_CONTAINER
@@ -4207,10 +4433,18 @@ class ApfsWalker:
         if not self.volumes:
             raise ValueError("the container names no readable volume")
         self._state = {}
+        self._crypt = {}                            # volume index -> encryption()
         self._current = None
         self._primed = None                         # prime_records() fills it
         self._fext = None
-        self._open_volume(0)
+        # what _open_volume sets, for a container whose every volume is locked
+        self._volume_omap, self._tree, self._inodes = {}, None, {}
+        self._hashed_names = self.case_insensitive = self.sealed = False
+        self.volume_name, self.fs_root_block = None, None
+        first = next((i for i in range(len(self.volumes))
+                      if self.encryption(i) != "locked"), None)
+        if first is not None:
+            self._open_volume(first)
 
     # -- volumes -----------------------------------------------------------
     def _open_volume(self, index):
@@ -4218,6 +4452,11 @@ class ApfsWalker:
         map and file-system tree the first time it is asked for."""
         if self._current == index:
             return
+        if self.encryption(index) == "locked":
+            # every route to a volume's tree comes through here, so a locked one is
+            # never parsed: ciphertext read as a tree returns nothing, silently
+            raise ApfsUnreadable(f"volume {index} is encrypted and its blocks are "
+                                 f"ciphertext in this image")
         got = self._state.get(index)
         if got is None:
             _oid, block, _name, incompat = self.volumes[index]
@@ -4284,10 +4523,60 @@ class ApfsWalker:
 
     def _select(self, node):
         vol, oid = self._split(node)
-        if vol >= len(self.volumes):
+        if vol >= len(self.volumes) or self.encryption(vol) == "locked":
             return None
         self._open_volume(vol)
         return oid
+
+    def encryption(self, index):
+        """None for a volume its flags say is not encrypted. For an encrypted one,
+        "clear" when its file-system tree's root node passes its checksum here, so
+        the image holds its blocks decrypted (an acquisition read through the Mac's
+        own decryption, as BlackBag's Digital Collector reads one, stores them so),
+        and "locked" when it does not, because they are ciphertext. A locked volume
+        is not walked: parsing ciphertext as a tree returns nothing, and returning
+        nothing reads as an empty volume."""
+        if index in self._crypt:
+            return self._crypt[index]
+        _oid, block, _name, _incompat = self.volumes[index]
+        sb = self.block(block)
+        state = None
+        if not struct.unpack_from("<Q", sb, APFS_FS_FLAGS_OFF)[0] & APFS_FS_UNENCRYPTED:
+            vol_omap_oid, root_oid = struct.unpack_from("<QQ", sb, 128)
+            saved = self._current, self._volume_omap
+            ok = False
+            try:
+                # as in _open_volume: the volume's own map is read with nothing current
+                self._current, self._volume_omap = None, {}
+                root_block = self._read_omap(vol_omap_oid).get(root_oid)
+                ok = root_block is not None and _apfs_fletcher_ok(self.block(root_block))
+            except (ValueError, OSError, struct.error):
+                ok = False
+            finally:
+                self._current, self._volume_omap = saved
+            state = "clear" if ok else "locked"
+        self._crypt[index] = state
+        return state
+
+    @property
+    def note(self):
+        """What a report should say about the container's encrypted volumes, or
+        None when none is encrypted."""
+        parts = []
+        for state, text in (
+                ("locked", "{} encrypted, and {} blocks are ciphertext in this image, "
+                           "so {} files are not listed or extracted"),
+                ("clear", "{} flagged encrypted, but {} blocks read in the clear in "
+                          "this image, as an acquisition made through the Mac's own "
+                          "decryption stores them, so {} files are read as they are")):
+            names = [self.volumes[i][2] or f"volume {i}" for i in range(len(self.volumes))
+                     if self.encryption(i) == state]
+            if names:
+                one = len(names) == 1
+                parts.append(text.format(f"{', '.join(names)} {'is' if one else 'are'}",
+                                         "its" if one else "their",
+                                         "its" if one else "their"))
+        return "; ".join(parts) or None
 
     # -- blocks and object maps -------------------------------------------
     def block(self, n):
@@ -9579,9 +9868,14 @@ def identify_apfs(fh, base):
     for i, (_oid, blk, name, incompat) in enumerate(w.volumes):
         sb = w.block(blk)
         used = struct.unpack_from("<Q", sb, 88)[0] * w.block_size
+        state = w.encryption(i)
         lines.append(f"  {i}  {name or '(unnamed)'}   {human(used)} used"
                      + ("   case sensitive"
-                        if not incompat & APFS_INCOMPAT_CASE_INSENSITIVE else ""))
+                        if not incompat & APFS_INCOMPAT_CASE_INSENSITIVE else "")
+                     + ("   encrypted, read in the clear" if state == "clear" else
+                        "   encrypted and locked, not read" if state == "locked" else ""))
+    if w.note:
+        lines.append(f"note         {w.note}")
     return "apfs", lines
 
 
@@ -9674,6 +9968,8 @@ def identify_fat(fh, base):
     wrote the volume.
     """
     b = read_at(fh, base, 512)
+    if b[3:11] == BDE_SIGNATURE or (b[3:11] == BDE_TOGO_SIGNATURE and b[424:440] == BDE_GUID):
+        return None                  # a BitLocker header: identify_bitlocker's, not a FAT volume
     if len(b) < 512 or b[510:512] != b"\x55\xaa":
         if b[3:11] != b"EXFAT   ":
             return None
@@ -9760,6 +10056,526 @@ def identify_f2fs(fh, base):
     return "f2fs", lines
 
 
+# ---------------------------------------------------------------- BitLocker
+#
+# Layout from Joachim Metz, "BitLocker Drive Encryption (BDE) format
+# specification", in libyal/libbde at 96e3c5dce6143c2702c90f3903018fb8c12a8956
+# (documentation/BitLocker Drive Encryption (BDE) format.asciidoc). How a sector
+# is read back follows libbde/libbde_sector_data.c at the same commit (lines
+# 274-420): the three metadata blocks and the area the first sectors were moved
+# to read as zeros; the first sectors are read from where BitLocker moved them and
+# decrypted with that location's sector number; and a sector past the encrypted
+# size, or in a range an unfinished conversion has not reached, is read as
+# stored. The Encrypt-on-Write map that records that range is read as
+# libbde/libbde_volume.c at the same commit reads it
+# (libbde_internal_volume_open_read_encrypt_on_write_data, line 1668).
+#
+# Measured on volumes Windows 11 Pro (build 26200) wrote: NTFS, FAT32 and exFAT;
+# AES-CBC and AES-XTS at 128 and 256 bits; opened with a password, a recovery
+# password, a startup key (.BEK) file, and the clear key a suspended volume keeps;
+# and three volumes whose conversion was paused (while encrypting, while encrypting
+# used space only, and while decrypting), each of which carries an Encrypt-on-Write
+# map. Not read: the Elephant diffuser (Windows Vista and 7 only), the Windows
+# Vista layout, and a TPM protector, whose key never leaves the device.
+
+try:
+    from Crypto.Cipher import AES as _BDE_AES                  # pycryptodome
+except ImportError:
+    try:
+        from Cryptodome.Cipher import AES as _BDE_AES          # pycryptodomex
+    except ImportError:
+        _BDE_AES = None
+
+BDE_SIGNATURE = b"-FVE-FS-"
+BDE_TOGO_SIGNATURE = b"MSWIN4.1"
+# 4967d63b-2e29-4ad8-8399-f6a339e3d001, and the identifier a volume carries while
+# an Encrypt-on-Write conversion is unfinished, 92a84d3b-dd80-4d0e-9e4e-b1e3284eaed8,
+# both as stored (the first three fields little-endian).
+BDE_GUID = bytes.fromhex("3bd66749292ed84a8399f6a339e3d001")
+BDE_EOW_GUID = bytes.fromhex("3b4da89280dd0e4d9e4eb1e3284eaed8")
+BDE_METADATA_SIZE = 65536
+BDE_STRETCH_ROUNDS = 0x100000
+BDE_CHUNK = 65536                    # decrypted and cached in 64 KiB pieces
+BDE_CACHE_CHUNKS = 256               # 16 MiB of plaintext kept per volume
+BDE_METHODS = {0x8000: "AES-128-CBC with the Elephant diffuser",
+               0x8001: "AES-256-CBC with the Elephant diffuser",
+               0x8002: "AES-128-CBC", 0x8003: "AES-256-CBC",
+               0x8004: "AES-128-XTS", 0x8005: "AES-256-XTS"}
+BDE_READ_METHODS = (0x8002, 0x8003, 0x8004, 0x8005)
+BDE_PROTECTORS = {0x0000: "clear key", 0x0100: "TPM", 0x0200: "startup key",
+                  0x0500: "TPM and PIN", 0x0800: "recovery password",
+                  0x2000: "password"}
+
+
+def _bde_entries(data):
+    """The FVE metadata entries in data: (entry type, value type, value bytes)."""
+    out, i = [], 0
+    while i + 8 <= len(data):
+        size, etype, vtype, _version = struct.unpack_from("<HHHH", data, i)
+        if size < 8 or i + size > len(data):
+            break
+        out.append((etype, vtype, bytes(data[i + 8:i + size])))
+        i += size
+    return out
+
+
+def _bde_guid(raw):
+    return str(uuid.UUID(bytes_le=bytes(raw))).upper()
+
+
+def _bde_ccm_open(key, value):
+    """The key data an AES-CCM encrypted key (value type 5) holds, or None when this
+    key does not open it: 12 bytes of nonce, a 16-byte tag, then the data, whose
+    first 12 bytes are its size, a version and the method."""
+    if _BDE_AES is None or len(value) < 40:
+        return None
+    try:
+        plain = _BDE_AES.new(key, _BDE_AES.MODE_CCM, nonce=value[:12],
+                             mac_len=16).decrypt_and_verify(value[28:], value[12:28])
+    except ValueError:
+        return None
+    size = struct.unpack_from("<I", plain, 0)[0]
+    return plain[12:size] if 12 < size <= len(plain) else None
+
+
+def bde_recovery_key(text):
+    """The 128-bit key a recovery password stands for, or None when text is not
+    one: 48 digits in eight groups (dashes and spaces are ignored), each group a
+    multiple of 11 whose quotient fits 16 bits."""
+    digits = "".join(ch for ch in text if ch not in "- ")
+    if len(digits) != 48 or not digits.isdigit():
+        return None
+    groups = [int(digits[i:i + 6]) for i in range(0, 48, 6)]
+    if any(g % 11 or g // 11 > 0xFFFF for g in groups):
+        return None
+    return b"".join(struct.pack("<H", g // 11) for g in groups)
+
+
+def _bde_stretch(initial, salt):
+    """BitLocker's key stretch: SHA-256 over (last, initial, salt, count), 2**20 times."""
+    import hashlib                              # pylint: disable=import-outside-toplevel
+    sha, pack, last, tail = hashlib.sha256, struct.Struct("<Q").pack, bytes(32), initial + salt
+    for count in range(BDE_STRETCH_ROUNDS):
+        last = sha(last + tail + pack(count)).digest()
+    return last
+
+
+def _bde_text(secret):
+    if isinstance(secret, (bytes, bytearray)):
+        try:
+            return bytes(secret).decode("utf-8")
+        except UnicodeDecodeError:
+            return None
+    return secret
+
+
+class BitLocker:
+    """A BitLocker volume at base in fh, read before any key is given: its method,
+    protectors and description, and, once unlock() finds a key, its plaintext.
+    BitLocker.open() returns None for anything that is not BitLocker."""
+
+    @classmethod
+    def open(cls, fh, base, size=None):
+        head = read_at(fh, base, 512)
+        if len(head) < 512 or not (
+                (head[3:11] == BDE_SIGNATURE
+                 and (head[160:176] in (BDE_GUID, BDE_EOW_GUID) or head[:3] == b"\xeb\x52\x90"))
+                or (head[3:11] == BDE_TOGO_SIGNATURE and head[424:440] == BDE_GUID)):
+            return None
+        if size is None:
+            size = image_size(fh) - base
+        return cls(fh, base, size, head)
+
+    def __init__(self, fh, base, size, head):
+        self.fh, self.base, self.size = fh, base, size
+        self.fvek, self.unlocked_by, self.tried, self.why = None, None, [], ""
+        self._k1 = self._k2 = None
+        self.label = "BitLocker volume"   # replaced by unlock_bitlocker with where it sits
+        self.method, self.description, self.created, self.volume_id = 0, "", 0, ""
+        self.protectors, self.vmks, self.eow_meta, self.eow_plain = [], [], [], []
+        self._fvek_value, self._cache = None, collections.OrderedDict()
+        if head[:3] == b"\xeb\x52\x90" and head[3:11] == BDE_SIGNATURE:
+            self.layout, offsets = "Windows Vista", ()
+        elif head[3:11] == BDE_TOGO_SIGNATURE:
+            self.layout, offsets = "To Go", struct.unpack_from("<QQQ", head, 440)
+        elif head[160:176] == BDE_EOW_GUID:
+            self.layout, offsets = "conversion unfinished", struct.unpack_from("<QQQ", head, 176)
+        else:
+            self.layout, offsets = "Windows 7 and later", struct.unpack_from("<QQQ", head, 176)
+        self.meta_offsets = offsets
+        self.bps = struct.unpack_from("<H", head, 11)[0]
+        self.enc_size = self.vh_offset = self.vh_size = self.vh_sectors = 0
+        entries = None
+        for off in offsets:
+            blk = read_at(fh, base + off, BDE_METADATA_SIZE)
+            if len(blk) < 112 or blk[:8] != BDE_SIGNATURE or struct.unpack_from("<H", blk, 10)[0] != 2:
+                continue
+            self.enc_size, self.vh_sectors = struct.unpack_from("<Q", blk, 16)[0], struct.unpack_from("<I", blk, 28)[0]
+            self.vh_offset = struct.unpack_from("<Q", blk, 56)[0]
+            msize, _mver, mhsize = struct.unpack_from("<III", blk, 64)
+            self.volume_id = _bde_guid(blk[80:96])
+            self.method = struct.unpack_from("<I", blk, 100)[0] & 0xFFFF
+            self.created = struct.unpack_from("<Q", blk, 104)[0]
+            entries = _bde_entries(blk[64 + mhsize:64 + msize])
+            break
+        if entries is None:
+            self.why = ("its metadata is in the Windows Vista layout, which this does not read"
+                        if self.layout == "Windows Vista" else "none of its three metadata blocks could be read")
+            return
+        for etype, vtype, val in entries:
+            if etype == 7 and vtype == 2:
+                self.description = val.decode("utf-16-le", "replace").rstrip("\x00")
+            elif etype == 2 and vtype == 8 and len(val) >= 28:
+                vmk = dict(id=_bde_guid(val[:16]), protection=struct.unpack_from("<H", val, 26)[0],
+                           props=_bde_entries(val[28:]))
+                self.vmks.append(vmk)
+                self.protectors.append((BDE_PROTECTORS.get(vmk["protection"],
+                                                           f"protection 0x{vmk['protection']:04x}"),
+                                        vmk["id"]))
+            elif etype == 3 and vtype == 5:
+                self._fvek_value = val
+            elif etype == 15 and vtype == 15 and len(val) >= 16:
+                self.vh_offset, self.vh_size = struct.unpack_from("<QQ", val, 0)
+        if not self.bps:
+            # The header of a BitLocker exFAT volume leaves bytes per sector 0;
+            # libbde_volume.c (lines 1497-1506) takes it from the moved header and
+            # accepts only 512 or 4096.
+            self.bps = (self.vh_size // self.vh_sectors
+                        if self.vh_size and self.vh_sectors else 512)
+        if self.bps not in (512, 4096) and not self.why:
+            self.why = f"its sector size, {self.bps} bytes, is not one BitLocker uses"
+            self.bps = 512
+        if not self.vh_size:
+            self.vh_size = self.vh_sectors * self.bps
+        if self.layout == "conversion unfinished":
+            try:
+                self._read_eow(head)
+            except (ValueError, struct.error) as exc:
+                self.why = f"its Encrypt-on-Write map could not be read ({exc})"
+        # Known from the metadata alone, so said whether or not a key is ever tried.
+        if not self.why and self.method not in BDE_READ_METHODS:
+            self.why = (f"it uses {BDE_METHODS.get(self.method, f'method 0x{self.method:04x}')}, "
+                        f"which this does not read")
+        elif not self.why and _BDE_AES is None:
+            self.why = ("reading it needs the optional pycryptodome package, which this "
+                        "Python does not have")
+
+    def _read_eow(self, head):
+        """The ranges an unfinished conversion has not reached, and the map's own
+        areas, which read as zeros like the rest of BitLocker's metadata."""
+        first, second = struct.unpack_from("<QQ", head, 200)
+        desc = read_at(self.fh, self.base + first, 4096)
+        if desc[:8] != b"FVE-EOW\x00":
+            raise ValueError("no FVE-EOW descriptor")
+        block, log_size = struct.unpack_from("<II", desc, 20)
+        count = struct.unpack_from("<I", desc, 32)[0]
+        if not block or count > 512:
+            raise ValueError("an implausible descriptor")
+        self.eow_meta = [(first, 4096)] + ([(second, 4096)] if second else [])
+        for off in struct.unpack_from(f"<{count}Q", desc, 56):
+            bm = read_at(self.fh, self.base + off, 4096)
+            if bm[:10] != b"FVE-EOWBM\x00":
+                raise ValueError(f"no block map at byte {off:,}")
+            bm_size, _index, region, region_size, log_off, r1, r2, rsize = \
+                struct.unpack_from("<IIQQQIII", bm, 12)
+            self.eow_meta.append((off, -(-bm_size // 4096) * 4096))
+            if log_off:
+                self.eow_meta.append((log_off, -(-log_size // 4096) * 4096))
+            best = None
+            for roff in (r1, r2):
+                rec = read_at(self.fh, self.base + off + roff, rsize)
+                if rec[:10] == b"FVE-EOWBR\x00":
+                    bits, seq = struct.unpack_from("<IQ", rec, 16)
+                    if best is None or seq > best[0]:
+                        best = (seq, bits, rec[36:])
+            if best is None:
+                raise ValueError(f"no block record in the map at byte {off:,}")
+            _seq, bits, bitmap = best
+            # A set bit is a block already encrypted; the newest record decides.
+            for i in range(min(bits, len(bitmap) * 8)):
+                start = i * block
+                if start >= region_size:
+                    break
+                if not bitmap[i // 8] >> (i % 8) & 1:
+                    end = region + min(start + block, region_size)
+                    if self.eow_plain and self.eow_plain[-1][1] == region + start:
+                        self.eow_plain[-1] = (self.eow_plain[-1][0], end)
+                    else:
+                        self.eow_plain.append((region + start, end))
+
+    def lines(self):
+        """What the volume says about itself before any key is given."""
+        out = [f"encryption   {BDE_METHODS.get(self.method, f'method 0x{self.method:04x}') if self.method else 'not read'}"
+               + (f", {self.layout} layout" if self.layout != "Windows 7 and later" else "")]
+        if self.eow_plain:
+            out.append(f"conversion   unfinished: {human(sum(e - s for s, e in self.eow_plain))} "
+                       f"not yet encrypted (the rest reads through its key)")
+        if self.description:
+            out.append(f"description  {self.description}")
+        if self.created:
+            out.append(f"created      {stamp(int(ntfs_time(self.created)))}")
+        if self.volume_id:
+            out.append(f"volume id    {self.volume_id}")
+        for kind, pid in self.protectors:
+            out.append(f"protector    {kind:<18} id {pid}")
+        if any(kind == "clear key" for kind, _pid in self.protectors):
+            # Windows lists no clear key among a volume's protectors; it is what
+            # suspending protection leaves (manage-bde -protectors -disable).
+            out.append("suspended    protection is off: the volume keeps its key in the clear, "
+                       "so it opens with no key given")
+        return out
+
+    def unlock(self, passwords=(), key_files=()):
+        """True once a key opens the volume: its clear key, a startup key file, or a
+        password or recovery password among passwords. Records what was tried."""
+        if self.fvek is not None:
+            return True
+        if self.why:
+            return False
+        texts = [t for t in (_bde_text(p) for p in passwords) if t]
+        keyfiles = []
+        for kf in key_files:
+            try:
+                keyfiles.append(kf if isinstance(kf, (bytes, bytearray)) else open(kf, "rb").read())
+            except OSError:
+                continue
+        order = sorted(self.vmks, key=lambda v: {0x0000: 0, 0x0200: 1}.get(v["protection"], 2))
+        for vmk in order:
+            prot, key = vmk["protection"], None
+            ccm = next((val for _e, vt, val in vmk["props"] if vt == 5), None)
+            if ccm is None:
+                continue
+            if prot == 0x0000:
+                clear = next((val for _e, vt, val in vmk["props"] if vt == 1), None)
+                key = _bde_ccm_open(clear[4:36], ccm) if clear else None
+            elif prot == 0x0200:
+                for raw in keyfiles:
+                    for _e, vt, val in _bde_entries(raw[48:]):
+                        if vt == 9 and len(val) >= 24 and _bde_guid(val[:16]) == vmk["id"]:
+                            kd = next((v for _e2, t2, v in _bde_entries(val[24:]) if t2 == 1), None)
+                            key = _bde_ccm_open(kd[4:36], ccm) if kd else None
+                    if key:
+                        break
+            elif prot in (0x0800, 0x2000):
+                stretch = next((val for _e, vt, val in vmk["props"] if vt == 3), None)
+                if stretch is None or not texts:
+                    continue
+                import hashlib                  # pylint: disable=import-outside-toplevel
+                for text in texts:
+                    if prot == 0x0800:
+                        rk = bde_recovery_key(text)
+                        if rk is None:
+                            continue
+                        initial = hashlib.sha256(rk).digest()
+                    else:
+                        initial = hashlib.sha256(hashlib.sha256(text.encode("utf-16-le")).digest()).digest()
+                    key = _bde_ccm_open(_bde_stretch(initial, stretch[4:20]), ccm)
+                    if key:
+                        break
+            else:
+                continue
+            # Recorded only when something given was tried against it, so a locked
+            # volume's note never claims keys were given when none were.
+            if prot == 0x0200 and keyfiles or prot in (0x0800, 0x2000) and texts:
+                self.tried.append(BDE_PROTECTORS.get(prot, hex(prot)))
+            if key and len(key) >= 32:
+                fvek = _bde_ccm_open(key[:32], self._fvek_value or b"")
+                if fvek:
+                    half = 16 if self.method in (0x8002, 0x8004) else 32
+                    self._k1 = _BDE_AES.new(fvek[:half], _BDE_AES.MODE_ECB)
+                    self._k2 = (_BDE_AES.new(fvek[half:2 * half], _BDE_AES.MODE_ECB)
+                                if self.method in (0x8004, 0x8005) else None)
+                    self.fvek, self.unlocked_by = fvek, BDE_PROTECTORS.get(prot)
+                    return True
+        return False
+
+    def _decrypt(self, phys, data):
+        """Whole sectors read at volume offset phys, decrypted with the key and the
+        sector position libbde_sector_data.c uses: the byte offset for AES-CBC, the
+        sector number for AES-XTS."""
+        bps, n = self.bps, len(data) // self.bps
+        if self._k2 is not None:
+            # XTS tweaks for every sector at once: lane i of v (128 bits each) holds
+            # sector i's tweak for block j, doubled in GF(2**128) for each next block
+            # (the carry out of a lane folds back in as 0x87), and each block's
+            # tweaks are laid into place with strided copies.
+            first, per, width = phys // bps, bps // 16, 16 * n
+            v = int.from_bytes(self._k2.encrypt(
+                b"".join((first + i).to_bytes(16, "little") for i in range(n))), "little")
+            low = int.from_bytes((b"\x01" + bytes(15)) * n, "little")
+            keep = ((1 << (128 * n)) - 1) ^ low
+            tw = bytearray(len(data))
+            for j in range(per):
+                vb = v.to_bytes(width, "little")
+                for k in range(16):
+                    tw[16 * j + k::bps] = vb[k::16]
+                carry = (v >> 127) & low
+                v = ((v << 1) & keep) ^ carry ^ (carry << 1) ^ (carry << 2) ^ (carry << 7)
+            tweak = int.from_bytes(tw, "little")
+            x = (int.from_bytes(data, "little") ^ tweak).to_bytes(len(data), "little")
+            return (int.from_bytes(self._k1.decrypt(x), "little") ^ tweak).to_bytes(len(data), "little")
+        ivs = self._k1.encrypt(b"".join((phys + i * bps).to_bytes(16, "little") for i in range(n)))
+        prev = b"".join(ivs[16 * i:16 * i + 16] + data[i * bps:(i + 1) * bps - 16] for i in range(n))
+        return (int.from_bytes(self._k1.decrypt(data), "little")
+                ^ int.from_bytes(prev, "little")).to_bytes(len(data), "little")
+
+    def _sector_source(self, pos):
+        """("zero", 0), ("raw", phys) or ("dec", phys) for the sector at pos."""
+        if (any(mo <= pos < mo + BDE_METADATA_SIZE for mo in self.meta_offsets)
+                or self.vh_offset <= pos < self.vh_offset + self.vh_size
+                or any(s <= pos < s + n for s, n in self.eow_meta)):
+            return "zero", 0
+        phys = pos + self.vh_offset if pos < self.vh_size else pos
+        if (self.enc_size and phys >= self.enc_size) or any(s <= phys < e for s, e in self.eow_plain):
+            return "raw", phys
+        return "dec", phys
+
+    def _plain(self, start, length):
+        bps, out, pos, end = self.bps, bytearray(), start, start + length
+        while pos < end:
+            kind, phys = self._sector_source(pos)
+            run = bps
+            while pos + run < end:
+                k2, p2 = self._sector_source(pos + run)
+                if k2 != kind or (kind != "zero" and p2 != phys + run):
+                    break
+                run += bps
+            if kind == "zero":
+                out += bytes(run)
+            else:
+                data = read_at(self.fh, self.base + phys, run)
+                whole = len(data) - len(data) % bps
+                out += (self._decrypt(phys, data[:whole]) + data[whole:]) if kind == "dec" else data
+                if len(data) < run:
+                    break
+            pos += run
+        return bytes(out)
+
+    def read(self, off, n):
+        """n plaintext bytes at volume offset off (short at the end of the volume)."""
+        out, pos, end = bytearray(), off, min(off + n, self.size)
+        while pos < end:
+            ci = pos // BDE_CHUNK
+            chunk = self._cache.get(ci)
+            if chunk is None:
+                start = ci * BDE_CHUNK
+                chunk = self._plain(start, min(BDE_CHUNK, self.size - start))
+                self._cache[ci] = chunk
+                if len(self._cache) > BDE_CACHE_CHUNKS:
+                    self._cache.popitem(last=False)
+            else:
+                self._cache.move_to_end(ci)
+            s = pos - ci * BDE_CHUNK
+            take = min(len(chunk) - s, end - pos)
+            if take <= 0:
+                break
+            out += chunk[s:s + take]
+            pos += take
+        return bytes(out)
+
+    def summary(self):
+        return (f"BitLocker {BDE_METHODS.get(self.method, '')}, unlocked with its {self.unlocked_by}"
+                if self.fvek is not None else "BitLocker, locked")
+
+    def locked_note(self):
+        """Why the volume was not read, and what would open it."""
+        if self.why:
+            return f"BitLocker-encrypted and not read: {self.why}"
+        kinds = [k for k, _i in self.protectors]
+        if kinds and all(k.startswith("TPM") for k in kinds):
+            return ("BitLocker-encrypted and not read: its only protector is the device's "
+                    "TPM, whose key does not leave the device")
+        usable = []
+        for kind, pid in self.protectors:
+            if kind == "recovery password":
+                usable.append(f"recovery password (protector id {pid})")
+            elif kind in ("password", "startup key") and kind not in usable:
+                usable.append(kind)
+        tried = "none of the passwords or key files given opens it; " if self.tried else ""
+        return (f"BitLocker-encrypted and not read: {tried}it opens with its "
+                + " or its ".join(usable or ["key"]))
+
+
+def identify_bitlocker(fh, base, size=None):
+    """Return ("bitlocker", lines) for a BitLocker volume at base, else None."""
+    bl = BitLocker.open(fh, base, size)
+    return ("bitlocker", bl.lines()) if bl else None
+
+
+class BitLockerImage:
+    """An image read through read_at() with its unlocked BitLocker volumes
+    decrypted in place, so identify_fs() and every walker read the plaintext at
+    the volume's own offset. ``bitlocker`` maps each such volume's byte offset to
+    its BitLocker object; anything else is the image's own attribute."""
+
+    def __init__(self, fh, opened, found=()):
+        self._fh, self.bitlocker, self.bitlocker_found = fh, dict(opened), list(found)
+        self.size = image_size(fh)
+        self._spans = sorted((b, b + v.size, v) for b, v in self.bitlocker.items())
+        self._pos = 0
+
+    def __getattr__(self, name):
+        return getattr(self._fh, name)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+    def close(self):
+        self._fh.close()
+
+    def seek(self, off, whence=0):
+        self._pos = off if whence == 0 else self._pos + off if whence == 1 else self.size + off
+        return self._pos
+
+    def tell(self):
+        return self._pos
+
+    def read(self, n=-1):
+        end = self.size if n is None or n < 0 else min(self.size, self._pos + n)
+        out = bytearray()
+        while self._pos < end:
+            span = next((s for s in self._spans if s[0] <= self._pos < s[1]), None)
+            if span is not None:
+                take = min(end, span[1]) - self._pos
+                got = span[2].read(self._pos - span[0], take)
+            else:
+                nxt = min([s[0] for s in self._spans if s[0] > self._pos] + [end])
+                self._fh.seek(self._pos)
+                got = self._fh.read(nxt - self._pos)
+            if not got:
+                break
+            out += got
+            self._pos += len(got)
+        return bytes(out)
+
+
+def unlock_bitlocker(fh, size=None, passwords=(), key_files=()):
+    """Find the BitLocker volumes in an opened image and open those the passwords
+    (tried as passwords and as recovery passwords) or startup key files open.
+    Returns (fh, found): fh is a BitLockerImage when there is any BitLocker volume
+    (``bitlocker`` holds those opened, ``bitlocker_found`` every one, so volumes()
+    can say why a locked one was not read), else the image unchanged; found holds
+    one BitLocker per volume, opened or not."""
+    if size is None:
+        size = image_size(fh)
+    regions, _names, containers, protective = partition_regions(fh, size)
+    found, opened = [], {}
+    for label, base, rsize in regions:
+        if label in containers or label in protective:
+            continue
+        bl = BitLocker.open(fh, base, rsize)
+        if bl is None:
+            continue
+        bl.label = label
+        if bl.unlock(passwords, key_files):
+            opened[base] = bl
+        found.append(bl)
+    return (BitLockerImage(fh, opened, found) if found else fh), found
+
+
 def identify_fs(fh, base, size=None):
     """Return (name, [detail lines]) for whatever sits at this partition.
 
@@ -9791,6 +10607,13 @@ def identify_fs(fh, base, size=None):
         found = ident(fh, base, size)
         if found:
             return found
+
+    # BitLocker before the rest: its header is a FAT32 boot sector in all but its
+    # signature and identifier (so identify_fat would take it for an empty FAT32
+    # volume), and the ciphertext behind it can carry ext's 2-byte magic by chance.
+    bde = identify_bitlocker(fh, base, size)
+    if bde:
+        return bde
 
     sb = read_at(fh, base + EXT_SB_OFF, 1024)
     if len(sb) == 1024 and _e(sb, "magic", 2) == EXT_MAGIC:
@@ -10174,6 +10997,19 @@ def volumes(fh, size=None):
         vol = dict(label=label, base=base, size=rsize, lba=base // ss,
                    kind=kind or "not recognised", name=stem,
                    detail="; ".join(lines[:2]), missing_past_end=missing.get(base, 0))
+        # A BitLocker volume unlock_bitlocker() opened reads as the filesystem inside
+        # it, and says so; one it did not open says why and what would open it.
+        opened = getattr(fh, "bitlocker", {}).get(base)
+        if opened is not None:
+            vol["encryption"] = opened.summary()
+            vol["detail"] = "; ".join([opened.summary()] + lines[:1])
+        if kind == "bitlocker":
+            bl = next((b for b in getattr(fh, "bitlocker_found", ()) if b.base == base), None)
+            bl = bl or BitLocker.open(fh, base, rsize)
+            vol["encryption"] = "BitLocker, locked"
+            vol["note"] = bl.locked_note() if bl else "BitLocker-encrypted and not read"
+            out.append(vol)
+            continue
         try:
             if kind and kind.startswith("ext"):
                 ext_name = _ext_label(fh, base)
@@ -10203,16 +11039,19 @@ def volumes(fh, size=None):
     return out
 
 
-def open_image_trying(path, segments=None, passwords=()):
+def open_image_trying(path, segments=None, passwords=(), private_keys=()):
     """open_image with the first of ``passwords`` that opens it, for an encrypted
-    Apple disk image or an AD-encrypted acquisition; any other image opens with none. Raises ImagePasswordError
-    when none of them does (wrong is True) or none was given (wrong is False)."""
+    Apple disk image, an AD-encrypted acquisition or an encrypted AFF (which the
+    first of ``private_keys`` that opens it also opens when it is sealed to a
+    certificate); any other image opens with none. Raises ImagePasswordError when
+    none of them does (wrong is True) or none was given (wrong is False)."""
     last = None
     for password in list(passwords) or [None]:
-        try:
-            return open_image(path, segments, password=password)
-        except ImagePasswordError as exc:
-            last = exc
+        for key in list(private_keys) or [None]:
+            try:
+                return open_image(path, segments, password=password, private_key=key)
+            except ImagePasswordError as exc:
+                last = exc
     raise last
 
 
@@ -10236,12 +11075,16 @@ def _cli_passwords(files, env_names):
 
 def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
          extract=None, only=None, zf=None, do_triage=False, exclude=None,
-         reporter=None, manifest=None, passwords=()):
+         reporter=None, manifest=None, passwords=(), key_files=(), private_keys=()):
     # a set that is not whole raises SplitImageError; an acquisition's reader joins
     # its own files (an AD-encrypted raw set is numbered like a split image, and its
     # files are ciphertext until the reader decrypts them)
     segments = [] if acquisition_format(path) else split_segments(path)
-    image = open_image_trying(path, segments, passwords)
+    image = open_image_trying(path, segments, passwords, private_keys)
+    # A BitLocker volume the passwords (as passwords or recovery passwords) or the
+    # startup key files open is read decrypted in place; the rest stay locked and
+    # the report says so.
+    image, bitlocker_found = unlock_bitlocker(image, None, passwords, key_files)
     size = image_size(image)
     print("=" * 78)
     print(path)
@@ -10266,6 +11109,9 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
             part_sizes = [os.path.getsize(q) for q in parts]
         image_rec["image_segments"] = [{"name": os.path.basename(q), "bytes": s}
                                        for q, s in zip(parts, part_sizes)]
+        parent_files = image_parents(image)
+        if parent_files:
+            image_rec["image_parents"] = parent_files
 
     candidates, regions, sized_regions, triage = [], [], [], []
     containers, protective = set(), set()
@@ -10604,8 +11450,21 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                     continue
                 kind, lines = identify_fs(fh, b, sz)
                 print(f"    {lab}   {human(sz)}   ->  {kind or 'not recognised'}")
+                opened = getattr(fh, "bitlocker", {}).get(b)
+                if opened is not None:
+                    print(f"        {opened.summary()}; what follows is the decrypted volume")
+                    for line in opened.lines():
+                        print(f"          {line}")
                 for line in lines:
                     print(f"        {line}")
+                if kind == "bitlocker":
+                    bl = next((x for x in bitlocker_found if x.base == b), None)
+                    if bl is not None:
+                        print(f"        {bl.locked_note()}")
+                        if not bl.why and any(k in ("password", "recovery password", "startup key")
+                                              for k, _i in bl.protectors):
+                            print("        (give a password or recovery password with --password-file "
+                                  "or --password-env, a startup key with --bitlocker-key)")
                 ext_name = ""
                 if kind and kind.startswith("ext"):
                     _sb = read_at(fh, b + EXT_SB_OFF, 1024)
@@ -12544,7 +13403,14 @@ def self_test():
             "SPARSEIMAGE_SIGNATURE": (SPARSEIMAGE_SIGNATURE, b"sprs"),
             "DMG_ENCRYPTED_SIGNATURE": (DMG_ENCRYPTED_SIGNATURE, b"encrcdsa"),
             "ADCRYPT_SIGNATURE": (ADCRYPT_SIGNATURE, b"ADCRYPT\x00"),
+            "AD1_SIGNATURE": (AD1_SIGNATURE, b"ADSEGMENTEDFILE\x00"),
             "SPARSEBUNDLE_TYPE": (SPARSEBUNDLE_TYPE, "com.apple.diskimage.sparsebundle"),
+            "VHD_COOKIE": (VHD_COOKIE, b"conectix"),
+            "VHDX_SIGNATURE": (VHDX_SIGNATURE, b"vhdxfile"),
+            "VMDK_DESCRIPTOR_START": (VMDK_DESCRIPTOR_START, b"# Disk DescriptorFile"),
+            "VMDK_SPARSE_MAGIC": (VMDK_SPARSE_MAGIC, b"KDMV"),
+            "VMDK_COWD_MAGIC": (VMDK_COWD_MAGIC, b"COWD"),
+            "QCOW_MAGIC": (QCOW_MAGIC, b"QFI\xfb"),
         }
         for const, (have, want) in TRUE_SIGS.items():
             if have != want:
@@ -12579,6 +13445,113 @@ def self_test():
         ad_first = _fake("ad_fake.0001", TRUE_SIGS["ADCRYPT_SIGNATURE"][1])
         ad_second = _fake("ad_fake.0002", b"\x5a" * 8)
         plain_second = _fake("plain_fake.0002", b"\x00" * 8)
+        ad1_fake = _fake(os.path.join("ad1", "fake.ad1"), TRUE_SIGS["AD1_SIGNATURE"][1])
+        ad1_second = _fake(os.path.join("ad1", "fake.ad2"), TRUE_SIGS["AD1_SIGNATURE"][1])
+        ad1_enc = _fake(os.path.join("ad1enc", "enc.AD1"), TRUE_SIGS["ADCRYPT_SIGNATURE"][1])
+        ad1_enc_second = _fake(os.path.join("ad1enc", "enc.ad2"), b"\x5a" * 16)
+        ad1_lone = _fake(os.path.join("ad1lone", "lone.ad2"), b"\x5a" * 16)
+        # Virtual machine disks: each begins, or for a fixed VHD ends, with its own
+        # bytes; everything else in these files is zeros, so each is damaged.
+        vhd_fixed_fake = os.path.join(d, "vd", "fixed.vhd")
+        os.makedirs(os.path.dirname(vhd_fixed_fake), exist_ok=True)
+        with open(vhd_fixed_fake, "wb") as fh:
+            fh.write(b"\x00" * 4096 + TRUE_SIGS["VHD_COOKIE"][1] + b"\x00" * 504)
+        vhd_dynamic_fake = _fake(os.path.join("vd", "dynamic.vhd"), TRUE_SIGS["VHD_COOKIE"][1])
+        vhdx_fake = _fake(os.path.join("vd", "fake.vhdx"), TRUE_SIGS["VHDX_SIGNATURE"][1])
+        vmdk_desc_fake = _fake(os.path.join("vd", "fake.vmdk"),
+                               TRUE_SIGS["VMDK_DESCRIPTOR_START"][1] + b"\n")
+        vmdk_sparse_fake = _fake(os.path.join("vd", "fake-s001.vmdk"),
+                                 TRUE_SIGS["VMDK_SPARSE_MAGIC"][1])
+        vmdk_cowd_fake = _fake(os.path.join("vd", "fake-cowd.vmdk"),
+                               TRUE_SIGS["VMDK_COWD_MAGIC"][1])
+        qcow_fake = _fake(os.path.join("vd", "fake.qcow2"),
+                          TRUE_SIGS["QCOW_MAGIC"][1] + b"\x00\x00\x00\x03")
+        qcow_other = _fake(os.path.join("vd", "other.qcow2"),
+                           TRUE_SIGS["QCOW_MAGIC"][1] + b"\x00\x00\x00\x09")
+        virtual_fakes = (vhd_fixed_fake, vhd_dynamic_fake, vhdx_fake, vmdk_desc_fake,
+                         vmdk_sparse_fake, vmdk_cowd_fake, qcow_fake)
+        virtual_kinds = ["VHD", "VHD", "VHDX", "VMDK", "VMDK", "VMDK", "QCOW"]
+
+        class _KeyOnly:
+            """A stand-in for the reader, whose image opens only with a private key."""
+            class EwfError(Exception):
+                pass
+
+            class EwfPasswordError(EwfError):
+                pass
+
+            class EwfWrongPasswordError(EwfPasswordError):
+                pass
+
+            class EwfPasswordRequiredError(EwfPasswordError):
+                def __init__(self, message, needs="password"):
+                    super().__init__(message)
+                    self.needs = needs
+
+            def open_ewf(self, path, password=None, private_key=None):
+                raise self.EwfPasswordRequiredError("sealed", needs="private key")
+
+        def _needs_from(reader):
+            saved = ewfprobe
+            try:
+                globals()["ewfprobe"] = reader
+                try:
+                    open_image(ewf_fake)
+                except ImagePasswordError as exc:
+                    return exc.wrong, exc.needs
+                return None
+            finally:
+                globals()["ewfprobe"] = saved
+
+        class _Opened:
+            """A stand-in for an AFF a private key opened."""
+            format, paths = "AFF", ["x.aff"]
+            encryption = {"cipher": "AES-256-CBC", "opened_with": "private key (affkey_evp0)"}
+
+        class _Chain:
+            """A stand-in for a reader's image read over a parent."""
+
+            def __init__(self, fmt, paths, parent=None):
+                self.format, self.paths, self.parent = fmt, paths, parent
+
+        def _kinds_without_reader(paths):
+            saved = ewfprobe
+            try:
+                globals()["ewfprobe"] = None
+                return [acquisition_format(q) for q in paths]
+            finally:
+                globals()["ewfprobe"] = saved
+
+        class _InnerLogical:
+            """A stand-in for the reader whose AD-encrypted set decrypts to an L01 or
+            an AD1, to reach open_image's own check after it is opened."""
+            EwfPasswordError = EwfWrongPasswordError = Exception
+
+            def __init__(self, fmt):
+                self.fmt, self.closed = fmt, False
+
+            def open_ewf(self, path, password=None):
+                outer = self
+
+                class _Image:
+                    format = outer.fmt
+
+                    def close(self):
+                        outer.closed = True
+                return _Image()
+
+        def _inner_refusal(fmt):
+            reader = _InnerLogical(fmt)
+            saved = ewfprobe
+            try:
+                globals()["ewfprobe"] = reader
+                try:
+                    open_image(ad1_enc, password="x")
+                except ImageUnreadable as exc:
+                    return str(exc) if reader.closed else None
+                return None
+            finally:
+                globals()["ewfprobe"] = saved
         _fake("plain_fake.0001", b"\x00" * 8)
 
         def _bundle(name, token=b"", kind=None):
@@ -12662,20 +13635,246 @@ def self_test():
                  "of its numbered files, and a plain numbered set is not one",
                  [acquisition_format(q) for q in (ad_first, ad_second, plain_second)]
                  == ["AD_ENCRYPTED", "AD_ENCRYPTED", None]
-                 and needs_password(ad_second) and not needs_password(plain_second)),
+                 and not needs_password(plain_second)
+                 # its header is only a signature, so the reader refuses it on opening
+                 # and nothing is asked for first
+                 and (saved_reader is None or not needs_password(ad_second))),
                 ("without the vendored reader an AD-encrypted set is refused, saying "
                  "what is missing",
                  "ewfprobe" in (_refusal(ad_second, None) or "")),
+                ("an AD1 is named from any of its files, an AD-encrypted one by its .ad1 "
+                 "whatever its case, and a lone .ad2 is not one",
+                 [acquisition_format(q) for q in (ad1_fake, ad1_second, ad1_enc,
+                                                  ad1_enc_second, ad1_lone)]
+                 == ["AD1", "AD1", "AD_ENCRYPTED", "AD_ENCRYPTED", None]
+                 and not needs_password(ad1_second)
+                 and (saved_reader is None or not needs_password(ad1_enc_second))),
+                ("an AD1 is refused as FTK Imager logical evidence, with or without "
+                 "the reader",
+                 all("FTK Imager logical evidence" in (_refusal(q, r) or "")
+                     for q in (ad1_fake, ad1_second) for r in (None, saved_reader))),
+                ("an AD-encrypted set that decrypts to an L01 or an AD1 is closed and "
+                 "refused as logical evidence",
+                 all("logical evidence (" + k + "), encrypted" in (_inner_refusal(f) or "")
+                     for f, k in (("EWF-L01", "L01"), ("AD1", "AD1")))),
                 ("a sparse bundle is named by its Info.plist, an encrypted one by its "
                  "token, and a folder of another type is not one",
                  [acquisition_format(q) for q in (bundle_fake, bundle_enc, bundle_other)]
                  == ["SPARSEBUNDLE", "DMG_ENCRYPTED", None]),
                 ("without the vendored reader a sparse bundle is refused, saying what "
                  "is missing",
-                 "ewfprobe" in (_refusal(bundle_fake, None) or ""))):
+                 "ewfprobe" in (_refusal(bundle_fake, None) or "")),
+                ("a VHD (by the footer at its end or the copy at its start), a VHDX, a "
+                 "VMDK descriptor or sparse extent and a QCOW are each named by their "
+                 "own bytes, with and without the reader, and a QCOW of an unknown "
+                 "version is not one",
+                 [acquisition_format(q) for q in virtual_fakes + (qcow_other,)]
+                 == virtual_kinds + [None]
+                 and _kinds_without_reader(virtual_fakes + (qcow_other,))
+                 == virtual_kinds + [None]),
+                ("a virtual disk is never opened as raw bytes",
+                 not any(_opened_as_raw(q) for q in virtual_fakes)),
+                ("without the vendored reader a virtual disk is refused, saying what is "
+                 "missing",
+                 all("ewfprobe" in (_refusal(q, None) or "") for q in virtual_fakes)),
+                ("with the reader present a damaged virtual disk is refused by it, not "
+                 "read",
+                 saved_reader is None or all(_ewf_refused_by_reader(q)
+                                             for q in virtual_fakes)),
+                ("an image the reader says opens only with a private key is refused "
+                 "saying so, and one a key opened is described as opened with it",
+                 _needs_from(_KeyOnly()) == (False, "private key")
+                 and describe_acquisition(_Opened()).endswith(
+                     "encrypted (AES-256-CBC) and opened with its private key")),
+                ("a disk read over parents names each, nearest first, and records "
+                 "every parent file with its size",
+                 describe_acquisition(_Chain("QCOW", [vhd_dynamic_fake], _Chain(
+                     "QCOW", [qcow_fake], _Chain("QCOW", [vhdx_fake, vmdk_desc_fake]))))
+                 == ("a QCOW virtual disk of one file, over its parents fake.qcow2, "
+                     "fake.vhdx (nearest first)")
+                 and describe_acquisition(_Chain("VHD", [vhd_dynamic_fake],
+                                                 _Chain("VHD", [vhdx_fake])))
+                 == "a VHD virtual disk of one file, over its parent fake.vhdx"
+                 and image_parents(_Chain("VMDK", [vmdk_desc_fake], _Chain(
+                     "VMDK", [vmdk_sparse_fake, vmdk_cowd_fake])))
+                 == [{"name": "fake-s001.vmdk", "bytes": 4100},
+                     {"name": "fake-cowd.vmdk", "bytes": 4100}]
+                 and image_parents(_Chain("VHD", [vhd_dynamic_fake])) == [])):
             if not cond:
                 ok = False
             print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
+        # A fixed and a dynamic VHD built by hand around a known 1 MiB disk, so the
+        # route to the reader is tested on bytes it did not write. The layout is
+        # written out again here from Microsoft's Virtual Hard Disk Image Format
+        # Specification rather than taken from the reader: a big-endian 512-byte
+        # footer (a dynamic disk's copy of it first in the file), a 1,024-byte
+        # dynamic header, a table of 32-bit block sector offsets, and a block of a
+        # sector bitmap (most significant bit first) and its data. Each checksum is
+        # the one's complement of the sum of the structure's bytes.
+        if saved_reader is None:
+            print("  [SKIP] a hand-built VHD reads as its disk (needs the vendored ewfprobe)")
+        else:
+            vd_disk = bytearray(1 << 20)
+            vd_disk[0:512] = bytes(range(256)) * 2
+            vd_disk[700 * 512:701 * 512] = b"qnxprobe" * 64
+
+            def _vhd_sum(data):
+                return (~sum(data)) & 0xFFFFFFFF
+
+            def _vhd_footer(disk_type, data_offset):
+                f = bytearray(512)
+                struct.pack_into(">8sIIQIIII", f, 0, b"conectix", 2, 0x00010000,
+                                 data_offset, 0, 0, 0, 0)
+                struct.pack_into(">QQHBBI", f, 40, len(vd_disk), len(vd_disk), 30, 4, 17,
+                                 disk_type)
+                f[68:84] = bytes(range(16))
+                struct.pack_into(">I", f, 64, _vhd_sum(f))
+                return bytes(f)
+
+            vd_fixed = os.path.join(d, "vd", "built-fixed.vhd")
+            with open(vd_fixed, "wb") as fh:
+                fh.write(bytes(vd_disk) + _vhd_footer(2, 0xFFFFFFFFFFFFFFFF))
+            block = 2 << 20
+            footer = _vhd_footer(3, 512)
+            header = bytearray(1024)
+            struct.pack_into(">8sQQIII", header, 0, b"cxsparse", 0xFFFFFFFFFFFFFFFF, 1536,
+                             0x00010000, 1, block)
+            struct.pack_into(">I", header, 36, _vhd_sum(header))
+            bat = struct.pack(">I", 2048 // 512).ljust(512, b"\xff")
+            bitmap = bytearray(512)                       # 4,096 sectors in a block
+            for sector in (0, 700):                       # the two sectors written
+                bitmap[sector >> 3] |= 0x80 >> (sector & 7)
+            data = bytes(vd_disk).ljust(block, b"\x00")
+            vd_dynamic = os.path.join(d, "vd", "built-dynamic.vhd")
+            with open(vd_dynamic, "wb") as fh:
+                fh.write(footer + bytes(header) + bat + bytes(bitmap) + data + footer)
+
+            def _reads_as_disk(path):
+                try:
+                    with open_image(path) as handle:
+                        handle.seek(0)
+                        return (image_size(handle) == len(vd_disk)
+                                and handle.read(len(vd_disk)) == bytes(vd_disk))
+                except Exception:           # pylint: disable=broad-exception-caught
+                    return False
+
+            for label, cond in (
+                    ("a hand-built fixed and dynamic VHD are named VHD and read through "
+                     "the reader as the 1 MiB disk they hold, not as their files' bytes",
+                     [acquisition_format(q) for q in (vd_fixed, vd_dynamic)]
+                     == ["VHD", "VHD"]
+                     and _reads_as_disk(vd_fixed) and _reads_as_disk(vd_dynamic)),):
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
+        # An AFF encrypted with a passphrase and an AFM, built by hand from AFFLIB's
+        # layout (include/afflib/afflib.h, lib/crypto.cpp, lib/afflib.cpp and
+        # lib/vnode_afm.cpp at v3.7.22), written out again here rather than taken from
+        # the reader: big-endian segments "AFF\0", name and data lengths, an argument,
+        # the name, the data and "ATT\0" with the segment's length; an encrypted one
+        # named <name>/aes256, AES-256-CBC with the name (15 bytes at most, then
+        # zeros) as its IV, its length the padded length plus the remainder of the
+        # plain length mod 16; the file key in affkey_aes256, version 1, then the key
+        # and a block of zeros each AES-256-ECB under the SHA-256 of the passphrase.
+        def _aff_seg(name, data=b"", arg=0):
+            raw = name.encode()
+            body = struct.pack(">4sIII", b"AFF\x00", len(raw), len(data), arg) + raw + data
+            return body + struct.pack(">4sI", b"ATT\x00", len(body) + 8)
+
+        aff_disk = bytes((i * 7 + 3) & 0xFF for i in range(8190))  # a short last page
+        aff_quad = struct.pack(">II", len(aff_disk), 0)            # low word, then high
+        aff_cipher = getattr(saved_reader, "_AES", None) if saved_reader is not None else None
+        # the header-lost shape needs no reader to be recognised
+        lost = os.path.join(d, "vd", "lost-header.aff")
+        with open(lost, "wb") as fh:
+            fh.write(_aff_seg("badsectors/aes256", bytes(24), 2) + _aff_seg("x", b"y"))
+        not_lost = os.path.join(d, "vd", "not-aff.bin")
+        with open(not_lost, "wb") as fh:
+            fh.write(b"AFF\x00" + bytes(60))
+        for label, cond in (
+                ("an AFF whose header a segment overwrote (as affcrypto -e leaves one) "
+                 "is named AFF with and without the reader, and bytes that only begin "
+                 "like a segment are not",
+                 [acquisition_format(q) for q in (lost, not_lost)] == ["AFF", None]
+                 and _kinds_without_reader((lost, not_lost)) == ["AFF", None]),):
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+        if aff_cipher is None:
+            print("  [SKIP] an encrypted AFF opens with its passphrase, and an AFM reads "
+                  "from its raw file (needs the vendored ewfprobe and pycryptodome)")
+        else:
+            import hashlib                  # pylint: disable=import-outside-toplevel
+            aff_pw = "qnxprobe-aff"
+            file_key = bytes(range(32, 64))
+
+            def _aff_cbc(name, data):
+                extra = len(data) % 16
+                padded = data + bytes([16]) * ((16 - extra) % 16)
+                ecb = aff_cipher.new(file_key, aff_cipher.MODE_ECB)
+                out, prev = bytearray(), name.encode()[:15].ljust(16, b"\x00")
+                for i in range(0, len(padded), 16):
+                    prev = ecb.encrypt(bytes(a ^ b for a, b in zip(padded[i:i + 16], prev)))
+                    out += prev
+                return bytes(out) + bytes(extra)       # AFFLIB writes the remainder after
+
+            wrap = aff_cipher.new(hashlib.sha256(aff_pw.encode()).digest(),
+                                  aff_cipher.MODE_ECB)
+            enc_aff = os.path.join(d, "vd", "built-encrypted.aff")
+            with open(enc_aff, "wb") as fh:
+                fh.write(b"AFF10\r\n\x00" + _aff_seg("pagesize", b"", 4096)
+                         + _aff_seg("sectorsize", b"", 512)
+                         + _aff_seg("affkey_aes256", struct.pack(">I", 1)
+                                    + wrap.encrypt(file_key) + wrap.encrypt(bytes(16)))
+                         + _aff_seg("page0/aes256", _aff_cbc("page0", aff_disk[:4096]))
+                         + _aff_seg("page1/aes256", _aff_cbc("page1", aff_disk[4096:]))
+                         + _aff_seg("imagesize/aes256", _aff_cbc("imagesize", aff_quad), 2))
+            afm = os.path.join(d, "vd", "built.afm")
+            with open(afm, "wb") as fh:
+                fh.write(b"AFF10\r\n\x00" + _aff_seg("aff_file_type", b"AFM")
+                         + _aff_seg("raw_image_file_extension", b"000")
+                         + _aff_seg("pagesize", b"", 4096) + _aff_seg("sectorsize", b"", 512)
+                         + _aff_seg("pages_per_raw_image_file", bytes(8), 2)
+                         + _aff_seg("imagesize", aff_quad, 2))
+            with open(os.path.join(d, "vd", "built.000"), "wb") as fh:
+                fh.write(aff_disk)
+
+            def _described(path):
+                with open_image(path) as handle:
+                    return describe_acquisition(handle)
+
+            def _aff_refusal(password):
+                try:
+                    open_image(enc_aff, password=password).close()
+                except ImagePasswordError as exc:
+                    return exc.wrong, exc.needs
+                return None
+
+            def _reads_aff(path, password=None):
+                try:
+                    with open_image(path, password=password) as handle:
+                        handle.seek(0)
+                        return (image_size(handle) == len(aff_disk)
+                                and handle.read(len(aff_disk)) == aff_disk, handle.format)
+                except Exception:           # pylint: disable=broad-exception-caught
+                    return False, None
+
+            for label, cond in (
+                    ("a hand-built encrypted AFF needs its passphrase, refuses a wrong one, "
+                     "and with it reads as the disk it holds, a short last page included",
+                     needs_password(enc_aff) and not needs_private_key(enc_aff)
+                     and _aff_refusal(None) == (False, "password")
+                     and _aff_refusal("not it") == (True, "password")
+                     and _reads_aff(enc_aff, aff_pw) == (True, "AFF")),
+                    ("a hand-built AFM reads from the raw file beside it, and the report "
+                     "names it as an AFM of two files",
+                     _reads_aff(afm) == (True, "AFM")
+                     and _described(afm).startswith("an AFM acquisition of 2 files"))):
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
 
         # An encrypted image built by hand (encrcdsa version 2, AES-128, the keys
         # wrapped with AES-192 as current hdiutil writes them), so opening with and
@@ -12738,6 +13937,62 @@ def self_test():
                     ok = False
                 print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
 
+            # The same image sealed only to a certificate, built by hand as hdiutil
+            # -certificate writes the key item (unlock type 2): the 20-byte SHA-1 of
+            # the RSA public key in PKCS#1 form in a 32-byte field, algorithm 42
+            # (RSA), padding 10 (PKCS#1), a zero, the wrapped length, then the AES
+            # and HMAC keys and "CKIE\0" wrapped with RSA PKCS#1 v1.5.
+            rsa_mod = getattr(saved_reader, "_RSA", None)
+            pkcs1 = getattr(saved_reader, "_PKCS1", None)
+            if rsa_mod is None or pkcs1 is None:
+                print("  [SKIP] an image sealed to a certificate opens with its private "
+                      "key (needs the pycryptodome package)")
+            else:
+                def _der_len(n):
+                    if n < 128:
+                        return bytes([n])
+                    raw = n.to_bytes((n.bit_length() + 7) // 8, "big")
+                    return bytes([0x80 | len(raw)]) + raw
+
+                def _der_int(v):
+                    raw = v.to_bytes(v.bit_length() // 8 + 1, "big")
+                    return b"\x02" + _der_len(len(raw)) + raw
+
+                sealer, stranger = rsa_mod.generate(1024), rsa_mod.generate(1024)
+                pub = _der_int(sealer.n) + _der_int(sealer.e)
+                key_id = hashlib.sha1(b"\x30" + _der_len(len(pub)) + pub).digest()
+                wrapped = pkcs1.new(sealer.publickey()).encrypt(
+                    aes_key + hmac_key + b"CKIE\x00")
+                cert_item = (struct.pack(">L32sLLLL", 20, key_id, 42, 10, 0, len(wrapped))
+                             + wrapped.ljust(512, b"\0"))
+                cert_head = (struct.pack(">8s7L16sLQQL", b"encrcdsa", 2, 16, 5, 0x80000001,
+                                         128, 0x5B, 160, bytes(16), 512, len(enc_disk),
+                                         4096, 1)
+                             + struct.pack(">LQQ", 2, 0x60, len(cert_item)) + cert_item)
+                cert_real = os.path.join(d, "cert_real.dmg")
+                with open(cert_real, "wb") as fh:
+                    fh.write(cert_head.ljust(4096, b"\0") + body)
+
+                def _keyed(keys, passwords=()):
+                    try:
+                        with open_image_trying(cert_real, None, passwords, keys) as handle:
+                            handle.seek(0)
+                            return handle.read(len(enc_disk)) == enc_disk
+                    except ImagePasswordError as exc:
+                        return ("wrong" if exc.wrong else "required", exc.needs)
+
+                for label, cond in (
+                        ("an image sealed only to a certificate needs its private key, not "
+                         "a password, and opens with it, the first of several that does",
+                         needs_private_key(cert_real) and not needs_password(cert_real)
+                         and _keyed([]) == ("required", "private key")
+                         and _keyed([], ["a password"]) == ("required", "private key")
+                         and _keyed([stranger.export_key()]) == ("wrong", "password")
+                         and _keyed([stranger.export_key(), sealer.export_key()]) is True),):
+                    if not cond:
+                        ok = False
+                    print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
             # An AD-encrypted raw set of two files, built by hand the way FTK Imager
             # writes one, with the layout values written out again here: AES-CTR
             # with a little-endian counter, file i under i << 64, the header in the
@@ -12774,10 +14029,17 @@ def self_test():
                 except ImagePasswordError as exc:
                     return "wrong" if exc.wrong else "required"
 
+            globals()["ewfprobe"] = None            # without the reader, as before 1.49:
+            try:                                    # ask for the password, then refuse
+                ad_asks_without_reader = needs_password(ad_paths[1])
+            finally:
+                globals()["ewfprobe"] = saved_reader
             for label, cond in (
                     ("an AD-encrypted raw set opens from its second file with its "
                      "password and reads the disk across both files",
-                     _ad_opened_with([enc_password]) is True),
+                     _ad_opened_with([enc_password]) is True
+                     and needs_password(ad_paths[1]) and not needs_private_key(ad_paths[1])
+                     and ad_asks_without_reader),
                     ("without its password it is refused as needing one, and with a "
                      "wrong one as a wrong one",
                      _ad_opened_with([]) == "required"
@@ -12785,6 +14047,55 @@ def self_test():
                 if not cond:
                     ok = False
                 print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
+            # The same set sealed to a certificate as FTK Imager seals one: the salt
+            # wrapped with the RSA public key (PKCS#1 v1.5), one RSA block, and the key
+            # made from the empty password rather than a password's hash.
+            ad_rsa = getattr(saved_reader, "_RSA", None)
+            ad_pkcs1 = getattr(saved_reader, "_PKCS1", None)
+            if ad_rsa is None or ad_pkcs1 is None:
+                print("  [SKIP] an AD-encrypted set sealed to a certificate opens with its "
+                      "private key (needs the pycryptodome package)")
+            else:
+                ad_sealer, ad_stranger = ad_rsa.generate(1024), ad_rsa.generate(1024)
+                sealed_made = hashlib.pbkdf2_hmac("sha1", b"", ad_salt, 1000, 32)
+                sealed_wrapped = _ctr(sealed_made, ad_key, 0)
+                sealed_salt = ad_pkcs1.new(ad_sealer.publickey()).encrypt(ad_salt)
+                sealed_head = (struct.pack("<8sIIhhh2sIIIIII", b"ADCRYPT\x00", 1, 512,
+                                           -1, -1, -1, b"\x00\x00", 3, 2, 1000,
+                                           len(sealed_salt), 32, 64)
+                               + sealed_salt + sealed_wrapped
+                               + hmac.new(sealed_made, sealed_wrapped, "sha512").digest())
+                sealed_paths = [os.path.join(d, "ad_sealed.0001"),
+                                os.path.join(d, "ad_sealed.0002")]
+                with open(sealed_paths[0], "wb") as fh:
+                    fh.write(sealed_head.ljust(512, b"\0") + _ctr(ad_key, ad_disk[:2048], 0))
+                with open(sealed_paths[1], "wb") as fh:
+                    fh.write(_ctr(ad_key, ad_disk[2048:], 1 << 64))
+
+                def _ad_sealed(keys, passwords=()):
+                    try:
+                        with open_image_trying(sealed_paths[1], None, passwords,
+                                               keys) as handle:
+                            handle.seek(0)
+                            return handle.read(len(ad_disk) + 1) == ad_disk
+                    except ImagePasswordError as exc:
+                        return ("wrong" if exc.wrong else "required", exc.needs)
+
+                for label, cond in (
+                        ("an AD-encrypted set sealed to a certificate needs its private "
+                         "key, not a password, and opens with it, the first of several "
+                         "that does",
+                         needs_private_key(sealed_paths[0])
+                         and not needs_password(sealed_paths[0])
+                         and _ad_sealed([]) == ("required", "private key")
+                         and _ad_sealed([], ["a password"]) == ("required", "private key")
+                         and _ad_sealed([ad_stranger.export_key()]) == ("wrong", "password")
+                         and _ad_sealed([ad_stranger.export_key(),
+                                         ad_sealer.export_key()]) is True),):
+                    if not cond:
+                        ok = False
+                    print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
 
         # ---- APFS ----------------------------------------------------
         # A container superblock built by hand, so identification is tested
@@ -14666,12 +15977,12 @@ def self_test():
                 want = {}
                 with open(os.path.join(fx, lst), encoding="utf-8") as fh_:
                     for line in fh_:
-                        d, pth = line.rstrip("\n").split("  ", 1)
-                        want[prefix + pth] = d
+                        digest, pth = line.rstrip("\n").split("  ", 1)
+                        want[prefix + pth] = digest
                 got = {pth: (i, sz) for pth, i, sz, _m in (collect(w, w.root) if w else [])
                        if sz is not None}
-                okn = sum(1 for pth, d in want.items() if pth in got and _hl.sha256(
-                    b"".join(w.read_file(*got[pth]))).hexdigest() == d)
+                okn = sum(1 for pth, digest in want.items() if pth in got and _hl.sha256(
+                    b"".join(w.read_file(*got[pth]))).hexdigest() == digest)
                 geo = getattr(w, "nand", None)
                 ocond = okn == len(want) and geo == (2048, 64)
                 if not ocond:
@@ -14905,6 +16216,263 @@ def self_test():
                   f"disagreement when the fast route drops an entry "
                   f"({broke_wrong} found)")
 
+        # BitLocker, on volumes tools/make_bitlocker_fixtures.py lays out around the
+        # SquashFS fixture from the format document, not from this reader (which was
+        # also checked against volumes Windows 11 wrote). The identifier and the test
+        # secrets are written out again here, not taken from the reader or the tool.
+        true_bde_guid = bytes.fromhex("3bd66749292ed84a8399f6a339e3d001")   # 4967d63b-2e29-...
+        cond = BDE_GUID == true_bde_guid and BDE_SIGNATURE == b"-FVE-FS-"
+        if not cond:
+            ok = False
+        print(f"  [{'PASS' if cond else 'FAIL'}] the BitLocker identifier and signature are the "
+              f"format's")
+        rk_dash = bde_recovery_key("111111-222222-333333-444444-555555-666666-000011-000022")
+        cond = (rk_dash is not None and rk_dash[:2] == b"\x75\x27"       # 111111 / 11 = 10101
+                and bde_recovery_key("111111 222222 333333 444444 555555 666666 000011 000022") == rk_dash
+                and bde_recovery_key("111112-222222-333333-444444-555555-666666-000011-000022") is None)
+        if not cond:
+            ok = False
+        print(f"  [{'PASS' if cond else 'FAIL'}] a recovery password is read with or without its "
+              f"dashes, and one whose group is not a multiple of 11 is not one")
+        bde_first = os.path.join(here, "bitlocker-xts128.img.gz")
+        if _BDE_AES is None or not os.path.isfile(bde_first):
+            print("  [SKIP] BitLocker volumes open with their keys (needs the BitLocker "
+                  "fixtures and the pycryptodome package)")
+        else:
+            import gzip as _gz, hashlib as _hl, io as _bio  # pylint: disable=import-outside-toplevel
+            bde_pw = "qnxprobe-bde-test"
+            bde_rec_a = "111111-222222-333333-444444-555555-666666-000011-000022"
+            bde_rec_b = "000011-000022-000033-000044-000055-000066-000077-000088"
+            with open(os.path.join(here, "bitlocker-xts128.BEK"), "rb") as handle:
+                bde_bek = handle.read()
+            with open(os.path.join(here, "squashfs.src.sha256"), encoding="utf-8") as handle:
+                bde_sums = dict(reversed(line.rstrip("\n").split("  ", 1))
+                                for line in handle if line.strip())
+
+            def _bde(name, secrets=(), keys=()):
+                with _gz.open(os.path.join(here, f"bitlocker-{name}.img.gz"), "rb") as g:
+                    raw = g.read()
+                fh, _found = unlock_bitlocker(_bio.BytesIO(raw), len(raw), secrets, keys)
+                vol = volumes(fh, len(raw))[0]
+                matched, walker = 0, vol.get("walker")
+                if walker is not None:
+                    got = {p: (n, sz) for p, n, _m, sz, _t, _r in walk_all(walker)}
+                    for path, digest in bde_sums.items():
+                        g = got.get(path)
+                        if g and _hl.sha256(b"".join(walker.read_file(*g))).hexdigest() == digest:
+                            matched += 1
+                return vol, matched, raw
+
+            def _opened(by):
+                return lambda v, m: (v["kind"] == "squashfs" and m == len(bde_sums)
+                                     and v.get("encryption", "").endswith(f"unlocked with its {by}"))
+
+            bde_legs = [
+                ("a locked volume is named, not walked, and says what opens it, with the "
+                 "recovery password's protector id", "xts128", (), (),
+                 lambda v, m: (v["kind"] == "bitlocker" and v.get("walker") is None
+                               and "recovery password (protector id" in v.get("note", "")
+                               and "startup key" in v.get("note", "")
+                               and "none of the passwords" not in v.get("note", ""))),
+                ("a wrong password leaves it locked, saying the keys given did not open it",
+                 "xts128", ("not-the-password",), (),
+                 lambda v, m: v["kind"] == "bitlocker" and "none of the passwords" in v.get("note", "")),
+                ("its password opens AES-128-XTS", "xts128", (bde_pw,), (), _opened("password")),
+                ("its recovery password opens it", "xts128", (bde_rec_a,), (),
+                 _opened("recovery password")),
+                ("its startup key (.BEK) opens it", "xts128", (), (bde_bek,), _opened("startup key")),
+                ("a recovery password opens AES-256-CBC", "cbc256", (bde_rec_b,), (),
+                 _opened("recovery password")),
+                ("a suspended volume opens with the clear key it keeps (AES-256-XTS)", "clearkey",
+                 (), (), _opened("clear key")),
+                ("an unfinished conversion reads its unencrypted range as stored "
+                 "(Encrypt-on-Write map)", "eow", (bde_pw,), (), _opened("password")),
+                ("the To Go layout opens (constructed only; Windows 11 wrote none)", "togo",
+                 (bde_pw,), (), _opened("password")),
+                ("a volume protected only by a TPM says its key does not leave the device",
+                 "tpm", (), (), lambda v, m: v["kind"] == "bitlocker" and "TPM" in v.get("note", "")),
+                ("the Elephant diffuser is named as not read", "diffuser", (bde_pw,), (),
+                 lambda v, m: "Elephant diffuser" in v.get("note", "")),
+                ("the Windows Vista layout is named as not read", "vista", (bde_pw,), (),
+                 lambda v, m: "Windows Vista" in v.get("note", "")),
+            ]
+            bde_raw = {}
+            for label, name, secrets, keys, test in bde_legs:
+                try:
+                    vol, matched, raw = _bde(name, secrets, keys)
+                    cond = bool(test(vol, matched))
+                    detail = f"{vol['kind']}, {matched}/{len(bde_sums)} files"
+                    bde_raw[name] = raw
+                except Exception as exc:                 # pylint: disable=broad-except
+                    cond, detail = False, f"raised {type(exc).__name__}: {exc}"
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] BitLocker: {label} ({detail})")
+            if "xts128" in bde_raw and "vista" in bde_raw:
+                win7, vista = _bio.BytesIO(bde_raw["xts128"]), _bio.BytesIO(bde_raw["vista"])
+                cond = (identify_fat(win7, 0) is None and parse_mbr(win7) is None
+                        and parse_mbr(vista) is None)
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] a BitLocker header (a FAT32 boot sector in "
+                      f"all but its own fields, or Windows Vista's NTFS-like one) is taken for "
+                      f"neither a FAT32 volume nor a partition table")
+
+        # ---- AFF4 and encrypted APFS volumes --------------------------
+        import hashlib as _hl4, io as _io4  # pylint: disable=import-outside-toplevel
+        _gz4, _zf4 = gzip, zipfile
+        sq_fix = os.path.join(here, "squashfs-small.img.gz")
+        if (ewfprobe is None or not hasattr(ewfprobe, "is_aff4")
+                or not os.path.isfile(sq_fix)):
+            print("  [SKIP] an AFF4 acquisition reads as the image it holds (needs the "
+                  "vendored ewfprobe and the SquashFS fixture)")
+        else:
+            with _gz4.open(sq_fix, "rb") as g:
+                sq_raw = g.read()
+            with open(os.path.join(here, "squashfs.src.sha256"), encoding="utf-8") as handle:
+                sq_sums = dict(reversed(line.rstrip("\n").split("  ", 1))
+                               for line in handle if line.strip())
+            # A small AFF4 Standard v1.0 container written here, around the fixture:
+            # stored chunks, a map of one range, and the metadata that names them.
+            vol_u, st_u, map_u, img_u = (f"aff4://0a4f4000-0000-4000-8000-00000000000{k}"
+                                         for k in "1234")
+            chunk, per = 32768, 16
+            parts = [sq_raw[i:i + chunk].ljust(chunk, b"\0")
+                     for i in range(0, len(sq_raw), chunk)]
+            aff4_path = os.path.join(d, "wrapped.aff4")
+            with _zf4.ZipFile(aff4_path, "w", _zf4.ZIP_STORED) as z:
+                z.writestr("container.description", vol_u)
+                for b in range(0, len(parts), per):
+                    name = st_u.replace("aff4://", "aff4%3A%2F%2F") + f"/{b // per:08d}"
+                    z.writestr(name, b"".join(parts[b:b + per]))
+                    z.writestr(name + ".index", b"".join(struct.pack("<QI", k * chunk, chunk)
+                                                         for k in range(len(parts[b:b + per]))))
+                mname = map_u.replace("aff4://", "aff4%3A%2F%2F")
+                z.writestr(mname + "/map", struct.pack("<QQQI", 0, len(sq_raw), 0, 0))
+                z.writestr(mname + "/idx", st_u + "\n")
+                z.writestr("information.turtle", (
+                    "@prefix aff4: <http://aff4.org/Schema#> .\n"
+                    f"<{img_u}> a aff4:DiskImage, aff4:Image ; aff4:dataStream <{map_u}> .\n"
+                    f"<{map_u}> a aff4:Map ; aff4:size {len(sq_raw)} .\n"
+                    f"<{st_u}> a aff4:ImageStream ; aff4:size {len(sq_raw)} ; "
+                    f"aff4:chunkSize {chunk} ; aff4:chunksInSegment {per} ; "
+                    f"aff4:compressionMethod aff4:NullCompressor .\n"))
+                z.comment = vol_u.encode()
+            plain_zip = os.path.join(d, "plain.zip")
+            with _zf4.ZipFile(plain_zip, "w") as z:
+                z.writestr("information.turtle", "not AFF4")
+            aff4_matched, aff4_desc, aff4_kind = 0, "", None
+            try:
+                with open_image(aff4_path) as handle:
+                    aff4_desc = describe_acquisition(handle)
+                    vol = volumes(handle)[0]
+                    aff4_kind, walker = vol["kind"], vol.get("walker")
+                    if walker is not None:
+                        got = {p: (n, sz) for p, n, _m, sz, _t, _r in walk_all(walker)}
+                        for path, digest in sq_sums.items():
+                            g = got.get(path)
+                            if g and _hl4.sha256(b"".join(walker.read_file(*g))).hexdigest() == digest:
+                                aff4_matched += 1
+            except Exception as exc:                 # pylint: disable=broad-except
+                aff4_desc = f"raised {type(exc).__name__}: {exc}"
+            for label, cond in (
+                    ("an AFF4 container is recognised as one, and a ZIP that only looks "
+                     "like it is not", acquisition_format(aff4_path) == "AFF4"
+                     and acquisition_format(plain_zip) is None),
+                    (f"an AFF4 acquisition reads as the image it holds ({aff4_kind}, "
+                     f"{aff4_matched}/{len(sq_sums)} files)",
+                     aff4_kind == "squashfs" and aff4_matched == len(sq_sums)
+                     and aff4_desc.startswith("an AFF4 acquisition"))):
+                if not cond:
+                    ok = False
+                print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
+        apfs_enc = os.path.join(here, "apfs-encrypted.sparseimage.gz")
+        if ewfprobe is None or not os.path.isfile(apfs_enc):
+            print("  [SKIP] an encrypted APFS volume is named, not walked (needs the "
+                  "vendored ewfprobe and the encrypted APFS fixture)")
+        else:
+            enc_path = os.path.join(d, "apfs-encrypted.sparseimage")
+            with _gz4.open(apfs_enc, "rb") as g, open(enc_path, "wb") as out:
+                shutil.copyfileobj(g, out)
+            with open(os.path.join(here, "apfs-encrypted.sha256"), encoding="utf-8") as handle:
+                enc_sums = {"PLAINVOL/" + path: digest for digest, path in
+                            (line.rstrip("\n").split("  ", 1) for line in handle if line.strip())}
+            enc_states, enc_note, enc_matched, enc_secret = [], "", 0, -1
+            enc_parsed, enc_report = True, []
+            try:
+                with open_image(enc_path) as handle:
+                    vol = [v for v in volumes(handle) if v["kind"] == "apfs"][0]
+                    w = vol["walker"]
+                    enc_states = [w.encryption(i) for i in range(len(w.volumes))]
+                    enc_note = vol.get("note", "")
+                    enc_report = identify_fs(handle, vol["base"], vol["size"])[1]
+                    got = {p: (n, sz) for p, n, _m, sz, _t, _r in walk_all(w)}
+                    enc_secret = sum(1 for p in got if p.startswith("SECRETVOL"))
+                    # its tree was never parsed: ciphertext read as a tree returns
+                    # nothing, which is what hid it before
+                    enc_parsed = 1 in w._state          # pylint: disable=protected-access
+                    for path, digest in enc_sums.items():
+                        g = got.get(path)
+                        if g and _hl4.sha256(b"".join(w.read_file(*g))).hexdigest() == digest:
+                            enc_matched += 1
+            except Exception as exc:                 # pylint: disable=broad-except
+                enc_note = f"raised {type(exc).__name__}: {exc}"
+            cond = (enc_states == [None, "locked"] and enc_secret == 0 and not enc_parsed
+                    and enc_matched == len(enc_sums) and enc_matched > 0
+                    and "SECRETVOL is encrypted, and its blocks are ciphertext" in enc_note
+                    and any("SECRETVOL" in ln and "locked" in ln for ln in enc_report)
+                    and any(ln.startswith("note") and "ciphertext" in ln for ln in enc_report))
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] an APFS volume macOS encrypted is named "
+                  f"locked and not walked, and the plain volume beside it reads "
+                  f"({enc_matched}/{len(enc_sums)} files, {enc_states})")
+
+        apfs_fix = os.path.join(here, "apfs-fixture.img.gz")
+        if not os.path.isfile(apfs_fix):
+            print("  [SKIP] an APFS volume flagged encrypted but held in the clear is "
+                  "read (needs the APFS fixture)")
+        else:
+            with _gz4.open(apfs_fix, "rb") as g:
+                apfs_raw = bytearray(g.read())
+            w0 = ApfsWalker(_io4.BytesIO(bytes(apfs_raw)), 0)
+            bs, blk = w0.block_size, w0.volumes[0][1]
+            sb = bytearray(apfs_raw[blk * bs:(blk + 1) * bs])
+            flags = struct.unpack_from("<Q", sb, APFS_FS_FLAGS_OFF)[0]
+            was_plain = bool(flags & APFS_FS_UNENCRYPTED)
+            # the shape an acquisition through the Mac's own decryption leaves: the
+            # flag says encrypted, the blocks are in the clear
+            struct.pack_into("<Q", sb, APFS_FS_FLAGS_OFF, flags & ~APFS_FS_UNENCRYPTED)
+            struct.pack_into("<Q", sb, 0, _apfs_fletcher(sb))
+            apfs_raw[blk * bs:(blk + 1) * bs] = sb
+            w1 = ApfsWalker(_io4.BytesIO(bytes(apfs_raw)), 0)
+            n0 = sum(1 for _ in walk_all(w0))
+            n1 = sum(1 for _ in walk_all(w1))
+            cond = (was_plain and n0 > 0 and n1 == n0 and w1.encryption(0) == "clear"
+                    and "flagged encrypted, but its blocks read in the clear" in (w1.note or ""))
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] an APFS volume flagged encrypted whose "
+                  f"blocks the image holds in the clear is read ({n1} of {n0} entries)")
+            # and the same volume with its tree's root node as ciphertext would be
+            root = w1.fs_root_block
+            noise = b"".join(_hl4.sha256(b"%d" % k).digest() for k in range(bs // 32))
+            apfs_raw[root * bs:(root + 1) * bs] = noise
+            try:
+                w2 = ApfsWalker(_io4.BytesIO(bytes(apfs_raw)), 0)
+                n2 = sum(1 for _ in walk_all(w2))
+                cond = (w2.encryption(0) == "locked" and n2 == 0
+                        and "ciphertext" in (w2.note or "")
+                        and 0 not in w2._state)          # pylint: disable=protected-access
+                detail = f"{n2} entries"
+            except Exception as exc:                 # pylint: disable=broad-except
+                cond, detail = False, f"raised {type(exc).__name__}: {exc}"
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] an encrypted APFS volume whose tree does "
+                  f"not pass its checksum is locked, as the first volume too ({detail})")
+
         print()
         print("  SELF-TEST PASSED. The detector reports positives and negatives"
               if ok else
@@ -14991,7 +16559,9 @@ listing contents:
   flood the terminal. An NTFS or APFS listing also names anything held in a
   stream beside the file, and an HFS+ one names a resource fork that carries
   anything. An APFS container is listed as a directory of its volumes, so every
-  volume in it is walked.
+  volume in it is walked, except an encrypted one whose blocks are ciphertext in
+  the image, which is named and not walked. An encrypted one the image holds
+  decrypted (its tree's root node passes its checksum) is walked and said to be.
 
 what it reports:
   Every superblock copy it can find, grouped into generations by serial. The
@@ -15221,6 +16791,23 @@ what it checks, and where the constants come from:
   carries its spare bytes, the common page and spare sizes are tried and the
   spare is stripped.
 
+  For BitLocker, from Joachim Metz's BDE format document in libyal/libbde at
+  commit 96e3c5dce6143c2702c90f3903018fb8c12a8956:
+  volume header, FVE metadata     documentation/...BDE) format.asciidoc
+  recovery password, user key     sections "Recovery key", "User key"
+  AES-CBC IV, AES-XTS tweak       sections "AES-CBC", "AES-XTS"
+  sector read-back rules          libbde/libbde_sector_data.c:274-420
+  Encrypt-on-Write map            libbde/libbde_volume.c:1668
+  Checked against 13 volumes Windows 11 wrote (NTFS, FAT32, exFAT; AES-CBC
+  and AES-XTS at 128 and 256 bits; password, recovery password, startup key,
+  clear key; conversions paused while encrypting and decrypting).
+
+  For APFS encryption, from Apple's Apple File System Reference (2020-06-22):
+  the volume flags, APFS_FS_UNENCRYPTED    apfs_superblock_t, "Volume Flags"
+  An encrypted volume is told locked or in the clear by its tree's root node's
+  Fletcher-64 checksum, checked against a volume macOS encrypted and against
+  Digital Collector's AFF4 of an Apple silicon Mac.
+
   --list walks qnx6 through the same block resolution the kernel uses in
   qnx6_block_map(), including multi-level indirect trees and long filenames
   held out of line in the Longfile tree, and walks ext through its extent
@@ -15282,15 +16869,25 @@ if __name__ == "__main__":
                          "stderr, for a caller driving this as a subprocess. stdout, "
                          "the human readable report, is unchanged")
     ap.add_argument("--password-file", metavar="FILE", action="append", default=[],
-                    help="for an encrypted image (an Apple disk image or an AD-encrypted "
-                         "FTK Imager acquisition): a password, the first line "
-                         "of FILE. Repeatable; each image opens with the first "
-                         "password that opens it")
+                    help="for an encrypted image (an Apple disk image, an AD-encrypted "
+                         "FTK Imager acquisition or an encrypted AFF) or a BitLocker "
+                         "volume: a password or "
+                         "recovery password, the first line of FILE. Repeatable; each "
+                         "opens with the first one that opens it")
     ap.add_argument("--password-env", metavar="NAME", action="append", default=[],
-                    help="for an encrypted image: a password, from the "
-                         "environment variable NAME. Repeatable. Without either, "
-                         "qnxprobe asks at a terminal. A password is never taken as an "
-                         "argument, which would show in the process list")
+                    help="for an encrypted image or a BitLocker volume: a password, "
+                         "from the environment variable NAME. Repeatable. Without either, "
+                         "qnxprobe asks at a terminal for an encrypted image's password. "
+                         "A password is never taken as an argument, which would show in "
+                         "the process list")
+    ap.add_argument("--bitlocker-key", metavar="FILE", action="append", default=[],
+                    help="a BitLocker startup key (a .BEK file), tried against every "
+                         "BitLocker volume. Repeatable")
+    ap.add_argument("--private-key", metavar="FILE", action="append", default=[],
+                    help="for an AFF, an Apple disk image or an AD-encrypted set sealed "
+                         "to a certificate: the certificate's RSA "
+                         "private key, unencrypted, as PEM or DER. Repeatable; each "
+                         "image opens with the first one that opens it")
     ap.add_argument("--version", action="version",
                     version=f"qnxprobe {QNXPROBE_VERSION}")
     args = ap.parse_args()
@@ -15329,9 +16926,16 @@ if __name__ == "__main__":
                              extract=args.extract, only=args.only, zf=zf,
                              do_triage=args.triage, exclude=args.exclude,
                              reporter=reporter, manifest=manifest,
-                             passwords=given_passwords or asked)
+                             passwords=given_passwords or asked,
+                             key_files=args.bitlocker_key, private_keys=args.private_key)
                         break
                     except ImagePasswordError as exc:
+                        if exc.needs == "private key":
+                            if args.private_key:
+                                raise
+                            raise ImagePasswordError(
+                                f"{exc}; give that key with --private-key", False,
+                                "private key") from None
                         # asked for at a terminal only when none was given, three
                         # tries; otherwise refused like any image that will not open
                         if given_passwords or not sys.stdin.isatty() or tries == 3:

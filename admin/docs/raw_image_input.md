@@ -4,10 +4,14 @@ For maintainers, and shared by iLEAPP, ALEAPP, RLEAPP, VLEAPP and DLEAPP.
 
 `-t raw` takes a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001`
 segment of a split set) or an acquisition (EnCase/EWF `.E01`, SMART `.s01`, EWF2
-`.Ex01`, AFF `.aff`, or an AFD folder of AFF files, each with its segments or
-files, or an Apple `.dmg`, with any `.dmgpart` files `hdiutil segment` split it into,
-`.sparseimage`, or `.sparsebundle` folder) and reads it in place: no mounting, no administrator rights, and no copy of the
-image or of its files anywhere but the files an artifact asks for. Its NTFS,
+`.Ex01`, AFF `.aff`, an AFM `.afm` with its raw files, or an AFD folder of AFF files,
+each with its segments or files, an AFF4 `.aff4`, an Apple `.dmg`, with any
+`.dmgpart` files `hdiutil segment` split it into, `.sparseimage`, or `.sparsebundle`
+folder, or a virtual machine's disk, `.vhd`, `.vhdx`, `.vmdk` or `.qcow2`, a
+difference disk read through the disks under it) and reads it in place: no mounting,
+no administrator rights, and no copy of the image or of its files anywhere but the
+files an artifact asks for. Logical evidence, an EnCase `.L01` or an FTK Imager
+`.ad1`, is read as the files it holds (see below). Its NTFS,
 FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2,
 UBI/UBIFS, YAFFS and QNX IFS volumes are searched directly, on disks of 512-byte
 or 4096-byte sectors: a GPT whose header sits at byte 4096, as on a UFS LUN image
@@ -20,7 +24,10 @@ or a 4Kn drive, has its partitions counted in 4096-byte sectors.
   `admin/scripts/check_vendored.py` (see `scripts/vendor/README.md`). Fix them
   upstream and re-vendor; an edit here is reverted by the next sync.
 - `scripts/raw_image.py` holds everything of ours: `FileSeekerRaw`, the constants
-  the GUI uses to recognise an image by extension, and `split_image_sibling`.
+  the GUI uses to recognise an image by extension and to fill its file dialog
+  (`RAW_IMAGE_SUFFIXES`, `RAW_IMAGE_FILE_PATTERNS`), `split_image_sibling`, and
+  `ImageKeys` with the functions that ask for them (`cli_image_keys`,
+  `ask_image_keys`).
   **This file is byte-identical in all five cores.** Change it in one, land the
   same bytes in the other four in the same round, and let the parity scanner in
   leapps-org/leapps-parity confirm they match.
@@ -36,26 +43,50 @@ or a 4Kn drive, has its partitions counted in 4096-byte sectors.
   including an E01 set, an AFF file, an AFD folder, a `.dmg`, a `.dmg` split into
   `.dmgpart` files, a `.sparseimage`, a sparse bundle, an encrypted `.dmg` and an
   encrypted sparse bundle (opened with their password) and a split set built at test
-  time, and an L01, an encrypted image opened without its password or with a wrong
-  one, a damaged encrypted header and a `.dmgpart` opened on its own that must be
-  refused.
+  time; an AD1 against FTK Imager's own listing of it (live files, a stream, a
+  deleted entry left out), an AD1 sealed to a test certificate, and a BitLocker
+  volume opened with its password, recovery password or startup key; and a damaged
+  L01, an encrypted image opened without its password or with a wrong one, a damaged
+  encrypted header and a `.dmgpart` opened on its own that must be refused.
 
 ## Encrypted images
 
 An Apple disk image encrypted with a password (`hdiutil -encryption`: a `.dmg`, a
-split one, a `.sparseimage` or a sparse bundle) opens with that password, which the
-vendored ewfprobe needs the `pycryptodome` package to use; the cores already require
-it. `needs_password(path)` says whether an image needs one. The GUI asks for it in a
-dialog when the run starts, checks it against the image (`password_opens`), and asks
-again after a wrong one; the command line takes it from `--image_password_file`
-(the file's first line) or `--image_password_env` (an environment variable), or asks
-at a terminal (`cli_image_password`), and checks it before the run. Either way it is
-handed to `crunch_artifacts(..., image_password=...)` and on to
-`FileSeekerRaw(..., password=...)`, which passes it to the reader and does not keep
-it; nothing writes it to the report, the log or the history. A password is never
+split one, a `.sparseimage` or a sparse bundle) or an encrypted AFF opens with that
+password, which the vendored ewfprobe needs the `pycryptodome` package to use; the
+cores already require it. `needs_password(path)` says whether an image needs one. One
+sealed only to a certificate (`hdiutil -certificate`, `affcrypto`, or FTK Imager's AD
+encryption given a certificate) opens instead with that certificate's RSA private key,
+unencrypted, as PEM or DER; `needs_private_key(path)` says so.
+
+What opens an image travels as `ImageKeys`: its password, a private key's path, and
+the secrets and startup key files of any BitLocker volume in it. The GUI asks for each
+in a dialog when the run starts (`ask_image_keys`): the password, or the key file, until
+one opens the image, then, for each BitLocker volume inside that nothing given opens,
+its password or recovery password, or, left empty, its startup key (`.BEK`) file;
+cancelling a BitLocker prompt leaves that volume locked. The command line
+(`cli_image_keys`) takes a password from `--image_password_file` (the file's first
+line) or `--image_password_env` (an environment variable), tried on the image and on
+each BitLocker volume as a password and as a recovery password, a private key from
+`--image_private_key`, and startup keys from `--bitlocker_key` (repeatable); at a
+terminal it asks for what is missing, and otherwise it names each BitLocker volume
+left locked on stderr and runs without it. Either way the keys are checked before the
+run, handed to `crunch_artifacts(..., image_password=...)` and on to
+`FileSeekerRaw(..., password=...)`, which passes them to the reader and does not keep
+them; nothing writes them to the report, the log or the history. A secret is never
 taken as an argument's value, which would put it in the process list and the shell
 history. An image that will not open for another reason (a damaged header, no cipher
 package) is reported by name rather than asked about again.
+
+A BitLocker volume the keys open reads as the filesystem inside it, and the run log
+names the method and what opened it (`[BitLocker AES-256-CBC, unlocked with its
+recovery password]`); one they do not open is listed with the reason and what would
+open it, and nothing in it is searched. A volume that keeps a clear key (protection
+suspended) opens with nothing given. A Vista-era volume, the diffuser and a TPM-only
+volume are named as not read. Measured on five volumes Windows 11 encrypted
+(NTFS, FAT32 and exFAT, in fixed VHDs): every file Windows hashed before encrypting
+staged with that hash, opened with a startup key, a recovery password, a password and
+a clear key.
 
 An E01, SMART or raw (dd) set FTK Imager encrypted with AD encryption opens the same
 way, with the same prompts and options. Every file of such a set is encrypted and only
@@ -67,9 +98,10 @@ as a split image. `needs_password(path)` answers for both kinds.
 ## How it reads
 
 `FileSeekerRaw` opens the image through the reader's `open_image()` (which joins
-a split set, reads an EWF, EWF2, AFF or AFD acquisition or an Apple disk image (a
-`.dmg` and its `.dmgpart` files, a `.sparseimage`, or a sparse bundle folder), and
-refuses EnCase L01 logical evidence, which holds files rather than a disk), asks `volumes()` for every volume the reader's
+a split set, and reads an EWF, EWF2, AFF, AFM, AFD or AFF4 acquisition, an Apple disk
+image (a `.dmg` and its `.dmgpart` files, a `.sparseimage`, or a sparse bundle
+folder) or a virtual machine's disk), opens any BitLocker volume the keys open
+(`unlock_bitlocker()`), asks `volumes()` for every volume the reader's
 own report would name, walks each readable volume once for its directory tree,
 and offers the run a member list in the shape the zip seeker offers: one name per
 file and one per directory (with a trailing slash), each prefixed by the volume's
@@ -91,6 +123,33 @@ looks like. A file that runs past the end of the image is named in the log and
 not staged, because a truncated database parses as a smaller one rather than as
 an error.
 
+## Logical evidence
+
+An EnCase `.L01` or an FTK Imager `.ad1` holds copies of files rather than a disk, so
+it is read through ewfprobe's entry list instead of a filesystem walk
+(`open_logical`). Each entry is a member under its path in the evidence, in the order
+the evidence stores them (a folder's children before its next sibling); an AD1 of
+several sources names each source at the top (`U:\:AD1LEAN [NTFS]/[root]/...`). A
+file is staged from the entry's content, its mtime set from the entry's modified time
+and its `FileInfo` given the created time. An AD-encrypted AD1 opens with its password
+or the private key of its certificate, like any other encrypted image.
+
+An AD1 marks what each entry is, and four kinds hold no file's content: file slack
+(type 6), NTFS directory index records (`$I30`, type F), NTFS attribute records
+(`$DSC`, `$TXF_DATA`, type 10) and index entries that hold no data (type 61). Those,
+and the entries FTK Imager lists as deleted, are not members, as a disk's deleted
+records are not; the run log counts each. Every other entry is a member, so an entry of
+a kind not measured is searched rather than lost. An NTFS alternate data stream (type
+D) is a member `<file>:<stream>`, as on a disk. Measured on a 316,682-entry AD1 of a
+Windows profile (Hexordia's public 2025 CTF image): 237,538 files, 16,953 folders and
+373 streams listed in 27 seconds, every other entry counted by kind, and every file and
+stream a DLEAPP run staged (152) matching the MD5 FTK Imager stored for it.
+
+An L01 marks no such kinds, so every entry is a member. An L01 entry can be a folder
+and hold data too (EnCase's parsed items): the folder keeps its name so its children
+stage beneath it, and its data is staged beside it under the name the seekers give a
+clash.
+
 ## Times
 
 NTFS, ext, HFS+ and APFS store instants, and those reach the staged copy's
@@ -103,7 +162,7 @@ for it, so no report field carries a zone the evidence never had.
 ## What it does not do
 
 - It reads live files. Deleted records the reader can recover on NTFS, FAT32
-  and exFAT are not staged.
+  and exFAT are not staged, nor are the entries an AD1 lists as deleted.
 - It does not re-root a bare partition image. A raw image of an Android
   `userdata` partition has `data/`, `media/` and `system/` at its root rather
   than under `data/`, and an iOS Data volume has `mobile/` and `containers/`
@@ -125,7 +184,9 @@ for it, so no report field carries a zone the evidence never had.
   and the run log gives the reason on that volume's line; a zstd-compressed UBIFS
   file is listed and not staged, and the log names the reason.
 - An encrypted volume (Android file-based encryption, iOS data protection,
-  FileVault, BitLocker) reads, but its names or contents are ciphertext.
+  FileVault) reads, but its names or contents are ciphertext. An encrypted APFS
+  volume says on its line whether it was read in the clear or is locked. A BitLocker
+  volume is read when its keys are given (see above), and otherwise named as locked.
 
 ## Comparing a raw run against a zip run
 
