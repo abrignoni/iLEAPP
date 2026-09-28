@@ -38,23 +38,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # `os` is the runner and `name` what the job is called, as in test_builds.yml.
+        # `platform` goes into the asset names; the architecture there comes from the
+        # runner itself, never from these labels.
         include:
           - os: windows-latest
+            name: windows-x64
             platform: windows
           - os: windows-11-arm
+            name: windows-11-arm
             platform: windows
           - os: macos-latest
+            name: macos-apple_silicon
             platform: macos
           # Intel Macs. macos-latest is Apple silicon, so without this leg an Intel Mac
           # gets nothing. GitHub drops x86_64 macOS entirely after macos-15-intel retires
           # in 2027, at which point this leg has to go.
           - os: macos-15-intel
+            name: macos-15-intel
             platform: macos
           # 22.04 for its glibc 2.35; see test_builds.yml.
           - os: ubuntu-22.04
+            name: ubuntu-22.04-x64
             platform: linux
           - os: ubuntu-22.04-arm
+            name: ubuntu-22.04-arm
             platform: linux
+    name: build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     # A step's `if` cannot read `secrets`, so whether macOS can be signed is decided here.
@@ -284,7 +294,7 @@ jobs:
       - name: Upload the assets
         uses: actions/upload-artifact@v4
         with:
-          name: assets-${{ matrix.os }}
+          name: assets-${{ matrix.name }}
           path: assets/*
           if-no-files-found: error
 

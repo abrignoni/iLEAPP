@@ -37,21 +37,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - windows-latest
+        # `os` is the runner; `name` is what the job and its artifact are called, since
+        # a runner label such as macos-latest does not say which machine it is.
+        include:
+          - os: windows-latest
+            name: windows-x64
           # The Unified Log parser is the x64 build under Windows 11's emulation here,
           # since Mandiant publishes no windows-arm64 parser, so passing on this leg also
           # proves the path an ARM examiner relies on.
-          - windows-11-arm
-          - macos-latest
-          # Intel Macs. macos-latest is Apple silicon, and GitHub drops x86_64 macOS when
-          # macos-15-intel retires in 2027.
-          - macos-15-intel
+          - os: windows-11-arm
+            name: windows-11-arm
+          - os: macos-latest
+            name: macos-apple_silicon
+          # Intel Macs. GitHub drops x86_64 macOS when macos-15-intel retires in 2027.
+          - os: macos-15-intel
+            name: macos-15-intel
           # 22.04 rather than 24.04: a build runs only on the glibc it was made against or
           # a newer one, and 22.04's 2.35 still covers the SIFT workstation and the LTS
           # releases examiners keep.
-          - ubuntu-22.04
-          - ubuntu-22.04-arm
+          - os: ubuntu-22.04
+            name: ubuntu-22.04-x64
+          - os: ubuntu-22.04-arm
+            name: ubuntu-22.04-arm
+    name: build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -161,7 +169,7 @@ jobs:
         if: runner.os != 'macOS'
         uses: actions/upload-artifact@v4
         with:
-          name: ileapp-${{ matrix.os }}-test
+          name: ileapp-${{ matrix.name }}-test
           path: |
             dist/iLEAPP/
             dist/iLEAPP-Setup-*.exe
@@ -177,7 +185,7 @@ jobs:
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
         with:
-          name: ileapp-${{ matrix.os }}-test
+          name: ileapp-${{ matrix.name }}-test
           path: dist/iLEAPP-*.dmg
           retention-days: 14
           if-no-files-found: error
