@@ -269,33 +269,35 @@ jobs:
       # Release assets are single files, so the one-folder build is archived. The names
       # carry the platform and the architecture, because a reader cannot tell from
       # "iLEAPP-2026.5.0.dmg" whether it runs on their Mac. tar keeps the executable bits;
-      # the Windows zip has none to keep.
+      # the Windows zip has none to keep. They are gathered in release-assets/, not
+      # assets/ as in GLEAPP: iLEAPP's assets/ holds the window's images, and a rehearsal
+      # published them with the release and listed them in SHA256SUMS.txt.
       - name: Name the assets
         shell: bash
         run: |
-          mkdir -p assets
+          mkdir -p release-assets
           ARCH="$(echo "$RUNNER_ARCH" | tr '[:upper:]' '[:lower:]')"
           STEM="iLEAPP-$VERSION-${{ matrix.platform }}-$ARCH"
           case "$RUNNER_OS" in
             Windows)
-              powershell -NoProfile -Command "Compress-Archive -Path 'dist/iLEAPP/*' -DestinationPath 'assets/$STEM-portable.zip'"
-              mv "dist/iLEAPP-Setup-$VERSION.exe" "assets/$STEM-setup.exe"
+              powershell -NoProfile -Command "Compress-Archive -Path 'dist/iLEAPP/*' -DestinationPath 'release-assets/$STEM-portable.zip'"
+              mv "dist/iLEAPP-Setup-$VERSION.exe" "release-assets/$STEM-setup.exe"
               ;;
             macOS)
-              mv "dist/iLEAPP-$VERSION.dmg" "assets/$STEM.dmg"
+              mv "dist/iLEAPP-$VERSION.dmg" "release-assets/$STEM.dmg"
               ;;
             Linux)
-              mv "dist/iLEAPP-$VERSION.AppImage" "assets/$STEM.AppImage"
-              tar -C dist -czf "assets/$STEM.tar.gz" iLEAPP
+              mv "dist/iLEAPP-$VERSION.AppImage" "release-assets/$STEM.AppImage"
+              tar -C dist -czf "release-assets/$STEM.tar.gz" iLEAPP
               ;;
           esac
-          ls -l assets/
+          ls -l release-assets/
 
       - name: Upload the assets
         uses: actions/upload-artifact@v7
         with:
           name: assets-${{ matrix.name }}
-          path: assets/*
+          path: release-assets/*
           if-no-files-found: error
 
   release:
@@ -311,7 +313,7 @@ jobs:
       - name: Collect every platform's assets
         uses: actions/download-artifact@v8
         with:
-          path: assets
+          path: release-assets
           pattern: assets-*
           merge-multiple: true
 
@@ -321,7 +323,7 @@ jobs:
       - name: Checksums
         shell: bash
         run: |
-          cd assets
+          cd release-assets
           sha256sum * > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
@@ -344,5 +346,5 @@ jobs:
             --draft \
             --title "iLEAPP $GITHUB_REF_NAME" \
             --notes-file notes.md \
-            assets/*
+            release-assets/*
           echo "Draft release created. Review the assets, then publish it."
