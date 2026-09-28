@@ -36,6 +36,7 @@ import inspect
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 # import scripts.ilapfuncs as ilapfuncs
 from scripts.context import Context
+from scripts.search_files import FileInfo, FileSeekerZip
 from leapp_functions.app.artifact_result import ArtifactResult
 
 
@@ -78,6 +79,34 @@ def artifact_declaration_order(artifacts_info):
     return {name: index for index, name in enumerate(artifacts_info)}
 
 
+def stage_case_members(zip_ref, temp_dir, file_infos):
+    """
+    Extracts a case zip into temp_dir recording what FileSeekerZip.search records.
+
+    For each file member, file_infos maps the extracted path to a FileInfo holding
+    the member name and the creation and modification times the zip seeker's own
+    decoder reads from the member's extended timestamp field, or None where the
+    member has none. The extracted file's modification time is then set from the
+    member's date and time, read as local time, as the seeker does. So an artifact
+    sees the values a real run of the same zip gives it, not the time of the test.
+
+    Args:
+        zip_ref (zipfile.ZipFile): The open case zip.
+        temp_dir (Path): Folder to extract into.
+        file_infos (dict): Filled in place, keyed by extracted path.
+    """
+    for info in zip_ref.infolist():
+        extracted_path = zip_ref.extract(info, temp_dir)
+        if info.is_dir():
+            continue
+        # decode_extended_timestamp does not use the instance, so no seeker (and no
+        # archive handle) is needed to call it.
+        creation_date, modification_date = FileSeekerZip.decode_extended_timestamp(None, info.extra)
+        file_infos[extracted_path] = FileInfo(info.filename, creation_date, modification_date)
+        member_time = time.mktime(info.date_time + (0, 0, -1))
+        os.utime(extracted_path, (member_time, member_time))
+
+
 def process_artifact(zip_path, module_name, artifact_name, _artifact_data, target_os_version=None):
     """
     Processes a specific artifact from a given zip file.
@@ -117,20 +146,9 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
     # original_check_in_media = ilapfuncs.check_in_media
     # original_check_in_media_embedded = ilapfuncs.check_in_embedded_media
 
-    # Configure mock_seeker.file_infos.get() to return a mock
-    # with a dynamic source_path based on the input extraction_path.
-    def mock_file_infos_get_side_effect(key_extraction_path):
-        mock_file_info = MagicMock()
-        # Use the unique extraction_path (path in temp dir for the test)
-        # as the source_path for hashing purposes. In a real run,
-        # source_path is the original path in the evidence.
-        mock_file_info.source_path = key_extraction_path
-        # Provide default datetime objects for creation and modification dates
-        mock_file_info.creation_date = datetime.now(timezone.utc)
-        mock_file_info.modification_date = datetime.now(timezone.utc)
-        return mock_file_info
-
-    mock_seeker.file_infos.get.side_effect = mock_file_infos_get_side_effect
+    # A plain dict, as in the real seekers: stage_case_members fills it once the
+    # case zip is extracted, and a path it does not hold is simply absent.
+    mock_seeker.file_infos = {}
 
     all_files = []
 
@@ -153,7 +171,7 @@ def process_artifact(zip_path, module_name, artifact_name, _artifact_data, targe
     try:
         # Extract all files from the zip
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
+            stage_case_members(zip_ref, temp_dir, mock_seeker.file_infos)
 
             # Recursively get all files
             for root, _, files in os.walk(temp_dir):
