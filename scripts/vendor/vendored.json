@@ -6,9 +6,9 @@
       "version": "1.50",
       "upstream": "https://github.com/abrignoni/qnxprobe",
       "upstream_file": "qnxprobe.py",
-      "commit": "a45821b9b24017c280eae63757065e1819c9772d",
-      "commit_date": "2026-09-28T10:46:12-04:00",
-      "sha256": "2a06b2a611446bdb320c720419b27fb39aff7731bdbe5769d5473a9d77e218ef",
+      "commit": "b4e4618586c125c7020ba922b1eb08c3ff749dfc",
+      "commit_date": "2026-09-28T11:14:01-04:00",
+      "sha256": "cb3e448bc53ef194b66f2c3e9e7e4eb82b8670dd99063c3fd5c5a048113bd7fe",
       "licence": "MIT",
       "licence_file": "scripts/vendor/LICENSE-qnxprobe",
       "note": "Copied verbatim. Fix upstream and re-vendor; edits here are reverted by the next sync."

@@ -5220,6 +5220,13 @@ class ApfsWalker:
     def read_file(self, node, size):
         if node == APFS_CONTAINER:
             return
+        vol = self._split(node)[0]
+        if vol < len(self.volumes) and self.encryption(vol) == "locked":
+            # A node the walk listed while the volume was open, asked for in a session
+            # without its key: its bytes are ciphertext, and nothing read back is not
+            # an empty file.
+            raise ApfsUnreadable(f"{self.volumes[vol][2] or f'volume {vol}'} is encrypted "
+                                 f"and locked here, so this file is not read")
         oid = self._select(node)
         if oid is None:
             return
@@ -13313,6 +13320,19 @@ def _apfs_unlock_checks(enc_path, conv_path, conv_sums):
     for label, patches, want in built:
         run_check(f"a volume with {label} is refused, and the report says why",
                   lambda patches=patches, want=want: is_refused(patches, want))
+
+    def locked_read():
+        with open_image(enc_path) as h:
+            _fh, _found, _vol, _w, got = opened(h, [pw])
+            node, size = got["SECRETVOL/docs/readme.txt"]
+        with open_image(enc_path) as h:              # a later session, without the key
+            _fh, _found, _vol, w2, _got = opened(h, [])
+            try:
+                data = b"".join(w2.read_file(node, size))
+            except ApfsUnreadable as exc:
+                return "SECRETVOL is encrypted and locked here" in str(exc), str(exc)
+            return False, f"read {len(data)} bytes"
+    run_check("a file of a volume left locked is refused, not read as empty", locked_read)
 
     def without_pycryptodome():
         held = globals()["_BDE_AES"]
