@@ -51,6 +51,11 @@ This command will create test data for the keyboard module, using the specified 
 ## Notes
 
 - The script supports zip, tar, and tar.gz input files.
+- Each file in a case zip keeps the times its source member recorded: a zip member's date and
+  time and its extra field (less any zip64 record), or a tar member's modification time. The
+  test harness stages a case zip the way the zip seeker does, so an artifact that reads those
+  times gets the values a run of the source gives it. A tar member's time is carried as a UTC
+  date, so record baselines with TZ=UTC. Older case zips carry the time they were cut instead.
 - Test data is stored in the `admin/test/cases/data` directory.
 - JSON metadata files are stored in the `admin/test/cases` directory.
 - Always review and update the generated JSON file with additional test case details as needed.
