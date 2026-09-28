@@ -477,6 +477,16 @@ class TestDiskImageLayout(unittest.TestCase):
         self.assertEqual(win_w, width)
         self.assertGreaterEqual(win_h, height)
 
+    def test_the_retina_background_is_exactly_twice_the_size(self):
+        """dmgbuild joins dmg_background@2x.png to the background with tiffutil
+        -cathidpicheck, which refuses a pair that is not exactly 1x and 2x, and the disk
+        image then fails to build."""
+        from PIL import Image  # pylint: disable=import-outside-toplevel
+        with Image.open(PACKAGING / 'dmg_background.png') as img:
+            width, height = img.size
+        with Image.open(PACKAGING / 'dmg_background@2x.png') as img:
+            self.assertEqual(img.size, (2 * width, 2 * height))
+
 
 class TestAppImage(unittest.TestCase):
 

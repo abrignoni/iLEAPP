@@ -110,6 +110,11 @@ installs only on ARM64. macOS (Apple silicon and Intel): `.app` and `.dmg`. The 
 laid out by dmgbuild from `packaging/dmg_settings.py`: the app and an Applications link
 either side of the arrow on `packaging/dmg_background.png`. The settings place the icons
 for that 960x540 image, so a new background keeps its size and its arrow where it is.
+`dmg_background@2x.png` beside it, at exactly 1920x1080, is what a Retina screen shows:
+dmgbuild finds it by name and joins the two into one TIFF with `tiffutil
+-cathidpicheck`, which refuses a pair that is not exactly 1x and 2x. Without it the
+background is scaled up and blurred on every Retina Mac. Export both from the source;
+upscaling the 1x brings the blur back.
 Linux (x64 and ARM64): the folder build and an AppImage, made by appimagetool 1.9.1 with the
 type2 runtime 20251108, both pinned by digest in `build.py` and run with
 `APPIMAGE_EXTRACT_AND_RUN` so the build machine needs no FUSE. The finished AppImage is run
