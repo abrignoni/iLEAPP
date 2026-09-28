@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.49"
+QNXPROBE_VERSION = "1.50"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -4220,6 +4220,25 @@ APFS_FS_FLAGS_OFF                       = 264
 APFS_FS_UNENCRYPTED                     = 0x0000000000000001
 APFS_INCOMPAT_NORMALIZATION_INSENSITIVE = 0x0000000000000008
 
+# What opening an encrypted volume with its password needs (Apple File System
+# Reference, 2020-06-22, "Encryption" and "Accessing Encrypted Objects", and the
+# constants beside the structures named here). APFS_FS_ONEKEY is the volume flag
+# saying every file uses the volume key, which is the software encryption that
+# reference describes; apfs_er_state_oid, at 976 in apfs_superblock_t, is nonzero
+# while a volume is being encrypted or decrypted; om_flags, at 32 in omap_phys_t,
+# carries the same state for the volume's object map; OMAP_VAL_ENCRYPTED marks a
+# mapping whose object is encrypted. The container's keybag is the prange_t at
+# 1296 in nx_superblock_t (nx_keylocker; the offset as libfsapfs's format notes
+# give it, and the keybag sits there on both fixtures).
+APFS_FS_ONEKEY                          = 0x0000000000000008
+APFS_ER_STATE_OFF                       = 976
+APFS_NX_KEYLOCKER_OFF                   = 1296
+APFS_OMAP_FLAGS_OFF                     = 32
+APFS_OMAP_ENCRYPTING                    = 0x2
+APFS_OMAP_DECRYPTING                    = 0x4
+APFS_OMAP_KEYROLLING                    = 0x8
+APFS_OMAP_VAL_ENCRYPTED                 = 0x4
+
 APFS_INO_EXT_TYPE_DSTREAM = 8   # the extended field holding a file's size
 
 APFS_XATTR_DATA_STREAM = 0x0001
@@ -4392,15 +4411,29 @@ class ApfsWalker:
     links, and files compressed with the decmpfs attribute in its zlib forms.
 
     What it does not read: an encrypted volume whose blocks are ciphertext in
-    the image, and a file compressed with LZVN or LZFSE, which are not in the
-    standard library. Both are reported rather than guessed at. An encrypted
-    volume whose blocks the image holds decrypted is read (see encryption()).
+    the image and whose key it was not given, and a file compressed with LZVN or
+    LZFSE, which are not in the standard library. Both are reported rather than
+    guessed at. An encrypted volume whose blocks the image holds decrypted is
+    read (see encryption()), and so is one whose key unlock_apfs() derived from a
+    password: fh then carries the keys, and every walker over it decrypts.
     """
 
     root = APFS_CONTAINER
 
     def __init__(self, fh, base):
         self.fh, self.base = fh, base
+        # (container uuid, volume uuid) -> (volume key, what opened it), from
+        # unlock_apfs(); block number -> the volume's AES-XTS pair, for every
+        # encrypted node of a volume opened with one (see encryption()); and the
+        # locks unlock_apfs() found, which say why a volume stayed locked.
+        self._keys = dict(getattr(fh, "apfs_keys", None) or {})
+        self._locks = {(lk.container_uuid, lk.uuid): lk
+                       for lk in getattr(fh, "apfs_found", None) or ()}
+        self._dec = {}
+        self._vol_cipher = {}                       # volume index -> AES-XTS pair
+        self._vol_by = {}                           # volume index -> what opened it
+        self._cipher = None                         # the current volume's pair
+        self._omap_enc = {}                         # object map oid -> encrypted blocks
         self.fixed_key_size, self.fixed_val_size = 16, 16      # the omap's shape
         head = read_at(fh, base, 4096)
         if len(head) < 4096 or head[32:36] != APFS_NX_MAGIC:
@@ -4421,6 +4454,7 @@ class ApfsWalker:
         self._omap_cache = {}
         self._container_omap = self._read_omap(omap_oid)
         self.volumes = []
+        self.volume_uuids = []                      # apfs_vol_uuid, by volume index
         for oid in self.volume_oids:
             block = self._container_omap.get(oid)
             if block is None:
@@ -4430,6 +4464,7 @@ class ApfsWalker:
                 continue
             self.volumes.append((oid, block, _apfs_volume_name(sb),
                                  struct.unpack_from("<Q", sb, 56)[0]))
+            self.volume_uuids.append(uuid.UUID(bytes=sb[240:256]))
         if not self.volumes:
             raise ValueError("the container names no readable volume")
         self._state = {}
@@ -4516,6 +4551,7 @@ class ApfsWalker:
         self.fs_root_block = got["root_block"]
         self.sealed = got["sealed"]
         self._fext = got["fext"]
+        self._cipher = self._vol_cipher.get(index)
 
     def _split(self, node):
         """(volume index, object id) for a walker node."""
@@ -4532,10 +4568,11 @@ class ApfsWalker:
         """None for a volume its flags say is not encrypted. For an encrypted one,
         "clear" when its file-system tree's root node passes its checksum here, so
         the image holds its blocks decrypted (an acquisition read through the Mac's
-        own decryption, as BlackBag's Digital Collector reads one, stores them so),
-        and "locked" when it does not, because they are ciphertext. A locked volume
-        is not walked: parsing ciphertext as a tree returns nothing, and returning
-        nothing reads as an empty volume."""
+        own decryption, as BlackBag's Digital Collector reads one, stores them so);
+        "unlocked" when its blocks are ciphertext and the key unlock_apfs() derived
+        for it decrypts that root node to one that passes; and "locked" otherwise.
+        A locked volume is not walked: parsing ciphertext as a tree returns
+        nothing, and returning nothing reads as an empty volume."""
         if index in self._crypt:
             return self._crypt[index]
         _oid, block, _name, _incompat = self.volumes[index]
@@ -4555,8 +4592,74 @@ class ApfsWalker:
             finally:
                 self._current, self._volume_omap = saved
             state = "clear" if ok else "locked"
+            key = self._keys.get((self.uuid, self.volume_uuids[index]))
+            if state == "locked" and key is not None and self._apply_key(index, sb, key):
+                state = "unlocked"
         self._crypt[index] = state
         return state
+
+    def crypto_blocker(self, sb):
+        """Why a volume's key, even known, would not be used to read it, or "".
+
+        Apple's reference describes opening a volume whose files all use the
+        volume key (APFS_FS_ONEKEY); per-file keys go with hardware encryption.
+        A volume being encrypted, decrypted or given a new key is part way through
+        a transition, its blocks not all in one state until it finishes, which the
+        volume (apfs_er_state_oid) and its object map (om_flags) record while it
+        lasts."""
+        flags = struct.unpack_from("<Q", sb, APFS_FS_FLAGS_OFF)[0]
+        if not flags & APFS_FS_ONEKEY:
+            return ("its files use per-file keys, which Apple's reference ties to hardware "
+                    "encryption; this reads a volume whose files all use the volume key")
+        vol_omap_oid = struct.unpack_from("<Q", sb, 128)[0]
+        om = self.block(vol_omap_oid)
+        om_flags = struct.unpack_from("<I", om, APFS_OMAP_FLAGS_OFF)[0] if len(om) >= 36 else 0
+        if (struct.unpack_from("<Q", sb, APFS_ER_STATE_OFF)[0]
+                or om_flags & (APFS_OMAP_ENCRYPTING | APFS_OMAP_DECRYPTING
+                               | APFS_OMAP_KEYROLLING)):
+            return ("it was being encrypted, decrypted or given a new key when it was "
+                    "imaged, so its blocks are not all in one state, which this does not "
+                    "read")
+        return ""
+
+    def _apply_key(self, index, sb, key):
+        """Decrypt a volume's encrypted nodes with its key from now on, if the key
+        turns the root node of its file-system tree into one whose Fletcher-64
+        checksum holds. Its tree nodes are the blocks its object map marks
+        OMAP_VAL_ENCRYPTED, each decrypted as AES-XTS with the volume key and its
+        512-byte sector number in the container as the tweak."""
+        vek, by = key
+        if _BDE_AES is None or len(vek) != 32 or self.crypto_blocker(sb):
+            return False
+        vol_omap_oid, root_oid = struct.unpack_from("<QQ", sb, 128)
+        pair = (_BDE_AES.new(vek[:16], _BDE_AES.MODE_ECB),
+                _BDE_AES.new(vek[16:], _BDE_AES.MODE_ECB))
+        saved = self._current, self._volume_omap
+        added, ok = [], False
+        try:
+            self._current, self._volume_omap = None, {}
+            root_block = self._read_omap(vol_omap_oid).get(root_oid)
+            enc = self._omap_enc.get(vol_omap_oid, ())
+            if root_block is not None and root_block in enc:
+                for blk in enc:
+                    if blk not in self._dec:
+                        self._dec[blk] = pair
+                        added.append(blk)
+                ok = _apfs_fletcher_ok(self.block(root_block))
+        except (ValueError, OSError, struct.error):
+            ok = False
+        finally:
+            self._current, self._volume_omap = saved
+        if not ok:
+            for blk in added:
+                del self._dec[blk]
+            return False
+        self._vol_cipher[index], self._vol_by[index] = pair, by
+        return True
+
+    def lock(self, index):
+        """The ApfsLock unlock_apfs() made for a volume, or None."""
+        return self._locks.get((self.uuid, self.volume_uuids[index]))
 
     @property
     def note(self):
@@ -4569,18 +4672,35 @@ class ApfsWalker:
                 ("clear", "{} flagged encrypted, but {} blocks read in the clear in "
                           "this image, as an acquisition made through the Mac's own "
                           "decryption stores them, so {} files are read as they are")):
-            names = [self.volumes[i][2] or f"volume {i}" for i in range(len(self.volumes))
-                     if self.encryption(i) == state]
+            which = [i for i in range(len(self.volumes)) if self.encryption(i) == state]
+            names = [self.volumes[i][2] or f"volume {i}" for i in which]
             if names:
                 one = len(names) == 1
                 parts.append(text.format(f"{', '.join(names)} {'is' if one else 'are'}",
                                          "its" if one else "their",
                                          "its" if one else "their"))
+            if state == "locked":
+                for i in which:
+                    lk = self.lock(i)
+                    if lk is not None:
+                        parts.append(f"{self.volumes[i][2] or f'volume {i}'}: "
+                                     f"{lk.locked_note()}")
+        for i in range(len(self.volumes)):
+            if self.encryption(i) == "unlocked":
+                parts.append(f"{self.volumes[i][2] or f'volume {i}'} is encrypted and was "
+                             f"opened with {_apfs_opened_with(self._vol_by.get(i))}, so its "
+                             f"files are read decrypted")
         return "; ".join(parts) or None
 
     # -- blocks and object maps -------------------------------------------
     def block(self, n):
-        return read_at(self.fh, self.base + n * self.block_size, self.block_size)
+        raw = read_at(self.fh, self.base + n * self.block_size, self.block_size)
+        pair = self._dec.get(n) if self._dec else None
+        if pair is None:
+            return raw
+        # an encrypted node of an opened volume: its tweak is the node's own
+        # position, in 512-byte sectors from the start of the container
+        return _xts_crypt(pair, raw, n * (self.block_size // 512))
 
     def resolve(self, oid):
         """A child pointer inside the file-system tree is a virtual object id,
@@ -4762,11 +4882,14 @@ class ApfsWalker:
             if len(key) < 16 or len(val) < 16:
                 continue
             o, xid = struct.unpack_from("<QQ", key, 0)
-            _flags, _size, paddr = struct.unpack_from("<IIQ", val, 0)
+            flags, _size, paddr = struct.unpack_from("<IIQ", val, 0)
             prev = out.get(o)
             if prev is None or xid >= prev[0]:
-                out[o] = (xid, paddr)
-        out = {o: p for o, (_x, p) in out.items()}
+                out[o] = (xid, paddr, flags)
+        # the blocks whose objects the map marks encrypted, which an opened
+        # volume's key decrypts (see _apply_key)
+        self._omap_enc[oid] = {p for _x, p, f in out.values() if f & APFS_OMAP_VAL_ENCRYPTED}
+        out = {o: p for o, (_x, p, _f) in out.items()}
         self._omap_cache[oid] = out
         return out
 
@@ -4921,15 +5044,27 @@ class ApfsWalker:
 
     def _extents(self, private_id):
         """[(logical offset, block, length)] for a stream, in order."""
+        return [(logical, phys, length)
+                for logical, phys, length, _crypto in self._runs(private_id)]
+
+    def _runs(self, private_id):
+        """[(logical offset, block, length, crypto_id)] for a stream, in order.
+
+        crypto_id is the field after the physical block in j_file_extent_val_t.
+        On a volume whose files all use the volume key it is where the extent's
+        AES-XTS tweak starts, in blocks (see _iter_stream); a sealed volume's own
+        extent tree carries no such field, and 0 stands in."""
         if self._fext is not None:
-            return self._fext.get(private_id, [])
+            return [(logical, phys, length, 0)
+                    for logical, phys, length in self._fext.get(private_id, [])]
         out = []
         for key, val in self._records(private_id, APFS_TYPE_FILE_EXTENT):
             if len(key) < 16 or len(val) < 16:
                 continue
             logical = struct.unpack_from("<Q", key, 8)[0]
             len_flags, phys = struct.unpack_from("<QQ", val, 0)
-            out.append((logical, phys, len_flags & 0x00FFFFFFFFFFFFFF))
+            crypto = struct.unpack_from("<Q", val, 16)[0] if len(val) >= 24 else 0
+            out.append((logical, phys, len_flags & 0x00FFFFFFFFFFFFFF, crypto))
         out.sort()
         return out
 
@@ -4955,22 +5090,54 @@ class ApfsWalker:
 
     def _read_stream(self, private_id, want, size_cap=None):
         """Bytes of a stream, sparse extents reading as the zeros they stand for."""
-        out = bytearray()
-        for logical, phys, length in self._extents(private_id):
-            if len(out) >= want:
+        out = b"".join(self._iter_stream(private_id, want))
+        if size_cap is not None:
+            return out[:size_cap]
+        return out[:want]
+
+    def _iter_stream(self, private_id, want, piece=1 << 20):
+        """A stream's first ``want`` bytes, in pieces of at most ``piece`` bytes.
+
+        On a volume opened with its key each extent is decrypted as AES-XTS with
+        the volume key, and the tweak of its first 512-byte sector is its
+        crypto_id counted in blocks, not its current block: libfsapfs computes
+        a data block's tweak as the extent's crypto_id plus the block's offset
+        in the extent (libfsapfs_file_system_data_handle.c, lines 274 to 307 at
+        f63c83b), times the sectors per block (libfsapfs_data_block.c, lines
+        388 and 389). On every extent of both test volumes the two are equal;
+        the self-test moves one extent to prove the tweak follows crypto_id."""
+        cipher, bs = self._cipher, self.block_size
+        if cipher is not None and self._fext is not None:
+            raise ApfsUnreadable("a sealed volume's extents carry no tweak to decrypt "
+                                 "them with")
+        pos = 0
+        for logical, phys, length, crypto in self._runs(private_id):
+            if pos >= want:
                 break
-            if logical > len(out):
-                out += b"\x00" * min(logical - len(out), want - len(out))
-            take = min(length, want - len(out))
+            if logical > pos:
+                gap = min(logical - pos, want - pos)
+                while gap:
+                    n = min(gap, piece)
+                    yield b"\x00" * n
+                    pos, gap = pos + n, gap - n
+            take = min(length, want - pos)
             if take <= 0:
                 continue
-            if phys == 0:
-                out += b"\x00" * take
-            else:
-                out += read_at(self.fh, self.base + phys * self.block_size, take)
-        if size_cap is not None:
-            return bytes(out[:size_cap])
-        return bytes(out[:want])
+            done = 0
+            while done < take:
+                n = min(piece, take - done)
+                if phys == 0:
+                    data = b"\x00" * n
+                elif cipher is None:
+                    data = read_at(self.fh, self.base + phys * bs + done, n)
+                else:
+                    raw = read_at(self.fh, self.base + phys * bs + done, -(-n // 512) * 512)
+                    data = _xts_crypt(cipher, raw, crypto * (bs // 512) + done // 512)[:n]
+                if data:
+                    yield data
+                done, pos = done + len(data), pos + len(data)
+                if len(data) < n:
+                    break
 
     # -- the walker surface ------------------------------------------------
     def inode(self, node):
@@ -5083,13 +5250,9 @@ class ApfsWalker:
                 f"the file says it holds {want:,} bytes and no extent records "
                 f"for it were found" + (", which is what a sealed volume looks "
                 "like when its extent tree was not read" if self.sealed else ""))
-        done = 0
-        while done < want:
-            chunk = self._read_stream(private, want)[done:done + (1 << 20)]
-            if not chunk:
-                break
-            yield chunk
-            done += len(chunk)
+        # One pass over the extents, a piece at a time. This used to read the whole
+        # stream again for every megabyte it handed back.
+        yield from self._iter_stream(private, want)
 
     def _read_compressed(self, oid, blob):
         """A file whose data is held by the decmpfs attribute.
@@ -9873,6 +10036,8 @@ def identify_apfs(fh, base):
                      + ("   case sensitive"
                         if not incompat & APFS_INCOMPAT_CASE_INSENSITIVE else "")
                      + ("   encrypted, read in the clear" if state == "clear" else
+                        f"   encrypted, opened with {_apfs_opened_with(w._vol_by.get(i))}"   # pylint: disable=protected-access
+                        if state == "unlocked" else
                         "   encrypted and locked, not read" if state == "locked" else ""))
     if w.note:
         lines.append(f"note         {w.note}")
@@ -10169,6 +10334,38 @@ def _bde_text(secret):
     return secret
 
 
+def _xts_crypt(pair, data, first, bps=512, encrypt=False):
+    """AES-XTS (IEEE 1619) over whole sectors of ``bps`` bytes, the first of them
+    sector number ``first``: pair is (the data key, the tweak key) as AES-ECB
+    ciphers. Decrypts, or encrypts when asked (the self-test builds ciphertext
+    with it). A tail shorter than a sector is dropped, as a short read ends."""
+    k1, k2 = pair
+    n = len(data) // bps
+    if n == 0:
+        return b""
+    data = data[:n * bps]
+    # XTS tweaks for every sector at once: lane i of v (128 bits each) holds
+    # sector i's tweak for block j, doubled in GF(2**128) for each next block
+    # (the carry out of a lane folds back in as 0x87), and each block's
+    # tweaks are laid into place with strided copies.
+    per, width = bps // 16, 16 * n
+    v = int.from_bytes(k2.encrypt(
+        b"".join((first + i).to_bytes(16, "little") for i in range(n))), "little")
+    low = int.from_bytes((b"\x01" + bytes(15)) * n, "little")
+    keep = ((1 << (128 * n)) - 1) ^ low
+    tw = bytearray(len(data))
+    for j in range(per):
+        vb = v.to_bytes(width, "little")
+        for k in range(16):
+            tw[16 * j + k::bps] = vb[k::16]
+        carry = (v >> 127) & low
+        v = ((v << 1) & keep) ^ carry ^ (carry << 1) ^ (carry << 2) ^ (carry << 7)
+    tweak = int.from_bytes(tw, "little")
+    x = (int.from_bytes(data, "little") ^ tweak).to_bytes(len(data), "little")
+    y = k1.encrypt(x) if encrypt else k1.decrypt(x)
+    return (int.from_bytes(y, "little") ^ tweak).to_bytes(len(data), "little")
+
+
 class BitLocker:
     """A BitLocker volume at base in fh, read before any key is given: its method,
     protectors and description, and, once unlock() finds a key, its plaintext.
@@ -10395,25 +10592,7 @@ class BitLocker:
         sector number for AES-XTS."""
         bps, n = self.bps, len(data) // self.bps
         if self._k2 is not None:
-            # XTS tweaks for every sector at once: lane i of v (128 bits each) holds
-            # sector i's tweak for block j, doubled in GF(2**128) for each next block
-            # (the carry out of a lane folds back in as 0x87), and each block's
-            # tweaks are laid into place with strided copies.
-            first, per, width = phys // bps, bps // 16, 16 * n
-            v = int.from_bytes(self._k2.encrypt(
-                b"".join((first + i).to_bytes(16, "little") for i in range(n))), "little")
-            low = int.from_bytes((b"\x01" + bytes(15)) * n, "little")
-            keep = ((1 << (128 * n)) - 1) ^ low
-            tw = bytearray(len(data))
-            for j in range(per):
-                vb = v.to_bytes(width, "little")
-                for k in range(16):
-                    tw[16 * j + k::bps] = vb[k::16]
-                carry = (v >> 127) & low
-                v = ((v << 1) & keep) ^ carry ^ (carry << 1) ^ (carry << 2) ^ (carry << 7)
-            tweak = int.from_bytes(tw, "little")
-            x = (int.from_bytes(data, "little") ^ tweak).to_bytes(len(data), "little")
-            return (int.from_bytes(self._k1.decrypt(x), "little") ^ tweak).to_bytes(len(data), "little")
+            return _xts_crypt((self._k1, self._k2), data, phys // bps, bps)
         ivs = self._k1.encrypt(b"".join((phys + i * bps).to_bytes(16, "little") for i in range(n)))
         prev = b"".join(ivs[16 * i:16 * i + 16] + data[i * bps:(i + 1) * bps - 16] for i in range(n))
         return (int.from_bytes(self._k1.decrypt(data), "little")
@@ -10574,6 +10753,309 @@ def unlock_bitlocker(fh, size=None, passwords=(), key_files=()):
             opened[base] = bl
         found.append(bl)
     return (BitLockerImage(fh, opened, found) if found else fh), found
+
+
+# ---- encrypted APFS volumes, opened with a password -----------------------
+#
+# Apple File System Reference, 2020-06-22, "Encryption" and "Accessing Encrypted
+# Objects", describes software encryption, which a Mac uses for external storage
+# and for internal storage without hardware encryption: the container's keybag
+# holds each volume's wrapped volume key (VEK) and where the volume's own keybag
+# is; the volume's keybag holds its key encryption key (KEK), wrapped once per
+# user password and once for a personal recovery key; the KEK unwraps the VEK;
+# and the VEK decrypts the volume's tree and files as AES-XTS. What that
+# reference leaves out comes from libfsapfs's format notes ("Apple File System
+# (APFS).asciidoc" at f63c83b): each keybag is itself AES-XTS encrypted with its
+# container's or volume's identifier as both keys and its 512-byte sector number
+# in the container as the tweak (the reference says RFC 3394 for that step, and
+# the keybags on both fixtures read as AES-XTS and not as RFC 3394); and a KEK
+# record's packed fields, among them the PBKDF2 iteration count and salt that
+# turn a password into the key that unwraps it. PBKDF2 there is HMAC-SHA256, the one that
+# unwraps the KEK on both fixtures. Not read: a volume with per-file keys
+# (hardware encryption), a volume caught mid-way through being encrypted,
+# decrypted or re-keyed, a KEK record in the CoreStorage-compatible form
+# (libfsapfs: flag 0x2, AES-128), and an institutional recovery key. On a Mac
+# with a T2 chip or Apple silicon, Apple Platform Security's FileVault page says
+# the KEK "is protected by a combination of the user's password and hardware
+# UID", so an image of its internal storage does not open with a password.
+
+APFS_OBJECT_TYPE_CONTAINER_KEYBAG = 0x6B657973          # 'keys'
+APFS_OBJECT_TYPE_VOLUME_KEYBAG = 0x72656373             # 'recs'
+APFS_KB_TAG_VOLUME_KEY = 2
+APFS_KB_TAG_VOLUME_UNLOCK_RECORDS = 3
+APFS_KB_TAG_VOLUME_PASSPHRASE_HINT = 4
+APFS_FV_PERSONAL_RECOVERY_KEY_UUID = uuid.UUID("EBC6C064-0000-11AA-AA11-00306543ECAC")
+APFS_KEK_COMPAT_FLAG = 0x2          # libfsapfs: CoreStorage-compatible, AES-128
+APFS_MAX_PBKDF2_ROUNDS = 100_000_000
+
+
+def _aes_unwrap(kek, wrapped):
+    """RFC 3394 AES key unwrap, or None when the integrity value does not come
+    out as A6A6A6A6A6A6A6A6, which is how a wrong password shows."""
+    if len(wrapped) < 24 or len(wrapped) % 8:
+        return None
+    n = len(wrapped) // 8 - 1
+    a, r = wrapped[:8], [wrapped[8 * i:8 * i + 8] for i in range(1, n + 1)]
+    aes = _BDE_AES.new(kek, _BDE_AES.MODE_ECB)
+    for j in range(5, -1, -1):
+        for i in range(n, 0, -1):
+            t = (n * j + i).to_bytes(8, "big")
+            b = aes.decrypt(bytes(x ^ y for x, y in zip(a, t)) + r[i - 1])
+            a, r[i - 1] = b[:8], b[8:]
+    return b"".join(r) if a == b"\xa6" * 8 else None
+
+
+def _apfs_packed(buf):
+    """{tag: value} for one level of a keybag entry's packed values: a tag byte,
+    a length byte whose top bit says the length runs on in the next (length &
+    0x7f) bytes, big-endian, then the value; a zero tag and length ends them."""
+    out, i = {}, 0
+    while i + 2 <= len(buf):
+        tag, ln = buf[i], buf[i + 1]
+        i += 2
+        if ln & 0x80:
+            k = ln & 0x7F
+            ln = int.from_bytes(buf[i:i + k], "big")
+            i += k
+        if tag == 0 and ln == 0:
+            break
+        out[tag] = buf[i:i + ln]
+        i += ln
+    return out
+
+
+def _apfs_wrapped(blob):
+    """(flags, wrapped key, iterations, salt) from a keybag entry holding a
+    wrapped key, whose 0x30 value holds a 0xa3 value holding them (libfsapfs's
+    format notes, "Key encryption key (KEK) packed object"), or None."""
+    try:
+        inner = _apfs_packed(_apfs_packed(_apfs_packed(blob)[0x30])[0xA3])
+        flags = struct.unpack_from("<I", inner[0x82], 0)[0]
+    except (KeyError, struct.error):
+        return None
+    iters = int.from_bytes(inner.get(0x84, b""), "big")
+    return flags, inner.get(0x83, b""), iters, inner.get(0x85, b"")
+
+
+def _apfs_keybag(w, prange, key_uuid, otype):
+    """[(uuid, tag, data)] from the keybag at prange (block, count), decrypted with
+    key_uuid as both AES-XTS keys, or None when it does not decrypt to a keybag
+    object of type otype whose checksum holds."""
+    base, count = prange
+    if not base or not count or count > 64:
+        return None
+    raw = read_at(w.fh, w.base + base * w.block_size, count * w.block_size)
+    if len(raw) < count * w.block_size:
+        return None
+    pair = (_BDE_AES.new(key_uuid.bytes, _BDE_AES.MODE_ECB),
+            _BDE_AES.new(key_uuid.bytes, _BDE_AES.MODE_ECB))
+    plain = _xts_crypt(pair, raw, base * (w.block_size // 512))
+    if (struct.unpack_from("<I", plain, 24)[0] != otype or not _apfs_fletcher_ok(plain)):
+        return None
+    version, nkeys, nbytes = struct.unpack_from("<HHI", plain, 32)
+    if version != 2:
+        return None
+    out, at, end = [], 48, min(len(plain), 32 + nbytes)
+    for _ in range(nkeys):
+        if at + 24 > end:
+            break
+        tag, keylen = struct.unpack_from("<HH", plain, at + 16)
+        out.append((uuid.UUID(bytes=plain[at:at + 16]), tag, plain[at + 24:at + 24 + keylen]))
+        at += (24 + keylen + 15) & ~15
+    return out
+
+
+def _apfs_opened_with(by):
+    """How a report names what opened a volume: a volume can hold a record for each
+    user's password, so a password is "a password", and the recovery key is its own."""
+    return "a password" if by == "password" else f"its {by or 'key'}"
+
+
+class ApfsLock:
+    """One encrypted APFS volume whose blocks are ciphertext in the image: what its
+    keybags hold, and whether a password given opened it.
+
+    vek is the volume key once a password or the personal recovery key has
+    unwrapped it (and it decrypts the volume's tree to one that checks out), else
+    None; unlocked_by says which; why says what stops it being opened at all;
+    hint is the passphrase hint the volume stores, as stored."""
+
+    def __init__(self, w, index, label=""):
+        self.label = label or "APFS container"
+        self.base, self.index = w.base, index
+        self.container_uuid, self.uuid = w.uuid, w.volume_uuids[index]
+        self.name = w.volumes[index][2] or f"volume {index}"
+        self.vek, self.unlocked_by, self.tried, self.why, self.hint = None, None, False, "", ""
+        self.records = []                           # (user uuid, wrapped KEK entry)
+        self._w, self._vek_blob = w, None
+        sb = w.block(w.volumes[index][1])
+        self._sb = sb
+        if _BDE_AES is None:
+            self.why = ("reading it needs the optional pycryptodome package, which this "
+                        "Python does not have")
+            return
+        self.why = w.crypto_blocker(sb)
+        if self.why:
+            return
+        kl = struct.unpack_from("<QQ", w._nx, APFS_NX_KEYLOCKER_OFF)   # pylint: disable=protected-access
+        if not kl[0]:
+            self.why = "its container holds no keybag"
+            return
+        entries = _apfs_keybag(w, kl, w.uuid, APFS_OBJECT_TYPE_CONTAINER_KEYBAG)
+        if entries is None:
+            self.why = ("its container's keybag does not decrypt with the container's "
+                        "identifier, so its keys cannot be read here")
+            return
+        mine = [(t, d) for u, t, d in entries if u == self.uuid]
+        self._vek_blob = next((d for t, d in mine if t == APFS_KB_TAG_VOLUME_KEY), None)
+        where = next((d for t, d in mine if t == APFS_KB_TAG_VOLUME_UNLOCK_RECORDS), None)
+        if self._vek_blob is None or where is None or len(where) < 16:
+            self.why = "its container's keybag holds no key for it"
+            return
+        vol_entries = _apfs_keybag(w, struct.unpack_from("<QQ", where, 0), self.uuid,
+                                   APFS_OBJECT_TYPE_VOLUME_KEYBAG)
+        if vol_entries is None:
+            self.why = "its own keybag does not decrypt with its identifier"
+            return
+        for u, t, d in vol_entries:
+            if t == APFS_KB_TAG_VOLUME_UNLOCK_RECORDS:
+                self.records.append((u, d))
+            elif t == APFS_KB_TAG_VOLUME_PASSPHRASE_HINT:
+                self.hint = d.split(b"\x00")[0].decode("utf-8", "replace")
+        if not self.records:
+            self.why = "its keybag holds no password or recovery key record"
+        elif all((_apfs_wrapped(d) or (APFS_KEK_COMPAT_FLAG,))[0] & APFS_KEK_COMPAT_FLAG
+                 for _u, d in self.records):
+            self.why = ("its only unlock records are in the CoreStorage-compatible form, "
+                        "which this does not read")
+
+    def unlock(self, passwords):
+        """Try each password (or personal recovery key) on each unlock record; True
+        once one opens the volume."""
+        if self.vek is not None:
+            return True
+        if self.why:
+            return False
+        import hashlib                              # pylint: disable=import-outside-toplevel
+        vek_wrapped = _apfs_wrapped(self._vek_blob)
+        for secret in passwords:
+            text = _bde_text(secret)
+            if text is None:
+                continue
+            self.tried = True
+            for user, blob in self.records:
+                rec = _apfs_wrapped(blob)
+                if rec is None or rec[0] & APFS_KEK_COMPAT_FLAG:
+                    continue
+                _flags, wrapped, iters, salt = rec
+                if not 0 < iters <= APFS_MAX_PBKDF2_ROUNDS or not salt:
+                    continue
+                derived = hashlib.pbkdf2_hmac("sha256", text.encode("utf-8"), salt, iters, 32)
+                kek = _aes_unwrap(derived, wrapped)
+                if kek is None or vek_wrapped is None or vek_wrapped[0] & APFS_KEK_COMPAT_FLAG:
+                    continue
+                vek = _aes_unwrap(kek, vek_wrapped[1])
+                if vek is None or len(vek) != 32 or not self._opens(vek):
+                    continue
+                self.vek = vek
+                self.unlocked_by = ("personal recovery key"
+                                    if user == APFS_FV_PERSONAL_RECOVERY_KEY_UUID else "password")
+                return True
+        return False
+
+    def _opens(self, vek):
+        """True when vek decrypts the volume's tree root to a node that checks out,
+        read without touching the walker's own state."""
+        w = self._w
+        vol_omap_oid, root_oid = struct.unpack_from("<QQ", self._sb, 128)
+        saved = w._current, w._volume_omap                             # pylint: disable=protected-access
+        try:
+            w._current, w._volume_omap = None, {}                      # pylint: disable=protected-access
+            root = w._read_omap(vol_omap_oid).get(root_oid)            # pylint: disable=protected-access
+        except (ValueError, OSError, struct.error):
+            root = None
+        finally:
+            w._current, w._volume_omap = saved                         # pylint: disable=protected-access
+        if root is None:
+            return False
+        pair = (_BDE_AES.new(vek[:16], _BDE_AES.MODE_ECB),
+                _BDE_AES.new(vek[16:], _BDE_AES.MODE_ECB))
+        raw = read_at(w.fh, w.base + root * w.block_size, w.block_size)
+        return _apfs_fletcher_ok(_xts_crypt(pair, raw, root * (w.block_size // 512)))
+
+    def summary(self):
+        return (f"APFS encrypted, opened with {_apfs_opened_with(self.unlocked_by)}"
+                if self.vek is not None else "APFS encrypted, locked")
+
+    def locked_note(self):
+        """Why the volume was not read, and what would open it."""
+        if self.vek is not None:
+            return f"opened with {_apfs_opened_with(self.unlocked_by)}"
+        if self.why:
+            return f"not read: {self.why}"
+        prk = any(u == APFS_FV_PERSONAL_RECOVERY_KEY_UUID for u, _d in self.records)
+        what = "a password or its personal recovery key" if prk else "a password"
+        text = ("none of the passwords given opens it" if self.tried
+                else f"it opens with {what}")
+        if self.hint:
+            text += f' (its passphrase hint, as stored: "{self.hint}")'
+        return text
+
+
+class ApfsImage:
+    """An image with the keys unlock_apfs() derived for its encrypted APFS volumes:
+    ``apfs_keys`` maps (container uuid, volume uuid) to (volume key, what opened
+    it) and ``apfs_found`` holds every ApfsLock, opened or not. An ApfsWalker made
+    over it reads those volumes decrypted; reads are the image's own."""
+
+    def __init__(self, fh, found):
+        self._fh = fh
+        self.apfs_found = list(found)
+        self.apfs_keys = {(lk.container_uuid, lk.uuid): (lk.vek, lk.unlocked_by)
+                          for lk in found if lk.vek is not None}
+        self.read, self.seek, self.tell = fh.read, fh.seek, fh.tell
+
+    def __getattr__(self, name):
+        return getattr(self._fh, name)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
+    def close(self):
+        self._fh.close()
+
+
+def unlock_apfs(fh, size=None, passwords=()):
+    """Find the encrypted APFS volumes whose blocks are ciphertext in an opened
+    image and open those one of the passwords opens (tried as a user's password
+    and as the personal recovery key). Returns (fh, found): fh is an ApfsImage when
+    there is any such volume, so the walkers made over it read the opened ones
+    decrypted and say why the others were not read, else the image unchanged;
+    found holds one ApfsLock per such volume, opened or not."""
+    if size is None:
+        size = image_size(fh)
+    regions, _names, containers, protective = partition_regions(fh, size)
+    found = []
+    for label, base, _rsize in regions:
+        if label in containers or label in protective:
+            continue
+        head = read_at(fh, base, 4096)
+        if len(head) < 4096 or head[32:36] != APFS_NX_MAGIC:
+            continue
+        try:
+            w = ApfsWalker(fh, base)
+        except (ValueError, OSError, struct.error):
+            continue
+        for i in range(len(w.volumes)):
+            if w.encryption(i) != "locked":
+                continue
+            lk = ApfsLock(w, i, label)
+            lk.unlock(passwords)
+            found.append(lk)
+    return (ApfsImage(fh, found) if found else fh), found
 
 
 def identify_fs(fh, base, size=None):
@@ -11085,6 +11567,9 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
     # startup key files open is read decrypted in place; the rest stay locked and
     # the report says so.
     image, bitlocker_found = unlock_bitlocker(image, None, passwords, key_files)
+    # An encrypted APFS volume the passwords (as a password or its personal recovery
+    # key) open is read decrypted; the rest stay locked and the report says why.
+    image, apfs_found = unlock_apfs(image, None, passwords)
     size = image_size(image)
     print("=" * 78)
     print(path)
@@ -11465,6 +11950,10 @@ def main(path, scan_limit_mib=256, do_list=False, list_depth=2, list_max=400,
                                               for k, _i in bl.protectors):
                             print("        (give a password or recovery password with --password-file "
                                   "or --password-env, a startup key with --bitlocker-key)")
+                if kind == "apfs" and any(lk.base == b and lk.vek is None and not lk.why
+                                          and not lk.tried for lk in apfs_found):
+                    print("        (give an encrypted volume's password or personal recovery "
+                          "key with --password-file or --password-env)")
                 ext_name = ""
                 if kind and kind.startswith("ext"):
                     _sb = read_at(fh, b + EXT_SB_OFF, 1024)
@@ -12597,6 +13086,246 @@ def _walk_all_agreement(image_gz, break_it=None):
             if seen[path] != tree[path]:
                 wrong += 1
     return found, rows, wrong, fast
+
+
+def _apfs_unlock_checks(enc_path, conv_path, conv_sums):
+    """[(passed, label)] for opening encrypted APFS volumes with a password, on the
+    two fixtures macOS encrypted (tools/make_apfs_encrypted_fixture.sh and
+    tools/make_apfs_converted_fixture.sh) and on copies of the first with one
+    structure changed. The passwords and the hint are the fixtures' test values."""
+    import hashlib
+    pw, conv_pw = "qnxprobe-apfs-test", "qnxprobe-apfs-convert"
+    pattern = bytes((i * 131 + 17) % 253 for i in range(262144))
+    out = []
+
+    class Patched:
+        """The image with some byte ranges replaced, as a changed copy would read."""
+
+        def __init__(self, fh, patches):
+            self._fh, self._patches, self._pos = fh, sorted(patches.items()), 0
+            self.size = image_size(fh)
+
+        def seek(self, off, whence=0):
+            self._pos = off if whence == 0 else self._pos + off if whence == 1 else self.size + off
+            return self._pos
+
+        def tell(self):
+            return self._pos
+
+        def read(self, n=-1):
+            self._fh.seek(self._pos)
+            data = bytearray(self._fh.read(n))
+            for at, blob in self._patches:
+                lo, hi = max(at, self._pos), min(at + len(blob), self._pos + len(data))
+                if lo < hi:
+                    data[lo - self._pos:hi - self._pos] = blob[lo - at:hi - at]
+            self._pos += len(data)
+            return bytes(data)
+
+        def close(self):
+            self._fh.close()
+
+    def opened(fh, passwords):
+        fh, found = unlock_apfs(fh, None, passwords)
+        vol = [v for v in volumes(fh) if v["kind"] == "apfs"][0]
+        w = vol["walker"]
+        got = {p: (n, sz) for p, n, _m, sz, _t, _r in walk_all(w)}
+        return fh, found, vol, w, got
+
+    def read(w, got, path):
+        return b"".join(w.read_file(*got[path])) if path in got else None
+
+    def run_check(label, leg):
+        """One check on its own, so one that raises does not hide the others."""
+        try:
+            got = leg()
+            cond, detail = got if isinstance(got, tuple) else (got, "")
+        except Exception as exc:                     # pylint: disable=broad-except
+            cond, detail = False, f"raised {type(exc).__name__}: {exc}"
+        out.append((bool(cond), label.format(detail) if "{}" in label else
+                    label + (f" ({detail})" if detail else "")))
+
+    def right_password():
+        with open_image(enc_path) as h:
+            fh, found, vol, w, got = opened(h, ["not-the-password", pw])
+            lines = identify_fs(fh, vol["base"], vol["size"])[1]
+            return ([w.encryption(i) for i in range(len(w.volumes))] == [None, "unlocked"]
+                    and len(found) == 1 and found[0].unlocked_by == "password"
+                    and read(w, got, "SECRETVOL/docs/readme.txt")
+                    == b"known APFS test file in SECRETVOL\n"
+                    and read(w, got, "SECRETVOL/docs/pattern.bin") == pattern
+                    and read(w, got, "PLAINVOL/docs/pattern.bin") == pattern
+                    and "SECRETVOL is encrypted and was opened with a password"
+                    in (vol.get("note") or "")
+                    and any("SECRETVOL" in ln and "opened with a password" in ln
+                            for ln in lines))
+    run_check("an APFS volume macOS encrypted opens with its password, tried after a wrong "
+          "one, and its files are what macOS wrote", right_password)
+
+    def wrong_password():
+        with open_image(enc_path) as h:
+            _fh, found, vol, w, got = opened(h, ["not-the-password"])
+            return (w.encryption(1) == "locked" and found and found[0].vek is None
+                    and found[0].tried and not any(p.startswith("SECRETVOL") for p in got)
+                    and 1 not in w._state                            # pylint: disable=protected-access
+                    and "SECRETVOL: none of the passwords given opens it"
+                    in (vol.get("note") or ""))
+    run_check("a wrong password leaves it locked, its tree never parsed, and says so",
+          wrong_password)
+
+    def converted():
+        with open(conv_sums, encoding="utf-8") as handle:
+            sums = {"CONVVOL/" + path: digest for digest, path in
+                    (line.rstrip("\n").split("  ", 1) for line in handle if line.strip())}
+        with open_image(conv_path) as h:
+            _fh, found0, vol0, _w0, _g0 = opened(h, [])
+        with open_image(conv_path) as h:
+            _fh, found, _vol, w, got = opened(h, [conv_pw])
+            matched = sum(1 for path, digest in sums.items()
+                          if hashlib.sha256(read(w, got, path) or b"").hexdigest() == digest)
+        hint = "the qnxprobe conversion test"
+        return (matched == len(sums) == 3 and found and found[0].unlocked_by == "password"
+                and found0 and found0[0].hint == hint
+                and f'its passphrase hint, as stored: "{hint}"' in (vol0.get("note") or ""),
+                f"{matched}/{len(sums)} files")
+    run_check("a volume macOS encrypted after files were written opens with its password, "
+          "and its hint is reported", converted)
+
+    # a file's data moved, as a container shrink moves it: the extent's block
+    # changes and its crypto_id does not, so the tweak must follow crypto_id
+    def moved_extent():
+        with open_image(enc_path) as h:
+            fh, _found, _vol, w, got = opened(h, [pw])
+            bs = w.block_size
+            node = got["SECRETVOL/docs/pattern.bin"][0]
+            w._open_volume(1)                                        # pylint: disable=protected-access
+            private = w._dstream(node & APFS_OID_MASK)[1]            # pylint: disable=protected-access
+            (_l, phys, length, crypto), = w._runs(private)           # pylint: disable=protected-access
+            free = [(off, n) for off, n in w.free_extents(length)
+                    if off > w.base + (phys + 64) * bs]
+            new_blk = (free[0][0] - w.base) // bs
+            patches = {w.base + new_blk * bs: read_at(fh, w.base + phys * bs, length)}
+            for _first, blk in w._tree.leaves(_apfs_fs_key):         # pylint: disable=protected-access
+                leaf = bytearray(w.block(blk))
+                at = leaf.find(struct.pack("<QQ", phys, crypto))
+                if at >= 0:
+                    struct.pack_into("<Q", leaf, at, new_blk)
+                    struct.pack_into("<Q", leaf, 0, _apfs_fletcher(leaf))
+                    patches[w.base + blk * bs] = _xts_crypt(
+                        w._dec[blk], bytes(leaf), blk * (bs // 512),  # pylint: disable=protected-access
+                        encrypt=True)
+        with open_image(enc_path) as h:
+            _fh, _found, _vol, w2, got2 = opened(Patched(h, patches), [pw])
+            w2._open_volume(1)                                       # pylint: disable=protected-access
+            runs = w2._runs(private)                                 # pylint: disable=protected-access
+            return (runs == [(0, new_blk, length, crypto)] and new_blk != crypto
+                    and read(w2, got2, "SECRETVOL/docs/pattern.bin") == pattern,
+                    f"block {phys} to {new_blk}, crypto_id {crypto}")
+    run_check("a moved extent still reads, its tweak taken from crypto_id", moved_extent)
+
+    # what is refused, each on a copy of the fixture with one structure changed
+    def refusals():
+        """[(label, patches by byte offset, the words the reason must hold)]"""
+        with open_image(enc_path) as h:
+            _fh, _found, _vol, w, _got = opened(h, [pw])
+            bs, vblk = w.block_size, w.volumes[1][1]
+            vsb = w.block(vblk)
+            vol_omap_oid = struct.unpack_from("<Q", vsb, 128)[0]
+            omap_blk = w.block(vol_omap_oid)
+            kl = struct.unpack_from("<QQ", w._nx, APFS_NX_KEYLOCKER_OFF)   # pylint: disable=protected-access
+            ckb = read_at(h, w.base + kl[0] * bs, bs)
+            # the volume's own keybag, found as ApfsLock finds it
+            entries = _apfs_keybag(w, kl, w.uuid, APFS_OBJECT_TYPE_CONTAINER_KEYBAG)
+            where = next(d for u, t, d in entries if u == w.volume_uuids[1]
+                         and t == APFS_KB_TAG_VOLUME_UNLOCK_RECORDS)
+            vkb_blk = struct.unpack_from("<Q", where, 0)[0]
+            vkb_raw = read_at(h, w.base + vkb_blk * bs, bs)
+            vuuid, base = w.volume_uuids[1], w.base
+
+        def sealed(block):
+            block = bytearray(block)
+            struct.pack_into("<Q", block, 0, _apfs_fletcher(block))
+            return bytes(block)
+
+        def with_field(block, off, fmt, fn):
+            block = bytearray(block)
+            struct.pack_into(fmt, block, off, fn(struct.unpack_from(fmt, block, off)[0]))
+            return sealed(block)
+
+        def value(buf, start, end, tag):
+            """(offset, length) of one packed value inside buf[start:end], as
+            _apfs_packed reads them, or (-1, 0)."""
+            i = start
+            while i + 2 <= end:
+                t, ln = buf[i], buf[i + 1]
+                i += 2
+                if ln & 0x80:
+                    k = ln & 0x7F
+                    ln = int.from_bytes(buf[i:i + k], "big")
+                    i += k
+                if t == tag:
+                    return i, ln
+                i += ln
+            return -1, 0
+
+        # the first unlock record's flags (the 0x82 value inside its 0x30 and 0xa3
+        # values) set to the CoreStorage-compatible form, in a copy of the keybag
+        uu = (_BDE_AES.new(vuuid.bytes, _BDE_AES.MODE_ECB),) * 2
+        vkb = bytearray(_xts_crypt(uu, vkb_raw, vkb_blk * (bs // 512)))
+        keylen = struct.unpack_from("<H", vkb, 48 + 18)[0]
+        s30, l30 = value(vkb, 72, 72 + keylen, 0x30)
+        sa3, la3 = value(vkb, s30, s30 + l30, 0xA3)
+        rec_at, _ln = value(vkb, sa3, sa3 + la3, 0x82)
+        vkb[rec_at] |= APFS_KEK_COMPAT_FLAG
+        vkb_ct = _xts_crypt(uu, sealed(vkb), vkb_blk * (bs // 512), encrypt=True)
+        shapes = [
+            ("per-file keys (APFS_FS_ONEKEY clear)", vblk,
+             with_field(vsb, APFS_FS_FLAGS_OFF, "<Q", lambda f: f & ~APFS_FS_ONEKEY),
+             "per-file keys"),
+            ("an encryption change in progress (apfs_er_state_oid set)", vblk,
+             with_field(vsb, APFS_ER_STATE_OFF, "<Q", lambda _f: 1),
+             "being encrypted, decrypted or given a new key"),
+            ("an encryption change in progress (its object map's om_flags)", vol_omap_oid,
+             with_field(omap_blk, APFS_OMAP_FLAGS_OFF, "<I", lambda f: f | APFS_OMAP_ENCRYPTING),
+             "being encrypted, decrypted or given a new key"),
+            ("a container keybag that does not decrypt", kl[0],
+             ckb[:100] + bytes([ckb[100] ^ 1]) + ckb[101:],
+             "container's keybag does not decrypt"),
+            ("an unlock record in the CoreStorage-compatible form", vkb_blk, vkb_ct,
+             "CoreStorage-compatible form"),
+        ]
+        return [(label, {base + blk * bs: blob}, want) for label, blk, blob, want in shapes]
+
+    def is_refused(patches, want):
+        with open_image(enc_path) as h:
+            _fh, found, vol, w3, got3 = opened(Patched(h, patches), [pw])
+            return (len(found) == 1 and found[0].vek is None and want in found[0].why
+                    and w3.encryption(1) == "locked"
+                    and not any(p.startswith("SECRETVOL") for p in got3)
+                    and want in (vol.get("note") or ""))
+
+    try:
+        built = refusals()
+    except Exception as exc:                         # pylint: disable=broad-except
+        built = []
+        out.append((False, f"the refused shapes could not be built: "
+                           f"{type(exc).__name__}: {exc}"))
+    for label, patches, want in built:
+        run_check(f"a volume with {label} is refused, and the report says why",
+                  lambda patches=patches, want=want: is_refused(patches, want))
+
+    def without_pycryptodome():
+        held = globals()["_BDE_AES"]
+        globals()["_BDE_AES"] = None
+        try:
+            with open_image(enc_path) as h:
+                _fh, found, _vol, w3, _got = opened(h, [pw])
+                return (found and found[0].vek is None and "pycryptodome" in found[0].why
+                        and w3.encryption(1) == "locked")
+        finally:
+            globals()["_BDE_AES"] = held
+    run_check("without pycryptodome it stays locked and says what it needs", without_pycryptodome)
+    return out
 
 
 def self_test():
@@ -16429,6 +17158,25 @@ def self_test():
                   f"locked and not walked, and the plain volume beside it reads "
                   f"({enc_matched}/{len(enc_sums)} files, {enc_states})")
 
+            apfs_conv = os.path.join(here, "apfs-converted.sparseimage.gz")
+            if not os.path.isfile(apfs_conv) or _BDE_AES is None:
+                print("  [SKIP] an encrypted APFS volume opens with its password (needs the "
+                      "converted APFS fixture and the pycryptodome package)")
+            else:
+                conv_path = os.path.join(d, "apfs-converted.sparseimage")
+                with _gz4.open(apfs_conv, "rb") as g, open(conv_path, "wb") as out:
+                    shutil.copyfileobj(g, out)
+                try:
+                    results = _apfs_unlock_checks(enc_path, conv_path,
+                                                  os.path.join(here, "apfs-converted.sha256"))
+                except Exception as exc:             # pylint: disable=broad-except
+                    results = [(False, f"opening an encrypted APFS volume raised "
+                                       f"{type(exc).__name__}: {exc}")]
+                for cond, label in results:
+                    if not cond:
+                        ok = False
+                    print(f"  [{'PASS' if cond else 'FAIL'}] {label}")
+
         apfs_fix = os.path.join(here, "apfs-fixture.img.gz")
         if not os.path.isfile(apfs_fix):
             print("  [SKIP] an APFS volume flagged encrypted but held in the clear is "
@@ -16807,6 +17555,14 @@ what it checks, and where the constants come from:
   An encrypted volume is told locked or in the clear by its tree's root node's
   Fletcher-64 checksum, checked against a volume macOS encrypted and against
   Digital Collector's AFF4 of an Apple silicon Mac.
+  Opening one with its password, from the same reference and libfsapfs:
+  keybags, KEK, VEK, APFS_FS_ONEKEY  "Encryption", "Accessing Encrypted Objects"
+  OMAP_VAL_ENCRYPTED, om_flags       "Object Maps"
+  keybag AES-XTS, KEK record fields  libfsapfs "Apple File System (APFS).asciidoc"
+  data tweak from crypto_id          libfsapfs_file_system_data_handle.c:274-307
+  (libfsapfs at commit f63c83b462275214fc5e4b0919540d892f50b467). Checked
+  against two volumes macOS 26 encrypted, one encrypted as it was made and one
+  encrypted in place after files were written.
 
   --list walks qnx6 through the same block resolution the kernel uses in
   qnx6_block_map(), including multi-level indirect trees and long filenames
@@ -16870,12 +17626,14 @@ if __name__ == "__main__":
                          "the human readable report, is unchanged")
     ap.add_argument("--password-file", metavar="FILE", action="append", default=[],
                     help="for an encrypted image (an Apple disk image, an AD-encrypted "
-                         "FTK Imager acquisition or an encrypted AFF) or a BitLocker "
-                         "volume: a password or "
-                         "recovery password, the first line of FILE. Repeatable; each "
-                         "opens with the first one that opens it")
+                         "FTK Imager acquisition or an encrypted AFF), a BitLocker "
+                         "volume or an encrypted APFS volume: a password or "
+                         "recovery password (for APFS, the personal recovery key), the "
+                         "first line of FILE. Repeatable; each opens with the first one "
+                         "that opens it")
     ap.add_argument("--password-env", metavar="NAME", action="append", default=[],
-                    help="for an encrypted image or a BitLocker volume: a password, "
+                    help="for an encrypted image, a BitLocker volume or an encrypted "
+                         "APFS volume: a password, "
                          "from the environment variable NAME. Repeatable. Without either, "
                          "qnxprobe asks at a terminal for an encrypted image's password. "
                          "A password is never taken as an argument, which would show in "

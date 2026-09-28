@@ -24,13 +24,14 @@ An encrypted image opens with what it was locked with: an Apple disk image or an
 encrypted AFF with its password, an E01, SMART, raw or AD1 set FTK Imager encrypted
 with AD encryption with its password, and any of them sealed to a certificate with
 that certificate's RSA private key. A BitLocker volume inside an image opens with
-its password, its recovery password or its startup key (``.BEK``) file. The GUI
-asks for each; the command line takes a password from ``--image_password_file`` or
-``--image_password_env`` (tried on the image and on any BitLocker volume in it), a
-private key from ``--image_private_key`` and startup keys from ``--bitlocker_key``,
-or asks at a terminal. What is given is checked against the image before the run
-and never stored; a BitLocker volume left locked is reported and its files are not
-searched.
+its password, its recovery password or its startup key (``.BEK``) file, and an APFS
+volume macOS encrypted in software with its password or personal recovery key. The
+GUI asks for each; the command line takes a password from ``--image_password_file``
+or ``--image_password_env`` (tried on the image and on any BitLocker or encrypted
+APFS volume in it), a private key from ``--image_private_key`` and startup keys from
+``--bitlocker_key``, or asks at a terminal. What is given is checked against the
+image before the run and never stored; a BitLocker or APFS volume left locked is
+reported and its files are not searched.
 
 Only matched files are ever read. The volumes are walked for their names when
 the seeker is built, and a file's bytes leave the image only when an artifact's
@@ -149,28 +150,36 @@ def names_an_image_folder(path):
 
 
 class ImageKeys:
-    """What opens an encrypted image and the BitLocker volumes in it, for one run.
+    """What opens an encrypted image and the encrypted volumes in it, for one run.
 
     ``password`` is the image's password (a str, or bytes as read from a file), and is
-    also tried on each BitLocker volume as a password and as a recovery password;
+    also tried on each BitLocker volume as a password and as a recovery password, and
+    on each encrypted APFS volume as a password and as a personal recovery key;
     ``private_key`` is the path of an unencrypted PEM or DER RSA key, for an image
     sealed to a certificate; ``bitlocker_secrets`` are further passwords or recovery
-    passwords and ``bitlocker_keys`` the paths of startup key (.BEK) files. Nothing
-    here is written anywhere; it lasts as long as the run.
+    passwords and ``bitlocker_keys`` the paths of startup key (.BEK) files, for
+    BitLocker; ``apfs_secrets`` are further passwords or personal recovery keys, for
+    APFS. Nothing here is written anywhere; it lasts as long as the run.
     """
 
-    __slots__ = ('password', 'private_key', 'bitlocker_secrets', 'bitlocker_keys')
+    __slots__ = ('password', 'private_key', 'bitlocker_secrets', 'bitlocker_keys',
+                 'apfs_secrets')
 
     def __init__(self, password=None, private_key=None, bitlocker_secrets=(),
-                 bitlocker_keys=()):
+                 bitlocker_keys=(), apfs_secrets=()):
         self.password = password
         self.private_key = private_key
         self.bitlocker_secrets = list(bitlocker_secrets)
         self.bitlocker_keys = list(bitlocker_keys)
+        self.apfs_secrets = list(apfs_secrets)
 
     def bitlocker_passwords(self):
         """Every secret to try on a BitLocker volume, the image's password first."""
         return ([self.password] if self.password else []) + self.bitlocker_secrets
+
+    def apfs_passwords(self):
+        """Every secret to try on an encrypted APFS volume, the image's password first."""
+        return ([self.password] if self.password else []) + self.apfs_secrets
 
 
 def needs_password(path):
@@ -285,6 +294,45 @@ def _unlock_bitlocker(path, keys, ask):
     return left
 
 
+def _unlock_apfs(path, keys, ask):
+    """Try ``keys`` on each encrypted APFS volume in the image at ``path`` whose blocks
+    are ciphertext there, and offer every volume they leave locked to ``ask(lock,
+    wrong)`` until it opens: ``ask`` returns a password or personal recovery key, or
+    None to leave it locked. What opens a volume is added to ``keys``. Returns the
+    volumes still locked that a password could have opened, as (name, locked note)
+    pairs, the name saying which volume of which region. Logical evidence holds no
+    volumes."""
+    logical = open_logical(path, keys)
+    if logical is not None:
+        logical.close()
+        return []
+    left = []
+    with qnxprobe.open_image(path, password=keys.password,
+                             private_key=keys.private_key) as image:
+        _fh, found = qnxprobe.unlock_apfs(image, qnxprobe.image_size(image),
+                                          keys.apfs_passwords())
+        for lock in found:
+            wrong = False
+            while lock.vek is None and not lock.why:
+                answer = ask(lock, wrong)
+                if not answer:
+                    break
+                if lock.unlock([answer]):
+                    keys.apfs_secrets.append(answer)
+                wrong = lock.vek is None
+            if lock.vek is None and not lock.why:
+                left.append((f'{lock.name} in {lock.label}', lock.locked_note()))
+    return left
+
+
+def _apfs_prompt(lock, name, wrong):
+    """What an encrypted APFS volume's prompt says, the hint it stores included."""
+    return (('That does not open it. ' if wrong else '')
+            + f'{lock.name} in {lock.label} of {name} is an encrypted APFS volume. '
+            f'Its password or personal recovery key'
+            + (f' (its hint, as stored: "{lock.hint}")' if lock.hint else ''))
+
+
 def _secret_given(password_file=None, password_env=None):
     """The first line of ``password_file``, else the variable ``password_env``, else
     None. A secret is never taken as an argument's value, which would show in the
@@ -302,15 +350,17 @@ def _secret_given(password_file=None, password_env=None):
 
 def cli_image_keys(path, password_file=None, password_env=None, private_key=None,
                    bitlocker_keys=()):
-    """What opens the image at ``path`` and the BitLocker volumes in it, for the
+    """What opens the image at ``path`` and the encrypted volumes in it, for the
     command line, as ImageKeys.
 
     A password comes from the first line of ``password_file``, else the environment
     variable ``password_env``; it opens an encrypted image, and it is tried on each
-    BitLocker volume in the image as a password and as a recovery password.
+    BitLocker volume in the image as a password and as a recovery password, and on
+    each encrypted APFS volume as a password and as a personal recovery key.
     ``private_key`` opens an image sealed to a certificate and ``bitlocker_keys`` are
     startup key (.BEK) files. At a terminal, what is missing is asked for (three tries
-    each); a BitLocker volume nothing opens is reported on stderr and left locked.
+    each); a BitLocker or APFS volume nothing opens is reported on stderr and left
+    locked.
 
     Raises ValueError, saying why, when the image itself cannot be opened with what was
     given.
@@ -372,19 +422,38 @@ def cli_image_keys(path, password_file=None, password_env=None, private_key=None
                   f'Give its password or recovery password with --image_password_file or '
                   f'--image_password_env, or its startup key with --bitlocker_key.',
                   file=sys.stderr)
+        apfs_tries = {}
+
+        def ask_apfs(lock, wrong):
+            if not at_terminal:
+                return None
+            if wrong:
+                print('That does not open it.', file=sys.stderr)
+            key = (lock.container_uuid, lock.uuid)
+            apfs_tries[key] = apfs_tries.get(key, 0) + 1
+            if apfs_tries[key] > 3:
+                return None
+            return getpass.getpass(_apfs_prompt(lock, name, False)
+                                   + ' (empty leaves it locked): ') or None
+
+        for label, note in _unlock_apfs(path, keys, ask_apfs):
+            print(f'{label} of {name} stays locked and its files are not searched ({note}). '
+                  f'Give its password or personal recovery key with --image_password_file '
+                  f'or --image_password_env.', file=sys.stderr)
     except _open_errors() as exc:
         raise ValueError(f'{name} could not be opened: {exc}') from None
     return keys
 
 
 def ask_image_keys(parent, path):
-    """What opens the image at ``path`` and the BitLocker volumes in it, asked for in
+    """What opens the image at ``path`` and the encrypted volumes in it, asked for in
     dialogs over ``parent``, as ImageKeys: its password, or the private key file of the
     certificate it is sealed to, until one opens it, then for each BitLocker volume
     inside, its password or recovery password, or left empty, its startup key (.BEK)
-    file. Cancelling a BitLocker volume leaves it locked. None when the examiner
-    cancels the image's own prompt, or when the image will not open for another
-    reason, which is shown."""
+    file, and for each encrypted APFS volume, its password or personal recovery key.
+    Cancelling a volume's prompt leaves it locked. None when the examiner cancels the
+    image's own prompt, or when the image will not open for another reason, which is
+    shown."""
     from tkinter import filedialog, messagebox, simpledialog  # pylint: disable=import-outside-toplevel
     name = os.path.basename(os.path.normpath(path))
     keys = ImageKeys()
@@ -433,6 +502,13 @@ def ask_image_keys(parent, path):
             return ('key', key) if key else None
 
         _unlock_bitlocker(path, keys, ask)
+
+        def ask_apfs(lock, wrong):
+            return simpledialog.askstring('Encrypted APFS volume',
+                                          _apfs_prompt(lock, name, wrong) + ':',
+                                          show='*', parent=parent)
+
+        _unlock_apfs(path, keys, ask_apfs)
     except _open_errors() as exc:
         messagebox.showerror('Error', f'{name} could not be opened:\n{exc}', parent=parent)
         return None
@@ -546,7 +622,7 @@ class FileSeekerRaw(FileSeekerBase):
     matched only by a pattern that names a stream (see ``names_a_stream``).
     ``name_list`` is exactly what it was without them, order included.
 
-    ``password`` is what opens the image and the BitLocker volumes in it: ImageKeys,
+    ``password`` is what opens the image and the encrypted volumes in it: ImageKeys,
     or a bare password, as earlier callers passed.
     """
 
@@ -609,10 +685,13 @@ class FileSeekerRaw(FileSeekerBase):
             logfunc(f'  {qnxprobe.describe_acquisition(self._image)}')
         logfunc(f'  {size:,} bytes ({qnxprobe.human(size)})')
 
-        # A BitLocker volume the keys open reads as the filesystem inside it; one they
-        # do not open is listed with the reason and nothing in it is searched.
+        # A BitLocker volume the keys open reads as the filesystem inside it, and an
+        # encrypted APFS volume they open is read decrypted; one they do not open is
+        # listed with the reason and nothing in it is searched.
         self._image, _found = qnxprobe.unlock_bitlocker(
             self._image, size, keys.bitlocker_passwords(), keys.bitlocker_keys)
+        self._image, _apfs_found = qnxprobe.unlock_apfs(self._image, size,
+                                                         keys.apfs_passwords())
         self.volumes = qnxprobe.volumes(self._image, size)
         if not self.volumes:
             logfunc('  no partition table and no filesystem the reader knows: '

@@ -228,8 +228,10 @@ An encrypted image opens with its password (`--image_password_file` or
 `--image_password_env`), or, when it is sealed to a certificate, with that certificate's
 RSA private key (`--image_private_key`). A BitLocker volume in an image opens with its
 password or recovery password, given the same way, or its startup key
-(`--bitlocker_key`, repeatable). At a terminal whatever is missing is asked for, and the
-GUI asks in dialogs; a BitLocker volume nothing opens is reported and not searched.
+(`--bitlocker_key`, repeatable), and an APFS volume macOS encrypted in software with its
+password or personal recovery key, given the same way. At a terminal whatever is missing
+is asked for, and the GUI asks in dialogs; a BitLocker or APFS volume nothing opens is
+reported and not searched.
 
 `tar` also reads an xz-compressed tar (`.tar.xz`), and the GUI picks `tar` for that
 extension. A compressed tar, `.tar.gz` included, is decompressed once into the report folder
