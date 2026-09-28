@@ -17,8 +17,8 @@ from PIL import Image, ImageTk
 from tkinter import ttk, filedialog as tk_filedialog, messagebox as tk_msgbox
 from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
 from scripts.search_files import *
-from scripts.raw_image import (RAW_IMAGE_LABEL, RAW_IMAGE_SUFFIXES, names_an_image_folder,
-                               needs_password, ask_image_password)
+from scripts.raw_image import (RAW_IMAGE_LABEL, RAW_IMAGE_SUFFIXES, RAW_IMAGE_FILE_PATTERNS,
+                               names_an_image_folder, ask_image_keys)
 from scripts.ilapfuncs import *
 from scripts.tz_offset import tzvalues
 from scripts.modules_to_exclude import modules_to_exclude
@@ -532,11 +532,12 @@ def process(casedata):
     is_valid, extracttype, decryption_keys = ValidateInput()
 
     if is_valid:
-        # An encrypted Apple disk image opens only with its password: asked for here,
-        # checked against the image, and handed to the run, never stored.
+        # An encrypted image opens only with what locked it, and a BitLocker volume
+        # in an image with its own key: asked for here, checked against the image,
+        # and handed to the run, never stored.
         image_password = None
-        if extracttype == 'raw' and needs_password(input_entry.get()):
-            image_password = ask_image_password(main_window, input_entry.get())
+        if extracttype == 'raw':
+            image_password = ask_image_keys(main_window, input_entry.get())
             if image_password is None:
                 return
         GuiWindow.window_handle = main_window
@@ -745,11 +746,11 @@ def select_input(button_type):
         input_filename = tk_filedialog.askopenfilename(parent=main_window,
                                                        title='Select a file',
                                                        filetypes=(('All supported files',
-                                                                   '*.tar *.zip *.gz *.xz *.img *.bin *.dd *.raw *.001 *.E01 *.s01 *.Ex01 *.aff *.dmg *.sparseimage *.sparsebundle'),
+                                                                   '*.tar *.zip *.gz *.xz ' + RAW_IMAGE_FILE_PATTERNS),
                                                                   ('tar file', '*.tar'), ('zip file', '*.zip'),
                                                                   ('gz file', '*.gz'),
                                                                   ('tar.xz file', '*.xz'),
-                                                                  (RAW_IMAGE_LABEL, '*.img *.bin *.dd *.raw *.001 *.E01 *.s01 *.Ex01 *.aff *.dmg *.sparseimage *.sparsebundle')))
+                                                                  (RAW_IMAGE_LABEL, RAW_IMAGE_FILE_PATTERNS)))
     else:
         input_filename = tk_filedialog.askdirectory(parent=main_window, title='Select a folder')
     input_entry.delete(0, 'end')
@@ -1057,7 +1058,7 @@ leapps_logo_label.bind("<Button-1>", lambda e: open_website("https://leapps.org"
 ### Input output selection
 input_frame = ttk.LabelFrame(
     main_window,
-    text=' Select the file (tar, zip, gz, raw image, E01, Ex01, AFF or DMG acquisition) or directory of the target iOS full file system extraction or a backup for parsing: ')
+    text=' Select the file (tar, zip, gz, raw image, E01, AFF, DMG or virtual disk, L01 or AD1) or directory of the target iOS full file system extraction or a backup for parsing: ')
 input_frame.pack(padx=14, pady=2, fill='x')
 input_entry = ttk.Entry(input_frame)
 input_entry.pack(side='left', padx=5, pady=4, fill='x', expand=True)

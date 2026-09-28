@@ -942,23 +942,23 @@ class RawImageSeekerTest(unittest.TestCase):
 
     def test_the_command_line_password_comes_from_a_file_a_variable_or_a_terminal(self):
         path = self._encrypted_ntfs()
-        self.assertIsNone(raw_image.cli_image_password(self.ntfs))
+        self.assertIsNone(raw_image.cli_image_keys(self.ntfs).password)
         pw_file = os.path.join(self.work, 'pw.txt')
         with open(pw_file, 'wb') as handle:
             handle.write(ENC_PASSWORD.encode() + b'\r\nsecond line\n')
-        self.assertEqual(raw_image.cli_image_password(path, password_file=pw_file),
+        self.assertEqual(raw_image.cli_image_keys(path, password_file=pw_file).password,
                          ENC_PASSWORD.encode())
         with mock.patch.dict(os.environ, {'RAW_IMAGE_TEST_PW': ENC_PASSWORD}):
-            self.assertEqual(raw_image.cli_image_password(path, password_env='RAW_IMAGE_TEST_PW'),
-                             ENC_PASSWORD)
+            self.assertEqual(raw_image.cli_image_keys(
+                path, password_env='RAW_IMAGE_TEST_PW').password, ENC_PASSWORD)
         with mock.patch.dict(os.environ, {'RAW_IMAGE_TEST_PW': 'not it'}):
             with self.assertRaisesRegex(ValueError, 'the password does not open locked.dmg'):
-                raw_image.cli_image_password(path, password_env='RAW_IMAGE_TEST_PW')
+                raw_image.cli_image_keys(path, password_env='RAW_IMAGE_TEST_PW')
         with self.assertRaisesRegex(ValueError, 'RAW_IMAGE_TEST_UNSET_42 is not set'):
-            raw_image.cli_image_password(path, password_env='RAW_IMAGE_TEST_UNSET_42')
+            raw_image.cli_image_keys(path, password_env='RAW_IMAGE_TEST_UNSET_42')
         with mock.patch.object(raw_image.sys, 'stdin', None):
             with self.assertRaisesRegex(ValueError, '--image_password_file or --image_password_env'):
-                raw_image.cli_image_password(path)
+                raw_image.cli_image_keys(path)
 
         class Terminal:
             @staticmethod
@@ -968,7 +968,7 @@ class RawImageSeekerTest(unittest.TestCase):
         with mock.patch.object(raw_image.sys, 'stdin', Terminal()), \
                 mock.patch.object(raw_image.getpass, 'getpass', lambda prompt: next(answers)), \
                 contextlib.redirect_stderr(__import__('io').StringIO()) as err:
-            self.assertEqual(raw_image.cli_image_password(path), ENC_PASSWORD)
+            self.assertEqual(raw_image.cli_image_keys(path).password, ENC_PASSWORD)
         self.assertIn('That password does not open the image', err.getvalue())
 
     def test_a_damaged_encrypted_dmg_is_reported_not_asked_about_again(self):
@@ -976,10 +976,12 @@ class RawImageSeekerTest(unittest.TestCase):
         path = os.path.join(folder, 'damaged.dmg')
         with open(path, 'wb') as handle:
             handle.write(b'encrcdsa' + b'\x00' * 8192)
-        self.assertTrue(raw_image.needs_password(path))
+        # the reader is asked what the image opens with, and it refuses a damaged
+        # header outright, so no password is asked for first
+        self.assertFalse(raw_image.needs_password(path))
         with self.assertRaisesRegex(ValueError, 'damaged.dmg could not be opened: .*version 0'):
             with mock.patch.dict(os.environ, {'RAW_IMAGE_TEST_PW': ENC_PASSWORD}):
-                raw_image.cli_image_password(path, password_env='RAW_IMAGE_TEST_PW')
+                raw_image.cli_image_keys(path, password_env='RAW_IMAGE_TEST_PW')
 
     def _ad_raw_set(self):
         """The NTFS fixture as a raw set of two files FTK Imager encrypted."""
@@ -1038,19 +1040,18 @@ class RawImageSeekerTest(unittest.TestCase):
         with mock.patch.object(raw_image.sys, 'stdin', None):
             with self.assertRaisesRegex(ValueError, 'evidence.001 is an acquisition FTK Imager '
                                         'encrypted with AD encryption and opens only'):
-                raw_image.cli_image_password(first)
+                raw_image.cli_image_keys(first)
         with mock.patch.dict(os.environ, {'RAW_IMAGE_TEST_PW': AD_PASSWORD}):
-            self.assertEqual(raw_image.cli_image_password(first, password_env='RAW_IMAGE_TEST_PW'),
-                             AD_PASSWORD)
+            self.assertEqual(raw_image.cli_image_keys(
+                first, password_env='RAW_IMAGE_TEST_PW').password, AD_PASSWORD)
 
-    def test_an_l01_is_refused_as_logical_evidence(self):
+    def test_a_damaged_l01_is_refused_by_the_logical_reader_not_read_as_a_disk(self):
         folder = tempfile.mkdtemp(prefix='raw_image_l01_', dir=self.work)
         path = os.path.join(folder, 'evidence.L01')
         with open(path, 'wb') as handle:
             handle.write(b'LVF\t\r\n\xff\x00' + b'\x00' * 4096)
-        with self.assertRaises(qnxprobe.ImageUnreadable) as caught:
+        with self.assertRaises(ewfprobe.EwfError):
             FileSeekerRaw(path, self.data)
-        self.assertIn('logical evidence', str(caught.exception))
 
     def test_a_split_set_is_joined_from_any_one_segment(self):
         folder = tempfile.mkdtemp(prefix='raw_image_split_', dir=self.work)
@@ -1120,8 +1121,8 @@ class RawImageSeekerTest(unittest.TestCase):
         closed = []
         real_open = qnxprobe.open_image
 
-        def spy_open(path, segments=None, password=None):
-            handle = real_open(path, segments, password=password)
+        def spy_open(path, segments=None, password=None, private_key=None):
+            handle = real_open(path, segments, password=password, private_key=private_key)
             original = handle.close
             handle.close = lambda: (closed.append(True), original())
             return handle
@@ -1228,6 +1229,293 @@ class SplitImageSiblingTest(unittest.TestCase):
 
     def test_an_e01_is_not_a_numbered_segment(self):
         self.assertIsNone(split_image_sibling(self.touch('image.E01')))
+
+
+
+# The files squashfs.src.sha256 lists for qnxprobe's SquashFS fixture, which its
+# bitlocker-xts128 volume holds: 612 of them, and two of their SHA-256 written out
+# (qnxprobe tests/fixtures/squashfs.src.sha256 at 2149e20).
+BITLOCKER_FILES = 612
+BITLOCKER_KNOWN = {
+    'dir/holes.bin': 'f2d3dc968959b715c6abcbadb09ae78fdf1e3e24c73c19a54d148364e65149da',
+    'dir/sub/deeper/deep.txt': '30cf6f2de471343739bcc1dde393c0c0771814ac3ad798f68c8a74495174521a',
+}
+BITLOCKER_PASSWORD = 'qnxprobe-bde-test'
+BITLOCKER_RECOVERY = '111111-222222-333333-444444-555555-666666-000011-000022'
+
+try:
+    import tkinter  # noqa: F401  pylint: disable=unused-import
+    _HAS_TK = True
+except ImportError:
+    _HAS_TK = False
+
+
+class _FakeLogicalEntry:
+    """An L01 entry as ewfprobe gives it, for a folder that holds data too, which no
+    small L01 fixture carries."""
+
+    def __init__(self, path, data=b'', folder=False):
+        self.names = tuple(path.split('/'))
+        self.path = path
+        self.name = self.names[-1]
+        self.data = data
+        self.size = len(data)
+        self.is_folder = folder
+        self.times = {'cr': 1_600_000_000, 'wr': 1_600_000_100}
+
+
+class _FakeAd1Entry(_FakeLogicalEntry):
+    """An AD1 entry with the type record FTK Imager stores."""
+
+    def __init__(self, path, code, data=b'', folder=False, deleted=False, parent=None):
+        super().__init__(path, data, folder)
+        self.type_code = code
+        self.is_deleted = deleted
+        self.parent = parent
+        self.times = {'created': 1_600_000_000, 'modified': 1_600_000_100}
+
+
+class _FakeL01:
+    format = ewfprobe.FORMAT_L01
+    encryption = None
+
+    def __init__(self, entries):
+        self.logical_entries = entries
+
+    @staticmethod
+    def open_entry(entry):
+        import io  # pylint: disable=import-outside-toplevel
+        return io.BytesIO(entry.data)
+
+    def close(self):
+        pass
+
+
+class KeysAndLogicalEvidenceTest(unittest.TestCase):
+    """Logical evidence read as its files, and what opens encrypted images and
+    BitLocker volumes, against readings written by other tools."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.work = tempfile.mkdtemp(prefix='raw_image_keys_')
+        cls.bitlocker = os.path.join(cls.work, 'bitlocker-xts128.img')
+        with gzip.open(FIXTURES / 'bitlocker-xts128.img.gz', 'rb') as src, \
+                open(cls.bitlocker, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+        cls.bek = str(FIXTURES / 'bitlocker-xts128.BEK')
+        # an RSA key of no certificate here, for the wrong-key cases
+        from Crypto.PublicKey import RSA  # pylint: disable=import-outside-toplevel
+        cls.stranger = os.path.join(cls.work, 'stranger.pem')
+        with open(cls.stranger, 'wb') as handle:
+            handle.write(RSA.generate(1024).export_key())
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.work, ignore_errors=True)
+
+    def setUp(self):
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log = _Recorder()
+        patcher = mock.patch.object(raw_image, 'logfunc', self.log)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _seeker(self, image, keys=None):
+        seeker = FileSeekerRaw(image, self.data, password=keys)
+        self.addCleanup(seeker.cleanup)
+        return seeker
+
+    @staticmethod
+    def _md5(path):
+        with open(path, 'rb') as handle:
+            return hashlib.md5(handle.read()).hexdigest()
+
+    def test_the_file_dialog_patterns_cover_every_suffix(self):
+        patterns = {p[2:].lower() for p in raw_image.RAW_IMAGE_FILE_PATTERNS.split()}
+        self.assertEqual(patterns, set(RAW_IMAGE_SUFFIXES))
+
+    def test_an_ad1_is_read_as_the_files_ftk_imager_listed(self):
+        """Every live file and the alternate data stream in FTK Imager's own listing of
+        the image (its .ad1.csv, stored MD5s) stages with that MD5; the entry it lists
+        as deleted is not a member."""
+        seeker = self._seeker(str(FIXTURES / 'lean-multi-ntfs-c9.ad1'))
+        rows = (FIXTURES / 'lean-multi-ntfs-c9.ad1.csv').read_text(encoding='utf-16').splitlines()
+        header = rows[0].strip().split('\t')
+        listed = [dict(zip(header, row.strip().split('\t'))) for row in rows[1:] if row.strip()]
+        files = [r for r in listed if r.get('Stored MD5 Hash')]
+        self.assertEqual(len(files), 9)
+        for row in files:
+            name = row['Filename']
+            if row['Full Path'].endswith(f'readme.txt\\{name}'):
+                pattern = f'*readme.txt:{name}'           # the stream FTK lists under its file
+            else:
+                pattern = f'*/{name}'
+            staged = seeker.search(pattern)
+            if row['Is Deleted'] == 'yes':
+                self.assertEqual(staged, [], name)
+                continue
+            self.assertEqual(len(staged), 1, name)
+            self.assertEqual(self._md5(staged[0]), row['Stored MD5 Hash'], name)
+        self.assertEqual(len(seeker.stream_list), 1)
+        self.assertIn('  not searched: 1 deleted entries', self.log.text())
+
+    def test_an_l01_folder_that_holds_data_stages_the_data_beside_its_children(self):
+        entries = [_FakeLogicalEntry('Raw Data', folder=True),
+                   _FakeLogicalEntry('Raw Data/prefs.plist', b'the plist itself', folder=True),
+                   _FakeLogicalEntry('Raw Data/prefs.plist/Parsed', folder=True),
+                   _FakeLogicalEntry('Raw Data/prefs.plist/Parsed/Date', b'2012-07-05')]
+        with mock.patch.object(raw_image, 'open_logical', lambda path, keys=None: _FakeL01(entries)):
+            seeker = self._seeker(os.path.join(self.work, 'evidence.L01'))
+        self.assertIn('Raw Data/prefs.plist', seeker.name_list)
+        self.assertIn('Raw Data/prefs.plist/', seeker.name_list)
+        child = seeker.search('*/Parsed/Date')
+        data = seeker.search('*/Raw Data/prefs.plist')
+        self.assertEqual(open(child[0], 'rb').read(), b'2012-07-05')
+        self.assertEqual(open(data[0], 'rb').read(), b'the plist itself')
+        self.assertNotEqual(os.path.dirname(child[0]), data[0])
+        self.assertEqual(seeker.file_infos[child[0]].creation_date, 1_600_000_000)
+        self.assertEqual(os.path.getmtime(child[0]), 1_600_000_100)
+        # the data asked for first still leaves room for the folder's children
+        data_folder = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, data_folder, True)
+        with mock.patch.object(raw_image, 'open_logical', lambda path, keys=None: _FakeL01(entries)):
+            first = FileSeekerRaw(os.path.join(self.work, 'evidence.L01'), data_folder)
+        self.addCleanup(first.cleanup)
+        data = first.search('*/Raw Data/prefs.plist')
+        child = first.search('*/Parsed/Date')
+        self.assertEqual(open(data[0], 'rb').read(), b'the plist itself')
+        self.assertEqual(open(child[0], 'rb').read(), b'2012-07-05')
+
+    def test_an_ad1_leaves_out_only_the_kinds_that_hold_no_file(self):
+        """Measured on a 316,682-entry AD1: type 6 is file slack, F is $I30, 10 is $DSC
+        and $TXF_DATA and 61 holds no data. Type 11 (OneDrive files among them) and a
+        kind never measured are members, so a new kind is searched rather than lost."""
+        root = _FakeAd1Entry('src', '3', folder=True)
+        doc = _FakeAd1Entry('src/doc.pdf', '11', b'placeholder file', parent=root)
+        entries = [root, doc,
+                   _FakeAd1Entry('src/doc.pdf/Zone.Identifier', 'D', b'[ZoneTransfer]', parent=doc),
+                   _FakeAd1Entry('src/new-kind.bin', '99', b'unmeasured', parent=root),
+                   _FakeAd1Entry('src/doc.pdf.FileSlack', '6', b'slack', parent=root),
+                   _FakeAd1Entry('src/$I30', 'F', b'index', parent=root),
+                   _FakeAd1Entry('src/doc.pdf/$DSC', '10', b'dsc', parent=doc),
+                   _FakeAd1Entry('src/gone.cat', '61', parent=root),
+                   _FakeAd1Entry('src/deleted.txt', '1', b'x', deleted=True, parent=root)]
+        image = _FakeL01(entries)
+        image.format = ewfprobe.FORMAT_AD1
+        with mock.patch.object(raw_image, 'open_logical', lambda path, keys=None: image):
+            seeker = self._seeker(os.path.join(self.work, 'evidence.ad1'))
+        self.assertEqual(seeker.name_list, ['src/', 'src/doc.pdf', 'src/new-kind.bin'])
+        self.assertEqual(seeker.stream_list, ['src/doc.pdf:Zone.Identifier'])
+        text = self.log.text()
+        for left_out in ('1 file slack entries (type 6)', '1 NTFS directory index records',
+                         '1 NTFS attribute records', '1 index entries that hold no data',
+                         '1 deleted entries'):
+            self.assertIn(f'not searched: {left_out}', text)
+
+    def test_an_ad1_sealed_to_a_certificate_opens_with_its_private_key(self):
+        image = str(FIXTURES / 'ftk-ad-cert-ad1.ad1')
+        key = str(FIXTURES / 'ad-cert-test-key-2048.pem')
+        self.assertTrue(raw_image.needs_private_key(image))
+        self.assertFalse(raw_image.needs_password(image))
+        with self.assertRaises(qnxprobe.ImagePasswordError) as caught:
+            self._seeker(image)
+        self.assertEqual(caught.exception.needs, 'private key')
+        with self.assertRaisesRegex(ValueError, '--image_private_key'):
+            raw_image.cli_image_keys(image)
+        with self.assertRaisesRegex(ValueError, 'could not be read as an RSA key'):
+            raw_image.cli_image_keys(image, private_key=str(FIXTURES / 'ftk-ad-cert-ad1.sha256'))
+        with self.assertRaisesRegex(ValueError, '^the private key does not open'):
+            raw_image.cli_image_keys(image, private_key=self.stranger)
+        keys = raw_image.cli_image_keys(image, private_key=key)
+        self.assertEqual(keys.private_key, key)
+        seeker = self._seeker(image, keys)
+        for name, digest in _hash_list(FIXTURES / 'ftk-ad-cert-ad1.sha256').items():
+            staged = seeker.search(f'*/{name}')
+            self.assertEqual(len(staged), 1, name)
+            self.assertEqual(_sha256(staged[0]), digest, name)
+
+    def _bitlocker_members(self, keys):
+        data = tempfile.mkdtemp(prefix='raw_image_data_')     # one folder per seeker
+        self.addCleanup(shutil.rmtree, data, True)
+        seeker = FileSeekerRaw(self.bitlocker, data, password=keys)
+        self.addCleanup(seeker.cleanup)
+        files = [m for m in seeker.name_list if not m.endswith('/')]
+        return seeker, files
+
+    def test_a_bitlocker_volume_opens_with_its_password_recovery_password_or_startup_key(self):
+        seeker, files = self._bitlocker_members(None)
+        self.assertEqual(files, [])
+        self.assertIn('BitLocker-encrypted and not read', self.log.text())
+        listings = []
+        for keys in (raw_image.ImageKeys(password=BITLOCKER_PASSWORD),
+                     raw_image.ImageKeys(bitlocker_secrets=[BITLOCKER_RECOVERY]),
+                     raw_image.ImageKeys(bitlocker_keys=[self.bek])):
+            seeker, files = self._bitlocker_members(keys)
+            self.assertEqual(len(files), BITLOCKER_FILES)
+            for path, digest in BITLOCKER_KNOWN.items():
+                staged = seeker.search(f'*/{path}')
+                self.assertEqual(len(staged), 1, path)
+                self.assertEqual(_sha256(staged[0]), digest, path)
+            listings.append(files)
+        self.assertEqual(listings[0], listings[1])
+        self.assertEqual(listings[0], listings[2])
+        _seeker, files = self._bitlocker_members(raw_image.ImageKeys(password='not it'))
+        self.assertEqual(files, [])
+
+    def test_the_command_line_takes_bitlocker_keys_and_says_what_stays_locked(self):
+        recovery = os.path.join(self.work, 'recovery.txt')
+        with open(recovery, 'w', encoding='utf-8') as handle:
+            handle.write(BITLOCKER_RECOVERY + '\n')
+        with mock.patch.object(raw_image.sys, 'stdin', None), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(self.bitlocker)
+        self.assertIn('stays locked and its files are not searched', err.getvalue())
+        self.assertIn('--bitlocker_key', err.getvalue())
+        self.assertEqual(self._bitlocker_members(keys)[1], [])
+        for kwargs in ({'password_file': recovery}, {'bitlocker_keys': [self.bek]}):
+            with mock.patch.object(raw_image.sys, 'stdin', None), \
+                    contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+                keys = raw_image.cli_image_keys(self.bitlocker, **kwargs)
+            self.assertEqual(err.getvalue(), '')
+            self.assertEqual(len(self._bitlocker_members(keys)[1]), BITLOCKER_FILES)
+
+        class Terminal:
+            @staticmethod
+            def isatty():
+                return True
+        answers = iter(['not it', BITLOCKER_RECOVERY])
+        with mock.patch.object(raw_image.sys, 'stdin', Terminal()), \
+                mock.patch.object(raw_image.getpass, 'getpass', lambda prompt: next(answers)), \
+                contextlib.redirect_stderr(__import__('io').StringIO()) as err:
+            keys = raw_image.cli_image_keys(self.bitlocker)
+        self.assertEqual(keys.bitlocker_secrets, [BITLOCKER_RECOVERY])
+        self.assertIn('That does not open it.', err.getvalue())
+
+    @unittest.skipUnless(_HAS_TK, 'the GUI prompts need tkinter')
+    def test_the_gui_asks_for_a_private_key_and_a_bitlocker_startup_key(self):
+        from tkinter import filedialog, messagebox, simpledialog  # pylint: disable=import-outside-toplevel
+        image = str(FIXTURES / 'ftk-ad-cert-ad1.ad1')
+        key = str(FIXTURES / 'ad-cert-test-key-2048.pem')
+        picked = iter([str(FIXTURES / 'ftk-ad-cert-ad1.sha256'), self.stranger, key])
+        errors = []
+        with mock.patch.object(filedialog, 'askopenfilename', lambda **kw: next(picked)), \
+                mock.patch.object(messagebox, 'showerror', lambda *a, **kw: errors.append(a)):
+            keys = raw_image.ask_image_keys(None, image)
+        self.assertEqual(keys.private_key, key)
+        # the first file is not a key and the second is another certificate's; both
+        # are said, and asked again
+        self.assertEqual(len(errors), 2)
+        self.assertIn('could not be read as an RSA key', errors[0][1])
+        self.assertIn('That key does not open', errors[1][1])
+        answers = iter(['not it', ''])
+        with mock.patch.object(simpledialog, 'askstring', lambda *a, **kw: next(answers)), \
+                mock.patch.object(filedialog, 'askopenfilename', lambda **kw: self.bek):
+            keys = raw_image.ask_image_keys(None, self.bitlocker)
+        self.assertEqual(keys.bitlocker_keys, [self.bek])
+        with mock.patch.object(simpledialog, 'askstring', lambda *a, **kw: None):
+            keys = raw_image.ask_image_keys(None, self.bitlocker)
+        self.assertEqual((keys.bitlocker_keys, keys.bitlocker_secrets), ([], []))
 
 
 if __name__ == '__main__':

@@ -213,14 +213,23 @@ python ileapp.py -t raw -i /path/to/acquisition.E01 -o /path/to/output/
 
 `raw` reads a disk image (`.img`, `.dd`, `.bin`, or any numbered `.001` segment of
 a split set), or an acquisition and the segments or files beside it (EnCase/EWF
-`.E01`, SMART `.s01`, EWF2 `.Ex01`, AFF `.aff`, any `.aff` in an AFD folder, or an Apple
-`.dmg`, with any `.dmgpart` files beside it, `.sparseimage` or `.sparsebundle` folder), in
+`.E01`, SMART `.s01`, EWF2 `.Ex01`, AFF `.aff`, AFM `.afm`, any `.aff` in an AFD folder,
+AFF4 `.aff4`, an Apple `.dmg`, with any `.dmgpart` files beside it, `.sparseimage` or
+`.sparsebundle` folder, or a virtual machine disk, `.vhd`, `.vhdx`, `.vmdk` or `.qcow2`), in
 place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
 F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS
 volumes are searched directly, and
-only the files an artifact asks for are read out of the image. The GUI picks
+only the files an artifact asks for are read out of the image. Logical evidence, an
+EnCase `.L01` or an FTK Imager `.ad1`, is read as the files it holds. The GUI picks
 `raw` on its own for those extensions, and for a sparse bundle or AFD folder chosen with
 its folder button. See `admin/docs/raw_image_input.md`.
+
+An encrypted image opens with its password (`--image_password_file` or
+`--image_password_env`), or, when it is sealed to a certificate, with that certificate's
+RSA private key (`--image_private_key`). A BitLocker volume in an image opens with its
+password or recovery password, given the same way, or its startup key
+(`--bitlocker_key`, repeatable). At a terminal whatever is missing is asked for, and the
+GUI asks in dialogs; a BitLocker volume nothing opens is reported and not searched.
 
 `tar` also reads an xz-compressed tar (`.tar.xz`), and the GUI picks `tar` for that
 extension. A compressed tar, `.tar.gz` included, is decompressed once into the report folder

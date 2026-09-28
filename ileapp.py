@@ -18,7 +18,7 @@ import leapp_functions.app.history as history
 from shutil import copy2
 from getpass import getpass
 from scripts.search_files import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from scripts.raw_image import FileSeekerRaw, cli_image_password
+from scripts.raw_image import FileSeekerRaw, cli_image_keys
 from scripts.ilapfuncs import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from leapp_functions.app.output import validate_output_folder_available
 from scripts.version_info import leapp_name, leapp_version, check_runtime_dependencies
@@ -189,10 +189,12 @@ def main():
                               "'tar', 'zip', or 'gz' for compressed packages containing files with normal names, "
                               "'itunes' for a folder containing a raw iTunes backup with hashed paths and names, "
                               "'raw' for a disk image (.img, .dd, .bin, or any numbered .001 segment of a split "
-                              "set) or an acquisition (EnCase/EWF .E01, SMART .s01, EWF2 .Ex01, AFF .aff, or any "
-                              ".aff in an AFD folder, an Apple .dmg, with any .dmgpart files beside "
-                              "it, .sparseimage, or .sparsebundle folder), read in "
-                              "place without mounting: its "
+                              "set) or an acquisition (EnCase/EWF .E01, SMART .s01, EWF2 .Ex01, AFF .aff, AFM "
+                              ".afm, or any .aff in an AFD folder, AFF4 .aff4, an Apple .dmg, with any "
+                              ".dmgpart files beside it, .sparseimage, or .sparsebundle folder, or a virtual "
+                              "machine disk, .vhd, .vhdx, .vmdk or .qcow2), read in "
+                              "place without mounting (logical evidence, an EnCase .L01 or FTK Imager "
+                              ".ad1, is read as the files it holds): its "
                               "NTFS, FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, "
                               "ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS volumes "
                               "are searched directly, "
@@ -201,13 +203,21 @@ def main():
                         help='Path to base output folder (this must exist)')
     parser.add_argument('-i', '--input_path', required=False, action="store", help='Path to input file/folder')
     parser.add_argument('--image_password_file', required=False, action="store",
-                        help='For an encrypted image (-t raw; an Apple disk image or an FTK Imager '
-                             'AD-encrypted set): read its password from the first line '
-                             'of this file')
+                        help='For an encrypted image (-t raw; an Apple disk image, an encrypted '
+                             'AFF or an FTK Imager AD-encrypted set) or a BitLocker volume in an '
+                             'image: read its password (for BitLocker, a password or recovery '
+                             'password) from the first line of this file')
     parser.add_argument('--image_password_env', required=False, action="store",
-                        help='For an encrypted image (-t raw): take its password from this '
-                             'environment variable. Without either, it is asked for at a '
-                             'terminal')
+                        help='For an encrypted image or a BitLocker volume in one (-t raw): take '
+                             'its password from this environment variable. Without either, it '
+                             'is asked for at a terminal')
+    parser.add_argument('--image_private_key', required=False, action="store",
+                        help='For an image sealed to a certificate (-t raw; an Apple disk image, '
+                             'an AFF or an FTK Imager AD-encrypted set): the certificate\'s RSA '
+                             'private key file, unencrypted, as PEM or DER')
+    parser.add_argument('--bitlocker_key', required=False, action="append", default=[],
+                        help='For a BitLocker volume in an image (-t raw): its startup key '
+                             '(.BEK) file. Repeatable')
     parser.add_argument('-tz', '--timezone', required=False, action="store", default='UTC', type=str, help="Timezone name (e.g., 'America/New_York')")
     parser.add_argument('-w', '--wrap_text', required=False, action="store_false", default=True,
                         help='Do not wrap text for output of data files')
@@ -379,13 +389,15 @@ def main():
         if input_path[1] == ':' and extracttype =='fs': input_path = '\\\\?\\' + input_path.replace('/', '\\')
         if output_path[1] == ':': output_path = '\\\\?\\' + output_path.replace('/', '\\')
 
-    # An encrypted Apple disk image opens only with its password: from a file or an
-    # environment variable, or asked for at a terminal, and checked before the run.
+    # An encrypted image opens only with what locked it, and a BitLocker volume in an
+    # image with its own key: from a file, an environment variable or the options
+    # naming key files, or asked for at a terminal, and checked before the run.
     image_password = None
     if extracttype == 'raw':
         try:
-            image_password = cli_image_password(input_path, args.image_password_file,
-                                                args.image_password_env)
+            image_password = cli_image_keys(input_path, args.image_password_file,
+                                            args.image_password_env, args.image_private_key,
+                                            args.bitlocker_key)
         except ValueError as exc:
             print(exc)
             return

@@ -11,6 +11,16 @@ reader other than the one under test.
 | `exfat-deleted.img.gz` | exFAT, 64 MiB, two live files and deleted ones | 2 | `shasum -a 256` over the image mounted read-only by macOS's own exFAT driver, 2026-09-12 |
 | `apfs-fixture.img.gz` | APFS, 32 MiB, a container holding one volume of 411 files, one of them decmpfs-compressed, and a symbolic link | 411 | `shasum -a 256` over the files as macOS's own APFS driver wrote them, and the build fails unless The Sleuth Kit's reading of the finished image agrees (qnxprobe `tools/make_apfs_fixture.sh`) |
 | `ntfs-streams.img.gz` | NTFS, 8 MiB, 28 alternate data streams, among them two `Zone.Identifier` streams and a `$J` whose front is a 1 MiB hole and whose run list continues in a second MFT record, beside a stream sized and never written, which is not listed | 28 streams | The Sleuth Kit's `icat` from each stream's first stored cluster, as counted by `istat`, at build time, and the build fails unless `ntfs-3g` reads back every stream as written (qnxprobe `tools/make_ntfs_streams_fixture.sh`) |
+| `lean-multi-ntfs-c9.ad1` | AD1 (logical evidence), 36 KB, two sources: an NTFS volume (`U:`) and a folder (`C:\AD1Lean\second`), with an alternate data stream and a file FTK Imager lists as deleted | 7 live files and 1 stream | FTK Imager 4.7.3.61's own listing of the image, `lean-multi-ntfs-c9.ad1.csv` (UTF-16, stored MD5 per file), written when it made the image |
+| `ftk-ad-cert-ad1.ad1` | AD1 of three files, AD-encrypted and sealed to a test certificate; opens with `ad-cert-test-key-2048.pem` | 3 | `shasum -a 256` over the three source files before FTK Imager 4.7.3.61 imaged them, 2026-09-27 (`ftk-ad-cert-ad1.sha256`) |
+| `bitlocker-xts128.img.gz` | BitLocker (AES-128-XTS) around qnxprobe's SquashFS fixture, 272 KiB; opens with its password, its recovery password or `bitlocker-xts128.BEK` | 612 | the test carries the file count and two SHA-256 from qnxprobe's `squashfs.src.sha256`, hashed from the source files the SquashFS image was built from |
+
+The two AD1s and the test key are copies of fixtures committed in
+[abrignoni/ewfprobe](https://github.com/abrignoni/ewfprobe) under `tests/fixtures/` at
+commit `34c34b8496f0f3d57450d77b7f27a3247f4b08aa`, and the BitLocker image and its
+startup key of fixtures in qnxprobe at `2149e20cdf4951ebc900b0e560514175eda285d7`
+(built by its `tools/make_bitlocker_fixtures.py`). Every key and password in them is a
+test value made for the fixture.
 
 The images are copies of the fixtures committed in
 [abrignoni/qnxprobe](https://github.com/abrignoni/qnxprobe) under `tests/fixtures/`,
