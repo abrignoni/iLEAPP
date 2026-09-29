@@ -10,7 +10,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-29",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "URL value is redacted as <private> by iOS. Version markers: UIOpenURLAction (iOS 17-18), openURLContexts (iOS 18+), and an unregistered URL scheme (failed open). -canOpenURL: capability checks are intentionally excluded (they are probes, not opens).",
+        "notes": "URL value is redacted as <private> by iOS. Markers: UIOpenURLAction, scene openURLContexts, and an unregistered URL scheme (failed open); -canOpenURL: capability checks are excluded (probes, not opens). Validated on iOS 26.2 and 26.6 (UIOpenURLAction on both, openURLContexts on 26.6).",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "link",
