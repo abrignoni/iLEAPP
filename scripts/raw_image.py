@@ -113,7 +113,8 @@ RAW_IMAGE_FILE_PATTERNS = ('*.img *.bin *.dd *.raw *.001 *.E01 *.s01 *.Ex01 *.af
 # asserts each entry here has a walker in the vendored copy, so the two cannot
 # drift apart quietly.
 RAW_IMAGE_FILESYSTEMS = ('QNX6, QNX4, ETFS, EFS, ext2/3/4, F2FS, FAT32, exFAT, NTFS, '
-                         'HFS+, APFS, SquashFS, JFFS2, UBI, UBIFS, YAFFS, QNX IFS')
+                         'HFS+, APFS, SquashFS, JFFS2, UBI, UBIFS, YAFFS, QNX IFS, '
+                         'U-Boot environment, Belkin NVRM')
 RAW_IMAGE_LABEL = f'Raw disk image or acquisition ({RAW_IMAGE_FILESYSTEMS})'
 
 # qnxprobe's names for logical evidence, and for an AD-encrypted set, which can hold

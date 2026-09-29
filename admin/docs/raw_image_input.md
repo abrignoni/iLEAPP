@@ -21,7 +21,9 @@ eMMC image from an embedded device) has its SquashFS, UBI, JFFS2 and, since qnxp
 1.51, ext2/3/4 volumes found by their own headers. Since 1.52, JFFS2 data compressed
 with OpenWrt's LZMA is read, and on a raw NAND dump a UBIFS node that fails its CRC by
 one flipped bit is read with that bit restored, as the NAND controller would have
-read it.
+read it. Since 1.55, two JFFS2 partitions that sit side by side are read as two
+filesystems, and a U-Boot environment or a Belkin WeMo NVRM configuration store whose
+CRC-32 holds is listed as a volume holding one file, `uboot-env.bin` or `nvram.bin`.
 
 ## Where the pieces are
 

@@ -1177,7 +1177,9 @@ class RawImageSeekerTest(unittest.TestCase):
                    'SquashFS': qnxprobe.SquashfsWalker, 'JFFS2': qnxprobe.Jffs2Walker,
                    'UBI': qnxprobe.UbiWalker, 'UBIFS': qnxprobe.UbifsWalker,
                    'YAFFS': qnxprobe.YaffsWalker,
-                   'QNX IFS': qnxprobe.IfsWalker}
+                   'QNX IFS': qnxprobe.IfsWalker,
+                   'U-Boot environment': qnxprobe.ConfigStoreWalker,
+                   'Belkin NVRM': qnxprobe.ConfigStoreWalker}
         names = [name.strip() for name in RAW_IMAGE_FILESYSTEMS.split(',')]
         self.assertEqual(sorted(names), sorted(walkers))
         for cls in walkers.values():
