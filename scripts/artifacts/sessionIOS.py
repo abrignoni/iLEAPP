@@ -86,17 +86,37 @@ __artifacts_v2__ = {
     },
     "session_contacts": {
         "name": "Session - Contacts",
-        "description": "Parses the contacts and their profile names from the encrypted Session "
-                       "database.",
+        "description": "Parses the contact table and the matching profile names from the "
+                       "encrypted Session database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-10",
-        "last_update_date": "2026-08-10",
+        "last_update_date": "2026-09-29",
         "requirements": "none",
         "category": "Session",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
                  "GUI. Session ID is the contact's public key. Name and Nickname come from the "
-                 "profile table; the approval and block flags come from the contact table and "
-                 "are reported as stored.",
+                 "profile table; Approved, Approved Me and Blocked come from the contact table, "
+                 "reported as Yes where the stored value is 1 and No where it is 0.\n"
+                 "On each of the three tested images with rows (hickman_ios15, iphone11_ios17 "
+                 "and dexter_ios18), one row carried the Session ID that authored the outgoing "
+                 "messages, so the contact table includes the local account. On those images "
+                 "Nickname was empty on every row, Approved and Approved Me held Yes on every "
+                 "row, and Blocked held No on every row.\n"
+                 "Last Known Client Version is read from a column Session-iOS adds to the "
+                 "contact table in database migration _018, present at tag 2.6.3; no migration "
+                 "at tag 2.2.13 creates it. The app bundle's Info.plist showed Session 2.2.13 "
+                 "installed on hickman_ios15, 2.6.3 on iphone11_ios17 and 2.14.2 on "
+                 "dexter_ios18. The column is absent from the hickman_ios15 database, so Last "
+                 "Known Client Version is empty on its rows; it was also empty on all 3 rows of "
+                 "iphone11_ios17 and filled on both rows of dexter_ios18. A column the database "
+                 "lacks is reported empty rather than failing the artifact, and the run log "
+                 "names it.\n"
+                 "Reference: Session-iOS 2.6.3, '_018_DisappearingMessagesConfiguration, "
+                 "t.add(.lastKnownClientVersion, .integer)', "
+                 "https://github.com/session-foundation/session-ios/blob/"
+                 "99f7150e2b53c4f5f7c93a3573e8a468c7c1183a/"
+                 "SessionMessagingKit/Database/Migrations/"
+                 "_018_DisappearingMessagesConfiguration.swift#L26-L28",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/database/Session.sqlite*',
                   '*/extra/KeychainDump/backup_keychain_v2.plist',
                   '*/keychain-backup.plist'),
@@ -106,7 +126,7 @@ __artifacts_v2__ = {
             "iphone11_ios17": "iOS 17.3 | 3 rows",
             "dexter_ios18": "iOS 18.3.2 | 2 rows",
             "felix_ios17": "iOS 17.6.1 | 1 row",
-            "hickman_ios15": "iOS 15.3.1 | 0 rows",
+            "hickman_ios15": "iOS 15.3.1 | 2 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "iphone14plus_ios18": "iOS 18.0 | 0 rows (no keychain in the extraction)",
             "hc_ios18_7": "iOS 18.7.8 | 0 rows (no keychain in the extraction)",
@@ -387,28 +407,69 @@ def session_messages(context):
     return data_headers, data_list, source_path
 
 
+def _table_columns(connection, table):
+    """Names of the columns the table has in this database; empty if it is absent."""
+    try:
+        return {row[1] for row in connection.execute(f'PRAGMA table_info("{table}")')}
+    except sqlite3.Error:
+        return set()
+
+
+def _contacts_query(connection, file_found):
+    """Build the contacts query from the columns this database version has.
+
+    Session adds columns between releases (the contact table gains
+    lastKnownClientVersion in a later migration), so a column the database
+    lacks is selected as NULL under its own name rather than failing the query.
+    """
+    contact_columns = _table_columns(connection, 'contact')
+    profile_columns = _table_columns(connection, 'profile')
+    join_profile = 'id' in profile_columns
+    absent = []
+
+    def column(alias, name, columns):
+        if name in columns:
+            return f'{alias}.{name}'
+        absent.append(f'{alias}.{name}')
+        return None
+
+    def plain(alias, name, columns):
+        reference = column(alias, name, columns)
+        return reference if reference else f'NULL AS {name}'
+
+    def yes_no(name):
+        reference = column('c', name, contact_columns)
+        if not reference:
+            return f'NULL AS {name}'
+        return f"CASE {reference} WHEN 1 THEN 'Yes' WHEN 0 THEN 'No' END AS {name}"
+
+    profile = profile_columns if join_profile else set()
+    select_items = [
+        'c.id',
+        plain('p', 'name', profile),
+        plain('p', 'nickname', profile),
+        yes_no('isApproved'),
+        yes_no('didApproveMe'),
+        yes_no('isBlocked'),
+        plain('c', 'lastKnownClientVersion', contact_columns),
+    ]
+    if absent:
+        logfunc(f'Session: column(s) absent from this database version are reported '
+                f'empty for {os.path.basename(file_found)}: {", ".join(absent)}')
+    join = 'LEFT JOIN profile p ON p.id = c.id' if join_profile else ''
+    # Ordered by the Name output column, which is NULL where the profile has no name.
+    return f'SELECT {", ".join(select_items)} FROM contact c {join} ORDER BY 2'
+
+
 @artifact_processor
 def session_contacts(context):
     data_list = []
     source_path = ''
-    query = '''
-        SELECT
-            c.id,
-            p.name,
-            p.nickname,
-            CASE c.isApproved WHEN 1 THEN 'Yes' WHEN 0 THEN 'No' END,
-            CASE c.didApproveMe WHEN 1 THEN 'Yes' WHEN 0 THEN 'No' END,
-            CASE c.isBlocked WHEN 1 THEN 'Yes' WHEN 0 THEN 'No' END,
-            c.lastKnownClientVersion
-        FROM contact c
-        LEFT JOIN profile p ON p.id = c.id
-        ORDER BY p.name
-    '''
     for connection, file_found in _open_session_databases(context):
         source_path = file_found
         try:
             cursor = connection.cursor()
-            cursor.execute(query)
+            cursor.execute(_contacts_query(connection, file_found))
             rows = cursor.fetchall()
         except sqlite3.Error as error:
             logfunc(f'Session: could not read contacts from {file_found}: {error}')
