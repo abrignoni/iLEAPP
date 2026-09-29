@@ -299,9 +299,9 @@ def session_messages(context):
     data_list = []
     source_path = ''
     # interaction.threadId is the conversation's Session ID (a public key), which
-    # joins to thread.id. On an outgoing message Session stores the recipient in
-    # authorId rather than the sender, the same shape Signal uses, so the author
-    # is only meaningful on incoming rows and is left blank on outgoing ones.
+    # joins to thread.id. On an outgoing message authorId is the local account
+    # (one value across every conversation on the tested images), so the author
+    # is left blank on outgoing rows and names the remote party on incoming ones.
     query = '''
         SELECT
             i.id,
