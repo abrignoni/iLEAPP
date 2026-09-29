@@ -1,4 +1,20 @@
 __artifacts_v2__ = {
+    "logarchive_urlopens": {
+        "name": "logarchive URL / link opens",
+        "description": "Unified log entries recording URL / deep-link open requests "
+                       "(UIOpenURLAction, scene openURLContexts, or an unregistered URL scheme). "
+                       "iOS redacts the URL value as <private>, so this records the fact, time and "
+                       "handling process of a URL open, not the URL string.",
+        "author": "@danjethh",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "URL value is redacted as <private> by iOS. Version markers: UIOpenURLAction (iOS 17-18), openURLContexts (iOS 18+), and an unregistered URL scheme (failed open). -canOpenURL: capability checks are intentionally excluded (they are probes, not opens).",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "link",
+    },
     "logarchive": {
         "name": "logarchive",
         "description": "Processes Apple Unified Logs, either from tracev3 data in the "
@@ -1787,4 +1803,13 @@ def logarchive_carplay_session(context):
         OR event_message LIKE '%WiFiDeviceManagerSetCarPlaySessionState%'
         OR event_message LIKE '%CarPlay session vehicle inform%'
         OR event_message LIKE '%CarPlay Connection Event%'
+    ''')
+
+
+@artifact_processor
+def logarchive_urlopens(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%UIOpenURLAction%'
+        OR event_message LIKE '%openURLContexts%'
+        OR event_message LIKE '%no registered handler for URL scheme%'
     ''')
