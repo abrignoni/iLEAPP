@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "direction, author, conversation and body.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-10",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-09-28",
         "requirements": "none",
         "category": "Session",
         "notes": "Session for iOS keeps its database key in the iOS keychain, which is captured "
@@ -15,8 +15,11 @@ __artifacts_v2__ = {
                  "the keychain entry, decrypted here with the shared pure-python reader.\n"
                  "Message Type and Direction are taken from the interaction variant, per the "
                  "Session-iOS Interaction.Variant definition: 0 is an incoming standard message "
-                 "and 1 an outgoing one, and on the tested data variant 1 rows were authored by "
-                 "one constant account and variant 0 rows by the other party. The remaining "
+                 "and 1 an outgoing one. On the three tested images with rows, every variant 1 row "
+                 "on an image carried the same authorId, across both conversations on "
+                 "iphone11_ios17, and every variant 0 row carried the conversation's other party, "
+                 "so Author is left blank on outgoing rows, where it would repeat the local "
+                 "account. The remaining "
                  "variants are Session's info and control messages, "
                  "reported with their type: a call (with its direction taken from the call "
                  "state and the sender), a screenshot or media-saved notification, a message "
@@ -24,11 +27,30 @@ __artifacts_v2__ = {
                  "tombstone the app keeps for a deleted message. The author and conversation "
                  "names are the display name or nickname from the profile table, falling back "
                  "to the Session ID (the account's public key) where no profile is stored.\n"
-                 "Reference: Session-iOS, 'Interaction.Variant (standardIncoming = 0, "
-                 "standardOutgoing = 1, infoCall = 5000, ...)', "
+                 "The incoming deleted-message variant changed value between releases. At tags "
+                 "2.2.13 and 2.6.3 the enum numbers its first cases implicitly, so "
+                 "standardIncomingDeleted is 2. At tag 2.14.2 it is 3, and 2 is kept as "
+                 "_legacyStandardIncomingDeleted. Both values are reported as Deleted message; no "
+                 "row on the tested images carried either. "
+                 "The app bundle's Info.plist showed Session 2.2.13 installed on hickman_ios15, "
+                 "2.6.3 on iphone11_ios17 and 2.14.2 on dexter_ios18, so the tested images span "
+                 "that change. The installed version does not establish which version wrote each "
+                 "row.\n"
+                 "Reference: Session-iOS 2.2.13, 'Interaction.Variant (standardIncoming, "
+                 "standardOutgoing, standardIncomingDeleted, ..., infoCall = 5000)', "
                  "https://github.com/session-foundation/session-ios/blob/"
-                 "7a3b2ba22477f22c301748f23c91165be62a84ef/"
-                 "SessionMessagingKit/Database/Models/Interaction.swift. "
+                 "50b349ab435466823ab612fbfd206d90d8a0737e/"
+                 "SessionMessagingKit/Database/Models/Interaction.swift#L67-L86. "
+                 "Reference: Session-iOS 2.6.3, the same enum, "
+                 "https://github.com/session-foundation/session-ios/blob/"
+                 "99f7150e2b53c4f5f7c93a3573e8a468c7c1183a/"
+                 "SessionMessagingKit/Database/Models/Interaction.swift#L68-L87. "
+                 "Reference: Session-iOS 2.14.2, 'Interaction.Variant "
+                 "(_legacyStandardIncomingDeleted = 2, standardIncoming = 0, ..., "
+                 "standardIncomingDeleted = 3, ...)', "
+                 "https://github.com/session-foundation/session-ios/blob/"
+                 "09899523850ab51ac6cb30f0fa9a4b80580add54/"
+                 "SessionMessagingKit/Database/Models/Interaction.swift#L77-L106. "
                  "Reference: SQLCipher documentation, 'cipher_plaintext_header_size', "
                  "https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/database/Session.sqlite*',
@@ -281,9 +303,9 @@ def session_messages(context):
     data_list = []
     source_path = ''
     # interaction.threadId is the conversation's Session ID (a public key), which
-    # joins to thread.id. On an outgoing message Session stores the recipient in
-    # authorId rather than the sender, the same shape Signal uses, so the author
-    # is only meaningful on incoming rows and is left blank on outgoing ones.
+    # joins to thread.id. On an outgoing message authorId is the local account
+    # (one value across every conversation on the tested images), so the author
+    # is left blank on outgoing rows and names the remote party on incoming ones.
     query = '''
         SELECT
             i.id,
