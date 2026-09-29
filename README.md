@@ -230,7 +230,8 @@ AFF4 `.aff4`, an Apple `.dmg`, with any `.dmgpart` files beside it, `.sparseimag
 `.sparsebundle` folder, or a virtual machine disk, `.vhd`, `.vhdx`, `.vmdk` or `.qcow2`), in
 place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
 F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS
-volumes are searched directly, and
+volumes are searched directly (and a U-Boot environment or Belkin NVRM store is read as one
+file), and
 only the files an artifact asks for are read out of the image. Logical evidence, an
 EnCase `.L01` or an FTK Imager `.ad1`, is read as the files it holds. The GUI picks
 `raw` on its own for those extensions, and for a sparse bundle or AFD folder chosen with
