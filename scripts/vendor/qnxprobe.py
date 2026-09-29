@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.50"
+QNXPROBE_VERSION = "1.51"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -11269,6 +11269,40 @@ FLASH_SCAN_MAX = 8 << 30          # a bigger unpartitioned image is not a flash 
 FLASH_ALIGN = 4096                # every eraseblock size is a multiple of this
 
 
+def _ext_primary_size(fh, off, room):
+    """The byte size of the ext2/3/4 filesystem whose primary superblock is at
+    off + 1024, or None if what sits there is not one.
+
+    The magic is two bytes, which data of any kind carries by chance, so the
+    filesystem behind it has to read: its root directory, inode 2, has to come
+    back as a directory through the group descriptors (struct ext4_super_block
+    and ext4_group_desc, fs/ext4/ext4.h). Two fields are checked first. The
+    block size has to be 1 to 64 KiB: it is computed as 1024 shifted by a
+    stored number, and a random one builds an integer of hundreds of megabytes
+    (480 MiB for 0xF0000000) before the read behind it fails. And the
+    superblock has to name block group 0 (s_block_group_nr at 0x5A): a backup
+    copy names its own group, and a copy of the filesystem behind it can read
+    as well as the real one.
+    """
+    sb = read_at(fh, off + EXT_SB_OFF, 1024)
+    if len(sb) < 1024 or _e(sb, "magic", 2) != EXT_MAGIC:
+        return None
+    lbs = _e(sb, "log_block_size")
+    if lbs > 6 or int.from_bytes(sb[0x5A:0x5C], "little") != 0:
+        return None
+    bs = 1024 << lbs
+    blocks = _e(sb, "blocks_count")
+    if _e(sb, "feature_incompat") & 0x80:                     # EXT4_FEATURE_INCOMPAT_64BIT
+        blocks |= int.from_bytes(sb[0x150:0x154], "little") << 32
+    try:
+        root = ExtWalker(fh, off).entry(2)
+    except Exception:
+        return None
+    if not root or root[0] & S_IFMT != S_IFDIR:
+        return None
+    return min(blocks * bs, room) or None
+
+
 def flash_regions(fh, size):
     """[(label, base, size)] for the flash filesystems found inside an image
     with no partition table, in image order. Only aligned offsets are tried:
@@ -11280,6 +11314,16 @@ def flash_regions(fh, size):
                 image_seq or are erased
       JFFS2     a node whose header CRC holds; JFFS2 has no size of its own, so
                 its extent runs to the next filesystem found, or the end
+      ext2/3/4  a primary superblock (block group 0) whose root directory reads
+                (_ext_primary_size); its extent is the block count it records.
+                An eMMC image from an embedded device can hold its partitions
+                with no table the image carries (the kernel can take the layout
+                from its command line, blkdevparts= in block/partitions/
+                cmdline.c), and its writable data can sit in ext4 there
+
+    A backup superblock names its own block group, so it is never taken for a
+    filesystem, and a hit inside a filesystem already found (an ext image kept
+    as a file, a backup copy) is skipped.
 
     Returns [] when the image is larger than FLASH_SCAN_MAX or holds none."""
     if size > FLASH_SCAN_MAX:
@@ -11288,7 +11332,7 @@ def flash_regions(fh, size):
     step = 1 << 20
     pos = 0
     while pos < size:
-        chunk = read_at(fh, pos, min(step + 16, size - pos))
+        chunk = read_at(fh, pos, min(step + EXT_SB_OFF + 64, size - pos))
         if not chunk:
             break
         for magic in (b"hsqs", b"UBI#", b"\x85\x19", b"\x19\x85"):
@@ -11297,6 +11341,10 @@ def flash_regions(fh, size):
                 if (pos + j) % FLASH_ALIGN == 0:
                     hits.add((pos + j, magic))
                 j = chunk.find(magic, j + 1)
+        m = EXT_SB_OFF + EXT_F["magic"]                # pos is a multiple of FLASH_ALIGN
+        for k in range(0, min(step, len(chunk) - m - 1), FLASH_ALIGN):
+            if chunk[k + m:k + m + 2] == b"\x53\xef":
+                hits.add((pos + k, b"ext"))
         pos += step
     found, taken_to = [], 0
     for off, magic in sorted(hits):
@@ -11324,6 +11372,14 @@ def flash_regions(fh, size):
                 else:
                     break
             found.append(["ubi", off, end - off])
+        elif magic == b"ext":
+            ext = _ext_primary_size(fh, off, size - off)
+            if not ext:
+                continue
+            kind = identify_fs(fh, off, ext)[0]
+            if not (kind or "").startswith("ext"):
+                continue
+            found.append([kind, off, ext])
         else:
             e = "<" if magic == b"\x85\x19" else ">"
             hdr = read_at(fh, off, 12)
@@ -16697,6 +16753,49 @@ def self_test():
             print(f"  [{'PASS' if wcond else 'FAIL'}] and an image recognised at offset 0 is "
                   f"not searched for more ("
                   + ", ".join(f"{v['label']} {v['kind']}" for v in wv) + ")")
+
+        # An eMMC image from an embedded device can hold ext filesystems with no
+        # partition table in front of them. Built here: 1.25 MiB of random bytes,
+        # then the ext4 fixture and the ext2 fixture at 4 KiB boundaries, then a
+        # whole copy of the ext4 fixture whose superblock names block group 1, as
+        # a backup copy does. The random bytes carry two more decoys: 64 random
+        # 4 KiB blocks with the ext magic set, and the ext4 fixture's first 4 KiB
+        # (an intact superblock) with nothing readable behind it. volumes() must
+        # find exactly the two filesystems, at those offsets, and read their
+        # files; no decoy may be claimed. The backup copy is what fails if the
+        # block group check is removed, the lone superblock if the root check is.
+        e4f, e2f = (os.path.join(fx, n) for n in ("ext4-sparse.img.gz", "ext2-sparse.img.gz"))
+        if os.path.isfile(e4f) and os.path.isfile(e2f):
+            import gzip as _gz, io as _io, random as _rnd
+            e4, e2 = _gz.open(e4f, "rb").read(), _gz.open(e2f, "rb").read()
+            rnd = _rnd.Random(11)
+            lead = bytearray(rnd.randbytes(0x140000))
+            m = EXT_SB_OFF + EXT_F["magic"]
+            for blk in range(0x40000, 0x80000, 0x1000):        # random, with the magic
+                lead[blk + m:blk + m + 2] = b"\x53\xef"
+            lead[0x100000:0x101000] = e4[:0x1000]               # a superblock and no more
+            lead[0x101000:0x140000] = bytes(0x3F000)
+            backup = bytearray(e4)
+            backup[EXT_SB_OFF + 0x5A:EXT_SB_OFF + 0x5C] = (1).to_bytes(2, "little")
+            e4_at = len(lead)
+            e2_at = e4_at + len(e4) + 0x3000
+            mmc = (bytes(lead) + e4 + b"\x00" * 0x3000 + e2 + b"\x00" * 0x1000
+                   + bytes(backup) + b"\x00" * 0x100000)
+            want_at = {e4_at: "ext4", e2_at: "ext2"}
+            vols = volumes(_io.BytesIO(mmc), len(mmc))
+            got_at = {v["base"]: v["kind"] for v in vols}
+            want_n = sum(len(collect(w, w.root)) for w in (ExtWalker(_io.BytesIO(e4), 0),
+                                                            ExtWalker(_io.BytesIO(e2), 0)))
+            got_n = sum(1 for v in vols if v.get("walker")
+                        for _e in collect(v["walker"], v["walker"].root))
+            mcond = got_at == want_at and got_n == want_n and want_n > 0
+            if not mcond:
+                ok = False
+            print(f"  [{'PASS' if mcond else 'FAIL'}] an eMMC image with no partition table has "
+                  f"its ext filesystems found by their superblocks at "
+                  + ", ".join(f"{k} {b:#x}" for b, k in sorted(got_at.items()))
+                  + f" ({got_n} of {want_n} files collected), and a backup superblock is "
+                  "not taken for one")
 
         # A chip-off NAND dump keeps each page's spare (OOB) bytes after it. UBI
         # and JFFS2 lay data across pages, so they are read with the spare
