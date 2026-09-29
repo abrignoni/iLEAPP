@@ -15,7 +15,10 @@ files an artifact asks for. Logical evidence, an EnCase `.L01` or an FTK Imager
 FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2,
 UBI/UBIFS, YAFFS and QNX IFS volumes are searched directly, on disks of 512-byte
 or 4096-byte sectors: a GPT whose header sits at byte 4096, as on a UFS LUN image
-or a 4Kn drive, has its partitions counted in 4096-byte sectors.
+or a 4Kn drive, has its partitions counted in 4096-byte sectors. An image with no
+partition table and nothing recognised at its start (a chip-off flash dump, or an
+eMMC image from an embedded device) has its SquashFS, UBI, JFFS2 and, since qnxprobe
+1.51, ext2/3/4 volumes found by their own headers.
 
 ## Where the pieces are
 
