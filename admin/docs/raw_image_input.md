@@ -18,7 +18,10 @@ or 4096-byte sectors: a GPT whose header sits at byte 4096, as on a UFS LUN imag
 or a 4Kn drive, has its partitions counted in 4096-byte sectors. An image with no
 partition table and nothing recognised at its start (a chip-off flash dump, or an
 eMMC image from an embedded device) has its SquashFS, UBI, JFFS2 and, since qnxprobe
-1.51, ext2/3/4 volumes found by their own headers.
+1.51, ext2/3/4 volumes found by their own headers. Since 1.52, JFFS2 data compressed
+with OpenWrt's LZMA is read, and on a raw NAND dump a UBIFS node that fails its CRC by
+one flipped bit is read with that bit restored, as the NAND controller would have
+read it.
 
 ## Where the pieces are
 

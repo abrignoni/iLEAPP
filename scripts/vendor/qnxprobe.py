@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.51"
+QNXPROBE_VERSION = "1.52"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -7131,7 +7131,7 @@ JFFS2_DIRENT, JFFS2_INODE = 0xE001, 0xE002
 JFFS2_CLEANMARKER, JFFS2_PADDING, JFFS2_SUMMARY = 0x2003, 0x2004, 0x2006
 JFFS2_XATTR, JFFS2_XREF = 0xE008, 0xE009
 JFFS2_COMPR = {0: "none", 1: "zero", 2: "rtime", 3: "rubinmips", 4: "copy",
-               5: "dynrubin", 6: "zlib", 7: "lzo"}
+               5: "dynrubin", 6: "zlib", 7: "lzo", 8: "lzma"}
 JFFS2_ROOT_INO = 1
 JFFS2_SCAN_CHUNK = 1 << 22
 
@@ -7262,6 +7262,30 @@ def _jffs2_zlib(src, dsize):
         raise DecompressError(f"zlib: {exc}") from None
 
 
+def _jffs2_lzma(src, dsize):
+    """OpenWrt's JFFS2 LZMA (compression 0x08, not in the mainline kernel): a raw
+    LZMA stream with no header, its properties fixed in the code rather than
+    stored, lc 0, lp 0, pb 0 and an 8 KiB dictionary, decoded to exactly the
+    node's decompressed size, with nothing left over: a stream that stops short,
+    or that would go on past that size (LZMA_STATUS_NOT_FINISHED), is refused
+    (target/linux/generic/pending-6.12/530-jffs2_make_lzma_available.patch at
+    OpenWrt d9f8ecc3, lines 200 to 214 for the decoder and 229 to 237 and 342
+    to 348 for the properties)."""
+    import lzma
+    try:
+        d = lzma.LZMADecompressor(lzma.FORMAT_RAW, filters=[{
+            "id": lzma.FILTER_LZMA1, "lc": 0, "lp": 0, "pb": 0, "dict_size": 0x2000}])
+        out = d.decompress(src, dsize)
+        more = d.decompress(b"", 1) if len(out) == dsize else b""
+    except lzma.LZMAError as exc:
+        raise DecompressError(f"lzma: {exc}") from None
+    if len(out) != dsize:
+        raise DecompressError(f"lzma gave {len(out):,} bytes where the node records {dsize:,}")
+    if more:
+        raise DecompressError(f"lzma stream runs past the {dsize:,} bytes the node records")
+    return out
+
+
 def jffs2_decompress(compr, src, dsize):
     compr &= 0xFF
     if compr == 0:
@@ -7274,6 +7298,8 @@ def jffs2_decompress(compr, src, dsize):
         return _jffs2_zlib(src, dsize)
     if compr == 7:
         return lzo1x_decompress(src, dsize)[:dsize]
+    if compr == 8:
+        return _jffs2_lzma(src, dsize)
     raise DecompressError(f"JFFS2 compression {JFFS2_COMPR.get(compr, hex(compr))} "
                           "is not read here")
 
@@ -7694,7 +7720,7 @@ def identify_jffs2(fh, base, size=None):
     if orphans:
         lines.append(f"note         {orphans:,} linked names lead to an inode with no readable "
                      "node; they are not listed")
-    unread = [c for c in comps if c not in ("none", "zero", "rtime", "zlib", "lzo")]
+    unread = [c for c in comps if c not in ("none", "zero", "rtime", "zlib", "lzo", "lzma")]
     if unread:
         lines.append(f"note         {', '.join(unread)} compressed data is not read here")
     return "jffs2", lines
@@ -7740,6 +7766,59 @@ def _ubi_crc(data):
     with no final inversion, which is zlib's crc32 with its output inverted."""
     import zlib
     return zlib.crc32(data) ^ 0xFFFFFFFF
+
+
+_CRC32_TABLE = []
+# The shortest CRC-32 codeword of weight three is 91,640 bits long (the self-test
+# finds it), so on a message of at most 11,450 bytes two flipped bits never give
+# the CRC change one flipped bit gives, and a one-bit repair cannot turn a
+# two-bit error into wrong bytes. UBIFS nodes are far shorter.
+CRC32_ONE_BIT_MAX = 11450
+
+
+def crc32_one_bit(data, want):
+    """(byte, bit) of the single bit whose flip gives `data` the zlib-style CRC-32
+    `want`, or None. A raw NAND dump holds the bits as the cells gave them, before
+    the controller's ECC corrected them, so a node the device read cleanly can
+    fail its CRC here by one flipped bit. CRC-32 is linear, so the change a flip
+    at each position makes to the CRC is computed once per position (a register
+    started at zero and clocked through the zero bytes after it) and compared
+    with the change needed; for the lengths flash nodes have, two different
+    single-bit flips never give the same change, so at most one position fits
+    (no two collide within 2 MB, measured)."""
+    import zlib
+    if not _CRC32_TABLE:
+        for n in range(256):
+            c = n
+            for _ in range(8):
+                c = (c >> 1) ^ 0xEDB88320 if c & 1 else c >> 1
+            _CRC32_TABLE.append(c)
+    t = _CRC32_TABLE
+    need = zlib.crc32(data) ^ want
+    if not need:
+        return None
+    states = [t[1 << b] for b in range(8)]
+    for k in range(len(data) - 1, -1, -1):
+        if need in states:
+            return k, states.index(need)
+        states = [t[x & 0xFF] ^ (x >> 8) for x in states]
+    return None
+
+
+def _ubifs_repair(raw):
+    """`raw` (a UBIFS node whose CRC failed) with one bit restored, or None. A
+    flip inside the stored CRC itself leaves the node's bytes as they are."""
+    if len(raw) - 8 > CRC32_ONE_BIT_MAX:
+        return None
+    stored = struct.unpack_from("<I", raw, 4)[0]
+    if bin(stored ^ _ubi_crc(raw[8:])).count("1") == 1:
+        return bytes(raw)
+    fix = crc32_one_bit(raw[8:], stored ^ 0xFFFFFFFF)
+    if fix is None:
+        return None
+    fixed = bytearray(raw)
+    fixed[8 + fix[0]] ^= 1 << fix[1]
+    return bytes(fixed)
 
 
 def _ubi_ec(raw):
@@ -7830,9 +7909,14 @@ class UbiImage:
         for key, vids in cands.items():
             vids.sort(key=lambda v: v["sqnum"], reverse=True)
             for i, v in enumerate(vids):
-                if v["copy_flag"] and not self._data_ok(v):
+                # The kernel checks a copy's data CRC only against another copy
+                # of the same LEB (attach.c ubi_compare_lebs); a LEB seen once is
+                # attached as it is (ubi_add_to_av).
+                if v["copy_flag"] and i + 1 < len(vids) and not self._data_ok(v):
                     self.stats["copy with a bad data CRC, older copy used"] += 1
                     continue
+                if v["copy_flag"] and i + 1 == len(vids) and not self._data_ok(v):
+                    self.stats["copy with a bad data CRC, the only copy, used"] += 1
                 self.map[key] = v
                 # An older copy still on the flash (left by a rewrite or a move
                 # that was cut short) holds that block's earlier contents.
@@ -8070,6 +8154,9 @@ def identify_ubi(fh, base, size=None):
         lines.append(f"volume {vol['id']:<5} {vol['name'] or '(no name)'}: "
                      f"{UBI_VOL_NAMES.get(vol['type'], 'unknown')}, {human(view.size)}, {kind}"
                      + ("; interrupted update marker set" if vol["update_marker"] else ""))
+        if getattr(walker, "bit_repairs", None):
+            lines.append(UBIFS_BIT_REPAIR_NOTE.format(
+                n=len(walker.bit_repairs), where=f" in volume {vol['id']}"))
     odd = {k: v for k, v in u.stats.items() if k not in ("mapped", "free")}
     for k, v in sorted(odd.items()):
         lines.append(f"note         {v:,} eraseblock(s): {k}")
@@ -8101,6 +8188,9 @@ def identify_ubi(fh, base, size=None):
 #   a missing data block is a hole            fs/ubifs/file.c read_block
 # ---------------------------------------------------------------------------
 UBIFS_MAGIC = 0x06101831
+UBIFS_BIT_REPAIR_NOTE = ("bit errors   {n:,} node(s){where} failed their CRC by one flipped bit "
+                         "and were read with that bit restored, as the NAND controller's "
+                         "ECC would have done")
 (UBIFS_INO_NODE, UBIFS_DATA_NODE, UBIFS_DENT_NODE, UBIFS_XENT_NODE, UBIFS_TRUN_NODE,
  UBIFS_PAD_NODE, UBIFS_SB_NODE, UBIFS_MST_NODE, UBIFS_REF_NODE, UBIFS_IDX_NODE,
  UBIFS_CS_NODE) = range(11)
@@ -8155,6 +8245,8 @@ class UbifsWalker:
     def __init__(self, fh, base):
         self.fh, self.base = fh, base
         self.leb_size = 0                      # LEB 0 is read before the size is known
+        self.stats = collections.Counter()
+        self.bit_repairs = set()               # (lnum, offs) of nodes read with one bit restored
         sb = self._node(0, 0)
         if sb is None or sb[20] != UBIFS_SB_NODE:
             raise UbifsUnreadable("no UBIFS superblock node at LEB 0")
@@ -8170,7 +8262,6 @@ class UbifsWalker:
         self.master = self._master()
         if self.master is None:
             raise UbifsUnreadable("no master node reads in LEB 1 or 2")
-        self.stats = collections.Counter()
         self.inodes, self.data, self.dents = {}, collections.defaultdict(dict), \
             collections.defaultdict(dict)
         self._walk_index()
@@ -8188,11 +8279,26 @@ class UbifsWalker:
         if nlen < 24 or nlen > 1 << 20 or (length is not None and nlen != length):
             return None
         raw = read_at(self.fh, at, nlen)
-        if len(raw) < nlen or _ubi_crc(raw[8:]) != struct.unpack_from("<I", raw, 4)[0]:
+        if len(raw) < nlen:
             return None
+        if _ubi_crc(raw[8:]) != struct.unpack_from("<I", raw, 4)[0]:
+            raw = _ubifs_repair(raw)
+            if raw is None:
+                return None
+            self.bit_repairs.add((lnum, offs))
         if want is not None and raw[20] != want:
             return None
         return raw
+
+    def _unread(self, blk, lnum, offs):
+        """Why the data node for `blk` at lnum:offs did not read."""
+        head = read_at(self.fh, self.base + lnum * self.leb_size + offs, 24)
+        where = f"data node for block {blk} (LEB {lnum}, offset {offs:,})"
+        if head[:4] == b"\xff" * 4:
+            return f"{where} is erased flash: no copy of it is in the image"
+        if len(head) == 24 and struct.unpack_from("<I", head, 0)[0] == UBIFS_MAGIC:
+            return f"{where} fails its CRC, by more than one flipped bit"
+        return f"{where} does not read"
 
     def _scan_leb(self, lnum, offs):
         """Every valid node in LEB lnum from offs on, as (offs, raw), stepping
@@ -8214,9 +8320,13 @@ class UbifsWalker:
                 continue
             nlen = struct.unpack_from("<I", buf, offs + 16)[0]
             raw = buf[offs:offs + nlen]
-            if nlen < 24 or len(raw) < nlen or \
-                    _ubi_crc(raw[8:]) != struct.unpack_from("<I", raw, 4)[0]:
+            if nlen < 24 or len(raw) < nlen:
                 break
+            if _ubi_crc(raw[8:]) != struct.unpack_from("<I", raw, 4)[0]:
+                raw = _ubifs_repair(raw)
+                if raw is None:
+                    break
+                self.bit_repairs.add((lnum, offs))
             if raw[20] == UBIFS_PAD_NODE:
                 offs += nlen + struct.unpack_from("<I", raw, 24)[0]
                 continue
@@ -8412,7 +8522,7 @@ class UbifsWalker:
             else:
                 raw = self._node(loc[0], loc[1], loc[2], UBIFS_DATA_NODE)
                 if raw is None:
-                    raise UbifsUnreadable(f"data node for block {blk} does not read")
+                    raise UbifsUnreadable(self._unread(blk, loc[0], loc[1]))
                 dsize, ctype = struct.unpack_from("<IH", raw, 40)
                 out = ubifs_decompress(ctype, raw[48:], UBIFS_BLOCK)
                 if len(out) != dsize:
@@ -8507,7 +8617,7 @@ class UbifsWalker:
             lnum, offs, nlen = blocks[blk]
             raw = self._node(lnum, offs, nlen, UBIFS_DATA_NODE)
             if raw is None:
-                raise UbifsUnreadable(f"data node for block {blk} does not read")
+                raise UbifsUnreadable(self._unread(blk, lnum, offs))
             dsize, ctype = struct.unpack_from("<IH", raw, 40)
             out = ubifs_decompress(ctype, raw[48:], UBIFS_BLOCK)
             if len(out) != dsize:
@@ -8560,6 +8670,8 @@ def ubifs_lines(w):
               "log does not open with this commit"):
         if w.stats[k]:
             lines.append(f"damaged      {w.stats[k]:,} {k}")
+    if w.bit_repairs:
+        lines.append(UBIFS_BIT_REPAIR_NOTE.format(n=len(w.bit_repairs), where=""))
     return lines
 
 
@@ -16442,7 +16554,8 @@ def self_test():
         jf = [(f"jffs2-{c}", "jffs2", "jffs2.src.sha256", "jffs2.src.stat", "stat", "", ("dev",),
                f"JFFS2 {what}")
               for c, what in (("le-zlib", "little endian, zlib"), ("be-zlib", "big endian, zlib"),
-                              ("le-lzo", "lzo"), ("le-rtime", "rtime"), ("le-none", "uncompressed"),
+                              ("le-lzo", "lzo"), ("le-lzma", "OpenWrt lzma"),
+                              ("le-rtime", "rtime"), ("le-none", "uncompressed"),
                               ("le-sum", "with erase block summary nodes"))]
         ub = [("ubifs-lzo", "ubifs", "ubifs.src.sha256", "ubifs.src.stat", "stat", "", (),
                "UBIFS bare mkfs.ubifs image, lzo")]
@@ -16560,6 +16673,166 @@ def self_test():
                   + ")" + ("; " + "; ".join(ebad) if ebad else "")
                   + (f"; listed but not in {listing}: " + ", ".join(r["extra"][:3])
                      if r["extra"] else "") + broke)
+
+        # A JFFS2 LZMA node must decode to exactly the size it records: a stream
+        # cut short, or a node claiming one byte more or one byte less than its
+        # stream holds, is refused rather than read as a different file. The node is the first
+        # LZMA node OpenWrt's mkfs.jffs2 wrote into the fixture.
+        lz_fx = os.path.join(fx, "jffs2-le-lzma.img.gz")
+        if os.path.isfile(lz_fx):
+            with gzip.open(lz_fx, "rb") as gz:
+                lz_raw = gz.read()
+            lz_node, lz_i = None, 0
+            while lz_node is None and lz_i + 68 <= len(lz_raw):
+                lz_magic, lz_ntype, lz_tlen = struct.unpack_from("<HHI", lz_raw, lz_i)
+                if lz_magic != 0x1985 or lz_tlen < 12:
+                    lz_i += 4
+                    continue
+                if lz_ntype == 0xE002 and lz_raw[lz_i + 56] == 8:
+                    lz_csize, lz_dsize = struct.unpack_from("<II", lz_raw, lz_i + 48)
+                    lz_node = (lz_raw[lz_i + 68:lz_i + 68 + lz_csize], lz_dsize)
+                lz_i += (lz_tlen + 3) & ~3
+
+            def _refused(src, lz_dsize):
+                try:
+                    jffs2_decompress(8, src, lz_dsize)
+                except DecompressError:
+                    return True
+                return False
+            cond = (lz_node is not None and len(jffs2_decompress(8, *lz_node)) == lz_node[1]
+                    and _refused(lz_node[0][:len(lz_node[0]) // 2], lz_node[1])
+                    and _refused(lz_node[0], lz_node[1] + 1)
+                    and _refused(lz_node[0], lz_node[1] - 1))
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] a JFFS2 LZMA node decodes to exactly the "
+                  "size it records, and one cut short or claiming a byte more or less is refused")
+
+        def _sha_match(walker, hashes, prefix=""):
+            """{path: None if it matches, else what went wrong} for every file
+            in a sha256sum list, read through `walker`."""
+            import hashlib
+            got = {p_: (n_, sz_) for p_, n_, _m, sz_, _t, _r in walk_all(walker)}
+            ub_res = {}
+            with open(hashes, encoding="utf-8") as hf:
+                for line in hf:
+                    if not line.strip():
+                        continue
+                    digest, path = line.rstrip("\n").split("  ", 1)
+                    g = got.get(prefix + path)
+                    if g is None:
+                        ub_res[path] = "not listed"
+                        continue
+                    try:
+                        h = hashlib.sha256(b"".join(walker.read_file(*g))).hexdigest()
+                        ub_res[path] = None if h == digest else "different bytes"
+                    except Exception as exc:         # pylint: disable=broad-except
+                        ub_res[path] = str(exc)
+            return ub_res
+
+        # A raw NAND dump holds bits before the controller's ECC corrected them,
+        # so a node can fail its CRC by one flipped bit. Flipped here in the bare
+        # UBIFS fixture: one bit in a data node, one in the root index node, one
+        # in another data node's stored CRC, and one in each master node (read
+        # by scanning its LEB, the path the journal replay also takes). Each
+        # must read with the bit restored. A data node with two bits flipped
+        # must be refused with that reason, never read with a wrong bit "fixed",
+        # and one whose place reads as erased flash refused as erased.
+        ub_fx = os.path.join(fx, "ubifs-lzo.img.gz")
+        if os.path.isfile(ub_fx) and os.path.isfile(os.path.join(fx, "ubifs.src.sha256")):
+            with gzip.open(ub_fx, "rb") as gz:
+                ub_img = bytearray(gz.read())
+            ub_w0 = UbifsWalker(io.BytesIO(bytes(ub_img)), 0)
+            ub_lsz = ub_w0.leb_size
+            ub_by_size = sorted((lz_i for lz_i, ub_d in ub_w0.data.items() if 0 in ub_d),
+                             key=lambda lz_i: -len(ub_w0.data[lz_i]))
+            ub_a, ub_b, ub_c, ub_d = (ub_w0.data[lz_i][0] for lz_i in ub_by_size[:4])
+            ub_root = ub_w0.master["root"]
+            # mkfs.ubifs writes each master node at the start of LEB 1 and LEB 2
+            ub_masters = [(ub_ln, 0) for ub_ln in (1, 2)
+                          if struct.unpack_from("<I", ub_img, ub_ln * ub_lsz)[0] == UBIFS_MAGIC
+                          and ub_img[ub_ln * ub_lsz + 20] == UBIFS_MST_NODE]
+            ub_mid_a, ub_mid_c = 48 + (ub_a[2] - 48) // 2, 48 + (ub_c[2] - 48) // 2   # inside the data
+            ub_flips = [(ub_a[0], ub_a[1], ub_mid_a, 0x04), (ub_root[0], ub_root[1], 40, 0x10),
+                     (ub_b[0], ub_b[1], 5, 0x01), (ub_c[0], ub_c[1], ub_mid_c, 0x01),
+                     (ub_c[0], ub_c[1], ub_mid_c + 1, 0x80)]
+            ub_flips += [(ub_ln, ub_o, 60, 0x02) for ub_ln, ub_o in ub_masters]
+            for ub_ln, ub_o, ub_at, ub_x in ub_flips:
+                ub_img[ub_ln * ub_lsz + ub_o + ub_at] ^= ub_x
+            ub_img[ub_d[0] * ub_lsz + ub_d[1]:ub_d[0] * ub_lsz + ub_d[1] + 4] = b"\xff" * 4
+            try:
+                ub_w1 = UbifsWalker(io.BytesIO(bytes(ub_img)), 0)
+                ub_res = _sha_match(ub_w1, os.path.join(fx, "ubifs.src.sha256"))
+                ub_paths = {n_: p_ for p_, n_, *_x in walk_all(ub_w1)}
+                ub_path_c, ub_path_d = ub_paths.get(ub_by_size[2]), ub_paths.get(ub_by_size[3])
+                ub_bad = {p_: why for p_, why in ub_res.items() if why}
+                ub_repaired = ub_w1.bit_repairs
+                ub_broke = ""
+            except Exception as exc:                 # pylint: disable=broad-except
+                ub_res, ub_bad, ub_repaired, ub_broke = {}, {}, set(), f"; raised {exc}"
+                ub_path_c = ub_path_d = None
+            ub_want_rep = {(ub_a[0], ub_a[1]), (ub_root[0], ub_root[1]), (ub_b[0], ub_b[1]), ub_masters[0]}
+            cond = (len(ub_masters) == 2 and ub_res and None not in (ub_path_c, ub_path_d)
+                    and set(ub_bad) == {ub_path_c, ub_path_d}
+                    and "more than one flipped bit" in ub_bad.get(ub_path_c, "")
+                    and "is erased flash" in ub_bad.get(ub_path_d, "")
+                    and ub_repaired == ub_want_rep and not ub_broke)
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] UBIFS nodes one flipped bit off their CRC "
+                  f"(data, index, stored CRC, master) read with the bit restored: "
+                  f"{len(ub_res) - len(ub_bad)} of {len(ub_res)} files match, {len(ub_repaired)} nodes "
+                  f"repaired of {len(ub_want_rep)} expected; the node with two bits flipped is "
+                  f"refused ({ub_bad.get(ub_path_c, 'NOT REFUSED')}), and the erased one "
+                  f"({ub_bad.get(ub_path_d, 'NOT REFUSED')})" + ub_broke)
+
+        # CRC32_ONE_BIT_MAX rests on the shortest weight-3 codeword of CRC-32
+        # (x^a + x^b + 1 divisible by 0x104C11DB7): found here, not assumed.
+        cw_pow, cw_seen, cw_len = 1, {1: 0}, None
+        for cw_i in range(1, 100_000):
+            cw_pow <<= 1
+            if cw_pow >> 32:
+                cw_pow ^= 0x104C11DB7
+            cw_a = cw_seen.get(cw_pow ^ 1)
+            if cw_a:
+                cw_len = cw_i + 1
+                break
+            cw_seen.setdefault(cw_pow, cw_i)
+        cond = cw_len == 91640 and CRC32_ONE_BIT_MAX * 8 + 32 < cw_len
+        if not cond:
+            ok = False
+        print(f"  [{'PASS' if cond else 'FAIL'}] the shortest weight-3 CRC-32 codeword is "
+              f"{cw_len} bits, so a one-bit repair of up to {CRC32_ONE_BIT_MAX:,} bytes cannot "
+              "mistake two flipped bits for one")
+
+        # UBI checks a copy's data CRC only against another copy of the same LEB;
+        # a LEB whose one copy on the flash is marked as a copy with a bad data
+        # CRC is still attached. Here that is the UBIFS superblock's LEB, so the
+        # volume opens only if it is.
+        un_fx = os.path.join(fx, "ubi-nor.img.gz")
+        if os.path.isfile(un_fx) and os.path.isfile(os.path.join(fx, "ubifs.src.sha256")):
+            with gzip.open(un_fx, "rb") as gz:
+                ub_img = bytearray(gz.read())
+            un_u0 = UbiWalker(io.BytesIO(bytes(ub_img)), 0, len(ub_img))
+            un_vol0 = next(v for v in un_u0.ubi.volumes if v["name"] == "rootfs_data")
+            un_peb = un_u0.ubi.map[(un_vol0["id"], 0)]["peb"]
+            ub_at = un_peb * un_u0.ubi.peb + un_u0.ubi.vid_off
+            un_hdr = bytearray(ub_img[ub_at:ub_at + 64])
+            un_hdr[6] = 1                                    # copy_flag
+            struct.pack_into(">I", un_hdr, 20, 4096)         # data_size
+            struct.pack_into(">I", un_hdr, 32, _ubi_crc(bytes(4096)) ^ 1)   # a data CRC that fails
+            struct.pack_into(">I", un_hdr, 60, _ubi_crc(bytes(un_hdr[:60])))
+            ub_img[ub_at:ub_at + 64] = un_hdr
+            un_u1 = UbiWalker(io.BytesIO(bytes(ub_img)), 0, len(ub_img))
+            ub_res = _sha_match(un_u1, os.path.join(fx, "ubifs.src.sha256"), "rootfs_data/")
+            un_lone = un_u1.ubi.stats["copy with a bad data CRC, the only copy, used"]
+            cond = bool(ub_res) and not any(ub_res.values()) and un_lone == 1
+            if not cond:
+                ok = False
+            print(f"  [{'PASS' if cond else 'FAIL'}] a UBI LEB whose only copy is marked as a "
+                  f"copy with a bad data CRC is still read, as the kernel attaches it: "
+                  f"{sum(1 for v in ub_res.values() if v is None)} of {len(ub_res)} files match "
+                  f"({un_lone} such LEB counted)")
 
         # YAFFS writes wherever garbage collection freed a block, so a real
         # partition can open on blocks holding only data chunks, or only
@@ -16838,10 +17111,12 @@ def self_test():
                 print(f"  [{'PASS' if ocond else 'FAIL'}] {label} in a raw NAND dump with its "
                       f"spare bytes: geometry found as {geo}, {okn} of {len(want)} files match")
 
-        # The controls. One byte of one file's stored bytes is flipped in each
-        # family's uncompressed image, and exactly that file must come back
-        # different: a content check that has never reported a difference says
-        # nothing. (In UBIFS the node's CRC catches it and the file is refused;
+        # The controls. Two bits of one byte of one file's stored bytes are
+        # flipped in each family's uncompressed image, and exactly that file must
+        # come back different: a content check that has never reported a
+        # difference says nothing. Two bits, because a UBIFS node one bit off
+        # its CRC is read with the bit restored. (In UBIFS the node's CRC catches
+        # it and the file is refused;
         # in JFFS2 the node is dropped as the kernel drops it, and a file whose
         # only node that was is no longer listed; YAFFS keeps no data CRC, so
         # the bytes differ.)
@@ -16855,7 +17130,7 @@ def self_test():
                 continue
             try:
                 r = _flash_fixture_check(img, os.path.join(fx, hashes), prefix=prefix,
-                                         corrupt=(b"deep file\n", 0x20))
+                                         corrupt=(b"deep file\n", 0x21))
                 got, want, miss, diff = r["files"]
             except Exception:                        # pylint: disable=broad-except
                 got, want, miss, diff = 0, 0, 0, 0
