@@ -1,15 +1,18 @@
-# pylint: disable=W0613
 __artifacts_v2__ = {
     'tcc': {
         'name': 'Application Permissions',
         'description': 'Extract application permissions from TCC.db database',
         'author': '@AlexisBrignoni - @KevinPagano3 - @johannplw',
         'creation_date': '2020-12-15',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-09-29',
         'requirements': 'none',
         'category': 'App Permissions',
         'notes': 'auth_value meanings follow community-established TCC research; unrecognized values are reported as stored.',
-        'paths': ('*/mobile/Library/TCC/TCC.db*','*/logs/Accessibility/TCC.db*'),
+        'paths': (
+            '*/mobile/Library/TCC/TCC.db*',
+            '*/logs/Accessibility/TCC.db*',
+            '*/sysdiagnose_*.tar.gz'
+        ),
         'output_types': 'standard',
         'artifact_icon': 'key',
         'sample_data': {
@@ -32,72 +35,110 @@ __artifacts_v2__ = {
     }
 }
 
-
-from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, does_column_exist_in_db, \
-    convert_unix_ts_to_utc
-
+import os
+import tempfile
+import shutil
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, does_column_exist_in_db, convert_unix_ts_to_utc, get_sysdiagnose_files
 
 @artifact_processor
 def tcc(context):
-    source_path = get_file_path(context.get_files_found(), 'TCC.db')
     data_list = []
+    source_paths = set()
 
-    last_modified_timestamp_exists = does_column_exist_in_db(
-        source_path, 'access', 'last_modified')
+    for file_obj, source_path in get_sysdiagnose_files(context.get_files_found(), "TCC.db"):
+        source_name = str(context.get_relative_path(source_path))
+        source_paths.add(source_path)
 
-    if does_column_exist_in_db(source_path, 'access', 'auth_value'):
-        access = '''
-        case auth_value
-            when 0 then 'Not allowed'
-            when 2 then 'Allowed'
-            when 3 then 'Limited'
-            else auth_value
-        end as 'Access'
-        '''
-    else:
-        access = '''
-        case allowed
-            when 0 then 'Not allowed'
-            when 1 then 'Allowed'
-            else allowed
-        end as 'Access'
-        '''
+        db_path = source_path
+        temp_db = None
 
-    prompt_count_exists = does_column_exist_in_db(
-        source_path, 'access', 'prompt_count')
+        # Materialize the SQLite database to disk if it is streamed from a sysdiagnose archive
+        if not os.path.isfile(source_path):
+            temp_db = tempfile.NamedTemporaryFile(delete=False)
+            try:
+                if hasattr(file_obj, 'buffer'):
+                    shutil.copyfileobj(file_obj.buffer, temp_db)
+                else:
+                    while True:
+                        chunk = file_obj.read(8192)
+                        if not chunk:
+                            break
+                        if isinstance(chunk, str):
+                            chunk = chunk.encode('latin-1')
+                        temp_db.write(chunk)
+                temp_db.close()
+                db_path = temp_db.name
+            except Exception:
+                temp_db.close()
+                os.unlink(temp_db.name)
+                continue
 
-    query = f'''
-    SELECT
-        {'last_modified,' if last_modified_timestamp_exists else ''}
-        client,
-        service,
-        {access}
-        {',prompt_count' if prompt_count_exists else ''}
-    FROM access
-    ORDER BY client, access.rowid
-    '''
+        try:
+            last_modified_timestamp_exists = does_column_exist_in_db(db_path, 'access', 'last_modified')
+            prompt_count_exists = does_column_exist_in_db(db_path, 'access', 'prompt_count')
 
-    if last_modified_timestamp_exists:
-        data_headers = (
-            ('Last Modified Timestamp', 'datetime'),
-            'Bundle ID',
-            'Service',
-            'Access')
-    else:
-        data_headers = ('Bundle ID', 'Service', 'Access', 'Prompt Count')
+            if does_column_exist_in_db(db_path, 'access', 'auth_value'):
+                access = '''
+                case auth_value
+                    when 0 then 'Not allowed'
+                    when 2 then 'Allowed'
+                    when 3 then 'Limited'
+                    else auth_value
+                end as 'Access'
+                '''
+            else:
+                access = '''
+                case allowed
+                    when 0 then 'Not allowed'
+                    when 1 then 'Allowed'
+                    else allowed
+                end as 'Access'
+                '''
 
-    db_records = get_sqlite_db_records(source_path, query)
+            # Unified query to ensure a consistent column count regardless of schema variations across different TCC.db instances
+            query = f'''
+            SELECT
+                {'last_modified' if last_modified_timestamp_exists else "'' AS last_modified"},
+                client,
+                service,
+                {access},
+                {'prompt_count' if prompt_count_exists else "'' AS prompt_count"}
+            FROM access
+            ORDER BY client, access.rowid
+            '''
 
-    for record in db_records:
-        if last_modified_timestamp_exists:
-            last_modified_timestamp = convert_unix_ts_to_utc(
-                record['last_modified'])
-            data_list.append(
-                (last_modified_timestamp, record[1],
-                 record[2].replace('kTCCService', ''), record[3]))
-        else:
-            data_list.append((record[1], record[2].replace('kTCCService', ''),
-                              record[3], record[4]))
+            db_records = get_sqlite_db_records(db_path, query)
 
-    return data_headers, data_list, source_path
+            for record in db_records:
+                ts = convert_unix_ts_to_utc(record[0]) if last_modified_timestamp_exists and record[0] else ''
+                
+                data_list.append((
+                    ts,
+                    record[1],
+                    record[2].replace('kTCCService', '') if record[2] else '',
+                    record[3],
+                    record[4],
+                    source_name
+                ))
+        except Exception:
+            pass
+        finally:
+            # Clean up the temporary materialized database
+            if temp_db and os.path.exists(temp_db.name):
+                try:
+                    os.unlink(temp_db.name)
+                except OSError:
+                    # Windows holds a lock if the SQLite connection failed to close gracefully
+                    pass
+
+    # Unified headers to support multiple databases with varying schemas in a single table output
+    data_headers = (
+        ('Last Modified Timestamp', 'datetime'),
+        'Bundle ID',
+        'Service',
+        'Access',
+        'Prompt Count',
+        'Source File'
+    )
+
+    return data_headers, data_list, '\n'.join(sorted(source_paths))
