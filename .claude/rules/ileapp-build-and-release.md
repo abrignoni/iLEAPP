@@ -109,6 +109,10 @@ installs only on ARM64. macOS (Apple silicon and Intel): `.app` and `.dmg`. The 
 laid out by dmgbuild from `packaging/dmg_settings.py`: the app and an Applications link
 either side of the arrow on `packaging/dmg_background.png`. The settings place the icons
 for that 960x540 image, so a new background keeps its size and its arrow where it is.
+The background of 2026-10-01 moved the arrow 44 points right (88 pixels on the @2x image),
+to a centre at x=479, and the icons with it, from (260, 290) and (610, 290) to (304, 290)
+and (654, 290). A test finds the arrow on the background and requires the two icons to
+straddle it, so a background that moves it again fails there rather than on a Mac.
 `dmg_background@2x.png` beside it, at exactly 1920x1080, is what a Retina screen shows:
 dmgbuild finds it by name and joins the two into one TIFF with `tiffutil
 -cathidpicheck`, which refuses a pair that is not exactly 1x and 2x. Without it the

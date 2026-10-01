@@ -477,6 +477,23 @@ class TestDiskImageLayout(unittest.TestCase):
         self.assertEqual(win_w, width)
         self.assertGreaterEqual(win_h, height)
 
+    def test_the_icons_sit_either_side_of_the_arrow(self):
+        """A new background that moves the arrow, as the one of 2026-10-01 did by 44 points,
+        leaves the icons off centre unless the settings move with it. The arrow is the only
+        dark mark in its band."""
+        from PIL import Image  # pylint: disable=import-outside-toplevel
+        with Image.open(PACKAGING / 'dmg_background.png') as img:
+            rgb = img.convert('RGB')
+            dark = [x for y in range(250, 320) for x in range(rgb.width)
+                    if sum(rgb.getpixel((x, y))) < 600]
+        arrow_centre = (min(dark) + max(dark)) / 2
+        locations = _dmg_settings()['icon_locations']
+        (app_x, app_y), (apps_x, apps_y) = locations['iLEAPP.app'], locations['Applications']
+        self.assertEqual(app_y, apps_y)
+        self.assertLess(app_x, min(dark))
+        self.assertGreater(apps_x, max(dark))
+        self.assertLessEqual(abs((app_x + apps_x) / 2 - arrow_centre), 2)
+
     def test_the_retina_background_is_exactly_twice_the_size(self):
         """dmgbuild joins dmg_background@2x.png to the background with tiffutil
         -cathidpicheck, which refuses a pair that is not exactly 1x and 2x, and the disk
