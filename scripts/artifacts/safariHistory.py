@@ -11,6 +11,27 @@ __artifacts_v2__ = {
             "Where Safari profiles are present, each has its own "
             "History.db under Safari/Profiles/. The Profile column carries the profile "
             "directory name for those records and Default for the main history database. "
+            "Profile Name is the title of the row in the bookmarks table of SafariTabs.db whose "
+            "external_uuid or server_id equals that directory name. It is blank for the main "
+            "history database, when no row names the directory and when no SafariTabs.db is "
+            "found. When more than one SafariTabs.db names the directory, the one sharing the "
+            "longest leading path with the History.db is used. felix_ios17 (iOS 17.6.1) is the "
+            "only image in sample_data that holds a History.db under Profiles/. Its directory "
+            "is in an app data container, at "
+            "private/var/mobile/Containers/Data/Application/<GUID>/Library/Safari/Profiles/, "
+            "and is named with the external_uuid of a "
+            "row titled Pro in the SafariTabs.db under private/var/mobile/Library/Safari/; "
+            "that row's server_id names a second directory under Profiles/ that holds no "
+            "History.db. That profile database holds no visit, so no row from an image in "
+            "sample_data carries a Profile Name: it was blank on all 32 rows of felix_ios17 "
+            "and all 57 rows of otto_ios17. A row with a Profile Name was exercised with a "
+            "constructed tree only: felix_ios17's SafariTabs.db beside a History.db of known "
+            "data placed in that profile directory, which reported Pro on all 11 of its rows. "
+            "In the SafariTabs.db of felix_ios17 and of iphone14plus_ios18 the row for the "
+            "default profile has an empty title and the text DefaultProfile in both columns. "
+            "On a Mac (macOS 27.0.1, Safari 27.0.1; DLEAPP's safari_tags_known_data_macos27) "
+            "a profile's History.db directory equalled server_id instead, which is why both "
+            "columns are matched. "
             "Tags and Tag Identifiers list the title and identifier of each history_tags row "
             "that a history_items_to_tags row links to the visit's history item, ordered by "
             "the link's timestamp and separated by a semicolon and a space. The link is to "
@@ -22,6 +43,7 @@ __artifacts_v2__ = {
         "paths": (
             '**/Safari/History.db*',
             '**/Safari/Profiles/*/History.db*',
+            '**/Safari/SafariTabs.db*',
         ),
         "output_types": "standard",
         "artifact_icon": "globe",
@@ -100,7 +122,10 @@ __artifacts_v2__ = {
             "Profile carries the profile directory name or Default. Profile held one "
             "value, Default, on every row, because no tested image held a tag in a "
             "profile's database; that case was exercised with a constructed database "
-            "only. "
+            "only. Profile Name is the title SafariTabs.db stores for the profile directory, "
+            "resolved as Safari Browser - History describes. Profile Name was blank on all 52 rows of "
+            "otto_ios17, and no image in sample_data holds a tag in a profile's database; "
+            "the constructed tree described there reported Pro on all 8 of its rows. "
             "The two tables and the Wikidata form of the identifier are described in the "
             "reference. Reference: Yogesh Khatri, 'Tags in Safari History db', "
             "https://www.swiftforensics.com/2026/10/tags-in-safari-history-db.html"
@@ -108,6 +133,7 @@ __artifacts_v2__ = {
         "paths": (
             '**/Safari/History.db*',
             '**/Safari/Profiles/*/History.db*',
+            '**/Safari/SafariTabs.db*',
         ),
         "output_types": "standard",
         "artifact_icon": "tag",
@@ -141,7 +167,8 @@ __artifacts_v2__ = {
 
 from pathlib import PurePath
 
-from scripts.ilapfuncs import artifact_processor, does_table_exist_in_db, get_sqlite_db_records
+from scripts.ilapfuncs import (artifact_processor, does_column_exist_in_db,
+                               does_table_exist_in_db, get_sqlite_db_records)
 
 
 def _profile_name(source_path):
@@ -149,6 +176,50 @@ def _profile_name(source_path):
     if len(parts) >= 3 and parts[-3] == 'Profiles':
         return parts[-2]
     return 'Default'
+
+
+def _profile_titles(context):
+    '''[(evidence path of a SafariTabs.db, {profile directory name: title})]. A row of the
+    bookmarks table names a profile directory in its external_uuid and in its server_id.'''
+    stores = []
+    for file_found in context.get_files_found():
+        source_path = str(file_found)
+        if not source_path.endswith('SafariTabs.db'):
+            continue
+        if not all(does_column_exist_in_db(source_path, 'bookmarks', column)
+                   for column in ('title', 'server_id', 'external_uuid')):
+            continue
+        titles = {}
+        for row in get_sqlite_db_records(
+                source_path, 'SELECT title, server_id, external_uuid FROM bookmarks'):
+            for directory in (row[1], row[2]):
+                if directory:
+                    titles.setdefault(directory, row[0] or '')
+        stores.append((PurePath(context.get_relative_path(source_path)).parts, titles))
+    return stores
+
+
+def _profile_title(context, stores, source_path):
+    '''The title SafariTabs.db stores for the profile directory a History.db is in. When
+    more than one SafariTabs.db names the directory, the one sharing the longest leading
+    path with the History.db is used.'''
+    parts = PurePath(source_path).parts
+    if len(parts) < 3 or parts[-3] != 'Profiles':
+        return ''
+    directory = parts[-2]
+    relative = PurePath(context.get_relative_path(source_path)).parts
+    best_shared, best_title = -1, ''
+    for tabs_parts, titles in stores:
+        if directory not in titles:
+            continue
+        shared = 0
+        for mine, theirs in zip(relative, tabs_parts):
+            if mine != theirs:
+                break
+            shared += 1
+        if shared > best_shared:
+            best_shared, best_title = shared, titles[directory]
+    return best_title
 
 
 def _history_databases(context):
@@ -183,7 +254,7 @@ def _item_tags(source_path):
 def safariHistory(context):
     data_headers = (('Visit Timestamp', 'datetime'), 'Title', 'URL', 'Visit Count',
                     'Redirect Source', 'Redirect Destination', 'Visit ID', 'Origin',
-                    'Tags', 'Tag Identifiers', 'Profile')
+                    'Tags', 'Tag Identifiers', 'Profile', 'Profile Name')
     data_list = []
 
     source_paths = _history_databases(context)
@@ -218,8 +289,10 @@ def safariHistory(context):
         END,
         history_visits.id
     '''
+    stores = _profile_titles(context)
     for source_path in source_paths:
         profile = _profile_name(source_path)
+        profile_title = _profile_title(context, stores, source_path)
 
         # Map visit id -> url so redirect source/destination ids can be resolved to
         # URLs. Visit ids are only unique within one database, so the map is per file.
@@ -239,7 +312,7 @@ def safariHistory(context):
             tags, tag_identifiers = item_tags.get(row[8], ('', ''))
             data_list.append((row[0], row[1], row[2], row[3], redirect_source,
                               redirect_destination, row[6], row[7], tags, tag_identifiers,
-                              profile))
+                              profile, profile_title))
 
     sources = '\n'.join(context.get_relative_path(path) for path in source_paths)
     return data_headers, data_list, sources
@@ -249,7 +322,7 @@ def safariHistory(context):
 def safariHistoryTags(context):
     data_headers = (('Tag Modified', 'datetime'), ('Item Tagged', 'datetime'), 'Tag',
                     'Identifier', 'URL', 'Item Count', 'Linked Items', 'Type', 'Level',
-                    'Profile')
+                    'Profile', 'Profile Name')
     data_list = []
 
     source_paths = _history_databases(context)
@@ -290,13 +363,15 @@ def safariHistoryTags(context):
         history_tags.id,
         history_items_to_tags.timestamp
     '''
+    stores = _profile_titles(context)
     for source_path in source_paths:
         if not _has_tag_tables(source_path):
             continue
         profile = _profile_name(source_path)
+        profile_title = _profile_title(context, stores, source_path)
         for row in get_sqlite_db_records(source_path, query):
             data_list.append((row[0], row[1], row[2], row[3], row[4] or '', row[5],
-                              row[6], row[7], row[8], profile))
+                              row[6], row[7], row[8], profile, profile_title))
 
     sources = '\n'.join(context.get_relative_path(path) for path in source_paths)
     return data_headers, data_list, sources
