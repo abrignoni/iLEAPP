@@ -1748,5 +1748,43 @@ class WindowsWrittenVolumeTest(unittest.TestCase):
         self.assertFalse(report['CloudRoot/hydrated_100000.txt']['placeholder'])
 
 
+class CompressionUnitThatStopsEarlyTest(unittest.TestCase):
+    """An NTFS-compressed file is staged whole when one of its units ends early."""
+
+    # lznt1/text_100000.txt on the Windows-written volume is two compression units, each
+    # stored in two clusters. The second begins at cluster 1548 of the volume, and the
+    # volume at byte 65,536 of the image. Windows wrote f7 b1 there, the unit's first
+    # chunk header.
+    SECOND_UNIT = 65536 + 1548 * 4096
+    # The file with its second unit read as zeros: its first 65,536 bytes, then 34,464
+    # zeros. The Sleuth Kit 4.15.0 (icat) read the same changed image to this digest.
+    EXPECTED = '2178bd1ed448997552310b525dd2f83a6049978b291fe6afd0f8cb4ee2cc40b1'
+
+    def setUp(self):
+        self.work = tempfile.mkdtemp(prefix='raw_image_lznt1_')
+        self.addCleanup(shutil.rmtree, self.work, True)
+        with gzip.open(FIXTURES / 'ntfs-windows.img.gz', 'rb') as src:
+            image = bytearray(src.read())
+        self.assertEqual(bytes(image[self.SECOND_UNIT:self.SECOND_UNIT + 2]), b'\xf7\xb1')
+        image[self.SECOND_UNIT:self.SECOND_UNIT + 2] = b'\x00\x00'
+        self.image = os.path.join(self.work, 'ntfs-windows-short-unit.img')
+        with open(self.image, 'wb') as dst:
+            dst.write(image)
+        self.data = os.path.join(self.work, 'data')
+        os.makedirs(self.data)
+        self.log = _Recorder()
+        patcher = mock.patch.object(raw_image, 'logfunc', self.log)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.seeker = FileSeekerRaw(self.image, self.data)
+        self.addCleanup(self.seeker.cleanup)
+
+    def test_a_unit_that_ends_at_a_zero_header_is_staged_as_zeros_to_its_end(self):
+        found = self.seeker.search('*/lznt1/text_100000.txt')
+        self.assertEqual(len(found), 1, self.log.text())
+        self.assertEqual(os.path.getsize(found[0]), 100000)
+        self.assertEqual(_sha256(found[0]), self.EXPECTED)
+
+
 if __name__ == '__main__':
     unittest.main()
