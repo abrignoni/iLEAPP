@@ -24,6 +24,11 @@ one flipped bit is read with that bit restored, as the NAND controller would hav
 read it. Since 1.55, two JFFS2 partitions that sit side by side are read as two
 filesystems, and a U-Boot environment or a Belkin WeMo NVRM configuration store whose
 CRC-32 holds is listed as a volume holding one file, `uboot-env.bin` or `nvram.bin`.
+Since 1.56, an NTFS file the Windows Overlay Filter compressed with XPRESS (Store app
+files, Defender's platform files, anything `compact /exe` touched) is staged as its
+content, where it used to be staged as zeros of the right length, and a cloud
+provider's online-only placeholder (OneDrive Files On-Demand) is not staged at all:
+its content is not in the image, and the run log names it.
 
 ## Where the pieces are
 
@@ -54,7 +59,9 @@ CRC-32 holds is listed as a volume holding one file, `uboot-env.bin` or `nvram.b
   time; an AD1 against FTK Imager's own listing of it (live files, a stream, a
   deleted entry left out), an AD1 sealed to a test certificate, a BitLocker
   volume opened with its password, recovery password or startup key, and an APFS
-  volume macOS encrypted in place, opened with its password; and a damaged
+  volume macOS encrypted in place, opened with its password; a volume Windows 11
+  wrote, against Windows's own hashes of its overlay-compressed, NTFS compressed and
+  sparse files, with cloud placeholders that must not be staged; and a damaged
   L01, an encrypted image opened without its password or with a wrong one, a damaged
   encrypted header and a `.dmgpart` opened on its own that must be refused.
 
@@ -199,6 +206,15 @@ for it, so no report field carries a zone the evidence never had.
   collapsed and per-app row counts multiply; on a bare iOS Data volume the
   `iosfilesystemevents` family and `diagnosticlogdevents` find nothing. A
   full-disk or full-`/data` image carries the expected root and neither happens.
+- It does not stage what the image does not hold. A cloud provider's online-only
+  placeholder on NTFS records a size and stores nothing, and the run log says
+  `Not staged` with the size recorded and the bytes stored. A file overlay-compressed
+  with LZX (`compact /exe:lzx`) is not decoded and is not staged either; the three
+  XPRESS forms are. Before qnxprobe 1.56 both kinds were staged as zeros.
+- A sparse file is staged at its recorded size with its holes written as zeros, so
+  the copy can occupy more than the file did in the image: an emulator disk recording
+  6.4 GB and storing 108 MB stages as 6.4 GB. `qnxprobe.allocation(walker, node)` gives
+  what the image stores for a file, for a caller that needs to know before writing.
 - On F2FS, a file the filesystem compressed is listed with its size and not
   decompressed, and one under per-file encryption (the norm on a current
   Android `userdata`) is listed and its content refused rather than staged as
