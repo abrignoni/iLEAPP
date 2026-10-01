@@ -1616,5 +1616,137 @@ class KeysAndLogicalEvidenceTest(unittest.TestCase):
         self.assertEqual((keys.bitlocker_keys, keys.bitlocker_secrets), ([], []))
 
 
+# The volume Windows 11 wrote (qnxprobe tools/make_ntfs_windows_fixture.cmd) and what
+# Windows reported for each of its files. The folder names are the script's: five files
+# under each of wof/xpress4k, wof/xpress8k, wof/xpress16k and wof/lzx, and four under
+# CloudRoot, three of them placeholders written through the Cloud Files API.
+WINDOWS_VOLUME = 'p1_lba128'
+WINDOWS_FILES = 35
+WINDOWS_HASHED = 27
+WINDOWS_PLACEHOLDERS = ('CloudRoot/online_only_doc.pdf', 'CloudRoot/online_only_photo.jpg',
+                        'CloudRoot/online_only_video.mp4')
+
+
+def _windows_known(path):
+    """{path: (length, size on disk, sha256 or '-', 'read' or 'refused')}."""
+    out = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        if not line or line.startswith('#'):
+            continue
+        rel, length, _attributes, disk, digest, windows = line.split('\t')
+        out[rel] = (int(length), int(disk), digest, windows)
+    return out
+
+
+class WindowsWrittenVolumeTest(unittest.TestCase):
+    """What the image does not hold is not staged, and what it holds compressed is read."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.work = tempfile.mkdtemp(prefix='raw_image_windows_')
+        cls.image = os.path.join(cls.work, 'ntfs-windows.img')
+        with gzip.open(FIXTURES / 'ntfs-windows.img.gz', 'rb') as src, \
+                open(cls.image, 'wb') as dst:
+            shutil.copyfileobj(src, dst)
+        cls.known = _windows_known(FIXTURES / 'ntfs-windows.known.tsv')
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.work, ignore_errors=True)
+
+    def setUp(self):
+        self.data = tempfile.mkdtemp(prefix='raw_image_data_')
+        self.addCleanup(shutil.rmtree, self.data, True)
+        self.log = _Recorder()
+        patcher = mock.patch.object(raw_image, 'logfunc', self.log)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.seeker = FileSeekerRaw(self.image, self.data)
+        self.addCleanup(self.seeker.cleanup)
+
+    def _staged(self):
+        prefix = WINDOWS_VOLUME + '/'
+        return {info.source_path[len(prefix):]: path
+                for path, info in self.seeker.file_infos.items()
+                if info.source_path.startswith(prefix) and not info.source_path.endswith('/')}
+
+    def _files_on_disk(self):
+        return sum(len(files) for _root, _dirs, files in os.walk(self.data))
+
+    def test_the_manifest_is_the_one_windows_wrote(self):
+        self.assertEqual([v['name'] for v in self.seeker.volumes], [WINDOWS_VOLUME])
+        self.assertEqual(len(self.known), WINDOWS_FILES)
+        refused = sorted(rel for rel, row in self.known.items() if row[3] == 'refused')
+        self.assertEqual(refused, sorted(WINDOWS_PLACEHOLDERS))
+
+    def test_every_file_windows_hashed_is_staged_to_the_same_bytes(self):
+        # plain, resident, sparse, NTFS compressed, a cloud file that is all there, and
+        # the fifteen overlay-compressed with XPRESS, which were zeros before 1.56
+        self.seeker.search('*')
+        staged = self._staged()
+        hashed = {rel: row for rel, row in self.known.items()
+                  if row[3] == 'read' and not rel.startswith('wof/lzx/')}
+        self.assertEqual(len(hashed), WINDOWS_HASHED)
+        self.assertEqual(sorted(set(hashed) - set(staged)), [])
+        differ = [rel for rel, row in hashed.items()
+                  if os.path.getsize(staged[rel]) != row[0] or _sha256(staged[rel]) != row[2]]
+        self.assertEqual(differ, [])
+        xpress = [rel for rel in hashed if rel.startswith('wof/xpress')]
+        self.assertEqual(len(xpress), 15)
+        for rel in xpress:
+            with open(staged[rel], 'rb') as handle:
+                self.assertTrue(any(handle.read()), f'{rel} was staged as zeros')
+
+    def test_a_cloud_placeholder_is_not_staged_and_the_log_says_why(self):
+        # a name with a dot in it: the folder itself is a member too, and is not wanted
+        found = self.seeker.search('*/CloudRoot/*.*')
+        self.assertEqual([self.seeker.file_infos[path].source_path for path in found],
+                         [f'{WINDOWS_VOLUME}/CloudRoot/hydrated_100000.txt'])
+        self.assertEqual(self._files_on_disk(), 1)
+        text = self.log.text()
+        for rel in WINDOWS_PLACEHOLDERS:
+            self.assertIn(f'Not staged, {WINDOWS_VOLUME}/{rel}: ', text)
+            self.assertFalse(os.path.exists(os.path.join(self.data, WINDOWS_VOLUME, rel)))
+        self.assertEqual(text.count('online-only placeholder'), 3)
+        # the size Windows recorded for the largest, and that none of it is stored
+        self.assertIn('it records 52,428,800 bytes and the volume stores 0 of them', text)
+
+    def test_a_placeholder_matched_by_a_media_pattern_writes_nothing(self):
+        # the shape of the patterns that reach a photo or a video anywhere on a volume
+        self.assertEqual(self.seeker.search('*.[mM][pP]4'), [])
+        self.assertEqual(self.seeker.search('*/online_only_photo.[jJ][pP][gG]'), [])
+        self.assertEqual(self._files_on_disk(), 0)
+
+    def test_a_file_compressed_with_lzx_is_not_staged_as_zeros(self):
+        self.assertEqual(self.seeker.search('*/wof/lzx/*.*'), [])
+        self.assertEqual(self._files_on_disk(), 0)
+        self.assertEqual(self.log.text().count('overlay-compressed with LZX'), 5)
+
+    def test_a_sparse_file_is_staged_at_its_recorded_size(self):
+        # holes are written as zeros: the copy is the file Windows read, and larger on
+        # disk than the 131,072 bytes the volume stores for it
+        found = self.seeker.search('*/sparse/both_ends.bin')
+        self.assertEqual(len(found), 1)
+        length, disk, digest, _windows = self.known['sparse/both_ends.bin']
+        self.assertEqual((length, disk), (8388608, 131072))
+        self.assertEqual(os.path.getsize(found[0]), length)
+        self.assertEqual(_sha256(found[0]), digest)
+
+    def test_the_reader_says_what_each_file_stores(self):
+        entries = self.seeker._entries           # pylint: disable=protected-access
+        report = {}
+        for rel in self.known:
+            entry = entries[f'{WINDOWS_VOLUME}/{rel}']
+            report[rel] = qnxprobe.allocation(entry.walker, entry.node)
+        self.assertEqual(sorted(rel for rel, got in report.items() if got['placeholder']),
+                         sorted(WINDOWS_PLACEHOLDERS))
+        self.assertEqual(report['sparse/both_ends.bin']['stored'], 131072)
+        self.assertEqual(report['sparse/all_hole.bin']['stored'], 0)
+        self.assertFalse(report['sparse/all_hole.bin']['placeholder'])
+        self.assertEqual(report['wof/xpress8k/text_100000.txt']['compression'], 'wof-xpress8k')
+        self.assertEqual(report['lznt1/text_100000.txt']['compression'], 'lznt1')
+        self.assertFalse(report['CloudRoot/hydrated_100000.txt']['placeholder'])
+
+
 if __name__ == '__main__':
     unittest.main()

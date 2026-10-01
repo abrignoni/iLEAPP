@@ -1,0 +1,41 @@
+# What Windows itself reported for each file of ntfs-windows.img, written by
+# tools/make_ntfs_windows_fixture.cmd on Microsoft Windows 11 Pro 10.0.26200 build 26200.
+# length and attributes as the file API gives them, size on disk from
+# GetCompressedFileSizeW, sha256 from Get-FileHash, and whether Windows could
+# read the file with no cloud provider running. '-' is a file it could not hash.
+# path	length	attributes	size_on_disk	sha256	windows
+CloudRoot/hydrated_100000.txt	100000	0x420	100000	1f180aaecf71ce06e2125762e1ff5b9cba709146f9ee517573193727d89b9252	read
+CloudRoot/online_only_doc.pdf	1151898	0x401620	0	-	refused
+CloudRoot/online_only_photo.jpg	3145728	0x401620	0	-	refused
+CloudRoot/online_only_video.mp4	52428800	0x401620	0	-	refused
+Pictures/hardlink.jpg	20004	0x20	20004	ddc615e7f5efe7f1e275bd8ab6eb31484e3277dc4df1f5a5fd5b3715ef82c1e5	read
+Pictures/plain.jpg	20004	0x20	20004	ddc615e7f5efe7f1e275bd8ab6eb31484e3277dc4df1f5a5fd5b3715ef82c1e5	read
+Pictures/sparse_photo.jpg	5242880	0x220	65536	8a8fdb54205ae874aa267449c97a0215f9cfef2212f733471bb125762065f588	read
+lznt1/mixed_70000.bin	70000	0x820	32768	9babd0d44750030b9110d9b9b2149eeb359fc744ebba56b6d69c30eb3539b290	read
+lznt1/text_100000.txt	100000	0x820	16384	1f180aaecf71ce06e2125762e1ff5b9cba709146f9ee517573193727d89b9252	read
+plain_5000.txt	5000	0x20	5000	1572714250e08366fbdf9be6311c168face99ed85065a7f1f5e39e95e5b54af0	read
+resident_300.txt	300	0x20	300	7e2111bd7c89b22cfa730820a3638ca3550d786bd483be95e545617cd59fa279	read
+sparse/all_hole.bin	3145728	0x220	0	bbd05cf6097ac9b1f89ea29d2542c1b7b67ee46848393895f5a9e43fa1f621e5	read
+sparse/both_ends.bin	8388608	0x220	131072	36311df0f7ea44f06f23fb153c9eb6373f4c3cce996025e2163556ddcb79b9ef	read
+sparse/leading_hole.bin	4202496	0x220	65536	2985bcdee156b662eb2952cb266045a26dccb3228ed694d9fd117cbea1c9f958	read
+sparse/trailing_hole.bin	6291456	0x220	65536	f928b0b9865d62e8eb05e45bcf9c08031c5d398bde6e1aa0e90c15dce18fa769	read
+wof/lzx/mixed_70000.bin	70000	0x20	24576	9babd0d44750030b9110d9b9b2149eeb359fc744ebba56b6d69c30eb3539b290	read
+wof/lzx/text_100000.txt	100000	0x20	4096	1f180aaecf71ce06e2125762e1ff5b9cba709146f9ee517573193727d89b9252	read
+wof/lzx/text_32768.txt	32768	0x20	4096	36b1d23f385e9bb1b615d17f60ad59dddfea8f24510cb938f4d3a77bdcae273f	read
+wof/lzx/text_5000.txt	5000	0x20	4096	1572714250e08366fbdf9be6311c168face99ed85065a7f1f5e39e95e5b54af0	read
+wof/lzx/zeros_150000.bin	150000	0x20	4096	53441ca35fb06f24b01d09f415a19a0429293cacfeb0322d906c79aff06cc10d	read
+wof/xpress16k/mixed_70000.bin	70000	0x20	24576	9babd0d44750030b9110d9b9b2149eeb359fc744ebba56b6d69c30eb3539b290	read
+wof/xpress16k/text_100000.txt	100000	0x20	8192	1f180aaecf71ce06e2125762e1ff5b9cba709146f9ee517573193727d89b9252	read
+wof/xpress16k/text_32768.txt	32768	0x20	4096	36b1d23f385e9bb1b615d17f60ad59dddfea8f24510cb938f4d3a77bdcae273f	read
+wof/xpress16k/text_5000.txt	5000	0x20	4096	1572714250e08366fbdf9be6311c168face99ed85065a7f1f5e39e95e5b54af0	read
+wof/xpress16k/zeros_150000.bin	150000	0x20	4096	53441ca35fb06f24b01d09f415a19a0429293cacfeb0322d906c79aff06cc10d	read
+wof/xpress4k/mixed_70000.bin	70000	0x20	28672	9babd0d44750030b9110d9b9b2149eeb359fc744ebba56b6d69c30eb3539b290	read
+wof/xpress4k/text_100000.txt	100000	0x20	16384	1f180aaecf71ce06e2125762e1ff5b9cba709146f9ee517573193727d89b9252	read
+wof/xpress4k/text_32768.txt	32768	0x20	8192	36b1d23f385e9bb1b615d17f60ad59dddfea8f24510cb938f4d3a77bdcae273f	read
+wof/xpress4k/text_5000.txt	5000	0x20	4096	1572714250e08366fbdf9be6311c168face99ed85065a7f1f5e39e95e5b54af0	read
+wof/xpress4k/zeros_150000.bin	150000	0x20	12288	53441ca35fb06f24b01d09f415a19a0429293cacfeb0322d906c79aff06cc10d	read
+wof/xpress8k/mixed_70000.bin	70000	0x20	28672	9babd0d44750030b9110d9b9b2149eeb359fc744ebba56b6d69c30eb3539b290	read
+wof/xpress8k/text_100000.txt	100000	0x20	12288	1f180aaecf71ce06e2125762e1ff5b9cba709146f9ee517573193727d89b9252	read
+wof/xpress8k/text_32768.txt	32768	0x20	4096	36b1d23f385e9bb1b615d17f60ad59dddfea8f24510cb938f4d3a77bdcae273f	read
+wof/xpress8k/text_5000.txt	5000	0x20	4096	1572714250e08366fbdf9be6311c168face99ed85065a7f1f5e39e95e5b54af0	read
+wof/xpress8k/zeros_150000.bin	150000	0x20	8192	53441ca35fb06f24b01d09f415a19a0429293cacfeb0322d906c79aff06cc10d	read

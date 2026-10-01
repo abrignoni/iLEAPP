@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.55"
+QNXPROBE_VERSION = "1.56"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -2947,6 +2947,36 @@ NTFS_ATTR_COMPRESSED = 0x0001
 NTFS_ATTR_ENCRYPTED  = 0x4000
 NTFS_ATTR_SPARSE     = 0x8000
 
+# A reparse point is attribute 0xC0: a 32-bit tag, a 16-bit data length, two
+# reserved bytes, then the data. The tags and the file attribute bits below are
+# Microsoft's, from [MS-FSCC] 2.1.2.1 (Reparse Tags) and 2.6 (File Attributes).
+# Fifteen more cloud tags, IO_REPARSE_TAG_CLOUD_1 to _F, differ from the first
+# only in the fourth hex digit (0x9000101A to 0x9000F01A).
+NTFS_REPARSE_POINT        = 0xC0
+IO_REPARSE_TAG_WOF        = 0x80000017
+IO_REPARSE_TAG_CLOUD      = 0x9000001A
+IO_REPARSE_TAG_CLOUD_MASK = 0xFFFF0FFF
+NTFS_FILE_ATTRIBUTE_SPARSE_FILE           = 0x00000200
+NTFS_FILE_ATTRIBUTE_REPARSE_POINT         = 0x00000400
+NTFS_FILE_ATTRIBUTE_OFFLINE               = 0x00001000
+NTFS_FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS = 0x00400000
+
+# A file compressed by the Windows Overlay Filter (compact /exe; Store app and
+# Defender platform files on real images) keeps an unnamed $DATA of the file's
+# full size in which every
+# cluster is a hole, its real content compressed in a stream named
+# WofCompressedData, and a reparse point saying how. The reparse data is two
+# pairs of 32-bit values: the overlay's version and provider (2 is the file
+# provider; 1 is WIMBoot, whose content is in a WIM file elsewhere), then the
+# provider's version and algorithm. Microsoft names the algorithms and their
+# chunk sizes (FILE_PROVIDER_EXTERNAL_INFO_V1 and WOF_FILE_COMPRESSION_INFO_V1
+# on learn.microsoft.com); the numbers are what compact /exe:<name> wrote for
+# each on Windows 11 build 26200 (tests/fixtures/ntfs-windows.img.gz).
+WOF_STREAM        = "WofCompressedData"
+WOF_PROVIDER_FILE = 2
+WOF_ALGORITHMS = {0: ("xpress4k", 4096), 1: ("lzx", 32768),
+                  2: ("xpress8k", 8192), 3: ("xpress16k", 16384)}
+
 NTFS_BITMAP       = 6            # $Bitmap: one bit per cluster, set when in use
 NTFS_MFT_IN_USE   = 0x0001
 NTFS_MFT_IS_DIR   = 0x0002
@@ -3163,13 +3193,18 @@ class NtfsWalker:
     stores and what makes two names for one file resolve to one record.
 
     What it reads: resident and non-resident $DATA, sparse runs, LZNT1
-    compressed data, attributes that overflow into other records through
+    compressed data, files the Windows Overlay Filter compressed with XPRESS
+    (4K, 8K and 16K chunks), attributes that overflow into other records through
     $ATTRIBUTE_LIST, and directory indexes in both their resident ($INDEX_ROOT)
     and allocated ($INDEX_ALLOCATION) forms, with the sector fixups applied.
 
     What it does not read: an encrypted file's content, which needs a key the
-    volume does not hold. Those are listed with their recorded size and refuse
-    to be read rather than yielding the ciphertext as though it were the file.
+    volume does not hold; a cloud provider's online-only placeholder, whose
+    content is with the provider and not on the volume; and a file the overlay
+    filter compressed with LZX. Those are listed with their recorded size and
+    refuse to be read rather than yielding ciphertext, or the zeros of a hole,
+    as though they were the file. allocation() says what the volume stores for
+    a file beside the size it records.
     Only the unnamed $DATA stream is the file's content. A named stream, an
     alternate data stream, has a node of its own (NtfsStreamRef) that
     read_file(), entry() and stamps() take; streams() names a record's streams
@@ -3583,6 +3618,125 @@ class NtfsWalker:
     # it names and is not a file of its own.
     _BASE_REF = 0x20
 
+    def attributes(self, num):
+        """The file attribute bits $STANDARD_INFORMATION holds for this record
+        (FILE_ATTRIBUTE_* in Microsoft's naming), 0 when it has none."""
+        rec = num.record if isinstance(num, NtfsStreamRef) else num
+        for a in self._record(rec):
+            if a.type == NTFS_STANDARD_INFORMATION and a.resident and len(a.value) >= 0x24:
+                return struct.unpack_from("<I", a.value, 0x20)[0]
+        return 0
+
+    def reparse(self, num):
+        """(tag, data) of this record's reparse point, or None when it has none."""
+        rec = num.record if isinstance(num, NtfsStreamRef) else num
+        for a in self._record(rec):
+            if a.type != NTFS_REPARSE_POINT:
+                continue
+            raw = a.value if a.resident else b"".join(
+                self._read_nonresident(a, min(a.data_size, 1 << 16)))
+            if len(raw) < 8:
+                return None
+            tag, length = struct.unpack_from("<IH", raw, 0)
+            return tag, raw[8:8 + length]
+        return None
+
+    def _wof(self, num):
+        """(provider, algorithm, the WofCompressedData attribute) for a file the
+        Windows Overlay Filter backs, or None for any other file."""
+        got = self.reparse(num)
+        if got is None or got[0] != IO_REPARSE_TAG_WOF or len(got[1]) < 8:
+            return None
+        provider = struct.unpack_from("<I", got[1], 4)[0]
+        algorithm = struct.unpack_from("<I", got[1], 12)[0] if len(got[1]) >= 16 else None
+        return provider, algorithm, self._data_attr(num, WOF_STREAM)
+
+    @staticmethod
+    def _stored(data, cluster):
+        """The bytes of an attribute the volume holds: its length when it is
+        resident, the clusters of its stored runs otherwise."""
+        if data is None:
+            return 0
+        if data.resident:
+            return len(data.value)
+        return sum(count for lcn, count in data.runs if lcn is not None) * cluster
+
+    def allocation(self, num):
+        """What the volume stores for a file, beside the size it records.
+
+        A file's recorded size and the bytes behind it are different numbers
+        for a sparse file, a compressed one and a cloud provider's placeholder,
+        and read_file() hands back the recorded size in every case it reads. A
+        caller that copies files out needs both to know what it is about to
+        write, and which files hold no content at all.
+
+        Returns a dict:
+
+        ``size``         the bytes read_file() returns, as entry() gives them
+        ``stored``       the bytes the volume holds for the content: the stored
+                         clusters of the unnamed $DATA, the length of a resident
+                         one, or for an overlay-compressed file the stored
+                         clusters of its WofCompressedData stream. Counted in
+                         whole clusters, which is what Windows reports as size
+                         on disk for a sparse or compressed file.
+        ``sparse``       the stream is flagged sparse or its run list has a hole
+        ``compression``  "", "lznt1", or "wof-" and the algorithm's name
+        ``reparse_tag``  the reparse point's tag, or None
+        ``attributes``   the file attribute bits of $STANDARD_INFORMATION
+        ``placeholder``  True for a cloud provider's file whose content is not
+                         all on the volume: a cloud reparse tag together with
+                         FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS, or with a
+                         recorded size and nothing stored. read_file() refuses
+                         these. A cloud file that is all there (a hydrated
+                         placeholder) keeps its tag and is not one.
+
+        Measured against files Windows 11 wrote (the committed fixture): the
+        stored figure equals Windows's own size on disk for every sparse, NTFS
+        compressed and overlay-compressed file whose content lies in clusters,
+        and the three online-only placeholders are the three Windows itself
+        would not read. On a public Windows 11 acquisition the one OneDrive
+        file kept online-only reads the same way: 1,151,898 bytes recorded,
+        none stored. A file a provider holds in part, some ranges present and
+        some not, is covered by the attribute test and is not exercised: no
+        image holding one was found, and Windows would not make one without a
+        provider running.
+
+        For a stream (NtfsStreamRef) the size and stored figures are the
+        stream's own and the rest describe its file.
+        """
+        attrs = self.attributes(num)
+        got = self.reparse(num)
+        tag = got[0] if got else None
+        if isinstance(num, NtfsStreamRef):
+            data = self._data_attr(num.record, num.name)
+            found = self._stream(num)
+            return {"size": found[2] if found else 0,
+                    "stored": self._stored(data, self.cluster),
+                    "sparse": bool(data is not None and not data.resident and (
+                        data.flags & NTFS_ATTR_SPARSE
+                        or any(lcn is None for lcn, _c in data.runs))),
+                    "compression": "lznt1" if data is not None and not data.resident
+                                   and data.compressed else "",
+                    "reparse_tag": tag, "attributes": attrs, "placeholder": False}
+        data = self._data_attr(num)
+        size = 0 if data is None else (len(data.value) if data.resident else data.data_size)
+        stored = self._stored(data, self.cluster)
+        sparse = bool(data is not None and not data.resident and (
+            data.flags & NTFS_ATTR_SPARSE or any(lcn is None for lcn, _c in data.runs)))
+        compression = ""
+        if data is not None and not data.resident and data.compressed:
+            compression = "lznt1"
+        wof = self._wof(num)
+        if wof is not None:
+            _provider, algorithm, stream = wof
+            compression = "wof-" + WOF_ALGORITHMS.get(algorithm, (f"algorithm-{algorithm}",))[0]
+            stored = self._stored(stream, self.cluster)
+        cloud = tag is not None and tag & IO_REPARSE_TAG_CLOUD_MASK == IO_REPARSE_TAG_CLOUD
+        placeholder = bool(cloud and (attrs & NTFS_FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS
+                                      or (size and not stored)))
+        return {"size": size, "stored": stored, "sparse": sparse, "compression": compression,
+                "reparse_tag": tag, "attributes": attrs, "placeholder": placeholder}
+
     def listing(self, streams=False):
         """Every entry on the volume, built from $MFT in record order.
 
@@ -3984,7 +4138,98 @@ class NtfsWalker:
             raise NtfsUnreadable("the file is encrypted and the volume holds no key")
         want = size if size is not None else data.data_size
         want = min(want, data.data_size) if data.data_size else want
+        # Two kinds of file record a size over an unnamed stream that is all
+        # hole, and reading the hole would hand back zeros as though they were
+        # the file. A cloud provider's placeholder has no content here at all;
+        # Windows itself answers a read of one with "the cloud file provider is
+        # not running". An overlay-compressed file has its content in another
+        # stream, and is read from there.
+        got = self.reparse(num)
+        if got is not None:
+            tag = got[0]
+            if tag & IO_REPARSE_TAG_CLOUD_MASK == IO_REPARSE_TAG_CLOUD:
+                if (self.attributes(num) & NTFS_FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS
+                        or (data.data_size and not self._stored(data, self.cluster))):
+                    raise NtfsUnreadable(
+                        f"the file is a cloud provider's online-only placeholder (reparse "
+                        f"tag 0x{tag:08X}): it records {data.data_size:,} bytes and the "
+                        f"volume stores {self._stored(data, self.cluster):,} of them")
+            elif tag == IO_REPARSE_TAG_WOF:
+                yield from self._read_wof(num, data.data_size, want)
+                return
         yield from self._read_nonresident(data, want)
+
+    def _read_wof(self, num, size, want):
+        """The content of a file the Windows Overlay Filter compressed.
+
+        The WofCompressedData stream is a table of 32-bit offsets, one for each
+        chunk but the first, giving where the chunk starts counted from the end
+        of the table, and then the chunks. A chunk covers a fixed span of the
+        file, the last one what is left. One stored at its plain length was
+        left uncompressed; any other is one LZ77+Huffman block ([MS-XCA]).
+
+        Refused rather than guessed at: LZX, which is not decoded here; a file
+        of 4 GiB or more, whose table this reader has not seen; WIMBoot, whose
+        content is in a WIM file and not on this record; and a stream whose
+        table or chunks do not fit it.
+        """
+        provider, algorithm, stream = self._wof(num)
+        if provider != WOF_PROVIDER_FILE:
+            raise NtfsUnreadable(f"the file is backed by overlay provider {provider} (WIMBoot "
+                                 "keeps the content in a WIM file), which is not read here")
+        name, chunk = WOF_ALGORITHMS.get(algorithm, (None, 0))
+        if name is None:
+            raise NtfsUnreadable(f"the file is overlay-compressed with algorithm {algorithm}, "
+                                 "which is not one this reader knows")
+        if name == "lzx":
+            raise NtfsUnreadable("the file is overlay-compressed with LZX (compact /exe:lzx), "
+                                 "which is not decoded here")
+        if stream is None:
+            raise NtfsUnreadable("the file is overlay-compressed and has no "
+                                 f"{WOF_STREAM} stream")
+        if stream.encrypted:
+            raise NtfsUnreadable("the file's compressed stream is encrypted")
+        if size >= 1 << 32:
+            raise NtfsUnreadable("the file is overlay-compressed and 4 GiB or larger, "
+                                 "which is not read here")
+        total = len(stream.value) if stream.resident else stream.data_size
+
+        def at(offset, length):
+            if stream.resident:
+                return stream.value[offset:offset + length]
+            return b"".join(self._read_nonresident(stream, length, offset))
+
+        chunks = -(-size // chunk)
+        table_len = max(chunks - 1, 0) * 4
+        if table_len > total:
+            raise NtfsUnreadable("the compressed stream is shorter than its chunk table")
+        ends = list(struct.unpack(f"<{chunks - 1}I", at(0, table_len))) if chunks > 1 else []
+        ends.append(total - table_len)
+        produced, start, held, held_at = 0, 0, b"", 0
+        for index, end in enumerate(ends):
+            if produced >= want:
+                break
+            plain = min(chunk, size - index * chunk)
+            if end < start or end > total - table_len:
+                raise NtfsUnreadable("the compressed stream's chunk table is out of order")
+            if start < held_at or end > held_at + len(held):
+                # read ahead about a megabyte of chunks at a time
+                held_at = start
+                held = at(table_len + start, min(max(end - start, 1 << 20),
+                                                 total - table_len - start))
+            piece = held[start - held_at:end - held_at]
+            if len(piece) == plain:
+                out = piece
+            else:
+                try:
+                    out = _xpress_huffman_decompress(piece, plain)
+                except (ValueError, IndexError, struct.error) as exc:
+                    raise NtfsUnreadable(f"chunk {index} of the compressed stream does not "
+                                         f"decode: {exc}") from None
+            out = out[:want - produced]
+            yield out
+            produced += len(out)
+            start = end
 
     def _read_stream(self, ref, size):
         """An alternate data stream's bytes, from its first stored cluster:
@@ -4075,6 +4320,106 @@ class NtfsWalker:
             out += read_at(self.fh, self.base + (lcn + (lo - vcn)) * self.cluster,
                            (hi - lo) * self.cluster)
         return bytes(out) if any_real else None
+
+
+def _xpress_huffman_decompress(data, out_size):
+    """Inflate one LZ77+Huffman block, the XPRESS form the Windows Overlay
+    Filter stores each chunk of a compressed file in.
+
+    The block begins with 256 bytes giving a 4-bit code length for each of 512
+    symbols, low nibble first ([MS-XCA] 2.1: "The first 256 bytes indicate the
+    bit length of each of the 512 Huffman symbols"). Codes are canonical:
+    shorter first, and by symbol within a length. Symbols below 256 are
+    literals. Any other is a match: its low four bits are the length less 3,
+    where 15 means a byte follows holding more and 255 there means a 16-bit
+    length follows instead, and its next four bits say how many bits of
+    distance come after it, below an implied leading one.
+
+    Bits are taken from 16-bit little-endian words, most significant bit
+    first, and the order of the reads is part of the format: a word is taken in
+    whenever fewer than 16 bits are held, and that happens after a symbol and
+    before its extra length bytes, then again after its distance bits.
+
+    Checked against files Windows wrote in all three chunk sizes and against
+    Windows's own reading of them (see the self-test), not only against the
+    description. Raises ValueError for a block that does not decode.
+    """
+    if len(data) < 256:
+        raise ValueError("the block is shorter than its table of code lengths")
+    by_length = [[] for _ in range(16)]
+    for index in range(256):
+        byte = data[index]
+        by_length[byte & 15].append(2 * index)
+        by_length[byte >> 4].append(2 * index + 1)
+    # every 15-bit window of the stream names its symbol and the code's length
+    table = [0] * 32768
+    filled = 0
+    for length in range(1, 16):
+        span = 1 << (15 - length)
+        for symbol in sorted(by_length[length]):
+            if filled + span > 32768:
+                raise ValueError("the code lengths describe more codes than fit")
+            table[filled:filled + span] = [symbol * 16 + length] * span
+            filled += span
+    end = len(data)
+    pos = 256
+
+    def word():
+        nonlocal pos
+        got = data[pos] | (data[pos + 1] << 8) if pos + 2 <= end else 0
+        pos += 2
+        return got
+
+    bits = (word() << 16) | word()
+    count = 32
+    out = bytearray()
+    while len(out) < out_size:
+        entry = table[(bits >> (count - 15)) & 0x7FFF]
+        if not entry:
+            raise ValueError("a run of bits is no symbol's code")
+        count -= entry & 15
+        bits &= (1 << count) - 1
+        if count < 16:
+            bits = (bits << 16) | word()
+            count += 16
+        symbol = entry >> 4
+        if symbol < 256:
+            out.append(symbol)
+            continue
+        symbol -= 256
+        length = symbol & 15
+        distance_bits = symbol >> 4
+        if length == 15:
+            if pos >= end:
+                raise ValueError("a match length runs past the end of the block")
+            length = data[pos]
+            pos += 1
+            if length == 255:
+                if pos + 2 > end:
+                    raise ValueError("a match length runs past the end of the block")
+                length = data[pos] | (data[pos + 1] << 8)
+                pos += 2
+                if length < 15:
+                    raise ValueError("a long match length is shorter than a short one")
+                length -= 15
+            length += 15
+        length += 3
+        distance = (bits >> (count - distance_bits)) & ((1 << distance_bits) - 1)
+        count -= distance_bits
+        bits &= (1 << count) - 1
+        if count < 16:
+            bits = (bits << 16) | word()
+            count += 16
+        distance += 1 << distance_bits
+        if distance > len(out):
+            raise ValueError("a match reaches back before the start of the block")
+        begin = len(out) - distance
+        if distance >= length:
+            out += out[begin:begin + length]
+        else:
+            piece = bytes(out[begin:])
+            out += (piece * (-(-length // distance)))[:length]
+    return bytes(out[:out_size])
 
 
 def _lznt1_decompress(src, limit):
@@ -4240,6 +4585,20 @@ APFS_OMAP_KEYROLLING                    = 0x8
 APFS_OMAP_VAL_ENCRYPTED                 = 0x4
 
 APFS_INO_EXT_TYPE_DSTREAM = 8   # the extended field holding a file's size
+# What says how much of a file the volume stores (Apple File System Reference:
+# j_inode_flags, the inode's extended fields and j_dstream_t). The data stream
+# field holds the size and then alloced_size, and for a sparse file alloced_size
+# is the logical size, holes included: the bytes stored are alloced_size less
+# the sparse-bytes field. Measured on a volume macOS 27 wrote: that difference
+# equals the blocks stat reports on five of five sparse files.
+APFS_INODE_INTERNAL_FLAGS_OFF   = 48
+APFS_INODE_BSD_FLAGS_OFF        = 68
+APFS_INODE_IS_SPARSE            = 0x00000200
+APFS_INO_EXT_TYPE_SPARSE_BYTES  = 13
+# SF_DATALESS in the inode's BSD flags (sys/stat.h: "file is dataless object")
+# marks a file whose content a file provider holds, iCloud Drive with optimised
+# storage for one. Read from the header; no image holding one has been read.
+APFS_SF_DATALESS                = 0x40000000
 
 APFS_XATTR_DATA_STREAM = 0x0001
 APFS_XATTR_DATA_EMBEDDED = 0x0002
@@ -5163,6 +5522,57 @@ class ApfsWalker:
             if len(head) >= 16 and head[0:4] == b"fpmc":
                 size = struct.unpack_from("<Q", head, 8)[0]
         return (mode or 0o100644, size, mtime)
+
+    def allocation(self, node):
+        """What the volume stores for a file, beside the size it records. The
+        same dict NtfsWalker.allocation() returns, less the two NTFS fields:
+
+        ``size``         the bytes read_file() returns, as entry() gives them
+        ``stored``       the bytes the volume holds for the content: the data
+                         stream's alloced_size less its sparse bytes, or for a
+                         decmpfs file the compressed bytes in the attribute or
+                         in the resource fork it names
+        ``sparse``       the inode is flagged sparse or records sparse bytes
+        ``compression``  "decmpfs" or ""
+        ``bsd_flags``    the inode's BSD flags
+        ``placeholder``  True when the BSD flags carry SF_DATALESS, a file
+                         whose content a file provider holds. Taken from the
+                         published flag and not exercised: no image holding
+                         such a file has been read, so what its data stream
+                         records is not known here.
+
+        None for the container, a directory, or a node with no inode.
+        """
+        if node == APFS_CONTAINER:
+            return None
+        ent = self.entry(node)
+        oid = self._select(node)
+        val = self._inode(oid) if oid is not None else None
+        if not ent or not val or len(val) < 92 or ent[0] & S_IFMT != S_IFREG:
+            return None
+        internal = struct.unpack_from("<Q", val, APFS_INODE_INTERNAL_FLAGS_OFF)[0]
+        bsd = struct.unpack_from("<I", val, APFS_INODE_BSD_FLAGS_OFF)[0]
+        fields = _apfs_xfields(val, 92)
+        blob = fields.get(APFS_INO_EXT_TYPE_DSTREAM)
+        alloced = struct.unpack_from("<Q", blob, 8)[0] if blob and len(blob) >= 16 else 0
+        blob = fields.get(APFS_INO_EXT_TYPE_SPARSE_BYTES)
+        holes = struct.unpack_from("<Q", blob, 0)[0] if blob and len(blob) >= 8 else 0
+        stored = max(alloced - holes, 0)
+        compression = ""
+        packed = self._xattr(oid, APFS_DECMPFS)
+        if packed:
+            compression = "decmpfs"
+            # the attribute is embedded in the record, or kept in a stream of its own
+            stored = len(packed[1]) if packed[0] == "data" else packed[1][1]
+            fork = self._xattr(oid, APFS_RESOURCE_FORK)
+            if fork and fork[0] == "stream":
+                stored += fork[1][1]
+            elif fork:
+                stored += len(fork[1])
+        return {"size": ent[1], "stored": stored,
+                "sparse": bool(internal & APFS_INODE_IS_SPARSE or holes),
+                "compression": compression, "bsd_flags": bsd,
+                "placeholder": bool(bsd & APFS_SF_DATALESS)}
 
     def listdir(self, node):
         if node == APFS_CONTAINER:
@@ -9829,6 +10239,28 @@ def _zip_time(v):
     return (d.year, d.month, d.day, d.hour, d.minute, d.second)
 
 
+def allocation(w, node):
+    """What a volume stores for one file beside the size it records, as a dict,
+    or None when the walker cannot say.
+
+    NTFS and APFS can (see NtfsWalker.allocation and ApfsWalker.allocation):
+    ``size`` is what read_file() returns, ``stored`` the bytes the volume holds
+    for it, ``sparse`` and ``compression`` say why the two differ, and
+    ``placeholder`` marks a cloud provider's file whose content is not on the
+    volume. A caller copying files out can total ``stored`` to know what the
+    files really occupy, and can keep a placeholder's name and dates without
+    writing a file for it. Any other walker answers None, which means not
+    known, not that nothing is stored.
+    """
+    report = getattr(w, "allocation", None)
+    if report is None:
+        return None
+    try:
+        return report(node)
+    except Exception:                                # pylint: disable=broad-except
+        return None
+
+
 def collect(w, num, prefix="", depth=0, seen=None, out=None, times=None):
     """Every regular file under this inode, as (path, inode, size, mtime).
 
@@ -13457,6 +13889,107 @@ def _flash_deleted_check(image_gz, want, churn_name, churn_hashes):
     return problems, found, n_refused
 
 
+def _ntfs_windows_check(image_gz, known_tsv, break_it=None):
+    """Read the NTFS volume Windows wrote (tools/make_ntfs_windows_fixture.cmd)
+    and compare every file with what Windows itself reported for it.
+
+    The manifest holds, per file, the length, size on disk and SHA-256 Windows
+    gave, and whether Windows could read it with no cloud provider running. So
+    the expected values come from the system that wrote the volume and none
+    from this reader:
+
+    * a file Windows hashed has to read to that hash, whichever way it is
+      stored: plain, resident, sparse, NTFS compressed, overlay-compressed in
+      each XPRESS chunk size, or a cloud file that is all there;
+    * a file Windows refused to read has to be refused here, and has to be the
+      only kind allocation() calls a placeholder;
+    * an overlay-compressed LZX file has to be refused by name rather than
+      read as the zeros of its unnamed stream;
+    * for a sparse or compressed file whose content lies in clusters,
+      allocation()'s stored figure has to be Windows's size on disk.
+
+    ``break_it`` takes the walker and returns one with a rule broken, for the
+    controls. Returns a dict of counts and a list of what went wrong.
+    """
+    import gzip, hashlib, io
+    with gzip.open(image_gz, "rb") as gz:
+        img = io.BytesIO(gz.read())
+    size = len(img.getbuffer())
+    want = {}
+    with open(known_tsv, encoding="utf-8") as fh:
+        for line in fh:
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            path, length, _attrs, disk, digest, windows = line.split("\t")
+            want[path] = (int(length), int(disk), digest, windows)
+    vols = [v for v in volumes(img, size) if v["kind"] == "ntfs" and v.get("walker")]
+    if len(vols) != 1:
+        return {}, [f"{len(vols)} NTFS volumes found, not the one written"]
+    w = vols[0]["walker"]
+    if break_it is not None:
+        w = break_it(w)
+    have = {path: (node, fsize) for path, node, fsize, _m in collect(w, w.root)}
+    counts = {"files": len(want), "hashed": 0, "same": 0, "refused_by_windows": 0,
+              "refused_here": 0, "lzx": 0, "lzx_refused": 0, "sized": 0, "sized_same": 0,
+              "placeholders": 0}
+    wrong = []
+    for path, (length, disk, digest, windows) in sorted(want.items()):
+        got = have.get(path)
+        if got is None:
+            wrong.append(f"{path}: not listed")
+            continue
+        node, fsize = got
+        if fsize != length:
+            wrong.append(f"{path}: listed at {fsize:,} bytes, Windows says {length:,}")
+        report = allocation(w, node) or {}
+        h, read, refusal = hashlib.sha256(), 0, None
+        try:
+            for chunk in w.read_file(node, fsize):
+                h.update(chunk)
+                read += len(chunk)
+        except NtfsUnreadable as exc:
+            refusal = str(exc)
+        lzx = report.get("compression") == "wof-lzx"
+        if report.get("placeholder"):
+            counts["placeholders"] += 1
+        if bool(report.get("placeholder")) != (windows == "refused"):
+            wrong.append(f"{path}: placeholder is {report.get('placeholder')}, and Windows "
+                         f"{'refused' if windows == 'refused' else 'read'} it")
+        if windows == "refused":
+            counts["refused_by_windows"] += 1
+            if refusal is None:
+                wrong.append(f"{path}: Windows would not read it and {read:,} bytes were "
+                             "read here")
+            else:
+                counts["refused_here"] += 1
+        elif lzx:
+            counts["lzx"] += 1
+            if refusal is None or "LZX" not in refusal:
+                wrong.append(f"{path}: LZX, and it was not refused by name")
+            else:
+                counts["lzx_refused"] += 1
+        else:
+            counts["hashed"] += 1
+            if refusal is None and read == length and h.hexdigest() == digest:
+                counts["same"] += 1
+            else:
+                wrong.append(f"{path}: " + (f"refused ({refusal})" if refusal else
+                                            "its bytes are not the ones Windows hashed"))
+        # Windows reports whole clusters for a sparse or compressed file; for a
+        # compressed stream small enough to be resident it still reports one
+        # cluster, where stored is the stream's length.
+        if (report.get("sparse") or report.get("compression")) and report.get("stored", 0) \
+                and not report["stored"] % w.cluster:
+            counts["sized"] += 1
+            if report["stored"] == disk:
+                counts["sized_same"] += 1
+            else:
+                wrong.append(f"{path}: {report['stored']:,} bytes stored, Windows says "
+                             f"{disk:,} on disk")
+    return counts, wrong
+
+
 def _flash_fixture_check(image_gz, hashes, listing=None, style="stat", prefix="",
                          loose_times=(), corrupt=None, allow_extra=(), front=None):
     """Read a committed flash filesystem fixture through identify_fs() and
@@ -16839,6 +17372,142 @@ def self_test():
             print("  [SKIP] the NTFS stream fixture is not beside this script, so "
                   "alternate data streams were not compared against it")
 
+        # A volume Windows itself wrote (tools/make_ntfs_windows_fixture.cmd),
+        # holding what mkntfs and ntfs-3g cannot make: overlay-compressed files
+        # in each algorithm, cloud placeholders written by the Cloud Files
+        # filter, and sparse files whose size on disk Windows reported. Every
+        # expected value is Windows's own. Then the same comparison with each
+        # rule switched off, because a check that cannot fail proves nothing.
+        win_fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "tests", "fixtures", "ntfs-windows.img.gz")
+        win_want = win_fix[:-len(".img.gz")] + ".known.tsv"
+
+        def _no_overlay(w):
+            """The walker, reading an overlay-compressed file's unnamed stream."""
+            w._wof = lambda num: None                # pylint: disable=protected-access
+            real = w.reparse
+
+            def reparse(num):
+                got = real(num)
+                return None if got and got[0] == IO_REPARSE_TAG_WOF else got
+            w.reparse = reparse
+            return w
+
+        def _no_placeholder_rule(w):
+            """The walker, reading a cloud placeholder's hole as its content."""
+            real = w.reparse
+
+            def reparse(num):
+                got = real(num)
+                if got and got[0] & IO_REPARSE_TAG_CLOUD_MASK == IO_REPARSE_TAG_CLOUD:
+                    return None
+                return got
+            w.reparse = reparse
+            return w
+
+        def _one_chunk_size(w):
+            """The walker, taking every XPRESS file to be in 4 KiB chunks."""
+            real = w._wof                            # pylint: disable=protected-access
+
+            def _wof(num):
+                got = real(num)
+                if got is None or WOF_ALGORITHMS.get(got[1], ("",))[0] == "lzx":
+                    return got
+                return got[0], 0, got[2]
+            w._wof = _wof                            # pylint: disable=protected-access
+            return w
+
+        if os.path.isfile(win_fix) and os.path.isfile(win_want):
+            try:
+                wc, wwrong = _ntfs_windows_check(win_fix, win_want)
+            except Exception as exc:                 # pylint: disable=broad-except
+                wc, wwrong = {}, [f"the check raised {type(exc).__name__}: {exc}"]
+            wcond = bool(wc) and not wwrong and wc["hashed"] and wc["same"] == wc["hashed"]
+            if not wcond:
+                ok = False
+            print(f"  [{'PASS' if wcond else 'FAIL'}] every file of the volume Windows wrote "
+                  f"that Windows could hash reads to the same SHA-256: plain, resident, "
+                  f"sparse, NTFS compressed, overlay-compressed with XPRESS in 4K, 8K and "
+                  f"16K chunks, and a cloud file that is all there "
+                  f"({wc.get('same', 0)} of {wc.get('hashed', 0)}"
+                  + (f"; {wwrong[0]}" if wwrong else "") + ")")
+            pcond = bool(wc) and wc["refused_by_windows"] == 3 == wc["refused_here"] \
+                and wc["placeholders"] == 3
+            if not pcond:
+                ok = False
+            print(f"  [{'PASS' if pcond else 'FAIL'}] the cloud placeholders Windows would "
+                  f"not read are refused, and are the only files allocation() calls a "
+                  f"placeholder ({wc.get('refused_here', 0)} of "
+                  f"{wc.get('refused_by_windows', 0)} refused, "
+                  f"{wc.get('placeholders', 0)} placeholders)")
+            lcond = bool(wc) and wc["lzx"] == 5 == wc["lzx_refused"]
+            if not lcond:
+                ok = False
+            print(f"  [{'PASS' if lcond else 'FAIL'}] a file overlay-compressed with LZX "
+                  f"is refused by name rather than read as zeros "
+                  f"({wc.get('lzx_refused', 0)} of {wc.get('lzx', 0)})")
+            acond = bool(wc) and wc["sized"] >= 20 and wc["sized_same"] == wc["sized"]
+            if not acond:
+                ok = False
+            print(f"  [{'PASS' if acond else 'FAIL'}] allocation() gives Windows's own size "
+                  f"on disk for every sparse or compressed file whose content lies in "
+                  f"clusters ({wc.get('sized_same', 0)} of {wc.get('sized', 0)})")
+            for label, broken, expect in (
+                    ("reads an overlay-compressed file's unnamed stream", _no_overlay, 15),
+                    ("reads a cloud placeholder's hole as its content",
+                     _no_placeholder_rule, 3),
+                    ("takes every XPRESS file to be in 4 KiB chunks", _one_chunk_size, 5)):
+                try:
+                    bad = len(_ntfs_windows_check(win_fix, win_want, break_it=broken)[1])
+                except Exception:                    # pylint: disable=broad-except
+                    bad = 0
+                ccond = bad >= expect
+                if not ccond:
+                    ok = False
+                print(f"  [{'PASS' if ccond else 'FAIL'}] and that comparison fails for a "
+                      f"reader that {label} ({bad} files wrong)")
+        else:
+            print("  [SKIP] the Windows-written NTFS fixture is not beside this script, so "
+                  "overlay compression, cloud placeholders and allocation were not "
+                  "compared against it")
+
+        # APFS says how much of a sparse file it stores in two fields that have
+        # to be read together. The committed APFS fixture holds a file whose
+        # only data is 18 bytes written past a megabyte of hole, and one whose
+        # content is a compressed attribute.
+        apfs_alloc = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  "tests", "fixtures", "apfs-fixture.img.gz")
+        if os.path.isfile(apfs_alloc):
+            try:
+                with gzip.open(apfs_alloc, "rb") as gz:
+                    aimg = io.BytesIO(gz.read())
+                found = {}
+                for v in volumes(aimg, len(aimg.getbuffer())):
+                    if v["kind"] != "apfs" or not v.get("walker"):
+                        continue
+                    for path, node, _s, _m in collect(v["walker"], v["walker"].root):
+                        found[path.rsplit("/", 1)[-1]] = allocation(v["walker"], node)
+                sp, dc, sm = found.get("sparse.bin"), found.get("decmpfs.txt"), \
+                    found.get("small.txt")
+                apcond = bool(sp and dc and sm
+                              and sp["sparse"] and sp["size"] == 1048594
+                              and sp["stored"] == 4096
+                              and dc["compression"] == "decmpfs" and 0 < dc["stored"] < dc["size"]
+                              and not sm["sparse"] and sm["stored"] == 4096
+                              and not any(a and a["placeholder"] for a in found.values()))
+                adetail = (f"sparse.bin {sp and sp['stored']:,} of {sp and sp['size']:,} "
+                           f"bytes stored") if sp else "sparse.bin not found"
+            except Exception as exc:                 # pylint: disable=broad-except
+                apcond, adetail = False, f"the check raised {type(exc).__name__}: {exc}"
+            if not apcond:
+                ok = False
+            print(f"  [{'PASS' if apcond else 'FAIL'}] allocation() on APFS counts a sparse "
+                  f"file's stored blocks and not its holes, and a compressed file's "
+                  f"compressed bytes ({adetail})")
+        else:
+            print("  [SKIP] the APFS fixture is not beside this script, so allocation() "
+                  "was not checked on APFS")
+
         for label, stem, wcls in (("FAT32", "fat32-deleted", Fat32Walker),
                                   ("exFAT", "exfat-deleted", ExfatWalker)):
             fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -17872,7 +18541,8 @@ def self_test():
         here = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                             "tests", "fixtures")
         checked, all_rows, all_wrong, fast_seen = 0, 0, 0, []
-        for stem in ("ntfs-fixture", "ntfs-streams", "apfs-fixture", "hfsplus-fixture",
+        for stem in ("ntfs-fixture", "ntfs-streams", "ntfs-windows", "apfs-fixture",
+                     "hfsplus-fixture",
                      "ext4-sparse", "ext2-sparse", "fat32-deleted",
                      "exfat-deleted", "f2fs-fixture", "squashfs-gzip",
                      "jffs2-le-zlib", "ubi-nand-lzo", "yaffs2-history",
@@ -18682,6 +19352,14 @@ what it checks, and where the constants come from:
   (libfsapfs at commit f63c83b462275214fc5e4b0919540d892f50b467). Checked
   against two volumes macOS 26 encrypted, one encrypted as it was made and one
   encrypted in place after files were written.
+
+  For NTFS reparse points, cloud placeholders and overlay compression, from
+  Microsoft: reparse tags [MS-FSCC] 2.1.2.1; file attributes [MS-FSCC] 2.6;
+  the overlay's reparse data WOF_EXTERNAL_INFO and
+  FILE_PROVIDER_EXTERNAL_INFO_V1; chunk sizes WOF_FILE_COMPRESSION_INFO_V1;
+  the LZ77+Huffman block [MS-XCA] 2.1. The algorithm numbers, the chunk table
+  and the decoder are checked against files Windows 11 wrote and Windows's own
+  hashes of them. SF_DATALESS is from macOS's sys/stat.h and is not exercised.
 
   --list walks qnx6 through the same block resolution the kernel uses in
   qnx6_block_map(), including multi-level indirect trees and long filenames
