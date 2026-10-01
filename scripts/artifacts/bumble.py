@@ -78,8 +78,8 @@ def _load_blob_plist(blob):
 
 @artifact_processor
 def bumbleMessages(context):
-    data_headers = ('Collection', ('Created Timestamp', 'datetime'), ('Modified Timestamp', 'datetime'),
-                    'Sender ID', 'Receiver ID', 'Message', 'Message Direction', 'Message Read')
+    data_headers = (('Created Timestamp', 'datetime'), ('Modified Timestamp', 'datetime'),
+                    'Message Direction', 'Sender ID', 'Collection', 'Message', 'Receiver ID', 'Message Read')
     data_list = []
 
     source_path = ''
@@ -93,8 +93,9 @@ def bumbleMessages(context):
 
     query = '''
     SELECT
-        database2.data, collection,
+        database2.data,
         CASE secondaryIndex_isReadIndex.isIncoming WHEN 0 THEN 'Outgoing' WHEN 1 THEN 'Incoming' END,
+        collection,
         CASE secondaryIndex_isReadIndex.isRead WHEN 0 THEN '' WHEN 1 THEN 'Yes' END
     FROM database2
     JOIN secondaryIndex_isReadIndex ON database2.rowid = secondaryIndex_isReadIndex.rowid
@@ -103,10 +104,16 @@ def bumbleMessages(context):
         plist = _load_blob_plist(row[0])
         if not isinstance(plist, dict) or 'self.dateCreated' not in plist:
             continue
-        data_list.append((row[1], convert_unix_ts_to_utc(plist['self.dateCreated']),
+        data_list.append((convert_unix_ts_to_utc(plist['self.dateCreated']),
                           convert_unix_ts_to_utc(plist.get('self.dateModified')),
-                          plist.get('self.fromPersonUid', ''), plist.get('self.toPersonUid', ''),
-                          plist.get('self.messageText', ''), row[2], row[3]))
+                          row[1], #Message Direction
+                          plist.get('self.fromPersonUid', ''), 
+                          row[2], #Collection
+                          plist.get('self.messageText', ''),
+                          plist.get('self.toPersonUid', ''),
+                          row[3], #Message Read
+                         ))
+                          
 
     return data_headers, data_list, context.get_relative_path(source_path)
 
