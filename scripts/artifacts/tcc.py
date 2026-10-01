@@ -27,11 +27,14 @@ __artifacts_v2__ = {
             'iphone14plus_ios18': 'iOS 18.0 | 69 rows',
             'otto_ios17': 'iOS 17.5.1 | 185 rows',
             'abe_ios16': 'iOS 16.5 | 184 rows',
-            'felix23_ios16': 'iOS 16.5 | 127 rows',
-            'hickman_ios13': 'iOS 13.3.1 | 130 rows',
-            'hickman_ios14': 'iOS 14.3 | 154 rows',
+            'felix23_ios16': 'iOS 16.5 | 339 rows',
+            'hickman_ios13': 'iOS 13.3.1 | 256 rows',
+            'hickman_ios14': 'iOS 14.3 | 311 rows',
             'jess_ios15': 'iOS 15.0.2 | 76 rows',
             'magnet_ios16': 'iOS 16.1.1 | 66 rows',
+            'ai16_ios26_sysdiag': 'iOS 26.5.2 | 160 rows',
+            'hc_ios26_sysdiag': 'iOS 26 | 101 rows',
+            'rodeo_ios17_sysdiag': 'iOS 17.3 | 289 rows',
         }
     }
 }
@@ -40,7 +43,9 @@ import os
 import re
 import shutil
 import sqlite3
+import tarfile
 import tempfile
+import zlib
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, does_column_exist_in_db, convert_unix_ts_to_utc, get_sysdiagnose_files, logfunc
 
 @artifact_processor
@@ -102,8 +107,8 @@ def tcc(context):
                     db_paths_to_query.append((out_path, source_name))
             except OSError as e:
                 logfunc(f"TCC: OS Error extracting {source_path} to disk: {e}")
-            except Exception as e:
-                logfunc(f"TCC: Unexpected error extracting {source_path}: {e}")
+            except (EOFError, tarfile.TarError, zlib.error) as e:
+                logfunc(f"TCC: Error reading {source_path} from its archive: {e}")
 
         # Process all successfully gathered TCC.db environments
         for db_path, source_name in db_paths_to_query:
@@ -156,8 +161,6 @@ def tcc(context):
                     ))
             except sqlite3.Error as e:
                 logfunc(f"TCC: SQLite error querying {db_path}: {e}")
-            except Exception as e:
-                logfunc(f"TCC: Unexpected error processing records from {db_path}: {e}")
 
     finally:
         # Clean up the entire temporary hierarchy. ignore_errors ensures Windows locks do not crash the framework.

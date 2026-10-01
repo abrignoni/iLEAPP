@@ -10,11 +10,16 @@ __artifacts_v2__ = {
         "notes": (
             "Diagnostic text file generated inside an iOS sysdiagnose dump. It provides a snapshot of "
             "the device's Wi-Fi state when the Sysdiagnose was triggered. "
-            "Key information found inside include Wi-Fi MAC address (and sometimes the hardware MAC address), "
-            "BSSID (Basic Service Set Identifier) (the MAC address of the wireless access point or router the device was last connected to), "
+            "Key information found inside includes Wi-Fi MAC address (and sometimes the hardware MAC address), "
+            "BSSID (Basic Service Set Identifier) (the MAC address of the wireless access point or router the device was connected to when the file was written), "
             "SSID (Service Set Identifier) (of the access point or router), "
             "connection state details regarding link status, current channel, and signal metrics (RSSI) if active. "
-            "SSID and BSSID may be missing (iOS 17) or redacted (iOS 26) as seen in samples."
+            "SSID and BSSID are not always present: on the tested sysdiagnoses they held values on iOS 13, 14 and 16, "
+            "read None on iOS 17.3 and <redacted> on iOS 26. "
+            "Sysdiagnose Timestamp is read from the sysdiagnose folder name, which records the device's UTC offset, "
+            "and is converted to UTC. On the six tested sysdiagnoses still in their original tar archives, "
+            "the archive records wifi_status.txt as written 24 to 41 seconds after that time. "
+            "magnet_ios16 carries only an unfinished (IN_PROGRESS) sysdiagnose, which is not read."
         ),
         "paths": (
             '*/WiFi/wifi_status.txt',
@@ -23,21 +28,22 @@ __artifacts_v2__ = {
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "wifi",
         "sample_data": {
-            "sysdiagnose_2022.03.17_13-54-19-0400": "iOS 15.4 | 29 rows",
-            "sysdiagnose_2022.11.27_16-02-07-0600": "iOS 14.2 | 27 rows",
-            "sysdiagnose_2023.05.20_18-36-50-0400": "iOS 15.3.1 | 29 rows",
-            "sysdiagnose_2023.08.21_20-53-17-0400": "iOS 16.6 | 29 rows",
-            "sysdiagnose_2024.03.09_20-10-46-0500": "iOS 17.3.1 | 29 rows",
-            "sysdiagnose_2024.05.22_16-31-45-0400": "iOS 17.5.1 | 29 rows",
-            "sysdiagnose_2026.07.27_09-11-48-0400": "iOS 26.5.2 | 31 rows",
-            "sysdiagnose_2026.09.11_16-41-19-0400": "iOS 26.6.2 | 31 rows",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 31 rows",
+            "hc_ios26_sysdiag": "iOS 26 | 31 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 29 rows",
+            "felix23_ios16": "iOS 16.5 | 60 rows",
+            "hickman_ios13": "iOS 13.3.1 | 28 rows",
+            "hickman_ios14": "iOS 14.3 | 28 rows",
+            "magnet_ios16": "iOS 16.1.1 | 0 rows",
         }
     }
 }
 
 import re
+import tarfile
+import zlib
 from datetime import datetime, timezone
-from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
+from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files, logfunc
 
 def _extract_sysdiag_ts(path):
     # Extracts the timestamp embedded in the sysdiagnose internal folder name and converts it to UTC.
@@ -85,7 +91,8 @@ def wifi_status(context):
                 file_content = file_content.decode('utf-8', errors='replace')
                 
             lines = file_content.splitlines()
-        except Exception:
+        except (OSError, EOFError, tarfile.TarError, zlib.error) as e:
+            logfunc(f"Wifi Status: error reading {source_path}: {e}")
             continue
 
         source_paths.add(source_path)
