@@ -31,4 +31,7 @@ show_icon_preview = False
 icon_size = 144
 text_size = 14
 label_pos = "bottom"
-icon_locations = {appname: (260, 290), "Applications": (610, 290)}
+# Either side of the arrow, whose centre is at x=479 on the background. The arrow moved 44
+# points right with the background of 2026-10-01, and the icons with it, from (260, 290)
+# and (610, 290).
+icon_locations = {appname: (304, 290), "Applications": (654, 290)}
