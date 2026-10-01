@@ -29,6 +29,9 @@ files, Defender's platform files, anything `compact /exe` touched) is staged as 
 content, where it used to be staged as zeros of the right length, and a cloud
 provider's online-only placeholder (OneDrive Files On-Demand) is not staged at all:
 its content is not in the image, and the run log names it.
+Since 1.57, an NTFS-compressed file with a compression unit that stops early is staged
+at its recorded length, the rest of that unit as zeros. Before, the reader returned
+fewer bytes than the file records and the file was not staged.
 
 ## Where the pieces are
 

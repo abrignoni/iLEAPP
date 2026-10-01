@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.56"
+QNXPROBE_VERSION = "1.57"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -4278,7 +4278,8 @@ class NtfsWalker:
         """A compressed $DATA is stored in units of 2**comp_unit clusters. A unit
         whose runs are shorter than the unit is compressed and inflated with
         LZNT1; one stored at full length was left uncompressed. ``start`` is a
-        byte offset; reading begins at the unit that holds it."""
+        byte offset; reading begins at the unit that holds it. A unit whose
+        stored bytes are not an LZNT1 stream raises NtfsUnreadable."""
         unit = (1 << data.comp_unit) * self.cluster
         vcn_per_unit = 1 << data.comp_unit
         produced = 0
@@ -4298,7 +4299,12 @@ class NtfsWalker:
             elif len(raw) >= unit:
                 out = raw[:unit]
             else:
-                out = _lznt1_decompress(raw, unit)
+                try:
+                    out = _lznt1_decompress(raw, unit)
+                except ValueError as exc:
+                    raise NtfsUnreadable(
+                        f"the compression unit at cluster {first} of the file does "
+                        f"not decode: {exc}") from None
             if drop:
                 out, drop = out[drop:], 0
             take = min(len(out), want - produced)
@@ -4431,6 +4437,20 @@ def _lznt1_decompress(src, limit):
     or a back reference. The split of a back reference into length and offset
     bits widens as the output grows, which is what the shifting below tracks.
     Described in the Linux-NTFS documentation, "Compressed files".
+
+    Always returns ``limit`` bytes. A unit can stop before its output is full:
+    a header of zero ends it, and so does the end of the stored bytes, and the
+    rest of the unit reads as zeros. A compressed chunk that inflates to fewer
+    than 4096 bytes is filled with zeros to 4096, so the next chunk starts
+    where it belongs. Both are what ntfs-3g's ntfs_decompress() does, and The
+    Sleuth Kit read the two such units found on four public images as zeros
+    (see "NTFS compression units that stop early" in the README). Until 1.57
+    the bytes decoded so far were returned and the file read short.
+
+    Raises ValueError for bytes that are not an LZNT1 stream: a chunk that
+    runs past the stored bytes, a stored chunk that is not 4096 bytes long, or
+    a back reference to before its own chunk. Until 1.57 those ended the unit
+    without a word; ntfs-3g refuses all three.
     """
     out = bytearray()
     pos = 0
@@ -4441,9 +4461,11 @@ def _lznt1_decompress(src, limit):
             break
         size = (header & 0x0FFF) + 1
         if pos + size > len(src):
-            break
+            raise ValueError("a chunk runs past the bytes stored for its unit")
         chunk, pos = src[pos:pos + size], pos + size
         if not header & 0x8000:                    # stored, not compressed
+            if size != 4096:
+                raise ValueError(f"a stored chunk is {size} bytes long, not 4096")
             out += chunk
             continue
         start = len(out)
@@ -4470,12 +4492,16 @@ def _lznt1_decompress(src, limit):
                 length = (pair & ((1 << shift) - 1)) + 3
                 delta = (pair >> shift) + 1
                 if delta > produced:
-                    return bytes(out)
+                    raise ValueError("a back reference reaches before the start "
+                                     "of its chunk")
                 src_pos = len(out) - delta
                 for _ in range(length):
                     out.append(out[src_pos])
                     src_pos += 1
-    return bytes(out[:limit])
+        if len(out) - start < 4096:                # a chunk that inflates short
+            out += bytes(4096 - (len(out) - start))
+    del out[limit:]
+    return bytes(out) + bytes(limit - len(out))
 
 
 # ---------------------------------------------------------------- APFS
@@ -13990,6 +14016,68 @@ def _ntfs_windows_check(image_gz, known_tsv, break_it=None):
     return counts, wrong
 
 
+def _ntfs_lznt1_stop_check(image_gz, decoder=None):
+    """Read lznt1/text_100000.txt from copies of the volume Windows wrote
+    (tools/make_ntfs_windows_fixture.cmd) with one compression unit changed.
+
+    The file is two units, each stored in two clusters. Three copies:
+
+    * ``second``: the first two bytes of the second unit, its first chunk
+      header, set to zero. NTFS's rule is that the unit then reads as zeros,
+      so the file is its first 65,536 bytes and 34,464 zeros.
+    * ``first``: the same done to the first unit. The file is 65,536 zeros
+      and then its own last 34,464 bytes, which tests that the second unit
+      still lands at its own offset.
+    * ``refused``: the second unit begins with a chunk whose first item is a
+      back reference, which has nothing to point back to. No reading of it is
+      right, so the read has to raise.
+
+    ``decoder`` stands in for _lznt1_decompress, for the control. Returns
+    {"second": (length, sha256), "first": (length, sha256), "refused": bool}.
+    """
+    import gzip, hashlib, io
+    global _lznt1_decompress                         # pylint: disable=global-statement
+    with gzip.open(image_gz, "rb") as gz:
+        plain = gz.read()
+
+    def find(img):
+        for v in volumes(img, len(img.getbuffer())):
+            w = v.get("walker")
+            if v["kind"] != "ntfs" or not w:
+                continue
+            for path, node, _s, _m in collect(w, w.root):
+                if path.endswith("lznt1/text_100000.txt"):
+                    return w, node
+        raise ValueError("lznt1/text_100000.txt is not on the volume")
+
+    w, node = find(io.BytesIO(plain))
+    data = w._data_attr(node)                        # pylint: disable=protected-access
+    units = [w.base + lcn * w.cluster for lcn, _count in data.runs if lcn is not None]
+    if len(units) != 2:
+        raise ValueError(f"the file is stored in {len(units)} runs, not two units")
+    out = {}
+    real = _lznt1_decompress
+    if decoder is not None:
+        _lznt1_decompress = decoder
+    try:
+        for label, offset, patch in (("second", units[1], b"\x00\x00"),
+                                     ("first", units[0], b"\x00\x00"),
+                                     ("refused", units[1], b"\x02\xb0\x01\x00\x00")):
+            changed = bytearray(plain)
+            changed[offset:offset + len(patch)] = patch
+            w, node = find(io.BytesIO(bytes(changed)))
+            try:
+                got = b"".join(w.read_file(node, 100000))
+            except NtfsUnreadable:
+                out[label] = True if label == "refused" else (0, "refused")
+                continue
+            out[label] = False if label == "refused" else (
+                len(got), hashlib.sha256(got).hexdigest())
+    finally:
+        _lznt1_decompress = real
+    return out
+
+
 def _flash_fixture_check(image_gz, hashes, listing=None, style="stat", prefix="",
                          loose_times=(), corrupt=None, allow_extra=(), front=None):
     """Read a committed flash filesystem fixture through identify_fs() and
@@ -16496,8 +16584,30 @@ def self_test():
             "02af02a402")
         lz_chunk = bytes.fromhex(lz_hex)
         lz_line = b"a line that repeats and so compresses well\n"
-        lz_ok = (_lznt1_decompress(lz_chunk, 4096)
-                 == (lz_line * (4096 // len(lz_line) + 2))[:4096])
+        lz_plain = (lz_line * (4096 // len(lz_line) + 2))[:4096]
+        lz_ok = _lznt1_decompress(lz_chunk, 4096) == lz_plain
+        # A unit can stop early, and what is left of it is zeros: at a header
+        # of zero, at the end of the stored bytes, and after a compressed chunk
+        # that inflates to fewer than 4096 bytes. The short chunk here is three
+        # literals, "abc", and the real chunk after it has to land at 4096.
+        lz_short = b"\x03\xb0\x00abc"
+        lz_stop_ok = (
+            _lznt1_decompress(lz_chunk + b"\x00\x00" + lz_chunk, 12288)
+            == lz_plain + bytes(8192)
+            and _lznt1_decompress(b"\x00\x00" + lz_chunk, 8192) == bytes(8192)
+            and _lznt1_decompress(lz_chunk, 8192) == lz_plain + bytes(4096)
+            and _lznt1_decompress(lz_short + lz_chunk, 8192)
+            == b"abc" + bytes(4093) + lz_plain)
+        # Bytes that are not an LZNT1 stream are refused, not read as an empty
+        # unit: a chunk longer than what is stored, a stored chunk that is not
+        # 4096 bytes, and a back reference with nothing behind it.
+        lz_refused = 0
+        for lz_bad in (lz_chunk[:-1], b"\x02\x30abc", b"\x02\xb0\x01\x00\x00"):
+            try:
+                _lznt1_decompress(lz_bad, 4096)
+            except ValueError:
+                lz_refused += 1
+        lz_refuse_ok = lz_refused == 3
 
         # A record whose last sector was not written with the rest must be
         # refused rather than parsed with the stamp still in it.
@@ -16786,6 +16896,12 @@ def self_test():
                 ("a run list decodes, including a run that steps backwards and "
                  "a sparse one", runs_ok),
                 ("an LZNT1 chunk inflates to the bytes it was made from", lz_ok),
+                ("an LZNT1 unit that stops early is filled with zeros: at a zero "
+                 "header, at the end of its stored bytes, and after a chunk that "
+                 "inflates short", lz_stop_ok),
+                ("bytes that are not an LZNT1 stream are refused: a chunk past the "
+                 "stored bytes, a stored chunk that is not 4096 bytes, a back "
+                 "reference with nothing behind it", lz_refuse_ok),
                 ("a record's sector fixups are applied, and a torn one is "
                  "refused", fixup_ok),
                 ("an index entry naming a record of a different generation is "
@@ -17466,6 +17582,57 @@ def self_test():
                     ok = False
                 print(f"  [{'PASS' if ccond else 'FAIL'}] and that comparison fails for a "
                       f"reader that {label} ({bad} files wrong)")
+
+            # An NTFS compression unit that stops early. The two digests are
+            # written out: they are what The Sleuth Kit 4.15.0 (icat) read from
+            # the same changed copies, and what the file's own bytes give with
+            # the unit replaced by zeros.
+            stop_second = "2178bd1ed448997552310b525dd2f83a6049978b291fe6afd0f8cb4ee2cc40b1"
+            stop_first = "1d86e973f642b6762f8bf3fc24b47f366a4caef494338b4c1ff6148030171679"
+
+            def _stops_at_zero(src, limit, real=_lznt1_decompress):
+                """The decoder as it was until 1.57: a unit ends where its
+                chunks do, and is returned at that length."""
+                pos = chunks = 0
+                while pos + 2 <= len(src):
+                    header = struct.unpack_from("<H", src, pos)[0]
+                    if header == 0:
+                        break
+                    pos += 3 + (header & 0x0FFF)
+                    chunks += 1
+                return real(src, limit)[:min(limit, chunks * 4096)]
+
+            try:
+                st = _ntfs_lznt1_stop_check(win_fix)
+            except Exception as exc:                 # pylint: disable=broad-except
+                st = {"error": f"{type(exc).__name__}: {exc}"}
+            scond = (st.get("second") == (100000, stop_second)
+                     and st.get("first") == (100000, stop_first))
+            if not scond:
+                ok = False
+            print(f"  [{'PASS' if scond else 'FAIL'}] an NTFS-compressed file with a unit "
+                  f"that stops at a zero chunk header reads at its full length, that "
+                  f"unit as zeros and the other unit at its own offset, as The Sleuth "
+                  f"Kit read the same two volumes"
+                  + (f" ({st['error']})" if "error" in st else ""))
+            rcond = st.get("refused") is True
+            if not rcond:
+                ok = False
+            print(f"  [{'PASS' if rcond else 'FAIL'}] and a unit that is not an LZNT1 "
+                  f"stream is refused rather than read as zeros")
+            try:
+                old = _ntfs_lznt1_stop_check(win_fix, decoder=_stops_at_zero)
+            except Exception:                        # pylint: disable=broad-except
+                old = {}
+            ocond = (old.get("second", (0,))[0] == 65536
+                     and old.get("first", (0,))[0] == 65536
+                     and old.get("second", (0, ""))[1] != stop_second
+                     and old.get("first", (0, ""))[1] != stop_first)
+            if not ocond:
+                ok = False
+            print(f"  [{'PASS' if ocond else 'FAIL'}] and that comparison fails for a "
+                  f"reader that ends the unit at the zero header: both files come "
+                  f"back 65,536 bytes long")
         else:
             print("  [SKIP] the Windows-written NTFS fixture is not beside this script, so "
                   "overlay compression, cloud placeholders and allocation were not "
