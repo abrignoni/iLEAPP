@@ -14,6 +14,17 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | Bumble: Dating & Friends App 5.319.0 | 40 rows",
             "jess_ios15": "iOS 15.0.2 | Bumble - Dating. Friends. Bizz 5.247.0 | 8 rows",
+        },
+        "data_views": {
+            "conversation": {
+                "conversationDiscriminatorColumn": "Collection",
+                "conversationLabelColumn": "Collection",
+                "textColumn": "Message",
+                "directionColumn": "Message Direction",
+                "directionSentValue": "Outgoing",
+                "timeColumn": "Created Timestamp",
+                "senderColumn": "Sender ID"
+            }
         }
     },
     "bumbleAccount": {
@@ -68,7 +79,7 @@ def _load_blob_plist(blob):
 @artifact_processor
 def bumbleMessages(context):
     data_headers = (('Created Timestamp', 'datetime'), ('Modified Timestamp', 'datetime'),
-                    'Sender ID', 'Receiver ID', 'Message', 'Message Direction', 'Message Read')
+                    'Message Direction', 'Sender ID', 'Collection', 'Message', 'Receiver ID', 'Message Read')
     data_list = []
 
     source_path = ''
@@ -84,6 +95,7 @@ def bumbleMessages(context):
     SELECT
         database2.data,
         CASE secondaryIndex_isReadIndex.isIncoming WHEN 0 THEN 'Outgoing' WHEN 1 THEN 'Incoming' END,
+        collection,
         CASE secondaryIndex_isReadIndex.isRead WHEN 0 THEN '' WHEN 1 THEN 'Yes' END
     FROM database2
     JOIN secondaryIndex_isReadIndex ON database2.rowid = secondaryIndex_isReadIndex.rowid
@@ -94,8 +106,14 @@ def bumbleMessages(context):
             continue
         data_list.append((convert_unix_ts_to_utc(plist['self.dateCreated']),
                           convert_unix_ts_to_utc(plist.get('self.dateModified')),
-                          plist.get('self.fromPersonUid', ''), plist.get('self.toPersonUid', ''),
-                          plist.get('self.messageText', ''), row[1], row[2]))
+                          row[1], #Message Direction
+                          plist.get('self.fromPersonUid', ''), 
+                          row[2], #Collection
+                          plist.get('self.messageText', ''),
+                          plist.get('self.toPersonUid', ''),
+                          row[3], #Message Read
+                         ))
+                          
 
     return data_headers, data_list, context.get_relative_path(source_path)
 
