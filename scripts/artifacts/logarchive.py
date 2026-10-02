@@ -1,4 +1,30 @@
 __artifacts_v2__ = {
+    "logarchive_urlopens": {
+        "name": "logarchive URL / link opens",
+        "description": "Unified log entries recording URL / deep-link open requests "
+                       "(UIOpenURLAction, scene openURLContexts, or an unregistered URL scheme). "
+                       "Each row is a log line, not a distinct open - a single open can emit both a "
+                       "UIOpenURLAction and an openURLContexts line. On the tested images (iOS 26.2 "
+                       "and 26.6) the URL value was redacted as <private>, so this records that a URL "
+                       "/ link was opened, when, and which process handled it, not the URL string.",
+        "author": "@danjethh",
+        "creation_date": "2026-09-29",
+        "last_update_date": "2026-09-29",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Each row is a LOG LINE, not a distinct open: one open can log both a UIOpenURLAction "
+                 "and an openURLContexts line, so the row count over-counts opens. On the tested images "
+                 "the URL value was redacted as <private> (observed on iOS 26.2 and 26.6). Markers: "
+                 "UIOpenURLAction (seen on 26.2 and 26.6); scene openURLContexts (seen on 26.6, where it "
+                 "matched only 'Received URL to open in openURLContexts <private>' lines - all genuine "
+                 "opens); and 'no registered handler for URL scheme' (a failed/unhandled open; not "
+                 "present on either tested image). openURLContexts is a broad UIKit method name, so on "
+                 "other images/processes it may match lines that are not opens - review the matched "
+                 "messages. -canOpenURL: capability checks are excluded (probes, not opens).",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "link",
+    },
     "logarchive": {
         "name": "logarchive",
         "description": "Processes Apple Unified Logs, either from tracev3 data in the "
@@ -1235,6 +1261,13 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Persisting widget state%'
         OR event_message LIKE '%WiFiDeviceManagerSetCarPlaySessionState%'
         OR event_message LIKE '%CarPlay session vehicle inform%'
+        -- logarchive_urlopens. URL / deep-link open requests. These markers must be collected
+        -- here (as well as filtered in the dependent artifact) or logarchive_artifacts never
+        -- keeps the rows and logarchive_urlopens returns empty. UIOpenURLAction and the scene
+        -- openURLContexts form; 'no registered handler for URL scheme' is a failed/unhandled open.
+        OR event_message LIKE '%UIOpenURLAction%'
+        OR event_message LIKE '%openURLContexts%'
+        OR event_message LIKE '%no registered handler for URL scheme%'
     '''
 
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -1787,4 +1820,13 @@ def logarchive_carplay_session(context):
         OR event_message LIKE '%WiFiDeviceManagerSetCarPlaySessionState%'
         OR event_message LIKE '%CarPlay session vehicle inform%'
         OR event_message LIKE '%CarPlay Connection Event%'
+    ''')
+
+
+@artifact_processor
+def logarchive_urlopens(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%UIOpenURLAction%'
+        OR event_message LIKE '%openURLContexts%'
+        OR event_message LIKE '%no registered handler for URL scheme%'
     ''')
