@@ -372,17 +372,29 @@ __artifacts_v2__ = {
                        "(touchstats), touch attention events, and tap-to-wake",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-03",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented at https://thesisfriday.com/thesis-friday-14-aul-touch-events/ "
                  "(iOS 18.5) and "
                  "https://www.ios-unifiedlogs.com/news/ios-unified-logs-touching-the-iphone-screen; "
                  "observed on iOS 18.7. Contact entries record finger presence on the "
-                 "digitizer, not which control was touched. High volume, LAVA-only.",
+                 "digitizer, not which control was touched. High volume, LAVA-only. "
+                 "'Touch entered' (backboardd) was added 2026-10-03 from Tim Korver's 'Apple "
+                 "Unified Log search term and process cheatsheet' (thesisfriday.com/alr), which "
+                 "notes that the rectangle in it is the screen size, not the finger's position; "
+                 "it appeared only on the iOS 26.5.2 image (1,237 entries). "
+                 "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
         "paths": None,
         "output_types": "lava_only",
         "artifact_icon": "target",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 8193 rows",
+            "dexter_ios18": "iOS 18.3.2 | 4801 rows",
+            "iphone12_ios18": "iOS 18.7 | 23978 rows",
+            "hc_ios26": "iOS 26.5.2 | 6933 rows",
+        },
     },
     "logarchive_usb_connections": {
         "name": "logarchive USB and power connections",
@@ -518,19 +530,39 @@ __artifacts_v2__ = {
                        "volume unlock, and locks from the side button",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-03",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-unlock) and "
-                 "https://thesisfriday.com/thesis-friday-12-aul-first-glance-at-ios-26/; "
-                 "observed on iOS 18.7. In 'Processed authentication request' entries the "
-                 "cited research maps type 1 to passcode and type 2 to biometric, and "
-                 "success=NO entries record failed attempts. Complements the logarchive "
-                 "lock status artifact with durations and method.",
+                 "https://thesisfriday.com/thesis-friday-12-aul-first-glance-at-ios-26/; observed "
+                 "on iOS 18.7. In 'Processed authentication request' entries the cited research "
+                 "maps type 1 to passcode and type 2 to biometric. The same research shows "
+                 "success=YES with type 1 also recorded when a wrong passcode was entered, and "
+                 "gives the following 'Unlock attempt succeeded: yes' or 'no' entry as the "
+                 "outcome. That entry did not appear on the iOS 12.4, 17.2.1, 18.3.2, 18.7 or "
+                 "26.5.2 images, so on them the success flag alone does not establish that an "
+                 "unlock succeeded. 'Transition: locked ->' is written by several processes for "
+                 "one unlock (chronod, duetexpertd and SpringBoard on the iOS 18.3.2 image), so "
+                 "its rows are not a count of unlocks; the cited research reads the target state "
+                 "inBioUnlock as a biometric unlock. The kernel 'is now UN-locked' entry, named as "
+                 "the unlock endpoint in Tim Korver's 'Apple Unified Log search term and process "
+                 "cheatsheet' (thesisfriday.com/alr), was added 2026-10-03: it appeared on all "
+                 "five tested images (28, 54, 58, 18 and 26 entries), including iOS 12.4 and "
+                 "17.2.1, where 'apfs is being UN-locked' did not appear. The cheatsheet reports "
+                 "two such entries per unlock on iOS. Complements the logarchive lock status "
+                 "artifact with durations and method. "
+                 "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "unlock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 111 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 115 rows",
+            "dexter_ios18": "iOS 18.3.2 | 260 rows",
+            "iphone12_ios18": "iOS 18.7 | 174 rows",
+            "hc_ios26": "iOS 26.5.2 | 177 rows",
+        },
     },
     "logarchive_dictation": {
         "name": "logarchive dictation",
@@ -756,7 +788,223 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "truck",
-    }
+    },
+    "logarchive_biometric_match": {
+        "name": "logarchive biometric match results",
+        "description": "Unified log entries recording the result of a Face ID or Touch ID match: the "
+                       "kernel matchResultHandler entries, coreauthd no-match entries, and the "
+                       "documented SpringBoard biometric unlock events",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
+                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
+                 "and 26.6.1), which describes the matchResultHandler entry as carrying the user "
+                 "ID and enrollment UUID and 'MATCH -1' as firing on a wrong passcode and on a "
+                 "failed Face ID, with the surrounding entries deciding which. Other MATCH values "
+                 "were not tested against known data here and are reported as stored. Kernel "
+                 "matchResultHandler entries were present on the iOS 12.4 (43, 4 of them MATCH "
+                 "-1), iOS 17.2.1 (11, 4 MATCH -1) and iOS 18.3.2 (50, 21 MATCH -1) images and "
+                 "absent on the iOS 18.7 and iOS 26.5.2 images. coreauthd 'has received no-match' "
+                 "appeared once, on iOS 17.2.1. 'Base unlock behavior received biometric event' is "
+                 "documented by Lionel Notari "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-unlock) and "
+                 "'matchResult:timestamp:' is the macOS form named in the cheatsheet; neither "
+                 "appeared in the tested iOS images. An entry records a match attempt by the "
+                 "sensor stack, not who was in front of it. "
+                 "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "user-check",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 43 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 12 rows",
+            "dexter_ios18": "iOS 18.3.2 | 50 rows",
+            "iphone12_ios18": "iOS 18.7 | 0 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
+        },
+    },
+    "logarchive_passcode_field": {
+        "name": "logarchive passcode field input",
+        "description": "Unified log entries recording the passcode text field (SBUIPasscodeTextField) "
+                       "becoming and ceasing to be the keyboard input target, with the process that "
+                       "showed it",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search term from Tim Korver, 'Apple Unified Log search term and process "
+                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
+                 "and 26.6.1), which describes these entries as showing that the passcode field "
+                 "was on screen; they do not record the digits or whether the code was correct. "
+                 "The process column separates the lock screen (SpringBoard) from passcode prompts "
+                 "shown for another authentication (CoreAuthUI on iOS 17.2.1 and 18.7, "
+                 "LocalAuthenticationUIService on iOS 26.5.2). Rows by image: iOS 17.2.1 44 (24 "
+                 "CoreAuthUI), iOS 18.3.2 6, iOS 18.7 450 (424 CoreAuthUI), iOS 26.5.2 34 (8 "
+                 "LocalAuthenticationUIService); none on iOS 12.4. "
+                 "'forSetDelegate:<SBUIPasscodeTextField' is written when the field becomes the "
+                 "input target and '_teardownExistingDelegate:<SBUIPasscodeTextField' when it "
+                 "stops being one; the two forms appeared in equal numbers on every tested image "
+                 "that had either. Trace ID held no value on any row of the tested images: rows "
+                 "read from tracev3 data leave it empty, and only a 'log show' JSON export fills "
+                 "it.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "lock",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 0 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 44 rows",
+            "dexter_ios18": "iOS 18.3.2 | 6 rows",
+            "iphone12_ios18": "iOS 18.7 | 450 rows",
+            "hc_ios26": "iOS 26.5.2 | 34 rows",
+        },
+    },
+    "logarchive_hardware_buttons": {
+        "name": "logarchive hardware button presses",
+        "description": "Unified log entries recording physical button presses: backboardd button events "
+                       "with the button's HID usage and how long it was held, SpringBoard side button "
+                       "press counts and single press recognition, and the SpringBoard button "
+                       "combination recognizer's press type",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
+                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
+                 "and 26.6.1). backboardd writes one 'began:' and one 'finished:' entry per press; "
+                 "the cheatsheet reads the time since firstDown in the 'finished:' entry as how "
+                 "long the button was held. The usage pair at the start of the entry is a USB HID "
+                 "Consumer Page usage: 0xC/0x30 Power, 0xC/0xE9 Volume Increment, 0xC/0xEA Volume "
+                 "Decrement (USB-IF HID Usage Tables 1.5, section 15). The cheatsheet maps the "
+                 "combination recognizer's press type 102 to volume up, 103 to volume down and 104 "
+                 "to the side button; on the iOS 18.7 and 26.5.2 images each of the three "
+                 "appeared exactly twice per press of the matching backboardd usage (on iOS 18.7: "
+                 "80, 26 and 66 against 41, 13 and 33 presses). 'press count:' is the side "
+                 "button's press count per the cheatsheet (1 single, 2 a second press shortly "
+                 "after), and it matched the 0xC/0x30 press count on the iOS 17.2.1 (22), 18.7 "
+                 "(33) and 26.5.2 (24) images but not on iOS 18.3.2 (2 against 15). The iOS 12.4 "
+                 "image held only 'Lock button single press recognized' (9). Volume presses are "
+                 "also reported by the audio status artifact; button presses can come from an "
+                 "examiner handling the device. Trace ID held no value on any row of the tested "
+                 "images: rows read from tracev3 data leave it empty, and only a 'log show' JSON "
+                 "export fills it.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "smartphone",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 9 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 188 rows",
+            "dexter_ios18": "iOS 18.3.2 | 40 rows",
+            "iphone12_ios18": "iOS 18.7 | 406 rows",
+            "hc_ios26": "iOS 26.5.2 | 175 rows",
+        },
+    },
+    "logarchive_orientation": {
+        "name": "logarchive device orientation and pick-up",
+        "description": "Unified log entries recording device orientation changes (Received orientation), "
+                       "wake gesture notifications such as a pick-up (Gesture notification) and the "
+                       "kernel's [TTW] orientation changes",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
+                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
+                 "and 26.6.1) and orientation entries documented at "
+                 "https://thesisfriday.com/thesis-friday-2-aul-device-orientation/. The cheatsheet "
+                 "notes that several processes write the same orientation and gesture entry for "
+                 "one event, so a count of rows is not a count of events, and that the end state "
+                 "is reliable while the start state is not. On the tested images gesture "
+                 "notifications came from SpringBoard, biometrickitd and audiomxd (assistantd in "
+                 "place of audiomxd on iOS 12.4), and orientation entries from backboardd and "
+                 "biometrickitd with others such as audiomxd and callservicesd; on iOS 26.5.2 app "
+                 "processes including Camera and MobileSMS also logged them. Gesture notification "
+                 "values seen in the tested images: 1(Detected), "
+                 "2(Dismissed), 4(PreDetection) and, on iOS 18.3.2, 7(Suppressed); the cheatsheet "
+                 "reads 'Gesture notification: 1(Detected)' as the device being picked up. The "
+                 "[TTW] kernel entries carry only a code and a microsecond counter and appeared on "
+                 "iOS 17.2.1, 18.7 and 26.5.2. High volume, LAVA-only. "
+                 "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
+        "paths": None,
+        "output_types": "lava_only",
+        "artifact_icon": "rotate-cw",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1236 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 3740 rows",
+            "dexter_ios18": "iOS 18.3.2 | 827 rows",
+            "iphone12_ios18": "iOS 18.7 | 5414 rows",
+            "hc_ios26": "iOS 26.5.2 | 1034 rows",
+        },
+    },
+    "logarchive_system_gestures": {
+        "name": "logarchive system edge gestures",
+        "description": "Unified log entries recording touches taken over by a system gesture "
+                       "(backboardd) and SpringBoard edge gesture recognizers for the app switcher, "
+                       "Control Center and the Cover Sheet",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
+                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
+                 "and 26.6.1), which notes that a single 'system gesture stealing the touches' "
+                 "entry is an edge touch while a real swipe writes nine to twenty-three. The "
+                 "SpringBoard entries name the recognizer: DeckGrabberTongue (app switcher), "
+                 "ControlCenterGrabberTongue, CoverSheetGrabberTongue and "
+                 "SBCoverSheetSystemGesturesDelegate; only the backboardd entry appeared on the "
+                 "iOS 12.4 image. The entries record that a gesture recognizer began, not that the "
+                 "gesture completed. "
+                 "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "move",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 269 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 431 rows",
+            "dexter_ios18": "iOS 18.3.2 | 90 rows",
+            "iphone12_ios18": "iOS 18.7 | 1195 rows",
+            "hc_ios26": "iOS 26.5.2 | 312 rows",
+        },
+    },
+    "logarchive_usb_host": {
+        "name": "logarchive USB host connections",
+        "description": "Unified log entries separating a USB connection to a computer from a power "
+                       "source: the kernel AppleUSBCableType, UserEventAgent connectType changes, and "
+                       "lockdownd host session entries",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-03",
+        "last_update_date": "2026-10-03",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
+                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
+                 "and 26.6.1), which reads AppleUSBCableType USBHost as a cable to a computer "
+                 "(absent with a power source), connectType 1 as a power source and 2 as a "
+                 "computer, and the lockdownd usb_host_connected and bump_connection_count entries "
+                 "as the host session rather than the cable. connectType 5 (one entry on iOS "
+                 "18.3.2) is not described there and is reported as stored. The lockdownd entries "
+                 "appeared on iOS 12.4 and 17.2.1 only, and none of the families appeared on the "
+                 "iOS 26.5.2 image. A computer connection is also what an examiner's acquisition "
+                 "produces. Pair with the USB and power connections artifact for cable attach and "
+                 "detach. "
+                 "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "link",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 38 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 124 rows",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | 187 rows",
+            "hc_ios26": "iOS 26.5.2 | 0 rows",
+        },
+    },
 }
 
 import os
@@ -1235,6 +1483,40 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Persisting widget state%'
         OR event_message LIKE '%WiFiDeviceManagerSetCarPlaySessionState%'
         OR event_message LIKE '%CarPlay session vehicle inform%'
+        -- Patterns below were added 2026-10-03 from the cheatsheet cited in the
+        -- consuming artifacts' notes, grouped by consuming artifact.
+        -- logarchive_unlock_auth: the kernel keybag endpoint. iOS 12.4 writes
+        -- 'apfs Data is now UN-locked', later releases 'apfs is now UN-locked'.
+        OR event_message LIKE '%is now UN-locked%'
+        OR event_message LIKE '%Unlock attempt succeeded%'
+        -- logarchive_biometric_match
+        OR event_message LIKE '%matchResultHandler: MATCH%'
+        OR event_message LIKE '%matchResult:timestamp:%'
+        OR event_message LIKE '%has received no-match%'
+        OR event_message LIKE '%Base unlock behavior received biometric event%'
+        -- logarchive_passcode_field
+        OR event_message LIKE '%forSetDelegate:<SBUIPasscodeTextField%'
+        OR event_message LIKE '%_teardownExistingDelegate:<SBUIPasscodeTextField%'
+        -- logarchive_hardware_buttons
+        OR (category = 'Button' AND event_message LIKE '%firstDown:%')
+        OR (subsystem = 'com.apple.SpringBoard.buttons'
+            AND (event_message LIKE 'press count:%'
+                 OR event_message LIKE 'Lock button single press recognized%'
+                 OR event_message LIKE 'SOS button gesture: press type=%'))
+        -- logarchive_orientation ('Received orientation' is already collected by
+        -- the case-insensitive 'Received Orientation' pattern above)
+        OR event_message LIKE '%Gesture notification:%'
+        OR event_message LIKE '%[TTW] Orientation changed%'
+        -- logarchive_system_gestures
+        OR event_message LIKE '%system gesture stealing the touches%'
+        OR (category LIKE 'SystemGesture%' AND event_message LIKE '%gestureRecognizerShouldBegin%')
+        -- logarchive_usb_host
+        OR event_message LIKE '%AppleUSBCableType%'
+        OR event_message LIKE '%launching clients due to connectType%'
+        OR event_message LIKE '%usb_host_connected%'
+        OR event_message LIKE '%bump_connection_count%'
+        -- logarchive_touch addition (iOS 26)
+        OR event_message LIKE '%Touch entered%'
     '''
 
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -1616,6 +1898,7 @@ def logarchive_touch(context):
         OR event_message LIKE '%touchstats%'
         OR event_message LIKE '%received tapToWake%'
         OR event_message LIKE '%AttentionAwareness.Touch%'
+        OR event_message LIKE '%Touch entered%'
     ''')
 
 @artifact_processor
@@ -1686,6 +1969,8 @@ def logarchive_unlock_auth(context):
         OR event_message LIKE '%Processed authentication request%'
         OR event_message LIKE '%Transition: locked ->%'
         OR event_message LIKE '%apfs is being UN-locked%'
+        OR event_message LIKE '%is now UN-locked%'
+        OR event_message LIKE '%Unlock attempt succeeded%'
         OR event_message LIKE '%lock button source%'
     ''')
 
@@ -1787,4 +2072,55 @@ def logarchive_carplay_session(context):
         OR event_message LIKE '%WiFiDeviceManagerSetCarPlaySessionState%'
         OR event_message LIKE '%CarPlay session vehicle inform%'
         OR event_message LIKE '%CarPlay Connection Event%'
+    ''')
+
+
+@artifact_processor
+def logarchive_biometric_match(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%matchResultHandler: MATCH%'
+        OR event_message LIKE '%matchResult:timestamp:%'
+        OR event_message LIKE '%has received no-match%'
+        OR event_message LIKE '%Base unlock behavior received biometric event%'
+    ''')
+
+@artifact_processor
+def logarchive_passcode_field(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%forSetDelegate:<SBUIPasscodeTextField%'
+        OR event_message LIKE '%_teardownExistingDelegate:<SBUIPasscodeTextField%'
+    ''')
+
+@artifact_processor
+def logarchive_hardware_buttons(context):
+    return _artifacts_table_records(context, '''
+        (category = 'Button' AND event_message LIKE '%firstDown:%')
+        OR (subsystem = 'com.apple.SpringBoard.buttons'
+            AND (event_message LIKE 'press count:%'
+                 OR event_message LIKE 'Lock button single press recognized%'
+                 OR event_message LIKE 'SOS button gesture: press type=%'))
+    ''')
+
+@artifact_processor
+def logarchive_orientation(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%Received orientation%'
+        OR event_message LIKE '%Gesture notification:%'
+        OR event_message LIKE '%[TTW] Orientation changed%'
+    ''')
+
+@artifact_processor
+def logarchive_system_gestures(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%system gesture stealing the touches%'
+        OR (category LIKE 'SystemGesture%' AND event_message LIKE '%gestureRecognizerShouldBegin%')
+    ''')
+
+@artifact_processor
+def logarchive_usb_host(context):
+    return _artifacts_table_records(context, '''
+        event_message LIKE '%AppleUSBCableType%'
+        OR event_message LIKE '%launching clients due to connectType%'
+        OR event_message LIKE '%usb_host_connected%'
+        OR event_message LIKE '%bump_connection_count%'
     ''')
