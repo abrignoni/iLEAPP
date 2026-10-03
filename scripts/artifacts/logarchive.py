@@ -524,10 +524,10 @@ __artifacts_v2__ = {
     },
     "logarchive_unlock_auth": {
         "name": "logarchive unlock sessions and method",
-        "description": "Unified log entries recording lock/unlock session durations (apsd "
-                       "'Was locked/unlocked for N seconds'), authentication requests with "
-                       "type and outcome, chronod locked-state transitions, keybag/APFS "
-                       "volume unlock, and locks from the side button",
+        "description": "Unified log entries recording lock/unlock session durations (apsd 'Was locked/unlocked "
+                       "for N seconds'), authentication requests with type and outcome, keybag state "
+                       "transitions, the kernel's APFS volume unlock entries and volume lock and unlock "
+                       "notifications, and locks from the side button",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
         "last_update_date": "2026-10-03",
@@ -535,33 +535,57 @@ __artifacts_v2__ = {
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-unlock) and "
-                 "https://thesisfriday.com/thesis-friday-12-aul-first-glance-at-ios-26/; observed "
-                 "on iOS 18.7. In 'Processed authentication request' entries the cited research "
-                 "maps type 1 to passcode and type 2 to biometric. The same research shows "
-                 "success=YES with type 1 also recorded when a wrong passcode was entered, and "
-                 "gives the following 'Unlock attempt succeeded: yes' or 'no' entry as the "
-                 "outcome. That entry did not appear on the iOS 12.4, 17.2.1, 18.3.2, 18.7 or "
-                 "26.5.2 images, so on them the success flag alone does not establish that an "
-                 "unlock succeeded. 'Transition: locked ->' is written by several processes for "
-                 "one unlock (chronod, duetexpertd and SpringBoard on the iOS 18.3.2 image), so "
-                 "its rows are not a count of unlocks; the cited research reads the target state "
-                 "inBioUnlock as a biometric unlock. The kernel 'is now UN-locked' entry, named as "
-                 "the unlock endpoint in Tim Korver's 'Apple Unified Log search term and process "
-                 "cheatsheet' (thesisfriday.com/alr), was added 2026-10-03: it appeared on all "
-                 "five tested images (28, 54, 58, 18 and 26 entries), including iOS 12.4 and "
-                 "17.2.1, where 'apfs is being UN-locked' did not appear. The cheatsheet reports "
-                 "two such entries per unlock on iOS. Complements the logarchive lock status "
-                 "artifact with durations and method. "
-                 "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
+                 "https://thesisfriday.com/thesis-friday-12-aul-first-glance-at-ios-26/; observed on iOS "
+                 "18.7. In 'Processed authentication request' entries the cited research maps type 1 to "
+                 "passcode and type 2 to biometric. The same research shows success=YES with type 1 also "
+                 "recorded when a wrong passcode was entered, and gives the following 'Unlock attempt "
+                 "succeeded: yes' or 'no' entry as the outcome. That entry did not appear on the iOS "
+                 "12.4, 17.2.1, 18.3.2, 18.7 or 26.5.2 images, so on them the success flag alone does "
+                 "not establish that an unlock succeeded. Every 'Transition:' entry of the "
+                 "com.apple.chrono keybag category is selected, with any other entry containing "
+                 "'Transition: locked ->' (remindd writes one). Several processes write one transition "
+                 "(chronod, duetexpertd, SpringBoard and WidgetRenderer_Default on the iOS 18.3.2 "
+                 "image), so the rows are not a count of unlocks; the cited research reads the target "
+                 "state inBioUnlock as a biometric unlock. Tim Korver's 'Backward reasoning from a "
+                 "provable endpoint' "
+                 "(https://thesisfriday.com/thesis-friday-27-backward-reasoning-from-a-provable-endpoint/, "
+                 "measured on macOS 26.6.2) reports that two processes writing the same transition are "
+                 "one message relayed and not two observations, and that a session unlocked "
+                 "biometrically stays in the biometric state until it locks. Transition entries by "
+                 "image: none on iOS 12.4; 52 on iOS 17.2.1 in 10 forms; 314 on iOS 18.3.2 in 10 forms; "
+                 "252 on iOS 18.7 in 9 forms; 183 on iOS 26.5.2 in 7 forms. A form naming inBioUnlock "
+                 "appeared on the iOS 17.2.1 and iOS 18.3.2 images only. The kernel 'is now UN-locked' "
+                 "entry, named as the unlock endpoint in Tim Korver's 'Apple Unified Log search term and "
+                 "process cheatsheet' (thesisfriday.com/alr), was added 2026-10-03: it appeared on all "
+                 "five tested images (28, 54, 58, 18 and 26 entries), including iOS 12.4 and 17.2.1, "
+                 "where 'apfs is being UN-locked' did not appear. The cheatsheet reports two such "
+                 "entries per unlock on iOS. The kernel 'Sending notification for volume' entry carries "
+                 "the state as written (unlocked, locked or cx expired; the last is reported as stored). "
+                 "Tim Korver's 'What a busy phone forgets' "
+                 "(https://thesisfriday.com/thesis-friday-28-what-a-busy-phone-forgets/, measured on iOS "
+                 "26.6.2) counts it with the kernel lines of an unlock. By image: none on iOS 12.4; 71 "
+                 "on iOS 17.2.1 (54 unlocked, 15 locked, 2 cx expired); 122 on iOS 18.3.2 (58 unlocked, "
+                 "56 locked, 8 cx expired); 36 on iOS 18.7 (18 unlocked, 16 locked, 2 cx expired); 56 on "
+                 "iOS 26.5.2 (26 unlocked, 24 locked, 6 cx expired). Its unlocked count equalled the 'is "
+                 "now UN-locked' count on each of the four images that had it (54, 58, 18, 26). An "
+                 "absent entry is not evidence that no unlock happened: that post measured the kernel "
+                 "lines of an unlock gone from a phone in daily use within 13.2 hours, and retention was "
+                 "not measured on the tested images. An acquisition can add to these entries: 'The stop "
+                 "rule' (https://thesisfriday.com/the-stop-rule/) counted 158 kernel keybag unlock lines "
+                 "and 370 keybag transition lines in a 67-minute period in which the phone was being "
+                 "acquired and he had not unlocked it as part of his reference session. Complements the "
+                 "logarchive lock status artifact with durations and method. Trace ID held no value on "
+                 "any row of the tested images: rows read from tracev3 data leave it empty, and only a "
+                 "'log show' JSON export fills it.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "unlock",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 111 rows",
-            "hc_ios17_2": "iOS 17.2.1 | 115 rows",
-            "dexter_ios18": "iOS 18.3.2 | 260 rows",
-            "iphone12_ios18": "iOS 18.7 | 174 rows",
-            "hc_ios26": "iOS 26.5.2 | 177 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 217 rows",
+            "dexter_ios18": "iOS 18.3.2 | 589 rows",
+            "iphone12_ios18": "iOS 18.7 | 384 rows",
+            "hc_ios26": "iOS 26.5.2 | 357 rows",
         },
     },
     "logarchive_dictation": {
@@ -814,6 +838,16 @@ __artifacts_v2__ = {
                  "'matchResult:timestamp:' is the macOS form named in the cheatsheet; neither "
                  "appeared in the tested iOS images. An entry records a match attempt by the "
                  "sensor stack, not who was in front of it. "
+                 "A match entry is not an unlock: Tim Korver's 'Backward reasoning from a provable "
+                 "endpoint' "
+                 "(https://thesisfriday.com/thesis-friday-27-backward-reasoning-from-a-provable-endpoint/, "
+                 "measured on macOS 26.6.2) recorded successful Touch ID matches with the machine "
+                 "already unlocked and no change of state; that was not tested on iOS here. An entry "
+                 "absent from an image is not established to be a property of its iOS version: Tim "
+                 "Korver's 'What a busy phone forgets' "
+                 "(https://thesisfriday.com/thesis-friday-28-what-a-busy-phone-forgets/) measured the "
+                 "kernel lines of an unlock gone from a phone in daily use within 13.2 hours, and "
+                 "retention was not measured on the tested images. "
                  "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
         "paths": None,
         "output_types": "standard",
@@ -836,21 +870,24 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Search term from Tim Korver, 'Apple Unified Log search term and process "
-                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
-                 "and 26.6.1), which describes these entries as showing that the passcode field "
-                 "was on screen; they do not record the digits or whether the code was correct. "
-                 "The process column separates the lock screen (SpringBoard) from passcode prompts "
-                 "shown for another authentication (CoreAuthUI on iOS 17.2.1 and 18.7, "
-                 "LocalAuthenticationUIService on iOS 26.5.2). Rows by image: iOS 17.2.1 44 (24 "
-                 "CoreAuthUI), iOS 18.3.2 6, iOS 18.7 450 (424 CoreAuthUI), iOS 26.5.2 34 (8 "
-                 "LocalAuthenticationUIService); none on iOS 12.4. "
-                 "'forSetDelegate:<SBUIPasscodeTextField' is written when the field becomes the "
-                 "input target and '_teardownExistingDelegate:<SBUIPasscodeTextField' when it "
-                 "stops being one; the two forms appeared in equal numbers on every tested image "
-                 "that had either. Trace ID held no value on any row of the tested images: rows "
-                 "read from tracev3 data leave it empty, and only a 'log show' JSON export fills "
-                 "it.",
+        "notes": "Search term from Tim Korver, 'Apple Unified Log search term and process cheatsheet' "
+                 "(thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 and 26.6.1), which "
+                 "describes these entries as showing that the passcode field was on screen; they do not "
+                 "record the digits or whether the code was correct. The process column separates the "
+                 "lock screen (SpringBoard) from passcode prompts shown for another authentication "
+                 "(CoreAuthUI on iOS 17.2.1 and 18.7, LocalAuthenticationUIService on iOS 26.5.2). Rows "
+                 "by image: iOS 17.2.1 44 (24 CoreAuthUI), iOS 18.3.2 6, iOS 18.7 450 (424 CoreAuthUI), "
+                 "iOS 26.5.2 34 (8 LocalAuthenticationUIService); none on iOS 12.4. "
+                 "'forSetDelegate:<SBUIPasscodeTextField' is written when the field becomes the input "
+                 "target and '_teardownExistingDelegate:<SBUIPasscodeTextField' when it stops being one; "
+                 "the two forms appeared in equal numbers on every tested image that had either. An "
+                 "entry absent from an image is not established to be a property of its iOS version: Tim "
+                 "Korver's 'What a busy phone forgets' "
+                 "(https://thesisfriday.com/thesis-friday-28-what-a-busy-phone-forgets/) measured the "
+                 "kernel lines of an unlock gone from a phone in daily use within 13.2 hours, and "
+                 "retention was not measured on the tested images. Trace ID held no value on any row of "
+                 "the tested images: rows read from tracev3 data leave it empty, and only a 'log show' "
+                 "JSON export fills it.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -993,6 +1030,11 @@ __artifacts_v2__ = {
                  "iOS 26.5.2 image. A computer connection is also what an examiner's acquisition "
                  "produces. Pair with the USB and power connections artifact for cable attach and "
                  "detach. "
+                 "An entry absent from an image is not established to be a property of its iOS version: "
+                 "Tim Korver's 'What a busy phone forgets' "
+                 "(https://thesisfriday.com/thesis-friday-28-what-a-busy-phone-forgets/) measured the "
+                 "kernel lines of an unlock gone from a phone in daily use within 13.2 hours, and "
+                 "retention was not measured on the tested images. "
                  "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
         "paths": None,
         "output_types": "standard",
@@ -1489,6 +1531,11 @@ def logarchive_artifacts(context):
         -- 'apfs Data is now UN-locked', later releases 'apfs is now UN-locked'.
         OR event_message LIKE '%is now UN-locked%'
         OR event_message LIKE '%Unlock attempt succeeded%'
+        -- logarchive_unlock_auth: every keybag state transition, not only those
+        -- leaving 'locked', and the kernel's volume lock and unlock notification.
+        OR (subsystem = 'com.apple.chrono' AND category = 'keybag'
+            AND event_message LIKE 'Transition:%')
+        OR event_message LIKE '%Sending notification for volume%'
         -- logarchive_biometric_match
         OR event_message LIKE '%matchResultHandler: MATCH%'
         OR event_message LIKE '%matchResult:timestamp:%'
@@ -1972,6 +2019,9 @@ def logarchive_unlock_auth(context):
         OR event_message LIKE '%is now UN-locked%'
         OR event_message LIKE '%Unlock attempt succeeded%'
         OR event_message LIKE '%lock button source%'
+        OR (subsystem = 'com.apple.chrono' AND category = 'keybag'
+            AND event_message LIKE 'Transition:%')
+        OR event_message LIKE '%Sending notification for volume%'
     ''')
 
 @artifact_processor
