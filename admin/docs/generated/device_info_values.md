@@ -61,14 +61,5 @@ This document outlines the various device information collected by LEAPP modules
 | com.apple.mobileslideshow.plist | PhotosSharedLibrarySyncingIsActive | Ph080comappleMobileSlideShowPlist |
 | com.apple.mobileslideshow.plist | downloadAndKeepOriginals | Ph080comappleMobileSlideShowPlist |
 | com.apple.purplebuddy.plist | SetupState | Ph083comapplePurpleBuddyPlist |
-| devicevaluesplist-ufedadvlog | Build Version | Ph087UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Device Name | Ph087UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Hardware Model | Ph087UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | IMEI | Ph087UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Password Protected | Ph087UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Product Type | Ph087UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Product Version | Ph087UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | Serial Number | Ph087UFEDdevcievaluesplist |
-| devicevaluesplist-ufedadvlog | TimeZone | Ph087UFEDdevcievaluesplist |
 <!-- DEVICE_INFO_END -->
 
