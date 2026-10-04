@@ -2,13 +2,13 @@
 __artifacts_v2__ = {
     'tcc': {
         'name': 'Application Permissions',
-        'description': 'Extract application permissions from TCC.db database',
+        'description': 'Rows of the access table of TCC.db, from the extraction and from sysdiagnose archives in it. The Bundle ID column is the client value as stored and the service name is shown without its kTCCService prefix',
         'author': '@AlexisBrignoni - @KevinPagano3 - @johannplw',
         'creation_date': '2020-12-15',
         'last_update_date': '2026-09-30',
         'requirements': 'none',
         'category': 'App Permissions',
-        'notes': 'auth_value meanings follow community-established TCC research; unrecognized values are reported as stored. Prompt Count is reported empty on schemas where the column is absent.',
+        'notes': 'Access is the stored auth_value (0 shown as Not allowed, 2 as Allowed, 3 as Limited) or, on schemas without it, the allowed column (0 Not allowed, 1 Allowed). No source for these meanings is cited here; unrecognized values are reported as stored. Prompt Count is reported empty on schemas where the column is absent, and Last Modified is blank on schemas without a last_modified column.',
         'paths': (
             '*/mobile/Library/TCC/TCC.db*',
             '*/logs/Accessibility/TCC.db*',

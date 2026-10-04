@@ -1,13 +1,15 @@
 __artifacts_v2__ = {
     "splitwiseUsers": {
         "name": "Splitwise - Users",
-        "description": "Parses users information from Splitwise app",
+        "description": "Parses the SWPerson table of the Splitwise app's database.sqlite",
         "author": "@KevinPagano3",
         "creation_date": "2024-04-09",
         "last_update_date": "2025-01-07",
         "requirements": "none",
         "category": "Finance",
-        "notes": "",
+        "notes": "This artifact has not been recorded returning rows from an image that carries "
+                 "Splitwise data. Created Timestamp and Updated Timestamp are read as Unix time; "
+                 "that reading has not been checked against known data.",
         "paths": ('*/Library/Application Support/database.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",

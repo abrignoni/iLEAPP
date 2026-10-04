@@ -1,9 +1,20 @@
 __artifacts_v2__ = {
 'Ph034iCloudSharedLinkRecordswithNADPhDaPsql': {
 'name': 'Ph034-iCloud Shared Link Records with NAD-PhDaPsql',
-'description': 'Parses iCloud Shared Link records from the PhotoData-Photos.sqlite ZSHARE Table'
-' and supports iOS. Parses iCloud Shared Link records only no asset data being parsed.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses rows from the PhotoData-Photos.sqlite ZSHARE table, joined to"
+" ZSHAREPARTICIPANT. Only ZSHARE rows with ZSCOPETYPE 2 are reported, a value this module"
+" labels '2-iCloudLink-CMMoment-2'. The cited post describes the output as share records for"
+" iCloud Shared Links. A share with more than one participant row is listed once per"
+" participant. No asset data is parsed. Supports iOS 14 through 18 (the code handles versions"
+" from 14 up to, but not including, 26). On iOS 13.7 and earlier and on iOS 26 and later the"
+" artifact logs an unsupported version message, does not query the database and returns no"
+" rows. No recorded run on the test images listed in sample_data returned a row, and two of"
+" them, iOS 12.4 and iOS 13.3.1, are below the supported versions. The text shown beside each"
+" stored integer is the module author's label and no source for the value meanings is cited"
+" here. Labels containing 'StillTesting' are not established. ZSHAREPARTICIPANT.ZISCURRENTUSER"
+" value 1 is labelled 'Is_CurrentUser' for iOS 14 and 15 and 'Is_CloudStorageOwner' for iOS 16"
+" and later. Each mapped label begins with the stored integer. Reference: Scott Koenig,"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

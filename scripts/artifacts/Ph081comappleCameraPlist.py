@@ -1,10 +1,14 @@
 __artifacts_v2__ = {
     "Ph081ComAppleCameraPlist": {
         "name": "Ph081-Com-Apple-Camera-Plist",
-        "description": "Parses data from */mobile/Library/Preferences/com.apple.camera.plist which contains some"
-            " important data related to the Apple Camera Application. Additional information and"
-            " explanation of some keys-fields might be found with research and published blogs by Scott Koenig"
-            " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "description": "Parses data from */mobile/Library/Preferences/com.apple.camera.plist which is the"
+            " preferences file of the Camera app. Values are reported as stored; four keys that hold"
+            " embedded plists (the three CAMUserPreferenceSharedLibrary location keys and"
+            " CAMUserPreferenceExposureBiasByMode) are shown decoded when they can be read. Scott"
+            " Koenig describes the CAMUserPreferenceTimerDuration key, as observed on iOS 14.7 and"
+            " 15.1, at"
+            " https://theforensicscooter.com/2022/05/02/photos-sqlite-query-documentation-notable-artifacts/"
+            " . What the other keys mean is not established here.",
         "author": "Scott Koenig",
         "creation_date": "2025-01-05",
         "last_update_date": "2026-08-06",

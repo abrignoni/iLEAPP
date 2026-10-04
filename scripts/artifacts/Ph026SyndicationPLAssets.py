@@ -1,9 +1,16 @@
 __artifacts_v2__ = {
 'Ph026_1SyndicationIDAssetsPhDaPsql': {
 'name': 'Ph026.1-Syndication ID Assets-PhDaPsql',
-'description': "Assets carrying a Syndication Identifier in PhotoData/Photos.sqlite (Shared with "
-               "You conversation assets, iOS 15 to 18), with their conversation album dates, "
-               "import session, file names, syndication state and saved asset type.",
+'description': "Assets carrying a Syndication Identifier in PhotoData/Photos.sqlite (queries exist "
+               "for iOS 15 through 26; the conversation album columns are blank when the asset has "
+               "no linked conversation album), with their conversation album dates, import session, "
+               "file names, syndication state and saved asset type. The labels shown beside those "
+               "stored integers are the module author's, described in the cited post as based on "
+               "ongoing testing and research (Scott Koenig, 'iLEAPP Parsers & Photos.sqlite "
+               "Queries', "
+               "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/). "
+               "Values labelled StillTesting or STILLTESTING have no established meaning, and a "
+               "label that names a user action is not by itself proof of that action.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'version': '6.0',
@@ -36,9 +43,15 @@ __artifacts_v2__ = {
 'Ph026_2SyndicationPLAssetsSyndPL': {
 'name': 'Ph026.2-Syndication PL Assets-SyndPL',
 'description': "Assets carrying a Syndication Identifier in the Syndication.photoslibrary "
-               "Photos.sqlite (Shared with You conversation assets, iOS 15 to 18), with their "
-               "conversation album dates, import session, file names, syndication state and saved "
-               "asset type.",
+               "Photos.sqlite (queries exist for iOS 15 through 26; the conversation album columns "
+               "are blank when the asset has no linked conversation album), with their conversation "
+               "album dates, import session, file names, syndication state and saved asset type. The "
+               "labels shown beside those stored integers are the module author's, described in the "
+               "cited post as based on ongoing testing and research (Scott Koenig, 'iLEAPP Parsers & "
+               "Photos.sqlite Queries', "
+               "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/). "
+               "Values labelled StillTesting or STILLTESTING have no established meaning, and a "
+               "label that names a user action is not by itself proof of that action.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'version': '6.0',

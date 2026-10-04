@@ -29,18 +29,21 @@ __artifacts_v2__ = {
         "notes": "Reads the group.me.proton.mail cache (Proton Mail Inbox); the tested image ran "
                  "Proton Mail 7.9.2. In the tested "
                  "image the cached subject, body, sender and recipient values are stored in clear "
-                 "text; the store holds the HTML the app rendered, and Body is the readable text "
+                 "text; the store holds an HTML body for each message, and Body is the readable "
+                 "text "
                  "extracted from it (tags, styling and repeated whitespace removed). Each link's "
                  "place in the text is marked [n], and Links lists the link targets by those "
                  "numbers, as stored; a repeated target keeps its first number. A link with no "
                  "words of its own, such as a linked image, still gets a marker, so the words just "
                  "before a marker are not always the link's text. The unmodified "
-                 "HTML stays in the source database. Folder is resolved from the app's own "
-                 "labels table. From Me is derived by comparing the message sender to the account's "
+                 "HTML stays in the source database. Folder lists the name of every labels row that "
+                 "message_labels links to the message, sorted and separated by commas. Whether a "
+                 "name is a folder or a label is not distinguished. From Me is derived by comparing "
+                 "the message sender to the account's "
                  "own addresses. The Attachment column shows the first cached attachment file for the "
                  "message when it is present in the extraction; the Inbox Attachments artifact lists "
-                 "every attachment. A cached row reflects what the app had synced and decrypted "
-                 "locally, not necessarily the full mailbox.",
+                 "every attachment. A row is what the cache held when the extraction was made. It "
+                 "does not establish the contents of the full mailbox.",
         "paths": ('*/Shared/AppGroup/*/support/*.db*',
                   '*/Shared/AppGroup/*/cache/mail-cache/attachments/*'),
         "output_types": "standard",
@@ -71,8 +74,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Proton Mail",
         "notes": "Attachment metadata from the Inbox cache joined to the files the app wrote under "
-                 "cache/mail-cache/attachments/. In the tested image those files are decrypted "
-                 "images. The media column shows a file only when it is present in the extraction.",
+                 "cache/mail-cache/attachments/. The media column shows a file only when it is "
+                 "present in the extraction.",
         "paths": ('*/Shared/AppGroup/*/support/*.db*',
                   '*/Shared/AppGroup/*/cache/mail-cache/attachments/*'),
         "output_types": "standard",
@@ -101,14 +104,14 @@ __artifacts_v2__ = {
     },
     "protonMailInboxAccount": {
         "name": "Proton Mail - Inbox Account",
-        "description": "Signed-in Proton account details cached by the Proton Mail iOS Inbox app",
+        "description": "Proton account and user records cached by the Proton Mail iOS Inbox app",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Proton Mail",
-        "notes": "Account and user rows from support/account.db and the mail cache. Used and maximum "
-                 "space are bytes as stored.",
+        "notes": "Account and user rows from support/account.db and the mail cache. Used Space and "
+                 "Max Space are the stored integers. The unit is not established here.",
         "paths": ('*/Shared/AppGroup/*/support/*.db*',),
         "output_types": "standard",
         "artifact_icon": "user-check",

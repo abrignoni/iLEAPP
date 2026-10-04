@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
     "powerlogApplicationRuntime": {
         "name": "PowerLog - Application Runtime",
-        "description": "Application foreground and background runtime recorded by PowerLog "
-                       "(PLAppTimeService_Aggregate_AppRunTime table)",
+        "description": "Per-application ScreenOnTime and BackgroundTime values recorded "
+                       "by PowerLog (PLAppTimeService_Aggregate_AppRunTime table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
         "last_update_date": "2026-09-18",
@@ -14,12 +14,10 @@ __artifacts_v2__ = {
             "table records the correction in effect across the span of the log ('system' "
             "column, in seconds). Each row here is adjusted by the offset entry at or "
             "before its raw timestamp (rows older than the oldest retained entry use that "
-            "oldest entry) and the applied offset is reported in its own column. Checked "
-            "against test images: raw values lagged an iOS 18.7 acquisition date by ~32 "
-            "days, led an iOS 12.4 acquisition by 69 seconds, and on an iOS 26.5.2 "
-            "sysdiagnose ran on an internal clock reading 1971, about 54.7 years (1.73 "
-            "billion seconds) behind wall time; corrected values align with the "
-            "acquisition dates. ScreenOnTime/BackgroundTime read as seconds are "
+            "oldest entry) and the applied offset is reported in its own column. Where a "
+            "database holds no offset entries the raw value is reported unchanged and the "
+            "offset column is empty, so that timestamp is on the log's uncorrected clock. "
+            "ScreenOnTime/BackgroundTime read as seconds are "
             "consistent with the sampling-window durations in test data. Gzipped rotated "
             "logs (*.PLSQL.gz) are decompressed to a temporary location and parsed; the "
             "Source File column carries the archive path. The databases under "
@@ -29,16 +27,12 @@ __artifacts_v2__ = {
             "archive path and the database's path inside it, joined by ' >> '. Rows are "
             "not deduplicated across files: an event held in more than one copy of a "
             "database appears once per copy, and because each copy applies its own "
-            "time-offset entries, the copies can display it at different times. On one "
-            "test image a torch event held in seven copies displayed at three times, up "
-            "to six seconds apart. On two test images whose packed sysdiagnoses fell "
-            "within the period their live log covers, 99.9% of the rows read from the "
-            "sysdiagnoses repeated rows already reported from the live log; on a third, "
-            "whose sysdiagnoses predate its live PowerLog tables by months, 99.2% did "
-            "not. InCallScreenOnTime and "
-            "InCallBackgroundTime exist on later iOS 18 schemas only; where absent the "
-            "columns are reported empty. PowerLog holds many additional version-specific "
-            "tables that require separate validation."
+            "time-offset entries, the copies can display it at different times. "
+            "Where a packed sysdiagnose falls within the period the "
+            "live log covers, rows read from it can repeat rows already reported from the "
+            "live log. InCallScreenOnTime and InCallBackgroundTime are not present in "
+            "every schema; where absent the columns are reported empty. PowerLog holds "
+            "many additional version-specific tables that require separate validation."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -81,11 +75,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "Level values ranged 1-100 across test images (iOS 12.4-26), consistent "
-            "with a percentage. IsCharging holds 0/1, reported as No/Yes with other "
-            "values passed through as stored. Timestamps are adjusted using PowerLog's "
-            "time-offset table and the applied offset is reported per row; see the "
-            "PowerLog - Application Runtime notes for the mechanism."
+            "Level is reported as stored. The Battery Level (%) header reads it as a "
+            "percentage; no source for the unit is cited. IsCharging holds 0/1, "
+            "reported as No/Yes with other values passed through as stored. Timestamps "
+            "are adjusted using PowerLog's time-offset table and the applied offset is "
+            "reported per row; see the PowerLog - Application Runtime notes for the "
+            "mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -129,8 +124,7 @@ __artifacts_v2__ = {
         "category": "PowerLog",
         "notes": (
             "Event, State, and Reason are integer codes reported as stored; their "
-            "meanings are not decoded here. Observed in test images (iOS 12.4-26): "
-            "State 0-2, Event 0-5, Reason 1 or null. Timestamps are adjusted using "
+            "meanings are not decoded here. Timestamps are adjusted using "
             "PowerLog's time-offset table and the applied offset is reported per row; "
             "see the PowerLog - Application Runtime notes for the mechanism."
         ),
@@ -176,8 +170,7 @@ __artifacts_v2__ = {
         "category": "PowerLog",
         "notes": (
             "State and Reason are integer codes reported as stored; their meanings are "
-            "not decoded here. Observed in test images (iOS 12.4-26): State 0, 1, 2, 4, "
-            "8, 32; Reason 0 or 1. Timestamps are adjusted using PowerLog's time-offset "
+            "not decoded here. Timestamps are adjusted using PowerLog's time-offset "
             "table and the applied offset is reported per row; see the PowerLog - "
             "Application Runtime notes for the mechanism."
         ),
@@ -223,10 +216,9 @@ __artifacts_v2__ = {
         "category": "PowerLog",
         "notes": (
             "Locked holds 0/1, reported as No/Yes with other values passed through as "
-            "stored. Table schema was identical across test images (iOS 12.4-26). "
-            "Timestamps are adjusted using PowerLog's time-offset table and the applied "
-            "offset is reported per row; see the PowerLog - Application Runtime notes "
-            "for the mechanism."
+            "stored. Timestamps are adjusted using PowerLog's time-offset table and the "
+            "applied offset is reported per row; see the PowerLog - Application Runtime "
+            "notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -270,10 +262,9 @@ __artifacts_v2__ = {
         "category": "PowerLog",
         "notes": (
             "AutoLockType is an integer code reported as stored; its meaning is not "
-            "decoded here. Observed values in test images (iOS 12.4-26): 1 and 4. "
-            "Timestamps are adjusted using PowerLog's time-offset table and the applied "
-            "offset is reported per row; see the PowerLog - Application Runtime notes "
-            "for the mechanism."
+            "decoded here. Timestamps are adjusted using PowerLog's time-offset table "
+            "and the applied offset is reported per row; see the PowerLog - Application "
+            "Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -316,11 +307,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "BundleId and Level are reported as stored; Level was 0 on 116 of the 122 tested rows "
-            "(iOS 12.4-26) and 1 on 6 rows of two images. Rows are sparse: no test image held "
-            "more than 23. Timestamps are adjusted using PowerLog's time-offset "
-            "table and the applied offset is reported per row; see the PowerLog - Application "
-            "Runtime notes for the mechanism."
+            "BundleId and Level are reported as stored; on the tested rows (iOS 12.4-26) Level "
+            "was 0 or 1. Rows are sparse: no test image held more than 23. Timestamps are "
+            "adjusted using PowerLog's time-offset table and the applied offset is reported per "
+            "row; see the PowerLog - Application Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -363,11 +353,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "Brightness values observed 0-100 across test images (iOS 12.4-26). "
-            "SliderValue, lux, and mNits are reported as stored with the column names "
-            "the database uses; no unit conversion is applied. Timestamps are adjusted "
-            "using PowerLog's time-offset table and the applied offset is reported per "
-            "row; see the PowerLog - Application Runtime notes for the mechanism."
+            "Brightness, SliderValue, lux, and mNits are reported as stored with the "
+            "column names the database uses; no unit conversion is applied. Timestamps "
+            "are adjusted using PowerLog's time-offset table and the applied offset is "
+            "reported per row; see the PowerLog - Application Runtime notes for the "
+            "mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -413,12 +403,11 @@ __artifacts_v2__ = {
             "ActiveRoute and OutputCategory are text values reported verbatim; observed "
             "in test images (iOS 12.4-26): routes Speaker, Receiver, HeadphonesBT, "
             "CarAudioOutput, INVALID and categories Alarm, Ringtone, PhoneCall, "
-            "Audio/Video, FindMyPhone, VoiceCommand. Active holds 0/1. ActivePID was absent from "
-            "the iOS 18 and later test images and BTEndpointType from the test images before iOS "
-            "17; "
-            "where absent the columns are reported empty. Timestamps are adjusted using "
-            "PowerLog's time-offset table and the applied offset is reported per row; "
-            "see the PowerLog - Application Runtime notes for the mechanism."
+            "Audio/Video, FindMyPhone, VoiceCommand. Active holds 0/1. ActivePID and "
+            "BTEndpointType are not present in every schema; where absent the columns are "
+            "reported empty. Timestamps are adjusted using PowerLog's time-offset table and the "
+            "applied offset is reported per row; see the PowerLog - Application Runtime notes "
+            "for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -463,12 +452,12 @@ __artifacts_v2__ = {
         "notes": (
             "Values are reported as stored with the column names the database uses; no "
             "units are asserted. In test images, nonzero SystemInputVoltage values "
-            "clustered near 5000 and 9000 while a charger was connected. "
-            "SystemInputVoltage and SystemInputCurrent are absent from some iOS 16 "
-            "schemas; where absent the columns are reported empty. Timestamps are "
-            "adjusted using PowerLog's time-offset table and the applied offset is "
-            "reported per row; see the PowerLog - Application Runtime notes for the "
-            "mechanism."
+            "clustered near 5000 and 9000; the charging state at those times was not "
+            "cross-checked here. SystemInputVoltage and SystemInputCurrent are absent "
+            "from some iOS 16 schemas; where absent the columns are reported empty. "
+            "Timestamps are adjusted using PowerLog's time-offset table and the "
+            "applied offset is reported per row; see the PowerLog - Application "
+            "Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -512,10 +501,9 @@ __artifacts_v2__ = {
         "category": "PowerLog",
         "notes": (
             "CameraType and State are integer codes reported as stored; their meanings "
-            "are not decoded here. Observed in test images (iOS 12.4-26): CameraType "
-            "0-4, State 0/1. The table's wider column set varies by iOS version; only "
-            "the columns present in every tested schema are parsed. Timestamps are "
-            "adjusted using PowerLog's time-offset table and the applied offset is "
+            "are not decoded here. The table's wider column set varies by iOS version; "
+            "only the columns present in every tested schema are parsed. Timestamps "
+            "are adjusted using PowerLog's time-offset table and the applied offset is "
             "reported per row; see the PowerLog - Application Runtime notes for the "
             "mechanism."
         ),
@@ -560,12 +548,13 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "Present in iOS 18 and iOS 26 test images only. csIdentity holds process "
-            "or bundle identifiers as recorded; modelURL holds a model file path. "
-            "cacheHit, isPrecompiled, modelSize, and modelLoadingTime are reported as "
-            "stored; no units are asserted. Timestamps are adjusted using PowerLog's "
-            "time-offset table and the applied offset is reported per row; see the "
-            "PowerLog - Application Runtime notes for the mechanism."
+            "In the recorded sample data rows were returned only on iOS 18 and iOS 26 "
+            "images. csIdentity holds process or bundle identifiers as recorded; "
+            "modelURL holds a model file path. cacheHit, isPrecompiled, modelSize, and "
+            "modelLoadingTime are reported as stored; no units are asserted. "
+            "Timestamps are adjusted using PowerLog's time-offset table and the "
+            "applied offset is reported per row; see the PowerLog - Application "
+            "Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -608,11 +597,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "Present in iOS 18 and iOS 26 test images only. csIdentity holds process "
-            "or bundle identifiers as recorded; modelURL holds a model file path. "
-            "Timestamps are adjusted using PowerLog's time-offset table and the applied "
-            "offset is reported per row; see the PowerLog - Application Runtime notes "
-            "for the mechanism."
+            "In the recorded sample data rows were returned only on iOS 18 and iOS 26 "
+            "images. csIdentity holds process or bundle identifiers as recorded; "
+            "modelURL holds a model file path. Timestamps are adjusted using PowerLog's "
+            "time-offset table and the applied offset is reported per row; see the "
+            "PowerLog - Application Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -656,14 +645,13 @@ __artifacts_v2__ = {
         "category": "PowerLog",
         "notes": (
             "bundleID holds app bundle identifiers as recorded. kind, exitReason, "
-            "and isUrgent are integer codes reported as stored; observed kind "
-            "0/2/3 and exitReason 6/12/13. "
-            "In test data these tables held rows only on an Apple Intelligence "
-            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
-            "test images they exist with zero rows. Timestamps are adjusted using "
-            "PowerLog's time-offset table and the applied offset is reported per "
-            "row; end times preserve the recorded duration against the corrected "
-            "start. See the PowerLog - Application Runtime notes for the mechanism."
+            "and isUrgent are integer codes reported as stored. In test data these "
+            "tables held rows only on an Apple Intelligence capable device (iPhone 16, "
+            "iOS 26.5.2 sysdiagnose); on other iOS 18-26 test images they exist with "
+            "zero rows. Timestamps are adjusted using PowerLog's time-offset table and "
+            "the applied offset is reported per row; end times preserve the recorded "
+            "duration against the corrected start. See the PowerLog - Application "
+            "Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -698,17 +686,18 @@ __artifacts_v2__ = {
     },
     "powerlogGenerativeTextRequests": {
         "name": "PowerLog - Generative Function Text Generation",
-        "description": "Text generation inference request events recorded by PowerLog "
-                       "(GenerativeFunctionMetrics_tgiExecuteRequest_1_2 table)",
+        "description": "Request records recorded by PowerLog in the "
+                       "GenerativeFunctionMetrics_tgiExecuteRequest_1_2 table (token "
+                       "counts and request type as stored)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
         "last_update_date": "2026-09-18",
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "Token counts, latencies, and type codes are reported as stored; no "
-            "units are asserted for latency values. The table carries additional "
-            "speculative-decoding counters (sd_*) that are not parsed here. "
+            "Token counts, requestType, errorType and qos are reported as stored. No "
+            "latency column is read here. The table carries additional "
+            "columns whose names begin with sd_ that are not parsed here. "
             "In test data these tables held rows only on an Apple Intelligence "
             "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
             "test images they exist with zero rows. Timestamps are adjusted using "
@@ -749,8 +738,9 @@ __artifacts_v2__ = {
     },
     "powerlogGenerativeInferenceRequests": {
         "name": "PowerLog - Generative Function Inference Requests",
-        "description": "Model inference request events recorded by PowerLog "
-                       "(GenerativeFunctionMetrics_mmExecuteRequest_1_2 table)",
+        "description": "Request records recorded by PowerLog in the "
+                       "GenerativeFunctionMetrics_mmExecuteRequest_1_2 table (use case "
+                       "and bundle identifiers as stored)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
         "last_update_date": "2026-09-18",
@@ -763,11 +753,11 @@ __artifacts_v2__ = {
             "and textUnderstanding.TextEventExtraction. Bundle and provider "
             "identifiers are reported as recorded. "
             "In test data these tables held rows only on an Apple Intelligence "
-            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
-            "test images they exist with zero rows. Timestamps are adjusted using "
-            "PowerLog's time-offset table and the applied offset is reported per "
-            "row; end times preserve the recorded duration against the corrected "
-            "start. See the PowerLog - Application Runtime notes for the mechanism."
+            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose). Timestamps are "
+            "adjusted using PowerLog's time-offset table and the applied offset is "
+            "reported per row; end times preserve the recorded duration against the "
+            "corrected start. See the PowerLog - Application Runtime notes for the "
+            "mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -811,15 +801,15 @@ __artifacts_v2__ = {
         "category": "PowerLog",
         "notes": (
             "catalogResourceIdentifier is reported verbatim; observed values "
-            "reference foundation language model assets (for example "
-            "fm.language.instruct_3b variants and gm.safety_* resources). "
-            "loadType, reason, and result are integer codes reported as stored. "
-            "In test data these tables held rows only on an Apple Intelligence "
-            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
-            "test images they exist with zero rows. Timestamps are adjusted using "
-            "PowerLog's time-offset table and the applied offset is reported per "
-            "row; end times preserve the recorded duration against the corrected "
-            "start. See the PowerLog - Application Runtime notes for the mechanism."
+            "include fm.language.instruct_3b variants and gm.safety_* resources; what "
+            "each identifier refers to is not established here. loadType, reason, and "
+            "result are integer codes reported as stored. In test data these tables "
+            "held rows only on an Apple Intelligence capable device (iPhone 16, iOS "
+            "26.5.2 sysdiagnose); on other iOS 18-26 test images they exist with zero "
+            "rows. Timestamps are adjusted using PowerLog's time-offset table and the "
+            "applied offset is reported per row; end times preserve the recorded "
+            "duration against the corrected start. See the PowerLog - Application "
+            "Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -871,8 +861,7 @@ __artifacts_v2__ = {
             "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
             "test images they exist with zero rows. Timestamps are adjusted using "
             "PowerLog's time-offset table and the applied offset is reported per "
-            "row; end times preserve the recorded duration against the corrected "
-            "start. See the PowerLog - Application Runtime notes for the mechanism."
+            "row. See the PowerLog - Application Runtime notes for the mechanism."
         ),
         "paths": (
             "*/BatteryLife/*.PLSQL*",
@@ -916,14 +905,13 @@ __artifacts_v2__ = {
         "category": "Power Telemetry",
         "notes": (
             "CycleCount, MaxCapacityPercent, NominalChargeCapacity, and "
-            "ChargingVoltage are reported as stored; no units are asserted. "
-            "MaxCapacityPercent was absent from the iOS 15 and 16 test images and is reported "
-            "empty where absent. In test data rows spanned more than a year on one "
-            "device. "
-            "Raw timestamp values are adjusted using the time-offset table in "
-            "this log (PPTStorageOperator_TimeOffset; its retention suffix "
-            "varies by iOS version) and the applied offset is reported per row; "
-            "see the PowerLog - Application Runtime notes for the mechanism."
+            "ChargingVoltage are reported as stored. The Max Capacity (%) header takes its "
+            "percent sign from the database column name MaxCapacityPercent; no unit is "
+            "asserted for the other columns. MaxCapacityPercent is not present in every "
+            "schema and is reported empty where absent. Raw timestamp values are adjusted "
+            "using the time-offset table in this log (PPTStorageOperator_TimeOffset; its "
+            "retention suffix varies by iOS version) and the applied offset is reported per "
+            "row; see the PowerLog - Application Runtime notes for the mechanism."
         ),
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
@@ -968,7 +956,7 @@ __artifacts_v2__ = {
         "notes": (
             "ChargeLimit, ChargingState, CheckPoint, DecisionMaker, InflowState, "
             "and ModeOfOperation are integer codes reported as stored; their "
-            "meanings are not decoded here. DecisionMaker was absent from the iOS 16 test images "
+            "meanings are not decoded here. DecisionMaker is not present in every schema "
             "and is reported empty where absent. "
             "Raw timestamp values are adjusted using the time-offset table in "
             "this log (PPTStorageOperator_TimeOffset; its retention suffix "
@@ -1017,12 +1005,13 @@ __artifacts_v2__ = {
         "notes": (
             "DesignCapacity, ChemID, AlgoChemID, EEEE, YWW, and "
             "GasGaugeFirmwareVersion are reported as stored; no interpretation "
-            "is applied. Test images held at most three rows each; the three on "
-            "one image were the same record read from three copies of the log. "
-            "Raw timestamp values are adjusted using the time-offset table in "
-            "this log (PPTStorageOperator_TimeOffset; its retention suffix "
-            "varies by iOS version) and the applied offset is reported per row; "
-            "see the PowerLog - Application Runtime notes for the mechanism."
+            "is applied. No image in the recorded sample data holds more than three "
+            "rows. Rows are not deduplicated across copies of a log, so one record can "
+            "appear once per copy. Raw timestamp values are adjusted using the "
+            "time-offset table in this log (PPTStorageOperator_TimeOffset; its "
+            "retention suffix varies by iOS version) and the applied offset is "
+            "reported per row; see the PowerLog - Application Runtime notes for the "
+            "mechanism."
         ),
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
@@ -1069,12 +1058,14 @@ __artifacts_v2__ = {
             "are reported as stored. TrustedDateOfFirstUse decodes as a standard "
             "Unix timestamp, unlike the offset-skewed timestamp column: on two "
             "validation devices it held one stable calendar date each, preceding "
-            "every daily sample. The table exists on iOS 18+ test images only; one "
-            "validation device carried a full year of daily rows. "
-            "Raw timestamp values are adjusted using the time-offset table in "
-            "this log (PPTStorageOperator_TimeOffset; its retention suffix "
-            "varies by iOS version) and the applied offset is reported per row; "
-            "see the PowerLog - Application Runtime notes for the mechanism."
+            "every daily sample. In the recorded sample data rows were returned on two "
+            "images, dexter_ios18 (42 rows) and ai16_ios26_sysdiag (364 rows); rows "
+            "are not deduplicated across copies of a log, so a row count is not a "
+            "count of distinct days. Raw timestamp values are adjusted using the "
+            "time-offset table in this log (PPTStorageOperator_TimeOffset; its "
+            "retention suffix varies by iOS version) and the applied offset is "
+            "reported per row; see the PowerLog - Application Runtime notes for the "
+            "mechanism."
         ),
         "paths": (
             "*/PerfPowerTelemetry/*/*.EPSQL*",
@@ -1119,11 +1110,9 @@ __artifacts_v2__ = {
         "notes": (
             "StartDate and EndDate hold standard Unix timestamps as stored; the "
             "row timestamp runs on the internal clock and is offset-corrected "
-            "here, and on validation data the corrected value aligns with "
-            "StartDate in the same rows. StartedOnBattery holds 0/1, reported "
-            "as No/Yes. Observed only in iOS 26 test data; iOS 18 background "
-            "processing logs exist without this table. "
-            "Raw timestamp values are adjusted using the time-offset table in "
+            "here. StartedOnBattery holds 0/1, reported as No/Yes. Observed only in "
+            "iOS 26 test data; iOS 18 background processing logs exist without this "
+            "table. Raw timestamp values are adjusted using the time-offset table in "
             "this log (BackgroundProcessing_TimeOffset) and the applied offset "
             "is reported per row; see the PowerLog - Application Runtime notes "
             "for the mechanism."
@@ -1160,7 +1149,7 @@ __artifacts_v2__ = {
     },
     "powerTelemetryBackgroundTaskMetadata": {
         "name": "Power Telemetry - Background Task Metadata",
-        "description": "Background task registrations from the PerfPowerTelemetry "
+        "description": "Background task metadata rows from the PerfPowerTelemetry "
                        "background processing log (BackgroundProcessing_TaskMetadata table)",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",

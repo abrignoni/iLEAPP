@@ -7,7 +7,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Connected Devices",
-        "notes": "Reference: Jack Farley, 'Forensic Analysis of iTunes Backups', https://farleyforensics.com/2019/04/14/forensic-analysis-of-itunes-backups/ (FRPD records hold the computers and computer user names the device paired/backed up with).",
+        "notes": "Reference: Jack Farley, 'Forensic Analysis of iTunes Backups', "
+                 "https://web.archive.org/web/20231205234911/https://farleyforensics.com/2019/04/14/forensic-analysis-of-itunes-backups/ "
+                 "(the post describes iTunesPrefs as holding the last computers and computer users "
+                 "the device was backed up to, and reports older entries being overwritten). This "
+                 "module reads the text strings after a fixed offset and takes them in pairs as "
+                 "user name then computer name; a file that does not follow that order would be "
+                 "mislabelled.",
         "paths": ('*/iTunes_Control/iTunes/iTunesPrefs',),
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "devices",

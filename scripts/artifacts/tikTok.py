@@ -10,19 +10,21 @@ __artifacts_v2__ = {
         "category": "TikTok",
         "notes": (
             "Messages are extracted from TIMMessageORM. Contact details are joined from "
-            "AwemeContacts tables when available. The Account ID column is the ChatFiles "
-            "folder name (the local account uid, which also appears in AwemeIM.db); messages "
-            "whose sender matches the Account ID are marked Outgoing. An iOS app container "
-            "is a GUID directory, so the database names alone do not identify the owning "
-            "app. Each matched database is attributed to the app named by its container's "
-            "own .com.apple.mobile_container_manager.metadata.plist (a path reconstructed "
-            "from an iTunes backup names the container by its AppDomain bundle id), and "
-            "only containers owned by com.zhiliaoapp.musically are parsed. Databases in "
-            "containers owned by any other app, or whose owning app cannot be established, "
-            "are skipped and logged. "
-            "On the tested images every matched database is in a TikTok-owned container; "
-            "the exclusion of foreign and unattributable containers is proven with "
-            "constructed test data. "
+            "the AwemeContacts tables of AwemeIM.db. No messages are reported unless a "
+            "TikTok-owned AwemeIM.db is found. A chat database with no AwemeIM.db in its own "
+            "container is joined to the first one found. A uid held in more than one "
+            "AwemeContacts table takes the row of the first table by name. The Account ID "
+            "column is the ChatFiles folder name (on the tested images this value also appears "
+            "in AwemeIM.db); messages whose sender matches the Account ID are marked Outgoing. "
+            "An iOS app container is a GUID directory, so the database names alone do not "
+            "identify the owning app. Each matched database is attributed to the app named by "
+            "its container's own .com.apple.mobile_container_manager.metadata.plist (a path "
+            "reconstructed from an iTunes backup names the container by its AppDomain bundle "
+            "id), and only containers owned by com.zhiliaoapp.musically are parsed. Databases "
+            "in containers owned by any other app, or whose owning app cannot be established, "
+            "are skipped and logged. On the tested images every matched database is in a "
+            "TikTok-owned container; the exclusion of foreign and unattributable containers was "
+            "exercised on constructed test data, not on a registered image. "
             "Reference: G. Horsman & L. Shou, 'Case Study: Forensic Analysis of TikTok on iOS', "
             "DFIR Review 2022, https://dfir.pubpub.org/pub/h6vyh33u"
         ),
@@ -67,7 +69,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "TikTok",
         "notes": (
-            "Timestamp is reported as stored. An iOS app container is a "
+            "Timestamp is the latestchattimestamp column, read as a Unix epoch and shown in "
+            "UTC. What event it marks is not established here. An iOS app container is a "
             "GUID directory, so the AwemeIM.db name alone does not identify the owning app. "
             "Each matched database is attributed to the app named by its container's own "
             ".com.apple.mobile_container_manager.metadata.plist (a path reconstructed from "
@@ -75,8 +78,8 @@ __artifacts_v2__ = {
             "containers owned by com.zhiliaoapp.musically are parsed. Databases in "
             "containers owned by any other app, or whose owning app cannot be established, "
             "are skipped and logged. On the tested images every matched database is in a "
-            "TikTok-owned container; the exclusion of foreign and unattributable "
-            "containers is proven with constructed test data."
+            "TikTok-owned container; the exclusion of foreign and unattributable containers "
+            "was exercised on constructed test data, not on a registered image."
         ),
         "paths": (
             "*AwemeIM.db*",
@@ -117,9 +120,8 @@ __artifacts_v2__ = {
             "avatar URL, session key, and the phone number and email as the app stores "
             "them, which is partially masked. The sibling "
             "com.toutiao.account.userdefault.user.* scalar keys (login status, dticket, "
-            "session ids) are included as rows. Other account caches in the same plist "
-            "(NHAccountManager*, AWEUserStorageCacheUserKey, kDYA*) duplicate server "
-            "profile responses and are not parsed."
+            "session ids) are included as rows. Other keys in the same plist "
+            "(NHAccountManager*, AWEUserStorageCacheUserKey, kDYA*) are not parsed."
         ),
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Preferences/com.zhiliaoapp.musically.plist",),
         "output_types": "standard",
@@ -146,11 +148,15 @@ __artifacts_v2__ = {
         "category": "TikTok",
         "notes": (
             "Files are named publish_video_local_<aid>.mp4. "
+            "The owning app of the container is not checked for this artifact, and the "
+            "plist mappings of every matched container are read together. "
             "kAWEPublishLocalVideoCacheFile.plist in the same Documents folder maps each "
-            "aid to a video id and both are reported. Hu and Karabiyik describe this "
-            "folder as holding the videos uploaded by the user; on the tested image both "
-            "files' aids also appear in the account's watch history. File Modified is the "
-            "file system timestamp preserved in the extraction. "
+            "aid to a video id and both are reported. The artifact name follows the paper "
+            "cited below, whose wording about this folder was not re-read for this note. "
+            "On the tested image both files' aids also appear in the account's watch "
+            "history. File Modified is the modification time of the copy this tool staged "
+            "from the extraction, shown as UTC. Whether it equals the time recorded on "
+            "the device depends on the extraction format and was not checked here. "
             "Reference: Xiao Hu and Umit Karabiyik, 'Shopping while Watching: An Updated "
             "Forensic Analysis of TikTok on Android and iOS', ISNCC 2024, "
             "https://doi.org/10.1109/ISNCC62547.2024.10759027"
@@ -172,8 +178,8 @@ __artifacts_v2__ = {
     "tiktok_app_sessions": {
         "name": "TikTok - App Sessions",
         "description": "enter_app and leave_app rows from the FEInternalAppSessionTable in "
-                       "the app's Pitaya feature_engineering databases, with session id, "
-                       "launch flag and duration as stored.",
+                       "the app's Pitaya feature_engineering databases, with session id "
+                       "and duration as stored and the launch flag shown as YES or NO.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
         "last_update_date": "2026-08-29",
@@ -197,8 +203,8 @@ __artifacts_v2__ = {
             "parsed. Databases in containers owned by any other app, or whose owning "
             "app cannot be established, are skipped and logged. On the tested images "
             "every matched database is in a TikTok-owned container; the exclusion of "
-            "foreign and unattributable containers is proven with constructed test "
-            "data. "
+            "foreign and unattributable containers was exercised on constructed test "
+            "data, not on a registered image. "
             "Reference: Xiao Hu and Umit Karabiyik, 'Shopping while Watching: An Updated "
             "Forensic Analysis of TikTok on Android and iOS', ISNCC 2024, "
             "https://doi.org/10.1109/ISNCC62547.2024.10759027"
@@ -220,8 +226,9 @@ __artifacts_v2__ = {
     },
     "tiktok_watch_history": {
         "name": "TikTok - Watch History",
-        "description": "Entries from the app's WatchHistory store: one row per aid with a "
-                       "timestamp, reported as stored.",
+        "description": "Entries from the app's WatchHistory store: one row per stored "
+                       "row, with the aid as stored and its timestamp read as a Unix "
+                       "epoch and shown in UTC.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
         "last_update_date": "2026-09-27",
@@ -230,26 +237,26 @@ __artifacts_v2__ = {
         "notes": (
             "The store is Documents/WatchHistory/<account id>_history_WCDB.sqlite inside the "
             "TikTok app container; WatchHistory is the app's own directory name. Its single "
-            "table holds an aid text column and a Unix-epoch timestamp. An aid identifies a "
-            "video: on the tested image two of the twelve aids equalled the numeric ids in "
-            "the account's own published video file names "
-            "(Documents/kAWEPublishLocalVideoStorageFolder/publish_video_local_<aid>.mp4) "
-            "and in kAWEPublishLocalVideoCacheFile.plist, which maps each aid to a video "
-            "id. Whether an entry means the video was viewed or prefetched is not "
-            "established here. The Account ID column is the file name's numeric prefix, which on "
-            "the tested image matches the ChatFiles account folder name (the local account uid). "
-            "One store is read per account in the TikTok container, so Account ID names the file "
-            "each row came from, and the report's located-at line gives the path of every store "
-            "that returned rows. An iOS app container is a GUID directory, so the store's "
-            "path alone does not identify the owning app. Each matched database is "
+            "table holds an aid text column and a Unix-epoch timestamp. On the tested image "
+            "holding twelve rows two of the aids equalled the numeric ids in the published video "
+            "file names "
+            "(Documents/kAWEPublishLocalVideoStorageFolder/publish_video_local_<aid>.mp4) and in "
+            "kAWEPublishLocalVideoCacheFile.plist, which maps each aid to a video id; what the "
+            "other aids identify was not established. Whether an entry means the video was "
+            "viewed or prefetched is not established here. The Account ID column is the file "
+            "name's numeric prefix, which on the tested image matches the ChatFiles account "
+            "folder name. One store is read per account in the TikTok container, so Account ID "
+            "names the file each row came from, and the report's located-at line gives the path "
+            "of every store that returned rows. An iOS app container is a GUID directory, so the "
+            "store's path alone does not identify the owning app. Each matched database is "
             "attributed to the app named by its container's own "
-            ".com.apple.mobile_container_manager.metadata.plist (a path reconstructed "
-            "from an iTunes backup names the container by its AppDomain bundle id), and "
-            "only containers owned by com.zhiliaoapp.musically are parsed. Databases in "
-            "containers owned by any other app, or whose owning app cannot be "
-            "established, are skipped and logged. On the tested images every matched "
-            "database is in a TikTok-owned container; the exclusion of foreign and "
-            "unattributable containers is proven with constructed test data."
+            ".com.apple.mobile_container_manager.metadata.plist (a path reconstructed from an "
+            "iTunes backup names the container by its AppDomain bundle id), and only containers "
+            "owned by com.zhiliaoapp.musically are parsed. Databases in containers owned by any "
+            "other app, or whose owning app cannot be established, are skipped and logged. On "
+            "the tested images every matched database is in a TikTok-owned container; the "
+            "exclusion of foreign and unattributable containers was exercised on constructed "
+            "test data, not on a registered image."
         ),
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/WatchHistory/*_history_WCDB.sqlite*",
                   "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),

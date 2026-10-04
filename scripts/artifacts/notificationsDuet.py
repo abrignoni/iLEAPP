@@ -1,13 +1,21 @@
 __artifacts_v2__ = {
     "get_notificationsDuet": {
         "name": "Notification Duet",
-        "description": "Parses Duet/proactive userNotificationEvents SEGB records",
+        "description": "Records of the userNotificationEvents Biome stream (SEGB files)",
         "author": "@JohnHyla",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Notifications",
-        "notes": "",
+        "notes": "Column names other than the SEGB fields are this artifact's labels for numbered "
+                 "protobuf fields and are not taken from a published schema: Notification Time is "
+                 "field 1.1, GUID 1.2, Title 1.3, Subtitle 1.4, Body 1.5, Bundle ID 1.8, Optional "
+                 "Data 1.10, Bundle ID 2 1.12, Person Identifier 1.13, Person Info 1.20, "
+                 "Notification Time 2 field 3 and GUID 2 field 4. The two notification times are "
+                 "read as seconds from 2001-01-01 UTC. A record in the Deleted state is listed "
+                 "with its SEGB timestamp, state, file name and offset and no decoded field. A "
+                 "record that does not decode is not listed. Files whose path contains 'tombstone' "
+                 "are not read.",
         "paths": ('*/userNotificationEvents/local/*',),
         "output_types": "standard",
         "artifact_icon": "bell",

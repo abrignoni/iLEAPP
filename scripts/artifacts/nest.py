@@ -16,14 +16,15 @@ __artifacts_v2__ = {
                  "and manual_away_timestamp fields are Unix seconds. Both readings are corroborated "
                  "against each other on the tested sample, where the row's millisecond "
                  "ZOBJECT_TIMESTAMP and its seconds away_timestamp resolve to the same instant. 'Away' "
-                 "is the state the store held when the app last wrote the object, not a history of "
-                 "arrivals and departures; no prior values were found in the store on the tested "
-                 "sample. Away Setter is "
-                 "reported as stored; no mapping from that integer to a person or a cause was sourced. "
-                 "Coordinates are the location recorded for the structure and are not evidence of a "
-                 "person's location. The app's data container was present on 1 of the 26 registered "
-                 "iOS corpora swept for it, so every count recorded here comes from that one "
-                 "extraction and no field has been seen to vary across devices or app versions. A "
+                 "is the value held in the stored object, not a history of arrivals and "
+                 "departures; no prior values were found in the store on the tested sample. What "
+                 "Object Timestamp (ZOBJECT_TIMESTAMP) marks is not established; on the tested row "
+                 "it equals the object's away_timestamp. Away Setter is reported as stored; no "
+                 "mapping from that integer to a person or a cause was sourced. Coordinates are "
+                 "the location recorded for the structure and are not evidence of a person's "
+                 "location. Every count recorded here comes from one extraction, "
+                 "adams_iphone12mini, so no field has been seen to vary across devices or app "
+                 "versions. A "
                  "second extraction carrying this app would close that gap.",
         "paths": ('*/Documents/Nest.sqlite*',),
         "output_types": ["html", "tsv", "lava", "timeline", "kml"],
@@ -34,33 +35,32 @@ __artifacts_v2__ = {
     },
     "nestGeofence": {
         "name": "Nest - Geofence and Presence",
-        "description": "Geofences defined for the Nest structure and the presence value the "
-                       "app last evaluated, with its evaluation timestamp.",
+        "description": "Geofences defined for the Nest structure and the presence values stored in "
+                       "the combined_presence object, with its presence_evaluation_timestamp.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Nest",
-        "notes": "Read from the ZNLTRANSPORTOBJECT row whose ZOBJECT_KEY begins 'geofence_info.'. Each "
-                 "fence contributes one row carrying its identifier, centre coordinates, radius and "
-                 "direction as stored. Presence and Raw Presence are the values the app recorded for "
-                 "the combined_presence object and are reported as stored; no mapping of those strings "
-                 "was sourced. The presence evaluation timestamp is Unix milliseconds. A geofence is a "
-                 "boundary recorded for the structure, so its coordinates describe the fence and "
-                 "not a person's position, and a presence value is reported as stored and is not "
-                 "an "
-                 "observed location. The device_events list was present and empty on the tested "
-                 "sample, so no per-device crossing events are reported. Direction is stored as a list "
-                 "of values and is reported as the list, joined; no mapping of those values was "
-                 "sourced. On the tested sample the fence carried a radius of 200 and an identifier "
-                 "but its latitude and longitude were both 0.0, read identically from the transport "
-                 "object and from the ZCDGEOFENCE table, so the store recorded no usable coordinate "
-                 "for the fence and no KML placemark results from it. The structure's own coordinates "
-                 "are reported by the Nest - Structure artifact and are populated. The app's data "
-                 "container was present on 1 of the 26 registered iOS corpora swept for it, so every "
-                 "count recorded here comes from that one extraction and no field has been seen to "
-                 "vary across devices or app versions. A second extraction carrying this app would "
-                 "close that gap.",
+        "notes": "Read from the ZNLTRANSPORTOBJECT row whose ZOBJECT_KEY begins 'geofence_info.'. "
+                 "Each fence contributes one row carrying its identifier, centre coordinates, "
+                 "radius and direction as stored. Presence and Raw Presence are the presence and "
+                 "raw_presence values of the combined_presence object and are reported as stored; "
+                 "no mapping of those strings was sourced. The presence evaluation timestamp is "
+                 "read as Unix milliseconds; no cross-check of that unit is recorded here. A "
+                 "geofence is a boundary recorded for the structure, so its coordinates describe "
+                 "the fence and not a person's position, and a presence value is reported as "
+                 "stored and is not an observed location. The device_events list was present and "
+                 "empty on the tested sample, so no per-device crossing events are reported. "
+                 "Direction is stored as a list of values and is reported as the list, joined; no "
+                 "mapping of those values was sourced. On the tested sample the fence carried a "
+                 "radius of 200 and an identifier but its latitude and longitude were both 0.0, "
+                 "read identically from the transport object and from the ZCDGEOFENCE table, so "
+                 "the store recorded no usable coordinate for the fence and no KML placemark "
+                 "results from it. The structure's own coordinates are reported by the Nest - "
+                 "Structure artifact and are populated. Every count recorded here comes from one "
+                 "extraction, adams_iphone12mini, so no field has been seen to vary across devices "
+                 "or app versions. A second extraction carrying this app would close that gap.",
         "paths": ('*/Documents/Nest.sqlite*',),
         "output_types": ["html", "tsv", "lava", "timeline", "kml"],
         "artifact_icon": "map-pin",
@@ -80,21 +80,20 @@ __artifacts_v2__ = {
         "category": "Nest",
         "notes": "Read from the ZNLTRANSPORTOBJECT rows whose ZOBJECT_KEY begins 'quartz.', whose "
                  "ZOBJECTVALUE is an NSKeyedArchiver archive. activation_time, last_connect_time and "
-                 "last_disconnect_time are Unix milliseconds. IP Address is reported as stored "
-                 "and is a private network address in the tested sample, so it describes the "
-                 "camera's local network and not an internet address. Streaming State, Camera "
-                 "Type and Last Disconnect Reason are reported as stored. Public Share Enabled "
-                 "is reported as stored. No video, snapshot or event clip was found in this "
-                 "database on the tested sample, so none is recovered here; the snapshot and "
-                 "stream host fields hold addresses and are reported as stored. The transport "
-                 "camera "
-                 "object carries no camera name field, so no name column is reported here; the name is "
-                 "recorded in Dropcam.sqlite and appears in the Nest - Dropcam Cameras artifact. "
-                 "Cameras recorded in Dropcam.sqlite are reported separately by the Nest - Dropcam "
-                 "Cameras artifact, because that store records a different set of fields and merging "
-                 "the two would put values of different meaning in one column. The app's data "
-                 "container was present on 1 of the 26 registered iOS corpora swept for it, so every "
-                 "count recorded here comes from that one extraction and no field has been seen to "
+                 "last_disconnect_time are read as Unix milliseconds; no cross-check of that unit "
+                 "is recorded here. IP Address is reported as stored and is a private network "
+                 "address in the tested sample, so it describes the camera's local network and not "
+                 "an internet address. Streaming State, Camera Type and Last Disconnect Reason are "
+                 "reported as stored. Public Share Enabled is reported as stored. No video, "
+                 "snapshot or event clip was found in this database on the tested sample, so none "
+                 "is recovered here; the snapshot and stream host fields hold addresses and are "
+                 "reported as stored. On the tested sample the transport camera object carried no "
+                 "camera name field, so no name column is reported here; the name is recorded in "
+                 "Dropcam.sqlite and appears in the Nest - Dropcam Cameras artifact. Cameras "
+                 "recorded in Dropcam.sqlite are reported separately by the Nest - Dropcam Cameras "
+                 "artifact, because that store records a different set of fields and merging the "
+                 "two would put values of different meaning in one column. Every count recorded "
+                 "here comes from one extraction, adams_iphone12mini, so no field has been seen to "
                  "vary across devices or app versions. A second extraction carrying this app would "
                  "close that gap.",
         "paths": ('*/Documents/Nest.sqlite*',),
@@ -115,18 +114,18 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Nest",
         "notes": "Read from ZCAMERA in Dropcam.sqlite, joined to ZCAMERASETTINGS on the camera's "
-                 "primary key. ZLASTCONNECTEDTIME is Core Data seconds since 2001-01-01, a different "
-                 "epoch from the Unix milliseconds used by the transport store in Nest.sqlite. Last "
-                 "Local IP is reported as stored and is a private network address in the tested "
-                 "sample. Audio Recording Enabled and Streaming Enabled are the stored settings "
-                 "and record configuration rather than whether recording occurred. Camera Type "
-                 "and Share Mode are reported as stored. No video, snapshot or event history was "
-                 "found in this store on the tested sample, so none is recovered. Software "
-                 "Version was empty on the camera in the "
-                 "tested sample; the column is kept because the store defines it and a device on "
-                 "another extraction may carry it. The app's data container was present on 1 of the 26 "
-                 "registered iOS corpora swept for it, so every count recorded here comes from that "
-                 "one extraction and no field has been seen to vary across devices or app versions. A "
+                 "primary key. ZLASTCONNECTEDTIME is read as Core Data seconds since 2001-01-01, a "
+                 "different epoch from the Unix milliseconds read from the transport store in "
+                 "Nest.sqlite; no cross-check of that reading is recorded here. Last Local IP is "
+                 "reported as stored and is a private network address in the tested sample. Audio "
+                 "Recording Enabled and Streaming Enabled are the stored settings and record "
+                 "configuration rather than whether recording occurred. Camera Type and Share Mode "
+                 "are reported as stored. No video, snapshot or event history was found in this "
+                 "store on the tested sample, so none is recovered. Software Version was empty on "
+                 "the camera in the tested sample; the column is kept because the store defines it "
+                 "and a device on another extraction may carry it. Every count recorded here comes "
+                 "from one extraction, adams_iphone12mini, so no field has been seen to vary "
+                 "across devices or app versions. A "
                  "second extraction carrying this app would close that gap.",
         "paths": ('*/Documents/Dropcam.sqlite*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -156,10 +155,10 @@ __artifacts_v2__ = {
                  "was sourced, so a non-zero value must not be read as an alarm without one. The "
                  "component test columns are reported as stored. Auto Away and Home Away Input "
                  "are reported as stored and are not a record of occupancy. This artifact "
-                 "reports device state at the time the app last wrote the object; no alarm or "
-                 "event history was found in the store on the tested sample. "
-                 "The app's data container was present on 1 of the 26 registered iOS corpora swept for "
-                 "it, so every count recorded here comes from that one extraction and no field has "
+                 "reports the state held in the stored object, and what Object Timestamp marks is "
+                 "not established; no alarm or event history was found in the store on the tested "
+                 "sample. Every count recorded here comes from one extraction, adams_iphone12mini, "
+                 "so no field has "
                  "been seen to vary across devices or app versions. A second extraction carrying this "
                  "app would close that gap.",
         "paths": ('*/Documents/Nest.sqlite*',),
@@ -171,22 +170,23 @@ __artifacts_v2__ = {
     },
     "nestAccount": {
         "name": "Nest - Account",
-        "description": "The Nest account signed in to the app, with the email address, name "
-                       "and the structures it belongs to.",
+        "description": "User objects recorded in the app's transport store, with the email "
+                       "address, name and the number of structures each lists.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Nest",
-        "notes": "Read from the ZNLTRANSPORTOBJECT row whose ZOBJECT_KEY begins 'user.', whose "
-                 "ZOBJECTVALUE is an NSKeyedArchiver archive. The email and name are the values the "
-                 "service returned for the signed-in account. Structure Count is the number of entries "
-                 "in the account's structures list. Merged With GAIA is reported as stored; the "
-                 "meaning of the flag is not sourced. Short Name was empty on the account in "
-                 "the tested sample; the column is kept because the object defines the field and "
-                 "another account may carry it. The app's data container was present on 1 of the 26 "
-                 "registered iOS corpora swept for it, so every count recorded here comes from that "
-                 "one extraction and no field has been seen to vary across devices or app versions. A "
+        "notes": "Read from the ZNLTRANSPORTOBJECT rows whose ZOBJECT_KEY begins 'user.', whose "
+                 "ZOBJECTVALUE is an NSKeyedArchiver archive. The email and name are the values "
+                 "held in the user object; that the object is the signed-in account is not "
+                 "established here, and a store holding more than one user object produces one row "
+                 "for each. Structure Count is the number of entries in the object's structures "
+                 "list. Merged With GAIA is reported as stored; the meaning of the flag is not "
+                 "sourced. Short Name was empty on the account in the tested sample; the column is "
+                 "kept because the object defines the field and another account may carry it. "
+                 "Every count recorded here comes from one extraction, adams_iphone12mini, so no "
+                 "field has been seen to vary across devices or app versions. A "
                  "second extraction carrying this app would close that gap.",
         "paths": ('*/Documents/Nest.sqlite*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -197,30 +197,31 @@ __artifacts_v2__ = {
     },
     "nestLockUserCredentials": {
         "name": "Nest - Lock User Credentials",
-        "description": "User identifiers that have a lock PIN credential provisioned in the "
-                       "app's store, with the enabled flag and the stored credential length.",
+        "description": "User identifiers listed in the app's user PIN code table "
+                       "(ZPCDUSERPINCODESSETTINGSTRAITUSERPINCODE), with whether a credential blob "
+                       "is stored, the enabled flag and the stored credential length.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "Nest",
-        "notes": "Read from ZPCDUSERPINCODESSETTINGSTRAITUSERPINCODE, with the per-user schedule count "
-                 "taken from ZPCDBASICUSERSCHEDULESSETTINGSTRAITBASICUSERSCHEDULE on the user "
-                 "identifier. The PIN itself is NOT recovered and this artifact does not attempt to. "
-                 "On the tested sample the ZPINCODE column holds a 41 byte blob whose bytes are not "
-                 "ASCII digits and whose measured entropy is about 5.0 bits per byte, which is not "
-                 "consistent with a stored 4 to 8 digit PIN in the clear. The column is therefore "
-                 "reported only as present or absent with its length, and no meaning is asserted for "
-                 "its contents. A row records that the store holds a credential entry for that "
-                 "user identifier. Credential Enabled is reported as stored and was null on "
-                 "three of the four rows in the tested sample; an empty value records a null "
-                 "flag and is not evidence that the credential was disabled. Schedule Count is a "
-                 "count of schedule "
-                 "rows carrying the same user identifier; the schedule rows themselves record a start "
-                 "time and, on the tested sample, no end time. The app's data container was present on "
-                 "1 of the 26 registered iOS corpora swept for it, so every count recorded here comes "
-                 "from that one extraction and no field has been seen to vary across devices or app "
-                 "versions. A second extraction carrying this app would close that gap.",
+        "notes": "Read from ZPCDUSERPINCODESSETTINGSTRAITUSERPINCODE, with the per-user schedule "
+                 "count taken from ZPCDBASICUSERSCHEDULESSETTINGSTRAITBASICUSERSCHEDULE on the "
+                 "user identifier. The PIN itself is NOT recovered and this artifact does not "
+                 "attempt to. On the tested sample the ZPINCODE column holds a 41 byte blob whose "
+                 "bytes are not ASCII digits and whose measured entropy is about 5.0 bits per "
+                 "byte, which is not consistent with a stored 4 to 8 digit PIN in the clear. The "
+                 "column is therefore reported only as present or absent with its length, and no "
+                 "meaning is asserted for its contents. A row records that the PIN code table "
+                 "holds a row for that user identifier; Credential Present says whether its "
+                 "ZPINCODE column held a value. Credential Enabled is reported as stored and was "
+                 "null on three of the four rows in the tested sample; an empty value records a "
+                 "null flag and is not evidence that the credential was disabled. Schedule Count "
+                 "is a count of schedule rows carrying the same user identifier; the schedule rows "
+                 "themselves record a start time and, on the tested sample, no end time. Every "
+                 "count recorded here comes from one extraction, adams_iphone12mini, so no field "
+                 "has been seen to vary across devices or app versions. A second extraction "
+                 "carrying this app would close that gap.",
         "paths": ('*/Documents/Nest.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "key",

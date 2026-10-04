@@ -2,13 +2,14 @@ __artifacts_v2__ = {
     "get_biomeLocationVisit": {
         "name": "Biome - Location Visit",
         "description": "Parses visited places from the Location.Visit biome stream: coordinates "
-                       "with horizontal accuracy, arrival and departure times, and the matched "
-                       "point of interest (name, address and category) when iOS identified one. "
+                       "with horizontal accuracy, arrival and departure times, and a place "
+                       "name, address and category where the record carries them. "
                        "TIMESTAMP CAUTION: in tested samples the coordinates, accuracy and "
                        "point of interest details decoded consistently; the timestamps require "
-                       "caution. Records are written to the stream in batches long "
-                       "after the visit, so the SEGB record time is a write time, not a visit "
-                       "time, and the detection timestamp does not consistently line up with "
+                       "caution. In the tested samples records were written in batches long "
+                       "after the visit, so there the SEGB record time is a write time, not a "
+                       "visit "
+                       "time, and the Detection Timestamp column does not consistently line up with "
                        "the arrival and departure pair. Treat every time in this artifact as "
                        "an indication that needs corroborating from another source before it "
                        "is relied on.",
@@ -19,15 +20,18 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "Timestamp reliability, observed in the sample data: every record in a stream "
                  "file shared one identical SEGB write time while the visits themselves spanned "
-                 "weeks, so the whole batch was flushed at once. The detection timestamp "
-                 "(field 1) ran from hours to more than a day after the recorded departure and "
+                 "weeks. Arrival, departure and field 1 are stored as doubles and read here as "
+                 "Unix epoch seconds. Field 1, labelled Detection Timestamp here although what it "
+                 "marks is not established, ran from hours to more than a day after the recorded "
+                 "departure and "
                  "up to 28 days before the SEGB write. Arrival and departure are internally "
                  "consistent (arrival precedes departure, spans from about half an hour "
                  "to just over a day) and are the most usable pair, but they are still not "
                  "independently verified. In tested samples the coordinates, accuracy and "
                  "point of interest details decoded consistently. Latitude, longitude, "
-                 "horizontal accuracy in metres and confidence are stored as doubles; vertical "
-                 "accuracy of -1 means unavailable. Reference: Mattia Epifani, '84 Streams "
+                 "horizontal accuracy in metres and confidence are stored as doubles. Vertical "
+                 "accuracy is reported rounded to two decimal places; what a value of -1 means in "
+                 "this stream is not established. Reference: Mattia Epifani, '84 Streams "
                  "Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/Location.Visit/local/*',),

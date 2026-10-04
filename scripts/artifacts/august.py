@@ -2,7 +2,8 @@ __artifacts_v2__ = {
     "augustLocks": {
         "name": "August - Locks",
         "description": "Locks recorded in the August app's network cache, with the lock name, "
-                       "serial number, MAC address, owning house, firmware, battery level and "
+                       "serial number, MAC address, owning house, the key names of the "
+                       "service's currentFirmwareVersion object, battery level and "
                        "the lock status the service last returned.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
@@ -10,19 +11,21 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "August",
         "notes": "Read from the app's NSURLCache at Library/Caches/com.august.yale.app/nscache, which "
-                 "holds the JSON the August service returned. Each request carries a unique "
-                 "clientSerial query value, so the same endpoint appears once per fetch with its own "
-                 "cache timestamp; this artifact reports one row per lock, built from the newest "
-                 "cached body, and gives the number of cached observations and the first and last "
-                 "cache timestamps that carried it. Cache timestamps are UTC: on the tested sample a "
-                 "response's cache timestamp equalled the Updated value inside its own body, which the "
-                 "service writes with an explicit Z, to the second. Body timestamps are ISO 8601 "
-                 "carrying their own UTC offset and are not inferred. Lock Status and Type are "
-                 "reported as stored. Battery Level is the fraction the service returned. This "
-                 "artifact does NOT recover a door operation log: the app's own lock log endpoint is "
-                 "present in the cache 25 times and every one of those responses is an acknowledgement "
-                 "carrying no event payload, so the cache records no open, close, lock or unlock "
-                 "events. The lock's remote operate secret, HomeKit setup payload and pub/sub channel "
+                 "holds the JSON the August service returned. On the tested sample each request "
+                 "carried a different clientSerial query value, so the same endpoint appeared once "
+                 "per fetch with its own cache timestamp; this artifact reports one row per lock, "
+                 "built from the newest cached body, and gives the number of cached observations "
+                 "and the first and last cache timestamps that carried it. Cache timestamps are "
+                 "UTC: on the tested sample (falken_ios26) a lock response's cache timestamp "
+                 "equalled the Updated value inside its own body, which the service writes with an "
+                 "explicit Z, to the second. Body timestamps are ISO 8601 carrying their own UTC "
+                 "offset and are not inferred. Lock Status and Type are reported as stored. "
+                 "Battery Level is the fraction the service returned. This artifact does NOT "
+                 "recover a door operation log: on the tested sample the app's lock log endpoint "
+                 "was present in the cache 25 times and every one of those responses was an "
+                 "acknowledgement carrying no event payload, so that cache held no open, close, "
+                 "lock or unlock events. This artifact does not read that endpoint. The lock's "
+                 "remote operate secret, HomeKit setup payload and pub/sub channel "
                  "are deliberately not reported. Created and Updated held the same value on every lock "
                  "in the tested sample, which is what the service returned for both fields rather than "
                  "a derivation that did not run.",
@@ -37,8 +40,8 @@ __artifacts_v2__ = {
     },
     "augustLockUsers": {
         "name": "August - Lock Users",
-        "description": "People the service listed as having access to each lock, with the name "
-                       "and access type recorded for each.",
+        "description": "Entries of the users object the service returned for each lock, with "
+                       "the name and access type recorded for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
@@ -48,8 +51,11 @@ __artifacts_v2__ = {
                  "user. User Type is the role string the service returned and is reported as "
                  "stored. Identifiers is the joined list of contact identifiers the service "
                  "held for that user, which on the tested sample are prefixed strings naming "
-                 "the identifier kind. Presence in this list means the account was recorded as "
-                 "having access to the lock at the time of the cached response; it is not "
+                 "the identifier kind. A row records that the users object of a cached lock "
+                 "response carried this entry. What the service means by listing a user there "
+                 "is not established here. A user is reported from the last cached response "
+                 "that carried it, shown in Last Seen In Cache, even when a later response for "
+                 "the same lock no longer lists that user. A row is not "
                  "evidence that the person operated the lock, and the cache carries no "
                  "operation log to establish that.",
         "paths": ('*/Library/Caches/com.august.yale.app/nscache/Cache.db*',
@@ -73,16 +79,16 @@ __artifacts_v2__ = {
         "notes": "Read from the OfflineKeys object inside each cached lock body. That object groups "
                  "keys under created, loaded, deleted and loadedhk, and the group name is reported in "
                  "its own column as stored; on the tested sample keys appeared in the created, deleted "
-                 "and loadedhk groups. A row records that a key occupying the named slot was "
-                 "provisioned for that user identifier, and a row in the deleted group records a key "
-                 "the service listed as removed. The key material itself is present in the cached body "
-                 "and is deliberately NOT reported; only its presence, slot and timestamps are. "
-                 "Timestamps are ISO 8601 carrying an explicit UTC offset. Provisioning a key is not "
-                 "evidence that the lock was operated with it. House Name holds one value on every row "
-                 "in the tested sample because that device had a single house, and it is kept so a "
-                 "device with more than one house shows which house each key belongs to. A key that "
-                 "the service listed in the deleted group is reported with its group as stored "
-                 "and with Key Material Present false.",
+                 "and loadedhk groups. A row records an entry of the OfflineKeys object with its "
+                 "slot and user identifier. What each group name means to the service is not "
+                 "established here. The key material itself is present in the cached body and is "
+                 "deliberately NOT reported; only its presence, slot and timestamps are. "
+                 "Timestamps are ISO 8601 carrying an explicit UTC offset. Provisioning a key is "
+                 "not evidence that the lock was operated with it. House Name holds one value on "
+                 "every row in the tested sample because that device had a single house, and it is "
+                 "kept so a device with more than one house shows which house each key belongs to. "
+                 "Key Material Present is true when the entry carries a key value and false when "
+                 "it does not, whatever its group.",
         "paths": ('*/Library/Caches/com.august.yale.app/nscache/Cache.db*',
                   '*/Library/Caches/com.august.yale.app/nscache/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -116,8 +122,8 @@ __artifacts_v2__ = {
     },
     "augustAccount": {
         "name": "August - Account",
-        "description": "The August account signed in to the app, with the email address, name "
-                       "and phone number the service returned.",
+        "description": "The August account described by the cached users/me response, with "
+                       "the email address, name and phone number the service returned.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
@@ -150,9 +156,8 @@ __artifacts_v2__ = {
                  "from the newest body that carried it. Plan Code, Status and Type are reported as "
                  "stored. Timestamps are ISO 8601 carrying an explicit UTC offset. Created At and "
                  "Updated At held the same value on every row in the tested sample, and Device Name "
-                 "equalled Lock Name on every row because the subscribed device was the lock itself. "
-                 "Both pairs are kept because a subscription for a different device type would "
-                 "separate them.",
+                 "equalled Lock Name on every row in the tested sample. Both pairs are kept "
+                 "because other data may hold different values in them.",
         "paths": ('*/Library/Caches/com.august.yale.app/nscache/Cache.db*',
                   '*/Library/Caches/com.august.yale.app/nscache/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -173,9 +178,10 @@ __artifacts_v2__ = {
         "category": "August",
         "notes": "Read from the cached per-lock battery responses and from the batteryInfo "
                  "object inside the cached lock bodies, one row per lock from the newest body. "
-                 "Last Change Date is the date the service recorded the batteries as last "
-                 "changed. Projected Death Date "
-                 "is a forward-looking estimate the service returned, not an observed event, "
+                 "Last Change Date and Projected Death Date are the lastChangeDate and "
+                 "deathDate values the service returned, reported as stored; what the service "
+                 "records in them is not established here. Projected Death Date is not an "
+                 "observed event, "
                  "and on the tested sample it fell three months after the last change date. "
                  "Warning State is reported as stored. Timestamps are ISO 8601 carrying an "
                  "explicit UTC offset.",

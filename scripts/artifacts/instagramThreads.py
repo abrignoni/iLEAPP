@@ -12,7 +12,7 @@ __artifacts_v2__ = {
                 "timeColumn": "Timestamp"
             }
         },
-        "description": "Existing messages sent and received in the Instagram App.",
+        "description": "Message records in the Instagram app's DirectSQLiteDatabase, decoded from each row's archive. The Username column holds the sender's full name where stored, otherwise the username. Only the first reaction of a message is reported.",
         "author": "@AlexisBrignoni",
         "creation_date": "2021-03-09",
         "last_update_date": "2026-06-05",
@@ -41,7 +41,7 @@ __artifacts_v2__ = {
     },
     "instagram_calls": {
         "name": "Instagram Threads Calls",
-        "description": "Existing calls sent and received in the Instagram App.",
+        "description": "Thread activity messages in the Instagram app's DirectSQLiteDatabase that carry a VOIP title, with the title and video call id as stored.",
         "author": "@AlexisBrignoni",
         "creation_date": "2021-03-09",
         "last_update_date": "2026-06-05",

@@ -3,8 +3,10 @@ __artifacts_v2__ = {
     "atx_datastore": {
         "name": "iOS ATXDatastore",
         "description": (
-            "Parses ATXDataStore and matches actions with learned locations "
-            "of interest (routined Local.sqlite), when available."),
+            "Rows of the alog table in _ATXDataStore.db that have a matching alogAction row, with "
+            "their action type. Latitude and Longitude are those of the routined learned location "
+            "of interest (Local.sqlite) whose identifier equals the row's location value, and are "
+            "blank when none matches. No rows are reported unless both databases are present."),
         "author": "@magpol",
         "creation_date": "2023-10-11",
         "last_update_date": "2026-07-31",

@@ -8,7 +8,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "KakaoTalk",
         "notes": "Read from the Message table of Message.sqlite in the app's PrivateDocuments "
-                 "folder. Most of each row's content sits in the write ahead log rather than in the "
+                 "folder. On the two devices tested most of the message rows were in the write ahead "
+                 "log and not yet in the "
                  "database file, so the -wal and -shm sidecars are in the declared paths and must be "
                  "staged with it. The message body and the attachment metadata are encrypted at rest: "
                  "on the two devices tested every non empty value of the message column, and of the "
@@ -35,12 +36,14 @@ __artifacts_v2__ = {
                  "than a correlation; a sender with no matching user row is reported with the id and "
                  "a blank name. Type is reported as stored: no mapping for the integer was "
                  "recoverable, because the client is closed source. Media renders the local file a message's "
-                 "decrypted attachment names, inline on that message's own row: the attachment and "
-                 "the file name share a token, and the file is matched inside the message's own "
-                 "chat folder, so it is a link the store records rather than a correlation. Five of "
+                 "decrypted attachment names, inline on that message's own row. The file is matched by "
+                 "this parser inside the message's own chat folder: a run of 16 or more letters, "
+                 "digits, underscores or hyphens in the decrypted attachment that also appears in a "
+                 "file name, taking the first such file with non-thumbnails first. Five of "
                  "the six media messages on the device with media resolved to a file this way; a "
-                 "message with no media, or whose file the store no longer holds, has a blank "
-                 "Media column, and the Chat Media artifact lists every kept file including those. "
+                 "message with no media, or for which no file was found in its chat folder, has a "
+                 "blank Media column, and the Chat Media artifact lists the files found under the chat "
+                 "folders. "
                  "Field mapping was done against two private samples; no sample data is recorded for "
                  "them. A Message.sqlite that does not carry this client's own table and column "
                  "layout is skipped and logged, so another app's file of the same name cannot be "
@@ -73,14 +76,12 @@ __artifacts_v2__ = {
         "notes": "Read from the ZCHAT table of Talk.sqlite, a Core Data store, with the folder name "
                  "taken from ZCHATFOLDER where the chat's id appears in that folder's id list. "
                  "Updated is ZUPDATEDAT, Cocoa seconds from 2001. Room Name is the ZROOMNAME column "
-                 "and was blank on most rows of the devices tested: a one to one chat carries no "
-                 "room name, and the display name an examiner sees in the app is built from the "
-                 "members instead, so a blank here is not a missing value. Chat Type and View Type "
+                 "and was blank on most rows of the devices tested; why a row has no room name is not "
+                 "established. Chat Type and View Type "
                  "are reported as stored. Member Count is the app's own active member count, and Unread "
-                 "Count was zero on every row of the devices tested, kept because a chat with "
-                 "unread messages would show it. The "
+                 "Count was zero on every row of the devices tested and is reported as stored. The "
                  "last message is reported by its id and type only, because the last message text "
-                 "the row also carries is encrypted, in the same way the message bodies are. Field "
+                 "the row also carries is not readable as stored; it is not decrypted here. Field "
                  "mapping was done against two private samples; no sample data is recorded for them.",
         "paths": ('*/Library/PrivateDocuments/Talk.sqlite*',),
         "output_types": "standard",
@@ -94,8 +95,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-22",
         "requirements": "none",
         "category": "KakaoTalk",
-        "notes": "Read from the ZUSER table of Talk.sqlite. A row is a user the client knows about, "
-                 "which includes friends, members of chats the account is in, and official accounts, "
+        "notes": "Read from the ZUSER table of Talk.sqlite. A row is a user record the client holds. "
+                 "What brings a user into this table is not established, "
                  "so a row is not by itself evidence that the account communicated with that user. "
                  "Friend Type, Block Type and User Type are reported as stored: no mapping for the "
                  "integers was recoverable from the closed source client. Name, Nickname and Custom "
@@ -107,8 +108,7 @@ __artifacts_v2__ = {
                  "left as stored. Profile "
                  "photo URLs are reported as stored and are remote addresses the report does not "
                  "fetch. Status Message and Email were blank, and Hidden and Favorite were zero, "
-                 "on every row of the two devices tested; each is kept because a populated store "
-                 "would carry these and their absence here is itself the finding. Field mapping "
+                 "on every row of the two devices tested; each column is still reported. Field mapping "
                  "was done against two private samples; no sample data is "
                  "recorded for them.",
         "paths": ('*/Library/PrivateDocuments/Talk.sqlite*',),
@@ -117,19 +117,20 @@ __artifacts_v2__ = {
     },
     "kakaoTalkContacts": {
         "name": "KakaoTalk - Address Book Matches",
-        "description": "Device address book entries the KakaoTalk iOS client matched to its users",
+        "description": "Contact entries in the KakaoTalk iOS client's ZCONTACT table, with the ZUSER value each row stores, where present",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-22",
         "last_update_date": "2026-09-22",
         "requirements": "none",
         "category": "KakaoTalk",
-        "notes": "Read from the ZCONTACT table of Talk.sqlite, which holds entries the client took "
-                 "from the device address book when contact syncing was on. A row records a name and "
-                 "number held on the device, not a KakaoTalk account, and the linked user id is "
-                 "present only where the client matched that entry to one. The name is in the clear and "
+        "notes": "Read from the ZCONTACT table of Talk.sqlite. A row records a name and number, not a "
+                 "KakaoTalk account. Where the client took the entries from is not established here. "
+                 "Linked User ID is the row's ZUSER value as stored and is blank where none is "
+                 "stored. The "
+                 "name is in the clear and "
                  "the numbers are not: both number columns were base64 text on every row of the two "
-                 "devices tested and are reported as stored, encrypted in the same way as the message "
-                 "bodies. A third column, ZORIGINALPHONENUMBER, held a value identical to the "
+                 "devices tested and are reported as stored, not decrypted here. A third column, "
+                 "ZORIGINALPHONENUMBER, held a value identical to the "
                  "normalised one on every row of both devices, so it is not reported separately; the "
                  "raw column, where the schema has it, differed from the normalised one on all 15 "
                  "rows of the device that carries it and is reported. The raw number and contact id "
@@ -154,12 +155,14 @@ __artifacts_v2__ = {
                  "file sits in is named with a chat id, which is the link the store records, so each "
                  "file is attributed to a chat rather than correlated to one: on the device with "
                  "media, seven distinct chat folder ids appeared, five of them present in the chat "
-                 "table and two not, and those two are reported with the id and no room name. This artifact lists every media "
-                 "file the client kept, including one whose message the store no longer holds, which "
+                 "table and two not, and those two are reported with the id and no room name. This "
+                 "artifact lists the files found under these folders, including a file that no message "
+                 "row in the store names, which "
                  "the Messages artifact cannot. Where a message's decrypted attachment names the file, "
                  "the Messages artifact also renders it inline on that message's own row, so the two "
-                 "are complementary. Files whose name begins with a thumbnail marker are "
-                 "the client's own reduced copies and are labelled as such rather than dropped. Chat Room "
+                 "are complementary. Files whose name begins with _th_ or ends with -thum are marked "
+                 "Yes in Is Thumbnail, from the name alone, and are listed rather than dropped. Chat "
+                 "Room "
                  "Name was blank on every media row of the devices tested: the media in these folders "
                  "belonged to chats the store left without a room name, and the one chat that did carry "
                  "a room name had no media here. The "

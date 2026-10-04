@@ -13,7 +13,11 @@ __artifacts_v2__ = {
         "last_update_date": "2025-10-08",
         'requirements': 'none',
         'category': 'App Conduit',
-        'notes': '',
+        'notes': 'The log lines record no time zone. The Timestamp column shows the logged time '
+                 'labelled UTC; whether the log is written in UTC or device local time is not '
+                 'established here. A Disconnected row takes its device type, model, OS build and '
+                 'OS version from the first Connected line read with the same pairing id, and '
+                 'those cells are blank when no such line was read before it.',
         'paths': ('*/mobile/Library/Logs/AppConduit/AppConduit.log.*',),
         'output_types': 'standard',
         'artifact_icon': 'activity',

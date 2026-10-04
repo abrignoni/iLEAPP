@@ -3,13 +3,18 @@
 __artifacts_v2__ = {
     'restore_log': {
         'name': 'Mobile Software Update',
-        'description': 'Extracts events related to operating system updates from the restore.log file.',
+        'description': 'The first event of each "data = " line in restore.log that carries an originalOSVersion value, with the original and current OS builds as stored and their versions looked up from the tool\'s build table.',
         'author': '@stark4n6',
         'creation_date': '2021-10-18',
         'last_update_date': '2025-10-06',
         'requirements': 'none',
         'category': 'OS Updates',
-        'notes': '',
+        'notes': (
+            'Only lines containing "data = " are read. Only the first entry of each line\'s events '
+            'array is used, and it is reported only when it carries originalOSVersion. Original '
+            'OS Version and Updated OS Version are looked up from the tool\'s build table and are '
+            'not stored values. Updated OS Build is the stored currentOSVersion value.'
+        ),
         'paths': ('*/mobile/MobileSoftwareUpdate/restore.log',),
         'output_types': 'standard',
         'artifact_icon': 'refresh',

@@ -1,7 +1,10 @@
 __artifacts_v2__ = {
     "kikUsersgroups": {
         "name": "Kik Users in Groups",
-        "description": "Kik users that are members of a group (kik.sqlite)",
+        "description": "ZKIKUSER rows joined to the Z_9MEMBERS table of kik.sqlite, with the "
+                       "group row each is linked to. The table name is fixed in the query; on a "
+                       "store that does not have a table of that name the query fails and no rows "
+                       "are reported. No tested image returned rows.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
         "last_update_date": "2026-06-24",

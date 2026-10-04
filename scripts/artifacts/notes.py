@@ -4,14 +4,23 @@
 __artifacts_v2__ = {
     "notes": {
         "name": "Notes",
-        "description": "Apple Notes including decoded note body text and embedded attachments",
+        "description": "Apple Notes with the note body text decoded and attachment file names and "
+                       "metadata; the attachment itself is shown only when its file is present "
+                       "beside the staged database",
         "author": "@any333",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
         "notes": "Note body text is decompressed and parsed from the protobuf blob. "
-                 "Password-protected note contents are not decoded.",
+                 "Password-protected note contents are not decoded. One row per note and "
+                 "attachment, so a note with several attachments is repeated. An attachment is "
+                 "shown only when its file is found under Accounts/LocalAccount/Media beside the "
+                 "database; the artifact's paths match only NoteStore.sqlite and its sidecars, so "
+                 "that file may not be present, and attachments stored under another account "
+                 "folder are named but not shown. The Attachment Size (as stored) column does not "
+                 "show the size as stored: its digits are split into groups of three from the left "
+                 "and joined with dots, so 1234567 is shown as 123.456.7.",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -35,13 +44,23 @@ __artifacts_v2__ = {
     },
     "notesParticipants": {
         "name": "Notes - Shared Note Participants",
-        "description": "People a note is shared with, decoded from the CloudKit share record held against each invitation",
+        "description": "Participants listed in the CloudKit share record held against each note "
+                       "invitation; an owner entry in that list is reported like any other",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Notes",
-        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in ZICINVITATION.ZSERVERSHAREDATA. Reference: Apple CloudKit, CKShareParticipant (role/permission/acceptance enums; raw values per the CloudKit.framework SDK header), https://developer.apple.com/documentation/cloudkit/ckshare/participantrole",
+        "notes": "Names, email addresses and phone numbers come from the CloudKit share blob in "
+                 "ZICINVITATION.ZSERVERSHAREDATA. Role, Permission and Acceptance Status are "
+                 "mapped from the integers in the share record's Type, Permission and "
+                 "AcceptanceStatus keys using the raw values of CKShareParticipantRole, "
+                 "CKShareParticipantPermission and CKShareParticipantAcceptanceStatus in "
+                 "CloudKit/CKShareParticipant.h (MacOSX 27.0 SDK: role 0 Unknown, 1 Owner, 2 "
+                 "Administrator, 3 Private User, 4 Public User; permission 1 None, 2 Read Only, 3 "
+                 "Read/Write; acceptance 1 Pending, 2 Accepted, 3 Removed). A value outside those "
+                 "maps is shown as stored. Case names: "
+                 "https://developer.apple.com/documentation/cloudkit/ckshare/participantrole",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",

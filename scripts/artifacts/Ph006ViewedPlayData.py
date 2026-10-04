@@ -1,11 +1,14 @@
 __artifacts_v2__ = {
 'Ph006_1ViewandPlayDataPhDaPsql': {
 'name': 'Ph006.1-View and Play Data-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets with'
-' view and played data in iOS. If the iOS version is greater than iOS 16.5'
-' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field'
-' will be included. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZPENDINGVIEWCOUNT,'
+' ZVIEWCOUNT, ZPENDINGPLAYCOUNT or ZPLAYCOUNT is above 0, or (iOS 16 and later) whose'
+' ZLASTVIEWEDDATE is above 0, on iOS 11 through 26. Counts are reported as stored; what'
+' increments them is not established here. On iOS 16 and later a database without the'
+' ZLASTVIEWEDDATE column is skipped and yields no rows. From iOS 16.6 the Last Viewed Date column'
+' (ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE) is shown. On iOS 16.0 to 16.5.1 that field is used'
+' to select rows but is not shown. The results contain one row per asset (ZASSET table, or'
+' ZGENERICASSET on iOS 11 to 13).'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -14,7 +17,12 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. Labels marked still'
+" testing are unconfirmed. The header 'zCldMast-Import Session ID- AirDrop-StillTesting' reports"
+' ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and AirDrop is not established in this'
+" module. The header 'zAsset-UUID = store.cloudphotodb' reports the asset table's ZUUID. The"
+' match with store.cloudphotodb that the header names is not established in this module.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "eye",
@@ -38,11 +46,12 @@ __artifacts_v2__ = {
 },
 'Ph006_2ViewandPlayDataSyndPL': {
 'name': 'Ph006.3-View and Play Data-SyndPL',
-'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets with'
-' view and played data in iOS. If the iOS version is greater than iOS 16.5'
-' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field'
-' will be included. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses asset rows from Syndication.photoslibrary/database/Photos.sqlite whose view or play'
+' counts are above 0 or (iOS 16 and later) whose ZLASTVIEWEDDATE is above 0. No sample_data is'
+' recorded for this artifact. From iOS 16.6 the Last Viewed Date column'
+' (ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE) is shown. On iOS 16.0 to 16.5.1 that field is used'
+' to select rows but is not shown. The results for this script will contain one row per ZASSET'
+' table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -58,11 +67,10 @@ __artifacts_v2__ = {
 },
 'Ph006_3ViewandPlayDataGenPlayPsql': {
 'name': 'Ph006.3-View and Play Data-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets with'
-' view and played data in iOS. If the iOS version is greater than iOS 16.5'
-' last viewed date from ZADDITTIONALASSETATTRIBUTES table ZLASTVIEWEDDATE field'
-' will be included. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets with view and played data in'
+' iOS. Runs on iOS 18 through 26 and shows the Last Viewed Date'
+' (ZADDITIONALASSETATTRIBUTES.ZLASTVIEWEDDATE). The only corpus in sample_data is at 0 rows. The'
+' results for this script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',

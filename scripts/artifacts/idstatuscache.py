@@ -8,19 +8,20 @@ contacts (partners).
 __artifacts_v2__ = {
     "idstatuscache": {
         "name": "Identity Lookup Service",
-        "description": "Extracts iCloud sync, Email, FaceTime, more.",
+        "description": "Entries of the IdentityServices status cache (idstatuscache.plist): for each service identifier and address, the lookup date and the ID status as stored.",
         "author": "@djangofaiola",
         "creation_date": "2024-07-16",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Identity Lookup Service",
-        "notes": "https://djangofaiola.blogspot.com "
-                 "The Application column's identifier-to-name labels are best-effort: "
+        "notes": "The Application column's identifier-to-name labels are best-effort: "
                  "where the extraction contains Apple's IdentityServices "
                  "ServiceDefinitions plists their DisplayName is used; hardcoded "
                  "labels for private alloy identifiers are descriptive guesses. "
-                 "URI-prefix type labels (token, uuid, pseudonym, mailto-alias) are "
-                 "descriptive interpretations of the prefix text, not vendor-documented.",
+                 "The Service Type labels are this parser's reading of the URI prefix "
+                 "text (the part before the colon) and are not vendor-documented; the "
+                 "Location column carries the service identifier and the entry key as "
+                 "stored, prefix included.",
         "paths": (
             "*/mobile/Library/Preferences/com.apple.identityservices.idstatuscache.plist",
             "*/mobile/Library/IdentityServices/idstatuscache.plist"

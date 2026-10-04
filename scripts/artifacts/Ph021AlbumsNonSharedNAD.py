@@ -1,10 +1,17 @@
 __artifacts_v2__ = {
 'Ph021NonSharedAlbumRecordswithNADPhDaPsql': {
 'name': 'Ph021-Non-Shared Album Records NAD-PhDaPsql',
-'description': 'Parses Non-Shared Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table'
-' and supports iOS. Parses Non-Shared Album records only, no asset data being parsed.'
-' This parser will contain parent albums and folders, and associated album data.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses ZGENERICALBUM records whose ZKIND is 2 from PhotoData-Photos.sqlite. The'
+' cited post reads kind 2 as a non-shared album. The labels shown for this and the other coded'
+' columns were assigned by the module author, the source for each mapping is not established here,'
+' and the stored integer is kept in each label. Values labelled StillTesting have no established'
+' meaning. Query branches exist for iOS 11 through 26. Parses Non-Shared Album records only, no'
+' asset data being parsed. The query joins the album list link table, whose name depends on the iOS'
+' version, and the shared album invitation table without reporting any column from them, so an'
+' album can appear on more than one identical row, and an empty result can mean the link table name'
+' did not match the database. The record that the ZPARENTFOLDER value of a row points to is shown'
+' in the ParentzGenAlbum columns. Records of other kinds, including parent folders, get no row of'
+' their own. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

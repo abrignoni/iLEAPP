@@ -1,7 +1,9 @@
 __artifacts_v2__ = {
     "googleTranslateHistory": {
         "name": "Google Translate History",
-        "description": "History from Google Translate App",
+        "description": "Rows of the history table of Google Translate's translate.db. The first "
+                       "column is the row's stored timestamp value read as a Unix time; what event "
+                       "it marks is not established",
         "author": "Django Faiola (djangofaiola.blogspot.com)",
         "creation_date": "2024-05-30",
         "last_update_date": "2025-01-09",

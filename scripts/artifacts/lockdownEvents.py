@@ -8,10 +8,18 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "System Activity",
         "notes": (
-            "Timestamps are stored without a UTC offset and are reported without conversion in "
-            "the 'Timestamp (Device Local, No Offset)' column; the zone is not established. "
-            "A lockdownd startup record shows that the daemon started; it is not, by itself, "
-            "proof that the device booted. Event selection is based on research by Ian Whiffin: "
+            "Timestamps are stored without a UTC offset and are shown without a zone conversion "
+            "in the TSV and HTML output, in a column headed 'Timestamp (Device Local, No "
+            "Offset)'; the zone is not established, and the words Device Local in the header are "
+            "not a finding. The LAVA output stores this column as if the reading were UTC "
+            "(measured on all 48 rows on iphone11_ios17 and all 38 rows on dexter_ios18), which "
+            "is not established either. One row on each of those corpora carries a reading this "
+            "parser dates 1969-12-31. A lockdownd startup record shows that the daemon started; "
+            "it is not, by itself, proof that the device booted. Event selection is based on "
+            "research by Ian Whiffin, 'KnowledgeC (and Friends)'. The Upgrade detected by "
+            "lockdownd event is any line containing roll_keys: Detected upgrade; the cited "
+            "research reads the form Detected upgrade from (NULL) as setup after a wipe, and this "
+            "parser does not separate the two. Reference: "
             "https://doubleblak.com/blogPost.php?k=knowledgec"
         ),
         "paths": ("*/private/var/logs/lockdownd.log", "*/private/var/logs/lockdownd.log.*"),

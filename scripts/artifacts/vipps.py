@@ -8,8 +8,10 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Vipps',
         'notes': 'The telephone value is extracted from the feed model key using an '
-                 'observed key format; where the contact-table lookup finds no match '
-                 'the value is unverified.',
+                 'observed key format. Name is the ZNAME of the first ZCONTACTMODEL row whose '
+                 'phone column contains that value as a substring, so it can be another '
+                 'contact\'s name. Where no row matches, Name is blank. Only feed items whose '
+                 'model is CHAT are reported. No registered corpus is recorded for this artifact.',
         'paths': ('*/Vipps.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'message'

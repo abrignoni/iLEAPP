@@ -1,7 +1,10 @@
 __artifacts_v2__ = {
     "metamaskWallets": {
         "name": "MetaMask - Wallets",
-        "description": "MetaMask wallet accounts (import time, name, address, balance)",
+        "description": "MetaMask accounts from the persist-root file: the stored importTime, name, "
+                       "address and the stored balance divided by 10^18. Not validated against a "
+                       "registered image; what importTime marks and which network the balance "
+                       "belongs to are not established",
         "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Metamask", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),
@@ -17,7 +20,10 @@ __artifacts_v2__ = {
     },
     "metamaskTransactions": {
         "name": "MetaMask - Transactions",
-        "description": "MetaMask transactions (time, from/to address, value, hash)",
+        "description": "MetaMask TransactionController entries: the stored time, from and to "
+                       "addresses, the stored value divided by 10^18, and the transaction hash. "
+                       "Not validated against a registered image; the unit of Value depends on the "
+                       "chain and is not checked",
         "author": "@ozaksen", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Metamask", "notes": "",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/persistStore/persist-root',),

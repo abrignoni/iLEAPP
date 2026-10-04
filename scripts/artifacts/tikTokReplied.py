@@ -2,7 +2,8 @@ __artifacts_v2__ = {
     "tiktok_replied": {
         "name": "TikTok - Replied Messages",
         "description": (
-            "Extracts \"Replied\" message remnants left in the TikTok database that are held "
+            "Extracts the copy of the replied-to message that the TikTok IM database keeps in "
+            "TIMMessageKVORM or TIMMessageNewPropertyORM, "
             "separately from the native message table"
         ),
         "author": "John Hyla http://www.bluecrewforensics.com/",
@@ -11,7 +12,14 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "TikTok",
         "notes": (
-            "This artifact is extracted from TIMMessageKVORM or TIMMessageNewPropertyORM. "
+            "This artifact reads TIMMessageKVORM joined to TIMMessageORM where a database holds "
+            "both of those tables, and TIMMessageNewPropertyORM only where it does not. Nothing "
+            "is reported unless a TikTok-owned AwemeIM.db is also found. The first column is "
+            "TIMMessageORM.servercreatedat on the first path and createdTime on the second. "
+            "Deleted is the TIMMessageORM.deleted value shown as True for 1, False for 0 and "
+            "Unknown otherwise, including when no TIMMessageORM row joins; Deleted and Reply Text "
+            "are blank on the TIMMessageNewPropertyORM path. What the deleted value records is "
+            "not established. "
             "These tables hold a copy of the message being replied to; whether that copy "
             "persists after the referenced message or reply is deleted is not established. "
             "An iOS app container is a GUID directory, so the database names alone do not "
@@ -21,8 +29,8 @@ __artifacts_v2__ = {
             "bundle id), and only containers owned by com.zhiliaoapp.musically are parsed. "
             "Databases in containers owned by any other app, or whose owning app cannot be "
             "established, are skipped and logged. On the tested images every matched "
-            "database is in a TikTok-owned container; the exclusion of foreign and "
-            "unattributable containers is proven with constructed test data."
+            "database is in a TikTok-owned container; the exclusion of other containers is "
+            "therefore not exercised by a registered corpus."
         ),
         "paths": (
             "*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*",

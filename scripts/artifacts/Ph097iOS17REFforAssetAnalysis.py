@@ -1,12 +1,21 @@
 __artifacts_v2__ = {
 'Ph097_1iOS17RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph097.1-iOS17_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Reads asset rows from PhotoData/Photos.sqlite joined to related tables, among them'
+' resource, album, face, share, memory and suggestion tables. The query runs only when'
+' the iOS version is 17.0 or later and below 18. On other iOS versions the artifact'
+' reports nothing, which is not a statement about the database. An asset with more'
+' than one joined row appears on more than one row. The value labels in the decoded'
+' columns follow Scott Koenig\'s research, described at'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
+' This field does not state how each label was derived. A stored value with no label'
+' is shown as \'Unknown-New-Value!: \' followed by the value, with five exceptions. The'
+' columns whose headers end in -2, -122, -188 and -659 (decoded from ZCOMPLETE, ZKIND,'
+' ZFAVORITE of ZASSET and ZFAVORITE of ZMEMORY) are blank for such a value, and the'
+' column whose header ends in -167 (decoded from ZDEPTHTYPE) shows \'Portrait: \''
+' followed by any value other than 0. The output has 1,094 columns. The TSV export can'
+' be filtered in a table viewer such as Eric Zimmerman\'s Timeline Explorer'
+' (https://ericzimmerman.github.io/#!index.md).',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -38,12 +47,21 @@ __artifacts_v2__ = {
 },
 'Ph097_2iOS17RefforAssetAnalysisSyndPL': {
 'name': 'Ph097.2-iOS17_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Reads asset rows from Syndication.photoslibrary/database/Photos.sqlite joined to'
+' related tables, among them resource, album, face, share, memory and suggestion'
+' tables. The query runs only when the iOS version is 17.0 or later and below 18. On'
+' other iOS versions the artifact reports nothing, which is not a statement about the'
+' database. An asset with more than one joined row appears on more than one row. The'
+' value labels in the decoded columns follow Scott Koenig\'s research, described at'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
+' This field does not state how each label was derived. A stored value with no label'
+' is shown as \'Unknown-New-Value!: \' followed by the value, with five exceptions. The'
+' columns whose headers end in -2, -122, -188 and -659 (decoded from ZCOMPLETE, ZKIND,'
+' ZFAVORITE of ZASSET and ZFAVORITE of ZMEMORY) are blank for such a value, and the'
+' column whose header ends in -167 (decoded from ZDEPTHTYPE) shows \'Portrait: \''
+' followed by any value other than 0. The output has 1,094 columns. The TSV export can'
+' be filtered in a table viewer such as Eric Zimmerman\'s Timeline Explorer'
+' (https://ericzimmerman.github.io/#!index.md).',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

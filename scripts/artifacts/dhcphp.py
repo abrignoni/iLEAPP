@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     "dhcpHotspotClients": {
         "name": "DHCP Hotspot Leases",
-        "description": "DHCP leases issued by the device (Personal Hotspot clients)",
+        "description": "Key and value lines from the db/dhcpd_leases file. Which sharing feature a "
+                       "lease belongs to is not recorded in a row.",
         "author": "@AlexisBrignoni",
         "creation_date": "2024-10-29",
         "last_update_date": "2026-07-31",

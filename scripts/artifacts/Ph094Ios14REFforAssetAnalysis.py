@@ -1,11 +1,14 @@
 __artifacts_v2__ = {
 'Ph094_1iOS14RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph094.1-iOS14_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.'
+'description': 'Parses asset records from PhotoData-Photos.sqlite on iOS 14 only; no rows are returned'
+' on other versions. One asset appears on more than one row when it has more than one'
+' internal resource, album, face, person, memory, share participant or suggestion, among'
+' other joined tables, so the row count is not an asset count. Integer codes are shown'
+' with labels taken from the research of Scott Koenig; a value with no label is shown as'
+' Unknown-New-Value! with the stored number. Some labels are marked by the author as'
+' still being tested. The output has 1,270 columns. The TSV export is easier to search'
+' and filter than the HTML page.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -38,12 +41,16 @@ __artifacts_v2__ = {
 },
 'Ph094_2iOS14RefforAssetAnalysisSyndPL': {
 'name': 'Ph094.2-iOS14_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite on iOS 14'
+' only; no rows are returned on other versions. One asset appears on more than one row'
+' when it has more than one internal resource, album, face, person, memory, share'
+' participant or suggestion, among other joined tables, so the row count is not an asset'
+' count. Integer codes are shown with labels taken from the research of Scott Koenig; a'
+' value with no label is shown as Unknown-New-Value! with the stored number. Some labels'
+' are marked by the author as still being tested. sample_data records 0 rows on twelve'
+' images, none of which runs iOS 14, so no recorded image has exercised this query. The'
+' output has 1,270 columns. The TSV export is easier to search and filter than the HTML'
+' page. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

@@ -1,11 +1,16 @@
 __artifacts_v2__ = {
 'Ph087UFEDdevcievaluesplist': {
 'name': 'Ph087-UFED-device-values-Plist',
-'description': 'Parses basic data from */device_values.plist which is a part of a'
-' UFED Advance Logical acquisitions with non-encrypted backups.'
-' The parsing of this file will allow for iLEAPP to parse some basic'
-' information such as */PhotoData/Photos.sqlite. Based on research'
-' and published blogs written by Scott Koenig'
+'description': 'A file named device_values.plist found anywhere in the input is read. The module'
+' author associates this file with Cellebrite UFED Advanced Logical acquisitions; no'
+' source for that is cited and no tested image is recorded for this artifact. Lists'
+' each key and value as stored. When no iOS version has been set earlier in the run,'
+' ProductVersion becomes the iOS version for the rest of the run, which decides which'
+' version-specific queries other artifacts use. ProductVersion, BuildVersion,'
+' ProductType, HardwareModel, InternationalMobileEquipmentIdentity, SerialNumber,'
+' DeviceName, PasswordProtected and TimeZone are also copied to Device Info. The linked'
+' post by the module author mentions a Cellebrite UFED Advanced Logical acquisition and'
+' does not name this file:'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',

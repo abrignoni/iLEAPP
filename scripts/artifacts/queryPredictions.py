@@ -1,13 +1,18 @@
 __artifacts_v2__ = {
     "queryPredictions": {
         "name": "Query Predictions",
-        "description": "Message query predictions from query_predictions.db",
+        "description": "Rows of the messages table in query_predictions.db",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-03",
         "requirements": "none",
         "category": "SMS & iMessage",
-        "notes": "The query_predictions.db file is absent from every registered corpus image and public path listing checked (iOS 12.4-26.5.2) and from all 21 extractions in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2), so a no-file result on current extractions is expected.",
+        "notes": (
+            "No sample data is recorded for this artifact, and its query has not been run against "
+            "a real query_predictions.db. creationTimestamp is read as Unix seconds and an isSent "
+            "value of 1 is treated as sent in the conversation view; neither reading has been "
+            "checked against a real database. Only the first query_predictions.db found is read."
+        ),
         "paths": ('**/query_predictions.db*',),
         "output_types": "standard",
         "artifact_icon": "message",

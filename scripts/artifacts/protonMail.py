@@ -1,22 +1,28 @@
 __artifacts_v2__ = {
     "protonMail": {
         "name": "Proton Mail - Decrypted Emails",
-        "description": "Decrypted Proton Mail emails and attachments (requires the device keychain "
-                       "in scripts/keychain/)",
+        "description": "Proton Mail emails and attachments, decrypted when the device keychain is "
+                       "supplied in scripts/keychain/",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-08-21",
         "requirements": "pgpy, pycryptodome, ccl_bplist; a keychain plist placed in scripts/keychain/",
         "category": "Proton Mail",
         "notes": "Decryption requires the device keychain plist in scripts/keychain/; without one the "
-                 "artifact reports no rows regardless of the data present. Columns absent from a "
-                 "store's schema generation (ZISENCRYPTED is missing from the 2021-era and newer "
-                 "stores tested) are read as empty instead of failing the whole query. Current "
-                 "Proton Mail versions observed on iOS 18.7 and 26 test images no longer use "
-                 "group.ch.protonmail.protonmail or ProtonMail.sqlite; they store mail under the "
-                 "group.me.proton.mail app group, which this artifact does not parse yet. Email bodies and "
-                 "attachments are decrypted with the account's PGP key. Message timestamps are Cocoa "
-                 "(Mac absolute) time, stored as UTC.",
+                 "artifact reports no rows regardless of the data present. No registered test "
+                 "image came with a decrypted keychain, so the decryption path is code present and "
+                 "was not exercised on them. Columns absent from a store's schema generation "
+                 "(for example ZISENCRYPTED, which some tested stores lack) are read as "
+                 "empty instead of failing the whole query. Current Proton Mail versions observed "
+                 "on iOS 18.7 and 26 test images no longer use group.ch.protonmail.protonmail or "
+                 "ProtonMail.sqlite; they store mail under the group.me.proton.mail app group, "
+                 "which this artifact does not parse yet. A body holding a PGP message, and "
+                 "attachments, are decrypted with the account's PGP key; a body with no PGP header "
+                 "is reported as stored. Sender, recipients, title and attachment names are "
+                 "decrypted with the main key from the keychain. A message with more than one "
+                 "attachment appears once per attachment. Timestamp is ZMESSAGE.ZTIME read as "
+                 "seconds since 2001 in UTC; that reading is not confirmed against a test image "
+                 "here.",
         "paths": ('*/group.ch.protonmail.protonmail.plist', '*/ProtonMail.sqlite*',
                   '*/Containers/Data/Application/*/tmp/attachments/*'),
         "output_types": "standard",

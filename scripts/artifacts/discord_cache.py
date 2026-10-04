@@ -2,14 +2,18 @@
 __artifacts_v2__ = {
     "discord_cache": {
         "name": "Discord Cache",
-        "description": "Parses Discord URL cache records and files from Cache.db and fsCachedData",
+        "description": "Parses Discord URL cache records from Cache.db and the payload files in "
+                       "fsCachedData",
         "author": "@JamesHabben",
         "last_update_date": "2026-08-21",
         "creation_date": "2026-05-29",
         "last_updated": "2026-05-29",
         "requirements": "none",
         "category": "Discord",
-        "notes": "",
+        "notes": "Orphaned Payload is True for a file in fsCachedData that no Cache.db row read in "
+                 "this run names; that is a statement about the two stores as extracted, not about "
+                 "deletion. Payload Type is worked out by this artifact from the payload's bytes "
+                 "and is not a value the app stored.",
         "paths": (
             '*/Library/Caches/com.hammerandchisel.discord/Cache.db*',
             '*/Library/Caches/com.hammerandchisel.discord/fsCachedData/*'

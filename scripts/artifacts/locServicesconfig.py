@@ -1,13 +1,20 @@
 __artifacts_v2__ = {
     "locServicesConfigClients": {
         "name": "LSC - clients.plist",
-        "description": "Location Services configuration for the Routine bundle from clients.plist",
+        "description": "Five keys of the Routine.bundle entry in locationd's clients.plist",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Location",
-        "notes": "",
+        "notes": "Reports FenceTimeStarted, ConsumptionPeriodBegin, "
+                 "ReceivingLocationInformationTimeStopped, Authorization and LocationTimeStopped "
+                 "from the "
+                 "com.apple.locationd.bundle-/System/Library/LocationBundles/Routine.bundle entry. "
+                 "The four time keys are read as seconds since 2001 and shown in UTC; "
+                 "Authorization is shown as stored. All five rows are written whenever the entry "
+                 "exists, so a blank Value can mean the key was not present. No meaning is "
+                 "assigned to these keys here.",
         "paths": ('*/Library/Caches/locationd/clients.plist',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -61,7 +68,8 @@ __artifacts_v2__ = {
     },
     "locServicesConfigRoutined": {
         "name": "LSC - com.apple.routined.plist",
-        "description": "Location Services configuration key/values from com.apple.routined.plist",
+        "description": "Key/values from com.apple.routined.plist, except the "
+                       "CloudKitAccountInfoCache key, which is not reported",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-21",

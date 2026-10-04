@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     "fmfd_notbackedup_devices": {
         "name": "Find My - Devices",
-        "description": "Parses Find My registered devices (name, identifier and capabilities) from the fmfd notbackedup preferences plist.",
+        "description": "Parses the device list (name, two identifiers and four stored flags) from "
+                       "the fmfd notbackedup preferences plist.",
         "author": "@ghmihkel",
         "creation_date": "2026-04-01",
         "version": "1.0",
@@ -9,9 +10,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Find My",
-        "notes": "Located in the NotBackedUp preferences area. Device list stored under "
-                 "kFMFDDevicesListKey in the fmfd preferences; entries in tested plists carried "
-                 "isThisDevice and isCompanionDevice keys.",
+        "notes": "Located in the NotBackedUp preferences area. The device list is stored under "
+                 "kFMFDDevicesListKey inside the keyed archive held in kFMFDStoredDataKey. Device "
+                 "ID is the entry's idsDeviceId and Device FMF ID is its deviceId. Active?, This "
+                 "Device?, Companion Device? and Auto Me Capable? are the entry's isActiveDevice, "
+                 "isThisDevice, isCompanionDevice and isAutoMeCapable values, reported as stored; "
+                 "what each means is not established here. The artifact returned no rows on the six "
+                 "tested iOS 17 and iOS 18 images; whether the plist or the key is absent there was "
+                 "not recorded.",
         "paths": ('*/Library/Preferences/com.apple.icloud.fmfd.notbackedup.plist',),
         "output_types": "all",
         "artifact_icon": "map-pin",

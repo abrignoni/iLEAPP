@@ -9,7 +9,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-07",
         "requirements": "none",
         "category": "Spotify",
-        "notes": "One row per key in the recently played families of the LevelDB the "
+        "notes": "One row per distinct key, time and record state in the recently "
+                 "played families of the LevelDB the "
                  "app keeps at Library/Application "
                  "Support/PersistentCache/Users/<account>-user/primary.ldb, read with "
                  "the LevelDB reader this repository already carries rather than by "
@@ -17,14 +18,17 @@ __artifacts_v2__ = {
                  "it, so one key can hold several records, and an older record can "
                  "carry an earlier time. Those earlier times are separate recordings "
                  "and are reported. Keeping only the newest record for each key would "
-                 "have given 204 rows instead of 258, so 54 recorded times across 3 "
-                 "images would have been dropped. Records that repeat a key, a time and "
+                 "drop them. Records that repeat a key, a time and "
                  "a state are counted once. Record State says whether the record the "
                  "row came from is a value or a deletion, and it reads Deleted on 1 of "
                  "258 rows, which is an entry the app had dropped from the list. Played "
-                 "is the Unix time the record carries, reported in UTC, and is blank on "
-                 "1 row, the deleted one. The app renames these families between "
-                 "releases and the module reads all three it has been seen to use. On "
+                 "is the first integer in the record that falls in the range of Unix "
+                 "seconds from 2008 to 2036, found by value and not by field number, "
+                 "read as Unix seconds and reported in UTC. What the app records in it "
+                 "is not established by a source. Played is blank on "
+                 "1 row, the deleted one. The module reads keys that begin !rp#trk#, "
+                 "!rp#ctx# or !yl#rpp#. Reading them as recently played comes from the "
+                 "key names; no source for these keys is cited here. On "
                  "the newest tested image, iOS 18.7, none of them is present and the "
                  "store instead holds an index of tracks against context identifiers "
                  "that carries no time at all, so that image reports nothing here. That "
@@ -37,12 +41,13 @@ __artifacts_v2__ = {
                  "the cache file name records rather than a match on anything else, and "
                  "that is 9 of 258 rows. The rest carry the address only, and the "
                  "address is what an examiner can look up. Account is the name of the "
-                 "per-user folder the store sits in and holds one value across all 258 "
-                 "rows because each tested image had one signed in account. The same "
+                 "per-user folder the store sits in and holds one value per image "
+                 "because each tested image had one signed in account. The same "
                  "store holds a much larger cache of track, album and artist metadata "
                  "that the app downloaded, thousands of rows on one image, and none of "
-                 "it is reported here because it says what a track is rather than that "
-                 "anyone played it.",
+                 "it is reported here because it is catalogue data. A reported entry "
+                 "shows the store listed the item under a recently played key; it does "
+                 "not establish who played it or that it was played on this device.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PersistentCache/Users/*',
                   '*/Containers/Data/Application/*/Library/Caches/genius/*'),
         "output_types": "standard",
@@ -59,8 +64,8 @@ __artifacts_v2__ = {
     "spotify_ios_saved_items": {
         "name": "Spotify - Saved and Offline Items",
         "description": "Entries the Spotify store holds for the account's saved "
-                       "collection and for items that carried a marker to keep them on "
-                       "the device.",
+                       "collection and under its offlkeys keys, which the module "
+                       "labels from the key name.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-07",
         "last_update_date": "2026-09-07",
@@ -68,15 +73,18 @@ __artifacts_v2__ = {
         "category": "Spotify",
         "notes": "One row per collection or offline key in the same LevelDB the "
                  "recently played entries come from, newest record per key. Kind "
-                 "separates the two: 38 rows are collection entries and 90 are offline "
-                 "markers. Record State matters here more than anywhere else. Every one "
-                 "of the 90 offline markers is a deletion, so the marker is not "
-                 "currently set on any of them. Whether that means a download was "
-                 "removed or the app rewrote its index was not established, and the "
-                 "honest reading is that these tracks carried an offline marker at some "
-                 "point and do not now. All 38 collection entries are live. Saved is "
-                 "the Unix time the collection record carries, reported in UTC, and is "
-                 "blank on the 90 offline rows because those records hold no time. Item "
+                 "separates the two by key name: Saved to collection for keys that "
+                 "begin !col# and Marked to keep on device for keys that begin "
+                 "!xmeta#offlkeys#. On the tested images every Marked to keep on "
+                 "device row is a deletion. Whether that means a download was removed "
+                 "or the app rewrote its index was not established, and what these "
+                 "keys record is not established either. On the tested images every "
+                 "Saved to collection row is live. Saved is the first integer in the "
+                 "collection record that falls in the range of Unix seconds from 2008 "
+                 "to 2036, found by value and not by field number, reported in UTC. "
+                 "What the app records in it is not established by a source. Saved is "
+                 "blank on the Marked to keep on device rows because the module reads "
+                 "no time from those records. Item "
                  "Type comes from the address: 93 tracks, 31 artists, and 4 rows whose "
                  "address names the collection itself rather than an item, two of which "
                  "carry a type in the address and two of which do not, so Item Type is "
@@ -100,8 +108,8 @@ __artifacts_v2__ = {
     },
     "spotify_ios_player_state": {
         "name": "Spotify - Player State",
-        "description": "What the Spotify app was playing when it last wrote its saved "
-                       "player state, with the position reached in the track.",
+        "description": "The track held in the Spotify app's saved player state file, "
+                       "with the position, flags and times the file stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-07",
         "last_update_date": "2026-09-07",
@@ -109,12 +117,11 @@ __artifacts_v2__ = {
         "category": "Spotify",
         "notes": "One row per Library/Application "
                  "Support/PersistentCache/Users/<account>-user/context_player_state_restore, "
-                 "which the app writes when it saves what it was playing. Every tested "
+                 "the app's saved player state file. Every tested "
                  "image that carries the app has exactly one, so this is 6 rows across "
                  "6 images. State Saved is the millisecond time the file itself begins "
                  "with, and Playback Reported is the time inside the saved playback "
-                 "block. They are close but not equal: across the 6 rows the playback "
-                 "time follows the file's own stamp by up to 33 seconds. Both are "
+                 "block. They are separate stored values and need not be equal. Both are "
                  "reported in UTC. The file changes format between releases. On the "
                  "three images running app version 8.5 it holds JSON and on the three "
                  "running 8.8 or later it holds a protobuf instead. Where in between "
@@ -133,16 +140,30 @@ __artifacts_v2__ = {
                  "same reading as the version the device has installed. On four of the "
                  "6 images the two agree to three parts and on two they do not: one "
                  "file says 8.5.47.887 against an installed 8.5.49, and another says "
-                 "8.8.60.501 against an installed 8.9.6. The file records the version "
-                 "that wrote it. Position and Duration are milliseconds as stored. "
+                 "8.8.60.501 against an installed 8.9.6. In the JSON form it is "
+                 "play_origin.feature_version; in the protobuf form it is the first "
+                 "four-part number found in the file. What the string marks is not "
+                 "established; it is reported as stored. Position and Duration are "
+                 "reported as stored. In the JSON form they are the position and duration "
+                 "values of the playback block. In the protobuf form they are the second "
+                 "and third integers of the block whose first integer is a millisecond "
+                 "time, assigned by order. In either form Duration falls back to the "
+                 "duration value in the track's metadata when the playback block has none. "
+                 "The millisecond unit is this module's reading of the values and is not "
+                 "sourced. "
                  "Playing and Paused are two separate flags and they are not opposites: "
-                 "three rows read Yes to both, which is a paused track inside a playing "
-                 "session. Shuffle, Repeat Context, Repeat Track and Explicit Content "
-                 "Filtered each hold one value across all 6 rows, No, because no tested "
-                 "image had any of them turned on. The same file also lists the tracks "
+                 "three rows, all from the JSON form, read Yes to both. What the app means "
+                 "by that combination is not established. Shuffle, Repeat Context, Repeat "
+                 "Track, Explicit Content Filtered, Playing and Paused are read only from "
+                 "the JSON form of the file. On the three rows from the JSON form "
+                 "(ctf2020_ios12, hickman_ios13, hickman_ios14) the file stores false for "
+                 "the first four and they read No. On the three rows from the protobuf form "
+                 "(hickman_ios15, iphone11_ios17, iphone12_ios18) all six read No because "
+                 "the module does not read them there; No on those rows does not mean the "
+                 "setting was off or that nothing was playing. The same file also lists the "
+                 "tracks "
                  "of the playlist that was loaded, up to ninety of them on one image. "
-                 "Those are the playlist's contents as the server sent them, not a "
-                 "record of playing, and they are not reported.",
+                 "That list is not read by this module and is not reported.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PersistentCache/Users/*',),
         "output_types": "standard",
         "artifact_icon": "music",
@@ -170,18 +191,21 @@ __artifacts_v2__ = {
                  "no time of its own, so State Saved repeats the time the file was "
                  "written and is the same value on every row from one file. It bounds "
                  "the entries rather than dating them: the list was written by then, "
-                 "and how long before is not recorded. Only the JSON form of the file "
-                 "carries this list. On the three images running app version 8.8 or "
-                 "later the file is a protobuf holding one track, the one that was "
-                 "playing, so those images report nothing here even though they carry "
+                 "and how long before is not recorded. The module reads this list only "
+                 "from the JSON form of the file. In the protobuf form it reads one "
+                 "track by shape, and whether that form also holds a history list was "
+                 "not established. On the three images running app version 8.8 or "
+                 "later the file is in the protobuf form, so those images report "
+                 "nothing here even though they carry "
                  "the file. Account is the name of the per-user folder the file sits in "
                  "and holds one value per image because each tested image had one "
                  "signed in account. Item Type comes from the address, and one row is "
                  "an advertisement rather than a track, which is what the app recorded "
                  "in the list. Artist and Title are filled where the same container "
                  "cached the lyrics for that track, which is 2 of 15 rows; the rest "
-                 "carry the address only. Play ID is the identifier the app gave that "
-                 "entry and is blank on 1 row, the advertisement.",
+                 "carry the address only. Play ID is the entry's uid value as stored "
+                 "and is blank on 1 row, the advertisement; what it identifies is not "
+                 "established.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PersistentCache/Users/*',
                   '*/Containers/Data/Application/*/Library/Caches/genius/*'),
         "output_types": "standard",
@@ -213,12 +237,16 @@ __artifacts_v2__ = {
                  "file name is the track identifier, so each row names the track it "
                  "belongs to without any matching, and that is what lets the recently "
                  "played and play history tables show an artist and a title for the "
-                 "tracks this cache covers. An entry means the app fetched the lyrics "
-                 "for that track on this device and when. It is not established that a "
+                 "tracks this cache covers. An entry shows the container held cached "
+                 "lyrics for that track and the time the entry stores under "
+                 "cachedTimestamp. It is not established that a "
                  "person read them. One of the 6 tested images that carry the app has "
                  "this cache, with 9 entries spanning 2021-01-27 to 2021-02-13. The "
-                 "folder is named for the lyrics provider rather than for Spotify, so "
-                 "an entry is only used for a store in the same container.",
+                 "folder is named for the lyrics provider rather than for Spotify. "
+                 "The recently played and play history tables use an entry only for a "
+                 "store in the same container. This table reports every matching file "
+                 "under any app container's Library/Caches/genius folder and does not "
+                 "check that the container is Spotify's.",
         "paths": ('*/Containers/Data/Application/*/Library/Caches/genius/*',),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -234,18 +262,21 @@ __artifacts_v2__ = {
     "spotify_ios_podcast_playback": {
         "name": "Spotify - Podcast Playback",
         "description": "Podcast episodes the Spotify app recorded a playback position "
-                       "for, with the time each was last played.",
+                       "for, with the time each record stores.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-07",
         "last_update_date": "2026-09-07",
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per record in Library/Application "
-                 "Support/PersistentCache/Users/<account>-user/played-state-storage, a "
-                 "protobuf the app writes as it plays podcast episodes. Last Played is "
-                 "the Unix time the record carries, reported in UTC. Position and "
-                 "Duration are seconds as stored, and Played Through is the one divided "
-                 "by the other, which is a calculation here and not a stored value. The "
+                 "Support/PersistentCache/Users/<account>-user/played-state-storage, "
+                 "which the module reads as a protobuf. Last Played is "
+                 "field 4 of the record read as Unix seconds and reported in UTC. "
+                 "Position and Duration are fields 3 and 8 as stored. The roles of "
+                 "these fields and the seconds unit are this module's reading of the "
+                 "stored values; no source for the format is cited, and what field 4 "
+                 "marks is not established. Played Through is Position divided by "
+                 "Duration, which is a calculation here and not a stored value. The "
                  "file is two bytes long and holds nothing on the three oldest tested "
                  "images, holds records on two of the newer ones, and is absent from "
                  "the newest, so it is worth opening on any image rather than being "
@@ -269,8 +300,9 @@ __artifacts_v2__ = {
     },
     "spotify_ios_account": {
         "name": "Spotify - Account",
-        "description": "The Spotify account the app is signed in to, from its settings "
-                       "file and its cached profile record.",
+        "description": "The Spotify account named in the app's settings file under "
+                       "autologin.canonical_username, with values from its cached "
+                       "profile record.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-07",
         "last_update_date": "2026-09-07",
@@ -286,21 +318,27 @@ __artifacts_v2__ = {
                  "cached profile record in mercury.db beside it, and only the images "
                  "that still carry that cache can fill them. Display Name is filled on "
                  "3 of 6 rows and the two picture addresses on 2, because one of those "
-                 "cached records carries a name and no picture. Where the account "
-                 "signed in through Facebook the picture address is on Facebook's own "
-                 "servers and carries that account's identifier in the address, which "
-                 "is a link between the two accounts that the app recorded. The display "
+                 "cached records carries a name and no picture. The picture addresses "
+                 "are reported as stored. Two of the six tested rows carry one: on "
+                 "ctf2020_ios12 both addresses are on platform-lookaside.fbsbx.com and "
+                 "include an asid parameter holding a number, and on hickman_ios14 "
+                 "both are on scdn.co. What the asid number refers to and how the "
+                 "account signed in were not established; no stored preference on the "
+                 "tested images names Facebook. The display "
                  "name is the account's at the moment the record was cached, not a "
                  "fixed value: two of the tested images hold the same account with the "
                  "name capitalised differently. Sign In Credential Stored says only "
                  "whether the settings file holds the saved sign in blob. It does on "
                  "all 6 rows. The blob itself is not printed. Clock Offset From Server "
-                 "is the value the app stores under core.clock_delta and is reported as "
-                 "stored, in seconds; it reads 0 on four rows and a small negative "
-                 "number on two. Language is blank on 4 rows because those settings "
+                 "(Seconds) is the value the app stores under core.clock_delta, "
+                 "reported as stored; it reads 0 on four rows and a small negative "
+                 "number on two. The column name is this module's reading of the key "
+                 "name; what the value measures and its unit are not established. "
+                 "Language is blank on 4 rows because those settings "
                  "files do not carry it. The app also writes a second, much smaller "
-                 "settings file inside the per-user folder on the newer images. It "
-                 "carries a single migration flag and no account, so it is not read. "
+                 "settings file inside the per-user folder on the newer images. On the "
+                 "tested images it carries a single migration flag and no account key, "
+                 "so it yields no row. "
                  "Documents/stickyCredentials.db sits beside all this and holds a login "
                  "table that was empty on the one tested image that has the file.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/prefs',
@@ -330,20 +368,19 @@ __artifacts_v2__ = {
                  "Library/Application Support/PersistentCache/mercury.db. The row that "
                  "holds it records the request it answered, which names the account, so "
                  "the account each entry belongs to is recorded rather than assumed. "
-                 "Followed is the Unix time the entry carries, reported in UTC. That "
-                 "cache is a response the server sent, so this is the list as the "
-                 "service held it at the moment of the fetch, and it is the service's "
-                 "record of when each artist was followed. The times cluster: on each "
+                 "Followed is the Unix time the entry carries, reported in UTC. This "
+                 "is the list as the cache row holds it. What the time in each entry "
+                 "marks is not established by a source; it is reported under Followed "
+                 "because it sits in each subscription entry. The times cluster: on "
+                 "each "
                  "of the 3 images that carry the list all of its entries fall inside "
-                 "four minutes of one day, which is what a first run of the app's pick "
-                 "some artists step looks like, though nothing here establishes that. "
+                 "four minutes of one day. "
                  "On one of them the same day also carries the only collection entry "
                  "the store holds. mercury.db is a general response cache and almost "
                  "all of it is downloaded catalogue: on one tested image 2,950 of its "
                  "3,088 rows are track metadata and only one row records which request "
                  "produced it. Nothing else in it is reported here, and the file is "
-                 "gone from the three newest tested images, where the app keeps its "
-                 "cache a different way.",
+                 "gone from the three newest tested images.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PersistentCache/mercury.db*',),
         "output_types": "standard",
         "artifact_icon": "user-plus",

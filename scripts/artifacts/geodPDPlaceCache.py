@@ -7,7 +7,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Location",
-        "notes": "lastaccesstime/expiretime are Mac absolute time (Cocoa, seconds since 2001-01-01 UTC).",
+        "notes": "lastaccesstime and expiretime are read as Mac absolute time (Cocoa, seconds "
+                 "since 2001-01-01 UTC); the basis for that epoch is not given here. PD Place is "
+                 "the set of printable ASCII strings of four characters or more found in the "
+                 "stored pdplace value, sorted with repeats removed; it is not a decode of the "
+                 "record and the order is not the stored order. A lookup row with no matching "
+                 "pdplaces row is not reported. Only the first PDPlaceCache.db matched is read. A "
+                 "row is a place lookup the system cached and does not establish that the device "
+                 "was at that place.",
         "paths": ('**/PDPlaceCache.db*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",

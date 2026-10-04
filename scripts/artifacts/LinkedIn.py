@@ -10,7 +10,10 @@
 __artifacts_v2__ = {    
     "linkedin_account": {
         "name": "LinkedIn - Account",
-        "description": "Existing account in LinkedIn App, with the Public Identifier as stored.",
+        "description": "Member identifier and profile fields from the voy.authenticatedMemberId "
+                       "and voy.authenticatedDashProfileModel keys of the LinkedIn preferences "
+                       "plist, as stored. One row is written even when the keys are absent, so a "
+                       "row of blanks does not show an account.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-10-01",
         "last_update_date": "2026-06-15",
@@ -23,7 +26,8 @@ __artifacts_v2__ = {
     },
     "linkedin_messages": {
         "name": "LinkedIn - Messages",
-        "description": "Messages sent and received in the LinkedIn App.",
+        "description": "Messages stored in the LinkedIn app's msg_database.sqlite, with the sender "
+                       "fields each message record carries. Delivery Status is reported as stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-10-01",
         "last_update_date": "2026-06-15",
@@ -42,7 +46,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-15",
         "requirements": "none",
         "category": "LinkedIn",
-        "notes": "Messages threaded",
+        "notes": "Messages joined to their conversation record. Sent is 1 when the sender's "
+                 "distance value in the message record is SELF and 0 otherwise; no other field was "
+                 "used to confirm direction. A message whose conversationUrn has no row in the "
+                 "conversations table is not reported here. Conversation Name is the second listed "
+                 "participant when the first listed participant's distance is SELF, and the first "
+                 "listed participant otherwise, so it does not name every member of a group "
+                 "conversation.",
         "paths": ('*/Documents/msg_database.sqlite*'),
         "output_types": "all", 
         "data_views": {

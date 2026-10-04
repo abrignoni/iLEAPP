@@ -2,11 +2,13 @@ __artifacts_v2__ = {
     "keepsafe_vault_items": {
         "name": "KeepSafe - Vault Items",
         "description": (
-            "Media items recorded in the write-ahead logs of KeepSafe's RocksDB store "
-            "(Documents/rdb), matched to the encrypted file each item's id names under "
-            "Documents/<table>/, with the item's name, timestamps, album, GPS and "
-            "SHA-1/dimensions as recorded in the log entry; "
-            "items held only in the .sst tables are not read."
+            "Encrypted item files found under Documents/<table>/ in KeepSafe's container, one row "
+            "per file, each matched by its item id to the record for that id in the write-ahead "
+            "logs of the app's RocksDB stores (Documents/rdb and "
+            "Documents/rdb_backups/<timestamp>), with the values of the numbered fields this "
+            "module labels as name, two times, album, coordinates, SHA-1 and dimensions. The "
+            "labels were assigned by this module; no KeepSafe source for them is cited. Records "
+            "held only in the .sst tables are not read."
         ),
         "author": "@Gear-I, Claude",
         "creation_date": "2026-08-23",
@@ -14,17 +16,24 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
-            "RocksDB *.sst tables are not read (see module docstring); only what is still in the "
-            "write-ahead log(s) is reported, so a count here is a floor, not a ceiling, on what "
-            "the vault has ever held. 'breakin_alert' and 'fake' were empty directories with no "
-            "live records in the validation image, so their field mapping is unexercised - see "
-            "module docstring for the tier of each claim. On the iOS 17.3 image each table is "
-            "sharded into two-letter folders (primary/<xx>/<item-id>_100); the folder "
-            "entries the file search returns beside the files, and the rdb_backups/<timestamp> "
-            "folder itself, are skipped. The KeepSafe version recorded in sample_data is the "
-            "app's own initialVersionInstalled preference, the version first installed rather "
-            "than the one running at acquisition. On the iOS 17.5.1 image the container held the "
-            "rdb stores and no table directory, so no item is reported there."
+            "RocksDB *.sst tables are not read. A row is produced for each item file found on "
+            "disk. Where the write-ahead logs hold a record for that item id its fields are "
+            "reported; where they do not, those columns are blank. A log record whose file is not "
+            "in the extraction produces no row, so the row count is the number of item files "
+            "found and is not a count of what the vault holds or has held. 'breakin_alert' and "
+            "'fake' were empty directories with no live records on hickman_ios14, so their field "
+            "mapping is unexercised. The column labels (Original Filename, Content Date, Date "
+            "Added to Vault, Album, GPS Latitude and Longitude, SHA-1, Dimensions and the rest) "
+            "were assigned by this module to numbered keys of the log values; no KeepSafe source "
+            "for them is cited, and how each was identified and on which image is not recorded "
+            "here. Content Date and Date Added to Vault are read as Unix seconds; the basis for "
+            "that unit is not stated in this module. On the iOS 17.3 image each table is sharded "
+            "into two-letter folders (primary/<xx>/<item-id>_100); the folder entries the file "
+            "search returns beside the files, and the rdb_backups/<timestamp> folder itself, are "
+            "skipped. The KeepSafe version recorded in sample_data is the app's own "
+            "initialVersionInstalled preference, the version first installed rather than the one "
+            "running at acquisition. On the iOS 17.5.1 image the container held the rdb stores "
+            "and no table directory, so no item is reported there."
         ),
         "paths": (
             "*/mobile/Containers/Data/Application/*/Documents/rdb/*",
@@ -55,15 +64,16 @@ __artifacts_v2__ = {
     "keepsafe_albums": {
         "name": "KeepSafe - Albums",
         "description": (
-            "Albums (KeepSafe calls them folders) decoded from the NSKeyedArchiver "
-            "'shared-folders' value in the AppGroup's group.com.keepsafe.KeepSafe.plist."
+            "Albums decoded from the NSKeyedArchiver 'shared-folders' value in the AppGroup's "
+            "group.com.keepsafe.KeepSafe.plist."
         ),
         "author": "@Gear-I, Claude",
         "creation_date": "2026-08-23",
         "last_update_date": "2026-08-23",
         "requirements": "none",
         "category": "KeepSafe",
-        "notes": "Cover Image Bytes is the size of the embedded cover thumbnail, not exported here.",
+        "notes": "Cover Image Bytes is the length of the album's cover_data value. The bytes are "
+                 "not exported here and their format was not checked.",
         "paths": (
             "*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.keepsafe.KeepSafe.plist",
         ),
@@ -89,11 +99,14 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
-            "The PIN and invalid-PIN-count/timeout keys in group.com.keepsafe.KeepSafe.plist "
-            "are stored under a '<tracking-id>.' prefix; this module reads shared-pin/"
-            "shared-pin-type directly and the two '<tid>.'-prefixed keys by pattern match "
-            "since the tracking id varies per install. In the image tested the PIN was "
-            "stored in plain text, not hashed - report it exactly as stored, whatever the value."
+            "In group.com.keepsafe.KeepSafe.plist the shared-pin and shared-pin-type values are "
+            "read directly. The invalid-PIN count and the timeout are read from "
+            "<tid>.consecutiveInvalidPinCount and <tid>.pinTimeoutTimeRemaining, where <tid> is "
+            "the value of the plist's own tid key; when the plist has no tid those two columns "
+            "are blank. The app plist and the group plist are reported in one row only when "
+            "exactly one of each is found; otherwise each plist is reported in its own row and no "
+            "pairing is made. The shared-pin value is reported as stored. Whether it is the PIN "
+            "itself or a value derived from it is not established here."
         ),
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Preferences/com.keepsafe.KeepSafe.plist",

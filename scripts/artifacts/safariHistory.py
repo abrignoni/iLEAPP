@@ -8,6 +8,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Safari Browser",
         "notes": (
+            "Origin is history_visits.origin. The labels Local Device for 0 and iCloud Synced "
+            "Device for 1 are applied by this artifact, no primary source for the meaning of either "
+            "value was located, and any other value is shown blank. Visit Timestamp reads "
+            "visit_time as seconds since 2001-01-01 unless the value is above 978307200, when it is "
+            "read as Unix seconds. Redirect Source and Redirect Destination show the URL of the "
+            "visit the stored id names. "
             "Where Safari profiles are present, each has its own "
             "History.db under Safari/Profiles/. The Profile column carries the profile "
             "directory name for those records and Default for the main history database. "

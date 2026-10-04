@@ -1,15 +1,18 @@
 __artifacts_v2__ = {
     "appleRecents": {
         "name": "Apple Recents",
-        "description": "Recent interactions with Apple apps, contacts and addresses",
+        "description": "Rows of the recents table in the Recents database, with the contact and metadata rows linked to each",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "User Activity",
         "notes": (
-            "The Dates field may contain multiple comma-separated Unix timestamps in "
-            "milliseconds. Parsed Dates preserves all valid values. Query adapted from "
+            "The dates column may contain multiple comma-separated Unix timestamps in "
+            "milliseconds. Parsed Dates (UTC) keeps every value of Dates (Raw) that converts. A "
+            "recents row is repeated once for each combination of a contacts row and a metadata row "
+            "linked to it, so "
+            "Recent ID identifies the entry. Query adapted from "
             "https://github.com/kacos2000/Queries/blob/"
             "e2698f6583ea2f8bc415f2e55dc0786ab7d58b9c/recents.sql"
         ),

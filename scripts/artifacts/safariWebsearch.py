@@ -1,13 +1,21 @@
 __artifacts_v2__ = {
     "safariWebsearch": {
         "name": "Safari Browser - Search Terms",
-        "description": "Search-engine queries extracted from Safari History.db (search?q= URLs)",
+        "description": "Query text taken from history URLs containing search?q= in the first Safari History.db found",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-09-24",
         "requirements": "none",
         "category": "Safari Browser",
-        "notes": "The history_visits.origin value is reported as stored. Community documentation describes 1 as a visit synced from another iCloud device, but no primary source was located.",
+        "notes": (
+            "The history_visits.origin value is reported as stored. Community documentation "
+            "describes 1 as a visit synced from another iCloud device, but no primary source was "
+            "located. Only the first History.db found is read, and the path pattern does not "
+            "match a profile's History.db under Safari/Profiles/. Search Term is the text between "
+            "search?q= and the next &, with + turned into a space and no percent-decoding. A "
+            "matching URL is a page address in history; it does not establish who entered the "
+            "query."
+        ),
         "paths": ('**/Safari/History.db*',),
         "output_types": "standard",
         "artifact_icon": "search",

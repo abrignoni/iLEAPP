@@ -7,7 +7,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Network Usage",
-        "notes": "ZKIND is reported as stored; its values are not documented.",
+        "notes": "ZKIND is reported as stored; its values are not documented. The three timestamps "
+                 "are ZLIVEUSAGE.ZTIMESTAMP, ZPROCESS.ZFIRSTTIMESTAMP and ZPROCESS.ZTIMESTAMP read "
+                 "as seconds from 2001-01-01 UTC; what each marks is not sourced. Only the first "
+                 "netusage.sqlite that holds both tables is read.",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "chart-pie",
@@ -37,7 +40,24 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Network Usage",
-        "notes": "Reference: Sarah Edwards, APOLLO netusage_zliverouteperf module, https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/netusage_zliverouteperf.txt",
+        "notes": "Until the query is corrected: the byte, packet and connection columns are joined "
+                 "to each network by row number (Z_PK of both tables), not by "
+                 "ZLIVEROUTEPERF.ZHASNETWORKATTACHMENT, the relationship the reference below uses. "
+                 "Measured on abe_ios16, the row-number join filled those columns on 189 of 3,160 "
+                 "rows and none of the 189 was a ZLIVEROUTEPERF row linked to that network; 2,971 "
+                 "rows had the columns empty, and 3,240 of the 3,429 ZLIVEROUTEPERF rows were not "
+                 "reported. On dexter_ios18 it filled them on 300 of 1,457 rows, none of them the "
+                 "linked row; 1,157 were empty and 1,234 of 1,534 ZLIVEROUTEPERF rows were not "
+                 "reported. Do not read the byte, packet or connection columns as belonging to the "
+                 "network on the same row. By ZHASNETWORKATTACHMENT every network on both images "
+                 "had one to three ZLIVEROUTEPERF rows. Network Type is mapped from "
+                 "ZNETWORKATTACHMENT.ZKIND (1 Wifi, 2 Cellular); the reference maps "
+                 "ZLIVEROUTEPERF.ZKIND, and the two held the same value on every linked pair on "
+                 "both images (3,429 and 1,534). The two timestamp columns are "
+                 "ZNETWORKATTACHMENT.ZFIRSTTIMESTAMP and ZTIMESTAMP; the reference labels them "
+                 "first network attachment and network attachment timestamp. Reference: Sarah "
+                 "Edwards, APOLLO netusage_zliverouteperf module, "
+                 "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/netusage_zliverouteperf.txt",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "network",

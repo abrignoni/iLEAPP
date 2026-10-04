@@ -3,7 +3,11 @@ __artifacts_v2__ = {
         "name": "Slack - Messages (ModelDatabase)",
         "description": "Slack chat messages from the newer ModelDatabase (ZCOREDATA*) schema",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "",
+        "category": "Slack", "notes": "Only the first ModelDatabase/db.sqlite found is read. "
+                                      "Direction is Sent where the message's user row has ZISME 1 "
+                                      "and Received where it has 0; that reading comes from the "
+                                      "column name and has no published source. Any other ZISME "
+                                      "value is shown as stored.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "message-circle",
         "sample_data": {
@@ -25,7 +29,7 @@ __artifacts_v2__ = {
         "name": "Slack - User Data (ModelDatabase)",
         "description": "Slack users from the newer ModelDatabase (ZCOREDATAUSER) schema",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "",
+        "category": "Slack", "notes": "Only the first ModelDatabase/db.sqlite found is read.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -36,8 +40,11 @@ __artifacts_v2__ = {
         "name": "Slack - Channel Data (ModelDatabase)",
         "description": "Slack channels/DMs from the newer ModelDatabase schema",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "Channel-type values are mapped from values seen on tested "
-                                      "data with no published source; unrecognized values are "
+        "category": "Slack", "notes": "Only the first ModelDatabase/db.sqlite found is read. "
+                                      "Channel Type shows Channel where ZTYPE is 0 and Direct "
+                                      "Message where it is 2. Those two readings come from "
+                                      "values seen on tested data and have no published source; "
+                                      "unrecognized values are "
                                       "reported as stored.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "hash",
@@ -49,7 +56,10 @@ __artifacts_v2__ = {
         "name": "Slack - Messages",
         "description": "Slack chat messages from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "",
+        "category": "Slack", "notes": "Only the first main_db found is read. A message is "
+                                      "reported only where its user and channel both have rows in "
+                                      "the store. Shared File is the first identifier in the "
+                                      "message's ZFILEIDS list.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "message-circle",
         "sample_data": {
@@ -61,7 +71,7 @@ __artifacts_v2__ = {
         "name": "Slack - User Data",
         "description": "Slack users from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "",
+        "category": "Slack", "notes": "Only the first main_db found is read.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -71,9 +81,9 @@ __artifacts_v2__ = {
     },
     "slackAttachments": {
         "name": "Slack - Attachments",
-        "description": "Slack messages with shared file attachments (main_db)",
+        "description": "Slack messages joined to the first file listed in each message's ZFILEIDS (main_db)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "",
+        "category": "Slack", "notes": "Only the first main_db found is read.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "paperclip",
         "sample_data": {
@@ -85,7 +95,11 @@ __artifacts_v2__ = {
         "name": "Slack - Channel Data",
         "description": "Slack channels from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "",
+        "category": "Slack", "notes": "Only the first main_db found is read. DM Channels is the "
+                                      "channel row's ZTSID and Other Channels its ZTSID1, as "
+                                      "stored; those two column names are this artifact's and "
+                                      "what separates the two identifiers is not established. "
+                                      "Latest is ZLATEST read as Unix seconds.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "hash",
         "sample_data": {
@@ -97,7 +111,7 @@ __artifacts_v2__ = {
         "name": "Slack - Team Data",
         "description": "Slack workspaces/teams from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "",
+        "category": "Slack", "notes": "Only the first main_db found is read.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "briefcase",
         "sample_data": {

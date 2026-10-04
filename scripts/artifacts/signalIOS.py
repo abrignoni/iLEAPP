@@ -1,13 +1,23 @@
 __artifacts_v2__ = {
     "get_signalIOSMessages": {
         "name": "Signal - Messages",
-        "description": "Parses messages from the encrypted Signal database, including direction, author, conversation and body.",
+        "description": "Parses the rows of model_TSInteraction in the encrypted Signal database: messages with their direction, author, conversation and body, and other interaction records, which are labelled by their record type.",
         "author": "Alexis Brignoni",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Signal",
-        "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain is captured separately from the file system extraction, so supply it with --keychain or the keychain field in the GUI. Reference: Signal-iOS, 'SDSRecordType.swift (incomingMessage = 19, outgoingMessage = 21)', https://github.com/signalapp/Signal-iOS/blob/a9f55ea599561e6d3bcee87d4f1540a7191b28dc/SignalServiceKit/Storage/Database/SDSRecordType.swift Reference: SQLCipher documentation, 'cipher_plaintext_header_size', https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
+        "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain "
+                 "is captured separately from the file system extraction, so supply it with "
+                 "--keychain or the keychain field in the GUI. Read, Voice Message, View Once and "
+                 "Remotely Deleted show No where the stored value is 0, empty or the column is "
+                 "absent from this database version. Reference: Signal-iOS, 'SDSRecordType.swift "
+                 "(incomingMessage = 19, outgoingMessage = 21)', "
+                 "https://github.com/signalapp/Signal-iOS/blob/"
+                 "a9f55ea599561e6d3bcee87d4f1540a7191b28dc/SignalServiceKit/Storage/Database/"
+                 "SDSRecordType.swift#L24-L26 Reference: SQLCipher documentation, "
+                 "'cipher_plaintext_header_size', "
+                 "https://www.zetetic.net/sqlcipher/sqlcipher-api/#cipher_plaintext_header_size",
         "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
                   # attachments are stored in the clear, so they only need locating
                   '*/AppGroup/*/Attachments/*',
@@ -43,7 +53,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Signal",
-        "notes": "Requires the keychain, supplied with --keychain or the keychain field in the GUI.",
+        "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
+                 "GUI. Unregistered is Yes where unregisteredAtTimestamp holds a value. Phone "
+                 "Number Discoverable shows No where the stored value is 0, empty or the column "
+                 "is absent from this database version.",
         "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
                   # so a keychain the extraction carries is available to decrypt with
                   '*/extra/KeychainDump/backup_keychain_v2.plist',
@@ -67,7 +80,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Signal",
-        "notes": "Requires the keychain, supplied with --keychain or the keychain field in the GUI.",
+        "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
+                 "GUI. Type is Group where the thread's groupModel column holds a value and One "
+                 "to one otherwise. Conversation With is the thread's contactPhoneNumber or "
+                 "contactUUID and is blank where neither holds a value. Archived and Marked "
+                 "Unread show No where the stored value is 0, empty or the column is absent from "
+                 "this database version.",
         "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
                   # so a keychain the extraction carries is available to decrypt with
                   '*/extra/KeychainDump/backup_keychain_v2.plist',

@@ -15,7 +15,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
@@ -29,13 +33,18 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_contacts": {
         "name": "Foursquare Swarm - Contacts",
-        "description": "Parses and extracts Foursquare Swarm Contacts",
+        "description": "Parses the user records, other than the account's own, held in the "
+                       "Foursquare Swarm database, with the relationship stored for each",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),
         "output_types": [ "standard" ],
@@ -48,13 +57,19 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_address_book": {
         "name": "Foursquare Swarm - Address Book",
-        "description": "Parses and extracts device address book contacts stored by Swarm",
+        "description": "Parses and extracts rows of the Swarm address book user table "
+                       "(ZFSADDRESSBOOKUSER); empty on both tested images, so this reader was not "
+                       "exercised on real data",
         "author": "@djangofaiola",
         "creation_date": "2026-04-16",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "standard" ],
         "html_columns": [ "Profile Picture", "Phone Numbers", "Facebook Profile" ],
@@ -66,13 +81,23 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_checkins": {
         "name": "Foursquare Swarm - Check-ins",
-        "description": "Parses and extracts Foursquare Swarm manual and passive check-ins",
+        "description": "Parses and extracts Foursquare Swarm check-in records, whichever user each "
+                       "belongs to, with a derived type (Automatic when ZISAUTOMATIC is 1, Passive "
+                       "when the row has a passive stop id or stores the type 'passive', N/A when "
+                       "ZISAUTOMATIC, the passive stop id and the stored type are null, Manual for "
+                       "any other row). On abe_ios16 (524 rows) and otto_ios17 (157 rows) each "
+                       "Manual row stores the type 'checkin', and 72 and 4 rows belong to users "
+                       "other than the account",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fcheckin%2F*"),
@@ -93,7 +118,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Ftips%2F*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
@@ -113,7 +142,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fsticker%2F*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fbadge%2F*"),
@@ -127,13 +160,23 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_venues_history": {
         "name": "Foursquare Swarm - Venues History",
-        "description": "Parses and extracts Foursquare Swarm Venues History",
+        "description": "Parses the venue records held in the Foursquare Swarm database (ZFSVENUE), "
+                       "with no filter, and the last visit time where one is stored. A venue row "
+                       "alone does not show that the account went to the place. On abe_ios16, 1,689 "
+                       "of 1,691 rows have no last visit time and 1,680 have a Been Here Count of "
+                       "0; 345 of the venues are named by a check-in record. On otto_ios17, none of "
+                       "the 596 rows has a last visit time and 592 have a Been Here Count of 0; 123 "
+                       "of the venues are named by a check-in record.",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fvenue%2F*"),
@@ -154,7 +197,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/mobile/Containers/Data/Application/*/Library/Caches/"
                   "com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2F*"),
@@ -169,14 +216,20 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_comments": {
         "name": "Foursquare Swarm - Comments",
-        "description": "Parses and extracts Foursquare Swarm comments from "
-                       "check-ins, plans, tips, lists, and stickers",
+        "description": "Parses the Foursquare Swarm comment table (ZFSCOMMENT) and the check-in, "
+                       "plan, tip, list or sticker each row points to. Empty on both tested images, "
+                       "so this reader was not exercised on real data and its status names are not "
+                       "confirmed",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "all" ],
         "html_columns": [ "Entities" ],
@@ -188,13 +241,20 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_friend_requests": {
         "name": "Foursquare Swarm - Friend Requests",
-        "description": "Parses and extracts Foursquare Swarm incoming and outgoing friend requests",
+        "description": "Parses and extracts Foursquare Swarm friend request rows "
+                       "(ZFSFRIENDREQUEST), with a direction and status the module derives. Built "
+                       "from the database schema only; the table was empty on both tested images",
         "author": "@djangofaiola",
         "creation_date": "2026-04-18",
         "last_update_date": "2026-05-25",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation. The post states that this artifact was rebuilt "
+                 "from the Core Data schema and not tested on real data.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),                  
         "output_types": [ "standard" ],
@@ -207,13 +267,20 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_plans": {
         "name": "Foursquare Swarm - Plans",
-        "description": "Parses and extracts Foursquare Swarm Plans (meetups)",
+        "description": "Parses the Foursquare Swarm plan table (ZFSPLAN). Built from the database "
+                       "schema only: the table was empty on both tested images and the names shown "
+                       "for stored status codes are not confirmed",
         "author": "@djangofaiola",
         "creation_date": "2026-04-18",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation. The post states that this artifact was rebuilt "
+                 "from the Core Data schema and not tested on real data.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fuser%2F*"),                  
@@ -227,13 +294,20 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_events": {
         "name": "Foursquare Swarm - Events",
-        "description": "Extracts scheduled events (concerts, movies, etc.) linked to venues",
+        "description": "Parses the Foursquare Swarm event table (ZFSEVENT) and the venue each row "
+                       "points to. Built from the database schema only; the table was empty on both "
+                       "tested images",
         "author": "@djangofaiola",
         "creation_date": "2026-04-18",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation. The post states that this artifact was rebuilt "
+                 "from the Core Data schema and not tested on real data.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fevent%2F*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2Fgeneral%2F*"),
@@ -247,13 +321,20 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_saved_lists": {
         "name": "Foursquare Swarm - Saved Lists",
-        "description": "Parses and extracts Foursquare Swarm lists and saved venues (items)",
+        "description": "Parses Foursquare Swarm lists and their items. Access Level is the stored "
+                       "ZACCESS value where the store has that column; otherwise the module derives "
+                       "it from the list's editable and collaborative flags. The Item Status names "
+                       "are the module's labels for stored codes, not confirmed",
         "author": "@djangofaiola",
         "creation_date": "2026-04-20",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": [ "all" ],
         "html_columns": [ "List URL", "Source URL" ],
@@ -265,13 +346,22 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_location_history": {
         "name": "Foursquare Swarm - Location History",
-        "description": "Extracts passive location history (GPS breadcrumbs)",
+        "description": "Parses the Foursquare Swarm location table (ZFSPLOCATION). Built from the "
+                       "database schema only: the table was empty on both tested images. Accuracy "
+                       "Context, Speed State and Sync Status are labels the module assigns to "
+                       "stored numbers and are not confirmed; they do not establish how a position "
+                       "was obtained or how the device was moving",
         "author": "@djangofaiola",
         "creation_date": "2026-04-20",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation. The post states that this artifact was rebuilt "
+                 "from the Core Data schema and not tested on real data.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*"),
         "output_types": ["all"],
         "artifact_icon": "navigation",
@@ -282,13 +372,21 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_plog": {
         "name": "Foursquare Swarm - Logs",
-        "description": "Parses and extracts Foursquare Swarm/Pilgrim SDK Logs",
+        "description": "Parses the Foursquare Swarm log table (ZFSPLOG). Built from the database "
+                       "schema only: the table was empty on both tested images. Log Level, App "
+                       "State and Accuracy Context are labels the module assigns to stored numbers "
+                       "and are not confirmed",
         "author": "@djangofaiola",
         "creation_date": "2024-11-10",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation. The post states that this artifact was rebuilt "
+                 "from the Core Data schema and not tested on real data.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",),
         "output_types": [ "standard", "kml" ],
         "html_columns": [ "Details" ],
@@ -300,14 +398,18 @@ __artifacts_v2__ = {
     },
     "foursquare_swarm_feed": {
         "name": "Foursquare Swarm - Activity Feed & Bulletins",
-        "description": "Parses and extracts the social activity feed, notifications, "
-                       "and interactive bulletins",
+        "description": "Parses the Foursquare Swarm feed items and the bulletin each points to. "
+                       "Content Type is the module's label for a stored number and is not confirmed",
         "author": "@djangofaiola",
         "creation_date": "2026-05-16",
         "last_update_date": "2026-06-01",
         "requirements": "none",
         "category": "Foursquare Swarm",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Queries and value labels follow Django Faiola, 'iOS Foursquare Swarm - Digging "
+                 "Deeper: New Artifacts Unearthed', "
+                 "https://djangofaiola.blogspot.com/2026/05/ios-foursquare-swarm-digging-deeper-new.html. "
+                 "Value labels the module assigns to stored codes come from that research and are "
+                 "not vendor documentation.",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Caches/foursquare.sqlite*",
                   "*/com.pinterest.PINDiskCache.PINRemoteImageManagerCache/*%2Fimg%2F*"),
         "output_types": [ "standard", "kml" ],

@@ -8,26 +8,35 @@ __artifacts_v2__ = {
         "name": "Zangi Messenger - Messages",
         "description": "Messages from the Zangi Messenger database, joined to its conversation, "
                        "group and contact tables, with direction, sender, chat name, text, "
-                       "message type and the attachment file where the app kept one. Reads two "
-                       "database layouts: the older ZZANGIMESSAGE table and the newer ZZMESSAGE "
-                       "family, whichever a database carries.",
+                       "message type and the attachment file where one is found by name among the "
+                       "app's image, video, file and voice folders (by message id, by the stored "
+                       "media path, or for documents by the message text); only voice "
+                       "note and image rows fill Attachment File, other types fill Attachment "
+                       "Link. Reads two database layouts: the older ZZANGIMESSAGE table and the "
+                       "newer ZZMESSAGE family, whichever a database carries.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
         "last_update_date": "2026-09-22",
         "requirements": "pathlib",
         "category": "Chats",
-        "notes": "Message type mappings observed in testing (app version 5.6.7); not "
-                 "vendor-documented. Message type codes with no mapping are reported as stored. "
-                 "The module reads two database layouts and produces the same columns from each: "
-                 "the older single ZZANGIMESSAGE table, and the newer layout where message data "
-                 "moved to a ZZMESSAGE table with per-message sender rows in ZZMESSAGEUSER and "
-                 "attachments in ZZMESSAGEMEDIA. The layout is selected per database from the "
-                 "table present. The newer layout, including its sender, chat-name, media-path "
-                 "and timestamp mapping, was field mapped from a private sample; no sample data "
-                 "recorded. ZMESSAGETIME on the newer layout is read as a Cocoa/Core Data "
-                 "timestamp, and Direction is derived from ZISRECEIVED (0 outgoing, 1 incoming), "
-                 "both observed in that sample.",
+        "notes": "Message type labels are a reading of rows from app version 5.6.7 and are not "
+                 "vendor-documented. Which of the eleven mapped codes the tested data held is not "
+                 "recorded here. On the newer layout a message type code with no mapping is "
+                 "reported as stored. On the older layout it is reported as Other/Unknown and the "
+                 "stored code is not shown. The module reads two database layouts and produces "
+                 "the same columns from each. A row is one joined row: a message that matches "
+                 "more than one group, contact, sender or media row is listed once per match. The "
+                 "layouts are the older single ZZANGIMESSAGE table, and the newer layout where "
+                 "message data moved to a ZZMESSAGE table with per-message sender rows in "
+                 "ZZMESSAGEUSER and attachments in ZZMESSAGEMEDIA. The layout is selected per "
+                 "database from the table present. The newer layout, including its sender, "
+                 "chat-name, media-path and timestamp mapping, was field mapped from a private "
+                 "sample; no sample data is recorded for that sample. ZMESSAGETIME on the newer "
+                 "layout is read as a Cocoa/Core Data timestamp, and Direction is derived from "
+                 "ZISRECEIVED (0 outgoing, 1 incoming); neither reading is sourced, and what in "
+                 "that sample supports them is not recorded here. The same two readings are "
+                 "applied to the older layout.",
         "paths": (  
             '*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/*/image/*/msgId*',
@@ -57,8 +66,14 @@ __artifacts_v2__ = {
     "zangi_contacts": {
         "name": "Zangi Messenger - Contacts",
         "description": "Contacts from the Zangi Messenger database (ZCONTACT with its numbers), "
-                       "with names, number, email, registration type, blocked and favourite flags "
-                       "and modification and activity times.",
+                       "with names, number, email, blocked and favourite flags and modification "
+                       "and activity times. The column headed Registration Type holds the name of "
+                       "the number type row that shares the contact's row number (no recorded "
+                       "link between the two is used, so this value is not established as the "
+                       "contact's). The modification time is read as seconds from 2001 and the "
+                       "activity time as Unix time; neither reading has been checked on data "
+                       "here, because the one image recorded in sample_data returned no contact "
+                       "rows.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
@@ -76,8 +91,11 @@ __artifacts_v2__ = {
     "zangi_accounts": {
         "name": "Zangi Messenger - Accounts",
         "description": "Account rows from the ZUSER table of the Zangi Messenger database, with "
-                       "account id, names, email, status, registration status, country and the "
-                       "passcode, password and PIN fields as stored.",
+                       "the number stored as ZNUMBER (shown as Account ID), names, email, status, "
+                       "registration status, country, the passcode, password, PIN and hidden "
+                       "conversation PIN (shown as Conversation Hiding Password) fields as "
+                       "stored, and ZSTATUSLASTSYNCTIME read as Unix time (shown as Last Sync "
+                       "Timestamp).",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
@@ -85,8 +103,8 @@ __artifacts_v2__ = {
         "requirements": "",
         "category": "Accounts",
         "notes": "The ZUSER columns are selected per database from the columns present, so a "
-                 "column absent on a given app version (ZSTATUS is missing on an older layout "
-                 "seen in a private sample) is reported blank rather than failing the query.",
+                 "column absent on a given app version (ZSTATUS is missing on the layout seen in "
+                 "a private sample) is reported blank rather than failing the query.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "user",

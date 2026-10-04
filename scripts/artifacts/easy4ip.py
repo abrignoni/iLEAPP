@@ -2,8 +2,8 @@ __artifacts_v2__ = {
     "easy4ipCameras": {
         "name": "Easy4ip - Cameras",
         "description": "Cameras registered in an Easy4ip platform app, with the device name, "
-                       "model, firmware version, connection ports and the storage and online "
-                       "state recorded for each.",
+                       "model, firmware version, connection ports and the device, camera and "
+                       "SD card status values as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
@@ -12,16 +12,17 @@ __artifacts_v2__ = {
         "notes": "This artifact is named for the Easy4ip platform rather than for one app; the "
                  "tested sample came from a Lorex-branded app, and no other vendor's app was "
                  "tested. The Source File column gives the container the store was read from, "
-                 "which is what identifies the app it belongs to. Read from easy4ip.sqlite under "
-                 "Library/Support, whose parent folder is an account identifier, joining "
+                 "which is what identifies the app it belongs to. Read from easy4ip.sqlite, which "
+                 "sits in a folder under Library/Support whose name was not interpreted, joining "
                  "DHDeviceDetailList to DHChannelDetailList on the device identifier. Device "
                  "Status, Camera Status, SD Card Status and Access Type are reported as stored. "
                  "The device user name and password the store holds are NOT recovered and this "
                  "artifact does not attempt to: each decodes from base64 to exactly 16 bytes of "
                  "non-text at about 4 bits per byte of entropy, and a 32 byte salt value sits "
-                 "beside them. They are therefore reported only as "
-                 "present with their decoded length, and no meaning is asserted for their contents. "
-                 "The store was present on 1 of the 26 registered iOS corpora swept for the Lorex- "
+                 "beside them. They are therefore reported only as present with their decoded "
+                 "length. The column headers call them encrypted; that reading rests on the 16 "
+                 "byte non-text values and the salt beside them and is not established. The store "
+                 "was present on 1 of the 26 registered iOS corpora swept for the Lorex-"
                  "branded app, holding a single camera, so no field has been seen to vary across "
                  "devices, vendors or app versions. An extraction carrying another Easy4ip app, or "
                  "more than one camera, would close that gap.",
@@ -46,8 +47,8 @@ __artifacts_v2__ = {
                  "a text column rather than being rendered as UTC, and an examiner should establish "
                  "the device's zone before relying on it. Alarm Type is reported as stored. "
                  "Unread Count is reported as stored and was higher than the number of stored "
-                 "message rows on the tested sample, so the table did not hold every alarm that "
-                 "count refers to, and absence of a row is not evidence that no alarm occurred. "
+                 "message rows on the tested sample; what that count refers to is not established. "
+                 "Absence of a row is not evidence that no alarm occurred. "
                  "Thumbnail URL is reported as stored; no local copy of the image was found on "
                  "the tested sample and the address is not retrieved. The store was present on 1 "
                  "of the 26 registered iOS "

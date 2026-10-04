@@ -1,7 +1,10 @@
 __artifacts_v2__ = {
     "twint_transactions": {
         "name": "Twint - Transactions",
-        "description": "Extract data related to transactions made with the instant payment app Twint",
+        "description": "Rows of the ZTRANSACTION table of Twint.sqlite. The order state, order "
+                       "type and transaction side values are reported as stored; what each number "
+                       "means is not established. No registered corpus is recorded for this "
+                       "artifact.",
         "author": "@KefreR (Frank Ressat)",
         "creation_date": "2023-11-21",
         "last_update_date": "2026-07-31",

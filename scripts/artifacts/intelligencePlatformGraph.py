@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "intelligencePlatformEntities": {
         "name": "Intelligence Platform Knowledge Graph - Entities",
-        "description": "Entities the on-device knowledge graph inferred: people, "
+        "description": "Entities held in IntelligencePlatform graph.db: people, "
                        "organizations, places and software, with their resolved names, "
                        "aliases, contact methods and identifiers.",
         "author": "@AlexisBrignoni, Claude",
@@ -9,10 +9,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Knowledge Graph",
-        "notes": "Reads the on-device knowledge graph the system builds under "
-                 "IntelligencePlatform (the 'knowledged' graph). The graph.db file is "
-                 "present from iOS 16; on the tested iOS 16 image it held no entities, and "
-                 "it is populated on the tested iOS 17 and later images. graph.db holds a "
+        "notes": "Reads graph.db in Library/IntelligencePlatform. On the tested images "
+                 "graph.db was present on iOS 16 with no entities and held entities on iOS "
+                 "17 and later; earlier versions were not checked. graph.db holds a "
                  "reified triple store: a row with "
                  "relationshipId 0 carries a base fact about an entity (its type, name, "
                  "first and family name, external reference), and rows sharing a nonzero "
@@ -20,18 +19,25 @@ __artifacts_v2__ = {
                  "method, an external identifier, an alias with its provenance, a postal "
                  "address, a coordinate). The predicate and class codes (PS.., SB.., CS..) "
                  "are resolved to labels from the ontology.db shipped in the same folder, "
-                 "so resolution is exact for the device that produced the store. One row "
-                 "is emitted per entity. Values are reported as stored; confidence is the "
-                 "value the graph recorded, not a measurement made here. Entities are "
-                 "inferred by the system from several sources, so an entity is not "
+                 "so the labels are the ones that device's ontology.db gives. The columns "
+                 "are filled by matching those labels by name; if ontology.db is missing "
+                 "or a label is worded differently, the row is still listed with those "
+                 "columns blank. One row "
+                 "is emitted per entity. Values are reported as stored. Confidence is the "
+                 "highest confidence value among the entity's rows, rounded to four "
+                 "places, and Latest Timestamp the newest timestamp among them; neither is "
+                 "a measurement made here. How the system produces an entity is not "
+                 "established here, so an entity is not "
                  "evidence the user created or confirmed it. Columns are a union across "
                  "entity types, so a person entity leaves the software and place columns "
-                 "blank and the reverse. Entries the graph has retired are read from the "
-                 "expired_stable_graph table alongside the live stable_graph and flagged "
-                 "in the Expired column, so superseded knowledge is still reported. The "
+                 "blank and the reverse. Rows of the expired_stable_graph table are read "
+                 "alongside stable_graph and marked Yes in the Expired column. What moves "
+                 "an entry into that table is not established, and a subject present in "
+                 "both tables is listed once from each. The "
                  "IntelligencePlatform graph databases and the ontology-code resolution "
                  "were described by 0x11 Forensics and Consulting, 'That is one smart "
-                 "Apple', 0x11forensicssc.com, 2026-07-21.",
+                 "Apple', https://0x11forensicssc.com/f/that-is-one-smart-apple, "
+                 "2026-07-21.",
         "paths": (
             '*/mobile/Library/IntelligencePlatform/graph.db*',
             '*/mobile/Library/IntelligencePlatform/ontology.db*'),
@@ -52,8 +58,8 @@ __artifacts_v2__ = {
     },
     "intelligencePlatformEvents": {
         "name": "Intelligence Platform Knowledge Graph - Events",
-        "description": "Dated events the on-device knowledge graph inferred, such as "
-                       "location visits and calendar events, with their imputed start "
+        "description": "Dated events held in the event graph of IntelligencePlatform "
+                       "graph.db, with their imputed start "
                        "and end times, and for a location visit the referenced place "
                        "resolved to a name, address and coordinates.",
         "author": "@AlexisBrignoni, Claude",
@@ -61,31 +67,38 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Knowledge Graph",
-        "notes": "Reads the event graph inside IntelligencePlatform/graph.db (the "
-                 "'knowledged' graph). The file is present from iOS 16; on the tested "
-                 "iOS 16 image it held no events, and it is populated on the tested iOS 17 "
-                 "and later images. Each event is a reified group of triples sharing a "
+        "notes": "Reads the event graph inside IntelligencePlatform/graph.db. On the "
+                 "tested images the file was present on iOS 16 with no events and held "
+                 "events on iOS 17 and later; earlier versions were not checked. Each "
+                 "event is a reified group of triples sharing a "
                  "subject: its type, name, a location reference, and a compound date "
-                 "carrying imputed start and end times. The imputed start and end times "
-                 "are stored as Cocoa (2001-epoch) values and are reported here; the raw "
+                 "carrying imputed start and end times. Imputed Start Time is the earliest "
+                 "of the event's imputed start time and imputed occurrence date values and "
+                 "Imputed End Time the latest imputed end time, each read as Cocoa "
+                 "(2001-epoch) seconds; the raw "
                  "start-time and end-time objects are stored in a serialized form and are "
                  "not reported. Predicate and class codes "
-                 "are resolved from the ontology.db shipped in the same folder. Events are "
-                 "inferred by the system, so an event is not evidence the user was present "
+                 "are resolved from the ontology.db shipped in the same folder. How the "
+                 "system produces an event is not established here, so an event is not "
+                 "evidence the user was present "
                  "or confirmed it. The location reference is reported as stored (an "
                  "'md:<id>' pointer whose number is the modeled place node's id) and is "
                  "also resolved here to that place's name, composed address, latitude and "
                  "longitude by reading the referenced node from the entity tables "
-                 "(stable_graph, then expired_stable_graph). A location visit therefore "
-                 "carries coordinates and is written to KML; calendar and other events "
+                 "(stable_graph, then expired_stable_graph). A location visit whose "
+                 "reference resolves to a place with coordinates carries them and is "
+                 "written to KML; calendar and other events "
                  "with no location leave the location columns blank. Confidence is the "
-                 "value the graph recorded, not a measurement made here, and can hold one "
-                 "value across every event on a device that stored few of them. Retired "
-                 "events are read from the expired_event_graph table alongside the live "
-                 "event_graph and flagged in the Expired column. The IntelligencePlatform "
+                 "highest confidence value among the event's rows, rounded to four places, "
+                 "not a measurement made here, and can hold one "
+                 "value across every event on a device that stored few of them. Rows of "
+                 "the expired_event_graph table are read alongside event_graph and marked "
+                 "Yes in the Expired column; what moves an event into that table is not "
+                 "established. The IntelligencePlatform "
                  "graph "
                  "databases were described by 0x11 Forensics and Consulting, 'That is one "
-                 "smart Apple', 0x11forensicssc.com, 2026-07-21.",
+                 "smart Apple', https://0x11forensicssc.com/f/that-is-one-smart-apple, "
+                 "2026-07-21.",
         "paths": (
             '*/mobile/Library/IntelligencePlatform/graph.db*',
             '*/mobile/Library/IntelligencePlatform/ontology.db*'),
@@ -106,25 +119,37 @@ __artifacts_v2__ = {
     },
     "intelligencePlatformInteractions": {
         "name": "Intelligence Platform Knowledge Graph - Interactions",
-        "description": "Messages and calls the on-device knowledge graph recorded as "
-                       "interactions, with the contact handle, app, direction and time.",
+        "description": "Entries of the interactions table of IntelligencePlatform "
+                       "view.db, with the contact handle, app, direction and time. On "
+                       "the seven corpora measured the rows are messages and calls plus "
+                       "a smaller number of Media, Notebook and blank-domain entries "
+                       "(61 of 4,241 rows).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Knowledge Graph",
-        "notes": "Reads the interaction view the 'knowledged' graph keeps at "
-                 "IntelligencePlatform/Artifacts/siri/remembers/view.db (present on iOS 17 "
-                 "and later). Each interaction is a message or call the system recorded, "
-                 "joined to the person handle it involved through the interactionEntities "
-                 "table. One row is emitted per interaction, with the handle or handles "
+        "notes": "Reads the interactions table of "
+                 "IntelligencePlatform/Artifacts/siri/remembers/view.db (it held rows on "
+                 "tested images from iOS 17.5.1 to iOS 26). Each row is an entry of the "
+                 "interactions table as stored, joined to the handle or handles the "
+                 "interactionEntities table links to it; the query does not filter on "
+                 "domain and the Domain column says what kind. On felix_ios17, otto_ios17, "
+                 "dexter_ios18, hc_ios18_7, hc_ios26, cookbook_ios1751 and falken_ios26, "
+                 "counted on 3 October 2026, 4,180 of 4,241 rows have the domain Messages "
+                 "or Calls. The other 61 have the domain Media (43), Notebook (3) or a "
+                 "blank domain (15), with interaction types such as INPlayMediaIntent and "
+                 "INCreateNoteIntent. One row is emitted per interaction, with the handle "
+                 "or handles "
                  "(more than one for a group message) in the Handles column. Domain, "
                  "interaction type, app bundle id, direction and duration are reported as "
                  "stored; direction is an integer whose meaning is not resolved here. These "
                  "are the graph's own record of interactions and can repeat what an app's "
-                 "own database holds, but they can also outlive it. The store was described "
+                 "own database holds, and the cited author reports entries here for "
+                 "messages and calls that appeared to have been deleted from the app; that "
+                 "was not tested here. The store was described "
                  "by 0x11 Forensics and Consulting, 'That is one smart Apple', "
-                 "0x11forensicssc.com, 2026-07-21.",
+                 "https://0x11forensicssc.com/f/that-is-one-smart-apple, 2026-07-21.",
         "paths": (
             '*/mobile/Library/IntelligencePlatform/Artifacts/siri/remembers/view.db*',),
         "output_types": "standard",

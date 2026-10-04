@@ -1,11 +1,8 @@
 __artifacts_v2__ = {
     "Ph082ComAppleMediaAnalysisDPlist": {
         "name": "Ph082-Com-Apple-MediaAnalysisD-Plist",
-        "description": "Parses basic data from */mobile/Library/Preferences/com.apple.mediaanalysisd.plist which"
-        " contains some important data related to Apple Photos Libraries storage locations and"
-        " Media Analysis Completion. Additional information and explanation of some keys-fields"
-        " might be found with research and published blogs written by Scott Koenig"
-        " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "description": "Parses basic data from */mobile/Library/Preferences/com.apple.mediaanalysisd.plist and"
+        " lists each key with its value as stored. What the keys mean is not established here.",
         "author": "Scott Koenig",
         "creation_date": "2025-01-05",
         "last_update_date": "2026-07-21",

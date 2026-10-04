@@ -1,7 +1,10 @@
 __artifacts_v2__ = {
     "get_biomeDKKeybag": {
         "name": "Biome - Keybag",
-        "description": "Parses DKEvent Keybag IsLocked entries from biomes",
+        "description": "Parses records from the _DKEvent.Keybag.IsLocked biome "
+                       "stream. isLocked reads 1 - Locked where the stored value is 1 "
+                       "and 0 - Unlocked for any other value. Only records in the "
+                       "Written state are reported.",
         "author": "@JohnHyla",
         "creation_date": "2025-04-29",
         "last_update_date": "2026-08-20",

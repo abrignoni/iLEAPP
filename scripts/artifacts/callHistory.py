@@ -7,7 +7,30 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Call History",
-        "notes": 'Call type and disconnected-cause value mappings are community-established decodes reported as observed; unrecognized values are reported as stored. When both CallHistory.storedata and CallHistoryTemp.storedata hold records, rows from both are reported with a Source File path column and the report names both stores. On none of the nine registered corpora run did both stores hold records, so that path was exercised on a constructed tree with the same records under both names. Newer iOS (26) adds columns to ZCALLRECORD that are read here when present and left blank on older stores that lack them: Auto-Answered Reason and Communication Trust Score are reported as stored, and Originating Device Name and Blocked By Extension Name are reported as stored. iOS 26 introduced call screening and hold assist, which auto-answer calls; the meaning of the Auto-Answered Reason integer is reported as stored and not otherwise interpreted. On a tested iOS 26.5 sample the auto-answered reason and communication trust score were set on every call, with one call carrying a non-zero auto-answered reason, while the originating device name and blocked-by-extension name columns were present in the schema but empty, so those two are code-present and unexercised on that sample.',
+        "notes": 'Call Type shows \'Third-Party App\', \'Phone Call\', \'FaceTime Video\' and '
+                 '\'FaceTime Audio\' for the stored values 0, 1, 8 and 16. Disconnected Cause shows '
+                 '\'Ended\' for 0 and \'Rejected\' for 6, and for WhatsApp calls applies its own '
+                 'rules from the cause, the duration and the direction. No source for these '
+                 'mappings is cited, so treat the labels as unconfirmed; other values are reported '
+                 'as stored. Ending Timestamp is the start time plus the stored duration; it is not '
+                 'a stored value and is blank when the duration is 0. On a store in the old '
+                 'call_history.db format the Answered column is filled from that store\'s read '
+                 'column; no registered image is recorded as exercising that path. When both '
+                 'CallHistory.storedata and CallHistoryTemp.storedata hold records, rows from both '
+                 'are reported with a Source File path column and the report names both stores. '
+                 'That path was exercised on a constructed tree with the same records under both '
+                 'names; which registered corpora were checked for both stores holding records is '
+                 'not recorded here. A tested iOS 26.5 store carries four more columns in '
+                 'ZCALLRECORD that are read here when present and left blank on older stores that '
+                 'lack them: Auto-Answered Reason and Communication Trust Score are reported as '
+                 'stored, and Originating Device Name and Blocked By Extension Name are reported as '
+                 'stored. What sets the Auto-Answered Reason value was not established; the meaning '
+                 'of the Auto-Answered Reason integer is reported as stored and not otherwise '
+                 'interpreted. On that iOS 26.5 sample, which is not among the images in '
+                 'sample_data, the auto-answered reason and communication trust score columns held '
+                 'values, while the originating device name and blocked-by-extension name columns '
+                 'were present in the schema but empty, so those two are code-present and '
+                 'unexercised on that sample.',
         "paths": (
             '*/mobile/Library/CallHistoryDB/CallHistory*',
             '*/mobile/Library/CallHistoryDB/call_history.db*'),

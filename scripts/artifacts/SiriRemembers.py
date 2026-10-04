@@ -12,7 +12,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Siri Remembers",
-        "notes": "Research: https://metadataperspective.com/2024/01/29/"
+        "notes": "Timestamp is intents.start_date read as Unix seconds and shown in UTC. Only "
+                 "the first file whose name ends in siriremembers.sqlite3 is read. Direction is "
+                 "Sent where intents.direction is 1 and Received where it is 2, per the cited "
+                 "research. Where two rows that follow each other by intents.id share a "
+                 "start_date, a row not donated by Siri is left out and a Siri-donated row is "
+                 "shown with the neighbouring row's Application UUID, following the cited "
+                 "research. Active Row is this artifact's own flag, and only rows flagged Active "
+                 "are reported. Owner is this artifact's label for the device side of a row, not "
+                 "a stored value. Research: James McGee, 'Siri's Memory Lane: Exploring the "
+                 "siriremembers Database', https://metadataperspective.com/2024/01/29/"
                  "siris-memory-lane-exploring-the-siriremembers-database/",
         "paths": ('*/mobile/Library/com.apple.siri.inference/siriremembers*',),
         "output_types": "standard",
@@ -40,7 +49,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Siri Remembers",
-        "notes": "Research: https://metadataperspective.com/2024/01/29/"
+        "notes": "Timestamp is intents.start_date read as Unix seconds and shown in UTC. Only "
+                 "the first file whose name ends in siriremembers.sqlite3 is read. Duration is "
+                 "duration_seconds shown as HH:MM:SS. A stored 0 is printed as 'Not Answered or "
+                 "Missed'; that is this artifact's label and it was not compared with call "
+                 "history. It was printed on 9 of 18 rows on abe_ios16, 1 of 2 on dexter_ios18, "
+                 "and on none of the 8 rows on iphone11_ios17 or the 8 on otto_ios17, on runs of "
+                 "3 October 2026. Direction is Outgoing for stored direction 1 and Incoming for "
+                 "2. Direction 0 on a Siri-donated row is also printed Outgoing; no such row was "
+                 "present on those four images. Owner is this artifact's label, not a stored "
+                 "value. One row is kept per intent: the query groups by intents.uuid. Research: "
+                 "James McGee, 'Siri's Memory Lane: Exploring the siriremembers Database', "
+                 "https://metadataperspective.com/2024/01/29/"
                  "siris-memory-lane-exploring-the-siriremembers-database/",
         "paths": ('*/mobile/Library/com.apple.siri.inference/siriremembers*',),
         "output_types": "standard",
@@ -68,7 +88,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Siri Remembers",
-        "notes": "Research: https://metadataperspective.com/2024/01/29/"
+        "notes": "Timestamp is intents.start_date read as Unix seconds and shown in UTC. Only "
+                 "the first file whose name ends in siriremembers.sqlite3 is read. One row per "
+                 "intent: the query groups by intents.uuid. Where an intent's group holds "
+                 "several entities one of them is shown. Media is the entity's tokens text. "
+                 "Where that text contains 'mediatype' or ' zzz', a MediaSearchItem entity is "
+                 "cut before 'mediatype', an INMediaItem entity is cut before ' zzz', and an "
+                 "entity of any other type is left blank. Research: James McGee, 'Siri's "
+                 "Memory Lane: Exploring the siriremembers Database', "
+                 "https://metadataperspective.com/2024/01/29/"
                  "siris-memory-lane-exploring-the-siriremembers-database/",
         "paths": ('*/mobile/Library/com.apple.siri.inference/siriremembers*',),
         "output_types": "standard",

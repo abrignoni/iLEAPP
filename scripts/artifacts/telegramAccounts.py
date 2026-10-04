@@ -6,16 +6,22 @@ __artifacts_v2__ = {
             "Parses Telegram account records from the accounts-metadata atomic-state file "
             "and each account's Postbox database (table t0). Reports the account IDs "
             "registered on the device, which one was active, the signed-in user ID, the "
-            "production/test environment flag, and whether a Telegram app passcode lock "
-            "was configured."
+            "production/test environment flag, and the key names of the "
+            "accessChallengeData object, reported as stored."
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
         "last_update_date": "2026-08-03",
         "requirements": "none",
         "category": "Telegram",
-        "notes": "Key IDs and record layouts follow the open-source Telegram-iOS client "
-                 "(Postbox metadata table t0 key 2; telegram-ios accounts-metadata JSON). "
+        "notes": "Key IDs and record layouts are those of the open-source Telegram-iOS "
+                 "client (Postbox metadata table t0 key 2; accounts-metadata JSON). The "
+                 "metadata table is tableSpec(0) "
+                 "(https://github.com/TelegramMessenger/Telegram-iOS/blob/"
+                 "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/Postbox/Sources/"
+                 "Postbox.swift#L1881). No file or line of the client source is cited "
+                 "here for the key 2 record or the accounts-metadata JSON layout; their "
+                 "field names are reported as stored. "
                  "The update state timestamp is the `state.date` field of the account "
                  "state record in t0.",
         "paths": (
@@ -46,8 +52,11 @@ __artifacts_v2__ = {
         "category": "Telegram",
         "notes": "Peer record field names (fn, ln, un, p, ph) follow the open-source "
                  "Telegram-iOS Postbox serialization. Contact-list membership is read "
-                 "from the Postbox ContactTable (table t16, tableSpec(16) in Postbox.swift), "
-                 "whose keys are the peer ids of saved contacts. Avatar images are matched "
+                 "from the Postbox ContactTable (table t16; "
+                 "https://github.com/TelegramMessenger/Telegram-iOS/blob/"
+                 "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/Postbox/Sources/"
+                 "Postbox.swift#L1926), keyed by peer id. If the table cannot be read the "
+                 "column is blank on every row. Avatar images are matched "
                  "from telegram-peer-photo-size files in postbox/media and from the "
                  "accounts-metadata Spotlight cache.",
         "paths": (
@@ -77,9 +86,14 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Telegram",
         "notes": "The chat list is table t9, the Postbox ChatListTable (tableSpec(9) in "
-                 "Postbox.swift). Its key carries the whole entry: a group id, a pinning "
-                 "value, the timestamp and id of the top message, and the peer id, in that "
-                 "order and big-endian. Group id 0 is the main list and 1 is the archive. A "
+                 "Postbox.swift). Its key carries the whole entry, big-endian: a group id, "
+                 "a pinning value, the timestamp, namespace and id of the top message, the "
+                 "peer id and an entry type "
+                 "(https://github.com/TelegramMessenger/Telegram-iOS/blob/"
+                 "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/Postbox/Sources/"
+                 "ChatListTable.swift#L145-L152). The entry type is not read here, so a "
+                 "hole entry (type 2) is listed like a chat. Group id 1 is the archive; "
+                 "every other group id is shown as Main. A "
                  "pinning value of 0 means the chat is not pinned. Unread counts come from "
                  "table t14, the MessageHistoryReadStateTable, whose id-based records carry "
                  "the count and a marked-unread flag. Names are resolved from the peer table "
@@ -100,11 +114,12 @@ __artifacts_v2__ = {
             "Parses the device address-book entries Telegram recorded for contact import, "
             "from table t54 of each account's Postbox database. Each entry is keyed by a "
             "phone number from the device address book and carries the name as stored on the "
-            "device, whether the import succeeded, how many other accounts Telegram reported "
-            "as having that number saved, and the Telegram user the number resolved to when "
-            "it resolved to one. Numbers appear here whether or not they belong to a "
-            "Telegram user, so this reflects the device address book rather than the "
-            "Telegram contact list."
+            "device, the import state (imported or retry later), the importers count the "
+            "server returned for the number (Telegram API popularContact: 'How many people "
+            "imported this contact'), and the Telegram user the number resolved to when it "
+            "resolved to one. A record can be stored without a Telegram user id (the client "
+            "declares peerId as optional), so a row is a device address-book number the "
+            "client processed for import, not a Telegram contact."
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-05",
@@ -118,8 +133,11 @@ __artifacts_v2__ = {
                  "1 is a deferred retry, 'd' holds the device contact data with 'f' first "
                  "name, 'l' last name and 'dis' the device's own contact identifiers, 'c' is "
                  "the imported-by count the server returned, and 'pid' is the resolved "
-                 "Telegram peer id when present. The imported-by count is a value Telegram "
-                 "reported, not something derived from this device.",
+                 "Telegram peer id when present. The imported-by count is the importers "
+                 "value the server returned for the number (ContactSyncManager.swift lines "
+                 "360 to 378 at Telegram-iOS 6ad963e5); the client writes 0 when the server "
+                 "returned none, or when the number already belonged to a known user with "
+                 "the same first and last name (line 297).",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
         ),
@@ -134,8 +152,8 @@ __artifacts_v2__ = {
         "description": (
             "Parses the last-seen state Telegram cached for each peer, from table t20 of "
             "each account's Postbox database. Reports the status the server last returned "
-            "for the peer, the time it applies to when the status carries one, whether the "
-            "peer hides their exact last-seen time, and the last activity time the client "
+            "for the peer, the time it applies to when the status carries one, the hidden "
+            "flag stored with a bucketed status, and the last activity time the client "
             "recorded."
         ),
         "author": "@AlexisBrignoni",
@@ -145,8 +163,16 @@ __artifacts_v2__ = {
         "category": "Telegram",
         "notes": "Table t20 is the Postbox PeerPresenceTable (tableSpec(20) in Postbox.swift). "
                  "The record is a TelegramUserPresence: 'v' selects the status, where 0 is "
-                 "none, 1 is present with the time in 't', 2 is recently, 3 is last week and "
-                 "4 is last month, and 'h' is the hidden flag those bucketed statuses carry. "
+                 "none, 1 is present with the time in 't', which the client fills with either "
+                 "the time an online status expires or the time the peer was last online (the "
+                 "Status column shows value 1 as 'Online until' in both cases), 2 is "
+                 "recently, 3 is last week and 4 is last month, and 'h' is the isHidden flag "
+                 "those bucketed statuses carry, which the client sets from the server's "
+                 "by_me bit. Telegram's API documentation says that bit means the peer's "
+                 "exact status is available but is not shown to this account unless it has "
+                 "Premium or lets that peer see its own exact last-seen time "
+                 "(core.telegram.org/constructor/userStatusRecently). The Hides Last Seen "
+                 "column holds this flag as stored. "
                  "'la' is the last activity value the client stored. The bucketed statuses "
                  "are reported as stored and are not an exact time; what causes the server to "
                  "return a bucketed status rather than a time is not sourced here.",
@@ -177,7 +203,12 @@ __artifacts_v2__ = {
                  "value, namespace, timestamp and message id, per the key function in "
                  "MessageHistoryTagsTable.swift. The tag values are the MessageTags bit "
                  "flags defined in the client, from photoOrVideo at bit 0 through "
-                 "unseenPollVote at bit 15; a bit with no name in the client source is "
+                 "unseenPollVote at bit 15 "
+                 "(https://github.com/TelegramMessenger/Telegram-iOS/blob/"
+                 "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/TelegramCore/"
+                 "Sources/SyncCore/SyncCore_Namespaces.swift#L175-L190, a commit that "
+                 "was not matched to the app versions tested); a bit with no name in the "
+                 "client source is "
                  "reported as its raw value. An entry records how the client indexed the "
                  "message, so it reflects the client's categorisation rather than an "
                  "independent examination of the message content.",
@@ -195,10 +226,11 @@ __artifacts_v2__ = {
         "description": (
             "Parses the cached peer detail records Telegram stores for users and channels "
             "in table t18 of each account's Postbox database. Reports the profile bio or "
-            "channel description, a contact's stored birthday, whether a user is blocked, "
+            "channel description, a user's stored birthday, whether a user is blocked, "
             "the number of groups in common, scheduled-message and auto-delete state, and "
-            "who invited the account to a channel. A record can exist for a peer the user "
-            "never exchanged messages with."
+            "who invited the account to a channel. A row does not show whether any "
+            "message was exchanged with the peer; this artifact does not read the message "
+            "table."
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
@@ -210,7 +242,15 @@ __artifacts_v2__ = {
                  "open-source Telegram-iOS client: CachedUserData encodes 'a' as about, "
                  "'b' as isBlocked, 'cg' as commonGroupCount and 'bday' as a JSON birthday; "
                  "CachedChannelData encodes 'a' as about and 'b' as botInfos, so the "
-                 "Blocked column is populated only for user records. The auto-delete "
+                 "Blocked column is populated only for user records. The keys were read at "
+                 "Telegram-iOS commit 6ad963e5 "
+                 "(https://github.com/TelegramMessenger/Telegram-iOS/blob/"
+                 "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/TelegramCore/Sources/"
+                 "SyncCore/SyncCore_CachedUserData.swift#L1510-L1545 and "
+                 "https://github.com/TelegramMessenger/Telegram-iOS/blob/"
+                 "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/TelegramCore/Sources/"
+                 "SyncCore/SyncCore_CachedChannelData.swift#L755-L765), which was not "
+                 "matched to the app versions tested. The auto-delete "
                  "field wraps its value in a known/unknown record, so 'None set' means "
                  "Telegram cached the timer state and found none, while a blank means it "
                  "was never cached. Peer names are resolved from the peer table (t2).",
@@ -231,7 +271,9 @@ __artifacts_v2__ = {
             "(accounts-metadata database, table t2) and each account's preferences "
             "(Postbox database, table t35). Includes media auto-download, save-to-Photos, "
             "app passcode, contact synchronization, notification, and privacy settings. "
-            "A setting reported as 'not present' has no stored record in these tables."
+            "A setting shown as 'Not present in database' has no stored record in these "
+            "tables. The report text adds that the app default is in effect; no source "
+            "for that is cited here."
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
@@ -242,7 +284,9 @@ __artifacts_v2__ = {
                  "(SyncCore_Namespaces.swift PreferencesKeyValues/SharedDataKeyValues and "
                  "TelegramUIPreferences PostboxKeys.swift; application-specific keys are "
                  "stored as ID + 1000). Values are reported as stored, using Telegram's "
-                 "internal field names.",
+                 "internal field names, and cut at 1,000 characters. Keys with no name "
+                 "in this module are not reported. App passcode, media auto-download and "
+                 "save-to-Photos settings get a row even when no record is stored.",
         "paths": (
             '*/telegram-data/accounts-metadata/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/db/db_sqlite*'

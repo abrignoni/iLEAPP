@@ -1,7 +1,12 @@
 __artifacts_v2__ = {
     "wireAccount": {
         "name": "Wire Secure Messenger Account",
-        "description": "Wire account details",
+        "description": "User records (ZUSER) held in the Wire store, with handle, display name, "
+                       "phone and email as stored, and the activation date (and activation "
+                       "location where the store has those columns) of each linked client record. "
+                       "The rows are not limited to the account signed in on the device, and a "
+                       "user linked to client records with different activation values appears "
+                       "on one row for each.",
         "author": "Elliot Glendye",
         "creation_date": "2024-01-21",
         "last_update_date": "2025-11-12",
@@ -28,7 +33,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "",
         "category": "Business",
-        "notes": "Rows with category 1 (undefined per the Wire source) are excluded. Unrecognized category values (including bitmask combinations) are reported as stored. Reference: Wire open source, wire-ios-data-model MessageCategory (OptionSet raw values), https://github.com/wireapp/wire-ios/blob/develop/wire-ios-data-model/Source/Model/Message/ZMMessage%2BCategorization.swift",
+        "notes": "Rows with category 1 (undefined per the Wire source) and rows with no stored "
+                 "category are excluded. Message is the ZNORMALIZEDTEXT column as stored. Call "
+                 "Duration (seconds) is the ZDURATION column as stored; its unit is not sourced "
+                 "here. Unrecognized category values (including bitmask combinations) are "
+                 "reported as stored. Reference: Wire open source, wire-ios-data-model "
+                 "MessageCategory (OptionSet raw values), "
+                 "https://github.com/wireapp/wire-ios/blob/1d90c3e2c54b223a61fb766802cce112ed5afa0f/wire-ios-data-model/Source/Model/Message/ZMMessage%2BCategorization.swift#L255-L273",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
         "output_types": "standard",
         "artifact_icon": "message-circle",

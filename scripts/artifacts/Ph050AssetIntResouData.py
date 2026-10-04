@@ -1,14 +1,11 @@
 __artifacts_v2__ = {
 'Ph050_1AssetIntResouPhDaPsql': {
 'name': 'Ph050.1-Asset_IntResou-PhDaPsql',
-'description': 'Parses iOS asset records from PhotoData-Photos.sqlite ZINTERNALRESOURCE and'
-' other tables. This and other related parsers should provide data for investigative'
-' analysis of assets being stored locally on the device verses assets being stored in'
-' iCloud Photos as the result of optimization. This is very large query and script,'
-' I recommend opening the TSV generated report with Zimmermans Tools'
-' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,'
-' and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Reads ZASSET joined to ZINTERNALRESOURCE and other tables in PhotoData/Photos.sqlite,"
+" for iOS 14 through 26. Each row is one asset paired with one of its internal resource"
+" rows, so an asset with several resources appears on several rows and an asset with none"
+" appears once. On iOS 13.7 and earlier, and on iOS 27 and later, the artifact does not"
+" run and reports no rows.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-31',
@@ -16,7 +13,21 @@ __artifacts_v2__ = {
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "The iOS 26 query has not been run on a registered image. Coded columns such as Local"
+" Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are"
+" shown with labels the module author assigned. The post referenced below says the Recipe"
+" ID labels come from the author's research and testing and that several columns are still"
+" being decoded. The module cites no Apple source for the code values. Labels marked"
+" StillTesting or Unknown are not established. Most labels carry the stored number at"
+" their start. Recipe ID 327687 is shown as '627687-WallpaperComputeResource-627687'; the"
+" stored value is 327687. Counted on 3 Oct 2026, that label is on 14 of 6,630 rows on"
+" abe_ios16, 10 of 5,009 on dexter_ios18, 24 of 2,339 on otto_ios17, 6 of 1,521 on"
+" iphone11_ios17 and 1 of 216 on felix_ios17. None of the eight PhotoData stores counted"
+" held a ZRECIPEID of 627687. The query returns more than 230 columns. The TSV export can"
+" be opened in a spreadsheet or CSV viewer such as Timeline Explorer"
+" (https://ericzimmerman.github.io/#!index.md) to search and filter. Reference: Scott"
+" Koenig, 'iLEAPP Parsers & Photos.sqlite Queries',"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database",
@@ -40,14 +51,11 @@ __artifacts_v2__ = {
 },
 'Ph050_2AssetIntResouSyndPL': {
 'name': 'Ph050.2-Asset_IntResou-SyndPL',
-'description': 'Parses iOS 14-18  asset records from Syndication.photos.library-database-Photos.sqlite'
-' ZINTERNALRESOURCE and and other tables. This and other related parsers should'
-' provide data for investigative analysis of assets being stored locally on the'
-' device verses assets being stored in iCloud Photos as the result of optimization.'
-' This is very large query and script, I recommend opening the TSV generated report'
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search, and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Reads ZASSET joined to ZINTERNALRESOURCE and other tables in the Syndication photo"
+" library Photos.sqlite, for iOS 14 through 26. Each row is one asset paired with one of"
+" its internal resource rows, so an asset with several resources appears on several rows"
+" and an asset with none appears once. On iOS 13.7 and earlier, and on iOS 27 and later,"
+" the artifact does not run and reports no rows.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'version': '6.0',
@@ -55,7 +63,20 @@ __artifacts_v2__ = {
 'last_update_date': '2026-07-31',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "The iOS 26 query has not been run on a registered image. Coded columns such as Local"
+" Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are"
+" shown with labels the module author assigned. The post referenced below says the Recipe"
+" ID labels come from the author's research and testing and that several columns are still"
+" being decoded. The module cites no Apple source for the code values. Labels marked"
+" StillTesting or Unknown are not established. Most labels carry the stored number at"
+" their start. Recipe ID 327687 is shown as '627687-WallpaperComputeResource-627687'; the"
+" stored value is 327687. Counted on 3 Oct 2026, no Syndication library counted held that"
+" recipe id, so no reported row shows the label: 0 of 84 rows on abe_ios16 and 0 of 82 on"
+" otto_ios17. The query returns more than 230 columns. The TSV export can be opened in a"
+" spreadsheet or CSV viewer such as Timeline Explorer"
+" (https://ericzimmerman.github.io/#!index.md) to search and filter. Reference: Scott"
+" Koenig, 'iLEAPP Parsers & Photos.sqlite Queries',"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database",
@@ -79,14 +100,12 @@ __artifacts_v2__ = {
 },
 'Ph050_3AssetIntResouGenPlayPsql': {
 'name': 'Ph050.3-Asset_IntResou-GenPlayPsql',
-'description': 'Parses iOS 18 asset records from GenPlay-Photos.sqlite ZINTERNALRESOURCE and'
-' other tables. This and other related parsers should provide data for investigative'
-' analysis of assets being stored locally on the device verses assets being stored in'
-' iCloud Photos as the result of optimization. This is very large query and script,'
-' I recommend opening the TSV generated report with Zimmermans Tools'
-' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,'
-' and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Reads ZASSET joined to ZINTERNALRESOURCE and other tables in the Photos.sqlite of the"
+" com.apple.GenerativePlayground photo library, for iOS 18 through 26. Each row is one"
+" asset paired with one of its internal resource rows, so an asset with several resources"
+" appears on several rows and an asset with none appears once. On iOS 13.7 and earlier,"
+" and on iOS 27 and later, the artifact does not run and reports no rows. The code has no"
+" query for iOS 14 through 17.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-31',
@@ -94,7 +113,23 @@ __artifacts_v2__ = {
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Run on one registered image, dexter_ios18 (iOS 18.3.2). The iOS 26 query has not been"
+" run on a registered image. Coded columns such as Local Availability, Remote"
+" Availability, Resource Type, Datastore Sub-Type and Recipe ID are shown with labels the"
+" module author assigned. The post referenced below says the Recipe ID labels come from"
+" the author's research and testing and that several columns are still being decoded. The"
+" module cites no Apple source for the code values. Labels marked StillTesting or Unknown"
+" are not established. Most labels carry the stored number at their start. Recipe ID"
+" 327687 is shown as '627687-WallpaperComputeResource-627687'; the stored value is 327687."
+" Counted on 3 Oct 2026, none of the 81 rows on dexter_ios18 held that recipe id, so no"
+" reported row shows the label. The query returns more than 230 columns. The TSV export"
+" can be opened in a spreadsheet or CSV viewer such as Timeline Explorer"
+" (https://ericzimmerman.github.io/#!index.md) to search and filter. The post referenced"
+" below does not cover the Generative Playground library; the same query is applied to it"
+" here. Reference for the query and the column labels as written for"
+" PhotoData/Photos.sqlite and the Syndication library: Scott Koenig, 'iLEAPP Parsers &"
+" Photos.sqlite Queries',"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "database",

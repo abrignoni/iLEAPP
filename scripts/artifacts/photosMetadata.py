@@ -1,24 +1,49 @@
 __artifacts_v2__ = {
     "photosMetadata": {
         "name": "Photos.sqlite Metadata",
-        "description": "Comprehensive asset metadata from Photos.sqlite: "
-                       "timestamps, location/reverse-geocode, faces, moments, fingerprints and more. "
-                       "Supported schemas: iOS 12-14 queries; on newer iOS versions this artifact "
-                       "returns no rows (see the Ph* artifact series for current schemas).",
+        "description": "Asset metadata from Photos.sqlite: timestamps, location/reverse-geocode, "
+                       "faces, moments and fingerprints. Supported schemas: iOS 12-14 "
+                       "queries; on iOS 14 and later the iOS 14 query is run with columns the "
+                       "database lacks read as empty, and columns added after iOS 14 are not "
+                       "read. On the dexter_ios18 and iphone12_ios18 images the face and person "
+                       "columns are empty (see the Ph* artifact series for current schemas).",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-08",
         "requirements": "none",
         "category": "Photos",
-        "notes": "Supported schemas: iOS 12-14 queries; on newer iOS versions this artifact returns "
-                 "no rows (see the Ph* artifact series for current schemas). The matching query is "
+        "notes": "Supported schemas: iOS 12-14 queries; on iOS 14 and later the iOS 14 query is "
+                 "run, with columns the database lacks read as empty. Rows were returned on "
+                 "abe_ios16 (iOS 16.5, 2,280), dexter_ios18 (iOS 18.3.2, 1,178) and iphone12_ios18 "
+                 "(iOS 18.7, 7,644). On abe_ios16 two columns were absent and are empty: Creator "
+                 "Bundle ID and Baldness. On the two iOS 18 images seven queried columns were "
+                 "absent, among them ZDETECTEDFACE.ZASSET and ZDETECTEDFACE.ZPERSON, which the "
+                 "query joins faces and persons on, so all face and person columns, Has "
+                 "Adjustments and both fingerprint columns are empty on every row there (18 of 86 "
+                 "columns). An empty face or person column on those images does not mean the store "
+                 "holds no face or person. Columns added after iOS 14 are not read here (see the "
+                 "Ph* artifact series for current schemas). The matching query is "
                  "selected automatically. "
                  "Reverse-location bplists are written to the report folder. "
-                 "Orientation values 1, 3, 6 and 8 are labelled following the cited Scott Koenig "
-                 "queries; other values are reported as stored. "
-                 "Reference: Scott Koenig, iOS_Local_PL_Photos.sqlite_Queries, "
-                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries and "
-                 "https://theforensicscooter.com/2022/02/21/photos-sqlite-update/",
+                 "Orientation values 1, 3, 6 and 8 are given labels adapted from Scott Koenig's "
+                 "queries (his labels for those values are "
+                 "1-Video-Default/Adjustment/Horizontal-Camera-(left)-1, "
+                 "3-Horizontal-Camera-(right)-3, 6-Vertical-Camera-(top)-6 and "
+                 "8-Vertical-Camera-(bottom)-8); the meaning of the values is not established "
+                 "here. In the Orientation column other values are reported as stored. In the Org "
+                 "Orientation column any other value is replaced by the asset's Orientation value, "
+                 "not the stored original orientation. Saved Asset Type, Visibility State, Age "
+                 "Type Estimate, Gender, Glasses Type, Facial Hair Type and Baldness print text "
+                 "labels for stored integers. The labels differ from the ones in the Scott Koenig "
+                 "query cited below and this module cites no other source for them, so the meaning "
+                 "of each value is not established here; check the stored integer in "
+                 "Photos.sqlite. The face attribute columns are values the store holds, not facts "
+                 "about a person. Reference: Scott Koenig, iOS_Local_PL_Photos.sqlite_Queries, "
+                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS14/Previous_Queries/iOS14_LPL_Phsql_Large_Reference.txt "
+                 "(the iOS 12 and iOS 13 queries are "
+                 "iOS12/Previous_Queries/iOS12_LPL_Phsql_Large_Reference.txt and "
+                 "iOS13/Previous_Queries/iOS13_LPL_Phsql_Large_Reference.txt at the same commit) "
+                 "and https://theforensicscooter.com/2022/02/21/photos-sqlite-update/",
         "paths": ('*/mobile/Media/PhotoData/Photos.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "photo",

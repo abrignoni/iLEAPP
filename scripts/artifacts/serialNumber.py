@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "serialNumber": {
         "name": "Serial Number",
-        "description": "Serial Number of the device",
+        "description": "Distinct SerialNumber values from the TableInfo table of locationd's consolidated.db, added to Device Info as Serial Number",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-29",
         "last_update_date": "2026-07-13",
@@ -9,7 +9,11 @@ __artifacts_v2__ = {
         "date": "2023-09-30",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "",
+        "notes": (
+            "Every distinct value is added, so more than one can appear. Only the first "
+            "consolidated.db found is read. That a value is the device's serial number is not "
+            "checked against another source here."
+        ),
         "paths": ('*/Library/Caches/locationd/consolidated.db*'),
         "output_types": "none",
         "artifact_icon": "hash",

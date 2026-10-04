@@ -55,8 +55,9 @@ __artifacts_v2__ = {
         "notes": (
             "One row per stateMachine/cloudRecords/optIn entry whose value is a JSON object: "
             "record name, state, osVersion and sn as stored, and timestampReadable as stored and, "
-            "where it parses, converted to UTC. The only state "
-            "value on test data was KTOptIn(rawValue: 0); the iOS 26.5.2 and 17.3 test sysdiagnoses "
+            "where it parses, converted to UTC. The state value seen on test data was "
+            "KTOptIn(rawValue: 0), and what it means is not established here; the iOS 26.5.2 and "
+            "17.3 test sysdiagnoses "
             "held 3 and 2 entries and the iOS 26 one none. The separate logs/swtransparency.log, "
             "carried by the two iOS 26 test sysdiagnoses, is not read; its stateMachine held "
             "neither devices nor cloudRecords in either."

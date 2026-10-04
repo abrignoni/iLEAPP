@@ -1,10 +1,14 @@
 __artifacts_v2__ = {
 'Ph023SharedAlbumRecordsInviteswithNADPhDaPsql': {
 'name': 'Ph023-Shared Album Records & Invites NAD-PhDaPsql',
-'description': 'Parses Shared Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table'
-' and supports iOS. Parses Shared Album records only, no asset data being parsed.'
-' This parser will contain shared albums, share album invites, and invite status data.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses Shared Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM table "
+"(kind 1505). Queries exist for iOS 11 through 18; iOS 26 and later are not parsed, "
+"so an empty result there is not evidence of absence. Parses Shared Album records "
+"only, no asset data being parsed. An album with several invitation records appears "
+"on several rows. Invitation state labels are the module author's reading of the "
+"stored integers, the stored integer is kept in each label, and values labelled "
+"StillTesting have no established meaning. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

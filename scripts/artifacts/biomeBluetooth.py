@@ -12,7 +12,11 @@ __artifacts_v2__ = {
                  "stream does not establish that the device was connected to the iOS device at "
                  "that time. Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple "
                  "Biome', https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html\n"
-                 "Records are read from both the local and remote subfolders; the Sync Origin column reports which one a record came from, with the remote folder's device identifier. Remote records were synced from another device on the same account and are not events of this device. Files under a tombstone folder are skipped.",
+                 "Records are read from both the local and remote subfolders; the Sync Origin "
+                 "column reports which one a record came from, with the name of the folder under "
+                 "remote. Records under the remote folder sit in a subfolder named by an "
+                 "identifier. What device wrote them is not established here, so they should not "
+                 "be read as events of this device. Files under a tombstone folder are skipped.",
         "paths": ('*/Biome/streams/restricted/Device.Wireless.Bluetooth/local/*',
                   '*/Biome/streams/restricted/Device.Wireless.Bluetooth/remote/*'),
         "output_types": "standard",

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
             "not time. Notifications can be coalesced, paths can be truncated, and a record "
             "does not establish which process or user caused an event. Interpret flags as file-"
             "system notifications and correlate them with other evidence. Covers the data "
-            "volume stream at /private/var/.fseventsd and the user-space stream at "
+            "volume stream at /private/var/.fseventsd and the stream at "
             "/private/var/mobile/.fseventsd. Supports gzip-wrapped "
             "1SLD, 2SLD, and 3SLD streams. Format and flag research: Joachim Metz/libyal and "
             "Yogesh Khatri/mac_apt. References: https://github.com/libyal/dtformats/blob/"
@@ -33,14 +33,17 @@ __artifacts_v2__ = {
     },
     "iosFileSystemEventsCommunications": {
         "name": "FSEvents - Communications & Accounts",
-        "description": "FSEvents paths associated with communications, contacts, calls, and accounts",
+        "description": "FSEvents records whose path contains one of a fixed list of text fragments "
+                       "chosen for messaging, contacts, call history, mail and accounts paths (for "
+                       "example /sms/, callhistory, addressbook, /accounts/, /mail/, facetime). A "
+                       "path from any app that contains one of the fragments is included.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
         "last_update_date": "2026-07-30",
         "requirements": "none",
         "category": "File System",
         "notes": (
-            "This is a path-based subset of iOS File System Events. A matching path shows a "
+            "This is a path-based subset of the FSEvents artifact. A matching path shows a "
             "file-system notification, not message content or proof of a user communication. "
             "Rows can overlap other Items of Interest reports."
         ),
@@ -66,7 +69,9 @@ __artifacts_v2__ = {
     "iosFileSystemEventsUpdates": {
         "name": "FSEvents - Updates & Mobile Assets",
         "description": (
-            "FSEvents paths associated with system updates, installation, and MobileAsset activity"
+            "FSEvents records whose path contains one of: mobilesoftwareupdate, softwareupdate, "
+            "mobile_installation, mobileinstallation, /installd/, installcoordination, "
+            "mobileasset, launchservices, containermanagerd/staging."
         ),
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
@@ -196,7 +201,10 @@ __artifacts_v2__ = {
     },
     "iosFileSystemEventsRestoreBackup": {
         "name": "FSEvents - Restore & Backup",
-        "description": "FSEvents paths specifically associated with restore, erase, and backup services",
+        "description": "FSEvents records whose path has a component named backup or backups, or "
+                       "contains mobilebackup, backupd, .obliterated, erase_install, erase-install "
+                       "or mobilesoftwareupdate/restore.log. A path from any app that matches is "
+                       "included.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
         "last_update_date": "2026-07-30",
@@ -259,7 +267,10 @@ __artifacts_v2__ = {
     },
     "iosFileSystemEventsPackageManagement": {
         "name": "FSEvents - APT & dpkg",
-        "description": "FSEvents paths associated with APT, dpkg, Cydia, Sileo, and Zebra",
+        "description": "FSEvents records whose path has a component named apt, dpkg, cydia, sileo "
+                       "or zebra, or contains the text apt-, apt., dpkg- or dpkg. anywhere. The "
+                       "text match also catches unrelated names that contain those letters, so "
+                       "read each path before relating a row to a package manager.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
         "last_update_date": "2026-07-30",

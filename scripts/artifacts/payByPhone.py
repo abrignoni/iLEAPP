@@ -1,20 +1,24 @@
 __artifacts_v2__ = {
     "userPayByPhone": {
         "name": "PayByPhone - Users and Vehicules Info",
-        "description": "Extract users and vehicules infos",
+        "description": "User accounts from PayByPhone.sqlite with the vehicles recorded for each",
         "author": "@flashesc, @thibgav, @borelmo",
         "creation_date": "2024-11-20",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Parking",
-        "notes": "The picture filename is constructed from the vehicle ID using an observed naming convention; not verified against files on disk.",
+        "notes": "The picture filename is the vehicle ID with .png added. That naming was not "
+                 "checked against files in any extraction, and a row with no vehicle shows "
+                 "'None.png', which names no file.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/PayByPhone.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users"
     },
     "sessionPayByPhone": {
         "name": "PayByPhone - Parking Sessions",
-        "description": "List of parking sessions",
+        "description": "Parking session rows from PayByPhone.sqlite that have a matching vehicle, "
+                       "location and account row, with the start and expire times (read as "
+                       "seconds since 2001), amount and coordinates",
         "author": "@flashesc, @thibgav, @borelmo",
         "creation_date": "2024-11-20",
         "last_update_date": "2026-07-31",

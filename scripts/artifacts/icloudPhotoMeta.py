@@ -2,14 +2,21 @@ __artifacts_v2__ = {
     "icloudPhotoMeta": {
         "name": "iCloud Photos Metadata",
         "description": "Parses photo metadata returned by iCloud (cloudphotolibrary Metadata.txt), "
-                       "including decoded filenames, timestamps, GPS and embedded EXIF/TIFF.",
+                       "including decoded filenames, timestamps, and the GPS, EXIF and TIFF values "
+                       "of the embedded metadata as stored (latitude and longitude are reported "
+                       "without their N/S and E/W reference).",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "iCloud",
-        "notes": "The full decoded media-metadata bplist for each record is written to the "
-                 "report folder's 'bplists' subfolder.",
+        "notes": "The decoded media-metadata bplist of a record is written to the report "
+                 "folder's 'bplists' subfolder under the record's Row ID. Row ID restarts "
+                 "on each line of Metadata.txt, so a later record with the same Row ID "
+                 "replaces the earlier file. Timestamp is the record's "
+                 "originalCreationDate where present and its created timestamp otherwise. "
+                 "The GPS, EXIF and TIFF columns are filled only when the decoded metadata "
+                 "carries a {TIFF} entry.",
         "paths": ('*/cloudphotolibrary/Metadata.txt',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "photo"

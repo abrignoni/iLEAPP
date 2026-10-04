@@ -7,7 +7,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Pinger",
-        "notes": "App attribution is based on tested extractions; the Messaging_*.sqlite glob is not bundle-specific.",
+        "notes": "The Messaging_*.sqlite store is attributed to Text Free by this module; no test "
+                 "image, row count or sample data is recorded for that attribution. The "
+                 "Messaging_*.sqlite glob is not bundle-specific, and only the first matching "
+                 "database is read. Messages with no matching conversation row are not reported. "
+                 "Timestamp is ZTIMECREATED read as Unix seconds in UTC; that reading is not "
+                 "confirmed against a test image here. Direction, Status and Type are reported as "
+                 "stored and their values are not decoded.",
         "paths": ('*/Messaging_*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message"

@@ -11,26 +11,32 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from ZWICKR_MESSAGE in wickrLocal.sqlite, the Core Data store in the Wickr "
-                 "app group container. Every text-bearing column in this database is stored as an "
-                 "encrypted blob, so this artifact reports message metadata only; ZBODY is not "
-                 "decoded and no message content is recovered here. Conversation and sender are "
-                 "resolved through ZCONVO and ZUSERSENDER; users are identified by the stored "
-                 "ZUSERIDHASH and ZUSERALIASHASH values, which are the only identifiers held in "
-                 "the clear. Message Type and Primary Type are the stored ZFULLTYPE and "
-                 "ZPRIMARYTYPE integers; the app binary declares a WickrMessageType enum but does "
-                 "not carry its case names, so the values ship unlabelled with one exception. "
-                 "ZFULLTYPE 6000 is labelled File Transfer: on the tested image the set of "
-                 "messages carrying a linked file and the set with ZFULLTYPE 6000 are identical "
-                 "and no other value appears among file-linked messages, and the same value is "
-                 "reported independently by Josh Hickman, 'Wickr - Alright, We'll Call It A "
-                 "Draw', thebinaryhick.blog, 2019-08-23. The other values present in this table "
-                 "on the tested image (1000, 4001, 4007, 7000, 8000) have no such support and "
-                 "are reported as stored. The app's logs carry two further type values, 4006 and "
-                 "9000, which do not appear in this table at all; see the Wickr - App Log "
-                 "Message Events artifact.\n"
-                 "Timestamps are Cocoa Core Data epoch. Where a ZMSGID here also appears in the "
-                 "app's own plaintext logs, the Cocoa timestamp and the independently logged "
-                 "arrival time agree to within a second, which cross-validates both readings.",
+                 "app group container. ZBODY is stored as an encrypted blob and is not decoded, "
+                 "so this artifact reports message metadata only and no message content is "
+                 "recovered here. Conversation and sender are resolved through ZCONVO and "
+                 "ZUSERSENDER; the sender is reported as the stored ZUSERIDHASH value, which is "
+                 "held in the clear. Message Type and Primary Type are the stored ZFULLTYPE and "
+                 "ZPRIMARYTYPE integers; no source for the values was found, so the values ship "
+                 "unlabelled with one exception. ZFULLTYPE 6000 is labelled File Transfer: on the "
+                 "tested image the set of messages carrying a linked file and the set with "
+                 "ZFULLTYPE 6000 are identical and no other value appears among file-linked "
+                 "messages, and the same value is reported independently by Josh Hickman, 'Wickr. "
+                 "Alright. We'll Call It A Draw.', "
+                 "https://thebinaryhick.blog/2019/08/23/wickr-alright-well-call-it-a-draw/ "
+                 "(2019-08-23). The other values present in this table on the tested image (1000, "
+                 "4001, 4007, 7000, 8000) have no such support and are reported as stored. The "
+                 "app's logs carry two further type values, 4006 and 9000, which do not appear in "
+                 "this table at all; see the Wickr - App Log Message Events artifact.\n"
+                 "Timestamps are read as Cocoa Core Data epoch. Flag columns show Yes for a "
+                 "non-zero stored value and No otherwise, including where the value is null. Read "
+                 "Timestamp, Delivery Timestamp and Read Receipt Status are blank where the app "
+                 "version has no such column. Where a conversation has no stored group id or a "
+                 "sender has no stored hash, the cell shows Convo or User followed by the record "
+                 "number, which is this module's label. On the tested image, where a ZMSGID here "
+                 "also appears in the app's own plaintext logs, the Cocoa timestamp read as UTC "
+                 "and the logged time agree to within a second. The log time carries no zone, so "
+                 "that agreement depends on the zone the log was written in, which is not stated "
+                 "here, and the number of identifiers compared was not recorded.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-square",
@@ -44,7 +50,8 @@ __artifacts_v2__ = {
         "description": "NO CONVERSATION NAMES. Wickr stores room names and descriptions encrypted "
                        "and they are not recovered here. This artifact reports the group "
                        "identifier, the kind of conversation, the last message and sync "
-                       "timestamps, the member list and the room administrators",
+                       "timestamps, the users linked to the conversation record and the users "
+                       "linked to the secure room record",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
@@ -52,16 +59,24 @@ __artifacts_v2__ = {
         "category": "Wickr",
         "notes": "Read from ZSECEX_CONVO in wickrLocal.sqlite. The Kind column is the Core Data "
                  "entity name looked up from the Z_PRIMARYKEY table in the same file, which maps "
-                 "Z_ENT 5 to Secex_Convo and Z_ENT 6 to Secex_Secure_Room in the tested images. "
-                 "Those entity numbers are model-version specific and differ between the two "
-                 "images tested, so they are resolved from Z_PRIMARYKEY at run time rather than "
-                 "hardcoded. The member and administrator join tables are named after those same "
-                 "entity numbers, so they are located at run time by decoding their column names "
-                 "through Z_PRIMARYKEY rather than by name; the file-to-message join is Z_13MSG "
-                 "on both images tested but is reported as Z_11MSG on a 2019 app version. "
-                 "Members and administrators are reported as the users' stored ZUSERIDHASH "
-                 "values. Conversation "
-                 "names and descriptions are stored as encrypted blobs and are not decoded.",
+                 "each Z_ENT number to an entity name such as Secex_Convo or Secex_Secure_Room. "
+                 "Entity numbers depend on the model version, so they are resolved from "
+                 "Z_PRIMARYKEY at run time rather than hardcoded. The two join tables that link "
+                 "these records to users are named after those same entity numbers, so they are "
+                 "located at run time by decoding their column names through Z_PRIMARYKEY rather "
+                 "than by name; the file-to-message join table is Z_13MSG on both images tested; "
+                 "Josh Hickman, 'Wickr. Alright. We'll Call It A Draw.', "
+                 "https://thebinaryhick.blog/2019/08/23/wickr-alright-well-call-it-a-draw/ "
+                 "(2019), shows the table as Z_11MSG. Member User ID Hashes lists the users in "
+                 "the join table for Secex_Convo and Secex_User, and Administrator User ID Hashes "
+                 "lists the users in the join table for Secex_Secure_Room and Secex_User, each as "
+                 "the user's stored ZUSERIDHASH value. The relationship names were not read from "
+                 "the model and no source names these users administrators, so that column header "
+                 "is this module's label. Last Timestamp, Last Sync Timestamp and Message Sync "
+                 "Timestamp are read as Unix seconds. Flag columns show Yes for a non-zero value "
+                 "and No otherwise, including where the value is null or the column does not "
+                 "exist in that app version. Conversation names and descriptions are stored as "
+                 "encrypted blobs and are not decoded.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -84,8 +99,10 @@ __artifacts_v2__ = {
         "notes": "Read from ZSECEX_USER in wickrLocal.sqlite. ZUSERNAME, ZUSERALIAS, ZUSERID and "
                  "ZUSERIMAGE are stored as encrypted blobs and are not decoded; the ZUSERIDHASH "
                  "and ZUSERALIASHASH columns are stored in the clear and are reported as stored. "
-                 "The Source column is the stored ZSOURCE string, observed as 'ME' on the Wickr Me "
-                 "image and 'PRO' on the AWS Wickr image. Flag columns are reported as stored.",
+                 "The Source column is the stored ZSOURCE string, observed as 'ME' on the Wickr "
+                 "Me image and 'PRO' on the AWS Wickr image. Flag columns show Yes for a non-zero "
+                 "stored value and No otherwise, including where the value is null or the column "
+                 "does not exist in that app version. Last Activity Time is read as Unix seconds.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -97,23 +114,24 @@ __artifacts_v2__ = {
     "wickr_files": {
         "name": "Wickr - Files (Metadata Only)",
         "description": "NO FILE NAMES OR CONTENT. Wickr stores file titles and mime types "
-                       "encrypted, and the attachment files themselves are encrypted on disk. "
-                       "This artifact reports the file GUID, the stored status value and the "
-                       "message each file is linked to",
+                       "encrypted, and the attachment files themselves are not decoded here. This "
+                       "artifact reports the file GUID, the stored status value and the message "
+                       "each file is linked to",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "Wickr",
-        "notes": "Read from ZWICKR_FILE in wickrLocal.sqlite, linked to messages through the "
-                 "Core Data join table for the file and message entities. That table is named "
-                 "after the entity numbers, so it is Z_13MSG on both images tested and Z_11MSG "
-                 "on a 2019 app version; it is located at run time through Z_PRIMARYKEY rather "
-                 "than by name. ZTITLE and ZMIMETYPE are stored as encrypted blobs and are "
-                 "not decoded. On the tested image each ZGUID matches the name of a file held in "
-                 "the app group container; those files are not decoded here, so they are "
-                 "reported "
-                 "by name and are not checked in as media. Status is the stored ZSTATUS integer.",
+        "notes": "Read from ZWICKR_FILE in wickrLocal.sqlite, linked to messages through the Core "
+                 "Data join table for the file and message entities. That table is named after "
+                 "the entity numbers, so it is Z_13MSG on both images tested, and Z_11MSG in Josh "
+                 "Hickman, 'Wickr. Alright. We'll Call It A Draw.', "
+                 "https://thebinaryhick.blog/2019/08/23/wickr-alright-well-call-it-a-draw/ "
+                 "(2019); it is located at run time through Z_PRIMARYKEY rather than by name. "
+                 "ZTITLE and ZMIMETYPE are stored as encrypted blobs and are not decoded. On the "
+                 "tested image each ZGUID matches the name of a file held in the app group "
+                 "container; those files are not decoded here, so they are reported by name and "
+                 "are not checked in as media. Status is the stored ZSTATUS integer.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "file",
@@ -124,8 +142,9 @@ __artifacts_v2__ = {
     },
     "wickr_account": {
         "name": "Wickr - Account Settings",
-        "description": "The Wickr account row, with the security group identifier, the notification "
-                       "and lock settings and the stored secure shredder values",
+        "description": "The Wickr account row, with the security group identifier, the "
+                       "notification and lock settings and the stored ZAFENABLE and ZAFSPEED "
+                       "values",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
@@ -136,10 +155,14 @@ __artifacts_v2__ = {
                  "reports the columns held in the clear, as stored. ZAFENABLE and ZAFSPEED are "
                  "reported under their stored names. Alongside them the app container holds "
                  "tmp/aforensics/random.af0 and random.af1, and the app binary carries the class "
-                 "names ForensicsManager, AntiForencisOperation and ManualForensicsSweepOperation; "
-                 "the correspondence is noted, but what the feature does to stored data is not "
-                 "established here. Column availability differs between app versions, so optional "
-                 "columns are checked before they are selected.",
+                 "names ForensicsManager, AntiForencisOperation and "
+                 "ManualForensicsSweepOperation; the correspondence is noted, but what the "
+                 "feature does to stored data is not established here. Column availability "
+                 "differs between app versions. Flag columns show Yes for a non-zero stored value "
+                 "and No otherwise, including where the value is null or the column does not "
+                 "exist in that app version, so No is not by itself a stored setting. Network "
+                 "Timestamp is the first ZTIMESTAMP value in ZWICKR_NETWORK read as Unix seconds; "
+                 "what it marks is not established.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "settings",
@@ -150,8 +173,8 @@ __artifacts_v2__ = {
     },
     "wickr_devices": {
         "name": "Wickr - Devices",
-        "description": "Per-device records from the Wickr local store, giving the stored device "
-                       "identifier hash and the user each one belongs to",
+        "description": "Secex_App records from the Wickr local store, giving the stored "
+                       "ZAPPIDHASH value and the user record each one is linked to",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
@@ -194,9 +217,8 @@ __artifacts_v2__ = {
     "wickr_keychain_account": {
         "name": "Wickr - Account Identity (Keychain)",
         "description": "The Wickr account identity held in the iOS keychain, including the user "
-                       "name in the clear, the device identifier and the server the app was "
-                       "registered against. Needs a keychain, supplied or carried by the "
-                       "extraction",
+                       "name in the clear, the device identifier and the stored baseURL value. "
+                       "Needs a keychain, supplied or carried by the extraction",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
@@ -204,15 +226,15 @@ __artifacts_v2__ = {
         "category": "Wickr",
         "notes": "Read from the keychain items in Wickr's access group, which on the tested image "
                  "is the team identifier W8RC3R952A. These are the only Wickr account strings "
-                 "recovered in the clear on the tested image: the database itself stores every "
-                 "text-bearing column as an "
-                 "encrypted blob, so without a keychain the user is visible only as the hash in "
-                 "the Wickr - Users artifact. The items reported are the wickrusername and userID "
-                 "accounts, the devid account and the baseURL account. All four were stored with "
-                 "the accessible-after-first-unlock-this-device-only protection class on the "
-                 "tested image. Nothing here decrypts the message database; the storage key is "
-                 "not among these items. Requires a keychain, so this artifact is empty when none "
-                 "is supplied and none is found in the extraction.",
+                 "recovered in the clear on the tested image: the database stores the user name "
+                 "and alias as encrypted blobs, so without a keychain the user is visible only as "
+                 "the hash in the Wickr - Users artifact. The items reported are the "
+                 "wickrusername and userID accounts, the devid account and the baseURL account. "
+                 "All four were stored with the accessible-after-first-unlock-this-device-only "
+                 "protection class on the tested image. Nothing here decrypts the message "
+                 "database; the storage key is not among these items. Requires a keychain, so "
+                 "this artifact is empty when none is supplied and none is found in the "
+                 "extraction.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "key",
@@ -222,31 +244,32 @@ __artifacts_v2__ = {
     },
     "wickr_app_log": {
         "name": "Wickr - App Log Message Events",
-        "description": "Incoming message events recorded in the Wickr application logs, with the "
-                       "log timestamp, the message and conversation identifiers, the sending user "
-                       "hash and the stored message type",
+        "description": "Notification payload and Download Message lines recorded in the Wickr "
+                       "application logs, with the log timestamp, the message and conversation "
+                       "identifiers, the payload's userId value and the logged message type",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from the plaintext application logs the app writes under its Logs "
-                 "directories. The parsed lines are the notification payloads logged as "
-                 "'Payload: {\"messageId\"...}' and the 'Download Message with Type' lines, both "
-                 "of which carry identifiers in the clear. The events present are bounded by the "
-                 "log files held in the extraction. Log line "
-                 "timestamps are recorded by the app without a zone and are reported as written.\n"
-                 "Where an identifier here also appears in ZWICKR_MESSAGE, the log arrival time "
-                 "and the database timestamp agree to within a second, which is what "
-                 "cross-validates the database timestamp reading.\n"
+                 "directories. The parsed lines are the notification payloads logged as 'Payload: "
+                 "{\"messageId\"...}' and the 'Download Message with Type' lines, both of which "
+                 "carry identifiers in the clear. The events present are bounded by the log files "
+                 "held in the extraction. Log line timestamps are recorded by the app without a "
+                 "zone and are reported as written.\n"
+                 "On the tested image, where an identifier here also appears in ZWICKR_MESSAGE, "
+                 "the logged time and the database timestamp read as UTC agree to within a "
+                 "second. The number of identifiers compared was not recorded.\n"
                  "Most of them do not appear there. On the tested image the logs name 69 distinct "
                  "message identifiers and 48 of those have no row in ZWICKR_MESSAGE, so this "
-                 "artifact reports the arrival of messages the message store no longer holds, "
-                 "together with the conversation, the sending user hash and the stored type for "
-                 "each. Those 48 include the only occurrences of type values 4006 and 9000 "
-                 "anywhere in the data. Why a logged message has no row is not established here: "
-                 "a rolling log covering a longer period than the store retains would produce "
-                 "this, and so would removal of the rows, and the records do not distinguish "
+                 "artifact reports logged message events that have no row in the message store, "
+                 "together with the conversation, the payload's userId value (the column headed "
+                 "Sender User ID Hash) and the logged type for each. Those 48 include the only "
+                 "occurrences of type values 4006 and 9000 anywhere in the data. Why a logged "
+                 "message has no row is not established here. A log that covers a longer period "
+                 "than the store retains, removal of the rows, or a message type the app does not "
+                 "write to the table would each produce this, and the records do not distinguish "
                  "them.",
         "paths": ('*/Logs/com.wickr*.log', '*/Logs/com.mywickr*.log'),
         "output_types": "standard",

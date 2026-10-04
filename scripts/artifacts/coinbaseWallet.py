@@ -1,27 +1,31 @@
 __artifacts_v2__ = {
     "coinbase_wallet_account": {
         "name": "Coinbase Wallet - Account",
-        "description": "The self-custody account the Coinbase Wallet app holds, with the time it "
-                       "was created and its primary address.",
+        "description": "Rows of the Coinbase Wallet app's account table, with the creation time "
+                       "and primary address stored for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Coinbase Wallet",
         "notes": "One row per row of the account table in Documents/default/wallet-rn-v2.sqlite, "
-                 "joined to the wallet_group row that names the same account. This is the "
-                 "Coinbase Wallet app, bundle id org.toshi.distribution, which is a separate app "
-                 "from the Coinbase exchange app that coinbase.py reads; the two keep different "
+                 "joined to a wallet_group row that names the same account (where several do, "
+                 "the last one read is shown). This is the Coinbase Wallet app, which is a "
+                 "separate app from the Coinbase exchange app that coinbase.py reads; the two "
+                 "keep different "
                  "stores and neither artifact reads the other's. Created is the timestamp the "
                  "account row stores. Account Type is reported as stored and held the value "
                  "mnemonic on both tested images, which is the app's own word and is not read "
                  "here as a statement about how any key was generated. The stored timestamps "
                  "carry no zone marker and are read as UTC on the evidence of the app's own "
                  "writing: the MMKV store beside this database holds a migration timestamp "
-                 "written with an explicit Z marker, and on the two tested images it sits 11 and "
-                 "108 seconds before the account row, on the same date and hour, which a "
+                 "written with an explicit Z marker, and on the two tested images it sits before "
+                 "the account row, on the same date and hour, which a "
                  "local-zone reading would place hours apart. Device ID and Active Wallet Group "
-                 "are read from that same MMKV store, Documents/mmkv/CBStore.plaintext. That "
+                 "are read from Documents/mmkv/CBStore.plaintext. Where more than one such file "
+                 "is matched their entries are merged and the same two values are shown on every "
+                 "row, so on a device with more than one Coinbase Wallet container these columns "
+                 "are not tied to the row's own container. That "
                  "store also holds a session access token and an authentication state blob; "
                  "neither is reported here, and an examiner who needs them can read the file "
                  "this artifact names. Account Nickname, Wallet Group Nickname and Hardware "
@@ -41,22 +45,23 @@ __artifacts_v2__ = {
     },
     "coinbase_wallet_addresses": {
         "name": "Coinbase Wallet - Addresses",
-        "description": "The blockchain addresses Coinbase Wallet derived for the account, with "
-                       "the derivation path and use flag of each.",
+        "description": "Rows of the Coinbase Wallet address table, with the address, "
+                       "derivation path and use flag stored for each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Coinbase Wallet",
         "notes": "One row per row of the address table. The derivation index ran from 0 to 19 on "
-                 "both tested images and the paths follow the BIP-44 shape. The presence of an "
+                 "both tested images and the paths are reported as stored in Derivation Path; "
+                 "their shape was not checked here against a cited specification. The presence of "
+                 "an "
                  "address is not evidence that it was ever used or funded. Balance is a string "
                  "in the asset's own base unit and is mostly zero: a value other than zero "
                  "appeared on one row of one tested image and on none of the other. Is Used is "
                  "the app's own flag, reported as stored, and was true on 203 of 491 rows on one "
                  "image and 200 of 406 on the other. Contract Address held no value on any row "
-                 "of either image, since every derived address there belongs to a chain's native "
-                 "asset rather than to a token. The rows name addresses the app derived for this "
+                 "of either image. The rows name addresses the app derived for this "
                  "device's account, which "
                  "an examiner can search against a public blockchain. Is Change Address, Address "
                  "Type, Blockchain, Currency Code and Network are reported as stored; the type "
@@ -91,18 +96,19 @@ __artifacts_v2__ = {
                  "row of each image, and a row is not evidence that the asset was ever held. "
                  "Balance, Decimals and Minimum Balance are reported as stored, because the "
                  "store carries the amounts as strings in each asset's own base unit and no unit "
-                 "conversion is applied here. Contract Address is set for tokens and blank for a "
-                 "chain's native asset. A separate table, curated_asset_setting, held 9,979 rows "
+                 "conversion is applied here. Contract Address is reported as stored; what "
+                 "decides whether it is set is not established here. A separate table, "
+                 "curated_asset_setting, held 9,979 rows "
                  "on one image and none on the other; it is not reported and what its rows "
                  "represent is not established here. "
                  "Minimum Balance, Asset UUID, Is Spam and Is Whitelist held no value on "
                  "either tested image, and the last two are columns the older store does not "
                  "declare. Last Balance Update Transaction Hash was set on one row of the "
-                 "newer image and on none of the older one. Image URL is the address of the "
-                 "asset icon the app shows and is set on every row; it is reported as stored "
+                 "newer image and on none of the older one. Image URL is the imageURLStr value "
+                 "and was set on every row of both tested images; it is reported as stored "
                  "and is not fetched. "
-                 "Account ID held one value on every row of both tested images, for the same "
-                 "reason.",
+                 "Account ID held one value on every row of both tested images, each of which "
+                 "holds a single account row.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/default/wallet-rn-v2.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "credit-card",
@@ -124,9 +130,13 @@ __artifacts_v2__ = {
                  "by the Source Table column; tx_history is present only on the older of the two "
                  "tested stores and held no rows there. Transaction Hash is a value an examiner "
                  "can look up on a public blockchain. From Address and To Address are the "
-                 "parties the row records, and the From Domain and To Domain columns carry the "
-                 "app's resolved name for either where it has one. Direction is read from the "
-                 "isSent flag the row stores. Amount, Fee and the gas columns are reported as "
+                 "parties the row records, and the From Domain and To Domain columns are the "
+                 "fromDomain and toDomain values as stored; neither held a value on the tested "
+                 "rows and what the app writes there is not established here. Direction is a "
+                 "label assigned here from the isSent flag: Sent when the flag is 1 or true, "
+                 "Received for any other stored value, blank when no flag is stored. Only "
+                 "Received was seen on the tested rows, both of which store type RECEIVE. "
+                 "Amount, Fee and the gas columns are reported as "
                  "stored, in each asset's own base unit, with no conversion applied. State and "
                  "Type are reported as stored; both tested rows held state 3 and type RECEIVE. "
                  "Transfers holds the row's own JSON list as stored. One transaction was "
@@ -147,8 +157,8 @@ __artifacts_v2__ = {
     },
     "coinbase_wallet_xpubs": {
         "name": "Coinbase Wallet - Extended Public Keys",
-        "description": "The extended public keys Coinbase Wallet stored for the account, one per "
-                       "chain and address type.",
+        "description": "The extended public keys in the Coinbase Wallet MMKV store, with the "
+                       "currency and address type named in each key.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
@@ -166,7 +176,8 @@ __artifacts_v2__ = {
                  "other. "
                  "The MMKV key itself carries the currency, the address type and the account's "
                  "primary address, and those are split into their own columns; the primary "
-                 "address in the key is upper cased by the app and is reported as stored rather "
+                 "address in the key was in upper case on the tested images and is reported as "
+                 "stored rather "
                  "than normalised, so it may differ in case from the same address elsewhere in "
                  "this module. "
                  "Account Primary Address held one value on each tested image, which is what a "
@@ -194,10 +205,8 @@ __artifacts_v2__ = {
                  "established, and the Transactions artifact reads different tables. "
                  "All five were empty on both tested images, so this reader is code present and "
                  "was not exercised, and the columns it reports are the ones the tables declare "
-                 "rather than ones observed carrying values. The columns each table does not "
-                 "declare are read as NULL, because the five schemas differ: only the Ethereum "
-                 "table carries a nonce and a wei value, only Solana carries a recent block hash, "
-                 "and the UTXO table names neither party.",
+                 "rather than ones observed carrying values. One column list is asked of all five "
+                 "tables, and a column a table does not declare is read as NULL.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/default/wallet-rn-v2.sqlite*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "edit-3",

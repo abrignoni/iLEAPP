@@ -2,7 +2,8 @@
 __artifacts_v2__ = {
     "messageRetention": {
         "name": "iOS Message Retention",
-        "description": "Extract how long messages are kept on the device",
+        "description": "The Keep Messages preference value stored in com.apple.MobileSMS.plist "
+                       "(KeepMessageForDays or SSKeepMessages)",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-10-03",
         "version": "0.5",
@@ -10,9 +11,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "iOS <=16 / iOS 17+ key naming per tested corpora. This directory can hold "
-                 "com.apple.MobileSMS.plist and com.apple.mobileSMS.plist as two different files; "
-                 "6 of 23 tested images carry both, iOS 14.3 through 26.5.2. Every found file is "
+        "notes": "KeepMessageForDays is labelled iOS <=16 and SSKeepMessages iOS 17+ from the "
+                 "tested corpora; a file can hold both keys and then yields a row for each, so the "
+                 "label names the key, not the release the image runs. Data Value reads Forever "
+                 "for a stored 0, 1 Year for 365 and 30 Days for 30, a mapping taken from values "
+                 "seen in the tested corpora; any other value is reported as 'Unrecognized value:' "
+                 "followed by the stored value. A file with neither key yields 'No value', and "
+                 "which setting applies then is not established here. "
+                 "This directory can hold com.apple.MobileSMS.plist and "
+                 "com.apple.mobileSMS.plist as two different files; 6 of the 20 tested images "
+                 "listed in sample_data carry both, iOS 14.3 through 26.5.2. Every found file is "
                  "read and each row's Setting names the source spelling it was read from. Where "
                  "the report folder is on a case-insensitive volume, the file seeker preserves "
                  "the second copy under a name tagged ~case- and the row's path points at the "

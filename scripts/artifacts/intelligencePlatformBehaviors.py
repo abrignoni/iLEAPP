@@ -1,22 +1,26 @@
 __artifacts_v2__ = {
     "intelligencePlatformBehaviors": {
         "name": "Intelligence Platform Knowledge Graph - Behaviors",
-        "description": "A timestamped log of device behaviors the on-device knowledge "
-                       "graph recorded: app launches, connections, location visits, "
-                       "person interactions and device state changes.",
+        "description": "A timestamped log of behavior events held in behaviors.db "
+                       "under IntelligencePlatform, each with a category, an "
+                       "identifier and a timestamp as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
         "last_update_date": "2026-09-23",
         "requirements": "none",
         "category": "Knowledge Graph",
-        "notes": "Reads behaviors.db under IntelligencePlatform (the 'knowledged' graph). "
+        "notes": "Reads behaviors.db under IntelligencePlatform. "
                  "The behaviorEventsExtended table is a running log of device behaviors, "
                  "each with a behaviorType code, a behaviorIdentifier and a timestamp. The "
-                 "behaviorType code is the 1-based position of the category in the ordered "
-                 "histogramKey_<name> tables shipped in the same database, so it resolves "
-                 "to that category. This was verified against every code that carried data "
-                 "on a tested image, where the position matched the code exactly. The "
-                 "categories, in order, are app launch, app intent, point-of-interest "
+                 "parser maps a behaviorType code to the histogramKey_<name> table at that "
+                 "1-based position in sqlite_master order and reports that table's name "
+                 "suffix as the category. The comparison behind this mapping was made on "
+                 "the one tested image that held rows (iphone11_ios17, iOS 17.3); the "
+                 "number of codes compared is not recorded here. On the tested image the "
+                 "histogramKey tables were read in the order listed here; the Category "
+                 "column shows each table's name suffix as stored, and the names in this "
+                 "list paraphrase those suffixes: app launch, app intent, "
+                 "point-of-interest "
                  "category, semantic location, focus mode, CarPlay, device locked, "
                  "micro-location visit, airplane mode, Wi-Fi event, Bluetooth event, "
                  "charging event, link action, HomeKit accessory event, location-of-"
@@ -26,14 +30,18 @@ __artifacts_v2__ = {
                  "event a connect or disconnect with a network name, for a person "
                  "interaction a handle reference. Some behaviorType codes (seen as 19, 20 "
                  "and 21) are past the last histogramKey table, so the store does not name "
-                 "them, and they are the bulk of the rows; their identifiers are Enter and "
-                 "Exit events keyed by an opaque 64-bit location-cluster id, and the code "
-                 "is reported as stored. This store was "
-                 "seen on iOS 17 and is not present on the tested iOS 18.3 and later "
-                 "images, so it is a source specific to that window. The behaviors are "
+                 "them, and on the tested image they are the bulk of the rows; their "
+                 "identifiers there read Enter or Exit followed by a 64-bit number whose "
+                 "meaning "
+                 "is not established, and the code "
+                 "is reported as stored. On the tested images the store held rows on one "
+                 "iOS 17.3 image and was not present on the iOS 18.3 and later images. The "
+                 "behaviors are "
                  "recorded by the system, so a row is not evidence a person performed the "
-                 "action. The store was described by 0x11 Forensics and Consulting, 'That "
-                 "is one smart Apple', 0x11forensicssc.com, 2026-07-21.",
+                 "action. behaviors.db is named, without a description of its contents, in "
+                 "0x11 Forensics and Consulting, 'That is one smart Apple', "
+                 "https://0x11forensicssc.com/f/that-is-one-smart-apple, 2026-07-21. The "
+                 "reading of the tables given here is this parser's own.",
         "paths": (
             '*/mobile/Library/IntelligencePlatform/behaviors.db*',),
         "output_types": "standard",

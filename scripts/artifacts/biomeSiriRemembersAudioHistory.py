@@ -13,8 +13,8 @@ __artifacts_v2__ = {
         "notes": "Shares the intent record shape of the other Siri.Remembers streams. The "
                  "media details come from a JSON attribute on the item entity; title, artist "
                  "and media type were present on every record in the sample, with mediaName "
-                 "appearing on some. In the sample data the media identifier matched the "
-                 "playing app's catalogue id; for Audible items it was the ASIN. Records are "
+                 "appearing on some. What the Media ID and Item ID columns identify is not "
+                 "established; both are reported as stored. Records are "
                  "read from both the local and remote subfolders; the Sync Origin column "
                  "reports which one a record came from. The local/remote naming is the "
                  "stream's own folder layout; cross-device sync semantics are not documented.",

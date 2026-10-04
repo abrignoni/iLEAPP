@@ -21,12 +21,11 @@ __artifacts_v2__ = {
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "Images",
         "notes": "ATX files are decoded as texture containers wrapping ASTC image data; that "
-                 "layout was derived from observed files and is not vendor-documented. Such "
-                 "files were found under wallpapers, PosterBoard snapshots, avatars and other "
-                 "Apple "
-                 "UI image caches. Decoding uses observed Apple ATX layouts and a best-effort "
-                 "tile-order heuristic. If an image appears scrambled or fails to decode, please "
-                 "open an issue and provide sample ATX files when possible.",
+                 "layout was derived from observed files and is not vendor-documented. Where each "
+                 "file was found is given per row in the Source Path column. Decoding uses "
+                 "observed Apple ATX layouts and a best-effort tile-order heuristic. If an image "
+                 "appears scrambled or fails to decode, please open an issue and provide sample "
+                 "ATX files when possible.",
         "paths": (
             '**/*.atx',
         ),

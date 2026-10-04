@@ -8,20 +8,25 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Coinbase",
-        "notes": "One row per wallet the account holds. Coinbase is a React Native app and "
-                 "keeps its state in an MMKV store, read here with the reader in "
-                 "scripts/mmkv_parser.py. Inside that store the @GraphqlOfflineCache.store "
-                 "value is a normalised Apollo cache: an account record links to its "
+        "notes": "One row per Account record in the cache whose totalBalance reference resolves "
+                 "to an amount. That such a record is a wallet the account holds is the reading "
+                 "used here and is not established from the store alone. The rows come from the "
+                 "MMKV store Documents/mmkv/CB_RRN_MMKV_STORAGE, read here with the reader in "
+                 "scripts/mmkv_parser.py. Inside that store the @GraphqlOfflineCache.store value "
+                 "is JSON holding a recordMap of records that point at each other by reference: "
+                 "an account record links to its "
                  "balances by reference, and each reference resolves to an amount record "
                  "carrying a value and a currency. This artifact reports only the accounts "
                  "whose balance reference resolves to such an amount, because the same cache "
                  "holds hundreds of account records with no resolving balance reference; on the "
                  "tested device 5 of 429 account records resolved to a balance, and what the "
-                 "remaining records represent is not established here. Total "
-                 "Balance and Available Balance are in the wallet's own currency and Native "
-                 "Balance is the same total in the account's display currency. Every balance "
-                 "was zero on the tested device, which records that the wallets existed and "
-                 "were empty rather than that the values could not be read. On the tested "
+                 "remaining records represent is not established here. Total Balance, Available "
+                 "Balance and Native Balance are the totalBalance, availableBalance and "
+                 "totalBalanceInNativeCurrency amounts, each reported with the currency stored "
+                 "beside it. What Coinbase means by native currency is not established here. The "
+                 "Currency column is the record's uuid field as stored. Every balance was a "
+                 "stored zero on the tested device. A stored zero was read from the cache; it is "
+                 "not a failed read. On the tested "
                  "device every wallet was a primary account of type WALLET and none was marked "
                  "sanctioned, so those three columns did not distinguish one wallet from another "
                  "there. The account "
@@ -34,19 +39,21 @@ __artifacts_v2__ = {
     },
     "coinbase_account": {
         "name": "Coinbase - Account and Device",
-        "description": "Parses the Coinbase iOS account identifiers, login state and app "
-                       "settings from the app's MMKV store.",
+        "description": "Parses account identifiers, the stored logged-in flag and app "
+                       "settings from the Coinbase iOS app's MMKV store.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-20",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Coinbase",
         "notes": "One row per app data directory. The values are top level keys of the "
-                 "app's MMKV store. Wallet Link User ID is the identifier the app records "
-                 "for the account. Logged In is reported as stored; its meaning beyond the key "
+                 "app's MMKV store. Wallet Link User ID is the @walletlink.user_id key, "
+                 "reported as stored; what it identifies is not established beyond the key "
+                 "name. Logged In is reported as stored; its meaning beyond the key "
                  "name is not established. Push Token is reported as stored. App Version is the "
-                 "version the store "
-                 "recorded. The number of wallets is counted from the same GraphQL cache the "
+                 "@UserVersion.version key, reported as stored; that it is the app's version is "
+                 "not established here. The number of wallets is counted from the same GraphQL "
+                 "cache the "
                  "wallets artifact reads, so the two agree by construction. Field mapping was "
                  "done against a private sample provided by Mattia; no sample data is "
                  "recorded for it.",

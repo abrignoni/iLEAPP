@@ -32,7 +32,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Is Purchased is the isChecked value of the list item (1 is shown as Yes and 0 as "
+                 "No). The label follows the research cited below; a checked item is not by itself "
+                 "proof that the product was bought. Reference: Django Faiola, 'What's in Your "
+                 "Lidl Plus App? An iOS Forensic Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Application Support/databases/ShoppingListDatabase.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
@@ -47,7 +51,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
         "output_types": [ "standard" ],
@@ -61,7 +67,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
         "output_types": [ "standard" ],
@@ -76,7 +84,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
         "output_types": [ "standard" ],
@@ -84,13 +94,20 @@ __artifacts_v2__ = {
     },
     "lidl_loyalty_card": {
         "name": "Lidl Plus - Loyalty Card",
-        "description": "Extracts cached payment QR data and the derived loyalty card number.",
+        "description": "Extracts cached payment QR data and the first 17 characters of that value, "
+                       "reported as Card Number (Derived).",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Card Number (Derived) is the first 17 characters of the cached paymentQR value, "
+                 "filled when that value is at least 17 characters long. The research cited below "
+                 "reports that the app screen shows those 17 digits as the card number; that was "
+                 "observed on the author's test device and is not stored as a separate field. "
+                 "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
         "output_types": [ "standard" ],
@@ -104,7 +121,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Timestamp is the start of the promotion's validity, the same value as Valid "
+                 "From; Cache Time is when the response was cached. Activated and Redeemed are the "
+                 "isActivated and isRedeemed values. When isActivated is absent, Activated is Yes "
+                 "if the status text is ACTIVATED and N/A otherwise; Redeemed is filled the same "
+                 "way from REDEEMED. Reference: Django "
+                 "Faiola, 'What's in Your Lidl Plus App? An iOS Forensic Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
@@ -119,7 +142,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
@@ -128,13 +153,20 @@ __artifacts_v2__ = {
     },
     "lidl_searched_terms": {
         "name": "Lidl Plus - Searched Terms",
-        "description": "Extracts cached product-search requests and sequence metadata.",
+        "description": "Extracts cached product-search requests and sequence columns the parser "
+                       "derives.",
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Sequence ID, Sequence Position and Sequence Final are computed by this parser "
+                 "and are not stored by the app: requests for the same store no more than 6 "
+                 "seconds apart, where the term extends the previous term or shortens it by up to "
+                 "two characters, are grouped into one sequence. A row is a request held in the "
+                 "app's cache; it does not by itself show who typed the term. Reference: Django "
+                 "Faiola, 'What's in Your Lidl Plus App? An iOS Forensic Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
         "output_types": [ "standard" ],
@@ -143,13 +175,21 @@ __artifacts_v2__ = {
     },
     "lidl_store_searches": {
         "name": "Lidl Plus - Store Searches",
-        "description": "Extracts cached store-search requests, request coordinates, and returned stores.",  # pylint: disable=line-too-long
+        "description": "Extracts cached store-search requests, the latitude and longitude "
+                       "parameters of the request, and returned stores.",  # pylint: disable=line-too-long
         "author": "@djangofaiola",
         "creation_date": "2026-07-03",
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Latitude and Longitude are the values sent in the request URL, reported as "
+                 "transmitted. The research cited below describes them as the centre of the search "
+                 "area or map sent to the server, so they are not reported as the device's "
+                 "location. Distance (m) is the distance value of each returned store as stored; "
+                 "the response does not state a unit, and the cited research reads it as metres "
+                 "from the search point. Reference: Django Faiola, 'What's in Your Lidl Plus App? "
+                 "An iOS Forensic Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
         "output_types": [ "all" ],
@@ -163,7 +203,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
@@ -178,7 +220,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",
                   "*/Library/Caches/com.onevcat.Kingfisher.ImageCache.default/*",),
@@ -193,7 +237,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Preferences/com.lidl.eci.lidl.plus.plist",),
         "output_types": [ "all" ],
@@ -207,7 +253,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/"
             "Application Support/SelfScanning/selfScanning.sqlite*",
@@ -223,7 +271,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/"
             "Application Support/SelfScanning/selfScanning.sqlite*",
@@ -239,7 +289,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/"
             "Application Support/SelfScanning/selfScanning.sqlite*",
@@ -255,7 +307,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/"
             "Application Support/GroceryPickup/groceryPickup.sqlite*",
@@ -275,7 +329,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-12",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Reference: Django Faiola, 'What's in Your Lidl Plus App? An iOS Forensic "
+                 "Analysis', "
+                 "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": (
             "*/keychain-backup.plist",
             "*/extra/KeychainDump/backup_keychain_v2.plist",

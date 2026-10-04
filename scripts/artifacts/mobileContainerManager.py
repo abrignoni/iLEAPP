@@ -10,9 +10,13 @@ __artifacts_v2__ = {
         "notes": "Two log phrasings are matched. 'Removing group container [id]' from "
                  "MCMGroupManager _cleanupUnreferencedGroupContainers... is observed on the iOS 15 "
                  "test image. 'Last reference to group container' from MCMGroupManager "
-                 "_removeGroupContainersIfNeeded... appears in no local corpus log (iOS 12-17) and "
-                 "is kept for older logs (unexercised path). An absence of removal lines in a "
-                 "capture is not evidence that no group container was removed.",
+                 "_removeGroupContainersIfNeeded... appears in no tested log (iOS 12.4 to 17.6.1). "
+                 "Which iOS releases write it, and whether such a line records a removal, are not "
+                 "established, and that path has not been exercised on real data. An absence of "
+                 "removal lines in a capture is not evidence that no group container was removed. "
+                 "Datetime is the time written at the start of the log line, which carries no time "
+                 "zone marker; the artifact applies no conversion to it, the report treats it as "
+                 "UTC, and whether the log writes UTC or device-local time is not established here.",
         "paths": ('**/containermanagerd*.log.*',),
         "output_types": "standard",
         "artifact_icon": "trash",

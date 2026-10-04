@@ -1,13 +1,15 @@
 __artifacts_v2__ = {
     "timer": {
         "name": "Timers",
-        "description": "Extraction of timers set",
+        "description": "Timers from com.apple.mobiletimerd.plist with the stored fire time date, "
+                       "last modified date, title, state, duration and sound",
         "author": "Mohammad Natiq Khan",
         "creation_date": "2024-12-22",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Clock",
-        "notes": "",
+        "notes": "The First Date column holds the MTTimerTimeDate value stored under "
+                 "MTTimerFireTime and $MTTimerDate.",
         "paths": ('*/mobile/Library/Preferences/com.apple.mobiletimerd.plist',),
         "output_types": "standard",
         "artifact_icon": "clock",

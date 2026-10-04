@@ -19,27 +19,32 @@ __artifacts_v2__ = {
                  "across the 20 rows of the 5 tested images that hold any, Video Call was Yes on "
                  "12 and Missed was Yes on 4. Missed Reason is reported as stored: the only value "
                  "held is 1, and nothing available defines it. Incoming (as stored) is the app's "
-                 "own ZINCOMING flag and Direction beside it is derived from the group call "
-                 "creator, so the two are independent readings of the same thing: they agreed on "
-                 "all 16 rows where both are present and disagreed on none. On the iOS 14.3 image "
-                 "Direction is blank on every row because that release has no group call creator "
-                 "column, and the stored flag fills in there. Bytes Sent and Bytes Received are "
-                 "the call's own byte counts. Call ID is the call's ZCALLIDSTRING and was present "
-                 "on 14 of the 20 rows; the column is absent from the database on the iOS 17.1 "
-                 "and 14.3 images. Group JID held no value on any row of any tested image, so no "
-                 "group call is recorded among them, and the column is kept because the database "
-                 "declares it. The file also holds ZWAJOINABLECALLEVENT, present and empty on "
-                 "every tested image, and ZWAUPCOMINGCALLEVENT, present and empty on all but the "
-                 "iOS 14.3 image, which does not have it; neither is read. Ending Timestamp is "
-                 "the start plus the stored duration, so it equals Starting Timestamp on a call "
-                 "of no duration: 7 of the 20 rows have a duration of 00:00:00 and those are "
-                 "exactly the rows where the two timestamps are equal, and exactly the rows whose "
-                 "Disconnected cause reads Missed. Contact Fullname and Phone Number come from "
-                 "the separate address book database and were filled on 12 of the 20 rows, blank "
-                 "where the participant has no entry there. Contact ID is the participant the "
-                 "call was with and can legitimately repeat: it held a single value across every "
-                 "row of the 2 rows of the iOS 17.1 image and the 4 rows of the iOS 14.3 image, "
-                 "which is that many calls with the same party.",
+                 "own ZINCOMING flag and Direction beside it is set by this module: Incoming when "
+                 "the stored group call creator JID equals the row's participant JID, Outgoing "
+                 "when both are present and differ, blank where no creator is stored, and the "
+                 "stored creator value where the participant JID is absent. So the two are "
+                 "independent readings of the same thing: they agreed on all 16 rows where both "
+                 "are present and disagreed on none. On the iOS 14.3 image Direction is blank on "
+                 "every row because that release has no group call creator column, and the stored "
+                 "flag fills in there. Bytes Sent and Bytes Received are the call's own byte "
+                 "counts. Call ID is the call's ZCALLIDSTRING and was present on 14 of the 20 "
+                 "rows; the column is absent from the database on the iOS 17.1 and 14.3 images. "
+                 "Group JID held no value on any row of any tested image; the column is kept "
+                 "because the database declares it. The file also holds ZWAJOINABLECALLEVENT, "
+                 "present and empty on every tested image, and ZWAUPCOMINGCALLEVENT, present and "
+                 "empty on all but the iOS 14.3 image, which does not have it; neither is read. "
+                 "Ending Timestamp is the start plus the stored duration, so it equals Starting "
+                 "Timestamp on a call of no duration: 7 of the 20 rows have a duration of "
+                 "00:00:00 and those are exactly the rows where the two timestamps are equal, and "
+                 "exactly the rows whose Disconnected cause reads Missed. Contact Fullname and "
+                 "Phone Number come from the separate address book database and were filled on 12 "
+                 "of the 20 rows, blank where the participant has no entry there. Contact ID is "
+                 "the ZJIDSTRING of a participant record paired with the call where the call's "
+                 "Z1CALLEVENTS equals the participant's Z1PARTICIPANTS. Which records those two "
+                 "keys point at was not read from the Core Data model, so where one aggregate "
+                 "covers more than one call a row is not shown to be one call with one party. The "
+                 "same value can repeat across rows: it held a single value on the 2 rows of the "
+                 "iOS 17.1 image and on the 4 rows of the iOS 14.3 image.",
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/CallHistory.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -69,21 +74,28 @@ __artifacts_v2__ = {
         'last_update_date': '2026-09-19',
         'requirements': '',
         'category': 'WhatsApp',
-        'notes': 'Metadata Field 17 and Metadata Field 21 are read off the ZMETADATA protobuf wire '
-        'format by a reader that decodes those two fields and skips every other field by the '
-        'length its wire type gives, so a blob it cannot walk yields what was read before '
-        'that point and does not stop the artifact. A ZMETADATA value stored as text or a '
-        'number, which SQLite permits, yields blank Metadata columns for that row; no tested '
-        'image holds one, so that branch is exercised by constructed input. Field 17 is '
-        'taken as a varint and Field '
-        '21 as a UTF-8 string; the forward count and forwarder labels are observed and have '
-        'no vendor source. On 10 of the tested images, 1,350 media item rows carry a metadata '
-        'blob; Field 17 was present on 2 of them, both on the iOS 17.5.1 image, and Field 21 '
-        'on none of them, so the forwarder column and its ContactsV2 lookup are exercised by '
-        'constructed input and not by any tested image. Where Field 21 is present, the '
-        "ContactsV2 address book is read once per run and the matching contact's full name "
-        'and phone number are shown beside the ID. Coordinates are emitted only for rows '
-        'whose ZMESSAGETYPE is 5; the ZMESSAGETYPE value mapping is not sourced.',
+        'notes': "Metadata Field 17 and Metadata Field 21 are read off the ZMETADATA protobuf "
+                 "wire format by a reader that decodes those two fields and skips every other "
+                 "field by the length its wire type gives, so a blob it cannot walk yields what "
+                 "was read before that point and does not stop the artifact. A ZMETADATA value "
+                 "stored as text or a number, which SQLite permits, yields blank Metadata columns "
+                 "for that row; no tested image holds one, so that branch is exercised by "
+                 "constructed input. Field 17 is taken as a varint and Field 21 as a UTF-8 "
+                 "string; the forward count and forwarder labels are observed and have no vendor "
+                 "source. On 10 of the tested images, 1,350 media item rows carry a metadata "
+                 "blob; Field 17 was present on 2 of them, both on the iOS 17.5.1 image, and "
+                 "Field 21 on none of them, so the forwarder column and its ContactsV2 lookup are "
+                 "exercised by constructed input and not by any tested image. Where Field 21 is "
+                 "present, the ContactsV2 address book is read once per run and the matching "
+                 "contact's full name and phone number are shown beside the ID. Coordinates are "
+                 "emitted only for rows whose ZMESSAGETYPE is 5; the ZMESSAGETYPE value mapping "
+                 "is not sourced. Sender Name is Local User where ZISFROMME is 1 and otherwise "
+                 "the chat's ZPARTNERNAME, the same value shown as Chat Name. In a group chat "
+                 "that is the name of the chat and not the member who sent the message, which "
+                 "this artifact does not resolve: on otto_ios17 Sender Name equals Chat Name on "
+                 "all 1,440 Incoming rows of its 11 group chats. From ID is the stored ZFROMJID. "
+                 "Direction is Outgoing where ZISFROMME is 1 and Incoming for every other value; "
+                 "on otto_ios17 and dexter_ios18 ZISFROMME held only 0 or 1.",
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',
             '*/mobile/Containers/Shared/AppGroup/*/ContactsV2.sqlite*',
@@ -119,7 +131,9 @@ __artifacts_v2__ = {
     },
     'whatsAppContacts': {
         'name': 'WhatsApp - Contacts',
-        'description': 'Extract contacts registered in WhatsApp',
+        'description': "Contact rows from the ZWAADDRESSBOOKCONTACT table of WhatsApp "
+                       "ContactsV2.sqlite, with name, about text, phone number and WhatsApp ID as "
+                       "stored",
         'author': '@AlexisBrignoni',
         'creation_date': '2021-03-26',
         'last_update_date': '2025-04-08',

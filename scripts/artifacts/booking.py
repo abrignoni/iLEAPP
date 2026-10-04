@@ -17,7 +17,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from two files, KeyValueStorageAccountDomain and AccountSettings. "
+                 "Each of those files that is read adds one row, so one account can appear as two "
+                 "rows. The Source File Name column holds the path of the file a row came from. "
+                 "Reference: Django Faiola, 'iOS Booking.com - Hotels & Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageAccountDomain*",
                   "*/mobile/Containers/Data/Application/*/Library/Application Support/"
@@ -34,7 +38,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows come from the travellers list of the AccountSettings file. Only the first "
+                 "matching file that yields rows is read. A second copy of the store (another app "
+                 "container, or the same store with and without the .plist extension) is not "
+                 "reported. Reference: Django Faiola, 'iOS Booking.com - Hotels & Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "AccountSettings*"),
         "output_types": [ "lava", "html", "tsv" ],
@@ -42,13 +50,17 @@ __artifacts_v2__ = {
     },
     "booking_payment_methods": {
         "name": "Booking - Payment Methods",
-        "description": "Extracts Booking.com saved payment methods and credit card details.",
+        "description": "Extracts Booking.com the payment cards stored for the account: identifier, type, status, expiry, cardholder name and last digits as stored.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from two files, KeyValueStorageAccountDomain and AccountSettings, "
+                 "so one card can appear as two rows. The Source File Name column holds the path of "
+                 "the file a row came from. Reference: Django Faiola, 'iOS Booking.com - Hotels & "
+                 "Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageAccountDomain*",
                   "*/mobile/Containers/Data/Application/*/Library/Application Support/"
@@ -64,7 +76,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per hotel identifier in each list of the wishlists array of "
+                 "KeyValueStorageRecentsDomain. The list stores the hotel identifier, not the hotel "
+                 "name. Only the first matching file that yields rows is read. A second copy of the "
+                 "store (another app container, or the same store with and without the .plist "
+                 "extension) is not reported. Reference: Django Faiola, 'iOS Booking.com - Hotels & "
+                 "Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageRecentsDomain*"),
         "output_types": [ "standard" ],
@@ -78,7 +96,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per entry of the viewed dictionary of KeyValueStorageRecentsDomain. Last "
+                 "Viewed is the entry's lastViewed value. Hotel Type labels follow the code list in "
+                 "the cited research; other codes are shown as N/D with the stored number. The "
+                 "cited research reports that the app version it tested in 2024 did not write this "
+                 "dictionary, so an empty result is not evidence that no property was viewed. Only "
+                 "the first matching file that yields rows is read. A second copy of the store "
+                 "(another app container, or the same store with and without the .plist extension) "
+                 "is not reported. Reference: Django Faiola, 'iOS Booking.com - Hotels & Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageRecentsDomain*"),
         "output_types": [ "standard", "kml"],
@@ -94,7 +120,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per entry of the stored_searches array of KeyValueStorageRecentsDomain. "
+                 "Location Type labels follow the code list in the cited research; other codes are "
+                 "shown as N/D with the stored number. The cited research reports that the list "
+                 "holds ten entries and that a new search for a destination already listed replaces "
+                 "its entry, so a destination absent from the list is not evidence it was never "
+                 "searched. Only the first matching file that yields rows is read. A second copy of "
+                 "the store (another app container, or the same store with and without the .plist "
+                 "extension) is not reported. Reference: Django Faiola, 'iOS Booking.com - Hotels & "
+                 "Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageRecentsDomain*"),
         "output_types": [ "standard", "kml"],
@@ -102,13 +137,21 @@ __artifacts_v2__ = {
     },
     "booking_recently_booked": {
         "name": "Booking - Recently Booked",
-        "description": "Extracts Booking.com recently booked accommodations and reservations.",
+        "description": "Extracts Booking.com the properties listed under the booked key of the recents store, with the check-in and check-out hours of each property.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per entry of the booked dictionary of KeyValueStorageRecentsDomain. The "
+                 "columns headed Check-In (Hotel Time Zone) and Check-Out (Hotel Time Zone) are the "
+                 "property's check-in and check-out hours, not the dates of a stay. No time zone "
+                 "conversion is applied to them, and a missing hour prints as 00:00, which is not a "
+                 "stored value. Hotel Type labels follow the code list in the cited research. Only "
+                 "the first matching file that yields rows is read. A second copy of the store "
+                 "(another app container, or the same store with and without the .plist extension) "
+                 "is not reported. Reference: Django Faiola, 'iOS Booking.com - Hotels & Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageRecentsDomain*"),
         "output_types": [ "lava", "html", "tsv", "kml"],
@@ -117,13 +160,23 @@ __artifacts_v2__ = {
     },
     "booking_booked": {
         "name": "Booking - Booked",
-        "description": "Extracts Booking.com saved and confirmed reservations.",
+        "description": "Extracts Booking.com reservations held in the BookingClouds store, including cancelled ones.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per entry of DeviceBookings and AccountBookings in the BookingClouds "
+                 "file. A cancelled reservation stays in the store; the Rooms column shows the "
+                 "Cancelled flag and Cancel date for each room. Total Price is the stored "
+                 "totalprice with the stored currency code; when the store holds no price the "
+                 "column reads 0.00, which is not a stored value. Attachment is the PDF named "
+                 "\"Booking #<confirmation number>.pdf\" in the app's Documents folder when "
+                 "present. Only the first matching file that yields rows is read. A second copy of "
+                 "the store (another app container, or the same store with and without the .plist "
+                 "extension) is not reported. Reference: Django Faiola, 'iOS Booking.com - Hotels & "
+                 "Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "BookingClouds*",
                   "*/mobile/Containers/Data/Application/*/Documents/Booking #*.pdf",
@@ -143,7 +196,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per entry of the stored_destinations array of "
+                 "KeyValueStorageSharedDomain. Location Type labels follow the code list in the "
+                 "cited research; other codes are shown as N/D with the stored number. In the one "
+                 "timed test the cited research describes, Created matched the moment a suggested "
+                 "destination was selected, before the search was run. Only the first matching file "
+                 "that yields rows is read. A second copy of the store (another app container, or "
+                 "the same store with and without the .plist extension) is not reported. Reference: "
+                 "Django Faiola, 'iOS Booking.com - Hotels & Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "KeyValueStorageSharedDomain*"),
         "output_types": [ "standard", "kml"],
@@ -152,13 +213,19 @@ __artifacts_v2__ = {
     },
     "booking_notifications": {
         "name": "Booking - Notifications",
-        "description": "Extracts Booking.com app notifications and messages.",
+        "description": "Extracts Booking.com app notifications (title and body) from the ZNOTIFICATION table of NotificationsModel.sqlite.",
         "author": "@djangofaiola",
         "creation_date": "2024-05-28",
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Timestamp is ZDATE read as a Core Data time, seconds since 2001, in UTC. Viewed "
+                 "and Deleted are read from the stored ZVIEWED and ZLOCALLYDELETED flags: Yes for a "
+                 "non-zero value and No otherwise, so a No can also be a missing value. What sets "
+                 "each flag is not established here. Action Arguments is the decoded "
+                 "ZACTIONARGUMENTS plist. Reference: Django Faiola, 'iOS Booking.com - Hotels & "
+                 "Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "NotificationsModel.sqlite*"),
         "output_types": [ "standard" ],
@@ -172,7 +239,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-03-31",
         "requirements": "none",
         "category": "Booking.com",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "One row per entry of the value array of each flight_rs_v2 JSON file. Last Updated "
+                 "is the entry's lastUpdated value. A value with no offset is read as UTC; whether "
+                 "the app writes it in UTC was not established. Reference: Django Faiola, 'iOS "
+                 "Booking.com - Hotels & Travel', "
+                 "https://djangofaiola.blogspot.com/2024/07/ios-bookingcom-hotels-travel.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/Application Support/"
                   "flight_rs_v2"),
         "output_types": [ "standard" ],

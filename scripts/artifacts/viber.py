@@ -10,7 +10,10 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': '',
         'category': 'Viber',
-        'notes': 'Negative values are reported as stored.',
+        'notes': 'The _autoBackupLastRunTime value is converted from Unix time to UTC unless it '
+                 'is negative, in which case it is shown as stored. The _lastBackupStartDate '
+                 'value and the two backup attempt counters are shown as stored with no '
+                 'conversion. What a negative value records is not established.',
         'paths': ('*/com.viber/settings/Settings.data',),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'settings',
@@ -47,9 +50,9 @@ __artifacts_v2__ = {
     },
     'viber_call_remnants': {
         'name': 'Viber - Call Remnants',
-        'description': "Parses contacts db and reports ZRECENT call rows that have no "
-                       "corresponding ZVIBERMESSAGE entry; why the entry is missing is not "
-                       "established.",
+        'description': "Parses contacts db and reports ZRECENT call rows whose ZCALLLOGMESSAGE "
+                       "and ZRECENTSLINE are both NULL; why those values are NULL is not "
+                       "established. No registered corpus in sample_data produced a row.",
         'author': 'Evangelos Dragonas (@theAtropos4n6)',
         'creation_date': '2022-03-09',
         'last_update_date': '2026-07-31',
@@ -78,7 +81,12 @@ __artifacts_v2__ = {
         'requirements': '',
         'category': 'Viber',
         'notes': 'Column-to-meaning alignment for ZDATE/ZSTATEDATE follows the '
-                 "column names; the app's exact semantics are not vendor-documented.",
+                 "column names; the app's exact semantics are not vendor-documented. State is "
+                 "derived by this module: ZSTATE send or delivered is shown as Outgoing and "
+                 "received as Incoming; other values are shown as stored. On Outgoing rows the "
+                 "sender columns are filled from the _myUserName and _myPhoneNumber settings, and "
+                 "those two values are appended to every Chat Participant(s) and Chat Phone(s) "
+                 "cell.",
         'paths': (
             '**/com.viber/database/Contacts.data*',
             '**/Containers/Data/Application/*/Documents/Attachments/*.*',

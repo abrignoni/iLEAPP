@@ -1,11 +1,13 @@
 __artifacts_v2__ = {
 'Ph084CameraSmartSharingMetadataPlist': {
 'name': 'Ph084-Camera-Smart-Sharing-Metadata-Plist',
-'description': 'Parses basic data from */PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist'
-' which contains some important data related to iCloud Shared Photos Library'
-' Smart Camera Settings and auto sharing. Additional information and explanation of some'
-' keys-fields might be found with research and published blogs written by Scott Koenig'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic data from'
+' */PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist and reports seven'
+' keys as stored: creationDate, homeLocations, frequentLocations, identities,'
+' locationShiftingRequired, version and libraryScopeLocalIdentifier. Other keys are not'
+' reported. One row is written for the first file matched, with blank cells when a key'
+' is absent or the file cannot be decoded. What the keys mean is not established here.'
+' sample_data records a row on one image (iOS 18.3.2).',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

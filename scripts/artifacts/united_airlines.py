@@ -34,8 +34,8 @@ __artifacts_v2__ = {
         "notes": (
             "Core Data: ZUACDUSER.ZSAVEDTRAVELERSJSON (simplifiedTravelers). "
             "Per-traveler MileagePlus and KTN values, where present, are reported by the Trip "
-            "Passengers artifact rather than here. The column was absent in some examined "
-            "extractions."
+            "Passengers artifact rather than here. A database whose ZUACDUSER table has no "
+            "ZSAVEDTRAVELERSJSON column gives no row."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -45,7 +45,8 @@ __artifacts_v2__ = {
     },
     "united_trips": {
         "name": "United - Trips",
-        "description": "Active and past United wallet reservations and flight segments.",
+        "description": "Reservations and flight segments from the United wallet reservation "
+                       "tables and their past-reservation counterparts.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-31",
@@ -71,7 +72,10 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": (
             "Core Data: ZUACDWALLETRESERVATION.ZJSON / ZUACDWALLETPASTRESERVATION.ZJSON "
-            "(pnr.passengers); falls back to ZUACDWALLETMBP when reservation JSON is empty."
+            "(pnr.passengers); also reports each distinct passenger on ZUACDWALLETMBP rows with "
+            "Source Type Mobile Boarding Pass, whether or not the reservation JSON held "
+            "passengers, so one passenger can appear once from each source. Repeats of the same "
+            "status, record locator, name, MileagePlus ID and KTN are reported once."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -88,9 +92,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
-            "Core Data table: ZUACDWALLETMBP. "
-            "In some examined extractions this table held rows while the wallet reservation JSON "
-            "was empty."
+            "Core Data table: ZUACDWALLETMBP."
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*"
@@ -159,7 +161,11 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "notes": (
             "Source: Documents/logFile.txt (concatenated JSON travel-mode status history). "
-            "The file was not present in every examined extraction."
+            "The path patterns match the file only where the folder above Documents is named with "
+            "the bundle id (a name beginning with it, or that name with the AppDomain prefix); a "
+            "container "
+            "named by GUID is not matched. The first matched file is read, and reading stops at "
+            "the first text that is not valid JSON."
         ),
         "paths": (
             "*/com.united.UnitedCustomerFacingIPhone*/Documents/logFile.txt",
@@ -170,7 +176,10 @@ __artifacts_v2__ = {
     },
     "united_ife_watch_history": {
         "name": "United - IFE Playback Resume Positions",
-        "description": "Inflight entertainment playback resume positions from prefs and Core Data.",
+        "description": "Rows of the ZUACDINFLIGHTMEDIA Core Data table and the .mpd, .mp4 and "
+                       "MOV_ keys of the app preferences plist, with the position value as "
+                       "stored. The tested table held no rows and the preferences branch is "
+                       "unexercised, so what the values record is not established.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-31",
@@ -178,7 +187,13 @@ __artifacts_v2__ = {
         "category": "United Airlines",
         "sample_data": {'abe_ios16': 'iOS 16.5 | 0 rows'},
         "notes": (
-            'Core Data table: ZUACDINFLIGHTMEDIA; also app prefs com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys). On abe_ios16 the Core Data store is read and its ZUACDINFLIGHTMEDIA table is present with no rows. The preferences plist was not found on any of the 21 registered corpora whose listings were checked, so the preferences branch is unexercised.'
+            'Core Data table: ZUACDINFLIGHTMEDIA; also app prefs '
+            'com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys). On abe_ios16 '
+            'the Core Data store is read and its ZUACDINFLIGHTMEDIA table is present with no '
+            'rows. The preferences plist was not found on any of the 21 registered corpora whose '
+            'listings were checked. The path pattern matches it only where a folder named '
+            'com.united.UnitedCustomerFacingIPhone sits directly above Library/Preferences, so a '
+            'GUID-named container is not matched. The preferences branch is unexercised.'
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*",
@@ -190,7 +205,9 @@ __artifacts_v2__ = {
     },
     "united_watch_complications": {
         "name": "United - Watch Complications",
-        "description": "Trip summary data shared with Apple Watch complications.",
+        "description": "Trip entries from the WatchComplicationsData.WatchData value of the "
+                       "United app group preferences plist. What the app uses the value for is "
+                       "not established.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
         "last_update_date": "2026-07-15",
@@ -220,7 +237,10 @@ __artifacts_v2__ = {
         "notes": (
             "Source: MobileSMS PluginMetaDataCache plist for "
             "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension. "
-            "Handles present in the plugin's metadata cache; not full message content. "
+            "Keys of the plugin's metadata cache that are phone numbers starting with +, bare or "
+            "after the iMessage;-; prefix; other keys, such as email handles, are not reported. "
+            "This artifact reports no message content. What the presence of a number records is "
+            "not established. "
             "The same cache can also be present under the notification extension domain; both "
             "copies are read where present."
         ),

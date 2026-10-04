@@ -1,7 +1,10 @@
 __artifacts_v2__ = {
     "teamsSegmentLocations": {
         "name": "Microsoft Teams - Locations",
-        "description": "Location segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "description": "Location records from the JSON-lines files under "
+                       "Library/DriveIQ/segments/current in an app container (seen in Microsoft "
+                       "Teams 2.3.1). The owning app is not checked. Timestamp is the record's "
+                       "sourceTimestamp read as UTC",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-07-31",

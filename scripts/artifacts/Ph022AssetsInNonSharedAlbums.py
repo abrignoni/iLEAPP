@@ -1,9 +1,12 @@
 __artifacts_v2__ = {
 'Ph022AssetsinNonSharedAlbumsPhDaPsql': {
 'name': 'Ph022-Assets in Non-Shared Albums-PhDaPsql',
-'description': 'Parses Assets associated with Non-Shared Albums found in PhotoData-Photos.sqlite and'
-' supports iOS. Parses limited assets data with full non-shared album data.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses Assets associated with Non-Shared Albums found in PhotoData/Photos.sqlite. "
+"Parses selected asset columns with the album, parent album and album list columns "
+"listed in the report, for albums of kind 2. An asset appears on one row for each "
+"combination of such an album and album list record joined to it. Queries exist for "
+"iOS 11 through 26; other versions return no rows. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

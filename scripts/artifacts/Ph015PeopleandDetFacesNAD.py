@@ -1,9 +1,19 @@
 __artifacts_v2__ = {
 'Ph015_1PeopleFacesNADPhDaPsql': {
 'name': 'Ph015.1-People & Faces NAD-PhDaPsql',
-'description': 'Parses data from PhotoData-Photos.sqlite for people - detected faces - face crop data.'
-' The results may contain multiple records per ZASSET table Z_PK value and supports iOS.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses data from PhotoData-Photos.sqlite for people - detected faces - face crop'
+' data. The labels shown for the face and person attribute codes (gender, age, ethnicity, skin'
+' tone, expression and others) were assigned by the module author. No source for each mapping is'
+' cited here, and the cited post states that the people and face data still require additional'
+' research and decoding and should be verified. The stored integer is kept in each label. Values'
+' labelled StillTesting have no established meaning. The results may contain multiple records per'
+' ZASSET table Z_PK value. Each row comes from a detected face record. Face crops are joined'
+' through the person and not through the face, so a detected face is repeated once for each face'
+' crop held for its person, and the face crop shown on a row is one of the crops of that person and'
+' is not established to be a crop of the face on that row. A row count is not a count of faces or'
+' of assets. The artifact runs on iOS 14 through 26. On other iOS versions it returns no rows'
+' without reading the database, so an empty result there is not evidence that the database holds no'
+' face records. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-09-19',
@@ -35,9 +45,19 @@ __artifacts_v2__ = {
 },
 'Ph015_2PeopleFacesNADSyndPL': {
 'name': 'Ph015.2-People & Faces NAD-SyndPL',
-'description': 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for'
-' people - detected faces - face crop data. The results may contain multiple records'
-' per ZASSET table Z_PK value and supports iOS.'
+'description': 'Parses data from Syndication.photoslibrary-database-Photos.sqlite for people -'
+' detected faces - face crop data. The labels shown for the face and person attribute codes'
+' (gender, age, ethnicity, skin tone, expression and others) were assigned by the module author. No'
+' source for each mapping is cited here, and the cited post states that the people and face data'
+' still require additional research and decoding and should be verified. The stored integer is kept'
+' in each label. Values labelled StillTesting have no established meaning. The results may contain'
+' multiple records per ZASSET table Z_PK value. Each row comes from a detected face record. Face'
+' crops are joined through the person and not through the face, so a detected face is repeated once'
+' for each face crop held for its person, and the face crop shown on a row is one of the crops of'
+' that person and is not established to be a crop of the face on that row. A row count is not a'
+' count of faces or of assets. The artifact runs on iOS 14 through 26. On other iOS versions it'
+' returns no rows without reading the database, so an empty result there is not evidence that the'
+' database holds no face records.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',

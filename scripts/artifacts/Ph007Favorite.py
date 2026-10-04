@@ -1,10 +1,9 @@
 __artifacts_v2__ = {
 'Ph007_1FavoritePhDaPsql': {
 'name': 'Ph007.1-Favorite-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for favorite assets'
-' and supports iOS. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZFAVORITE value is 1,'
+' on iOS 11 through 26. The results for this script will contain one row per ZASSET table Z_PK'
+' value. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -12,7 +11,12 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. The header'
+" 'zCldMast-Import Session ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A"
+" link between that value and AirDrop is not established in this module. The header 'zAsset-UUID"
+" = store.cloudphotodb' reports the asset table's ZUUID. The match with store.cloudphotodb that"
+' the header names is not established in this module.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "heart",
@@ -36,9 +40,9 @@ __artifacts_v2__ = {
 },
 'Ph007_3FavoriteGenPlayPsql': {
 'name': 'Ph007.3-Favorite-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for favorite assets'
-' and supports iOS. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose ZFAVORITE value is 1, on'
+' iOS 18 through 26. The only corpus in sample_data is at 0 rows. The results for this script'
+' will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',

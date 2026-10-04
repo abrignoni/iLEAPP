@@ -3,14 +3,22 @@
 __artifacts_v2__ = {
     "sdl_account_devices": {
         "name": "Sysdiagnose - Account Devices",
-        "description": "Parses the otctl_status.txt file from Sysdiagnose logs, \
-            to get informations about peers in the account's Octagon trust circle (iCloud Keychain syncing).",
+        "description": "Parses otctl_status.txt from sysdiagnose logs for the peers listed under contextDump/peers, one row per serial number: model, OS build and serial as stored, with the file's lastOctagonPush value.",
         "author": "@C_Peter",
         "creation_date": "2025-05-22",
         "last_update_date": "2026-09-11",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "OCTL refers to the Octagon Account (iCloud Keychain). Reference: Apple Security open source (OctagonTrust; otctl man page: 'diagnostic information for iCloud Keychain syncing'), https://github.com/apple-oss-distributions/Security",
+        "notes": (
+            "otctl_status.txt is named for otctl, a command line tool whose man page describes it "
+            "as a 'Command line interface do provide diagnostic information for iCloud Keychain "
+            "syncing'. A peer lacking model_id, os_version or serial_number, or whose serial "
+            "number was already reported, including from another sysdiagnose, is not listed. "
+            "lastOctagonPush is a value of the file and repeats on every row from it. Product and "
+            "OS Version are looked up from the tool's tables. Reference: Apple Security open "
+            "source, otctl man page, "
+            "https://github.com/apple-oss-distributions/Security/blob/5366a77746f485a8846aeabf7e8b64d3a25cebfd/keychain/otctl/otctl.1#L6"
+        ),
         "paths": (
             '*/otctl_status.txt',
             '*/sysdiagnose_*.tar.gz'),

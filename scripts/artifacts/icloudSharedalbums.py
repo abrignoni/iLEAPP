@@ -51,7 +51,7 @@ __artifacts_v2__ = {
     },
     "icloudSharedPersonInfo": {
         "name": "iCloud Shared Albums - Person Info",
-        "description": "iCloud shared album participants (cloudSharedPersonInfos.plist)",
+        "description": "Person records held in cloudSharedPersonInfos.plist of the iCloud shared album data (first email address of each record)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "iCloud Shared Albums", "notes": "",
         "paths": ('*/mobile/Media/PhotoData/PhotoCloudSharingData/*',),

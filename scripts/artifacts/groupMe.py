@@ -24,7 +24,11 @@ __artifacts_v2__ = {
                  'nobody) is the deletion permission setting and is not this column. '
                  'Older stores lack the column and are read as NULL, observed on an iOS '
                  '14.3 image; on an iOS 15.3.1 image the archived object carries '
-                 'isSystemDeleted with no deletionActor key.',
+                 'isSystemDeleted with no deletionActor key. From Me is 1 when the row\'s sender id '
+                 'equals the userId value in com.groupme.iphone-app.plist, 0 when it does not, and '
+                 'blank for system messages or when no userId was read from that file. Chat Type is '
+                 'Group when the linked chat row stores the type group and Direct Message '
+                 'otherwise, including when no chat row is linked.',
         'paths': (
             '*/mobile/Containers/Data/Application/*/Library/Application Support/GroupMe.sqlite*',
             '*/mobile/Containers/Data/Application/*/Documents/GroupMe.sqlite*',
@@ -51,7 +55,8 @@ __artifacts_v2__ = {
     },
     'groupMeChats': {
         'name': 'GroupMe - Chats',
-        'description': 'Direct message threads and groups known to the GroupMe application',
+        'description': 'Rows of the ZGMCHAT table of GroupMe.sqlite. Chat Type reads Group when '
+                       'the stored type is group and Direct Message for any other stored value',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-08-18',

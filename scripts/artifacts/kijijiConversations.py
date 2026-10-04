@@ -1,15 +1,21 @@
 __artifacts_v2__ = {
     "kijijiConversations": {
         "name": "Kijiji Conversations",
-        "description": "Chat messages sent and received using the Kijiji application",
+        "description": "Messages held in a Library/Caches/conversation_cache JSON file of the "
+                       "layout the Kijiji app uses. The file is matched by name only, so the "
+                       "owning app should be confirmed from the source path shown with the "
+                       "artifact. No tested image is recorded for this artifact.",
         "author": "Terry Chabot (Krypterry)",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Kijiji Conversations",
-        "notes": "Kijiji.ca is a Canadian online classified advertising site. Message timestamps are "
-                 "read as Cocoa/Mac absolute time (seconds since 2001-01-01 UTC) and rendered in "
-                 "UTC.",
+        "notes": "Kijiji.ca is a Canadian online classified advertising site. Message timestamps "
+                 "are read as Cocoa/Mac absolute time (seconds since 2001-01-01 UTC) and rendered "
+                 "in UTC. A message whose sender value is 0 is shown as sent by 'Local User' and "
+                 "any other value as sent by the counter party; no source for that mapping is "
+                 "cited and it was not measured on known data. The State column is the "
+                 "messageStatus value as stored.",
         "paths": ('*/Library/Caches/conversation_cache',),
         "output_types": "standard",
         "artifact_icon": "message-circle"

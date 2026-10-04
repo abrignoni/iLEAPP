@@ -2,13 +2,17 @@ __artifacts_v2__ = {
     "get_spotlightIndexCache": {
         "name": "Spotlight Index Cache V2",
         "description": "Text content of the CoreSpotlight index.spotlightV2 cache text files, "
-                       "with each file's modified time, cache folder and file name.",
+                       "with the cache folder, the file name and the modified time of the "
+                       "tool's staged copy of each file.",
         "author": "@snoop168",
         "creation_date": "2025-10-09",
         "last_update_date": "2025-10-09",
         "requirements": "none",
         "category": "Spotlight",
-        "notes": "",
+        "notes": "File Modified Time is the modification time of the copy the tool staged, "
+                 "reported in UTC. It is not read from a record inside the evidence. For a zip "
+                 "extraction the tool sets that time from the zip entry's date and time, which "
+                 "has no time zone and is read in the local zone of the machine that ran the tool.",
         "paths": ('*/var/mobile/Library/Spotlight/CoreSpotlight/NSFileProtectionCompleteUntilFirstUserAuthentication/index.spotlightV2/Cache/*/*.txt'),
         "output_types": "standard",
         "artifact_icon": "search",

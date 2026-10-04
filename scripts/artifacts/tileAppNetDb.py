@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     'tileAppNetDb': {
         'name': 'Tile App Account Information',
-        'description': 'Parses the registered Tile account (registration timestamp, email, full name and phone number) from TileNetworkDB.',
+        'description': 'Parses the rows of the ZTILENTITY_USER table (registration timestamp, '
+                       'email, full name and phone number) from TileNetworkDB.',
         'author': '@AlexisBrignoni',
         'creation_date': '2020-09-03',
         'last_update_date': '2025-04-05',

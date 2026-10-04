@@ -1,10 +1,13 @@
 __artifacts_v2__ = {
 'Ph017_1GenAIDetectedPhDaPsql': {
 'name': 'Ph017.1-Gen_AI_Detected-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets'
-' with Gen AI Type >0 and supports iOS. The results for this script'
-' will contain one row per ZASSET table Z_PK value.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose'
+' ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
+' values record is not established here. The labels shown for values 1 and 2 were assigned by'
+' the module author and no source for them is cited. The stored integer is kept in each label.'
+' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it returns no rows'
+' without reading the database. The results for this script will contain one row per ZASSET'
+' table Z_PK value.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -37,9 +40,12 @@ __artifacts_v2__ = {
 'Ph017_2GenAIDetectedSyndPL': {
 'name': 'Ph017.2-Gen_AI_Detected-SyndPL',
 'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets'
-' with Gen AI Type >0 and supports iOS. The results for this script'
-' will contain one row per ZASSET table Z_PK value.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+' whose ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
+' values record is not established here. The labels shown for values 1 and 2 were assigned by'
+' the module author and no source for them is cited. The stored integer is kept in each label.'
+' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it returns no rows'
+' without reading the database. The results for this script will contain one row per ZASSET'
+' table Z_PK value.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -68,10 +74,13 @@ __artifacts_v2__ = {
 },
 'Ph017_3GenAIDetectedGenPlayPsql': {
 'name': 'Ph017.3-Gen_AI_Detected-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets'
-' with Gen AI Type >0 and supports iOS. The results for this script'
-' will contain one row per ZASSET table Z_PK value.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose'
+' ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
+' values record is not established here. The labels shown for values 1 and 2 were assigned by'
+' the module author and no source for them is cited. The stored integer is kept in each label.'
+' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it produces no rows and'
+' does not read the database. The results for this script will contain one row per ZASSET'
+' table Z_PK value.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

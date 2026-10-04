@@ -1,12 +1,18 @@
 __artifacts_v2__ = {
 'Ph033iCldSPLAssetsfromothercontribPhDaPsql': {
 'name': 'Ph033-iCld SPL Assets from other contrib-PhDaPsql',
-'description': 'Parses Assets in iCloud Shared Photo Library from other contributors'
-' from PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
-' Parses basic asset and iCloud SPL data for assets that were shared by other contributors.'
-' If you are attempting to match SPL count with results please check'
-' hidden, trashed, and burst assets.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses ZASSET records from PhotoData/Photos.sqlite for assets tied to an iCloud "
+"Shared Photo Library, joined to their ZSHARE and ZSHAREPARTICIPANT records. Queries "
+"exist for iOS 16 through 26; other versions return no rows. On iOS 16 and 17 the "
+"rows are limited to assets whose contributor record has ZISCURRENTUSER = 0. On iOS "
+"18 and later the query applies no contributor filter and returns each asset whose "
+"ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE is 1; read the SPLzSharePartic-Is Current User "
+"column on each row. On dexter_ios18 (iOS 18.3.2) that column marks the current user "
+"on 801 of the 864 rows and another participant on 63. The iOS 16 and 17 filter "
+"returned no rows on abe_ios16, otto_ios17, felix_ios17 and iphone11_ios17, so it is "
+"not exercised. If you are attempting to match SPL count with results please check "
+"hidden, trashed, and burst assets. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

@@ -6,7 +6,9 @@ __artifacts_v2__ = {
                        "DigitalSourceType tags. Reports the claim generator, edit actions, digital "
                        "source type, author/creator, credit/copyright, ingredients (prior assets), "
                        "the stated signer certificate and signing time, and an AI-generated "
-                       "indicator. Can indicate, per the embedded provenance claims, whether an "
+                       "indicator derived by this module from the declared digital source type "
+                       "(Yes, Possible, No or Unknown; No and Unknown describe the declaration, not "
+                       "the content). Can indicate, per the embedded provenance claims, whether an "
                        "image declares AI generation or editing and by what tool.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-12",
@@ -18,14 +20,28 @@ __artifacts_v2__ = {
                  "verify the signature, validate the certificate chain, or check revocation, so "
                  "'Signed By' is a lead to corroborate, not proof of origin. Implementation is "
                  "pure-Python with no external dependencies: a JUMBF/CBOR parser for C2PA, an XML "
-                 "reader for the IPTC/XMP DigitalSourceType (which AI tools often embed with no "
-                 "C2PA manifest at all), and a COSE_Sign1 + X.509 + RFC 3161 reader for the "
-                 "signature. The 'Metadata Source' column distinguishes C2PA from XMP/IPTC "
-                 "findings. JPEG (C2PA + XMP + signature) is validated against test files and real "
-                 "Google/Gemini images; PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) containers are handled "
-                 "per the C2PA specification. "
-                 "Reference: IPTC NewsCodes Digital Source Type controlled vocabulary, "
-                 "https://cv.iptc.org/newscodes/digitalsourcetype",
+                 "reader for the IPTC/XMP DigitalSourceType (which a file can carry with no C2PA "
+                 "manifest), and a COSE_Sign1 + X.509 + RFC 3161 reader for the signature. The "
+                 "'Metadata Source' column distinguishes C2PA from XMP/IPTC findings. A file is "
+                 "examined only when its first 512 KB contain a C2PA or DigitalSourceType marker, "
+                 "and gets a row only when a manifest is parsed or an XMP digital source type is "
+                 "found. A media file with no row here is therefore not shown to carry no "
+                 "provenance data. The artifact produced rows on the registered images listed in "
+                 "sample_data; which containers and which metadata path those rows exercised is not "
+                 "recorded here. The PNG and ISOBMFF (HEIC/AVIF/MP4/MOV) extractors are written "
+                 "from the C2PA specification, and no tested file is recorded as exercising them; "
+                 "treat them as unexercised. AI Generated? is this module's reading of the declared "
+                 "digital source type: Yes for trainedAlgorithmicMedia, "
+                 "compositeWithTrainedAlgorithmicMedia, compositeSynthetic and algorithmicMedia, "
+                 "Possible for virtualRecording, No for the other listed codes, and Unknown when no "
+                 "type is declared or the code is not in the module's table. IPTC defines "
+                 "algorithmicMedia as media made by an algorithm not based on sampled training "
+                 "data, so a Yes on that code is not a declaration of generative AI. On "
+                 "dexter_ios18, felix_ios17, hc_ios18_7, hc_ios26, iphone12_ios18 and "
+                 "iphone14plus_ios18 all 89 reported rows declared trainedAlgorithmicMedia (72) or "
+                 "compositeWithTrainedAlgorithmicMedia (17); no row declared algorithmicMedia or an "
+                 "unlisted code. Reference: IPTC NewsCodes Digital Source Type controlled "
+                 "vocabulary, https://cv.iptc.org/newscodes/digitalsourcetype (read 2026-10-03)",
         "paths": (  # case-insensitive extensions; fnmatch '*' already spans '/', so these
                     # match media at ANY depth. Uppercase forms catch iOS defaults (.HEIC/.JPG/.MOV).
             '*.[jJ][pP][gG]', '*.[jJ][pP][eE][gG]', '*.[jJ][pP][eE]',

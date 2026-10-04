@@ -2,7 +2,7 @@
 __artifacts_v2__ = {
     "subscriberInfo": {
         "name": "Subscriber Info",
-        "description": "Information about inserted SIM Cards",
+        "description": "Subscriber records from the subscriber_info table of CellularUsage.db",
         "author": "@Johann-PLW",
         "creation_date": "2024-11-20",
         "version": "0.1",
@@ -10,7 +10,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "The subscriber_id=ICCID / subscriber_mdn=MSISDN column mapping follows community documentation and observed value formats. Reference: salt4n6, 'A Few Interesting iOS Forensic Artefacts', https://salt4n6.com/2018/05/15/a-few-interesting-ios-forensic-artefacts/",
+        "notes": "The cited post reports that CellularUsage.db keeps SIM card ICCIDs and "
+                 "sometimes the phone number (MSISDN), and warns that the number may be absent "
+                 "and is editable on the SIM. It does not name the columns. Reading subscriber_id "
+                 "as the ICCID and subscriber_mdn as the MSISDN rests on the form of the values "
+                 "on the tested images. Last update time is last_update_time read as Cocoa (2001 "
+                 "epoch) seconds; no source for that reading is cited. Reference: pr3cur50r (Salt "
+                 "Forensics), 'A Few Interesting iOS Forensic Artefacts', "
+                 "https://salt4n6.com/2018/05/15/a-few-interesting-ios-forensic-artefacts/",
         "paths": ('*/wireless/Library/Databases/CellularUsage.db*',),
         "output_types": "standard",
         "artifact_icon": "settings",

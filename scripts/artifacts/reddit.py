@@ -17,14 +17,15 @@ __artifacts_v2__ = {
             "object.\n"
             "Is Current App User is the value's own is_current flag; on the tested image "
             "exactly one of the four rows carried it. Updated Date is Unix milliseconds "
-            "from the value, while Access Date and Update Date are the row's Core Data "
-            "Apple absolute timestamps, reported as stored.\n"
+            "from the value, while Access Date and Store Update Date are the row's Core Data Apple "
+            "absolute timestamps, shown in UTC.\n"
             "The reference documents this store at a redditAccount/RedditUsers-* path "
             "holding user identity JSON. On the tested image that path holds a different "
             "database (see Reddit Users) and this content sits under "
             "roomsAccount/MatrixUsers-*, so both locations are matched.\n"
             "Reference: Arun Kalackattu Hari, 'Forensic Analysis of Reddit App: iOS and "
             "Android', dfdive.com, 06 April 2026, https://dfdive.com/articles/"
+            " (an index page that carried the article text when read on 2026-10-03)"
         ),
         "paths": (
             '*/Library/Caches/MatrixChat/roomsAccount/*/MatrixUsers-*/RoomsUsersService.db*',
@@ -59,10 +60,13 @@ __artifacts_v2__ = {
             "Created is the value's profile.createdAt. The verified, NSFW, blocked and "
             "accepting-chats flags are reported as stored; a cached row records what the "
             "app knew about the account, not a current state.\n"
-            "Access Date and Update Date are the row's Core Data Apple absolute "
-            "timestamps, reported as stored.\n"
-            "Reference: Arun Kalackattu Hari, 'Forensic Analysis of Reddit App: iOS and "
-            "Android', dfdive.com, 06 April 2026, https://dfdive.com/articles/"
+            "Access Date and Store Update Date are the row's Core Data Apple absolute timestamps, "
+            "shown in UTC.\n"
+            "Reference for the neighbouring RoomsusersService.db only: Arun Kalackattu Hari, "
+            "'Forensic Analysis of Reddit App: iOS and Android', dfdive.com, 06 April 2026, "
+            "https://dfdive.com/articles/ (an index page that carried the article text when read on "
+            "2026-10-03). That article does not describe RedditUsersStore.db, and no source for its "
+            "fields is cited here."
         ),
         "paths": ('*/Library/Caches/MatrixChat/redditAccount/*/RedditUsers-*/RedditUsersStore.db*',),
         "output_types": "standard",
@@ -89,8 +93,8 @@ __artifacts_v2__ = {
         "notes": (
             "Documents/release02/accountData/<reddit id>/SubredditSubscriptions is an "
             "NSKeyedArchiver property list holding one entry per community, deserialised "
-            "before reading. The account folder name is the Reddit id without its t2_ "
-            "prefix and is reported as the Account column; a folder named 'anonymous' is "
+            "before reading. The account folder name is reported as the Account column; a folder "
+            "named 'anonymous' is "
             "reported under that name.\nCommunity ID is the t5_ identifier the reference "
             "documents as the value that links a community across the app's other stores. "
             "Subscribed, Favourite, Muted and NSFW come from the entry's own boolean fields. "
@@ -99,6 +103,7 @@ __artifacts_v2__ = {
             "measurements made here.\n"
             "Reference: Arun Kalackattu Hari, 'Forensic Analysis of Reddit App: iOS and "
             "Android', dfdive.com, 06 April 2026, https://dfdive.com/articles/"
+            " (an index page that carried the article text when read on 2026-10-03)"
         ),
         "paths": ('*/Documents/release02/accountData/*/SubredditSubscriptions',),
         "output_types": "standard",
@@ -116,13 +121,25 @@ __artifacts_v2__ = {
     },
     "reddit_chats": {
         "name": "Reddit Chats",
-        "description": "Parses chat messages from Reddit",
+        "description": "Chat messages, reactions and redaction events from the Reddit app's Matrix rooms cache (Account.db)",
         "author": "@stark4n6",
         "creation_date": "2026-04-28",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Reddit",
-        "notes": "An m.room.message event whose content carries no msgtype is reported as MESSAGE DELETED, matching the Matrix redaction algorithm, which strips the content keys of redacted m.room.message events. Reference: Matrix Specification v1.11, 'Room Version 11 - Redactions', https://spec.matrix.org/v1.11/rooms/v11/#redactions",
+        "notes": (
+            "An m.room.message event whose content carries no msgtype is labelled MESSAGE "
+            "DELETED. The Matrix redaction algorithm strips the content keys of a redacted "
+            "m.room.message event, so a redacted message has this shape. Whether anything else "
+            "leaves a message event without a msgtype in this store, and which room version "
+            "Reddit's rooms use, is not established here; the Event Type column shows the "
+            "redaction events the store holds. Direction compares the sender id with the account "
+            "id in the .m.rule.invite_for_me push rule and is blank when that rule is absent. "
+            "Recipient(s) lists the display names of the room's other joined members, not a "
+            "recorded recipient list. Server Timestamp is ZORIGINSERVERDATE read as seconds since "
+            "2001-01-01. Reference: Matrix Specification v1.11, 'Room Version 11 - Redactions', "
+            "https://spec.matrix.org/v1.11/rooms/v11/#redactions"
+        ),
         "paths": (
             '*/Library/Caches/MatrixChat/roomsAccount/*/Account-*/Account.db*',
             '*/Library/Caches/MatrixChat/roomsAccount/*/Downloads-*/ContentService.db*',
@@ -148,14 +165,15 @@ __artifacts_v2__ = {
     },
     "reddit_chat_messages": {
         "name": "Reddit Chat Messages",
-        "description": "Direct chat messages held in the app's own chat database, with the "
+        "description": "Chat messages held in the app's own chat database, with the "
                        "account that sent each one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Reddit",
-        "notes": "One row per row of ChatMessage in Documents/release02/accountData/<account "
+        "notes": "One row per row of ChatMessage, whatever its channel, in "
+                 "Documents/release02/accountData/<account "
                  "id>/chat/<version>/chat.sqlite, which is the app's own chat store. It is a "
                  "different store from the one the Reddit Chats artifact reports, which reads the "
                  "newer Matrix rooms cache, so a device can carry either, both or neither. "
@@ -164,9 +182,8 @@ __artifacts_v2__ = {
                  "recorded rather than inferred: the channel row names the account's own "
                  "identifier, and a message whose sender identifier equals it is outgoing. That "
                  "identifier also matches the accountData folder the file sits in, which is a "
-                 "second source for the same value. On that image the split is 13 outgoing and 13 "
-                 "incoming, and all 26 sit in one conversation, so Channel URL holds a single "
-                 "value there. Sender Username is joined from the Contact table in the same store "
+                 "second source for the same value. Sender Username is joined from the Contact "
+                 "table in the same store "
                  "and resolved on all 26 rows. Image URL and GIF URL are the two columns the "
                  "store keeps for a picture or animation message; both were empty on every row of "
                  "every tested image, so no message here carried either and nothing was attached. "
@@ -206,16 +223,16 @@ __artifacts_v2__ = {
         "notes": "One row per row of Contact in the app's own chat store, "
                  "Documents/release02/accountData/<account id>/chat/<version>/chat.sqlite. A row "
                  "records an account the chat store holds a contact record for. On the one tested "
-                 "image that has rows there are two, the signed in account itself and the one "
-                 "account it exchanged messages with; on that image the table held only chat "
-                 "participants and no device address book entries. Created is Unix seconds, "
+                 "image that has rows there are two. Which account each row describes is not "
+                 "established here; User ID can be compared with the Account ID column and with "
+                 "Sender ID in Reddit Chat Messages. Created is Unix seconds, "
                  "reported in UTC, and read that way the two rows fall in 2020 and 2021. Link "
                  "Karma and Comment Karma held 0 on both rows and are reported as stored, so "
                  "neither carries a usable figure here. Blocked and Profile NSFW read NO on both "
                  "rows. Username and Real Name held the same value on both rows, so the display "
                  "name the store keeps matched the account name on this device, which two rows "
                  "cannot show to be the general case. Profile Thumbnail URL is a remote address, "
-                 "and on both rows it is one of the app's default avatar images; the picture "
+                 "reported as stored; the picture "
                  "itself is not in this store, so nothing is attached.",
         "paths": ('*/Documents/release02/accountData/*/chat/*/chat.sqlite*',),
         "output_types": "standard",

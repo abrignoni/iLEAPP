@@ -1,12 +1,22 @@
 __artifacts_v2__ = {
 'Ph095_1iOS15RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph095.1-iOS15_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses asset data from PhotoData-Photos.sqlite, joined to the resource, album, face,"
+" comment, share and other related tables. One asset can appear on several rows, one"
+" for each combination of related records, so the row count is not a count of assets."
+" The query runs only when the extraction reports iOS 15. On another version the query"
+" is not run, which says nothing about the database. Reads the first matching file"
+" named Photos.sqlite. Date columns are converted in the query from seconds since"
+" 2001-01-01 UTC, except the three zCldRes date columns, which the query selects as"
+" stored. Column and value labels come from research by Scott Koenig (reference at the"
+" end of this description). Labels containing 'StillTesting' or 'Still-Testing', in"
+" any letter case, mark fields or values the researcher was still testing; their"
+" meaning is not established. A label that names a person's action (for example"
+" 'User_Deleted') is the researcher's reading of a stored integer, shown with that"
+" integer, and is not by itself proof of who did what. The output has 851 columns. The"
+" TSV export can be opened in a spreadsheet or timeline viewer to search and filter"
+" it. Reference: Scott Koenig,"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -38,12 +48,22 @@ __artifacts_v2__ = {
 },
 'Ph095_2iOS15RefforAssetAnalysisSyndPL': {
 'name': 'Ph095.2-iOS15_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses asset data from Syndication.photoslibrary-database-Photos.sqlite, joined to"
+" the resource, album, face, comment, share and other related tables. One asset can"
+" appear on several rows, one for each combination of related records, so the row"
+" count is not a count of assets. The query runs only when the extraction reports iOS"
+" 15. On another version the query is not run, which says nothing about the database."
+" Reads the first matching file named Photos.sqlite. Date columns are converted in the"
+" query from seconds since 2001-01-01 UTC, except the three zCldRes date columns,"
+" which the query selects as stored. Column and value labels come from research by"
+" Scott Koenig (reference at the end of this description). Labels containing"
+" 'StillTesting' or 'Still-Testing', in any letter case, mark fields or values the"
+" researcher was still testing; their meaning is not established. A label that names a"
+" person's action (for example 'User_Deleted') is the researcher's reading of a stored"
+" integer, shown with that integer, and is not by itself proof of who did what. The"
+" output has 851 columns. The TSV export can be opened in a spreadsheet or timeline"
+" viewer to search and filter it. Reference: Scott Koenig,"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

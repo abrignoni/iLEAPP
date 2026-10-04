@@ -1,12 +1,14 @@
 __artifacts_v2__ = {
 'Ph020_1AlbumRecordswithNADPhDaPsql': {
 'name': 'Ph020.1-Album Records NAD-PhDaPsql',
-'description': 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM Table'
-' and supports iOS. Parses Album records only no asset data being parsed.'
-' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
-' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
-' Please see the album type specific scripts to view more data for each album type.'
+'description': 'Parses Basic Album records found in the PhotoData-Photos.sqlite ZGENERICALBUM'
+' Table. Query branches exist for iOS 11 through 26. Parses Album records only no asset data being'
+' parsed. Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums. Use'
+' 1505-Shared-Album-1505 in the search to view Shared Albums. Search the Album Kind column for'
+' 1509-SWY_Synced_Conversation_Media-1509 to list the rows whose ZKIND is 1509. The album kind'
+' labels were assigned by the module author. The cited post says several kind values are not'
+' decoded. The stored integer is kept in each label. Please see the album type specific scripts to'
+' view more data for each album type.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -39,12 +41,14 @@ __artifacts_v2__ = {
 },
 'Ph020_2AlbumRecordswithNADSyndPL': {
 'name': 'Ph020.2-Album Records NAD-SyndPL',
-'description': 'Parses Basic Album records found in the Syndication.photoslibrary-database-Photos.sqlite'
-' ZGENERICALBUM Table and supports iOS. Parses Album records only no asset data'
-' being parsed. Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
-' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
-' Please see the album type specific scripts to view more data for each album type.'
+'description': 'Parses Basic Album records found in the'
+' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table. Query branches exist for'
+' iOS 11 through 26. Parses Album records only no asset data being parsed. Use 2-Non-Shared-Album-2'
+' in the search to view Non-Shared Albums. Use 1505-Shared-Album-1505 in the search to view Shared'
+' Albums. Search the Album Kind column for 1509-SWY_Synced_Conversation_Media-1509 to list the rows'
+' whose ZKIND is 1509. The album kind labels were assigned by the module author. The cited post'
+' says several kind values are not decoded. The stored integer is kept in each label. Please see'
+' the album type specific scripts to view more data for each album type.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -75,12 +79,17 @@ __artifacts_v2__ = {
 'Ph020_3AlbumRecordswithNADGenPlayPsql': {
 'name': 'Ph020.3-Album Records NAD-GenPlayPsql',
 'description': 'Parses Basic Album records found in the GenPlay-Photos.sqlite ZGENERICALBUM Table'
-' and supports iOS. Parses Album records only no asset data being parsed.'
-' Use 2-Non-Shared-Album-2 in the search to view Non-Shared Albums.'
-' Use 1505-Shared-Album-1505 in the search to view Shared Albums.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 to view Shared with You Conversation Identifiers.'
-' Please see the album type specific scripts to view more data for each album type.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+' and runs on iOS 18 through 26 only. On earlier iOS versions the artifact produces no rows and'
+' does not read the database. Parses Album records only no asset data being parsed. Use'
+' 2-Non-Shared-Album-2 in the search to view Non-Shared Albums. Use 1505-Shared-Album-1505 in the'
+' search to view Shared Albums. Search the Album Kind column for'
+' 1509-SWY_Synced_Conversation_Media-1509 to list the rows whose ZKIND is 1509. The album kind'
+' labels were assigned by the module author. The cited post says several kind values are not'
+' decoded. The stored integer is kept in each label. Please see the album type specific scripts to'
+' view more data for each album type.'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/ (the post'
+' describes the Ph20AlbumsNAD parser for the PhotoData and Syndication libraries; it does not cover'
+' the GenerativePlayground library, which this artifact reads on iOS 18 through 26 only)',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

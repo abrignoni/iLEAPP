@@ -1,9 +1,13 @@
 __artifacts_v2__ = {
     "kikLocaladmin": {
         "name": "Kik Local Account",
-        "description": "Kik user rows with a populated first or last name. Published research "
-                       "identifies the account-holder row via ZKIKUSER.ZFLAGS = 258; this "
-                       "artifact does not filter on that flag.",
+        "description": "Kik user rows whose ZLASTNAME is not empty, one row per group link. The "
+                       "query's test on ZFIRSTNAME does not match a text first name, so a row "
+                       "with a first name only is not returned. On iphone11_ios17, hickman_ios13 "
+                       "and hickman_ios14 no user row had a first name without a last name, and "
+                       "the query returned 1 row on each, the one row whose ZFLAGS is 258. "
+                       "Published research identifies the account-holder row via ZKIKUSER.ZFLAGS "
+                       "= 258; this artifact does not filter on that flag.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
         "last_update_date": "2026-07-31",

@@ -1,13 +1,20 @@
 __artifacts_v2__ = {
     "Oops": {
         "name": "Oops: Make New Friends",
-        "description": "Parses Oops Message Database",
+        "description": "Messages from the RongCloud SDK storage database (RCT_MESSAGE table) "
+                       "found in an app container; the app is not confirmed as Oops, so check the "
+                       "source path",
         "author": "Heather Charpentier",
         "creation_date": "2024-06-26",
         "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "Oops",
-        "notes": "message_direction is reported as stored. RongCloud's SDK defines MessageDirection SEND=1, RECEIVE=2; the previous Incoming/Outgoing mapping did not match the SDK and was removed pending verification. Reference: RongCloud RCStatusDefine.h, https://github.com/rongcloud/callkit-ios/blob/5e10415805a1202ce0f19543509fe58ea7418a6f/ios-rongcallkit/framework/RongIMLibCore.framework/Headers/RCStatusDefine.h",
+        "notes": "Only RCT_MESSAGE rows whose content carries an 'extra' value that is valid JSON "
+                 "are reported. Direction (as stored) is the message_direction value. RongCloud's "
+                 "SDK defines MessageDirection SEND=1, RECEIVE=2; the previous Incoming/Outgoing "
+                 "mapping did not match the SDK and was removed pending verification. Reference: "
+                 "RongCloud RCStatusDefine.h, "
+                 "https://github.com/rongcloud/callkit-ios/blob/5e10415805a1202ce0f19543509fe58ea7418a6f/ios-rongcallkit/framework/RongIMLibCore.framework/Headers/RCStatusDefine.h",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/RongCloud/*/storage*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",

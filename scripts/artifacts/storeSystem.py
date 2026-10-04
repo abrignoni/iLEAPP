@@ -1,19 +1,24 @@
 __artifacts_v2__ = {
     'storeSystemAppInstalls': {
         'name': 'Installed Apps - App Store Install Records',
-        'description': 'App Store install records from storeSystem.db, including the purchasing '
-                       'Apple Account and the on-disk bundle path',
+        'description': 'App Store install records from storeSystem.db, including the Apple '
+                       'Account values the record stores and the on-disk bundle path',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
-        'notes': ("Store metadata is an NSKeyedArchiver payload; the version, genre and purchase "
-                  "date are reported from it as stored, and when the payload was written is not "
+        'notes': ("Store metadata is an NSKeyedArchiver payload; the version and genre are "
+                  "reported from it as stored. Purchase Date and App Release Date are parsed "
+                  "from its ISO 8601 strings, and a string with no time zone is read as UTC. "
+                  "App Name and Developer come from it when present and otherwise from the "
+                  "table's bundle_name and vendor_name columns. When the payload was written is "
+                  "not "
                   "established here. The phase, update type, source type, one shot bootstrap and "
                   "switch distributor columns are integer codes whose values are not documented "
                   "and are reported as stored. Bundle directory name is present on the iOS 26 "
-                  "image tested and was empty on every row of it, so what it holds is unknown."),
+                  "image tested (hc_ios26) and was empty on every row of it, so what it holds "
+                  "is unknown."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'device-mobile-down',
@@ -37,9 +42,9 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ("The latest version and release notes come from the catalog metadata and are "
-                  "reported as stored; they are not necessarily what is installed. Update state "
-                  "and package "
-                  'type are integer codes whose values are not documented.'),
+                  "reported as stored; they are not necessarily what is installed. Update "
+                  "state, package type and installer packaging type are stored codes whose "
+                  "values are not documented; they are reported as stored."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'refresh',
@@ -54,7 +59,7 @@ __artifacts_v2__ = {
     'storeSystemAppPackages': {
         'name': 'Installed Apps - App Store Download Packages',
         'description': 'Download packages recorded in storeSystem.db, with sizes and source '
-                       'URLs, joined to the install record they belong to',
+                       'URLs, joined to app_install on parent_id = pid',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',

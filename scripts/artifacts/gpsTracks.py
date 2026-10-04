@@ -16,8 +16,7 @@ __artifacts_v2__ = {
                  "since 2001 and are rendered in UTC. Distance, Time, Calories and Type are "
                  "reported as stored: the store carries no unit for the first three and nothing "
                  "available maps the type number to a meaning, so none is given here. Track ID "
-                 "is the identifier the app assigns, and the same identifier names the per track "
-                 "files under Library/Assets, so a track row can be tied to those files by name. "
+                 "is the row's ZUNIQUEID, reported as stored. "
                  "Saved and Recovered come from ZCURRENTTRACK only and are blank for a saved "
                  "track. Notes and Favorite (as stored) held no value on any row of the tested "
                  "image.",
@@ -41,7 +40,8 @@ __artifacts_v2__ = {
                  "image carried a latitude and a longitude, and they fell between 2024-05-12 and "
                  "2024-07-06. Track Name is joined from the track the point names, so a point "
                  "whose track row is gone still reports its coordinates with the name left blank. "
-                 "Speed, Average Speed, Distance, Distance Elapsed, Course, True Heading, "
+                 "Speed, Average Speed, Distance, Distance Elapsed (which holds the ZTIMEELAPSED "
+                 "column), Course, True Heading, "
                  "Magnetic Heading and Glide Ratio are reported as stored, because the store "
                  "carries no unit for any of them. Heart Rate is a column of this table and held "
                  "no value on any row of the tested image; it is kept because the store defines "
@@ -68,9 +68,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "GPS Tracks",
         "notes": "One row per row of ZWAYPOINT and of ZTRACKPOINT, told apart by the Source Table "
-                 "column. ZWAYPOINT rows stand on their own and ZTRACKPOINT rows name a track, so "
-                 "the second kind marks a position along a recorded track. Both carry a name, a "
-                 "note, an address and an alert radius in the same shape, and all twelve rows on "
+                 "column. ZWAYPOINT rows stand on their own and ZTRACKPOINT rows name a track, and "
+                 "what the app uses the second kind for is not established. Both carry a name, a "
+                 "note and an address. Alert Radius and Type are read from ZWAYPOINT only and are "
+                 "blank on ZTRACKPOINT rows. All twelve rows on "
                  "the tested image carried coordinates and eleven of them carried a name. Sync Date "
                  "held no value on any of the twelve. Address is the text the row holds and is "
                  "not resolved here; it was present on one row of the tested image and blank on "

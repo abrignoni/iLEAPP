@@ -1,10 +1,12 @@
 __artifacts_v2__ = {
     "Ph080ComAppleMobileSlideshowPlist": {
         "name": "Ph080-Com-Apple-MobileSlideshow-Plist",
-        "description": "Parses basic data from com.apple.mobileslideshow.plist which contains some important"
-        " data related to the Apple Photos Application. Additional information and explanation of some"
-        " keys-fields might be found with research and published blogs written by Scott Koenig"
-        " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "description": "Lists the keys and values of the first com.apple.mobileslideshow.plist matched, which"
+        " is the preferences file of the Photos app (bundle id com.apple.mobileslideshow). The"
+        " keys downloadAndKeepOriginals and PhotosSharedLibrarySyncingIsActive are reported"
+        " under Device Info and are not in this table. Values are shown as stored, except"
+        " TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo, which is an embedded"
+        " plist shown decoded when it can be read. What each key means is not established here.",
         "author": "Scott Koenig",
         "creation_date": "2025-01-05",
         "last_update_date": "2026-07-21",

@@ -1,12 +1,13 @@
 __artifacts_v2__ = {
 'Ph032iCloudSPLAssetswithContributorPhDaPsql': {
 'name': 'Ph032-iCloud SPL Assets with Contributor-PhDaPsql',
-'description': 'Parses Assets in iCloud Shared Photo Library with contributor information from'
-' PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
-' Parses basic asset data and iCloud SPL and contributor information.'
-' If you are attempting to match SPL count with results please check'
-' hidden, trashed, and burst assets.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses Assets in iCloud Shared Photo Library with contributor information from the "
+"PhotoData/Photos.sqlite ZASSET table, joined to ZSHARE and ZSHAREPARTICIPANT, for "
+"assets whose Active Library Scope Participation State is 1. Queries exist for iOS 16 "
+"through 26; other versions return no rows. Parses basic asset data and iCloud SPL "
+"and contributor information. If you are attempting to match SPL count with results "
+"please check hidden, trashed, and burst assets. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

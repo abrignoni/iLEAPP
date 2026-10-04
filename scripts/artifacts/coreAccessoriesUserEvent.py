@@ -9,14 +9,23 @@
 __artifacts_v2__ = {
     "get_coreAccessoriesUserEvent": {
         "name": "Core Accessories - UserEventAgent",
-        "description": "Parses records found in the plists located in the UserEventAgent \
-            database found in CoreAccessories",
+        "description": "Parses records found in the plists located in the UserEventAgent database "
+                       "found in CoreAccessories",
         "author": "John Hyla",
         "creation_date": "2023-08-01",
         "last_update_date": "2026-09-12",
         "requirements": "none",
         "category": "Core Accessories",
-        "notes": "Lightning accessory ID labels are drawn from published reverse-engineering research; unmapped IDs are reported as stored. Reference: nyansatan, 'Lightning connector reverse engineering', https://nyansatan.github.io/lightning/",
+        "notes": "This module appends a label to six lightningDigitalID values. The cited page "
+                 "lists two of them: 0BF000000000 as Haywire (HDMI) and 04F100000000 as Lightning "
+                 "to 3.5 mm or EarPods with Lightning, labelled here Official to HDMI Cable and "
+                 "Audio Cable. Neither ID occurred on abe_ios16 or otto_ios17. The labels shown "
+                 "for 100C00000000, 10C000000000, 101908000000 and 100908000000 have no cited "
+                 "source and are not evidence that a cable was Apple made or MFi certified; read "
+                 "the stored ID. Those four labels are on 997 of 999 rows on abe_ios16 and 10 of "
+                 "156 rows on otto_ios17, on runs of 3 Oct 2026. Other IDs are reported as stored. "
+                 "Reference: nyansatan, 'Lightning connector reverse engineering', "
+                 "https://nyansatan.github.io/lightning/",
         "paths": ('*/mobile/Library/CoreAccessories/Analytics/acc_analytics_UserEventAgent_v3.db*',),
         "output_types": "standard",
         "artifact_icon": "activity",

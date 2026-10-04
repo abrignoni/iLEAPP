@@ -2,8 +2,11 @@ __artifacts_v2__ = {
     "get_biomeAppInstallation": {
         "name": "Biome - App Installation",
         "description": "Parses app installation events from the App.Installation biome stream: "
-                       "the bundle identifier, a per-app UUID, its short and build "
-                       "version, and the time the event was recorded. Complements the older "
+                       "the bundle identifier, a UUID stored with the bundle identifier, two "
+                       "version strings and two record timestamps. The field names follow "
+                       "Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
+                       "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html; "
+                       "their meaning is not established. See also the "
                        "App.Install and _DKEvent.App.Install streams.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
@@ -12,12 +15,13 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "The event type field takes values 0, 1, 2 and 3 in the tested sample; which of "
                  "install, update and removal each denotes is not confirmed, so the raw value is "
-                 "reported. Two 16 byte values accompany each event and are surfaced as hex "
-                 "digests; their role is not established. The version and 16 byte fields are read "
-                 "with a pinned field type because some of those values are themselves valid "
-                 "protobuf and an inferring decode reports them as empty. Paths containing 'tombstone' "
-                 "are not parsed; across the tested images those files hold the Biome daemons' own "
-                 "record of retired stream files and carried no application event.",
+                 "reported. Two 16 byte values accompany each event and are shown as hex in the "
+                 "Digest 1 and Digest 2 columns; that they are digests is not established and "
+                 "neither is their role. The version and 16 byte fields are read with a pinned "
+                 "field type because some of those values are themselves valid protobuf and an "
+                 "inferring decode reports them as empty. Paths containing 'tombstone' are not "
+                 "parsed. On the tested images those files carried no application event; what "
+                 "writes them is not established here.",
         "paths": ('*/streams/*/App.Installation/local/*',),
         "output_types": "standard",
         "artifact_icon": "download",

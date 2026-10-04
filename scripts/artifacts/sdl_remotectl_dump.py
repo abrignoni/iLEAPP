@@ -14,9 +14,9 @@ __artifacts_v2__ = {
             "looked up in the tool's device model table and Region Code in its region table, each "
             "added as its own row where it resolves; both resolved on every test file with content. "
             "UUID, Product Type, Serial Number and Hardware Model are pushed to Device Info as "
-            "stored, and the resolved region as Product Region. All ten lines were present on the "
-            "five test sysdiagnoses holding a non-empty file (iOS 16 to 26) and in the unpacked "
-            "IN_PROGRESS sysdiagnose folder of the iOS 16.1.1 test image; the iOS 14.3 test "
+            "stored, and the resolved region as Product Region. A file holding all ten lines gives "
+            "twelve rows where both lookups resolve; row counts per test image are in sample_data. "
+            "The iOS 14.3 test "
             "sysdiagnose's copy was empty and the iOS 13.3.1 one had no such file."
         ),
         "paths": (

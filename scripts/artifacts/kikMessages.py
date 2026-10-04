@@ -7,7 +7,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Kik",
-        "notes": "Reference: K. Ovens & G. Morison, 'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, 2016), https://researchonline.gcu.ac.uk/ws/files/24282895/K.Ovens_revisedKMOvensManuscript3_2.pdf",
+        "notes": "The Type labels follow the ZTYPE values given in K. Ovens & G. Morison, "
+                 "'Forensic analysis of Kik messenger on iOS devices' (Digital Investigation, "
+                 "2016), "
+                 "https://researchonline.gcu.ac.uk/ws/files/24282895/K.Ovens_revisedKMOvensManuscript3_2.pdf "
+                 ": 1 received, 2 sent, 3 housekeeping messages to group admin, 4 housekeeping "
+                 "messages to group. That study examined Kik 9.6.0 on iOS 9.0.2; any other value "
+                 "is reported as stored. Timestamp is ZTIMESTAMP and Received Time is "
+                 "ZRECEIVEDTIMESTAMP, both read as Cocoa seconds.",
         "paths": ('**/kik.sqlite*',
                   '*/mobile/Containers/Shared/AppGroup/*/cores/private/*/content_manager/data_cache/*'),
         "output_types": "standard",
@@ -36,7 +43,11 @@ __artifacts_v2__ = {
     },
     "kikUsers": {
         "name": "Kik Users",
-        "description": "Kik user accounts from kik.sqlite (ZKIKUSER)",
+        "description": "Rows of the ZKIKUSER table of kik.sqlite. The table holds groups as well "
+                       "as users, and its rows are reported without a filter. Profile Pic "
+                       "Timestamp is ZPPTIMESTAMP read as Unix milliseconds, the format given for "
+                       "that field in K. Ovens & G. Morison, 'Forensic analysis of Kik messenger "
+                       "on iOS devices' (Digital Investigation, 2016), a study of Kik 9.6.0.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
         "last_update_date": "2026-06-24",

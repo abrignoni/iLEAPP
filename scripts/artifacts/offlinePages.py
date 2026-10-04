@@ -1,13 +1,18 @@
 __artifacts_v2__ = {
     "offlinePages": {
         "name": "Offline Pages (MHTML)",
-        "description": "Saved offline web pages (MHTML/MHT) with their captured source URL and date",
+        "description": "MHTML and MHT files found in the extraction, with the "
+                       "Snapshot-Content-Location, Subject and Date headers each file carries",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Offline Pages",
-        "notes": "Source location in the extraction is provided for each item.",
+        "notes": "Timestamp Modified is the modification time of the file as staged from the "
+                 "extraction, so it depends on the acquisition and the staging keeping file "
+                 "times. Web Source is the Snapshot-Content-Location header, Subject is the "
+                 "Subject header and MIME Date is the Date header, each reported as stored. "
+                 "Source location in the extraction is provided for each item.",
         "paths": ('*/*.mhtml', '*/*.mht'),
         "output_types": "standard",
         "artifact_icon": "file-text"

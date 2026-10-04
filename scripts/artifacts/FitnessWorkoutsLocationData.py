@@ -1,20 +1,26 @@
 __artifacts_v2__ = {
     "fitnessWorkoutsAnalysis": {
         "name": "Fitness Workouts Location Data Analysis",
-        "description": "Per-workout location-capture analysis from healthdb_secure.sqlite "
-                       "(point counts vs expected, capture timespan/average, workout type and times)",
+        "description": "Per-workout location-capture analysis from healthdb_secure.sqlite (point "
+                       "count, a computed duration by interval figure, capture timespan/average, "
+                       "workout type and times)",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC, 'Apple "
-                 "Fitness "
-                 "Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
-                 "(https://tinyurl.com/4zyd6z9n). Timestamps are UTC. Elapsed/Workout/Timespan columns are "
-                 "HH:MM:SS durations, not absolute times. The 'Duration x Avg Interval (computed)' column "
-                 "is the product of the workout duration and the average location capture interval as "
-                 "computed by the query.",
+                 "Fitness Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
+                 "(https://drive.google.com/file/d/1BGY8kLUyMQaosn-eb3Di98CAZSc8ywBg/view, reached "
+                 "through https://tinyurl.com/4zyd6z9n). Timestamps are read as seconds since "
+                 "2001-01-01 and are shown as UTC. Elapsed/Workout/Timespan columns are HH:MM:SS "
+                 "durations, not absolute times, and wrap past 24 hours. Workout Type is a name "
+                 "this module assigns to the stored activity_type number; only the cycle, run and "
+                 "walk names come from the cited research, the others are not sourced here, and the "
+                 "stored number is not shown. 'Undefined' means the number is not in the module's "
+                 "table or the location series matched no workout row. The 'Duration x Avg Interval "
+                 "(computed)' column is the product of the workout duration and the average "
+                 "location capture interval as computed by the query.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -38,19 +44,24 @@ __artifacts_v2__ = {
     },
     "fitnessWorkoutsLocation": {
         "name": "Fitness Workouts Location Data",
-        "description": "Per-point location data recorded against Apple Fitness workouts in the "
-                       "location_series_data table "
-                       "(healthdb_secure.sqlite)",
+        "description": "Per-point location data in the location_series_data table "
+                       "(healthdb_secure.sqlite), with the workout type where the series joins to a "
+                       "workout row",
         "author": "@SQLMcGee",
         "creation_date": "2023-05-22",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC, 'Apple "
-                 "Fitness "
-                 "Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
-                 "(https://tinyurl.com/4zyd6z9n). Timestamps are UTC. Vertical, Speed, and Course Accuracy "
-                 "values also exist in the table but are not surfaced.",
+                 "Fitness Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
+                 "(https://drive.google.com/file/d/1BGY8kLUyMQaosn-eb3Di98CAZSc8ywBg/view, reached "
+                 "through https://tinyurl.com/4zyd6z9n). Timestamps are read as seconds since "
+                 "2001-01-01 and are shown as UTC. Vertical, Speed, and Course Accuracy values also "
+                 "exist in the table but are not surfaced. Altitude is cut to its first 8 "
+                 "characters and Speed, Course and Horizontal Accuracy to their first 6, so those "
+                 "columns are truncated and not rounded. Workout Type is a name this module assigns "
+                 "to the stored activity_type number; 'Undefined' means the number is not in the "
+                 "module's table or the series matched no workout row.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
         "output_types": "all",
         "artifact_icon": "map-pin",

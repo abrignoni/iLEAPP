@@ -9,7 +9,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
-                 "Table availability varies by iOS version; missing tables are skipped with a log message.",
+                 "A table that is absent is skipped with a log message. In this artifact's "
+                 "sample_data the four iOS 17 images returned no rows and the four iOS 18 images "
+                 "returned rows; whether the database or the table was absent on the iOS 17 images "
+                 "is not recorded here.",
         "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
         "output_types": "standard",
         "artifact_icon": "package",
@@ -99,7 +102,7 @@ __artifacts_v2__ = {
     },
     "biomeDbButtonClicks": {
         "name": "Biome DB - Button Clicks (Daily)",
-        "description": "Per-day hardware button click counts pre-aggregated by Apple in the "
+        "description": "Per-day button click counts pre-aggregated by Apple in the "
                        "ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
@@ -174,14 +177,17 @@ __artifacts_v2__ = {
     },
     "biomeDbAudioRoute": {
         "name": "Biome DB - Audio Route (Daily)",
-        "description": "Per-day audio route change counts (headphones, Bluetooth, speaker) pre-aggregated "
+        "description": "Per-day audio route counts with the route type, external flag and route "
+                       "change reason as stored, pre-aggregated "
                        "by Apple in the ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
+        "notes": "The database is described by North Loop Consulting: "
+                 "https://northloopconsulting.com/blog/f/ready-sets-go. That post does not cover "
+                 "the AudioRouteMatView table; its columns are reported as stored. "
                  "Timestamps are normalized by Apple to the start of the day.",
         "paths": ('*/Biome/databases/ApplePay.Security.Features/ApplePay.Security.Features.sqlite3*',),
         "output_types": "standard",
