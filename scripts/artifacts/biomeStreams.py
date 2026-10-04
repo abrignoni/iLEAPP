@@ -8,8 +8,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The message date comes from an embedded CFAbsoluteTime value; the harvest time is the SEGB "
-                 "record timestamp.",
+        "notes": "The message date comes from an embedded CFAbsoluteTime value; the Harvest Time "
+                 "column is the SEGB record timestamp, the time the record was written to the "
+                 "stream.",
         "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',),
         "output_types": "standard",
         "artifact_icon": "mail",
@@ -26,8 +27,10 @@ __artifacts_v2__ = {
     },
     "biomeProactiveMessages": {
         "name": "Biome - Proactive Harvesting Messages",
-        "description": "Message content harvested by the system into the ProactiveHarvesting.Messages biome "
-                       "stream (service and handle, message text, sender).",
+        "description": "Message records from the ProactiveHarvesting.Messages biome stream "
+                       "(service and handle, message text, sender). The Timestamp column is the "
+                       "SEGB record timestamp, the time the record was written to the stream; the "
+                       "message's own date is not reported.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-08-20",
@@ -51,7 +54,8 @@ __artifacts_v2__ = {
     "biomeMessagesRead": {
         "name": "Biome - Messages Read",
         "description": "Message read events from the Messages.Read biome stream (message identifier and the "
-                       "time it was read).",
+                       "SEGB record timestamp, labelled Read Timestamp after the cited research; "
+                       "that it equals the time the message was read was not tested here).",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-08-20",
@@ -82,7 +86,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The SEGB record timestamp is used; an embedded timestamp field in this stream is unreliable. "
+        "notes": "The SEGB record timestamp is used; the record also holds an embedded timestamp "
+                 "field whose meaning is not established and which is not reported. "
                  "The event code's meaning is not documented; its value is reported as stored.",
         "paths": ('*/[Bb]iome/streams/restricted/ScreenTime.AppUsage/local/*',),
         "output_types": "standard",
@@ -105,7 +110,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Some tokens are stored in a non-text form and appear blank. Reference: Mattia Epifani, "
+        "notes": "Token is blank on records where field 1 does not decode as a submessage holding "
+                 "a text value; what those records hold was not established. Reference: Mattia "
+                 "Epifani, "
                  "'84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/[Bb]iome/streams/restricted/Keyboard.TokenFrequency/local/*',),

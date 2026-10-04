@@ -2,7 +2,7 @@ __artifacts_v2__ = {
     'threeBarsNetworks': {
         'name': 'Wi-Fi ThreeBars - Networks',
         'description': 'Wi-Fi networks held in the Wi-Fi daemon ThreeBars cache, with the '
-                       'centroid coordinates the location service reported for each one',
+                       'centroid coordinates stored against each one',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
@@ -13,7 +13,10 @@ __artifacts_v2__ = {
                   "the network, and the coordinates are stored against the network rather than "
                   "as a device position; how the cache is populated is not sourced here. "
                   'The venue, type, authentication mask and score columns are integer codes '
-                  'whose values are not documented and are reported as stored. A row whose '
+                  "whose values are not documented and are reported as stored. Captive, "
+                  "Public, Moving, Suspicious and Low Quality show a stored 1 as Yes and 0 "
+                  "as No; what sets them is not sourced here. Created is ZCREATED; what "
+                  "event it marks is not sourced here. A row whose "
                   'latitude and longitude are both exactly zero holds no position and is '
                   'reported with empty coordinates rather than plotted at 0/0.'),
         'paths': ('*/root/Library/Caches/com.apple.wifid/ThreeBars.sqlite*',),
@@ -29,7 +32,7 @@ __artifacts_v2__ = {
     'threeBarsAccessPoints': {
         'name': 'Wi-Fi ThreeBars - Access Points',
         'description': 'Individual access points in the Wi-Fi daemon ThreeBars cache, with '
-                       'their BSSID and reported coordinates',
+                       'their BSSID and the coordinates stored against each',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
@@ -59,7 +62,9 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ("A tile row carries a key and a timestamp, both reported as stored; what event "
+        'notes': ("A tile row carries a key and a ZCREATED time. The key, Network Count and "
+                  "ETag are reported as stored and the time is read as a Core Data time and "
+                  "shown in UTC; what event "
                   "writes a tile row is not sourced here. The tile key is not decoded here "
                   "because its "
                   'mapping to a geographic area is not documented; the networks and access '

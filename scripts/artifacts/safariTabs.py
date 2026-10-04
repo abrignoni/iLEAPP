@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "safariTabsBrowserState": {
         "name": "Safari Browser - Tabs (BrowserState)",
-        "description": "Open Safari tabs from BrowserState.db",
+        "description": "Rows of the tabs table in Safari's BrowserState.db (title, URL, last viewed time and the stored opened-from-link and private-browsing values)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/BrowserState.db*',),
@@ -26,7 +26,7 @@ __artifacts_v2__ = {
     },
     "safariTabsiCloud": {
         "name": "Safari Browser - iCloud Tabs",
-        "description": "Safari iCloud (cloud) tabs synced across devices",
+        "description": "Rows of cloud_tabs in Safari's CloudTabs.db with the device name stored for each, and the record creation time, modification time and modifying device from the row's CloudKit system fields",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Safari Browser", "notes": "",
         "paths": ('**/Safari/CloudTabs.db*',),
@@ -51,18 +51,19 @@ __artifacts_v2__ = {
     },
     "safariTabsDatabase": {
         "name": "Safari Browser - Tabs (SafariTabs)",
-        "description": "Open normal and private Safari tabs from SafariTabs.db",
+        "description": "Tab rows of the bookmarks table in SafariTabs.db that have a URL and are not flagged deleted, with a Browsing Mode derived from the titles of the row's parent and ancestor rows",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-07-28",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Safari Browser",
-        "notes": "Profile values Public, LocalProfile and private are reported as stored; rows "
-                 "under the private profile are marked Private and the others Normal, a mapping "
-                 "for which no source was located. "
-                 "The bookmarks.last_modified and date_closed columns are NULL on every image "
-                 "tested (iOS 18.7 and 26.5.2); the per-tab timestamps and state live in the "
-                 "extra_attributes / local_attributes binary plists instead.",
+        "notes": "Parent titles such as Public, LocalProfile and private are reported as stored in "
+                 "Parent / Tab Group; rows with an ancestor row titled private or privatepinned, or "
+                 "whose parent value reads private, are marked Private and the others Normal, a "
+                 "mapping for which no source was located. Rows with no URL and rows whose deleted "
+                 "column is set are not reported. The bookmarks.last_modified and date_closed "
+                 "columns can be NULL; the per-tab timestamps and state are read from the "
+                 "extra_attributes / local_attributes binary plists.",
         "paths": ("**/Safari/SafariTabs.db*",),
         "output_types": "standard",
         "artifact_icon": "layout",

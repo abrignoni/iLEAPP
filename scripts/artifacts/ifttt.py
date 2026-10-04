@@ -1,7 +1,8 @@
 __artifacts_v2__ = {
     "iftttAccount": {
         "name": "IFTTT - Account",
-        "description": "The IFTTT account signed in on the device, with the login name, email "
+        "description": "The IFTTT account record held in the app's Realm store, with the "
+                       "login name, email "
                        "address and time zone the app held for it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
@@ -9,14 +10,15 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "IFTTT",
         "notes": "Read from class_UserRecord in the app's Realm store (Documents/default.realm) "
-                 "with the vendored realm_parser. The store is Realm file format 9, which the "
+                 "with the vendored realm_parser. On the tested extraction the store is Realm "
+                 "file format 9, which the "
                  "parser reads through its pre-Cluster path. An iOS data container is named by a "
                  "GUID, so the path pattern cannot carry the bundle identifier and matches any "
                  "Documents/default.realm; every candidate is then required to carry an IFTTT "
-                 "class before it is read, and a store without one is skipped and logged, so "
+                 "class before it is read, and a store without one is skipped, so "
                  "another app's Realm cannot be reported under IFTTT's name. Time Zone is the "
                  "timezone value of the account record, as stored. These are values the account "
-                 "held in the app, which the app received from its service; they are not verified "
+                 "held in the app; they are not verified "
                  "identifiers. User Type and Home Screen Preference are reported as stored.",
         "paths": ('*/Documents/default.realm',),
         "output_types": ["html", "tsv", "lava"],
@@ -28,7 +30,8 @@ __artifacts_v2__ = {
     "iftttApplets": {
         "name": "IFTTT - Applets",
         "description": "Applets held in the IFTTT account's Realm store, with the name of each, "
-                       "the service it runs on, the author recorded for it and the creation time "
+                       "the service its primaryService link names, the author recorded for it "
+                       "and the creation time "
                        "stored with it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
@@ -36,9 +39,10 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "IFTTT",
         "notes": "Read from class_LiveConnectionRecord in the app's Realm store, which is where "
-                 "the connected applets are held on the tested extraction; class_AppletRecord, "
-                 "which the name suggests would carry them, held no rows. The service name is "
-                 "joined from class_LiveServiceRecord through the row's own primaryService link. "
+                 "the connected applets are held on the tested extraction; class_AppletRecord "
+                 "held no rows there. The service name is "
+                 "joined from class_LiveServiceRecord through the row's own primaryService link; "
+                 "where that link does not resolve, the row's serviceId is reported instead. "
                  "Author is the applet's author value as stored and is not necessarily the "
                  "account on this device. Created At is the row's creation value as stored; it "
                  "is not a record of when the applet ran, and no run history was present, see "
@@ -56,8 +60,9 @@ __artifacts_v2__ = {
     },
     "iftttServices": {
         "name": "IFTTT - Connected Services",
-        "description": "Services the account had connected in IFTTT, with whether each was "
-                       "connected and whether it required the account to authenticate.",
+        "description": "Service records held in the IFTTT app's Realm store, with the "
+                       "isConnected value of each and whether it required the account to "
+                       "authenticate.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
         "last_update_date": "2026-09-02",
@@ -65,9 +70,9 @@ __artifacts_v2__ = {
         "category": "IFTTT",
         "notes": "Read from class_LiveServiceRecord in the app's Realm store. Connected is the "
                  "store's own isConnected value; on the tested extraction it was true on every "
-                 "row, so the column is uniform there, and it is kept because a service the "
-                 "account had disconnected is exactly what an examiner would want "
-                 "distinguished. class_ServiceFragmentRecord holds the same three services with "
+                 "row, so the column is uniform there, and what a false value marks was not "
+                 "observed and is not established. class_ServiceFragmentRecord holds the same "
+                 "three services with "
                  "a subset of these fields and is not reported separately for that reason. "
                  "Requires Authentication, Offline, Hidden and Auto Activated are reported as "
                  "stored. The service description the store keeps is not reported.",
@@ -90,9 +95,8 @@ __artifacts_v2__ = {
         "notes": "Read from the app-detector.my-apps key of "
                  "Library/Preferences/com.ifttt.ifttt.plist. Each entry is an IFTTT service "
                  "identifier and the numeric identifier the service carries, reported as "
-                 "stored. The key name and the entries together are consistent with a list the "
-                 "app built from what it found on the device, and the list is a small subset of "
-                 "the services IFTTT offered, but only one extraction holding this app was "
+                 "stored. What puts an entry in this list is not established. Only one "
+                 "extraction holding this app was "
                  "available, so it could not be compared against a second device and this "
                  "artifact does not assert that an entry means the corresponding app was "
                  "installed. Treat it as a lead to check against the device's own installed "

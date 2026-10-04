@@ -7,7 +7,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-26",
         "requirements": "none",
         "category": "Notifications",
-        "notes": "Attachments are checked in as media, both the images stored under the Attachments folder and the ones carried inline in the payload. Sender, thread, category, trigger type and deep link are lifted out of the payload into their own columns; keys still holding their corpus-wide default value are dropped from Other Details.",
+        "notes": "Attachments are shown as media, both the images stored under the Attachments "
+                 "folder and the ones carried inline in the payload. Five payload keys are shown "
+                 "in their own columns: Sender is CommunicationContextDisplayName, Thread is "
+                 "SBSPushStoreNotificationThreadKey, Category is "
+                 "SBSPushStoreNotificationCategoryKey, Trigger is UNNotificationTriggerType and "
+                 "Deep Link is DefaultActionURL, each as stored. Twenty keys are left out of Other "
+                 "Details while they hold the value they held on every row of the 15 images tested "
+                 "(for example BadgeApplicationIcon True, ShouldPresentAlert True); the list is "
+                 "DEFAULT_VALUES in the module, and a key holding any other value is shown.",
         "paths": ('*/mobile/Library/UserNotifications*',),
         "output_types": "standard",
         "artifact_icon": "bell",

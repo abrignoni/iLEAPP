@@ -2,7 +2,10 @@
 __artifacts_v2__ = {
     "timezone_info": {
         "name": "Timezone Information",
-        "description": "Timezone Information extracted from AppStore plist.",
+        "description": "The keys of com.apple.AppStore.plist, each with its value. "
+                       "lastBootstrapTimeZone and lastBootstrapDate are shown as Last Bootstrap "
+                       "Timezone and Last Bootstrap Date. What event those two values record is "
+                       "not established.",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-10-02",
         "last_update_date": "2024-11-28",

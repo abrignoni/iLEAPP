@@ -1,16 +1,32 @@
 __artifacts_v2__ = {
     "zalo_messages": {
         "name": "Zalo - Chats",
-        "description": "'Extract chats and groupchats from Zalo",
+        "description": "Messages from the ChatContent table of each Zalo chat database under Documents/chat_dbs, for one to one and group chats, with the attached file where one is found.",
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
         "last_update_date": "2026-08-21",
         "requirements": "pillow",
         "category": "Zalo",
-        "notes": "Message type mappings are not vendor-documented and were derived from tested "
-                 "data without a published source; unrecognized types are reported as Unknown "
-                 "with the raw Type ID column.",
+        "notes": "Message type mappings are not vendor-documented and no published source for "
+                 "them is cited. They were derived from test data that is not recorded here, so "
+                 "each label is a reading of the stored type code and not an established meaning. "
+                 "Unrecognized types are reported as Unknown, or for type 12 rows with no "
+                 "recognised marker as 'Unknown (12)' or 'Unknown) 12', with the raw Type ID "
+                 "column. Outgoing is not a stored flag: it is 1 when the row's SenderId equals "
+                 "the account id taken from the chat_dbs folder name of one of the databases "
+                 "read, and that one id is used for every database. Attachment File is the file "
+                 "the row's LocalPath names where one is stored. Where it is not, media rows are "
+                 "matched to a file in the account's media folders whose path holds the chat id "
+                 "and whose name without its extension appears in the row's BinNet blob, and file "
+                 "rows to a file under Documents/Files whose folder hash and name both appear in "
+                 "the blob; these matches are made by the module. On voice note and link rows "
+                 "whose MsgContent is empty, and on media rows with an empty MsgContent, no "
+                 "LocalPath and no matched file, Message holds the last web address found in the "
+                 "row's BinNet blob. On sticker rows whose MsgContent holds the two sticker "
+                 "identifiers, Message is a string the module builds from them, and on location "
+                 "rows with an empty MsgContent it is a geo string built from the coordinates in "
+                 "the blob.",
         "paths": (  
             '*/mobile/Containers/Data/Application/*/Documents/chat_dbs/*/*',
             '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite*',
@@ -37,7 +53,7 @@ __artifacts_v2__ = {
     },
     "zalo_users": {
         "name": "Zalo - Known Users",
-        "description": "Extract known users from Zalo",
+        "description": "Profile rows from the ProfileEntity table of Zalo's profile.sqlite, with the phone number from BuddyEntity and, where the store has it, the global id from GlobalIdEntity. What places a profile in the table is not established.",
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",

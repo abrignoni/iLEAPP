@@ -1,13 +1,16 @@
 __artifacts_v2__ = {
     "weather_app_locations": {
         "name": "Weather App - Locations",
-        "description": "Parses saved locations and update times from the iOS Weather app (group.com.apple.weather.plist).",
+        "description": "Parses the Cities list of group.com.apple.weather.plist and, on plists "
+                       "other than PrefsVersion 2.1, the LocalWeather entry.",
         "author": "@Anna-Mariya Mateyna",
         "creation_date": "2021-01-29",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Location",
-        "notes": "",
+        "notes": "The Type values Saved City and Local are labels added by this module. On "
+                 "PrefsVersion 2.1 plists Update Time is the plist's single LastUpdated value "
+                 "repeated on each row.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Library/Preferences/group.com.apple.weather.plist',),
         "output_types": "all",
         "artifact_icon": "sun",

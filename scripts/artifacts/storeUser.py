@@ -7,7 +7,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "System-app status is reported only where the column exists and is populated. Reference: Kevin Pagano, 'Tracking iOS App Installs and Purchases', https://www.stark4n6.com/2025/04/tracking-ios-app-installs-and-purchase.html",
+        "notes": "System-app status is reported only where the column exists and is populated. "
+                 "Deletion Date is reported as stored and is not converted. The cited post "
+                 "reports that the table can hold a row for each version of an app, so one app "
+                 "can appear more than once. Reference: Kevin Pagano, 'Tracking iOS App Installs "
+                 "and Purchase History with StoreUser DB', "
+                 "https://www.stark4n6.com/2025/04/tracking-ios-app-installs-and-purchase.html",
         "paths": ('*/mobile/Library/Caches/com.apple.appstored/storeUser.db*',),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "package",
@@ -30,13 +35,20 @@ __artifacts_v2__ = {
     },
     "storeUser_pha": {  # This should match the function name exactly
         "name": "Purchased Apps History (storeUser)",
-        "description": "Parses storeUser.db for App Store purchased app history",
+        "description": "Parses the purchase_history_apps table of storeUser.db for App Store purchased app records",
         "author": "@stark4n6",
         "last_update_date": "2026-07-31",
         "creation_date": "2025-04-11",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "A row shows the purchase_history_apps table holds the app with the account id "
+                 "in Purchaser ID. It does not establish that the app was installed on this "
+                 "device. Purchaser Apple ID comes from account_events joined on the purchaser "
+                 "id; a purchase can repeat when that account has more than one account_events "
+                 "row. The module removes the last character of the Required Capabilities text. "
+                 "Reference: Kevin Pagano, 'Tracking iOS App Installs and Purchase History with "
+                 "StoreUser DB', "
+                 "https://www.stark4n6.com/2025/04/tracking-ios-app-installs-and-purchase.html",
         "paths": ('*/mobile/Library/Caches/com.apple.appstored/storeUser.db*',),
         "output_types": "standard",  # or ["html", "tsv", "timeline", "lava"]
         "artifact_icon": "shopping-cart",

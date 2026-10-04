@@ -9,21 +9,26 @@ __artifacts_v2__ = {
         "category": "Software Updates",
         "notes": (
             "The database stores date as text without a UTC offset; it is reported without "
-            "conversion in the 'Timestamp (Device Local, No Offset)' column and the zone is not "
-            "established. SoftwareUpdateServices limits the table to the 25 newest records. "
+            "conversion in the 'Timestamp (Device Local, No Offset)' column. The cited "
+            "SUSHistoryInstalls implementation writes it with a date formatter of pattern "
+            "yyyy-MM-dd HH:mm:ss and sets no time zone on it; the zone was not confirmed "
+            "against a tested image. SoftwareUpdateServices limits the table to the 25 newest "
+            "records. "
             "Observed operationType semantics in a reverse-engineered iOS 26.1 "
             "SoftwareUpdateServices implementation are 303 = successful rollback completed and "
             "304 = successful install completed. Unknown values are preserved and not inferred. "
+            "No tested image is recorded for this artifact; the mapping rests on the cited "
+            "implementation only. "
             "Implementation references: recordInstallCompleted records operationType 304 and "
             "recordRollbackCompleted records 303, each on the no-error path, in "
             "https://github.com/EthanArbuckle/iPhone18-3_26.1_23B85_Restore/blob/"
             "90aa0cfe59d9682b4265e1354c8b19ec3c7823ab/"
             "System/Library/PrivateFrameworks/SoftwareUpdateServices.framework/"
-            "SoftwareUpdateServices/SUSHistoryTracker.mm ; the 25-record trim is in "
+            "SoftwareUpdateServices/SUSHistoryTracker.mm#L1253-L1320 ; the 25-record trim is in "
             "https://github.com/EthanArbuckle/iPhone18-3_26.1_23B85_Restore/blob/"
             "90aa0cfe59d9682b4265e1354c8b19ec3c7823ab/"
             "System/Library/PrivateFrameworks/SoftwareUpdateServices.framework/"
-            "SoftwareUpdateServices/SUSHistoryInstalls.mm"
+            "SoftwareUpdateServices/SUSHistoryInstalls.mm#L92"
         ),
         "paths": (
             "*/private/var/containers/Data/System/*/history/installHistory.db*",

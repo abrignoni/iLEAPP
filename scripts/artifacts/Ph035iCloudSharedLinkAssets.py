@@ -1,9 +1,24 @@
 __artifacts_v2__ = {
 'Ph035iCloudSharedLinkAssetsPhDaPsql': {
 'name': 'Ph035-iCloud Shared Link Assets-PhDaPsql',
-'description': 'Parses iCloud Shared Link records and related assets from the'
-' PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses rows from the PhotoData-Photos.sqlite ZASSET table for assets with"
+" ZSAVEDASSETTYPE 8, a value this module labels '8-iCloudLink_CloudMasterMomentAsset-8'. The"
+" rows are joined to ZADDITIONALASSETATTRIBUTES, ZEXTENDEDATTRIBUTES, ZCLOUDMASTER, ZSHARE"
+" (through ZASSET.ZMOMENTSHARE) and ZSHAREPARTICIPANT. The cited post describes the output as"
+" basic asset data for assets related to iCloud Shared Links. An asset is listed once per"
+" participant row of its share. Share columns are blank when the asset has no ZSHARE row, and a"
+" share with no such asset is not listed. Supports iOS 14 through 18 (the code handles versions"
+" from 14 up to, but not including, 26). On iOS 13.7 and earlier and on iOS 26 and later the"
+" artifact logs an unsupported version message, does not query the database and returns no"
+" rows. No recorded run on the test images listed in sample_data returned a row, and two of"
+" them, iOS 12.4 and iOS 13.3.1, are below the supported versions. The text shown beside each"
+" stored integer is the module author's label and no source for the value meanings is cited"
+" here. Labels containing 'StillTesting' are not established. For iOS 15 and later the labels"
+" shown for ZASSET.ZSYNDICATIONSTATE values 8 and 10 include the words 'User_Deleted'. No"
+" source for that meaning is cited here, and the stored integer begins each of those labels."
+" ZSHAREPARTICIPANT.ZISCURRENTUSER value 1 is labelled 'Is_CurrentUser' for iOS 14 and 15 and"
+" 'Is_CloudStorageOwner' for iOS 16 and later. Reference: Scott Koenig,"
+" https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

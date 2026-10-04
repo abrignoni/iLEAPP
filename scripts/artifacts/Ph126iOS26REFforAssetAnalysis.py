@@ -1,11 +1,16 @@
 __artifacts_v2__ = {
 'Ph126_1iOS26RefforAssetAnalysisPhDaPsql': {
 'name': 'Ph126.1-iOS26_Ref_for_Asset_Analysis-PhDaPsql',
-'description': 'Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.',
+'description': 'Parses asset records from PhotoData/Photos.sqlite on iOS 26. Returns no rows on other iOS'
+' versions. A row is one result of a query that joins each asset to its internal resources, albums,'
+' cloud resources, detected faces, comments, share participants, memories and suggestions, so one'
+' asset can fill more than one row; the row count is not the asset count. The column names and value'
+' labels come from the module author, Scott Koenig. Reference: Scott Koenig, "iLEAPP Parsers &'
+' Photos.sqlite Queries",'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. That page lists'
+' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
+' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
+' in a spreadsheet or timeline viewer to search and filter it.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -20,11 +25,17 @@ __artifacts_v2__ = {
 },
 'Ph126_2iOS26RefforAssetAnalysisSyndPL': {
 'name': 'Ph126.2-iOS26_Ref_for_Asset_Analysis-SyndPL',
-'description': 'Parses asset records from Syndication.photoslibrary-database-Photos.sqlite.'
-' This parser includes the largest set of decoded data based on testing and research'
-' conducted by Scott Koenig https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. I recommend opening the'
-' TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md'
-' TimelineExplorer to view, search and filter the results.',
+'description': 'Parses asset records from the Photos.sqlite of the Syndication.photoslibrary library'
+' (Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite) on iOS 26. Returns no'
+' rows on other iOS versions. A row is one result of a query that joins each asset to its internal'
+' resources, albums, cloud resources, detected faces, comments, share participants, memories and'
+' suggestions, so one asset can fill more than one row; the row count is not the asset count. The'
+' column names and value labels come from the module author, Scott Koenig. Reference: Scott Koenig,'
+' "iLEAPP Parsers & Photos.sqlite Queries",'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. That page lists'
+' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
+' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
+' in a spreadsheet or timeline viewer to search and filter it.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -39,11 +50,17 @@ __artifacts_v2__ = {
 },
 'Ph126_3iOS26RefforAssetAnalysisGenPlayPsql': {
 'name': 'Ph126.3-iOS26_Ref_for_Asset_Analysis-GenPlayPsql',
-'description': 'Parses asset records from GenPlay-Photos.sqlite. This parser includes the largest'
-' set of decoded data based on testing and research conducted by Scott Koenig'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. I recommend opening the TSV generated reports'
-' with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer'
-' to view, search and filter the results.',
+'description': 'Parses asset records from the Photos.sqlite of the com.apple.GenerativePlayground photo library'
+' (Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite)'
+' on iOS 26. Returns no rows on other iOS versions. A row is one result of a query that joins each'
+' asset to its internal resources, albums, cloud resources, detected faces, comments, share'
+' participants, memories and suggestions, so one asset can fill more than one row; the row count is'
+' not the asset count. The column names and value labels come from the module author, Scott Koenig.'
+' Reference: Scott Koenig, "iLEAPP Parsers & Photos.sqlite Queries",'
+' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/. That page lists'
+' the iOS versions used to build the parsers up to 18.0 Beta 1 and does not mention iOS 26; this'
+' description cites no source for the iOS 26 labels. The table is wide; the TSV export can be opened'
+' in a spreadsheet or timeline viewer to search and filter it.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

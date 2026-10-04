@@ -7,14 +7,22 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-20",
         "requirements": "none",
         "category": "Sysdiagnose",
-        "notes": "Parses ps.txt only. ps_thread.txt is not read: its columns sit in a different order "
+        "notes": "Parses ps.txt only. A line with fewer than 18 fields, or whose PID or parent PID "
+                 "is not a number, is skipped and not reported. ps_thread.txt is not read: its "
+                 "columns sit in a different order "
                  "from ps.txt (its 4th column is %CPU, where the 4th of ps.txt holds the process "
                  "identifier), and on the three sysdiagnose captures tested it carried a header line "
                  "and no data rows. The %CPU, %MEM and TIME fields are read from each line but not "
-                 "reported: each held a single value on all 1,668 rows of the four captures tested "
+                 "reported: each held a single value on every row of the four captures tested "
                  "(0.0, 0.0 and 0:00.00 on iOS 16 20A362, iOS 17.3 21D50, iOS 26 23G71 and "
-                 "iOS 26.5.2 23F84). STARTED is reported as recorded (e.g. '1:25PM'); it carries no "
-                 "date and no timezone, so no instant is asserted. See 'Sysdiagnose Process - Tree' "
+                 "iOS 26.5.2 23F84). STARTED is reported as recorded (e.g. '1:25PM'); it is the "
+                 "text ps printed, with no time zone. In Apple's published ps source for macOS it "
+                 "is formatted from local time: a clock time for a process started within 24 hours, "
+                 "a weekday and hour within seven days, and a day, month and two-digit year "
+                 "otherwise (adv_cmds ps/print.c, started(), "
+                 "https://github.com/apple-oss-distributions/adv_cmds/blob/6bed8737a34dbb54782a18f47dccf933a9967a12/ps/print.c#L656-L678). "
+                 "Whether the ps on iOS is built from that source was not checked. No instant is "
+                 "asserted. See 'Sysdiagnose Process - Tree' "
                  "for a rendered image of the process hierarchy.",
         "paths": (
             '*/ps.txt',
@@ -40,7 +48,8 @@ __artifacts_v2__ = {
                  "image per sysdiagnose. Tree branches use plain ASCII characters (not Unicode "
                  "box-drawing) so the image renders correctly regardless of which font is available "
                  "on the host running the report. The image is drawn on a fixed dark background and "
-                 "does not follow the report's light or dark setting. 'Sysdiagnose Process' holds "
+                 "does not follow the report's light or dark setting. A process whose parent PID is "
+                 "not in ps.txt is drawn at the top level. 'Sysdiagnose Process' holds "
                  "the same data in queryable form.",
         "paths": (
             '*/ps.txt',

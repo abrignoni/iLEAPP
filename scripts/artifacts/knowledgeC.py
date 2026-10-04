@@ -7,7 +7,17 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-15",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "ZHASSTRUCTUREDMETADATA indicates whether a structured-metadata row exists; the fully-charged flag lives in the structured metadata itself per APOLLO's knowledge_device_batterylevel module. In tested data this knowledgeC stream carries rows on the iOS 12.4-15.0.2 images and no rows on any iOS 16.1.1-26.5.2 image checked (recorded corpora plus Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2)), so an empty result on current extractions is expected; battery level there is available from the Power Log and Biome battery artifacts. Reference: Sarah Edwards, APOLLO, https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_device_batterylevel.txt",
+        "notes": "ZHASSTRUCTUREDMETADATA indicates whether a structured-metadata row exists; the "
+                 "fully-charged flag lives in the structured metadata itself per APOLLO's "
+                 "knowledge_device_batterylevel module. In tested data this knowledgeC stream "
+                 "carries rows on the iOS 12.4-15.0.2 images and no rows on any iOS 16.1.1-26.5.2 "
+                 "image checked (the registered corpora; a comparison by Mattia Epifani in "
+                 "2026-08 across 21 extractions of iOS 16.1.1 to 26.5.2 reported the same, and no "
+                 "publication of it is cited here). An empty result on an image of those versions "
+                 "matches what the tested images showed; it is not by itself evidence about the "
+                 "device. Battery level on those images is available from the Power Log and Biome "
+                 "battery artifacts. Reference: Sarah Edwards, APOLLO, "
+                 "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_device_batterylevel.txt",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -36,7 +46,18 @@ __artifacts_v2__ = {
         "last_update_date": "2023-11-05",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "In tested data this knowledgeC stream carries rows on the iOS 12.4-15.0.2 images and no rows on any iOS 16.1.1-26.5.2 image checked (recorded corpora plus Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2)), so an empty result on current extractions is expected; see the Power Log and Biome cable-plug artifacts for current images.",
+        "notes": "The Unplugged (0) and Plugged in (1) labels follow Sarah Edwards, APOLLO, "
+                 "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_device_pluggedin.txt, "
+                 "written for iOS 11 to 14; any other value is reported as stored. Is Adapter "
+                 "Wireless? is reported when the store has that column; it shows Yes for a stored "
+                 "1, No for 0 and Not specified otherwise, and no source for that column was "
+                 "found. In tested data this knowledgeC stream carries rows on the iOS "
+                 "12.4-15.0.2 images and no rows on any iOS 16.1.1-26.5.2 image checked (the "
+                 "registered corpora; a comparison by Mattia Epifani in 2026-08 across 21 "
+                 "extractions of iOS 16.1.1 to 26.5.2 reported the same, and no publication of it "
+                 "is cited here). An empty result on an image of those versions matches what the "
+                 "tested images showed; it is not by itself evidence about the device. See the "
+                 "Power Log and Biome cable-plug artifacts for those images.",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
@@ -65,9 +86,15 @@ __artifacts_v2__ = {
         "last_update_date": "2023-10-31",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "Query is a derivative of research provided by \
-            - Sarah Edwards as part of her APOLLO project https://github.com/mac4n6/APOLLO \
-            - Ian Wiffin blog post https://www.doubleblak.com/blogPosts.php?id=29",
+        "notes": "Playing State labels the stored value (0 Stop, 1 Play, 2 Pause, 3 Loading, 4 "
+                 "Interruption); no source for those labels was found, and any other value is "
+                 "reported as stored. Rows with an empty bundle id are not reported. Output "
+                 "Device is reported when the store has the AirPlay video column; it is the "
+                 "seventh object of the stored output device archive and may not be a device name "
+                 "on every row. The query follows Sarah Edwards, APOLLO, "
+                 "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_audio_media_nowplaying.txt. "
+                 "An Ian Whiffin (doubleblak.com) post was also credited; its link no longer "
+                 "resolves.",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "music",
@@ -96,11 +123,15 @@ __artifacts_v2__ = {
         "last_update_date": "2024-02-24",
         "requirements": "none",
         "category": "KnowledgeC",
-        "notes": "Based on research by Geraldine Blay and Dan Ogden. In tested data rows are "
-                 "recorded only on the iOS 13.3.1, 14.3 and 15.3.1 images; the iOS 12.4 and "
-                 "15.0.2 images and every iOS 16.1.1-26.5.2 image checked (recorded corpora plus "
-                 "Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2)) "
-                 "yield no rows, so an empty result on current extractions is expected.",
+        "notes": "Based on research by Geraldine Blay and Dan Ogden; no title or link for that "
+                 "research is given here. The Do Not Disturb? column shows Yes for a stored value "
+                 "of 1 and No for 0; any other value is shown as Not Specified. In tested data "
+                 "rows are recorded only on the iOS 13.3.1 and 14.3 images; the iOS 12.4 and "
+                 "15.0.2 images and every iOS 16.1.1-26.5.2 image checked (the registered "
+                 "corpora; a comparison by Mattia Epifani in 2026-08 across 21 extractions of iOS "
+                 "16.1.1 to 26.5.2 reported the same, and no publication of it is cited here) "
+                 "yield no rows. An empty result on an image of those versions matches what the "
+                 "tested images showed; it is not by itself evidence about the device.",
         "paths": ('*/mobile/Library/CoreDuet/Knowledge/knowledgeC.db*',),
         "output_types": "standard",
         "artifact_icon": "moon",
@@ -181,7 +212,10 @@ __artifacts_v2__ = {
     },
     "knowledgeC_isLocked": {
         "name": "knowledgeC - Device Lock Status",
-        "description": "parses /device/isLocked events from knowledgeC Database",
+        "description": "Rows of the /device/isLocked stream of knowledgeC.db. The Unlocked (0) "
+                       "and Locked (1) labels follow Sarah Edwards, APOLLO, "
+                       "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_device_locked.txt, "
+                       "written for iOS 11 to 14; any other value is reported as stored.",
         "author": "mxkrt@lsjam.nl",
         "creation_date": "2025-09-13",
         "last_update_date": "2025-09-13",
@@ -210,7 +244,11 @@ __artifacts_v2__ = {
     },
     "knowledgeC_isBacklit": {
         "name": "knowledgeC - Device Screen Status",
-        "description": "parses /display/isBacklit events from knowledgeC Database",
+        "description": "Rows of the /display/isBacklit stream of knowledgeC.db. The Backlight off "
+                       "(0) and Backlight on (1) labels follow the 0 = no, 1 = yes reading of "
+                       "'screen is backlit' in Sarah Edwards, APOLLO, "
+                       "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_device_is_backlit.txt, "
+                       "written for iOS 11 to 14; any other value is reported as stored.",
         "author": "mxkrt@lsjam.nl",
         "creation_date": "2025-09-13",
         "last_update_date": "2025-09-13",

@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "imeiImsi": {
         "name": "IMEI - IMSI",
-        "description": "Extracts Cellular information",
+        "description": "Lists the keys of the first com.apple.commcenter.plist found, as stored. Under PersonalWallet only the first entry's lastGoodImsi, kEntitlementsSelfRegistrationUpdateImsi and kEntitlementsSelfRegistrationUpdateImei are reported.",
         "author": "@AlexisBrignoni - @stark4n6",
         "version": "0.3",
         "creation_date": "2023-10-03",

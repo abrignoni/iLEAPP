@@ -1,12 +1,24 @@
 __artifacts_v2__ = {
     "Ph098_1iOS18RefforAssetAnalysisPhDaPsql": {
         "name": "Ph098.1-iOS18_Ref_for_Asset_Analysis-PhDaPsql",
-        "description": "Parses asset records from PhotoData-Photos.sqlite. This parser includes the largest"
-            " set of decoded data based on testing and research conducted by Scott Koenig"
-            " https://theforensicscooter.com/. I recommend opening the TSV generated reports"
-            " with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer"
-            " to view, search and filter the results."
-            " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "description": "Reads PhotoData/Photos.sqlite on iOS 18 and joins each ZASSET record to its related "
+            "tables. One asset can produce several rows, one for each combination of related "
+            "records (internal resources, albums, faces, share participants, memories and others). "
+            "When the detected iOS version is not 18 the artifact returns no rows. The table has "
+            "1,160 columns. The TSV export can be opened in a spreadsheet or table viewer for "
+            "searching and filtering. Value labels come from research by Scott Koenig, see the "
+            "reference at the end. The reference calls the iOS 18 queries preliminary. Labels marked "
+            "STILLTESTING, StillTesting, Still_Testing or Still-Testing (263 of the 917 value "
+            "labels in this query) are not established. Labels that name an act by a person (for "
+            "example User_Deleted) are the researcher's reading of the stored value and are not "
+            "established here. Many labels do not start with the stored number, and one shows a "
+            "different number: the label for ZINTERNALRESOURCE.ZRECIPEID 327687 (column "
+            "zIntResou-Recipe ID) prints 627687-WallpaperComputeResource-627687; the stored value "
+            "is 327687. On dexter_ios18 109 of 31,445 rows carry that label, from 10 stored "
+            "ZINTERNALRESOURCE rows. On hc_ios18_7, iphone12_ios18 and iphone14plus_ios18 no row "
+            "does. None of those four stores held a ZRECIPEID of 627687. Reference: Scott Koenig, "
+            "'iLEAPP Parsers & Photos.sqlite Queries', "
+            "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-01-05",
@@ -37,12 +49,25 @@ __artifacts_v2__ = {
     },
     "Ph098_2iOS18RefforAssetAnalysisSyndPL": {
         "name": "Ph098.2-iOS18_Ref_for_Asset_Analysis-SyndPL",
-        "description": "Parses asset records from Syndication.photoslibrary-database-Photos.sqlite."
-            " This parser includes the largest set of decoded data based on testing and research"
-            " conducted by Scott Koenig https://theforensicscooter.com/. I recommend opening the"
-            " TSV generated reports with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md"
-            " TimelineExplorer to view, search and filter the results."
-            " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "description": "Reads Syndication.photoslibrary/database/Photos.sqlite on iOS 18 and joins each ZASSET "
+            "record to its related tables. One asset can produce several rows, one for each "
+            "combination of related records (internal resources, albums, faces, share participants, "
+            "memories and others). When the detected iOS version is not 18 the artifact returns no "
+            "rows. The table has 1,160 columns. The TSV export can be opened in a spreadsheet or "
+            "table viewer for searching and filtering. Value labels come from research by Scott "
+            "Koenig, see the reference at the end. The reference calls the iOS 18 queries preliminary. "
+            "Labels marked STILLTESTING, StillTesting, Still_Testing or Still-Testing (263 of the "
+            "921 value labels in this query) are not established. Labels that name an act by a "
+            "person (for example User_Deleted) are the researcher's reading of the stored value and "
+            "are not established here. Many labels do not start with the stored number, and one "
+            "shows a different number: the label for ZINTERNALRESOURCE.ZRECIPEID 327687 (column "
+            "zIntResou-Recipe ID) prints 627687-WallpaperComputeResource-627687; the stored value "
+            "is 327687. No row of the Syndication photo library held that value on dexter_ios18, "
+            "hc_ios18_7, iphone12_ios18 or iphone14plus_ios18, so this artifact did not show the "
+            "label on those images. In the main Photos.sqlite of dexter_ios18, 10 ZINTERNALRESOURCE "
+            "rows store 327687 and none stores 627687. Reference: Scott Koenig, 'iLEAPP Parsers & "
+            "Photos.sqlite Queries', "
+            "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-01-05",
@@ -70,12 +95,30 @@ __artifacts_v2__ = {
     },
     "Ph098_3iOS18RefforAssetAnalysisGenPlayPsql": {
         "name": "Ph098.3-iOS18_Ref_for_Asset_Analysis-GenPlayPsql",
-        "description": "Parses asset records from GenPlay-Photos.sqlite. This parser includes the largest"
-            " set of decoded data based on testing and research conducted by Scott Koenig"
-            " https://theforensicscooter.com/. I recommend opening the TSV generated reports"
-            " with Zimmermans EZTools https://ericzimmerman.github.io/#!index.md TimelineExplorer"
-            " to view, search and filter the results."
-            " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "description": "Reads the Photos.sqlite database of the com.apple.GenerativePlayground photo library "
+            "(Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database) "
+            "on iOS 18 and joins each ZASSET record to its related tables. One asset can produce "
+            "several rows, one for each combination of related records (internal resources, albums, "
+            "faces, share participants, memories and others). When the detected iOS version is not "
+            "18 the artifact returns no rows. The table has 1,160 columns. The TSV export can be "
+            "opened in a spreadsheet or table viewer for searching and filtering. Value labels come "
+            "from research by Scott Koenig, see the reference at the end. The reference calls the iOS 18 "
+            "queries preliminary. Labels marked STILLTESTING, StillTesting, Still_Testing or "
+            "Still-Testing (263 of the 917 value labels in this query) are not established. Labels "
+            "that name an act by a person (for example User_Deleted) are the researcher's reading "
+            "of the stored value and are not established here. Many labels do not start with the "
+            "stored number, and one shows a different number: the label for "
+            "ZINTERNALRESOURCE.ZRECIPEID 327687 (column zIntResou-Recipe ID) prints "
+            "627687-WallpaperComputeResource-627687; the stored value is 327687. This artifact "
+            "produced rows on dexter_ios18 only, of dexter_ios18, hc_ios18_7, iphone12_ios18 and "
+            "iphone14plus_ios18, and no row of that library stored 327687, so this artifact did not "
+            "show the label on those images. In the main Photos.sqlite of dexter_ios18, 10 "
+            "ZINTERNALRESOURCE rows store 327687 and none stores 627687. The query is the same one "
+            "this module runs against PhotoData/Photos.sqlite. The reference names "
+            "PhotoData/Photos.sqlite and Syndication.photoslibrary for this parser and does not "
+            "mention the Generative Playground library. Reference: Scott Koenig, 'iLEAPP Parsers & "
+            "Photos.sqlite Queries', "
+            "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-02-05",

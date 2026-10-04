@@ -9,7 +9,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Each record is a network-edge observation: the values are consistent with a "
+        "notes": "Only records in the Written SEGB state are reported; deleted slots produce no "
+                 "row. Each written record is read here as a network-edge observation: the values "
+                 "are consistent with a "
                  "device-side public network prefix; this interpretation is inferred from observed "
                  "values and is unverified. IMPORTANT: the address is TRUNCATED to the accompanying "
                  "prefix length, not the device's full public IP - every observed value has its host "
@@ -17,8 +19,8 @@ __artifacts_v2__ = {
                  "2600:380:1871:6d00:: is the /56). Report it as a network, not as an endpoint "
                  "address. The stream is protobuf, which carries field numbers but no field names, "
                  "so the column names other than the timestamp are inferred from the observed "
-                 "values; field 6 has no established meaning and is reported as Field 6. Tombstone "
-                 "files hold deletion bookkeeping under a different schema and are skipped.",
+                 "values; field 6 has no established meaning and is reported as Field 6. Files "
+                 "under a tombstone folder are skipped.",
         "paths": ('*/streams/*/Device.Networking.EdgeSelection/local/*',),
         "output_types": "standard",
         "artifact_icon": "network",

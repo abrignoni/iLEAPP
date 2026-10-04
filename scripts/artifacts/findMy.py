@@ -1,13 +1,15 @@
 __artifacts_v2__ = {
     "findMy": {
         "name": "Find My iPhone Settings",
-        "description": "Find My iPhone account settings (FMIPAccounts.plist)",
+        "description": "Keys and values of the Find My iPhone FMIPAccounts.plist",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "",
+        "notes": "The addTime value is shown under the key name 'Find My iPhone Add Time', read as "
+                 "Unix seconds in UTC; what the time marks is not established. Other keys are "
+                 "shown as stored.",
         "paths": ('*/mobile/Library/Preferences/com.apple.icloud.findmydeviced.FMIPAccounts.plist',),
         "output_types": "standard",
         "artifact_icon": "map-pin",

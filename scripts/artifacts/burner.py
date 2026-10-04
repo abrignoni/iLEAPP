@@ -7,7 +7,19 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Burner",
-        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
+        "notes": "The cited research reports testing on app versions 4.0.18, 4.3.3, 5.3.8 and "
+                 "5.4.11, on the public Josh Hickman iOS 13.3.1, 13.4.1, 14.3, 15.3.1, 16.1.2 and "
+                 "17.3 images. Number of burners is shown as burners found over the stored total. "
+                 "On a store whose ZBURNER table has no ZUSER column, which the cited research "
+                 "reports for app version 5.4.11, burners cannot be tied to the account: Number of "
+                 "burners then shows 0 before the stored total, and Burner numbers and Burner IDs "
+                 "are blank. That 0 is written by this module and is not a count. The research also "
+                 "reports the column present and empty on version 5.3.8, where no burner joins to "
+                 "the account and the same 0 and blanks are shown. Do not disturb reads On only "
+                 "when the stored flag is 1 and Off otherwise, so Off can also be a missing value. "
+                 "Reference: Django Faiola, 'iOS Burner', "
+                 "https://djangofaiola.blogspot.com/2024/03/ios-burner.html, and 'iOS Burner - "
+                 "Update', https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -25,7 +37,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Burner",
-        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
+        "notes": "The cited research reports testing on app versions 4.0.18, 4.3.3, 5.3.8 and "
+                 "5.4.11, on the public Josh Hickman iOS 13.3.1, 13.4.1, 14.3, 15.3.1, 16.1.2 and "
+                 "17.3 images. Sent is ZDATECREATED read as a Core Data time in UTC. Direction, "
+                 "Read, Message type and the call texts in the Message column are this module's "
+                 "reading of the stored ZDIRECTION, ZREAD, ZTYPE and ZSTATE values, following the "
+                 "cited research: direction 1 incoming and 2 outgoing; read 1; state 3 completed, 4 "
+                 "missed, 5 missed with voicemail; type 1 call or voicemail, 2 text or picture. Any "
+                 "direction other than 1 is shown as Outgoing and any read value other than 1 as "
+                 "Not read, so those two labels can also stand for a missing value. Reference: "
+                 "Django Faiola, 'iOS Burner', "
+                 "https://djangofaiola.blogspot.com/2024/03/ios-burner.html, and 'iOS Burner - "
+                 "Update', https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
                   '*/mobile/Containers/Data/Application/*/Library/Caches/outgoingPhotos/**',
@@ -69,7 +92,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Burner",
-        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
+        "notes": "The cited research reports testing on app versions 4.0.18, 4.3.3, 5.3.8 and "
+                 "5.4.11, on the public Josh Hickman iOS 13.3.1, 13.4.1, 14.3, 15.3.1, 16.1.2 and "
+                 "17.3 images. Verified, Blocked and Muted read Yes only when the stored flag is 1 "
+                 "and No otherwise, so a No can also be a missing value. Reference: Django Faiola, "
+                 "'iOS Burner', https://djangofaiola.blogspot.com/2024/03/ios-burner.html, and 'iOS "
+                 "Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -87,7 +116,19 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Burner",
-        "notes": "App version tested: 4.0.18, 4.3.3, 5.3.8, 5.4.11",
+        "notes": "The cited research reports testing on app versions 4.0.18, 4.3.3, 5.3.8 and "
+                 "5.4.11, on the public Josh Hickman iOS 13.3.1, 13.4.1, 14.3, 15.3.1, 16.1.2 and "
+                 "17.3 images. Notifications, Inbound caller ID, In-App calling (VoIP) and "
+                 "Auto-replay enabled labels are this module's reading of the stored "
+                 "ZNOTIFICATIONS, ZCALLERIDENABLED, ZUSESIP and ZAUTOREPLYACTIVE flags: 0 is shown "
+                 "as Off, Burner Number, Standard Voice and No, and any other value, including a "
+                 "missing one, as On, Caller Number, VoIP and Yes. The cited research describes the "
+                 "ZUSESIP values in two opposite ways, so that label is not established. The cited "
+                 "research reports that the table holds only active numbers and that a number is "
+                 "removed when its subscription expires, so a number absent here is not evidence it "
+                 "was never held. Reference: Django Faiola, 'iOS Burner', "
+                 "https://djangofaiola.blogspot.com/2024/03/ios-burner.html, and 'iOS Burner - "
+                 "Update', https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/Phoenix.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "hash",

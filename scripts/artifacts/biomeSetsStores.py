@@ -10,7 +10,8 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
                  "Modified timestamps come from the store's instance table; stores without one "
-                 "(observed on iOS 26) carry metacontent_provenance.written_date instead, "
+                 "(observed on the hc_ios26 image) carry metacontent_provenance.written_date "
+                 "instead, "
                  "reported in the same column.",
         "paths": ('*/Biome/sets/Default/App.InstalledApp/Database/Set.db*',),
         "output_types": "standard",
@@ -30,8 +31,12 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
+                 "Field 1 is reported as Given Name and field 3 as Family Name; no source is cited "
+                 "here for those labels. "
                  "Unmapped protobuf fields are preserved in the Other Fields column."
-                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
+                 " The Modified column comes from the store's instance table, or "
+                 "metacontent_provenance.written_date on stores without one (observed on the "
+                 "hc_ios26 image).",
         "paths": ('*/Biome/sets/Default/Contacts.Contact/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -43,7 +48,9 @@ __artifacts_v2__ = {
     },
     "biomeSetsFindMyDevices": {
         "name": "Biome Sets - FindMy Devices",
-        "description": "FindMy device records (device name and owner name) from the FindMy.Device Biome "
+        "description": "FindMy device records (a device name and two name strings stored with it, "
+                       "labelled here as the owner's given and family name) from the "
+                       "FindMy.Device Biome "
                        "Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
@@ -51,7 +58,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
-                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
+                 " The Modified column comes from the store's instance table, or "
+                 "metacontent_provenance.written_date on stores without one (observed on the "
+                 "hc_ios26 image).",
         "paths": ('*/Biome/sets/Default/FindMy.Device/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -63,7 +72,8 @@ __artifacts_v2__ = {
     },
     "biomeSetsSignificantLocations": {
         "name": "Biome Sets - Significant Locations",
-        "description": "Significant location records (label, street, locality, city, country) from the "
+        "description": "Significant location records (label, street, area, city, country) from "
+                       "the "
                        "Location.SignificantLocation Biome Set.db store.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
@@ -71,7 +81,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
-                 " The Modified column comes from the store's instance table, or metacontent_provenance.written_date on stores without one (observed on iOS 26).",
+                 " The Modified column comes from the store's instance table, or "
+                 "metacontent_provenance.written_date on stores without one (observed on the "
+                 "hc_ios26 image).",
         "paths": ('*/Biome/sets/Default/Location.SignificantLocation/Database/Set.db*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -90,11 +102,16 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
-                 "Documents which intent phrases installed apps registered with the system."
+        "notes": "The Set.db layout is described in North Loop Consulting, 'Apple Did Your "
+                 "Homework: Pre-Analyzed Data in Biome Databases', "
+                 "https://northloopconsulting.com/blog/f/ready-sets-go. That article does not "
+                 "cover the App.Shortcut.Phrase set; no source for its field mapping is cited "
+                 "here. Each row is a phrase record stored under a source identifier folder; a "
+                 "record does not by itself show that the app is installed."
                  " The Modified column comes from the store's instance table, "
-                 "or metacontent_provenance.written_date on stores without one (observed on iOS "
-                 "26). Source App is the sourceIdentifier folder name the Set.db sits under, and "
+                 "or metacontent_provenance.written_date on stores without one (observed on the "
+                 "hc_ios26 image). Source App is the sourceIdentifier folder name the Set.db "
+                 "sits under, and "
                  "each such folder holds one Database/Set.db. On the five registered images that "
                  "carry these stores (dexter_ios18, hc_ios18_7, iphone12_ios18, hc_ios26 and "
                  "falken_ios26) no Source App had a second store, so the report's located-at line "
@@ -117,10 +134,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-26",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go."
+        "notes": "The Set.db layout is described in North Loop Consulting, 'Apple Did Your "
+                 "Homework: Pre-Analyzed Data in Biome Databases', "
+                 "https://northloopconsulting.com/blog/f/ready-sets-go. That article does not "
+                 "cover the App.Shortcut.Entity set; no source for its field mapping is cited "
+                 "here."
                  " The Modified column comes from the store's instance table, "
-                 "or metacontent_provenance.written_date on stores without one (observed on iOS "
-                 "26). Source App is the sourceIdentifier folder name the Set.db sits under, and "
+                 "or metacontent_provenance.written_date on stores without one (observed on the "
+                 "hc_ios26 image). Source App is the sourceIdentifier folder name the Set.db "
+                 "sits under, and "
                  "each such folder holds one Database/Set.db. On the five registered images that "
                  "carry these stores (dexter_ios18, hc_ios18_7, iphone12_ios18, hc_ios26 and "
                  "falken_ios26) no Source App had a second store, so the report's located-at line "

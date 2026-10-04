@@ -1,7 +1,13 @@
 __artifacts_v2__ = {
     "get_biomeDevWifi": {
         "name": "Biome - WiFi Devices",
-        "description": "Parses (device) WiFi connection entries from biomes",
+        "description": "Parses SSID and connection status records from the "
+                       "Device.Wireless.WiFi biome stream. Status reads Connected "
+                       "where the stored value is 1 and Disconnected for any other "
+                       "value; the stored integer is not reported. The same two "
+                       "status names are listed for this stream in Mattia Epifani, "
+                       "'84 Streams Later, Part 2: Inside Apple Biome', "
+                       "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
         "last_update_date": "2026-08-20",

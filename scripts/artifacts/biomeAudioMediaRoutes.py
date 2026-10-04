@@ -15,8 +15,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Field 6 distinguishes input from output routes in observed data (1 with "
-                 "microphone routes, 2 with speaker and receiver routes) but is reported raw "
+        "notes": "On the tested images Field 6 was 1 on rows with microphone routes and 2 on "
+                 "rows with speaker and receiver routes. It is reported raw "
                  "as the mapping is not confirmed.",
         "paths": ('*/streams/*/Audio.Route/local/*',),
         "output_types": "standard",
@@ -29,7 +29,8 @@ __artifacts_v2__ = {
     "get_biomeMediaRoute": {
         "name": "Biome - Media Route",
         "description": "Parses media output route changes from the Media.Route biome stream. "
-                       "Bluetooth and AirPlay routes carry the accessory identifier and name.",
+                       "Rows carry a route name and, where stored, a route identifier; route "
+                       "type and subtype are reported raw.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",

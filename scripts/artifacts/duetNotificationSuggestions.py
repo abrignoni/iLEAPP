@@ -10,8 +10,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "DuetExpertCenter",
         "notes": "No notification body text was present in tested databases; only metadata such as "
-                 "body length. In tested images this database retained notification records older "
-                 "than some apps' own message databases. The numeric urgency, "
+                 "body length. The numeric urgency, "
                  "delivery-method, delivery-reason and outcome codes are Apple-internal and are "
                  "reported verbatim rather than guessed at.",
         "paths": ('*/mobile/Library/DuetExpertCenter/notificationAndSuggestionDB.db*',),
@@ -28,15 +27,17 @@ __artifacts_v2__ = {
     },
     "duetNotificationSuggestions": {
         "name": "DuetExpertCenter - Notification Suggestions",
-        "description": "Parses the notification-handling suggestions generated "
-                       "by DuetExpertCenter, with the triggering notification and the outcome",
+        "description": "Rows of the suggestions table in DuetExpertCenter's "
+                       "notificationAndSuggestionDB.db, with the trigger notification UUID "
+                       "and the latest outcome code as stored",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-28",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "DuetExpertCenter",
         "notes": "Suggestion, scope and outcome codes are Apple-internal and are reported verbatim. "
-                 "The Trigger Notification UUID joins back to the DuetExpertCenter - Notifications "
+                 "The Trigger Notification UUID is the suggestions.triggerNotificationUUID value; "
+                 "it can be compared with the UUID column of the DuetExpertCenter - Notifications "
                  "artifact.",
         "paths": ('*/mobile/Library/DuetExpertCenter/notificationAndSuggestionDB.db*',),
         "output_types": "standard",

@@ -1,7 +1,9 @@
 __artifacts_v2__ = {
     "calculatorVault": {
         "name": "Calculator Vault Application",
-        "description": "Parses data from the Calculator# Vault application",
+        "description": "Video records from a FolderLockAdvanced.sqlite database (seen in the "
+                       "'Calculator #' app, net.newsoftwares.NSVault). No tested image held a "
+                       "video row.",
         "author": "@charpy4n6",
         "creation_date": "2025-01-22",
         "last_update_date": "2026-09-19",
@@ -13,8 +15,11 @@ __artifacts_v2__ = {
                  " Attachment is the file in the same app container at the folder the row's album records (ZVIDEOALBUM.ZALBUM_PATH),"
                  " named as the row's Video Name, and is blank when no such file was extracted. On hexordia_ios1651 the photo table"
                  " follows the same layout: each of its three photo rows records a storage path equal to its album's path plus its"
-                 " file name, and each of those files was extracted. No tested image held a video row, so the video link has only"
-                 " been exercised on constructed data.",
+                 " file name, and each of those files was extracted. No tested image held a video "
+                 "row, so the video link has only been exercised on constructed data, and the "
+                 "reading of Modified Date as seconds from 2001-01-01 UTC has not been checked "
+                 "against a real row. Only the first FolderLockAdvanced.sqlite in the extraction "
+                 "is read.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/FolderLockAdvanced.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/FolderLockAdvanced/Videos/*',),
         "output_types": "standard",
         "artifact_icon": "eye-off",

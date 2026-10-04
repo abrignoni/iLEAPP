@@ -1,10 +1,12 @@
 __artifacts_v2__ = {
 'Ph031iCloudSPLwithParticipantswithNADPhDaPsql': {
 'name': 'Ph31-iCloud SPL with Participants NAD-PhDaPsql',
-'description': 'Parses iCloud Shared Photo Library records and invites from the PhotoData-Photos.sqlite'
-' ZSHARE Table and supports iOS. Parses iCloud SPL and Participant information'
-' records only no asset data being parsed.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses iCloud Shared Photo Library records and invites from the "
+"PhotoData/Photos.sqlite ZSHARE table, limited to rows whose ZSCOPETYPE is 4 or 5. "
+"Queries exist for iOS 14 through 18; iOS 26 and later are not parsed, so an empty "
+"result there is not evidence of absence. Parses iCloud SPL and Participant "
+"information records only no asset data being parsed. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

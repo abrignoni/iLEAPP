@@ -23,18 +23,20 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "WhatsApp",
-        "notes": "Reactions are stored inside ZWAMESSAGEINFO.ZRECEIPTINFO, a protobuf blob. "
-                 "Two record shapes were observed under field 7 across the tested images. "
-                 "Shape one (field 7.1) carries a message key id, the reactor's JID, the "
-                 "emoji, and a millisecond timestamp; every decoded instance had a "
-                 "well-formed JID and a plausible timestamp (12 of 12). Shape two (field "
-                 "7.2) carries a key id, the emoji, and a millisecond timestamp but no JID "
-                 "(26 of 26 decoded clean); it was observed on both incoming and outgoing "
-                 "messages, so which party reacted is not established for that shape and "
-                 "the Reactor JID column is empty there. The Record Shape column states "
-                 "which shape each row came from. Decoded with the bundled "
-                 "blackboxprotobuf; no external source documents this blob, so only "
-                 "content verifiable in the data itself is reported.",
+        "notes": "Reactions are stored inside ZWAMESSAGEINFO.ZRECEIPTINFO, a protobuf blob. Two "
+                 "record shapes were observed under field 7 across the tested images. Shape one "
+                 "(field 7.1) carries a message key id, a JID, the emoji, and a millisecond "
+                 "timestamp; every decoded instance had a well-formed JID and a plausible "
+                 "timestamp (12 of 12). The JID is reported in the Reactor JID column; that it "
+                 "names the party who reacted is this module's reading and is not established by "
+                 "a source. Shape two (field 7.2) carries a key id, the emoji, and a millisecond "
+                 "timestamp but no JID (26 of 26 decoded clean); it was observed on both incoming "
+                 "and outgoing messages, so which party reacted is not established for that shape "
+                 "and the Reactor JID column is empty there. The Record Shape column states which "
+                 "shape each row came from. Decoded with the bundled blackboxprotobuf; no "
+                 "external source documents this blob. A blob the decoder cannot read produces no "
+                 "row. Message Direction is Outgoing where the message's ZISFROMME is 1 and "
+                 "Incoming otherwise, including where no message row is joined.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "thumb-up",
@@ -56,18 +58,20 @@ __artifacts_v2__ = {
     },
     "whatsAppChannelReactionTallies": {
         "name": "WhatsApp - Channel Reaction Tallies",
-        "description": "Aggregate emoji reaction counts on channel messages, decoded from the ZRECEIPTINFO blob (ChatStorage.sqlite)",
+        "description": "Emoji and count pairs from field 7.3 of the ZRECEIPTINFO blob "
+                       "(ChatStorage.sqlite), reported as stored",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "WhatsApp",
-        "notes": "Field 7.3 of the ZWAMESSAGEINFO.ZRECEIPTINFO protobuf holds repeated "
-                 "(emoji, count) pairs. In the tested images these appear on messages in "
-                 "@newsletter (channel) chats and the counts reach the thousands, "
-                 "consistent with channel-wide totals rather than per-contact reactions; "
-                 "that reading is an observation from the tested data, not a documented "
-                 "meaning. One row per emoji per message, count reported as stored.",
+        "notes": "Field 7.3 of the ZWAMESSAGEINFO.ZRECEIPTINFO protobuf holds repeated (emoji, "
+                 "count) pairs. Every such pair is reported, whatever the chat. Only one tested "
+                 "image held any (iOS 17.5.1); there these were observed on messages in "
+                 "@newsletter chats, the share of rows in such chats was not counted, and the "
+                 "counts reach the thousands, consistent with channel-wide totals rather than "
+                 "per-contact reactions; that reading is an observation from the tested data, not "
+                 "a documented meaning. One row per emoji per message, count reported as stored.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "chart-bar",
@@ -125,11 +129,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "WhatsApp",
-        "notes": "One row per entry in ZWAGROUPMEMBERSCHANGE: change timestamp, an integer "
-                 "change type (no lookup table in the database; reported as stored), the "
-                 "group JID and the affected member JIDs as stored. In the tested images "
-                 "only one image (iOS 17.5.1) had rows; the table exists empty on the "
-                 "others that carry it.",
+        "notes": "One row per entry in ZWAGROUPMEMBERSCHANGE: change timestamp, an integer change "
+                 "type (no lookup table in the database; reported as stored), the group JID and "
+                 "the affected member JIDs as stored. Of the 13 tested images only one (iOS "
+                 "17.5.1) had rows.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",

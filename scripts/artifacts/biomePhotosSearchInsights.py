@@ -2,15 +2,17 @@ __artifacts_v2__ = {
     "get_biomePhotosSearchInsights": {
         "name": "Biome - Photos Search Insights",
         "description": "Parses Photos search terms from the "
-                       "AeroML.Insights.PhotosSearchInsights biome stream, along with the "
-                       "language and region the search was made in. The search term is the text "
+                       "AeroML.Insights.PhotosSearchInsights biome stream, along with two "
+                       "strings read as a language and a region. The search term is the text "
                        "stored for the Photos app search.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Remaining fields were constant across the sample and are reported raw.",
+        "notes": "Fields 1, 5, 25 and 26 were constant across the sample and are "
+                 "reported raw. Field 24 is reported under the name Schema Version; no "
+                 "source for that label is cited here.",
         "paths": ('*/streams/*/AeroML.Insights.PhotosSearchInsights/local/*',),
         "output_types": "standard",
         "artifact_icon": "search",

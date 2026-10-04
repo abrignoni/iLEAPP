@@ -2,10 +2,9 @@ __artifacts_v2__ = {
     "appleIntelligenceReport": {
         "name": "Apple Intelligence Report",
         "description": (
-            "Parses Apple Intelligence Report JSON files. Extracts model requests "
-            "and Private Cloud Compute (PCC) requests including timestamps, user "
-            "triggers, source apps, prompts and responses. Supports iOS, iPadOS "
-            "and macOS reports."
+            "Parses Apple Intelligence Report JSON files. Extracts model requests and Private "
+            "Cloud Compute (PCC) requests including timestamps, use case and client labels, "
+            "prompts and responses."
         ),
         "author": "@malwr4n6",
         "creation_date": "2026-07-19",
@@ -15,12 +14,20 @@ __artifacts_v2__ = {
         "notes": (
             "Parses the report exported from Settings > Privacy & Security > Apple Intelligence "
             "Report; no such file was found on any registered corpus image, so the examiner "
-            "supplies it. "
-            "Distinguishes on-device Model Requests from Private Cloud Compute (PCC) requests. "
-            "The User Trigger and Source App columns are convenience labels derived from the "
-            "use-case and client identifiers; the raw values are reported beside them. "
-            "Developed against the author's exported reports; no registered corpus image "
-            "carries one."
+            "supplies it. Request and Response are rewritten by this module in some cases: a "
+            "template prompt is reduced to one extracted string, a JSON prompt or response is "
+            "reduced to selected values, and placeholders such as (template-based prompt), image "
+            "input and tool action triggered are the module's words, not stored text. For PCC rows "
+            "the Request and Response cells are composed by the module from the pipeline, adapter, "
+            "model and node counts. The timestamp is read as Unix seconds, and a record with no "
+            "timestamp is shown as 1970-01-01. Rows from the modelRequests array are labelled "
+            "Model Request and rows from the privateCloudComputeRequests array are labelled PCC "
+            "Request. Where a Model Request ran is not established here. The User Trigger and "
+            "Source App columns are labels this module picks by substring match: User Trigger from "
+            "the use case, the model or the template id, and Source App from the client identifier "
+            "or the use case. The stored use case is reported in Use Case (Raw). The stored client "
+            "identifier is shown in Source App only when it matches no label. Developed against "
+            "the author's exported reports; no registered corpus image carries one."
         ),
         "paths": ('*/Apple_Intelligence_Report*.json',),
         "output_types": "all",

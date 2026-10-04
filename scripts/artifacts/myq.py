@@ -9,20 +9,22 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "myQ",
-        "notes": "Read from the app's NSURLCache at Library/Caches/com.myliftmaster.myq, from the "
-                 "cached accounthistory.myq-cloud.com deviceHistory response. Event timestamps are ISO "
-                 "8601 carrying an explicit UTC offset. Device Event and Event Type are the strings "
-                 "the service returned and are reported as stored. Attributed To Name and Attributed "
-                 "To Source come from the event_by object the service returns, and both were absent on "
-                 "some events in the tested sample; an empty value records that the cached "
-                 "response carried no event_by object for that event, and what that signifies is "
-                 "not established. An event records "
-                 "that the service logged a door state change; it does not establish who was "
-                 "physically present. The local database the app keeps beside this cache has an "
-                 "ApiEvent table, but it was empty on the tested sample and the events are recovered "
-                 "from the cached response instead. The app's data container was present on 1 of the "
-                 "26 registered iOS corpora swept for it, so every count recorded here comes from that "
-                 "one extraction.",
+        "notes": "Read from the app's NSURLCache at Library/Caches/com.myliftmaster.myq, from "
+                 "every cached accounthistory.myq-cloud.com deviceHistory response. An event id "
+                 "found in more than one cached response is reported once, from the oldest "
+                 "response holding it. Events with no id are treated as one id, so only the first "
+                 "of them is reported. Event timestamps are ISO 8601 carrying an explicit UTC "
+                 "offset. Device Event and Event Type are the strings the service returned and are "
+                 "reported as stored. Attributed To Name and Attributed To Source come from the "
+                 "event_by object the service returns, and both were absent on some events in the "
+                 "tested sample; an empty value records that the cached response carried no "
+                 "event_by object for that event, and what that signifies is not established. An "
+                 "event is an entry the service returned in its device history; the kinds of event "
+                 "are reported as stored and are not interpreted here. An entry does not establish "
+                 "who was physically present. The local database the app keeps beside this cache "
+                 "has an ApiEvent table, but it was empty on the tested sample and the events are "
+                 "recovered from the cached response instead. Every count recorded here comes from "
+                 "one extraction, falken_ios26.",
         "paths": ('*/Library/Caches/com.myliftmaster.myq/Cache.db*',
                   '*/Library/Caches/com.myliftmaster.myq/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -33,8 +35,9 @@ __artifacts_v2__ = {
     },
     "myqDevices": {
         "name": "myQ - Devices",
-        "description": "Door openers and gateways registered to the account, with the serial "
-                       "number, model, current door state and the cycle counts recorded for "
+        "description": "Door openers and gateways returned by the service in its cached Devices "
+                       "response, with the serial number, model, the door state held in that "
+                       "response and the cycle counts recorded for "
                        "each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
@@ -54,9 +57,8 @@ __artifacts_v2__ = {
                  "same value on every row in the tested sample, and Absolute Cycle Count "
                  "equalled Service Cycle Count because both were zero on the opener and absent "
                  "on the gateway. Both pairs are kept because the service returns them as "
-                 "separate fields. The app's data container was "
-                 "present on 1 of the 26 registered iOS corpora swept for it, so every count recorded "
-                 "here comes from that one extraction.",
+                 "separate fields. Every count recorded here comes from one extraction, "
+                 "falken_ios26.",
         "paths": ('*/Library/Caches/com.myliftmaster.myq/Cache.db*',
                   '*/Library/Caches/com.myliftmaster.myq/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava", "timeline"],
@@ -67,20 +69,20 @@ __artifacts_v2__ = {
     },
     "myqAccountUsers": {
         "name": "myQ - Account Users",
-        "description": "People the service listed as having access to the myQ account, with "
-                       "the role and the date the access was created.",
+        "description": "Entries of the account users list the service returned for the myQ "
+                       "account, with the role and created date as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
         "last_update_date": "2026-08-31",
         "requirements": "none",
         "category": "myQ",
         "notes": "Read from the cached guestaccess.myq-cloud.com account users response. Role is "
-                 "reported as stored. A row records that the service listed the account as having "
-                 "access when the response was cached; it is not evidence that the person operated a "
-                 "door, which the Device History artifact reports separately. Created Date carries an "
-                 "explicit UTC offset. The app's data container was present on 1 of the 26 registered "
-                 "iOS corpora swept for it, so every count recorded here comes from that one "
-                 "extraction.",
+                 "reported as stored. A row records that the cached response listed the entry in "
+                 "its account users list; it is not evidence that the person operated a door, "
+                 "which the Device History artifact reports separately. Created Date carries an "
+                 "explicit UTC offset. What Created Date marks (the user record or the grant of "
+                 "access) is not established. Every count recorded here comes from one extraction, "
+                 "falken_ios26.",
         "paths": ('*/Library/Caches/com.myliftmaster.myq/Cache.db*',
                   '*/Library/Caches/com.myliftmaster.myq/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava"],
@@ -91,7 +93,8 @@ __artifacts_v2__ = {
     },
     "myqProfile": {
         "name": "myQ - Account Profile",
-        "description": "The myQ account signed in to the app, with the email address and the "
+        "description": "The myQ account profile held in the app's cached profile response, with "
+                       "the email address and the "
                        "postal address fields the service returned.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
@@ -101,9 +104,8 @@ __artifacts_v2__ = {
         "notes": "Read from the cached profiles.myq-cloud.com profile response. The cached "
                  "response on the tested sample held a postal code and country and no street "
                  "address; only those are reported. "
-                 "Linked external identity providers are reported by name and count only. The app's "
-                 "data container was present on 1 of the 26 registered iOS corpora swept for it, so "
-                 "every count recorded here comes from that one extraction.",
+                 "Linked external identity providers are reported by name only. Every count "
+                 "recorded here comes from one extraction, falken_ios26.",
         "paths": ('*/Library/Caches/com.myliftmaster.myq/Cache.db*',
                   '*/Library/Caches/com.myliftmaster.myq/fsCachedData/*'),
         "output_types": ["html", "tsv", "lava"],

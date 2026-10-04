@@ -1,9 +1,9 @@
 __artifacts_v2__ = {
 'Ph009_1BurstAvalanchePhDaPsql': {
 'name': 'Ph009.1-Burst Avalanche-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for burst avalanche assets'
-' and supports iOS. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZAVALANCHEPICKTYPE or'
+' ZCLOUDAVALANCHEPICKTYPE is above 0, on iOS 11 through 26. The results contain one row per asset'
+' (ZASSET table, or ZGENERICASSET on iOS 11 to 13).'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -12,7 +12,14 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'reuirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. Labels marked StillTesting'
+' or Still_Testing are unconfirmed. The pick type labels use the words Selected and Picked. The'
+' store records the value. It does not record who or what made a choice. The header'
+" 'zCldMast-Import Session ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A link"
+" between that value and AirDrop is not established in this module. The header 'zAsset-UUID ="
+" store.cloudphotodb' reports the asset table's ZUUID. The match with store.cloudphotodb that the"
+' header names is not established in this module.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "stack-2",
@@ -36,9 +43,9 @@ __artifacts_v2__ = {
 },
 'Ph009_3BurstAvalancheGenPlayPsql': {
 'name': 'Ph009.3-Burst Avalanche-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for burst avalanche assets'
-' and supports iOS. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose ZAVALANCHEPICKTYPE or'
+' ZCLOUDAVALANCHEPICKTYPE is above 0, on iOS 18 through 26. The results for this script will'
+' contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -47,7 +54,14 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. Labels marked StillTesting'
+' or Still_Testing are unconfirmed. The pick type labels use the words Selected and Picked. The'
+' store records the value. It does not record who or what made a choice. The header'
+" 'zCldMast-Import Session ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A link"
+" between that value and AirDrop is not established in this module. The header 'zAsset-UUID ="
+" store.cloudphotodb' reports the asset table's ZUUID. The match with store.cloudphotodb that the"
+' header names is not established in this module.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "stack-2",

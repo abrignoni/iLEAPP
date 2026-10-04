@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "skg_archive": {
         "name": "SKG Archive",
-        "description": "Parses SKG Archive Records",
+        "description": "Parses the records in the skg_archive files under CoreSpotlight/SpotlightKnowledge. A record identical to one already read is reported once.",
         "author": "@JFHyla",
         "creation_date": "2024-12-03",
         "last_update_date": "2026-07-13",

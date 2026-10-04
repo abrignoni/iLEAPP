@@ -35,13 +35,17 @@ __artifacts_v2__ = {
     },
     "icloud_application_list": {
         "name": "Files App - iCloud Application List",
-        "description": "Applications with app libraries in the CloudDocs client.db",
+        "description": "Rows of the app_libraries table in the CloudDocs client.db",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
-        "notes": "",
+        "notes": "Application Bundle ID is app_library_name. Below iOS 18, Number of files is "
+                 "auto_document_count, Number of folders is auto_client_item_count minus "
+                 "auto_document_count and Total size in bytes is auto_aggregate_size; what the "
+                 "system counts in each is not established. On iOS 18 and later only the library "
+                 "name is reported.",
         "paths": (
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             ),
@@ -67,13 +71,22 @@ __artifacts_v2__ = {
     },
     "icloud_drive_stored_files": {
         "name": "Files App - Files stored in iCloud Drive",
-        "description": "Files stored in iCloud Drive with their metadata",
+        "description": "Items (files and folders) listed in the client_items table of the "
+                       "CloudDocs client.db, with their stored times, size and library",
         "author": "@JohannPLW",
         "creation_date": "2024-02-02",
         "last_update_date": "2025-09-30",
         "requirements": "none",
         "category": "Files App",
-        "notes": "",
+        "notes": "Every client_items row is reported. A row shows the item is listed in the "
+                 "device's CloudDocs database; it does not by itself show where the file's content "
+                 "is held. A row whose size is not an integer is treated as a folder: its name is "
+                 "added to Path and Filename is left blank. Created, Modified and Last opened are "
+                 "item_birthtime, version_mtime and item_lastusedtime converted from Unix time to "
+                 "UTC; values of 0 or below are left blank. Shared? reads Yes when "
+                 "item_sharing_options is above 4, a threshold with no cited source. Recently "
+                 "Deleted reads Yes when item_trash_put_back_path holds a value. From Device Name "
+                 "is the server.db devices name for version_device.",
         "paths": (
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',
@@ -106,9 +119,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Files App",
-        "notes": "The Permissions labels are assigned to item_sharing_options values 8 and 12, "
-                 "24 and 28, and 64 and 68 without a vendor source; unrecognized values are "
-                 "reported as stored",
+        "notes": "A row is reported when item_sharing_options is above 4; that threshold and "
+                 "the Permissions labels assigned to values 8 and 12, 24 and 28, and 64 and 68 "
+                 "have no vendor source, and other values are reported as stored. Shared by is "
+                 "the name decoded from the server.db users row for item_creator_id, or 'an "
+                 "unknown user' where no name decodes. Where the item has no creator id the "
+                 "column reads 'local account (no creator ID)'; that wording is this report's "
+                 "and who shared the item is not established for those rows.",
         "paths": (
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             '*/mobile/Library/Application Support/CloudDocs/session/db/server.db*',

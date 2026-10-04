@@ -17,7 +17,10 @@ __artifacts_v2__ = {
     "itunes_backup_installed_applications": {
         "name": "iTunes Backup - Installed Applications",
         "description": "Extract information about installed applications from the "
-                       "Info.plist file of an iTunes backup",
+                       "Info.plist file of an iTunes backup. The Downloaded by column "
+                       "is the AppleID value of the app's download information as "
+                       "stored, and the storeCohort date is decoded from the digits "
+                       "after date= as Unix seconds.",
         "author": "@johannplw",
         "creation_date": "2023-10-11",
         "last_update_date": "2026-09-28",

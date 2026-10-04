@@ -1,14 +1,21 @@
 __artifacts_v2__ = {
     "secretCalculatorPhotoAlbum": {
         "name": "Secret Calculator Photo Album",
-        "description": "Photos/videos hidden in the Secret Calculator Photo Album "
-                       "(xyz.hypertornado.calculator) and their albums",
+        "description": "Rows of the Photos table in the Secret Calculator Photo Album app's "
+                       "data.sqlite (xyz.hypertornado.calculator), with the Albums row sharing the "
+                       "same id",
         "author": "John Hyla",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Secret Calculator Photo Album",
-        "notes": "Photo/Album dates are Unix epoch seconds (UTC).",
+        "notes": (
+            "Photo and album dates are read as Unix epoch seconds and shown in UTC. Album and "
+            "Album Date come from the Albums row whose id equals the Photos row's id; that the "
+            "two ids are related is not established. Filename is built with a .mov extension on "
+            "every row, whatever Is Video holds. Every image in sample_data returned 0 rows, so "
+            "no row has been produced from a test image and none of these readings is confirmed."
+        ),
         "paths": ('*mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',),
         "output_types": "standard",
         "artifact_icon": "lock",

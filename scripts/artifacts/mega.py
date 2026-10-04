@@ -9,13 +9,24 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "MEGA",
-        "notes": "Read from the karere-*.db history table. Direction is set by comparing the sender "
-                 "handle to the account's own handle, which the store keeps in vars as my_handle. "
-                 "Rows with type 1 hold their text directly. Rows whose body is a JSON object "
-                 "carrying a maps URL, latitude and longitude and a base64 JPEG thumbnail are "
-                 "reported as location shares (type 104 as stored), with the thumbnail decoded "
-                 "and checked in. Other type values are reported with their stored type number "
-                 "and no body; no published source for the type values is cited.",
+        "notes": "Read from the history table of the first karere-*.db file found; if an "
+                 "extraction holds more than one, the others are not read. Direction is set by "
+                 "comparing the sender handle to the account's own handle, which the store keeps "
+                 "in vars as my_handle. Rows with type 1 hold their text directly. For any row "
+                 "that is not type 1, is not flagged encrypted and whose body holds a JSON object, "
+                 "the object's textMessage is reported as Message and Maps URL, and the first "
+                 "'extra' entry's la, lng and img as Latitude, Longitude and thumbnail; the img "
+                 "value is base64 decoded and checked in as a JPEG. The code does not check the "
+                 "type or that the text is a maps link, so another kind of type 104 row would be "
+                 "reported the same way. On hc_ios26 the 2 rows this applied to were type 104 and "
+                 "each held a maps link, coordinates and a thumbnail; the same was true of 2 rows "
+                 "on hc_ios18_7 and 8 rows on iphone11_ios17. On iphone11_ios17 16 type 101 rows "
+                 "also held a JSON object, with no textMessage, and are reported with a blank "
+                 "Message and Maps URL. Other type values are reported with "
+                 "their stored type number. Rows whose is_encrypted value is not 0 are reported "
+                 "with '<encrypted>' in place of a body and Yes under Was Encrypted; what each "
+                 "non-zero value means is not sourced here. MEGA publishes both vocabularies in "
+                 "the MEGAchat file src/chatdMsg.h, which is not yet cited at a pinned commit.",
         "paths": ('*/karere-*.db*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -43,7 +54,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "MEGA",
-        "notes": "A peer handle of 0 does not resolve to a contact and is reported as stored; "
+        "notes": "Read from the chats table of the first karere-*.db file found; if an extraction "
+                 "holds more than one, the others are not read. A peer handle of 0 does not "
+                 "resolve to a contact and is reported as blank; "
                  "its meaning is not sourced.",
         "paths": ('*/karere-*.db*',),
         "output_types": "standard",
@@ -54,14 +67,15 @@ __artifacts_v2__ = {
     },
     "mega_contacts": {
         "name": "MEGA - Contacts",
-        "description": "Contacts stored in the MEGA karere store, with the email and the time the "
-                       "contact relationship was recorded",
+        "description": "Contacts stored in the MEGA karere store, with the email and the stored "
+                       "'since' time, read as Unix seconds; what that time marks is not established",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "MEGA",
-        "notes": "",
+        "notes": "Read from the contacts table of the first karere-*.db file found; if an "
+                 "extraction holds more than one, the others are not read.",
         "paths": ('*/karere-*.db*',),
         "output_types": "standard",
         "artifact_icon": "user",

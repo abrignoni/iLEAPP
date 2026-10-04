@@ -1,7 +1,11 @@
 __artifacts_v2__ = {
     "uber_account": {
         "name": "Uber - Account",
-        "description": "Parses Uber user account information (Client, City, Status).",
+        "description": "Parses the Uber client file (name, phone, email, user id). City, client "
+                       "status time and the targetLocationSynced coordinates are added only when "
+                       "those sibling files have been copied out beside it; this artifact's own "
+                       "path pattern does not match them. What the coordinates record is not "
+                       "established.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",
@@ -38,7 +42,8 @@ __artifacts_v2__ = {
     },
     "uber_user_address": {
         "name": "Uber - Reverse Geocode Address",
-        "description": "Parses reverse-geocoded address from the client cache.",
+        "description": "Parses the reverseGeocode entry (coordinates and address) of the eyeball "
+                       "file. What position the entry was computed for is not established.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",
@@ -75,8 +80,7 @@ __artifacts_v2__ = {
     },
     "uber_searched_rides": {
         "name": "Uber - Place Search Hits",
-        "description": "Parses the hits table of database.db joined to its place rows (place "
-                       "search hits).",
+        "description": "Parses the hits table of database.db joined to its place rows.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",
@@ -100,7 +104,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Uber",
-        "notes": "Column labels for the place-search cache follow observed schema naming.",
+        "notes": "Last hit is place.timestamp_ms read as Unix milliseconds, Type is "
+                 "payload.personalPayload.labelType, Name is location.addressLine1 and Address is "
+                 "location.fullAddress from the place_result JSON. What event timestamp_ms "
+                 "records is not established. The Uber - Places artifact reports the same column "
+                 "without dividing it by 1000; which unit is right is not established.",
         "paths": ('*/Documents/database.db*',),
         "output_types": "all",
         "artifact_icon": "map",
@@ -129,7 +137,11 @@ __artifacts_v2__ = {
     },
     "uber_metadata_leveldb": {
         "name": "Uber - Metadata LevelDB",
-        "description": "Parses LevelDB metadata for locations.",
+        "description": "Reads records keyed UBLocationNode.__DEFAULT_INDEX from the __METADATA "
+                       "LevelDB store and reports the location plist they hold. The path pattern "
+                       "matches only the store's .ldb files, so records still in its .log file "
+                       "are not seen unless that file is copied out by other means. Neither "
+                       "registered corpus in sample_data produced a row.",
         "author": "Django Faiola",
         "creation_date": "2024-05-30",
         "last_update_date": "2026-08-21",

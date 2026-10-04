@@ -4,8 +4,9 @@ __artifacts_v2__ = {
         "description": "Parses the processes still running at shutdown from the shutdown.log file "
                        "in Sysdiagnose logs, based off work by Kaspersky Lab "
                        "https://github.com/KasperskyLab/iShutdown. Includes the shutdown delay "
-                       "each process appeared under and marks paths in directories that "
-                       "Kaspersky's research associates with mobile malware",
+                       "each process appeared under and marks paths under /private/var/db/ and "
+                       "/private/var/tmp/, two directories Kaspersky's research names; a mark is "
+                       "a lead to review, not a finding",
         "author": "@KevinPagano3",
         "creation_date": "2024-02-13",
         "last_update_date": "2026-09-18",
@@ -13,12 +14,14 @@ __artifacts_v2__ = {
         "category": "Sysdiagnose",
         "notes": (
             "The Location Indicator column marks processes running from /private/var/db/ or "
-            "/private/var/tmp/. Kaspersky's analysis of Pegasus, Reign and Predator infections "
-            "found their processes (e.g. 'rolexd', 'libtouchregd') delaying reboot from these "
-            "directories "
-            "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
-            "Legitimate software can also run from these paths, so a mark is a lead to review, not "
-            "a finding. The log is read from every file the paths match: the live shutdown.log and "
+            "/private/var/tmp/. Kaspersky reports a Pegasus process ('rolexd') listed in "
+            "Shutdown.log under /private/var/db/, says the Reign path Citizen Lab published is "
+            "similar, and says Predator often uses /private/var/tmp/ "
+            "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/"
+            "). Legitimate software can also run from these paths, so a mark is a lead to review, "
+            "not a finding. Timestamp is the epoch on the block's 'SIGTERM:' line; client lines "
+            "with no SIGTERM line after them are not reported. The log is read from every file the "
+            "paths match: the live shutdown.log and "
             "the copy a packed sysdiagnose (sysdiagnose_*.tar.gz) holds under "
             "system_logs.logarchive/Extra, named shutdown.log or shutdown.0.log on test data. A row "
             "identical to one already reported from another copy is reported once, from the copy "
@@ -62,17 +65,17 @@ __artifacts_v2__ = {
         "category": "Sysdiagnose",
         "notes": (
             "Delay Notices counts the 'these clients are still here' messages logged before a "
-            "reboot's SIGTERM. Kaspersky's research reports a handful per reboot as typical and "
-            "treats counts above three or four as worth review, since processes resisting "
-            "termination produced elevated counts on infected devices "
-            "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/). "
-            "Elevated counts also occur for benign reasons. The log is read from every file the "
+            "reboot's SIGTERM. Kaspersky reports two to three delay notices on non-infected phones "
+            "and Pegasus-related processes in more than four, and treats more than four as an "
+            "anomaly to investigate "
+            "(https://securelist.com/shutdown-log-lightweight-ios-malware-detection-method/111734/"
+            "). Elevated counts also occur for benign reasons. The log is read from every file the "
             "paths match: the live shutdown.log and the copy a packed sysdiagnose "
-            "(sysdiagnose_*.tar.gz) holds under system_logs.logarchive/Extra, named shutdown.log or "
-            "shutdown.0.log on test data. A row identical to one already reported from another copy "
-            "is reported once, from the copy read first; reboot numbers restart per file. On the "
-            "three test images holding packed sysdiagnoses, every reboot row read from the packed "
-            "copies repeated a row of the live log (23, 2 and 6 rows), so the counts equal those "
+            "(sysdiagnose_*.tar.gz) holds under system_logs.logarchive/Extra, named shutdown.log "
+            "or shutdown.0.log on test data. A row identical to one already reported from another "
+            "copy is reported once, from the copy read first; reboot numbers restart per file. On "
+            "the three test images holding packed sysdiagnoses, every reboot row read from the "
+            "packed copies repeated a row of the live log, so the counts equal those "
             "from the live log alone."
         ),
         "paths": (

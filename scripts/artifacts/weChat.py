@@ -7,25 +7,26 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-22",
         "requirements": "none",
         "category": "WeChat",
-        "notes": "WeChat keeps one message table per conversation, named Chat_ followed by the MD5 of "
-                 "the conversation's WeChat id, and it splits these across several databases in the "
-                 "account's DB folder (MM.sqlite and message_1.sqlite, message_2.sqlite and so on). "
-                 "Every one is read. On the two devices tested the message body was in the clear, so "
-                 "the Message column carries the text as stored; a row whose type is not text carries "
-                 "the client's own payload for that type instead, also as stored. Sent is CreateTime, "
-                 "Unix seconds. Direction is the Des column and is reported as stored, because no "
-                 "source for the mapping of its two values was established from the closed source "
-                 "client; it held 0 and 1 on both devices. Type is the client's message type integer, "
-                 "reported as stored: the text messages held type 1, and the other values (which "
-                 "accompany images, stickers, links, calls and system notices) are reported without a "
-                 "mapping. Chat Partner is the conversation's WeChat id, recovered by matching the "
-                 "table's MD5 against the Friend table, and Chat Partner Name is that friend's "
-                 "nickname where the contact store holds one. A message table whose MD5 has no "
-                 "matching friend is still reported, with the id and name blank, so a conversation "
-                 "with a contact the store no longer holds is not lost; on the device tested this "
-                 "left 21 of 131 rows without a resolved name. Field mapping was done against two "
-                 "private samples; no sample data is recorded for them. The account id is the MD5 "
-                 "folder under Documents, and every account folder in the extraction is read.",
+        "notes": "On the two devices tested, messages were held in tables named Chat_ followed by "
+                 "32 hex characters, spread across MM.sqlite and message_N.sqlite in the "
+                 "account's DB folder. Every such table in those databases is read. On the two "
+                 "devices tested the message body was in the clear, so the Message column carries "
+                 "the text as stored; a row whose type is not text carries the client's own "
+                 "payload for that type instead, also as stored. Sent is the CreateTime column "
+                 "read as Unix seconds in UTC; whether it marks sending, receipt or storage is "
+                 "not established. Direction is the Des column and is reported as stored, because "
+                 "no source for the mapping of its two values was established from the closed "
+                 "source client; it held 0 and 1 on both devices. Type is the client's message "
+                 "type integer, reported as stored: the text messages held type 1, and the other "
+                 "values are reported as stored, without a mapping. Chat Partner is the Friend "
+                 "table userName whose MD5 equals the 32 characters in the table name, and Chat "
+                 "Partner Name is that row's nickname where the contact store holds one. A "
+                 "message table with no matching Friend row is still reported, with the id and "
+                 "name blank; on one tested device this left 21 of 131 rows without a resolved "
+                 "name. The cells are also blank when no contact database was found for the "
+                 "account folder. Field mapping was done against two private samples; no sample "
+                 "data is recorded for them. The account id is the MD5 folder under Documents, "
+                 "and every account folder in the extraction is read.",
         "paths": ('*/Documents/*/DB/message_*.sqlite*',
                   '*/Documents/*/DB/MM.sqlite*',
                   '*/Documents/*/DB/WCDB_Contact.sqlite*'),
@@ -40,17 +41,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-22",
         "requirements": "none",
         "category": "WeChat",
-        "notes": "Read from the Friend table of WCDB_Contact.sqlite. A row is a contact the client "
-                 "holds, which includes the user's friends, chat rooms, and WeChat's own official "
-                 "accounts (WeChat-Team, File Transfer, New Friends and the like), so a row is not by "
-                 "itself evidence that the account communicated with that contact. WeChat ID is the "
-                 "userName column. Nickname is read from the first protobuf field of the "
-                 "dbContactRemark blob, which held the contact's display name on every row checked "
-                 "against a known official account (the WeChat-Team, File Transfer and New Friends "
-                 "accounts each resolved to their published name). The other fields of that blob are "
-                 "not decoded here, because no source for their meaning in the closed source client "
-                 "was established. Type is reported as stored. Field mapping was done against two "
-                 "private samples; no sample data is recorded for them.",
+        "notes": "Read from the Friend table of WCDB_Contact.sqlite. A row is a contact record "
+                 "the client holds. On the two devices tested the table also held WeChat's own "
+                 "official accounts (WeChat-Team, File Transfer, New Friends and the like), so a "
+                 "row is not by itself evidence that the account communicated with that contact. "
+                 "WeChat ID is the userName column. Nickname is read from the first protobuf "
+                 "field of the dbContactRemark blob, which held the contact's display name on "
+                 "every row checked against a known official account (the WeChat-Team, File "
+                 "Transfer and New Friends accounts each resolved to their published name). The "
+                 "other fields of that blob are not decoded here, because no source for their "
+                 "meaning in the closed source client was established. Type is reported as "
+                 "stored. Field mapping was done against two private samples; no sample data is "
+                 "recorded for them.",
         "paths": ('*/Documents/*/DB/WCDB_Contact.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users"

@@ -8,8 +8,12 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Locations',
         'notes': 'Parses latitude, longitude, accuracy, and speeds from Cache.sqlite. '
-                 'Reference: Apple CoreLocation documentation, '
-                 'CLLocation.horizontalAccuracy and CLLocation.speed, '
+                 'The accuracy and speed columns are ZHORIZONTALACCURACY and ZSPEED as stored; the '
+                 'units in the headers are those Apple documents for CLLocation.horizontalAccuracy '
+                 '(meters) and CLLocation.speed (meters per second), on the reading that the table '
+                 'stores those values. Apple documents a negative value of either as invalid; negative '
+                 'values are reported as stored, and the miles-per-hour column is blank only where the '
+                 'speed is exactly -1. Reference: '
                  'https://developer.apple.com/documentation/corelocation/cllocation/horizontalaccuracy '
                  'and https://developer.apple.com/documentation/corelocation/cllocation/speed',
         'paths': ('*/Library/Caches/com.apple.routined/Cache.sqlite*',),

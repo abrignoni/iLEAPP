@@ -1,7 +1,10 @@
 __artifacts_v2__ = {
     "user_defaults": {
         "name": "Application User Defaults",
-        "description": "Extracts the user defaults plist file for each application",
+        "description": "Keys and values of the Library/Preferences plist whose name holds the "
+                       "application's bundle identifier followed by .plist, inside the data "
+                       "container whose metadata plist names that identifier. Other preference "
+                       "plists in the container and app group containers are not read.",
         "author": "@jfhyla",
         "creation_date": "2024-12-16",
         "last_update_date": "2026-08-21",

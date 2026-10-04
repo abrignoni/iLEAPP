@@ -8,7 +8,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-10",
         "requirements": "none",
         "category": "Mobile Activation Logs",
-        "notes": "",
+        "notes": "Timestamps are read from the log line, which carries no time zone marker; the "
+                 "artifact stores them as UTC, and whether the log writes UTC or device-local time "
+                 "is not established here. A log present both in the file system and inside a "
+                 "sysdiagnose archive is read from each, so the same event can appear more than "
+                 "once; Log Name gives the file. Only two kinds of line are reported: 'Upgrade "
+                 "from X to Y detected' and the Mobile Activation Startup banner.",
         "paths": ('*/mobileactivationd.log*', '*/sysdiagnose_*.tar.gz'),
         "output_types": "standard",
         "artifact_icon": "settings",

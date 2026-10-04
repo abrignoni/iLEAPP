@@ -1,26 +1,37 @@
 __artifacts_v2__ = {
     "plz_interaction": {
         "name": "Swissmeteo - Interaction with places",
-        "description": "Parse the interaction with meteo prevision of particular places",
+        "description": "Rows of the plz_interaction table of favorites_prediction_db.sqlite, with the place name looked up in localdata.sqlite",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-11",
         "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Meteo",
-        "notes": "",
+        "notes": "What the app records as an interaction is not established. Interaction "
+                 "Timestamp is the timestamp column read as Unix milliseconds. When the row's "
+                 "postal code has a row in the plz table of localdata.sqlite, Meteo of the city "
+                 "holds that row's primary_name, Meteo of the city (lat/lon) holds coordinates "
+                 "this module converts from the Swiss LV03 grid values in localdata.sqlite, and "
+                 "Coordinates (lat/lon) holds the row's own lat and lon. When it has none, or "
+                 "localdata.sqlite is absent, the stored values are reported as they are: the "
+                 "postal code under Meteo of the city, lat under Meteo of the city (lat/lon) and "
+                 "lon under Coordinates (lat/lon). No run against a registered image is recorded "
+                 "for this artifact.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "flag"
     },
     "swissmeteo_plz": {
         "name": "Swissmeteo - App opening with geolocation",
-        "description": "Parse the app opening time and location",
+        "description": "Rows of the app_open table of favorites_prediction_db.sqlite, with the time and coordinates each row stores",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-11",
         "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "Meteo",
-        "notes": "",
+        "notes": "What the app records in this table, and what position the coordinates describe, "
+                 "is not established. Opened Timestamp is the timestamp column read as Unix "
+                 "milliseconds. No run against a registered image is recorded for this artifact.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*'),
         "output_types": "all",
         "artifact_icon": "flag"

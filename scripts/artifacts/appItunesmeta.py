@@ -1,13 +1,16 @@
 __artifacts_v2__ = {
     "get_appItunesmeta": {
         "name": "Apps - Itunes Metadata",
-        "description": "iTunes & Bundle ID Metadata contents for apps",
+        "description": "Selected values from each app's iTunesMetadata.plist and the installDate from the BundleMetadata.plist beside it",
         "author": "@AlexisBrignoni",
         "creation_date": "2020-10-04",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Installed Apps",
-        "notes": "",
+        "notes": "The Downloaded by column holds the AppleID value under accountInfo in "
+                 "com.apple.iTunesStore.downloadInfo, and the Sideloaded? column holds the "
+                 "sideLoadedDeviceBasedVPP value. Both are reported as stored. What either value "
+                 "establishes is not sourced here.",
         "paths": ('*/iTunesMetadata.plist', '*/BundleMetadata.plist',),
         "output_types": "standard",
         "artifact_icon": "apps",

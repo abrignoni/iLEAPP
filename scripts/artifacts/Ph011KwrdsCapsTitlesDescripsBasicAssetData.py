@@ -1,15 +1,13 @@
 __artifacts_v2__ = {
 'Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql': {
 'name': 'Ph011.1-KwrdsCapsTitlesDescripsLikesBasicAsstData-PhDaPsql',
-'description': 'Parses basic asset record data from iOS PhotoData-Photos.sqlite for assets that have'
-' Keywords, Captions, Titles, Descriptions, Captions and Likes.'
-' (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or'
-' (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or'
-' (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or'
-' (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or'
-' (zCldSharedCommentLiked.ZISLIKE = 1). I recommend opening the TSV generated report'
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer to view,'
-' search and filter the results.'
+'description': 'Parses asset rows from PhotoData/Photos.sqlite on iOS 14 through 26 (earlier versions are not'
+' handled) for assets that have a long description, title, accessibility description, keyword,'
+' shared album comment or like. Any one is enough. An asset with several keywords, comments or'
+' likes appears on several rows. (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0)'
+' or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE'
+' > 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or'
+' (zCldSharedCommentLiked.ZISLIKE = 1).'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -18,7 +16,20 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'Keywords are joined through Z_1KEYWORDS using a column name fixed per iOS version. If the'
+' database uses a different column name the keyword columns are blank and keyword-only assets are'
+' not listed. The text tests compare each value with 0. Where the column is declared as text, a'
+' value that is empty or starts with a space or a punctuation character that sorts below the digit'
+' 0 (for example # or an opening parenthesis) does not pass its test. The declared type of these'
+' columns in real Photos.sqlite files was not read for this note. Value labels in this report are'
+" the module author's working interpretations from testing. The module cites no source for them."
+' Each label carries the stored value. Labels marked StillTesting or STILLTESTING are unconfirmed.'
+' The Syndication State labels for values 2, 8 and 10 name a manual save or a user deletion. The'
+' store records the state value. It does not record who changed it. The header'
+" 'zAddAssetAttr-Title-Comments via Cloud Website' reports ZADDITIONALASSETATTRIBUTES.ZTITLE. That"
+' the value holds comments made through the iCloud website is not established in this module. The'
+" header 'zAsset-UUID = store.cloudphotodb' reports the asset table's ZUUID. The match with"
+' store.cloudphotodb that the header names is not established in this module.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "info-circle",
@@ -42,15 +53,13 @@ __artifacts_v2__ = {
 },
 'Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql': {
 'name': 'Ph011.3-KwrdsCapsTitlesDescripsLikesBasicAsstData-GenPlayPsql',
-'description': 'Parses basic asset record data from iOS GenPlay-Photos.sqlite for assets that have'
-' Keywords, Captions, Titles, Descriptions, Captions and Likes.'
-' (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or'
-' (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or'
-' (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE > 0) or'
-' (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or'
-' (zCldSharedCommentLiked.ZISLIKE = 1). I recommend opening the TSV generated report'
-' with Zimmermans Tools https://ericzimmerman.github.io/#!index.md TimelineExplorer to view,'
-' search and filter the results.'
+'description': 'Parses basic asset record data from iOS GenPlay-Photos.sqlite for assets that have a long'
+' description, title, accessibility description, keyword, shared album comment or like (iOS 18'
+' through 26). Any one is enough. An asset with several keywords, comments or likes appears on'
+' several rows. (zAssetDes.ZLONGDESCRIPTION > 0) or (zAddAssetAttr.ZTITLE > 0) or'
+' (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION > 0) or (zKeywrd.ZSHORTCUT > 0) or (zKeywrd.ZTITLE >'
+' 0) or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT > 0) or'
+' (zCldSharedCommentLiked.ZISLIKE = 1).'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',    
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -59,7 +68,20 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'Keywords are joined through Z_1KEYWORDS using a column name fixed per iOS version. If the'
+' database uses a different column name the keyword columns are blank and keyword-only assets are'
+' not listed. The text tests compare each value with 0. Where the column is declared as text, a'
+' value that is empty or starts with a space or a punctuation character that sorts below the digit'
+' 0 (for example # or an opening parenthesis) does not pass its test. The declared type of these'
+' columns in real Photos.sqlite files was not read for this note. Value labels in this report are'
+" the module author's working interpretations from testing. The module cites no source for them."
+' Each label carries the stored value. Labels marked StillTesting or STILLTESTING are unconfirmed.'
+' The Syndication State labels for values 2, 8 and 10 name a manual save or a user deletion. The'
+' store records the state value. It does not record who changed it. The header'
+" 'zAddAssetAttr-Title-Comments via Cloud Website' reports ZADDITIONALASSETATTRIBUTES.ZTITLE. That"
+' the value holds comments made through the iCloud website is not established in this module. The'
+" header 'zAsset-UUID = store.cloudphotodb' reports the asset table's ZUUID. The match with"
+' store.cloudphotodb that the header names is not established in this module.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "info-circle",

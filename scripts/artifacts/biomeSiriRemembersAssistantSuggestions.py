@@ -3,8 +3,7 @@ __artifacts_v2__ = {
         "name": "Biome - Siri Remembers Assistant Suggestions",
         "description": "Parses suggestion events recorded in the "
                        "Siri.Remembers.AssistantSuggestions biome stream, with the suggestion "
-                       "names carried in each record, for example reminders due today or "
-                       "unread mail.",
+                       "names carried in each record, reported as stored.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",

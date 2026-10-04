@@ -11,11 +11,12 @@ __artifacts_v2__ = {
         "notes": "One row per row of the block table in Library/LocalDatabase/notion.db. In the "
                  "block table a page and each paragraph, heading, list item or image inside it "
                  "are separate rows joined by Parent ID, and Type says which kind a row is. Text "
-                 "is read from the row's properties field, which holds the block's rich text as "
-                 "nested JSON arrays; the text segments are joined and the formatting is "
-                 "dropped. 760 of the 949 rows on the tested image carried properties; a blank "
-                 "Text is a row whose properties field held no text, and whether such a block "
-                 "holds content elsewhere is not established. Created Time, Last Edited Time and "
+                 "is the 'title' entry of the row's properties field, which holds rich text as "
+                 "nested JSON arrays; the text segments are joined and the formatting is dropped. "
+                 "760 of the 949 rows on the tested image carried properties; a blank Text is a "
+                 "row with no title entry, and other entries of properties are not read, so a "
+                 "block can hold text this column does not show. Created Time, Last Edited Time "
+                 "and "
                  "Last Access Time are Unix milliseconds. Created By and Last Edited By are "
                  "resolved against the notion_user table in the same store and fall back to the "
                  "stored identifier when no user row matches; 890 of the rows recorded a "
@@ -38,7 +39,8 @@ __artifacts_v2__ = {
     },
     "notion_ios_page_activity": {
         "name": "Notion - Page Activity",
-        "description": "Page visits and exits Notion recorded, with the page each one names.",
+        "description": "The page_visit and page_exit records in Notion's local store, with the "
+                       "page each one names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
@@ -64,7 +66,7 @@ __artifacts_v2__ = {
     },
     "notion_ios_users": {
         "name": "Notion - Users",
-        "description": "The Notion accounts the device cached for the workspace, with the email "
+        "description": "The rows of the notion_user table in Notion's local store, with the email "
                        "address held against each.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
@@ -100,10 +102,10 @@ __artifacts_v2__ = {
                  "here. 15 of the 17 rows on the tested image carried a name. Column Names is "
                  "read from the row's schema field, which maps an internal column key to that "
                  "column's name and type; the names are listed and the types are not, and a "
-                 "collection whose schema does not parse reports a blank. The rows of a "
-                 "collection are blocks and are reported by the Blocks artifact, where the "
-                 "collection is named by Parent ID, so this artifact describes the containers "
-                 "rather than their contents. Alive (as stored) held the single value 1 and "
+                 "collection whose schema does not parse reports a blank. This artifact lists the "
+                 "rows of the collection table only; the block table is reported by the Blocks "
+                 "artifact, and how many block rows name a collection as their parent was not "
+                 "counted here. Alive (as stored) held the single value 1 and "
                  "Parent Table the single value block on all 17 rows of the tested image.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/LocalDatabase/notion.db*',),
         "output_types": ["html", "tsv", "timeline", "lava"],

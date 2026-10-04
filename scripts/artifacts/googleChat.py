@@ -1,16 +1,24 @@
 __artifacts_v2__ = {
     "google_chat": {  # This should match the function name exactly
         "name": "Google Chat",
-        "description": "Parses google chats",
+        "description": "Messages from the first Google Chat dynamite.db matched",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-09-03",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Google Chats",
-        "notes": "Group Type reads the stored group_type value as Group Message for 1 and 1-to-1 "
-                 "Message for 2; that mapping was not sourced and any other value is reported as "
-                 "stored. Reaction and Reaction User are read from the reactions protobuf by "
-                 "field position; the positions were not sourced.",
+        "notes": "Only the first dynamite.db matched is read, so a second account's database is "
+                 "not reported. A message with no users row or no Groups row is not reported. "
+                 "Timestamp reads create_time as Unix microseconds; the basis for that unit is not "
+                 "given here. Is Sent is 1 when the message's creator_id equals the name of the "
+                 "account directory holding the database; it is not a stored flag. Group Type "
+                 "shows Group Message where the stored group_type value is 1 and 1-to-1 Message "
+                 "where it is 2; no source for that mapping was found, so the two labels are not "
+                 "established, and any other value is reported as stored. Reaction and Reaction "
+                 "User are read from the reactions protobuf by field position; the positions were "
+                 "not sourced. One reaction and one user are read. Where the stored value holds "
+                 "more than one of either, neither is reported and the cells are blank, so a blank "
+                 "cell does not establish that a message had no reaction.",
         "paths": ('*/Documents/user_accounts/*/dynamite.db*',
                   '*/Documents/user_accounts/*/tmp/*'),
         "output_types": "all",  # or ["html", "tsv", "timeline", "lava"]

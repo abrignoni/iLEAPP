@@ -1,21 +1,28 @@
 __artifacts_v2__ = {
     "iCloudWifi": {
         "name": "iCloud Wifi Networks",
-        "description": "Wi-Fi networks synced via iCloud (com.apple.wifid.plist)",
+        "description": "Wi-Fi network entries in Library/SyncedPreferences/com.apple.wifid.plist",
         "author": "@ydkhatri",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-08-14",
         "requirements": "none",
         "category": "Wifi Connections",
-        "notes": "The synced-data plist lives at Library/SyncedPreferences/com.apple.wifid.plist; "
+        "notes": "The plist read is Library/SyncedPreferences/com.apple.wifid.plist; "
                  "on the tested images it is present only on the iOS 12.4, 13.3.1 and 14.3 "
                  "images, holding an empty values dictionary on the first and two and three "
-                 "networks on the other two, and it is absent from every iOS 15 to 26 image. The "
+                 "networks on the other two, and the file was not present on the tested iOS "
+                 "17.3, 18.7.8 and 26.5.2 images. The "
                  "earlier glob matched any com.apple.wifid.plist and so reported the unrelated "
                  "/System/Library/LaunchDaemons daemon configuration as the found file on most "
-                 "images; the narrower path stops that. Reference: cheeky4n6monkey (based on "
+                 "images; the narrower path stops that. Only the first matching plist is read. "
+                 "Added At is a text date with no zone recorded; it is parsed as written and "
+                 "its zone is not established. Added By and Enabled are reported as stored. "
+                 "Whether these entries were synced through iCloud is not established by the "
+                 "file. The values, SSID_STR and added_at keys read here are the ones "
+                 "cheeky4n6monkey's sysdiagnose-wifi-icloud.py reads from the sysdiagnose file "
+                 "WiFi/ICLOUD_com.apple.wifid.plist. Reference: cheeky4n6monkey (based on "
                  "research by M. Epifani, H. Mahalik), 'iOS_sysdiagnose_forensic_scripts', "
-                 "https://github.com/cheeky4n6monkey/iOS_sysdiagnose_forensic_scripts",
+                 "https://github.com/cheeky4n6monkey/iOS_sysdiagnose_forensic_scripts/blob/f8ca96d4a3a6cdb57f920d8200812487d25003ec/sysdiagnose-wifi-icloud.py#L4",
         "paths": ('*/SyncedPreferences/com.apple.wifid.plist',),
         "output_types": "standard",
         "artifact_icon": "wifi",

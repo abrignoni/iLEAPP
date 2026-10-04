@@ -7,7 +7,12 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'MeWe',
-        'notes': 'In examined data shared locations appeared as OpenStreetMap links; coordinates are parsed out of the message text.',
+        'notes': 'In examined data shared locations appeared as OpenStreetMap links; coordinates '
+                 'are parsed out of any message text that carries mlat and mlon values. '
+                 'Conversation is built by this module from the names of the thread\'s senders '
+                 'other than the user flagged ZCURRENTUSER, or the thread id when there is none; '
+                 'it is not a title the app stored. From Me compares the sender with that flagged '
+                 'user.',
         'paths': ('*/mobile/Containers/Data/Application/*/Documents/sgrouplesdb.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'message',
@@ -28,7 +33,10 @@ __artifacts_v2__ = {
     },
     'meWeContacts': {
         'name': 'MeWe - Contacts',
-        'description': 'MeWe users known to the application, including contact relationships',
+        'description': 'MeWe users in the application\'s ZUSER table, with ZCONTACT fields and '
+                       'profile flags. Is Contact, Following, Follower and Muted read Yes when any '
+                       'ZPROFILE row for the user has the flag set; which party follows which is '
+                       'not established',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
@@ -76,7 +84,10 @@ __artifacts_v2__ = {
     },
     'meWePolls': {
         'name': 'MeWe - Polls',
-        'description': 'Polls cached by the MeWe application, with their options and vote counts',
+        'description': 'Polls cached by the MeWe application. Options, votes and the option '
+                       'flagged ZISSELECTED are read through the ZPOLLOPTION column Z29OPTIONS as '
+                       'found on the tested image; on a store where that column has another number '
+                       'these columns are blank. What ZISSELECTED records is not established',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
@@ -92,7 +103,7 @@ __artifacts_v2__ = {
     },
     'meWeAccount': {
         'name': 'MeWe - Account Information',
-        'description': 'Details of the MeWe account signed in on the device',
+        'description': 'Details of the account in the MeWe ZCURRENTUSER table',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',

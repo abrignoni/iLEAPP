@@ -15,7 +15,7 @@ following information can be interpreted:
 __artifacts_v2__ = {
     "hikvisionChannels": {
         "name": "Hikvision - CCTV Channels",
-        "description": "Available CCTV record channels from the Hikvision app",
+        "description": "Rows of the ChannelInfo table of the Hikvision app's database.hik",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
         "last_update_date": "2026-06-24",
@@ -42,7 +42,9 @@ __artifacts_v2__ = {
     "hikvisionActivity": {
         "name": "Hikvision - CCTV Activity",
         "description": "Log records from the Hikvision app's YSDCLogItem.sqlite, with the system "
-                       "name and data of each as stored",
+                       "name and data of each as stored. The stored time is read as Unix "
+                       "milliseconds; no sample data is recorded for this artifact, so that unit "
+                       "is not validated against data",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
         "last_update_date": "2026-06-24",
@@ -55,13 +57,17 @@ __artifacts_v2__ = {
     },
     "hikvisionMedia": {
         "name": "Hikvision - CCTV Media",
-        "description": "Media files stored under Documents/YYYY/MM/DD in the Hikvision app container",
+        "description": "Media files found under a Documents/YYYY/MM/DD folder of any app "
+                       "container. The artifact does not confirm that the container belongs to the "
+                       "Hikvision app, so check the File Path of each row",
         "author": "Evangelos D. (@theAtropos4n6)",
         "creation_date": "2023-03-27",
         "last_update_date": "2026-08-01",
         "requirements": "none",
         "category": "Hikvision",
-        "notes": "Media are stored under Documents/YYYY/MM/DD within the app container.",
+        "notes": "A file is reported when its path has the shape Documents/YYYY/MM/DD/<file>, with "
+                 "digits in the three folder names. No other test ties the file to the Hikvision "
+                 "app.",
         "paths": ('*/Documents/*/*/*/*.jpg', '*/Documents/*/*/*/*.mov', '*/Documents/*/*/*/*.mp4'),
         "output_types": "standard",
         "artifact_icon": "movie",

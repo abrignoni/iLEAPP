@@ -13,17 +13,21 @@ __artifacts_v2__ = {
                  "keyed on the video id and ending in '.bookmark' carries position and "
                  "lastModified. Two key spellings were seen across the app versions tested, "
                  "'Video:<id>.bookmark' and 'UnifiedEntity:Video:<id>.bookmark', and both are "
-                 "accepted. Position is stored in seconds and is also formatted as hours, "
-                 "minutes and seconds. Last Modified is an ISO 8601 string carrying its own UTC "
-                 "designator and is reported as stored. Each gqlData file is named "
-                 "<profileGuid>-<appVersion>-gql<schemaVersion>.db; in the samples tested the "
-                 "name prefix equalled the guid the same file records as currentProfile, so the "
-                 "Profile Guid column is taken from the file name. Title is filled in from a "
-                 "UnifiedEntity record for the same video id in the same file and is left blank "
-                 "when the app had not cached one. The interactive playback progress field was "
+                 "accepted. Position is reported as stored and is read as seconds for the hours, "
+                 "minutes and seconds column; the unit is not sourced in this field. Last Modified "
+                 "is an ISO 8601 string carrying its own UTC designator; it is converted to a UTC "
+                 "date and time with any fraction of a second dropped. Each gqlData file is named "
+                 "<profileGuid>-<appVersion>-gql<schemaVersion>.db; in the samples tested the name "
+                 "prefix equalled the guid the same file records as currentProfile, so the Profile "
+                 "Guid column is taken from the file name. Title is filled in from the first "
+                 "record in the same file that carries both a title and that video id and is left "
+                 "blank when the file holds no such record. The interactive playback progress "
+                 "field was "
                  "null on every bookmark in the samples tested and is reported blank rather "
                  "than dropped. A bookmark records a stored playback position; it does not by "
-                 "itself establish who operated the device.",
+                 "itself establish who operated the device. No sample_data is recorded for this "
+                 "artifact; the samples it was tested on are not named here, so figures in these "
+                 "notes cannot be tied to a corpus key.",
         "paths": ('*/Library/gqlData/*gql*.db*',),
         "output_types": "standard",
         "artifact_icon": "bookmark",
@@ -39,46 +43,53 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Netflix",
         "notes": "Read from QUERY_ROOT.account.profiles.<n> records under Library/gqlData. "
-                 "Created At is an ISO 8601 string carrying its own UTC designator and is "
-                 "reported as stored. The Lock PIN field is reported exactly as the record "
-                 "holds it; where the app stored no value the column is blank, which is not "
-                 "evidence that no PIN was set. Maturity Rating carries a numeric level and a "
-                 "label list, both reported as stored. The Current Profile column marks the "
-                 "guid the same file records as currentProfile. Profile guids also appear in "
-                 "the app preference file as 'Message-myProfile-<guid>' keys; those are reported "
-                 "by the Netflix - Preferences artifact and are not merged here. The samples "
-                 "tested held several gqlData files, one per app version named in the file, each "
-                 "caching the same account, so the same profile appears once per "
-                 "file. Rows identical across every reported field are collapsed to one and the "
-                 "Cache Files column gives the number of files that held it; a profile whose "
+                 "Created At is an ISO 8601 string carrying its own UTC designator; it is "
+                 "converted to a UTC date and time with any fraction of a second dropped. The Lock "
+                 "PIN field is reported exactly as the record holds it; where the app stored no "
+                 "value the column is blank, which is not evidence that no PIN was set. Maturity "
+                 "Rating carries a numeric level and a label list, both reported as stored. The "
+                 "Current Profile column marks the guid the same file records as currentProfile. "
+                 "Profile guids also appear in the app preference file as "
+                 "'Message-myProfile-<guid>' keys; those are reported by the Netflix - Preferences "
+                 "artifact and are not merged here. The samples tested held several gqlData files, "
+                 "one per app version named in the file, each caching the same account, so the "
+                 "same profile appears once per file. Rows identical across every reported field "
+                 "except Avatar URL are collapsed to one, the Avatar URL shown is the one from the "
+                 "first file, and the Cache Files Holding This Row column gives the number of "
+                 "files that held the row; a profile whose "
                  "stored values differ between files still produces one row per distinct set. "
-                 "Lock PIN was null on every profile in the samples tested.",
+                 "Lock PIN was null on every profile in the samples tested. No sample_data is "
+                 "recorded for this artifact; the samples it was tested on are not named here, so "
+                 "figures in these notes cannot be tied to a corpus key.",
         "paths": ('*/Library/gqlData/*gql*.db*',),
         "output_types": "standard",
         "artifact_icon": "users",
     },
     "netflix_account": {
         "name": "Netflix - Account",
-        "description": "Account level values recorded by the Netflix app, including the signed "
-                       "in account name, membership start, country of sign up, the device ESN "
+        "description": "Account level values recorded by the Netflix app, including the account "
+                       "name held under the currentLoginAccount preference key, membership start, "
+                       "country of sign up, the device ESN "
                        "and the app version",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
-        "notes": "Values are drawn from QUERY_ROOT.account records under Library/gqlData and "
-                 "from the app preference file com.netflix.Netflix.plist. Member Since and the "
-                 "other ISO 8601 values carry their own UTC designator and are reported as "
-                 "stored. The ESN is reported as stored; its middle segment held a device model "
-                 "string in the samples tested "
-                 "and is not translated to a marketing name. Membership Status and plan values "
-                 "are reported as stored. Presence of an account name records the value the app "
-                 "retained, not that a session was active at acquisition. Country Of Sign Up is "
-                 "read from the record's own code field. Rows identical across every reported "
-                 "field are collapsed to one, because each gqlData file caches the same "
-                 "account, and the Cache Files column gives the number of files that held the "
-                 "row.",
+        "notes": "Values are drawn from QUERY_ROOT.account records under Library/gqlData and from "
+                 "the app preference file com.netflix.Netflix.plist. Member Since and the other "
+                 "ISO 8601 values carry their own UTC designator; each is converted to a UTC date "
+                 "and time with any fraction of a second dropped. The ESN is reported as stored; "
+                 "its middle segment held a device model string in the samples tested and is not "
+                 "translated to a marketing name. Membership Status and plan values are reported "
+                 "as stored. Presence of an account name records the value the app retained, not "
+                 "that a session was active at acquisition. Country Of Sign Up is read from the "
+                 "record's code field, or from its id or name when the code is empty. Rows "
+                 "identical across every reported field are collapsed to one, because each gqlData "
+                 "file caches the same account, and the Cache Files Holding This Row column gives "
+                 "the number of files that held the row. No sample_data is recorded for this "
+                 "artifact; the samples it was tested on are not named here, so figures in these "
+                 "notes cannot be tied to a corpus key.",
         "paths": ('*/Library/gqlData/*gql*.db*',
                   '*/Library/Preferences/com.netflix.Netflix.plist'),
         "output_types": "standard",
@@ -87,54 +98,63 @@ __artifacts_v2__ = {
     "netflix_continue_watching": {
         "name": "Netflix - Continue Watching",
         "description": "Entries the Netflix app cached for its Continue Watching row, with the "
-                       "displayed title and the video identifier each entry points at",
+                       "record's display string and the video identifier each entry points at",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
-        "notes": "Read from records whose __typename is PinotContinueWatchingEntityTreatment "
-                 "under Library/gqlData. The displayed string is reported as stored. These rows "
-                 "are cached records, so an entry records what the cache held rather than an "
-                 "individual playback event; the Netflix - Playback "
-                 "Bookmarks artifact carries the stored positions and their times. No timestamp "
-                 "is stored on the row itself. The same entry is cached by more than one section "
-                 "and more than one file, so rows identical across every reported field are "
-                 "collapsed to one and the Cache Entries column gives the number that held it.",
+        "notes": "Read from records whose __typename is PinotContinueWatchingEntityTreatment under "
+                 "Library/gqlData. The record's displayString is reported as stored under the "
+                 "heading Displayed Title; that the app displayed it is not established. These "
+                 "rows are cached records, so an entry records what the cache held rather than an "
+                 "individual playback event; the Netflix - Playback Bookmarks artifact carries the "
+                 "stored positions and their times. No timestamp is stored on the row itself. The "
+                 "same entry is cached by more than one section and more than one file, so rows "
+                 "identical across every reported field are collapsed to one and the Cache Entries "
+                 "Holding This Row column gives the number that held it. No sample_data is "
+                 "recorded for this artifact; the samples it was tested on are not named here, so "
+                 "figures in these notes cannot be tied to a corpus key.",
         "paths": ('*/Library/gqlData/*gql*.db*',),
         "output_types": "standard",
         "artifact_icon": "player-play",
     },
     "netflix_titles": {
         "name": "Netflix - Titles With An Interaction Signal",
-        "description": "Titles the Netflix app cached for which some interaction signal also "
-                       "exists, being a stored playback position, a Continue Watching entry or "
-                       "cached stream data, with the signal named on each row",
+        "description": "Titles the Netflix app cached for which the same extraction also holds a "
+                       "stored playback position or a Continue Watching entry, with the kind of "
+                       "record named on each row. A third kind, cached stream data, is coded but "
+                       "is not reached, because the artifact's paths do not include "
+                       "Library/Caches/br/ch"
+                       ".",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
-        "notes": "The GraphQL cache holds title records the app fetched; a cached title record "
-                 "is not by itself evidence of a choice by a person, so the raw catalogue is not "
-                 "reported. A title appears here only when "
-                 "the same extraction also carries a stored playback position for it, a "
-                 "Continue Watching entry, or cached stream data under its video id, and the "
-                 "Interaction Signal column names which. The run log records how many cached "
-                 "title records were read and how many carried a signal. Even with a signal, "
-                 "presence does not establish who operated the device. The artwork URL is "
-                 "reported as text; see the Netflix - Cached Preview Media artifact for the "
-                 "media that could be linked to a title by a recorded identifier. The same title "
-                 "is cached by each gqlData file, so rows identical across every reported field "
-                 "are collapsed to one and the Cache Files column gives the number that held "
-                 "it.",
+        "notes": "The GraphQL cache holds title records the app fetched; a cached title record is "
+                 "not by itself evidence of a choice by a person, so the raw catalogue is not "
+                 "reported. A title appears here only when the same extraction also carries a "
+                 "stored playback position for it or a Continue Watching entry, and the "
+                 "Interaction Signal column names which. The code also tests for cached stream "
+                 "data under the video id, but the artifact's declared paths match only "
+                 "Library/gqlData, so that test is given no stream files and no row is reported on "
+                 "that basis. The artifact name and the column say 'interaction signal'; a record "
+                 "of either kind is what the cache held and does not establish that a person "
+                 "interacted with the title. The run log records how many cached title records "
+                 "were read and how many carried a signal. Even with a signal, presence does not "
+                 "establish who operated the device. The same title is cached by each gqlData "
+                 "file, so rows identical across every reported field are collapsed to one and the "
+                 "Cache Files Holding This Row column gives the number that held it. No "
+                 "sample_data is recorded for this artifact; the samples it was tested on are not "
+                 "named here, so figures in these notes cannot be tied to a corpus key.",
         "paths": ('*/Library/gqlData/*gql*.db*',),
         "output_types": "standard",
         "artifact_icon": "movie",
     },
     "netflix_log_events": {
         "name": "Netflix - Log Events",
-        "description": "Client log events queued by the Netflix app in its brl.sqlite store, "
+        "description": "Client log events held in the Netflix app's brl.sqlite store, "
                        "decrypted, with the event time, event type, session identifier, device "
                        "ESN, device model and app version",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
@@ -143,15 +163,25 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Netflix",
         "notes": "Rows of logblobs_table in Documents/brl-dedicated/brl.sqlite. The entry_data "
-                 "blob is encrypted; see the module docstring for the container layout and the "
-                 "key source, which is the app's own preference file. Rows that do not decrypt "
+                 "blob is encrypted; on the samples tested the blob is a 16 byte IV, one byte "
+                 "giving the count of trailing zero pad bytes, then AES-128-CBC ciphertext, and "
+                 "the key is one of the 16 byte derivation keys held in the base64 encoded archive "
+                 "that "
+                 "Library/Preferences/__com.netflix.derivationkeyprovider.localPersistanceSuiteName.plist "
+                 "stores "
+                 "under __com.netflix.derivationkeyprovider.containerKey. Rows that do not decrypt "
                  "are still reported, with the payload columns blank and Decrypted set to No, so "
                  "the row count matches the table. The timestamp_ms_added column holds Unix "
                  "seconds despite the millisecond in its name, while the clienttime value inside "
                  "the payload holds Unix milliseconds; the two agreed to under a second on every "
                  "row checked in the samples tested, and both are reported. Event Type is the "
-                 "table's own entry_type value, reported as stored. The database uses WAL, so "
-                 "the -wal and -shm sidecars are matched with it.",
+                 "table's own entry_type value, reported as stored. Message is cut to 500 "
+                 "characters. Last Try Time is timestamp_ms_tried read as Unix seconds on the same "
+                 "basis as timestamp_ms_added; that reading has no second value to check it "
+                 "against. The database uses WAL, so "
+                 "the -wal and -shm sidecars are matched with it. No sample_data is recorded for "
+                 "this artifact; the samples it was tested on are not named here, so figures in "
+                 "these notes cannot be tied to a corpus key.",
         "paths": ('*/Documents/brl-dedicated/brl.sqlite*',
                   '*/Library/Preferences/__com.netflix.derivationkeyprovider.localPersistanceSuiteName.plist'),
         "output_types": "standard",
@@ -167,27 +197,34 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Netflix",
         "notes": "Rows of the store table in Documents/sqlstore/store.sqlite3. The value blob is "
-                 "encrypted; see the module docstring for the container layout and the key "
-                 "source. The domain and value_key columns are stored in the same envelope but "
-                 "did not yield readable names with the key that opens the value column, so they "
-                 "are not reported and each row is identified by the shape of its own value "
-                 "instead. Value Kind is derived from the decrypted bytes, for example a JSON "
-                 "object's top level key or a certificate encoding. In the samples tested most "
-                 "entries held Message "
-                 "Security Layer material; token and key values are reported by length only and "
-                 "their contents are not printed. The Identity column carries the ESN string "
-                 "where an entry holds one. The table mixes two storage forms: some values carry "
-                 "the envelope and some are written as plain UTF-8 JSON with no envelope at "
-                 "all, and the Storage column says which, so a plaintext row is not reported as "
-                 "a decryption failure. Where the crypto row resolves to a key, that key is "
-                 "applied to every row of the table, so an entry whose plaintext is not text is "
-                 "reported as decrypted with a Value Kind that names the encoding rather than "
-                 "as a failure. Where the crypto row is not opened by any key present, each key "
-                 "is tried in turn and only a readable result is accepted, so a row whose key has "
-                 "since been rotated out of the preference file is listed as not recovered. "
-                 "Such a row is still listed with its stored length so the row count matches "
-                 "the table. One sample tested carried a store whose crypto row no key opened, "
-                 "and rows written under the retired key were reported that way.",
+                 "encrypted with the same envelope and derivation keys that the Netflix - Log "
+                 "Events notes describe. The domain and value_key columns are stored in the same "
+                 "envelope but did not yield readable names with the key that opens the value "
+                 "column, so they are not reported and each entry is classified by the shape of "
+                 "its own value instead. Value Kind is derived from the decrypted bytes, for "
+                 "example a JSON object's top level key or a certificate encoding. In the samples "
+                 "tested most entries held Message Security Layer material; token and key values "
+                 "are counted in the summary rows by stored length and their contents are not "
+                 "printed. The Identity column carries the ESN string where an entry holds one. "
+                 "The table mixes two storage forms: some values carry the envelope and some are "
+                 "written as plain UTF-8 JSON with no envelope at all, and the Storage column says "
+                 "which, so a plaintext row is not reported as a decryption failure. Where the "
+                 "crypto row resolves to a key, that key is applied to every row of the table and "
+                 "the result is accepted without a readability test, so an entry whose plaintext "
+                 "is not text is reported as decrypted with Value Kind 'binary'. A row in such a "
+                 "store that was written under a different key would be reported the same way, so "
+                 "a 'binary' value in the Storage 'Encrypted' group is not established to be a "
+                 "correct decryption. Where the crypto row is not opened by any key present, each "
+                 "key is tried in turn and only a readable result is accepted, so a row whose key "
+                 "has since been rotated out of the preference file is counted as not recovered. "
+                 "Entries that hold an identity string are listed one per row. All other entries, "
+                 "including those not recovered, are counted in one summary row per value kind and "
+                 "storage form, which gives the number of entries and their total stored length, "
+                 "so the row count of this artifact does not match the table. One sample tested "
+                 "carried a store whose crypto row no key opened, and rows written under the "
+                 "retired key were counted as not recovered. No sample_data is recorded for this "
+                 "artifact; the samples it was tested on are not named here, so figures in these "
+                 "notes cannot be tied to a corpus key.",
         "paths": ('*/Documents/sqlstore/store.sqlite3*',
                   '*/Library/Preferences/__com.netflix.derivationkeyprovider.localPersistanceSuiteName.plist'),
         "output_types": "standard",
@@ -196,8 +233,8 @@ __artifacts_v2__ = {
     "netflix_network_observations": {
         "name": "Netflix - Network Observations Summary",
         "description": "Per interface network measurements the Netflix app recorded in its "
-                       "sqlstore last_observed table, with the interface, the observed "
-                       "throughput and the exchange identifier",
+                       "sqlstore last_observed table, one row per interface, with the number of "
+                       "stored rows, the metric names and the lowest and highest observedKbps value",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
@@ -207,13 +244,16 @@ __artifacts_v2__ = {
                  "which is stored unencrypted. Keys take the form <metric>-<interface>[-<index>], "
                  "and the interface segment is reported as stored; values seen in the samples "
                  "tested included wifi, mobile, cellular and en0. The metric names observed were "
-                 "xid, bps, observedKbps and playdelay. No timestamp is stored on any of these "
-                 "rows, so an individual observation cannot be placed in time and one row per "
-                 "observation would not be actionable; one row per interface is reported "
-                 "instead, with the observation count and the range of throughput readings. The "
-                 "underlying table still holds every value. A bps or Kbps value is reported as "
-                 "stored and is not a record of "
-                 "data transferred.",
+                 "xid, bps, observedKbps and playdelay; what xid stands for is not sourced. No "
+                 "timestamp is stored on any of these rows, so an individual observation cannot be "
+                 "placed in time and one row per observation would not be actionable; one row per "
+                 "interface is reported instead, with the observation count and the range of "
+                 "throughput readings. The underlying table still holds every value. Only "
+                 "observedKbps values feed the lowest and highest columns; bps values are not "
+                 "reported. A Kbps value is not a record of "
+                 "data transferred. No sample_data is recorded for this artifact; the samples it "
+                 "was tested on are not named here, so figures in these notes cannot be tied to a "
+                 "corpus key.",
         "paths": ('*/Documents/sqlstore/store.sqlite3*',),
         "output_types": "standard",
         "artifact_icon": "network",
@@ -228,34 +268,35 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Netflix",
-        "notes": "Files under Library/Caches/br/ch/<videoId>/. The directory name is the video "
-                 "id, which is a recorded link rather than a correlation, so each file is "
-                 "attributed to the title of that id where a UnifiedEntity record for the same "
-                 "id exists under Library/gqlData. One row per video id rather than one per "
-                 "file: the individual files are counted and their bytes totalled. File types "
-                 "are decided by reading the leading bytes rather than by trusting the file "
-                 "name, which carries no extension. No complete media was found in these files "
-                 "on the samples tested and no media is checked in for them. Across the samples "
-                 "tested 821 files carried MP4 magic and not one held a complete mdat box: 494 "
-                 "walked cleanly and carried no mdat at all, meaning an initialisation segment "
-                 "and a segment index with no media samples, and the remaining 327 ended part "
-                 "way through a box, 142 of them inside an mdat whose declared size exceeded the "
-                 "bytes on disk. The mdat payload actually present across all 821 files totalled "
-                 "50,596 bytes, so on the samples tested the audio and video samples were not "
-                 "present in this cache. Sample entry codes are reported as stored; encv and "
-                 "enca name an encrypted sample entry and 407 files declared one, so a complete "
-                 "fragment would still need a key that was not found in these stores. Box sizes "
-                 "are checked against the bytes actually "
-                 "present, and a file the walk cannot finish is reported with the box it ends "
-                 "inside rather than with an invented size. The subtitle text cached "
-                 "alongside these files is reported by the Netflix - Cached Subtitle Cues "
-                 "artifact. The separate image caches under "
-                 "Library/Caches/com.github.kean.Nuke.DataCache and Library/assetCache were "
-                 "checked for a reproducible link to a title: their file names are 40 character "
-                 "hex and did not match SHA-1, MD5 or SHA-256 of the artwork URL, of the URL "
-                 "without its query, of the URL path, of the final path component or of the "
-                 "artwork key recorded beside the URL, so no link to those images is asserted "
-                 "and they are not reported here.",
+        "notes": "Files under Library/Caches/br/ch/<videoId>/. The directory name is read as the "
+                 "video id; how many directory names equalled a video id held under "
+                 "Library/gqlData was not counted here. Each video id is given the title of the "
+                 "first record under Library/gqlData that carries both a title and that video id. "
+                 "One row per video id rather than one per file: the individual files are counted "
+                 "and their bytes totalled. File types are decided by reading the leading bytes "
+                 "rather than by trusting the file name, which carries no extension. No complete "
+                 "media was found in these files on the samples tested, so the report shows none "
+                 "of them as media. Across the samples tested 821 files carried MP4 magic and not "
+                 "one held a complete mdat box: 494 walked cleanly and carried no mdat at all, "
+                 "meaning an initialisation segment and a segment index with no media samples, and "
+                 "the remaining 327 ended part way through a box, 142 of them inside an mdat whose "
+                 "declared size exceeded the bytes on disk. The mdat payload actually present "
+                 "across all 821 files totalled 50,596 bytes, so on the samples tested the audio "
+                 "and video samples were not present in this cache. Sample entry codes are "
+                 "reported as stored; encv and enca name an encrypted sample entry and 407 files "
+                 "declared one, so a complete fragment would still need a key that was not found "
+                 "in these stores. Box sizes are checked against the bytes actually present, and a "
+                 "file the walk cannot finish is counted in Truncated Cache Entries; the box it "
+                 "ends inside is not shown. The subtitle text cached alongside these files is "
+                 "reported by the Netflix - Cached Subtitle Tracks artifact. The separate image "
+                 "caches under Library/Caches/com.github.kean.Nuke.DataCache and "
+                 "Library/assetCache were checked for a reproducible link to a title: their file "
+                 "names are 40 character hex and did not match SHA-1, MD5 or SHA-256 of the "
+                 "artwork URL, of the URL without its query, of the URL path, of the final path "
+                 "component or of the artwork key recorded beside the URL, so no link to those "
+                 "images is asserted and they are not reported here. No sample_data is recorded "
+                 "for this artifact; the samples it was tested on are not named here, so figures "
+                 "in these notes cannot be tied to a corpus key.",
         "paths": ('*/Library/Caches/br/ch/*',
                   '*/Library/gqlData/*gql*.db*'),
         "output_types": "standard",
@@ -273,9 +314,10 @@ __artifacts_v2__ = {
         "category": "Netflix",
         "notes": "WebVTT files under Library/Caches/br/ch/<videoId>/, identified by their "
                  "leading bytes because the file names carry no extension. The directory name "
-                 "is the video id and is a recorded link, so a track is attributed to the title "
-                 "of that id where a UnifiedEntity record for the same id exists under "
-                 "Library/gqlData. One row per track rather than one per cue: across the "
+                 "is read as the video id; how many directory names equalled a video id held under "
+                 "Library/gqlData was not counted here. A track is given the title of the first "
+                 "record under Library/gqlData that carries both a title and that video id. One "
+                 "row per track rather than one per cue: across the "
                  "samples tested 96 tracks held 8,246 cues, and a row per cue is a volume an "
                  "examiner cannot work through, so the cue text is joined into a single column "
                  "and the count and span are carried beside it. Cue times are reported as the "
@@ -283,7 +325,9 @@ __artifacts_v2__ = {
                  "clock time, so they cannot be placed on a timeline. Cue markup is removed and "
                  "the text is otherwise reported as stored. A cached subtitle track records what "
                  "the app downloaded for a title; it does not establish that the title was "
-                 "played or that any of it was displayed.",
+                 "played or that any of it was displayed. No sample_data is recorded for this "
+                 "artifact; the samples it was tested on are not named here, so figures in these "
+                 "notes cannot be tied to a corpus key.",
         "paths": ('*/Library/Caches/br/ch/*',
                   '*/Library/gqlData/*gql*.db*'),
         "output_types": "standard",
@@ -293,7 +337,8 @@ __artifacts_v2__ = {
         "name": "Netflix - Preferences",
         "description": "Selected values from the Netflix app preference file, including "
                        "identifiers the app persisted, the recorded app version and the profile "
-                       "guids the app kept message state for",
+                       "guids carried in the names of the Message-myProfile, Message-download and "
+                       "Message-share keys",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
         "last_update_date": "2026-08-21",
@@ -301,11 +346,17 @@ __artifacts_v2__ = {
         "category": "Netflix",
         "notes": "Read from Library/Preferences/com.netflix.Netflix.plist. Keys are reported "
                  "with their stored names so a reader can go back to the file. Date valued keys "
-                 "are reported as the plist stored them. Keys whose names begin with a profile "
-                 "guid pattern, such as Message-myProfile-<guid>, are listed so the guids "
-                 "present in the preference file can be compared with the profiles recorded in "
-                 "the GraphQL cache. Feature flag keys are numerous and are not all reported; "
-                 "the file itself carries the full set.",
+                 "are written as date and time text. Keys named Message-myProfile-<guid>, "
+                 "Message-download-<guid> or Message-share-<guid> are listed with the guid from "
+                 "the key name and without their value, so the guids present in the preference "
+                 "file can be compared with the profiles recorded in the GraphQL cache; what the "
+                 "app uses them for is not established. Only a fixed list of keys is reported, "
+                 "named in the module as PREFERENCE_KEYS, together with the Message keys above; "
+                 "every other key, including the feature flags, is left to the file itself. "
+                 "Dictionary and list values are cut to 500 characters and binary values are shown "
+                 "as a byte count. No sample_data is recorded for this artifact; the samples it "
+                 "was tested on are not named here, so figures in these notes cannot be tied to a "
+                 "corpus key.",
         "paths": ('*/Library/Preferences/com.netflix.Netflix.plist',),
         "output_types": "standard",
         "artifact_icon": "settings",

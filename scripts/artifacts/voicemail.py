@@ -7,7 +7,17 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': "none",
         'category': 'Call History',
-        'notes': "Reference: A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' (Syngress, 2011), voicemail.db flags: 67 = old, 75 = deleted, 3 = recent. When no voicemail.db is present, one row is reported per audio file with its transcript matched by file stem, and the report names the audio and transcript files read. The 19 registered corpora found to carry voicemail files all carry the database as well, so that path was exercised on a constructed tree of audio and transcript files without it.",
+        'notes': "The Deleted column is Yes when trashed_date is 0 and flags is 75, No when "
+                 "trashed_date is 0 with any other flags value, and otherwise the trashed_date "
+                 "value read as Cocoa time; the date column is read as Unix time. The flags "
+                 "reading follows A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' (Syngress, "
+                 "2011), which lists 67 = old, 75 = deleted, 3 = recent. Whether those values "
+                 "hold on the tested iOS versions is not established in these notes. When no "
+                 "voicemail.db is present, one row is reported per audio file with its transcript "
+                 "matched by file stem, and the report names the audio and transcript files read. "
+                 "No registered corpus was found carrying voicemail files without the database, "
+                 "so that path was exercised on a constructed tree of audio and "
+                 "transcript files without it.",
         'paths': (
             '*/mobile/Library/Voicemail/voicemail.db*',
             '*/mobile/Library/Voicemail/*.amr',

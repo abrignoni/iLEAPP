@@ -1,26 +1,40 @@
 __artifacts_v2__ = {
     "sbb_searchhistory": {
         "name": "SBB Mobile - Search History",
-        "description": "Parse search history in the SBB Mobile app",
+        "description": "Rows of ZSEARCHRESULT in the SBB Mobile app's search history database",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-18",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
-        "notes": "",
+        "notes": (
+            "ZTIMESTAMP is read as Unix milliseconds and ZLAT and ZLON as millionths of a degree. "
+            "Neither unit is sourced or measured here, and no tested image is recorded for this "
+            "artifact."
+        ),
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/ch.sbb.coredata.searchhistory.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "search"
     },
     "sbb_easyride_trips": {
         "name": "SBB Mobile - EasyRide Trips",
-        "description": "Parse EasyRide check-in and check-out events",
+        "description": "Check-in and check-out times inferred from EasyRide log messages in ch.sbb.coredata.logs.sqlite",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
-        "notes": "",
+        "notes": (
+            "Rows are built by this artifact, not stored. A ZLOGENTRY message containing "
+            "'EasyRide slider on the right, starting check-in process' or 'Fairtiq state update: "
+            "[checkingIn]' is treated as a check-in, and one containing 'EasyRide slider on the "
+            "left, starting check-out process' or 'Fairtiq state update: [checkingOut]' as a "
+            "check-out. Messages are paired in time order and Duration (min) is computed from the "
+            "pair. Unknown marks a message with no partner; when two check-in messages follow "
+            "each other, the first is reported with an Unknown check-out. A message that a "
+            "process is starting does not establish a completed check-in or check-out. ZTIMESTAMP "
+            "is read as seconds since 2001-01-01. No tested image is recorded for this artifact."
+        ),
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/ch.sbb.coredata.logs.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "map"
@@ -33,7 +47,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Travel",
-        "notes": "Refund-state values other than COMPLETE are reported as stored.",
+        "notes": (
+            "The refundState value COMPLETE is shown as Refunded in the column headed is "
+            "Refunded, a reading for which no source was located; other values are reported as "
+            "stored. Purchase Time is the first value in the ticket HTML's ticketinformationen "
+            "block, taken by position."
+        ),
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/SbbMobile.db*'),
         "output_types": "standard",
         "artifact_icon": "star"

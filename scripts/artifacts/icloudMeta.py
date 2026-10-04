@@ -7,7 +7,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "iCloud Returns",
-        "notes": "btime/ctime/mtime are read as epoch milliseconds and rendered in UTC.",
+        "notes": "btime, ctime and mtime are converted as Unix epoch values, with the "
+                 "unit inferred from the size of the number, and rendered in UTC. No "
+                 "tested return is recorded for this artifact.",
         "paths": ('*/iclouddrive/Metadata.txt',),
         "output_types": "standard",
         "artifact_icon": "cloud"

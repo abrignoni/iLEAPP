@@ -1,8 +1,9 @@
 __artifacts_v2__ = {
     "chatgptConversationsMetadata": {
         "name": "ChatGPT - Conversations Metadata",
-        "description": "Metadata from ChatGPT conversations. Based on a research project; "
-                       "covers the app up to version 1.2024.178.",
+        "description": "Metadata from ChatGPT conversations. Returned rows on ChatGPT "
+                       "1.2024.219 and 1.2024.233 on the tested images; other versions "
+                       "were not tested.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
         "last_update_date": "2026-08-21",
@@ -19,8 +20,11 @@ __artifacts_v2__ = {
     },
     "chatgptConversations": {
         "name": "ChatGPT - Conversations",
-        "description": "User conversations with ChatGPT. Based on a research project; "
-                       "covers the app up to version 1.2024.178.",
+        "description": "Messages stored in ChatGPT conversation files, one row per "
+                       "entry of the file's message tree, with the author role as "
+                       "stored. Returned rows on ChatGPT "
+                       "1.2024.219 and 1.2024.233 on the tested images; other versions "
+                       "were not tested.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
         "last_update_date": "2026-08-21",
@@ -37,7 +41,8 @@ __artifacts_v2__ = {
     },
     "chatgptDraftConversations": {
         "name": "ChatGPT - Draft Conversations",
-        "description": "User draft conversations with ChatGPT.",
+        "description": "Text held in the ChatGPT drafts-* JSON files, with the conversation id "
+                       "stored beside it. No tested image is recorded as returning rows.",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
         "last_update_date": "2026-08-21",
@@ -79,7 +84,9 @@ __artifacts_v2__ = {
         "notes": "Rows are limited to the ChatGPT app container only when a ChatGPT marker file "
                  "(a conversations-* store or com.openai.chat plist) identifies that container; "
                  "without a marker, tmp media from other apps matching the path patterns is included, "
-                 "and media from non-ChatGPT apps appeared in test data.",
+                 "and in sample_data every image that returned rows lists apps other than ChatGPT, "
+                 "while the three images that list ChatGPT returned no rows. Only .png files are "
+                 "reported. A row is not evidence that a file was uploaded to ChatGPT.",
         "paths": ('**/Containers/Data/Application/*/tmp/photo-*.png',
                   '**/Containers/Data/Application/*/tmp/*/*.png',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
@@ -110,7 +117,9 @@ __artifacts_v2__ = {
         "notes": "Rows are limited to the ChatGPT app container only when a ChatGPT marker file "
                  "(a conversations-* store or com.openai.chat plist) identifies that container; "
                  "without a marker, tmp media from other apps matching the path patterns is included, "
-                 "and media from non-ChatGPT apps appeared in test data.",
+                 "and in sample_data the only image that returned rows lists an app other than "
+                 "ChatGPT, while the three images that list ChatGPT returned no rows. A row is an "
+                 ".m4a file under an app tmp folder and is not shown to be a ChatGPT voice prompt.",
         "paths": ('**/Containers/Data/Application/*/tmp/recordings/*.m4a',
                   '**/Containers/Data/Application/*/tmp/*/*.m4a',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',

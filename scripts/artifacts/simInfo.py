@@ -3,7 +3,10 @@ __artifacts_v2__ = {
         "name": "SIM - UUID",
         "description": "SIM personal wallet entries from com.apple.commcenter.data.plist",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "SIM Info", "notes": "Timestamps are Unix epoch seconds (UTC).",
+        "category": "SIM Info", "notes": "Timestamp is the entry's ts value, read as Unix epoch "
+                                         "time and shown in UTC. What the time marks is not "
+                                         "established. Only the first "
+                                         "com.apple.commcenter.data.plist found is read.",
         "paths": ('*/com.apple.commcenter.data.plist',),
         "output_types": "standard", "artifact_icon": "credit-card",
         "sample_data": {
@@ -26,7 +29,10 @@ __artifacts_v2__ = {
         "name": "SIM - Unique Label Store",
         "description": "SIM unique label store from com.apple.commcenter.data.plist",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "SIM Info", "notes": "Timestamps are Unix epoch seconds (UTC).",
+        "category": "SIM Info", "notes": "Timestamp is the entry's ts value, read as Unix epoch "
+                                         "time and shown in UTC. What the time marks is not "
+                                         "established. Only the first "
+                                         "com.apple.commcenter.data.plist found is read.",
         "paths": ('*/com.apple.commcenter.data.plist',),
         "output_types": "standard", "artifact_icon": "tag",
         "sample_data": {

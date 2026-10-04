@@ -1,9 +1,9 @@
 __artifacts_v2__ = {
     "mapsSync": {
         "name": "Maps Sync",
-        "description": "Apple Maps history: searches, displayed locations and navigation "
-                       "journeys "
-                       "from MapsSync_0.0.1",
+        "description": "Apple Maps history items from MapsSync_0.0.1. The Type label is assigned "
+                       "from the row's Core Data entity number as published for iOS 14 and has not "
+                       "been checked against each store's Z_PRIMARYKEY table",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",

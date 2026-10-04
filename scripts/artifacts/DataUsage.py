@@ -7,7 +7,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Network Usage",
-        "notes": "ZKIND is reported as stored; rows with ZKIND 257 are excluded by the query, the meaning of these values is not documented.",
+        "notes": "ZKIND is reported as stored; rows with ZKIND 257 are excluded by the query, and "
+                 "the meaning of these values is not documented. Process Name is the part of "
+                 "ZPROCNAME before the first '/'; the rest of the stored value is not reported. "
+                 "Timestamps are read as Cocoa seconds and shown in UTC.",
         "paths": ('*/wireless/Library/Databases/DataUsage.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
         "artifact_icon": "chart-bar",

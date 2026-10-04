@@ -2,7 +2,8 @@
 __artifacts_v2__ = {
     "timezone_set": {
         "name": "Timezone Set",
-        "description": "Is the timezone set on the device?",
+        "description": "The timezoneset key of com.apple.preferences.datetime.plist, reported as "
+                       "stored. What the value records is not established.",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-10-04",
         "last_update_date": "2026-07-21",

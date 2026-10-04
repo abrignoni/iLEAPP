@@ -49,14 +49,18 @@ __artifacts_v2__ = {
     },
     "logarchive_time_change": {
         "name": "logarchive time change",
-        "description": "Identify time changes",
+        "description": "Unified log entries containing 'Time change: Clock shifted by', "
+                       "'Significant time change', TMSetManualTime or 'setting manual time'",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-22",
         "last_update_date": "2026-08-01",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "2026-08-01: added the system 'Significant time change' broadcast "
-                 "(observed on iOS 18.7) and the timed manual-time-setting entries "
+        "notes": "2026-08-01: added entries containing 'Significant time change' (observed on iOS "
+                 "18.7; what triggers them is not established here, and Apple documents a "
+                 "notification of that name, UIApplication.significantTimeChangeNotification, as "
+                 "also posted at midnight and on daylight saving changes, so a row is not by "
+                 "itself a clock change) and the timed manual-time-setting entries "
                  "(TMSetManualTime / 'setting manual time'), which record a clock set by "
                  "hand on the device. Manual-time patterns documented at "
                  "https://www.ios-unifiedlogs.com/post/ios-unified-logs-don-t-trust-the-clock-timestamp.",
@@ -66,7 +70,9 @@ __artifacts_v2__ = {
     },
     "logarchive_flashlight": {
         "name": "logarchive flashlight",
-        "description": "Identify flashlight turn on or off",
+        "description": "Unified log entries tagged '[Flashlight Controller]' or AVFlashlight. "
+                       "Which of these messages record the light turning on or off has not been "
+                       "measured for this artifact",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-25",
         "last_update_date": "2025-05-25",
@@ -79,7 +85,9 @@ __artifacts_v2__ = {
     },
     "logarchive_executed_apps": {
         "name": "logarchive executed apps",
-        "description": "Track apps being executed",
+        "description": "Unified log entries containing 'Allowing tap for icon view', 'Launching "
+                       "application' or 'transition source:'; what each form records is not "
+                       "sourced here",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-26",
         "last_update_date": "2025-05-26",
@@ -126,7 +134,8 @@ __artifacts_v2__ = {
     },
     "logarchive_lock_status": {
         "name": "logarchive lock status",
-        "description": "Lock Status",
+        "description": "Unified log entries about screen lock and unlock, screen power (ScreenOn "
+                       "changed, Screen shut off) and the 'Biometric match' completion entries",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-28",
         "last_update_date": "2025-05-28",
@@ -148,9 +157,9 @@ __artifacts_v2__ = {
         "notes": "2026-08-01: added wifid WFMacRandomisation entries (per-network MAC "
                  "randomisation records, observed on iOS 18.7 and usable against router "
                  "logs) and 'manual association' entries, which the cited research "
-                 "records when a network is picked by hand in Settings rather than "
-                 "auto-joined "
-                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries). "
+                 "shows as wifid '__associate Manual Association Requestion from user' when a "
+                 "network is joined from Settings "
+                 "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-wifi-and-airplane-mode). "
                  "Also added, observed on iOS 16.5/17.1: keychain password retrieval "
                  "(WiFiNetworkCopyPasswordWithTimeout), '{AUTOJOIN, ASSOC*} Attempting "
                  "auto join association of <SSID>' with the network name in the clear, "
@@ -201,13 +210,44 @@ __artifacts_v2__ = {
     },
     "logarchive_navigation": {
         "name": "logarchive navigation",
-        "description": "Records logged by the MapsNavigation framework under the com.apple.Navigation subsystem",
+        "description": "Unified log records whose subsystem begins with com.apple.Navigation, "
+                       "compared without regard to case, so com.apple.navigation.VirtualGarage is "
+                       "included",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2025-07-25",
         "last_update_date": "2026-08-25",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Rows the MapsNavigation framework writes under the com.apple.Navigation subsystem, collected by subsystem rather than by message text. Across the six tested images the emitting processes are the Maps widget extension GeneralMapsWidget (955 rows on four images), navd (755 on five) and Maps.app (609 on two), with single-figure counts from assistantd, routined and destinationd on one image each. Categories observed on the iOS 16.5 through 18.7 images, with the number of images carrying each: MNNavigationXPC, MNNavigationService, MNNavigationStateManager and MNRouteStorage on four; MNLocationProvider on three; MNVoiceLanguageUtil, MNUserOptionsEngine and Navd on two; MNRouteEditor, MNSuggestedNavigationMode, MNRouteAttributes, MNSequence, MNCarPlayConnectionMonitor, MNRingerSwitchObserver, ProcessHandling and the three VirtualGarage categories on one each. The iOS 26.5.2 image shares only MNLocationProvider with those and otherwise logs two categories seen nowhere else, FamiliarRouteAuthorizationChecker and GEONavigationListener, which is why the subsystem prefix is matched instead of a list of categories. Until 2026-08-25 this artifact instead matched event_message against fifteen English spoken guidance phrases such as 'Starting route to' and 'your destination'. None of those phrases occurs in any of the 117,678,121 records across the six images listed in sample_data, every one of them an en-US device, so it reported nothing on all six. What the artifact reports is the framework's own activity around route planning and navigation service connections. It is not a record of a route being followed: on every tested image that logs a navigation state, the only values seen are MNNavigationStateTypeNoDestination, MNNavigationStateTypeNone and Stopped, so none of them holds an active turn by turn session. Whether spoken guidance text reaches the unified log at all is untested here, and 19.1 percent of messages on the iOS 18.7 image are redacted to <private>. An image captured during live navigation would settle it. Trace ID carries no value on any tested row, which is true of every artifact reading this table.",
+        "notes": "Rows logged under a subsystem beginning with com.apple.Navigation, collected by "
+                 "subsystem rather than by message text. Across the six tested images the emitting "
+                 "processes are the Maps widget extension GeneralMapsWidget (955 rows on four "
+                 "images), navd (755 on five) and Maps.app (609 on two), with single-figure counts "
+                 "from assistantd, routined and destinationd on one image each. Categories "
+                 "observed on the iOS 16.5 through 18.7 images, with the number of images carrying "
+                 "each: MNNavigationXPC, MNNavigationService, MNNavigationStateManager and "
+                 "MNRouteStorage on four; MNLocationProvider on three; MNVoiceLanguageUtil, "
+                 "MNUserOptionsEngine and Navd on two; MNRouteEditor, MNSuggestedNavigationMode, "
+                 "MNRouteAttributes, MNSequence, MNCarPlayConnectionMonitor, "
+                 "MNRingerSwitchObserver, ProcessHandling and the three VirtualGarage categories "
+                 "on one each. The iOS 26.5.2 image shares only MNLocationProvider with those and "
+                 "otherwise logs two categories seen nowhere else, "
+                 "FamiliarRouteAuthorizationChecker and GEONavigationListener, which is why the "
+                 "subsystem prefix is matched instead of a list of categories. Until 2026-08-25 "
+                 "this artifact instead matched event_message against fifteen English spoken "
+                 "guidance phrases such as 'Starting route to' and 'your destination'. None of "
+                 "those phrases occurs in any of the 117,678,121 records across the six images "
+                 "listed in sample_data, every one of them an en-US device, so it reported nothing "
+                 "on all six. The rows are whatever was logged under that subsystem prefix; on the "
+                 "tested images that is the categories listed above. What each category records is "
+                 "not established here. It is not a record of a route being followed: on every "
+                 "tested image that logs a navigation state, the only values seen are "
+                 "MNNavigationStateTypeNoDestination, MNNavigationStateTypeNone and Stopped, so "
+                 "none of them holds an active turn by turn session. Whether spoken guidance text "
+                 "reaches the unified log at all is untested here, and 19.1 percent of messages on "
+                 "the iOS 18.7 image are redacted to <private>. An image captured during live "
+                 "navigation would settle it. Trace ID held no value on any row of the tested "
+                 "images: rows read from tracev3 data leave it empty, and only a 'log show' JSON "
+                 "export fills it.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -240,7 +280,8 @@ __artifacts_v2__ = {
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-making-a-call and "
                  "https://www.ios-unifiedlogs.com/post/watchos-unified-logs-introduction-and-calls) "
                  "and observed on iOS 18.7. The open-request entries name the process that "
-                 "asked for the call UI (touch, Siri, or a Bluetooth accessory). Keypad tone "
+                 "asked for the call UI (the Phone app or assistantd for Siri in the cited "
+                 "research). Keypad tone "
                  "entries come from mediaserverd in the cited research and from audiomxd on "
                  "iOS 18.7. The number "
                  "payloads in these particular entries are redacted to <private>; the "
@@ -274,9 +315,9 @@ __artifacts_v2__ = {
                  "values 1 and 7 also appeared there and are reported as stored, since no "
                  "source read for this artifact defines them. Other call.provider entries "
                  "on that image render caller id as <private>, so the kPhoneNumber block is "
-                 "where the value survived. ContactSearchManager: 752 entries on an iOS "
-                 "18.7 image, 301 of them the 'Searching for' and 'Search cancelled for' "
-                 "pairs, whose digit strings lengthen one step at a time up to a ten-digit "
+                 "where the value survived. ContactSearchManager: the entries on an iOS 18.7 image "
+                 "include 'Searching for' and 'Search cancelled for' pairs whose digit strings "
+                 "lengthen one step at a time up to a ten-digit "
                  "value, as the cited research describes. Four images were swept for both "
                  "families (iOS 16.5, 17.1, 18.7 and 26.5.2). Only the 26.5.2 one carried "
                  "any kActionType block and only the 18.7 one carried ContactSearchManager, "
@@ -307,11 +348,13 @@ __artifacts_v2__ = {
         "category": "Unified Logs",
         "notes": "Signpost entries documented at "
                  "https://thesisfriday.com/thesis-friday-17-touch-events-on-the-ios-on-screen-keyboard/ "
-                 "(subsystem UIKitCore there; com.apple.TextInput on iOS 18.7). Sound-request "
-                 "actionID mapping documented at "
+                 "(the cited post labels the subsystem UIKitCore; the log lines it quotes show the "
+                 "UIKitCore library writing under subsystem com.apple.TextInput, category "
+                 "KeyboardSignposts, the same subsystem and category seen on iOS 18.7). "
+                 "Sound-request actionID mapping documented at "
                  "https://www.ios-unifiedlogs.com/post/ios-unified-logs-typing-and-sending-a-message-in-whatsapp; "
-                 "those entries name the client "
-                 "app. Text content is not recorded. High volume: over 200k signpost rows "
+                 "those entries name the client app. No typed text was seen in these entries on "
+                 "the tested iOS 18.7 image. High volume: over 200k signpost rows "
                  "were observed in a single iOS 18.7 image, so this artifact is LAVA-only.",
         "paths": None,
         "output_types": "lava_only",
@@ -359,8 +402,9 @@ __artifacts_v2__ = {
                  "and Lionel Notari "
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
                  "observed on iOS 18.7. The entries record the pocket state the sensor reported, "
-                 "detected or cleared; the cited research reports bursts of "
-                 "entries per obstruction period.",
+                 "detected or cleared; in Ian Whiffin's cited test the entries came in groups of "
+                 "150 to 406, each lined up with a period when the screen lit while the front "
+                 "infrared camera was covered.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "moon",
@@ -381,9 +425,11 @@ __artifacts_v2__ = {
                  "observed on iOS 18.7. Contact entries record finger presence on the "
                  "digitizer, not which control was touched. High volume, LAVA-only. "
                  "'Touch entered' (backboardd) was added 2026-10-03 from Tim Korver's 'Apple "
-                 "Unified Log search term and process cheatsheet' (thesisfriday.com/alr), which "
-                 "notes that the rectangle in it is the screen size, not the finger's position; "
-                 "it appeared only on the iOS 26.5.2 image (1,237 entries). "
+                 "Unified Log search term and process cheatsheet', which is cited as noting that "
+                 "the rectangle in it is the screen size, not the finger's position. The address "
+                 "recorded for the cheatsheet, thesisfriday.com/alr, did not serve it when fetched "
+                 "on 2026-10-03, so that statement could not be checked. The entry was observed on "
+                 "the iOS 26.5.2 image. "
                  "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
         "paths": None,
         "output_types": "lava_only",
@@ -412,14 +458,14 @@ __artifacts_v2__ = {
                  "https://thesisfriday.com/thesis-friday-20-project-stark-forensic-reconstruction-of-the-carplay-handshake/; "
                  "observed on iOS 18.7, where the shim also emits an 'AppleUSBCableDetect 1' "
                  "form. The 'USB Power (VBUS) Present' pattern was added 2026-08-02 as "
-                 "version insurance, not as a fix: the cited CarPlay research, revised for "
-                 "iOS 26.6, quotes that line without the shim prefix and treats it as the "
-                 "most consistent connection marker, with 'Present: 0' treated as the detach "
-                 "signal while CON_DET can remain 1. On our images every VBUS line did "
-                 "carry the shim prefix and was therefore already collected (30 records on "
-                 "iOS 18.7, 40 on iOS 17.1, none without the prefix), so the pattern is "
-                 "redundant on those versions and only earns its place if a release drops "
-                 "the prefix. These entries record cable presence, not what was connected; "
+                 "a precaution, not as a fix: the cited CarPlay research, revised for iOS 26.6, "
+                 "quotes that line without the shim prefix and treats it as the most consistent "
+                 "connection marker, with 'Present: 0' treated as the detach signal while CON_DET "
+                 "can remain 1. On the iOS 18.7 and iOS 17.1 images checked when the pattern was "
+                 "added, the VBUS lines carried the shim prefix and were already collected, so the "
+                 "pattern added no rows on those versions; it is kept for a release that drops the "
+                 "prefix. The counts from that check are not recorded in sample_data. These "
+                 "entries record cable presence, not what was connected; "
                  "examiner acquisition also produces them.",
         "paths": None,
         "output_types": "standard",
@@ -446,7 +492,7 @@ __artifacts_v2__ = {
     },
     "logarchive_notifications": {
         "name": "logarchive notification interactions",
-        "description": "Unified log entries recording interaction with notifications: "
+        "description": "Unified log entries about notifications: "
                        "removal of notification requests, group expansion, cell default "
                        "actions (tap-through), long-look presentation, and reply actions",
         "author": "@AlexisBrignoni",
@@ -458,7 +504,8 @@ __artifacts_v2__ = {
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries). "
                  "Removal entries were observed on iOS 18.7; the tap-through, expansion and "
                  "reply patterns are from the cited research and did not occur in the "
-                 "validation image's log window. Notification content is not recorded.",
+                 "validation image's log window. No notification text was seen in the removal "
+                 "entries on the tested iOS 18.7 image; the other forms were not observed.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "bell",
@@ -556,10 +603,13 @@ __artifacts_v2__ = {
                  "252 on iOS 18.7 in 9 forms; 183 on iOS 26.5.2 in 7 forms. A form naming inBioUnlock "
                  "appeared on the iOS 17.2.1 and iOS 18.3.2 images only. The kernel 'is now UN-locked' "
                  "entry, named as the unlock endpoint in Tim Korver's 'Apple Unified Log search term and "
-                 "process cheatsheet' (thesisfriday.com/alr), was added 2026-10-03: it appeared on all "
-                 "five tested images (28, 54, 58, 18 and 26 entries), including iOS 12.4 and 17.2.1, "
-                 "where 'apfs is being UN-locked' did not appear. The cheatsheet reports two such "
-                 "entries per unlock on iOS. The kernel 'Sending notification for volume' entry carries "
+                 "process cheatsheet', was added 2026-10-03: it appeared on all five tested images "
+                 "(28, 54, 58, 18 and 26 entries), including iOS 12.4 and 17.2.1, where 'apfs is "
+                 "being UN-locked' did not appear. The cheatsheet is cited as reporting two such "
+                 "entries per unlock on iOS. The address recorded for the cheatsheet, "
+                 "thesisfriday.com/alr, did not serve it when fetched on 2026-10-03, so the "
+                 "statements attributed to it in these notes could not be checked. The kernel "
+                 "'Sending notification for volume' entry carries "
                  "the state as written (unlocked, locked or cx expired; the last is reported as stored). "
                  "Tim Korver's 'What a busy phone forgets' "
                  "(https://thesisfriday.com/thesis-friday-28-what-a-busy-phone-forgets/, measured on iOS "
@@ -602,7 +652,8 @@ __artifacts_v2__ = {
                  "https://www.ios-unifiedlogs.com/post/ios-unified-logs-the-use-of-the-dictaphone; "
                  "observed on iOS 18.7. The CSAudioRecordTypeDictation entries are the "
                  "assistantd audio record preparations carrying the dictation record type. "
-                 "Dictated content is not recorded.",
+                 "Whether dictated text appears in these entries was not measured for this "
+                 "artifact.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "mic",
@@ -710,9 +761,9 @@ __artifacts_v2__ = {
     },
     "logarchive_emergency_sos": {
         "name": "logarchive emergency SOS engine",
-        "description": "Unified log entries from sosd recording SOS engine status "
-                       "broadcasts and flow state, including the paired-device trigger "
-                       "entry",
+        "description": "Unified log entries containing 'broadcasting SOSStatus', "
+                       "'flowStartedOnEitherDevice' or 'sosTriggeredOnPairedDevice', matched in "
+                       "any process",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-01",
         "last_update_date": "2026-08-01",
@@ -741,7 +792,11 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented at https://www.ios-unifiedlogs.com/post/ios-unified-logs-unlock "
-                 "and the same author's SQL queries post; all three entry families "
+                 "and "
+                 "https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries. "
+                 "The SQL queries post scopes the iBoot line to the kernel process, the shutdown "
+                 "notice to SpringBoard and the 'locationd shutting down' line to locationd; this "
+                 "artifact matches the text in any process. All three entry families were "
                  "observed on iOS 16.5 and 17.1. The iBoot line marks a boot; the "
                  "SpringBoard and locationd lines mark orderly shutdowns. Pair with the "
                  "Sysdiagnose shutdown.log artifacts, which record reboot times and the "
@@ -752,8 +807,8 @@ __artifacts_v2__ = {
     },
     "logarchive_airdrop": {
         "name": "logarchive AirDrop",
-        "description": "Unified log entries from sharingd's AirDrop and share sheet "
-                       "categories: the device's rotating AirDrop ID, discoverability "
+        "description": "Unified log entries matching AirDrop and share sheet message text: the "
+                       "device's AirDrop ID, discoverability "
                        "scanning mode (Everyone/Contacts Only/Off), SharingDaemon state "
                        "dumps, share sheet activation, and transfer entries",
         "author": "@AlexisBrignoni",
@@ -768,8 +823,9 @@ __artifacts_v2__ = {
                  "and share sheet activation with 'startSending' on iOS 18.7. The "
                  "incoming-transfer and accept/decline entries are collected as "
                  "documented-only; no transfer occurred in the validation images' log "
-                 "windows. AirDrop IDs rotate, so an ID ties activity together only "
-                 "within a session.",
+                 "windows. The cited research reports that the AirDrop ID is not constant for the "
+                 "life of the device and changes often; how long one ID stays in use is not "
+                 "established here.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "share",
@@ -786,7 +842,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-02",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "NOT YET VALIDATED IN-HOUSE. Every pattern here comes from Tim Korver's "
+        "notes": "NOT YET VALIDATED IN-HOUSE. Every pattern here except 'CarPlay Connection Event' "
+                 "comes from Tim Korver's "
                  "CarPlay handshake research "
                  "(https://thesisfriday.com/thesis-friday-20-project-stark-forensic-reconstruction-of-the-carplay-handshake/), "
                  "which documents the sequence on iOS 26.6 (build 23G71, iPhone 14) after "
@@ -824,13 +881,15 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
-                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
-                 "and 26.6.1), which describes the matchResultHandler entry as carrying the user "
-                 "ID and enrollment UUID and 'MATCH -1' as firing on a wrong passcode and on a "
-                 "failed Face ID, with the surrounding entries deciding which. Other MATCH values "
-                 "were not tested against known data here and are reported as stored. Kernel "
-                 "matchResultHandler entries were present on the iOS 12.4 (43, 4 of them MATCH "
-                 "-1), iOS 17.2.1 (11, 4 MATCH -1) and iOS 18.3.2 (50, 21 MATCH -1) images and "
+                 "cheatsheet', recorded as measured on iOS 12.5.7, 18.2.1, 26.0 and 26.6.1. The "
+                 "address recorded for it, thesisfriday.com/alr, did not serve the cheatsheet when "
+                 "fetched on 2026-10-03, so the statements attributed to it in these notes could "
+                 "not be checked. It is cited as describing the matchResultHandler entry as "
+                 "carrying the user ID and enrollment UUID and 'MATCH -1' as firing on a wrong "
+                 "passcode and on a failed Face ID, with the surrounding entries deciding which. "
+                 "Other MATCH values were not tested against known data here and are reported as "
+                 "stored. Kernel matchResultHandler entries were present on the iOS 12.4 (43), iOS "
+                 "17.2.1 (11) and iOS 18.3.2 (50) images and "
                  "absent on the iOS 18.7 and iOS 26.5.2 images. coreauthd 'has received no-match' "
                  "appeared once, on iOS 17.2.1. 'Base unlock behavior received biometric event' is "
                  "documented by Lionel Notari "
@@ -870,9 +929,12 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-03",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Search term from Tim Korver, 'Apple Unified Log search term and process cheatsheet' "
-                 "(thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 and 26.6.1), which "
-                 "describes these entries as showing that the passcode field was on screen; they do not "
+        "notes": "Search term from Tim Korver, 'Apple Unified Log search term and process "
+                 "cheatsheet', recorded as measured on iOS 12.5.7, 18.2.1, 26.0 and 26.6.1. The "
+                 "address recorded for it, thesisfriday.com/alr, did not serve the cheatsheet when "
+                 "fetched on 2026-10-03, so the statements attributed to it in these notes could "
+                 "not be checked. It is cited as describing these entries as showing that the "
+                 "passcode field was on screen; they do not "
                  "record the digits or whether the code was correct. The process column separates the "
                  "lock screen (SpringBoard) from passcode prompts shown for another authentication "
                  "(CoreAuthUI on iOS 17.2.1 and 18.7, LocalAuthenticationUIService on iOS 26.5.2). Rows "
@@ -911,16 +973,18 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
-                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
-                 "and 26.6.1). backboardd writes one 'began:' and one 'finished:' entry per press; "
-                 "the cheatsheet reads the time since firstDown in the 'finished:' entry as how "
-                 "long the button was held. The usage pair at the start of the entry is a USB HID "
-                 "Consumer Page usage: 0xC/0x30 Power, 0xC/0xE9 Volume Increment, 0xC/0xEA Volume "
-                 "Decrement (USB-IF HID Usage Tables 1.5, section 15). The cheatsheet maps the "
-                 "combination recognizer's press type 102 to volume up, 103 to volume down and 104 "
-                 "to the side button; on the iOS 18.7 and 26.5.2 images each of the three "
-                 "appeared exactly twice per press of the matching backboardd usage (on iOS 18.7: "
-                 "80, 26 and 66 against 41, 13 and 33 presses). 'press count:' is the side "
+                 "cheatsheet', recorded as measured on iOS 12.5.7, 18.2.1, 26.0 and 26.6.1. The "
+                 "address recorded for it, thesisfriday.com/alr, did not serve the cheatsheet when "
+                 "fetched on 2026-10-03, so the statements attributed to it in these notes could "
+                 "not be checked. backboardd writes one 'began:' and one 'finished:' entry per "
+                 "press; the cheatsheet reads the time since firstDown in the 'finished:' entry as "
+                 "how long the button was held. The usage pair at the start of the entry is a USB "
+                 "HID Consumer Page usage: 0xC/0x30 Power, 0xC/0xE9 Volume Increment, 0xC/0xEA "
+                 "Volume Decrement (USB-IF HID Usage Tables 1.5, section 15). The cheatsheet maps "
+                 "the combination recognizer's press type 102 to volume up, 103 to volume down and "
+                 "104 to the side button; on the iOS 18.7 image the three press types appeared 80, "
+                 "26 and 66 times against 41, 13 and 33 presses of the matching backboardd usage. "
+                 "'press count:' is the side "
                  "button's press count per the cheatsheet (1 single, 2 a second press shortly "
                  "after), and it matched the 0xC/0x30 press count on the iOS 17.2.1 (22), 18.7 "
                  "(33) and 26.5.2 (24) images but not on iOS 18.3.2 (2 against 15). The iOS 12.4 "
@@ -951,8 +1015,10 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
-                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
-                 "and 26.6.1) and orientation entries documented at "
+                 "cheatsheet', recorded as measured on iOS 12.5.7, 18.2.1, 26.0 and 26.6.1. The "
+                 "address recorded for it, thesisfriday.com/alr, did not serve the cheatsheet when "
+                 "fetched on 2026-10-03, so the statements attributed to it in these notes could "
+                 "not be checked. Orientation entries are documented at "
                  "https://thesisfriday.com/thesis-friday-2-aul-device-orientation/. The cheatsheet "
                  "notes that several processes write the same orientation and gesture entry for "
                  "one event, so a count of rows is not a count of events, and that the end state "
@@ -989,13 +1055,15 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
-                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
-                 "and 26.6.1), which notes that a single 'system gesture stealing the touches' "
-                 "entry is an edge touch while a real swipe writes nine to twenty-three. The "
-                 "SpringBoard entries name the recognizer: DeckGrabberTongue (app switcher), "
+                 "cheatsheet', recorded as measured on iOS 12.5.7, 18.2.1, 26.0 and 26.6.1. The "
+                 "address recorded for it, thesisfriday.com/alr, did not serve the cheatsheet when "
+                 "fetched on 2026-10-03, so the statements attributed to it in these notes could "
+                 "not be checked. It is cited as noting that a single 'system gesture stealing the "
+                 "touches' entry is an edge touch while a real swipe writes nine to twenty-three. "
+                 "The SpringBoard entries name the recognizer: DeckGrabberTongue (app switcher), "
                  "ControlCenterGrabberTongue, CoverSheetGrabberTongue and "
-                 "SBCoverSheetSystemGesturesDelegate; only the backboardd entry appeared on the "
-                 "iOS 12.4 image. The entries record that a gesture recognizer began, not that the "
+                 "SBCoverSheetSystemGesturesDelegate. The entries record that a gesture recognizer "
+                 "began, not that the "
                  "gesture completed. "
                  "Trace ID held no value on any row of the tested images: rows read from tracev3 data leave it empty, and only a 'log show' JSON export fills it.",
         "paths": None,
@@ -1011,8 +1079,8 @@ __artifacts_v2__ = {
     },
     "logarchive_usb_host": {
         "name": "logarchive USB host connections",
-        "description": "Unified log entries separating a USB connection to a computer from a power "
-                       "source: the kernel AppleUSBCableType, UserEventAgent connectType changes, and "
+        "description": "Unified log entries about the USB connection type: the kernel "
+                       "AppleUSBCableType, UserEventAgent connectType changes, and "
                        "lockdownd host session entries",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-10-03",
@@ -1020,12 +1088,15 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms from Tim Korver, 'Apple Unified Log search term and process "
-                 "cheatsheet' (thesisfriday.com/alr, measured there on iOS 12.5.7, 18.2.1, 26.0 "
-                 "and 26.6.1), which reads AppleUSBCableType USBHost as a cable to a computer "
-                 "(absent with a power source), connectType 1 as a power source and 2 as a "
-                 "computer, and the lockdownd usb_host_connected and bump_connection_count entries "
-                 "as the host session rather than the cable. connectType 5 (one entry on iOS "
-                 "18.3.2) is not described there and is reported as stored. The lockdownd entries "
+                 "cheatsheet', recorded as measured on iOS 12.5.7, 18.2.1, 26.0 and 26.6.1. The "
+                 "address recorded for it, thesisfriday.com/alr, did not serve the cheatsheet when "
+                 "fetched on 2026-10-03, so the statements attributed to it in these notes could "
+                 "not be checked. It is cited as reading AppleUSBCableType USBHost as a cable to a "
+                 "computer (absent with a power source), connectType 1 as a power source and 2 as "
+                 "a computer, and the lockdownd usb_host_connected and bump_connection_count "
+                 "entries as the host session rather than the cable. connectType 5, seen on the "
+                 "iOS 18.3.2 image, is not among the values attributed to the cheatsheet and is "
+                 "reported as stored. The lockdownd entries "
                  "appeared on iOS 12.4 and 17.2.1 only, and none of the families appeared on the "
                  "iOS 26.5.2 image. A computer connection is also what an examiner's acquisition "
                  "produces. Pair with the USB and power connections artifact for cable attach and "

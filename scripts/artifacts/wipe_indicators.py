@@ -2,9 +2,10 @@ __artifacts_v2__ = {
     "wipe_indicators": {
         "name": "Wipe Indicators",
         "description": "Reports the last-modified time of /root/.obliterated and "
-                       "/root/.bootstrapped; the cited reference describes .obliterated as "
-                       "created on the first boot after a wipe, and .bootstrapped is not covered "
-                       "by it",
+                       "/root/.bootstrapped as extracted; the cited reference describes "
+                       ".obliterated as a zero-byte file created by the device upon booting after "
+                       "a wipe and reads its creation time, which this artifact does not report, "
+                       "and .bootstrapped is not covered by it",
         "author": "@JohnHyla",
         "creation_date": "2026-08-06",
         "version": "0.0.3",

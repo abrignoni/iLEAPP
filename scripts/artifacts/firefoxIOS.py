@@ -8,17 +8,21 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Firefox",
-        "notes": "One row per recorded visit. Firefox for iOS keeps its history in places.db, "
-                 "a store with the Mozilla schema but not the same timestamp unit as the "
-                 "desktop browser: the visit time is Unix milliseconds here, not the "
-                 "microseconds desktop Firefox uses, so it is read as milliseconds. A visit "
-                 "is joined to its page for the address and title. Visit Type is the value "
-                 "the row carries, reported as stored, and Local Visit Count and Remote "
-                 "Visit Count are the two counts the page record keeps, reported as stored. On "
-                 "the "
-                 "tested device Is Local Visit was set on every visit and no page carried a "
-                 "description, so those two columns were uniform there. Field "
-                 "mapping was done against a private sample provided by Mattia; no sample "
+        "notes": "One row per recorded visit. Firefox for iOS keeps its history in places.db, a "
+                 "store with the Mozilla schema. The visit time is read as Unix milliseconds here, "
+                 "not the microseconds desktop Firefox uses; that reading comes from the private "
+                 "sample named below and no source for the unit is cited. A visit is joined to its "
+                 "page for the address and title. Visit Type is the value the row carries, reported "
+                 "as stored, and Local Visit Count and Remote Visit Count are the two counts the "
+                 "page record keeps, reported as stored. On the tested device Is Local Visit was "
+                 "set on every visit and no page carried a description, so those two columns were "
+                 "uniform there. Rows are reported whatever the flag holds. Mozilla's schema "
+                 "comment on is_local says the flag is true for visits added locally and false for "
+                 "visits added by sync; no row with the flag unset was present in the tested "
+                 "sample, so that case was not observed here. Reference: Mozilla, "
+                 "application-services, components/places/sql/create_shared_schema.sql, "
+                 "https://github.com/mozilla/application-services/blob/9c693c5fde7a2a1777fe0f38ec06b29e2eff2ff5/components/places/sql/create_shared_schema.sql#L76. "
+                 "Field mapping was done against a private sample provided by Mattia; no sample "
                  "data is recorded for it.",
         "paths": ('*/profile.profile/places.db*',),
         "output_types": ["html", "tsv", "timeline", "lava"],
@@ -33,13 +37,18 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Firefox",
-        "notes": "One row per bookmark that names an address. The store also holds the "
-                 "folders that organise bookmarks, which carry no address and are not "
-                 "reported as bookmarks; the folder a bookmark sits in is reported beside it. "
-                 "Date Added and Last Modified are Unix milliseconds. On the tested device "
-                 "the store held the standard root folders and one saved page. Field mapping "
-                 "was done against a private sample provided by Mattia; no sample data is "
-                 "recorded for it.",
+        "notes": "One row per bookmark that names an address. The store also holds the folders that "
+                 "organise bookmarks, which carry no address and are not reported as bookmarks; the "
+                 "folder a bookmark sits in is reported beside it. Date Added and Last Modified are "
+                 "read as Unix milliseconds. Mozilla's schema states that unit for the creation "
+                 "date of synced bookmark items in the same store and gives none on these two "
+                 "columns (Reference: Mozilla, application-services, "
+                 "components/places/sql/create_shared_schema.sql, "
+                 "https://github.com/mozilla/application-services/blob/9c693c5fde7a2a1777fe0f38ec06b29e2eff2ff5/components/places/sql/create_shared_schema.sql#L199-L200). "
+                 "Title is the bookmark's own title, or the page's title when the bookmark has "
+                 "none. On the tested device the store held the standard root folders and one saved "
+                 "page. Field mapping was done against a private sample provided by Mattia; no "
+                 "sample data is recorded for it.",
         "paths": ('*/profile.profile/places.db*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "bookmark"

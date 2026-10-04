@@ -1,9 +1,10 @@
 __artifacts_v2__ = {
     "get_discordAcct": {
         "name": "Discord - Account",
-        "description": "The Discord accounts signed in on the device, with the user name, "
-                       "discriminator, email address, verification and two-factor state the "
-                       "app cached for each, and the profile text stored for the account.",
+        "description": "The Discord accounts recorded in the app's MMKV store, with the "
+                       "user name, discriminator, email address, verification and "
+                       "two-factor state the app cached for each, and the legacy user name "
+                       "and profile fetch time where the store holds them.",
         "author": "@abrignoni, Claude",
         "creation_date": "2020-09-15",
         "last_update_date": "2026-09-04",
@@ -12,12 +13,19 @@ __artifacts_v2__ = {
         "notes": "Read from the app's MMKV store (Documents/mmkv/mmkv.default) with the vendored "
                  "mmkv_parser, replacing a printable-strings scrape that reported two keys. The "
                  "path pattern matches every app's mmkv.default because an iOS data container is "
-                 "named by a GUID, so a store is read only when it carries Discord's own keys "
-                 "(user_id_cache, MultiAccountStore or UserStore-snapshot) and is skipped "
-                 "otherwise. One row per account in MultiAccountStore, joined to the fuller "
-                 "record in UserStore-snapshot and "
-                 "UserProfileStore-snapshot where the same id appears; an account present only in "
-                 "the older user_id_cache and email_cache keys is still reported from those. "
+                 "named by a GUID, so a store is read only when it holds a key named "
+                 "user_id_cache, MultiAccountStore or UserStore-snapshot and is skipped "
+                 "otherwise. One row per user id found in MultiAccountStore, UserStore-snapshot, "
+                 "UserProfileStore-snapshot or the older user_id_cache key; records that share an "
+                 "id are merged into one row, and the email_cache value is used for the "
+                 "user_id_cache id where no other record gives an email. The code does not "
+                 "require a snapshot id to be listed in MultiAccountStore, so a row is a user "
+                 "record the store holds and is not by itself proof that the id is an account on "
+                 "the device. On dexter_ios18, felix_ios17, falken_ios26, hc_ios18_7, hc_ios26 "
+                 "and iphone11_ios17 each store held 1 id and no id was held only in a snapshot "
+                 "key. On hickman_ios13 and hickman_ios14 the 1 row came from user_id_cache "
+                 "alone. The branch that adds a row for a snapshot-only id ran on none of those 8 "
+                 "corpora. "
                  "Token Status is reported as stored. The account's authentication tokens and "
                  "push tokens are in the same store and are not reported. Email is what the app "
                  "cached, not a verified identifier. Profile Fetched At and Legacy Username come "
@@ -47,8 +55,9 @@ __artifacts_v2__ = {
     },
     "discordDevice": {
         "name": "Discord - Device and Sessions",
-        "description": "The device and app identity Discord recorded, when the app was first run "
-                       "and last synced, the most recent session, and the voice region recorded "
+        "description": "The device and app identity Discord recorded, the times stored under its "
+                       "first-run, last-sync and latest-session keys, and the voice region "
+                       "recorded "
                        "in RTCRegionStore.",
         "author": "@abrignoni, Claude",
         "creation_date": "2026-09-03",
@@ -57,11 +66,18 @@ __artifacts_v2__ = {
         "category": "Discord",
         "notes": "Read from the app's MMKV store. One row per store. First Run is the "
                  "first_run_date_key value and First Use the firstUse value of "
-                 "RequestReviewStore, both Unix milliseconds. Last Sync, Session Started and Last "
-                 "Heartbeat are the lastSyncTime, LATEST_SESSION_INITIALIZED_TIMESTAMP and the "
-                 "newest of the LATEST_SESSION_TIMESTAMP and LATEST_HEARTBEAST_TIMESTAMP values; "
-                 "the store is append-only so the heartbeat key can carry dozens of superseded "
-                 "writes, and the count of those writes is reported as Heartbeat Writes; Session "
+                 "RequestReviewStore, both Unix milliseconds. Last Sync is lastSyncTime. Session "
+                 "Started is LATEST_SESSION_INITIALIZED_TIMESTAMP, or "
+                 "LATEST_HEARTBEAST_INITIALIZED_TIMESTAMP where the first is absent or empty, and "
+                 "Session UUID is LATEST_SESSION_UUID or LATEST_HEARTBEAST_UUID in the same way. "
+                 "Last Heartbeat is the newest of the LATEST_SESSION_TIMESTAMP and "
+                 "LATEST_HEARTBEAST_TIMESTAMP values. MMKV appends each write and does a full "
+                 "rewrite from its current keys when a write does not fit, so the heartbeat keys "
+                 "can carry many superseded writes; Heartbeat Writes is the number of writes of "
+                 "LATEST_HEARTBEAST_TIMESTAMP and LATEST_SESSION_TIMESTAMP still in the file, not "
+                 "a count of heartbeats. Reference: Tencent MMKV, Core/MMKV_IO.cpp at tag v1.3.9, "
+                 "https://github.com/Tencent/MMKV/blob/v1.3.9/Core/MMKV_IO.cpp#L393-L411 (the "
+                 "MMKV version this app ships was not checked). Session "
                  "UUID, Session Started and Last Heartbeat are present only where the app wrote "
                  "those keys (two of the eleven tested extractions that held a Discord store). "
                  "Device fields come from the deviceProperties JSON as stored: OS, client, device "
@@ -129,17 +145,23 @@ __artifacts_v2__ = {
     },
     "discordDrafts": {
         "name": "Discord - Message Drafts",
-        "description": "Draft text the app saved for a channel's message box, with the time of "
-                       "each save, including superseded saves.",
+        "description": "Draft text the app saved for a channel's message box, with the "
+                       "timestamp stored beside each, including superseded saves.",
         "author": "@abrignoni, Claude",
         "creation_date": "2026-09-03",
         "last_update_date": "2026-09-04",
         "requirements": "none",
         "category": "Discord",
-        "notes": "Read from every write of the DraftStore key in the app's MMKV store, not only "
-                 "the current one: the store is append-only, so each save of the draft box is a "
-                 "separate entry, and one tested extraction held 120 rows in which the draft text "
-                 "grew by a few characters from one save to the next. Each write's _state maps an "
+        "notes": "Read from every write of the DraftStore key still present in the app's MMKV "
+                 "store, not only the current one. MMKV appends each write and does a full "
+                 "rewrite from its current keys when a write does not fit, so each save still in "
+                 "the file is a separate entry and earlier saves can be absent. Reference: "
+                 "Tencent MMKV, Core/MMKV_IO.cpp at tag v1.3.9, "
+                 "https://github.com/Tencent/MMKV/blob/v1.3.9/Core/MMKV_IO.cpp#L393-L411 (the "
+                 "MMKV version this app ships was not checked). One tested extraction "
+                 "(magnet_ios16) held 120 rows in which the draft text grew by a few characters "
+                 "from one save to the next. Saved At is the timestamp value stored beside the "
+                 "draft text; what it marks is not established. Each write's _state maps an "
                  "account id to a channel id to a draft type to a timestamp and the draft text; "
                  "one row per (write, account, channel, type). Superseded Write is True for every "
                  "entry except the newest, and Write Index is that entry's position in the store. "
@@ -168,16 +190,22 @@ __artifacts_v2__ = {
     },
     "discordSelected": {
         "name": "Discord - Selected Guilds and Channels",
-        "description": "The guilds and channels the app recorded as selected, with the time each "
-                       "guild was last selected and the last voice connection time, including "
+        "description": "The guilds and channels the app recorded as selected, with the "
+                       "selectedGuildTimestampMillis time stored for each guild and the store's "
+                       "lastConnectedTime, including "
                        "superseded values.",
         "author": "@abrignoni, Claude",
         "creation_date": "2026-09-03",
         "last_update_date": "2026-09-03",
         "requirements": "none",
         "category": "Discord",
-        "notes": "Read from every write of SelectedGuildStore and SelectedChannelStore in the "
-                 "app's MMKV store. From SelectedGuildStore, one row per guild in "
+        "notes": "Read from every write of SelectedGuildStore and SelectedChannelStore still "
+                 "present in the app's MMKV store. MMKV appends each write and does a full "
+                 "rewrite from its current keys when a write does not fit, so earlier writes "
+                 "can be absent. Reference: Tencent MMKV, Core/MMKV_IO.cpp at tag v1.3.9, "
+                 "https://github.com/Tencent/MMKV/blob/v1.3.9/Core/MMKV_IO.cpp#L393-L411 (the "
+                 "MMKV version this app ships was not checked). From SelectedGuildStore, one "
+                 "row per guild in "
                  "selectedGuildTimestampMillis, with lastSelectedGuildId flagged. From "
                  "SelectedChannelStore, one row per guild-to-channel pair in selectedChannelIds "
                  "and mostRecentSelectedTextChannelIds, plus the top-level selectedChannelId, "

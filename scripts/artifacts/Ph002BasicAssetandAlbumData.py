@@ -1,12 +1,13 @@
 __artifacts_v2__ = {
 'Ph002_1AssetBasicGenAlbumDataPhDaPsql': {
 'name': 'Ph002.1-Asset Basic Data & GenAlbum Data-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for basic asset and album data.'
-' The results may contain multiple records per ZASSET table Z_PK value and supports iOS.'
-' Use 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
-' Use 1505-Shared-Album-1505 in the search box to view Shared Albums Assets.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
-' Shared with You Conversation Identifiers Assets.'
+'description': 'Parses asset rows and their album membership from PhotoData/Photos.sqlite (ZASSET, or'
+' ZGENERICASSET on iOS 11 to 13). The code has branches for iOS 11 through 26; the iOS 26 branch'
+' has no recorded sample. An asset in more than one album appears on more than one row. Use'
+' 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets. Use'
+' 1505-Shared-Album-1505 in the search box to view Shared Albums Assets. Use'
+' 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You Conversation'
+' Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -15,7 +16,15 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value, except the has_Plist and'
+' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
+' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
+' 10 name a manual save or a user deletion. The store records the state value. It does not record'
+" who changed it. The header 'zCldMast-Import Session ID- AirDrop-StillTesting' reports"
+' ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and AirDrop is not established in this'
+" module. The header 'zAsset-UUID = store.cloudphotodb' reports the asset table's ZUUID. The match"
+' with store.cloudphotodb that the header names is not established in this module.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -39,13 +48,12 @@ __artifacts_v2__ = {
 },
 'Ph002_2AssetBasicConversationDataSyndPL': {
 'name': 'Ph002.2-Asset Basic Data & Convers Data-SyndPL',
-'description': 'Parses basic asset row data from -Syndication.photoslibrary-database-Photos.sqlite'
-' for basic asset and album data. The results may contain multiple records'
-' per ZASSET table Z_PK value and supports iOS.'
-' Use -Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
-' Use 1505-Shared-Album-1505 in the search box to view Shared Albums Assets.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
-' Shared with You Conversation Identifiers Assets.'
+'description': 'Parses basic asset row data from -Syndication.photoslibrary-database-Photos.sqlite for basic'
+' asset and album data. The results may contain multiple records per ZASSET table Z_PK value and'
+' supports iOS. Use 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets. Use'
+' 1505-Shared-Album-1505 in the search box to view Shared Albums Assets. Use'
+' 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You Conversation'
+' Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -54,7 +62,15 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value, except the has_Plist and'
+' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
+' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
+' 10 name a manual save or a user deletion. The store records the state value. It does not record'
+" who changed it. The header 'zCldMast-Import Session ID- AirDrop-StillTesting' reports"
+' ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and AirDrop is not established in this'
+" module. The header 'zAsset-UUID = store.cloudphotodb' reports the asset table's ZUUID. The match"
+' with store.cloudphotodb that the header names is not established in this module.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "photo",
@@ -75,12 +91,12 @@ __artifacts_v2__ = {
 },
 'Ph002_3AssetBasicGenAlbumGenPlayPsql': {
 'name': 'Ph002.3-Asset Basic Data & GenAlbum Data-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for basic asset and album data.'
-' The results may contain multiple records per ZASSET table Z_PK value and supports iOS.'
-' Use 2-Non-Shared-Album-2 in the search box to view Non-Shared Albums Assets.'
-' Use 1505-Shared-Album-1505 in the search box to view Shared Albums Assets.'
-' Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view'
-' Shared with You Conversation Identifiers Assets.'
+'description': 'Parses asset rows and their album membership from the Photos.sqlite of the'
+' com.apple.GenerativePlayground photo library on iOS 18 through 26. An asset in more than one'
+' album appears on more than one row. Use 2-Non-Shared-Album-2 in the search box to view'
+' Non-Shared Albums Assets. Use 1505-Shared-Album-1505 in the search box to view Shared Albums'
+' Assets. Use 1509-SWY_Synced_Conversation_Media-1509 in the search box to view Shared with You'
+' Conversation Identifiers Assets.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -89,7 +105,15 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value, except the has_Plist and'
+' Empty-NULL labels, which only show whether the field holds a value. Labels marked StillTesting,'
+' Still_Testing or STILLTESTING are unconfirmed. The Syndication State labels for values 2, 8 and'
+' 10 name a manual save or a user deletion. The store records the state value. It does not record'
+" who changed it. The header 'zCldMast-Import Session ID- AirDrop-StillTesting' reports"
+' ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and AirDrop is not established in this'
+" module. The header 'zAsset-UUID = store.cloudphotodb' reports the asset table's ZUUID. The match"
+' with store.cloudphotodb that the header names is not established in this module.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "player-play",

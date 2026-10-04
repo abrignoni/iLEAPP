@@ -1,19 +1,26 @@
 __artifacts_v2__ = {
     'locationdWifiLocations': {
         'name': 'Locationd Cache - Wi-Fi Locations',
-        'description': 'Access point positions cached by locationd, keyed by BSSID',
+        'description': "Rows of locationd's WifiLocation cache table, with the BSSID and "
+                       'coordinates each row stores',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ("These are access point positions as the cache stores them. A row is the "
-                  "position of the access point, not of the device, and does not mean the device "
-                  "connected to it. Horizontal Accuracy is reported as stored. Speed and course "
-                  "values of -1 are reported as stored and are not converted; their meaning is "
-                  "not documented. AlsQueryTimestamp was present on the iOS 26 tested image; "
-                  "what distinguishes it "
-                  'from Timestamp is not documented, so both are reported as stored.'),
+        'notes': ("Each row pairs a BSSID with coordinates in the WifiLocation table; the table "
+                  "and column names are the only labels used here. Apple states that Location "
+                  "Services uses crowd-sourced Wi-Fi hotspot locations (Reference: Apple, "
+                  "'Location Services & Privacy', "
+                  "https://www.apple.com/legal/privacy/data/en/location-services/); that page "
+                  "does not name this table. A row does not show that the device was at those "
+                  "coordinates or connected to that access point. Horizontal Accuracy is reported "
+                  "as stored. Speed and course values of -1 are reported as stored and are not "
+                  "converted; their meaning is not documented. AlsQueryTimestamp was present on "
+                  "the iOS 26 tested image; what distinguishes it from Timestamp is not "
+                  "documented, so both are converted the same way (seconds since 2001, shown in "
+                  "UTC, with a stored value of 0 or less left blank) and neither is given a "
+                  "meaning here."),
         'paths': ('*/root/Library/Caches/locationd/cache_encryptedB.db*',),
         'output_types': 'all',
         'artifact_icon': 'wifi',
@@ -33,11 +40,14 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ('Unlike the Wi-Fi Locations table, these rows record access points the '
-                  'device associated with, per the name of the source table. Whether the '
-                  'coordinates are the position of the device at that time or of the access '
-                  'point is not documented. Two timestamps are kept: the '
-                  "scan and the harvest record. A scan timestamp of -1 is reported empty rather "
+        'notes': ('The source table is named WifiAssociatedApWifiHarvestTable. The name points to '
+                  'access points the device associated with, but what causes a row to be written '
+                  'is not established here, so a row is not by itself proof of a connection. '
+                  'Whether the coordinates are the position of the device at that time or of the '
+                  'access point is not documented. Two timestamps are kept, Timestamp and '
+                  'ScanTimestamp; what each marks is not established here. Both are read as '
+                  'seconds since 2001 in UTC, and a value of 0 or less in either is left blank. A '
+                  'scan timestamp of -1 is reported empty rather '
                   "than converted to a real looking date in 2000; what the value means is not "
                   "documented. The LoiType column is an integer code whose values "
                   'are not documented.'),
@@ -53,17 +63,27 @@ __artifacts_v2__ = {
     },
     'locationdCellLocations': {
         'name': 'Locationd Cache - Cell Locations',
-        'description': 'Cell tower positions cached by locationd across the GSM, UMTS, LTE, '
-                       '5G NR, CDMA and TD-SCDMA tables',
+        'description': "Cell identifiers and coordinates stored in locationd's cell location "
+                       'cache, across the eight cell tables this parser reads (CellLocation, '
+                       'LteCellLocation, NrCellLocation, ScdmaCellLocation, CdmaCellLocation and '
+                       'the Local variants of three of them)',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ("As with the Wi-Fi table, a row is a cell position as the cache stores it, not "
-                  "a device position; Horizontal Accuracy is reported as stored. The Radio "
-                  "column names the table a row came "
-                  'from. Tables whose name ends in Local are reported separately because the '
+        'notes': ("As with the Wi-Fi table, a row pairs cell identifiers with coordinates as the "
+                  "cache stores them; the table and column names are the only labels used here. "
+                  "Apple states that Location Services uses crowd-sourced cell tower locations "
+                  "(Reference: Apple, 'Location Services & Privacy', "
+                  "https://www.apple.com/legal/privacy/data/en/location-services/); that page does "
+                  "not name these tables. A row does not show that the device was at those "
+                  "coordinates. Horizontal Accuracy is reported as stored. The Radio column is a "
+                  "label this parser assigns from the source table's name: CellLocation is shown "
+                  "as GSM/UMTS, LteCellLocation as LTE, NrCellLocation as 5G NR, ScdmaCellLocation "
+                  "as TD-SCDMA and CdmaCellLocation as CDMA, with (Local) added for the tables "
+                  "whose name ends in Local. Tables whose name ends in Local are reported "
+                  "separately because the "
                   'difference from their counterparts is not documented. Rows are folded into '
                   'shared columns, so Area Code holds LAC or TAC depending on the radio, and '
                   'identifiers specific to CDMA are kept in Additional Identifiers.'),
@@ -81,17 +101,20 @@ __artifacts_v2__ = {
     'locationdWifiTiles': {
         'name': 'Locationd Cache - Wi-Fi Tiles',
         'description': 'Map tiles of Wi-Fi location data held by locationd, with the area each '
-                       'covers and when it was generated and last accessed',
+                       'covers and its generation and access timestamps',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-29',
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Locations',
-        'notes': ("A tile row shows that the device held Wi-Fi location data covering an area, "
-                  "with the generated and last-accessed timestamps as stored. The reported "
-                  "latitude and longitude are the "
-                  'southwest corner; the delta columns give the size of the covered box, so '
-                  'the coordinates are a corner rather than a centre.'),
+        'notes': ("Each row is a row of the WifiTileHeader table; the column names are the only "
+                  "labels used here. Access Timestamp and Generation Timestamp are the "
+                  "AccessTimestamp and GenerationTimestamp columns read as seconds since 2001 in "
+                  "UTC, with a value of 0 or less left blank; what each marks is not established "
+                  "here. The reported latitude and longitude are the SouthwestLatitude and "
+                  "SouthwestLongitude columns, so by name the coordinates are a corner rather "
+                  "than a centre; Delta Latitude and Delta Longitude are reported as stored and "
+                  "by name give the extent from that corner."),
         'paths': ('*/root/Library/Caches/locationd/cache_encryptedB.db*',),
         'output_types': 'all',
         'artifact_icon': 'grid-dots',

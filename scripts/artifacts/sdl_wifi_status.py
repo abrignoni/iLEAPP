@@ -8,18 +8,23 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Sysdiagnose - Network",
         "notes": (
-            "Diagnostic text file generated inside an iOS sysdiagnose dump. It provides a snapshot of "
-            "the device's Wi-Fi state when the Sysdiagnose was triggered. "
+            "Diagnostic text file generated inside an iOS sysdiagnose dump. It holds key and value "
+            "lines about the device's Wi-Fi state. "
             "Key information found inside includes Wi-Fi MAC address (and sometimes the hardware MAC address), "
-            "BSSID (Basic Service Set Identifier) (the MAC address of the wireless access point or router the device was connected to when the file was written), "
+            "BSSID (Basic Service Set Identifier) (the BSSID value the file lists; what state of "
+            "connection it reflects is not established here), "
             "SSID (Service Set Identifier) (of the access point or router), "
             "connection state details regarding link status, current channel, and signal metrics (RSSI) if active. "
-            "SSID and BSSID are not always present: on the tested sysdiagnoses they held values on iOS 13, 14 and 16, "
-            "read None on iOS 17.3 and <redacted> on iOS 26. "
-            "Sysdiagnose Timestamp is read from the sysdiagnose folder name, which records the device's UTC offset, "
-            "and is converted to UTC. On the six tested sysdiagnoses still in their original tar archives, "
+            "SSID and BSSID are not always present: on test data they held values on some "
+            "sysdiagnoses and read None or <redacted> on others. "
+            "Sysdiagnose Timestamp is read from the first sysdiagnose_<date>_<time> name in the "
+            "file's path. Where the name records a UTC offset it is converted to UTC; where it does "
+            "not, the time is shown as written and its zone is not established. Where the name does "
+            "not parse, the text is shown with (Raw) appended. On the six tested sysdiagnoses still "
+            "in their original tar archives, "
             "the archive records wifi_status.txt as written 24 to 41 seconds after that time. "
-            "magnet_ios16 carries only an unfinished (IN_PROGRESS) sysdiagnose, which is not read."
+            "magnet_ios16 carries only an unfinished (IN_PROGRESS) sysdiagnose folder, which "
+            "produced no rows."
         ),
         "paths": (
             '*/WiFi/wifi_status.txt',

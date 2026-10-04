@@ -1,17 +1,24 @@
 __artifacts_v2__ = {
     "biomeIntelligenceEntities": {
         "name": "Biome DB - Intelligence Platform Entities",
-        "description": "Knowledge-graph entity records (contacts, apps, identifiers and their attributes) compiled "
-                       "by Apple in the IntelligencePlatform.Entity Biome database.",
+        "description": "Subject, predicate and object rows from the EntityCentricSubgraph table "
+                       "of the IntelligencePlatform.Entity Biome database, reported as stored.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
         "last_update_date": "2026-07-11",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
-                 "iOS 18 stores subject/predicate/object triples in EntityCentricSubgraph (predicate codes are "
-                 "undocumented; objects carry names, bundle IDs, phone numbers and record identifiers). Newer iOS "
-                 "versions use per-entity tables (Person, Location, FlightReservations) not yet present in test data.",
+        "notes": "The database is described, for iOS 26.5, in North Loop Consulting, 'Apple Did "
+                 "Your Homework: Pre-Analyzed Data in Biome Databases', "
+                 "https://northloopconsulting.com/blog/f/ready-sets-go. That article does not "
+                 "cover the EntityCentricSubgraph table read here. On the three tested iOS 18 "
+                 "images the database holds an EntityCentricSubgraph table of subject, predicate "
+                 "and object values. The predicate codes are undocumented and are reported as "
+                 "stored; the objects seen included names, bundle IDs, phone numbers and record "
+                 "identifiers. The cited research describes per-entity tables (Person, Location, "
+                 "FlightReservations and others) on iOS 26.5. This artifact does not read those "
+                 "tables and reports no rows when EntityCentricSubgraph is absent. Only the first "
+                 "matching database file is read.",
         "paths": ('*/Biome/databases/IntelligencePlatform.Entity/IntelligencePlatform.Entity.sqlite3*',),
         "output_types": "standard",
         "artifact_icon": "database",

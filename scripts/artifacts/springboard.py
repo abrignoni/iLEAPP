@@ -8,8 +8,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
-        "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in their on-screen "
-                 "flow order. See 'iOS Home Screen Layout - Visual' for a rendered image of each screen.",
+        "notes": "Parsed from SpringBoard/IconState.plist. Items are listed in the order the plist "
+                 "stores them; that this is the order on screen was not checked against a device. Only "
+                 "the first IconState.plist found is read. Entries that are not an app identifier, a "
+                 "folder or a sized widget entry are not reported. See 'iOS Home Screen Layout - "
+                 "Visual' for a rendered image of each screen.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "layout-grid",
@@ -33,14 +36,16 @@ __artifacts_v2__ = {
     },
     "icons_screen_visual": {
         "name": "iOS Home Screen Layout - Visual",
-        "description": "Rendered image of each home screen page (apps, folders, widgets, dock)",
+        "description": "Diagram of each home screen page the tool draws (apps, folders, widgets, dock)",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
         "notes": "A PNG is rendered per screen page from SpringBoard/IconState.plist as a visual "
-                 "reference. The 'iOS Home Screen Layout' artifact holds the same data in queryable form.",
+                 "reference. It is not a picture of the screen: items are laid out four to a row, at "
+                 "most four items of a folder or stack are shown and long names are cut. The 'iOS Home "
+                 "Screen Layout' artifact holds the full list.",
         "paths": ('**/SpringBoard/IconState.plist',),
         "output_types": ["html","lava","tsv"],
         "artifact_icon": "layout-grid",
@@ -64,13 +69,16 @@ __artifacts_v2__ = {
     },
     "springboard_wallpaper": {
         "name": "SpringBoard Wallpaper",
-        "description": "Legacy wallpaper files and thumbnails stored by SpringBoard",
+        "description": "Wallpaper and thumbnail files named *Background* under the SpringBoard folder",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
-        "notes": "Legacy cpbitmap wallpaper files are converted to PNG when possible. Image-backed "
+        "notes": "Wallpaper files in the cpbitmap format are converted to PNG when possible. A "
+                 "cpbitmap file is converted with the first row alignment that fits its size; the "
+                 "Status column names the alignment used. Variant is derived by this module from "
+                 "the words lock, home, original, thumbnail and dark in the file name. Image-backed "
                  "wallpapers and thumbnails are checked into the media report as PNG when conversion "
                  "is needed.",
         "paths": (
@@ -92,14 +100,17 @@ __artifacts_v2__ = {
     },
     "posterboard_wallpaper": {
         "name": "PosterBoard Wallpaper",
-        "description": "PosterBoard output.layerStack image layer files",
+        "description": "Image files in folders named output.layerStack",
         "author": "@JamesHabben",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "iOS Screens",
-        "notes": "PosterBoard output.layerStack image files are reported. HEIC/HEIF image layers "
-                 "are converted to PNG for reporting.",
+        "notes": "Image files in folders named output.layerStack are reported. The paths match "
+                 "any folder of that name and do not check that it sits in a PosterBoard "
+                 "container. HEIC/HEIF image layers "
+                 "are converted to PNG for reporting. No run against a registered image is "
+                 "recorded for this artifact.",
         "paths": (
             '**/output.layerStack/*.heic',
             '**/output.layerStack/*.jpg',

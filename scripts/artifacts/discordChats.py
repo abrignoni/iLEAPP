@@ -7,7 +7,19 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Discord",
-        "notes": "Reference: Discord Developer Documentation, 'Message Resource', https://docs.discord.com/developers/resources/message",
+        "notes": "Direction is Sent when the message author id equals the account id taken from "
+                 "the kv-storage/@account.<id> path in the same app container, and Received "
+                 "otherwise. Where the container holds no such path the account id is unknown, the "
+                 "Account ID column is blank and every row reads Received, so Direction is not "
+                 "established for those rows. That was the case for all 10 rows on hickman_ios13 "
+                 "and all 50 rows on hickman_ios14; 6 and 29 of those rows carry the user id the "
+                 "Discord - Account artifact reports for the same image. On iphone11_ios17 (334 "
+                 "rows) and dexter_ios18 (127 rows) every row has an Account ID. A message with "
+                 "several attachments gives one row per attachment, and records with no timestamp "
+                 "are not reported. Message Type shows Message, Call, User Joined and Reply for "
+                 "type values 0, 3, 7 and 19; other values are shown as stored. Reference for the "
+                 "four type values: Discord Developer Documentation, 'Message Resource', "
+                 "https://docs.discord.com/developers/resources/message",
         "paths": (
             "*/activation_record.plist",
             "*/com.hammerandchisel.discord/fsCachedData/*",

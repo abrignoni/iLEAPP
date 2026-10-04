@@ -1,13 +1,27 @@
 __artifacts_v2__ = {
     "mobileInstallb": {
         "name": "Mobile Installation Logs History",
-        "description": "App install/update/uninstall and reboot events from mobile_installation.log (iOS 17+)",
+        "description": "Selected mobile_installation.log lines (install start and success, patch "
+                       "update attempts, container lines, uninstall, container destruction and "
+                       "reboot), on images whose iOS version is 17 or later",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "
+                 "in tested corpora the values were consistent with device-local time. No "
+                 "measurement of that is recorded here, and the column heading Timestamp (Local) "
+                 "rests on it. Type is a label this artifact assigns from a phrase in the line; "
+                 "'Update' and 'Parallel Update' mark a line that says a patch update was "
+                 "attempted, which is not a completed update, and 'Install' marks an 'Installing' "
+                 "line, which is not a completed install. The Notice column holds the text of the "
+                 "line after its prefix. Lines are matched on fixed phrases: 'Install Successful "
+                 "for' is matched with a capital S only, so the lower-case spelling 'Install "
+                 "successful for' is not reported, and patch kinds other than Delta and Parallel "
+                 "are not matched. Nothing is reported when the image's iOS version reads as "
+                 "earlier than 17. Apps - Historical Combined reads the same logs without these "
+                 "limits.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "package",
@@ -37,7 +51,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Mobile Installation Logs",
-        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; in tested corpora the values were consistent with device-local time.",
+        "notes": "Timestamps are reported as written in the log, which carries no timezone marker; "
+                 "in tested corpora the values were consistent with device-local time. No "
+                 "measurement of that is recorded here, and the column heading Timestamp (Local) "
+                 "rests on it. Nothing is reported when the image's iOS version reads as earlier "
+                 "than 17.",
         "paths": ('*/mobile_installation.log.*',),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "refresh",

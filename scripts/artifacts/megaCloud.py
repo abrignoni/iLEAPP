@@ -29,38 +29,44 @@ __artifacts_v2__ = {
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L421), '
                  'Share Type decodes the ShareType_t bits the SDK writes from getShareType '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L434), '
-                 'Label is nodelabel_t '
+                 'Label (as stored) holds the name of the nodelabel_t value '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L456), '
                  'and In Rubbish, Is Version and Marked Sensitive are the three bits of '
                  'Node::Flags '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/node.h#L474). '
-                 'Values outside those vocabularies are reported as stored. Folder Path is '
-                 'built by walking each node\'s parenthandle to the root. The root, vault and '
-                 'rubbish nodes carry no name of their own, so a path starts at the first '
-                 'named folder below them; 3 rows per image have no path on that basis, and '
-                 'on every tested image those are exactly the rows whose Item Type is one of '
-                 'those three. Created and Modified are the ctime and mtime columns, which '
-                 'the SDK binds from the node\'s own ctime and mtime; the SDK documents both '
-                 'as seconds since the epoch '
+                 'Values outside those vocabularies are reported as stored. Folder Path is built '
+                 'by walking each node\'s parenthandle to the root. The root, vault and rubbish '
+                 'nodes carry no name of their own, so a path starts at the first named folder '
+                 'below them; 3 rows per image have no path on that basis, and on every tested '
+                 'image those are exactly the rows whose Item Type is one of those three. Created '
+                 'and Modified are the ctime and mtime columns, which the SDK binds from the '
+                 'node\'s own ctime and mtime. The SDK documents ctime as the creation time of the '
+                 'node in MEGA and mtime as the modification time of the file that was uploaded, '
+                 'valid for files only, both in seconds since the epoch '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/megaapi.h#L1333 '
                  'and '
                  'https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/megaapi.h#L1342). '
-                 'The stored schema differs between images that report the same cache version '
-                 'in their file name, so every column is resolved per file and a column the '
-                 'store lacks is reported blank. Measured on the tested images: Modified is '
-                 'blank on every row of hickman_ios15, whose store has no mtime column; the '
-                 'stores on hc_ios18_7 and hc_ios26 have no size column, so their Size is '
-                 'taken from the counter blob instead, which NodeCounter::serialize writes as '
-                 'files, folders, storage, versions and version storage '
+                 'The stored schema differs between images that report the same cache version in '
+                 'their file name, so every column is resolved per file. A label, description or '
+                 'tags column the store lacks is reported blank (the iphone11_ios17 store lacks '
+                 'all three and they are blank on its 1,301 rows). Favourite is the exception: the '
+                 'code prints No when the store has no fav column, so No on such a store is not a '
+                 'recorded value. Every store read on iphone11_ios17, hc_ios18_7 and hc_ios26 has '
+                 'the fav column and it holds 0 on every node. Measured on the tested images: '
+                 'Modified is blank on every row of hickman_ios15, whose store has no mtime '
+                 'column; the stores on hc_ios18_7 and hc_ios26 have no size column, so a file\'s '
+                 'Size is taken from the counter blob instead (Size is filled on 16 of 20 rows on '
+                 'each), which NodeCounter::serialize writes as files, folders, storage, versions '
+                 'and version storage '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/node.cpp#L4018); '
-                 'Label is filled on hc_ios18_7 and hc_ios26 and blank elsewhere; Description '
-                 'and Tags were empty on every row of every tested image, including the '
-                 'images whose store has those columns. Files in Folder, Folders in Folder '
-                 'and Folder Size come from that same counter blob on folder rows. Measured '
-                 'on every one of the 664 folder rows in the three stores read directly, '
-                 'Files in Folder equals the number of files below the folder, Folder Size '
-                 'equals the sum of their sizes, and Folders in Folder equals the number of '
-                 'folders below it plus the folder itself, with 664 agreeing and 0 differing. '
+                 'Label (as stored) is filled on hc_ios18_7 and hc_ios26 and blank elsewhere; '
+                 'Description and Tags were empty on every row of every tested image, including '
+                 'the images whose store has those columns. Files in Folder, Folders in Folder and '
+                 'Folder Size come from that same counter blob on folder rows. On the folder rows '
+                 'of the stores compared directly while this artifact was built, Files in Folder '
+                 'equalled the number of files below the folder, Folder Size equalled the sum of '
+                 'their sizes, and Folders in Folder equalled the number of folders below it plus '
+                 'the folder itself; the number of rows compared is not recorded in sample_data. '
                  'Share Type was LINK on 4 rows and NO_SHARES on the rest, Favourite was Yes '
                  'on 0 rows and none of the three flag columns was Yes on any row. The same '
                  'node cache is written to more than one container on a device, and the '
@@ -104,8 +110,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-11",
         "requirements": "none",
         "category": "MEGA",
-        "notes": 'One row per file staged from MEGA\'s thumbnailsV3, previewsV3 and originalV3 '
-                 'caches. thumbnailsV3 and previewsV3 name the file after the handle; '
+        "notes": 'One row per file found directly in thumbnailsV3 or previewsV3, or inside a '
+                 'handle folder under originalV3. thumbnailsV3 and previewsV3 name the file after '
+                 'the handle; '
                  'originalV3 uses a folder named for the handle and keeps the file\'s own name '
                  'inside it. 118 rows across the tested images: thumbnailsV3 71, previewsV3 '
                  '32, originalV3 15. 94 resolved to a node in the same extraction\'s node '
@@ -135,8 +142,9 @@ __artifacts_v2__ = {
     },
     "mega_recent_items": {
         "name": "MEGA - Recent and Favourite Items",
-        "description": 'Entries in the MEGA widget lists of recently used and favourite cloud '
-                       'items',
+        "description": 'Rows in the MEGA app\'s quick access widget tables for recent and '
+                       'favourite items (ZQUICKACCESSWIDGETRECENTITEM and '
+                       'ZQUICKACCESSWIDGETFAVOURITEITEM)',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-11",
         "last_update_date": "2026-09-11",
@@ -153,7 +161,8 @@ __artifacts_v2__ = {
                  'eight rows each. On those two the single value is later than the newest '
                  'date any row\'s own name carries, so what the value records is not '
                  'established and it must not be read as when that item was used. Is Update '
-                 'is reported as stored; its meaning is not established. Cached Copy is the '
+                 '(as stored) holds the stored value; its meaning is not established. Cached Copy '
+                 'is the '
                  'file MEGA kept for that node handle, matched on the handle; 12 of the 20 '
                  'rows carried one, and Cache Holding the Copy names which cache it came '
                  'from. Both are blank on every row of an image whose MEGA container has no '
@@ -176,8 +185,8 @@ __artifacts_v2__ = {
     },
     "mega_offline_files": {
         "name": "MEGA - Offline Files",
-        "description": 'Rows in the MEGA offline node table, each giving a node handle, a '
-                       'stored path and a recorded download time',
+        "description": 'Rows in the MEGA offline node table (ZOFFLINENODE), reported under '
+                       'readings of the column names that no tested row has exercised',
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-11",
         "last_update_date": "2026-09-11",
@@ -217,8 +226,8 @@ __artifacts_v2__ = {
         "notes": 'Read from the ZUSER table of MEGACD.sqlite, which is the app\'s own store '
                  'and separate from the contacts table in the karere chat database that the '
                  'MEGA - Contacts artifact reports. 12 rows across the tested images, with an '
-                 'email on 11 of them and a nickname on 0. Interacted With is reported as '
-                 'stored; its meaning is not established. Avatar is the file in MEGA\'s '
+                 'email on 11 of them and a nickname on 0. Interacted With (as stored) holds the '
+                 'stored value; its meaning is not established. Avatar is the file in MEGA\'s '
                  'thumbnailsV3 cache named after the user handle, which is 11 characters '
                  'where a node handle is 8; 7 of the 12 rows carried one. First Name and Last '
                  'Name hold one value across every row of fsfull002_ios17, which is what that '

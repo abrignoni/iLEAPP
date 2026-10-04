@@ -1,15 +1,20 @@
 __artifacts_v2__ = {
     "mobilebackupplist": {
         "name": "Mobile Backup Plist Settings com-apple-MobileBackup-plist",
-        "description": "Keys from */mobile/Library/Preferences/com.apple.MobileBackup.plist "
-                       "relating to device backup, restore from iCloud Backup and Quick Start "
-                       "data transfer, reported as stored",
+        "description": "Selected keys from the BackupStateInfo, RestoreInfo, DeviceTransferInfo "
+                       "and FSEventState sections of "
+                       "*/mobile/Library/Preferences/com.apple.MobileBackup.plist, reported as "
+                       "stored (dates as UTC text)",
         "author": "Other Unknown contributors and Scott Koenig",
         "creation_date": "2024-06-11",
         "last_update_date": "2026-07-22",
         "requirements": "Acquisition that contains com.apple.MobileBackup.plist",
         "category": "Mobile Backup Plist",
-        "notes": "",
+        "notes": "Only a fixed list of keys from the four sections is read. The Key column does "
+                 "not name the section a key came from. Date values are written as UTC text, "
+                 "binary values as hexadecimal and dictionary or list values as JSON text. Only "
+                 "the first matching plist in the extraction is read. What each section records is "
+                 "not sourced here.",
         "paths": ('*/Library/Preferences/com.apple.MobileBackup.plist',
                   '*/Preferences/com.apple.MobileBackup.plist'),
         "output_types": ["html","lava","tsv"],

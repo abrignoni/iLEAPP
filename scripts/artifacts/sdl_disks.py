@@ -11,9 +11,7 @@ __artifacts_v2__ = {
             "The file is a table headed Filesystem, Size, Used, Avail, Capacity, iused, ifree, "
             "%iused and Mounted on; each line that splits into exactly nine whitespace-separated "
             "fields is a row, values as stored, so a mount point containing a space would be "
-            "skipped (none on test data). The seven test sysdiagnoses (iOS 13.3.1 to 26) held 6 to "
-            "12 rows each, and the unpacked IN_PROGRESS sysdiagnose folder in the iOS 16.1.1 test "
-            "image 11."
+            "skipped (none on test data). Row counts per test image are in sample_data."
         ),
         "paths": (
             '*/disks.txt',

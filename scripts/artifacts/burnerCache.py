@@ -8,7 +8,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from server responses the app cached in Cache.db "
+                 "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
+                 "folder. Each cached response that matches adds its entries, with no "
+                 "de-duplication, so the same account can appear in more than one row and the row "
+                 "count is not a count of accounts. Reference: Django Faiola, 'iOS Burner - "
+                 "Cache.db', https://djangofaiola.blogspot.com/2024/03/ios-burner-cachedb.html, and "
+                 "'iOS Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
@@ -29,7 +36,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from server responses the app cached in Cache.db "
+                 "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
+                 "folder. Each cached response that matches adds its entries, with no "
+                 "de-duplication, so the same contact can appear in more than one row and the row "
+                 "count is not a count of contacts. Verified, Blocked and Muted read No when the "
+                 "response carries a false value or no value. Reference: Django Faiola, 'iOS Burner "
+                 "- Cache.db', https://djangofaiola.blogspot.com/2024/03/ios-burner-cachedb.html, "
+                 "and 'iOS Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
@@ -50,7 +65,19 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Burner Cache",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from server responses the app cached in Cache.db "
+                 "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
+                 "folder. Each cached response that matches adds its entries, with no "
+                 "de-duplication, so the same number can appear in more than one row and the row "
+                 "count is not a count of numbers. Notifications, Inbound caller ID, In-App calling "
+                 "(VoIP) and Auto-replay enabled labels are this module's reading of the response "
+                 "values and fall to Off, Burner Number, Standard Voice and No when the value is "
+                 "absent. Phone number is filled from the user ids the accounts artifact of this "
+                 "module collected and is blank when that artifact did not run earlier in the same "
+                 "session. Reference: Django Faiola, 'iOS Burner - Cache.db', "
+                 "https://djangofaiola.blogspot.com/2024/03/ios-burner-cachedb.html, and 'iOS "
+                 "Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],
         "html_columns": [ "Source file name", "Location" ],
@@ -71,7 +98,22 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Burner Cache",
-        "notes": "https://djangofaiola.blogspot.com",
+        "notes": "Rows are read from server responses the app cached in Cache.db "
+                 "(cfurl_cache_response and cfurl_cache_receiver_data) and in the fsCachedData "
+                 "folder. Each cached response that matches adds its entries, with no "
+                 "de-duplication, so the same message can appear in more than one row and the row "
+                 "count is not a count of messages. Sent is the response's dateCreated value read "
+                 "as Unix time and shown in UTC. Direction, Read, Message type and the call texts "
+                 "in the Message column are this module's reading of the response values, following "
+                 "the cited research. Read shows Not read when the value is false or absent. When "
+                 "the direction is not incoming, Sender is the burner number and Recipient the "
+                 "contact. Names beside numbers are filled from the other artifacts of this module; "
+                 "when those did not run earlier in the same session the contact shows the stored "
+                 "phone number and the burner number is blank. Reference: Django Faiola, 'iOS "
+                 "Burner - Cache.db', "
+                 "https://djangofaiola.blogspot.com/2024/03/ios-burner-cachedb.html, and 'iOS "
+                 "Burner - Update', "
+                 "https://djangofaiola.blogspot.com/2024/09/ios-burner-update.html",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/com.adhoclabs.burner/Cache.db*',
                   '*/Library/Caches/com.adhoclabs.burner/fsCachedData/*'),
         "output_types": [ "lava", "html", "tsv", "timeline" ],

@@ -1,15 +1,18 @@
 __artifacts_v2__ = {
     "what3words_saved_places": {
         "name": "what3words - Saved Places",
-        "description": "Places saved in what3words, with the three word address, the label given to it, the nearest place and the coordinates",
+        "description": "Rows of the what3words class_DataPlace table, with the three word "
+                       "address, label, nearest place and coordinates as stored",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "what3words",
-        "notes": "Read from the class_DataPlace table of the app's Realm store (Documents/default.realm) "
-                 "using the vendored realm_parser. The latitude and longitude are reported as "
-                 "the app stored them.",
+        "notes": "Read from the class_DataPlace table of the app's Realm store "
+                 "(Documents/default.realm) using the vendored realm_parser. Only the first "
+                 "matching default.realm in the extraction is read. Saved Time is the createdAt "
+                 "attribute. Shared shows No when isShared is false or not present. The latitude "
+                 "and longitude are reported as the app stored them.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "map-pin",
@@ -26,7 +29,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "what3words",
-        "notes": "Read from the class_DataSearchItem table of the app's Realm store.",
+        "notes": "Read from the class_DataSearchItem table of the app's Realm store. Only the "
+                 "first matching default.realm in the extraction is read. Search Time is the "
+                 "created attribute. Three Word Address is threeWordAddress, or the result "
+                 "attribute when that is empty.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "search",
@@ -44,7 +50,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-07",
         "requirements": "none",
         "category": "what3words",
-        "notes": "Read from the class_DataProfile table of the app's Realm store.",
+        "notes": "Read from the class_DataProfile table of the app's Realm store. Only the first "
+                 "matching default.realm in the extraction is read. Verified, Suspended and "
+                 "Search History Opt-out show No when the stored value is false or not present.",
         "paths": ('*/Documents/default.realm*',),
         "output_types": "standard",
         "artifact_icon": "user",

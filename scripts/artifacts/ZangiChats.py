@@ -2,13 +2,16 @@
 __artifacts_v2__ = {
     "get_zangichats": {
         "name": "Zangi Chats",
-        "description": "Parses Zangi Chat database",
+        "description": "Messages from the ZZANGIMESSAGE table of zangidb.sqlite, with the name and number of the row the message's ZFROM value points to. A message whose ZFROM matches no ZZNUMBER row is not listed. Direction is SENT when ZISRECEIVED is 0 and RECEIVED when it is 1; no source for that reading is recorded here.",
         "author": "Matt Beers",
         "creation_date": "2024-04-16",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Chats",
-        "notes": "",
+        "notes": "Only a file named zangidb.sqlite is read. First Name, Last Name and Number come "
+                 "from the ZZNUMBER row the message's ZFROM value points to, and the contact "
+                 "joined to that row, on sent and received rows alike. The column headed Filename "
+                 "holds the database path.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "message-circle",

@@ -12,25 +12,23 @@ __artifacts_v2__ = {
                  "Arrival and Departure are stored as JSON holding a single location fix each: "
                  "latitude, longitude, altitude, speed, heading, floor, horizontal and vertical "
                  "accuracy, and a Unix timestamp in seconds. The reported coordinates are the "
-                 "arrival fix, and the departure fix is carried in its own columns, so a row "
-                 "that moved between the two is visible. Dwell is the difference between the two "
-                 "timestamps and is computed here, not stored. Every one of the 755 rows across "
-                 "the three tested stores carried both an arrival and a departure and no "
-                 "departure preceded its arrival. Stop Detection Algorithm is reported as "
-                 "stored; the tested stores hold clientEma and clientEmaMallMode and nothing "
-                 "available defines either. Nothing in a row records that a person entered it, "
-                 "so a row is not a check-in and does not establish that anyone used the app at "
-                 "that moment. Arrival Floor (as stored) held no value on any row of either "
-                 "tested image and is kept because the store declares the field. Pilgrim is a "
-                 "licensable SDK, so Container App names the app whose data container held the "
-                 "store, read from that container's own metadata plist, and no row is attributed "
-                 "to Foursquare by assumption. On the iOS 17.5.1 image two containers each held "
-                 "a store and their visit sets overlap without matching: 60 of the rows agree on "
-                 "arrival time, coordinates and departure time while 107 appear only in one and "
-                 "104 only in the other, so the stores are reported separately and are not "
-                 "merged. The database names a job PruneLocationVisitsJob; the window a store "
-                 "covers is not established, and an absent visit is not evidence that none "
-                 "occurred.",
+                 "arrival fix, and the departure fix is carried in its own columns, so a row that "
+                 "moved between the two is visible. Dwell is the difference between the two "
+                 "timestamps and is computed here, not stored. Stop Detection Algorithm is reported "
+                 "as stored; the tested stores hold clientEma and clientEmaMallMode and nothing "
+                 "available defines either. Nothing in a row records that a person entered it, so a "
+                 "row is not a check-in and does not establish that anyone used the app at that "
+                 "moment. Arrival Floor (as stored) held no value on any row of either tested image "
+                 "and is kept because the store declares the field. The store sits in the data "
+                 "container of whichever app embeds the SDK, and on the tested images that was two "
+                 "different apps, so Container App names the app whose data container held the "
+                 "store, read from that container's own metadata plist, and no row is attributed to "
+                 "Foursquare by assumption. On the iOS 17.5.1 image two containers each held a "
+                 "store and their visit sets overlap without matching: 60 of the rows agree on "
+                 "arrival time, coordinates and departure time while 107 appear only in one and 104 "
+                 "only in the other, so the stores are reported separately and are not merged. The "
+                 "database names a job PruneLocationVisitsJob; the window a store covers is not "
+                 "established, and an absent visit is not evidence that none occurred.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
@@ -42,7 +40,7 @@ __artifacts_v2__ = {
     },
     "foursquare_pilgrim_movement": {
         "name": "Foursquare Pilgrim - Movement Log",
-        "description": "Location fixes the Foursquare Pilgrim SDK wrote to its own debug log, "
+        "description": "Rows of the Foursquare Pilgrim SDK debug log that carry a coordinate pair, "
                        "with the movement state on the rows that carry one.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
@@ -50,32 +48,31 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Locations",
         "notes": "One row per row of PilgrimDebugLog whose data field carries a coordinate pair. "
-                 "The SDK writes that field as a Swift description rather than as JSON, so the "
-                 "coordinates, accuracy, speed, course, movement state and the app's own "
-                 "rendering of the local time are read out of it by pattern and any part that "
-                 "does not match is left blank. Rows without a coordinate are not reported, which "
-                 "excludes the SDK's request and response logging; those rows carry request "
-                 "headers including an API key, and nothing in them is reported here. Timestamp "
-                 "is the row's own timestamp column, stored as text with no zone marker. It is "
-                 "UTC on one of the tested images, measured rather than assumed: 359 rows there "
-                 "also carry the app's rendering of the same moment in a named local zone, and "
-                 "converting that rendering to UTC agreed with the column to within a minute "
-                 "on 357 of them. The two that did not are rows whose own event text records an "
-                 "old fix being logged, one of them stating that a very old location was "
-                 "ignored, so the gap there is the age of the fix rather than a zone difference. "
-                 "The other two stores carry no such rendering, so the same reading is applied "
-                 "to them without that corroboration. Local Time and Local Time Zone are the "
-                 "app's own text where it is present, reported as stored. Speed State is "
-                 "reported as stored; the tested stores hold stopped, moving, honing and "
-                 "unknown, and nothing available defines them. Speed State (as stored) and "
-                 "Current Speed (as stored) are blank on the rows that record a monitored region "
-                 "rather than a fix, since those rows carry no movement state. Type (as stored) "
-                 "held the single value 2 on every reported row of both tested images, so only "
-                 "one of the log's types carries a coordinate, which is why this artifact "
-                 "reports far fewer rows than the table holds; Level (as stored) varies. "
-                 "Container App held one value on the iOS 16.5 image, where a single app "
-                 "embedded the SDK, and two on the iOS 17.5.1 image. The database names a job "
-                 "PurgeOldLogsJob; the window a store covers is not established.",
+                 "That field holds text in the form of a Swift object description rather than JSON, "
+                 "so the coordinates, accuracy, speed, course, movement state and the app's own "
+                 "rendering of the local time are read out of it by pattern and any part that does "
+                 "not match is left blank. Rows without a coordinate are not reported, which "
+                 "excludes the SDK's request and response logging; those rows carry request headers "
+                 "including an API key, and nothing in them is reported here. Timestamp is the "
+                 "row's own timestamp column, stored as text with no zone marker. It is UTC on one "
+                 "of the tested images, measured rather than assumed: 359 rows there also carry the "
+                 "app's rendering of the same moment in a named local zone, and converting that "
+                 "rendering to UTC agreed with the column to within a minute on 357 of them. The "
+                 "two that did not are rows whose own event text records an old fix being logged, "
+                 "one of them stating that a very old location was ignored, so the gap there is the "
+                 "age of the fix rather than a zone difference. The other two stores carry no such "
+                 "rendering, so the same reading is applied to them without that corroboration. "
+                 "Local Time and Local Time Zone are the app's own text where it is present, "
+                 "reported as stored. Speed State is reported as stored; the tested stores hold "
+                 "stopped, moving, honing and unknown, and nothing available defines them. Speed "
+                 "State (as stored) and Current Speed (as stored) are blank on the rows that record "
+                 "a monitored region rather than a fix, since those rows carry no movement state. "
+                 "Type (as stored) held the single value 2 on every reported row of both tested "
+                 "images, so on the tested images only one of the log's types carried a coordinate, "
+                 "which is why this artifact reports far fewer rows than the table holds; Level (as "
+                 "stored) varies. Container App held one value on the iOS 16.5 image, where a "
+                 "single app embedded the SDK, and two on the iOS 17.5.1 image. The database names "
+                 "a job PurgeOldLogsJob; the window a store covers is not established.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
@@ -95,25 +92,27 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Locations",
         "notes": "One row per row of PilgrimLastVisit and PilgrimBackFillVisit, which share a "
-                 "schema and are told apart by the Source Table column. Departure Time was blank on every "
-                 "row of both tested images: the embedded visit carries an arrival and a null "
-                 "departure, and the reason is not established here. Venue "
-                 "Name, Venue ID, Venue Categories and Venue Address were each blank on the iOS "
-                 "16.5 image, whose row resolved to a location type with no venue attached, and "
-                 "carry values on the iOS 17.5.1 image. Region Latitude and Region Longitude "
-                 "were each blank on the iOS 17.5.1 image, whose rows recorded no region. PilgrimLastVisit held "
-                 "exactly one row in each tested store and PilgrimBackFillVisit was empty in all "
-                 "three, so the backfill half is code present and was not exercised. The venue "
-                 "field is JSON and carries the place's name, identifier, category names and a "
-                 "nested address with its own coordinates; where it is absent the row still "
-                 "records a location type. Location Type and Confidence are reported as stored; "
-                 "the tested rows hold home and venue, and high and med, and nothing available "
-                 "defines the full set. The row also embeds a copy of the visit in the same form "
-                 "the Location Visits artifact reads, so Arrival and Departure here come from "
-                 "that copy. On the one store whose row recorded region coordinates, those "
-                 "coordinates equalled one of the rows in PilgrimRegion, and that row carried the "
-                 "highest probability of the four; that is a single observation and no mapping "
-                 "between the two tables is asserted from it.",
+                 "schema and are told apart by the Source Table column. Departure Time was blank on "
+                 "every row of both tested images: the embedded visit carries an arrival and a null "
+                 "departure, and the reason is not established here. Venue Name, Venue ID, Venue "
+                 "Categories and Venue Address were each blank on the iOS 16.5 image, whose row "
+                 "resolved to a location type with no venue attached, and carry values on the iOS "
+                 "17.5.1 image. Region Latitude and Region Longitude were each blank on the iOS "
+                 "17.5.1 image, whose rows recorded no region. PilgrimBackFillVisit returned no "
+                 "rows on the tested images, so the backfill half is code present and was not "
+                 "exercised. The venue field is JSON and carries the place's name, identifier, "
+                 "category names and a nested address with its own coordinates; where it is absent "
+                 "the row still records a location type. Latitude and Longitude are the venue's "
+                 "address coordinates when a venue record carries them and the arrival fix of the "
+                 "embedded visit otherwise, so on a row with a venue they are the place's position "
+                 "and not a device fix. Location Type and Confidence are reported as stored; the "
+                 "tested rows hold home and venue, and high and med, and nothing available defines "
+                 "the full set. The row also embeds a copy of the visit in the same form the "
+                 "Location Visits artifact reads, so Arrival and Departure here come from that "
+                 "copy. On the one store whose row recorded region coordinates, those coordinates "
+                 "equalled one of the rows in PilgrimRegion, and that row carried the highest "
+                 "probability of the four; that is a single observation and no mapping between the "
+                 "two tables is asserted from it.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
@@ -126,7 +125,7 @@ __artifacts_v2__ = {
     "foursquare_pilgrim_regions": {
         "name": "Foursquare Pilgrim - Regions",
         "description": "Regions the Foursquare Pilgrim SDK held for the device, from its region "
-                       "table and its monitored stop region.",
+                       "table and its stop region table.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
@@ -134,12 +133,11 @@ __artifacts_v2__ = {
         "category": "Locations",
         "notes": "One row per row of PilgrimRegion and of PilgrimStopRegion, told apart by the "
                  "Source Table column. PilgrimRegion rows carry a centre coordinate and a "
-                 "probability; PilgrimStopRegion rows carry a centre, a radius and an identifier "
-                 "and there was one in each tested store. Probability, Type and Secondary Type "
-                 "are reported as stored: the tested rows hold type 1 with secondary type 0 or 2, "
-                 "and nothing available defines either number, so no meaning is given to them "
-                 "here. The database names a job HomeWorkJob, which is "
-                 "recorded here only as an observation about the store and is not evidence that "
+                 "probability; PilgrimStopRegion rows carry a centre, a radius and an identifier. "
+                 "Probability, Type and Secondary Type are reported as stored: the tested rows hold "
+                 "type 1 with secondary type 0 or 2, and nothing available defines either number, "
+                 "so no meaning is given to them here. The database names a job HomeWorkJob, which "
+                 "is recorded here only as an observation about the store and is not evidence that "
                  "any particular row is a home or a work location.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
@@ -160,15 +158,14 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Locations",
         "notes": "One row per row of PilgrimLocationTrail, whose columns the store itself declares "
-                 "as latitude, longitude, altitude, horizontal accuracy, timestamp, speed, "
-                 "heading, a used flag and two authorisation strings. Timestamp there is a "
-                 "number rather than the text used elsewhere in the same database and is read as "
-                 "Unix seconds, which is the form the visit rows use. This table was empty in all "
-                 "three tested stores, so the reader is code present and unexercised and the "
-                 "timestamp reading is taken from the sibling tables rather than observed here. "
-                 "The database contains a job named TrailPruningJob, and an empty table is not "
-                 "evidence "
-                 "that the device did not move.",
+                 "as latitude, longitude, altitude, horizontal accuracy, timestamp, speed, heading, "
+                 "a used flag and two authorisation strings. Timestamp there is a number rather "
+                 "than the text used elsewhere in the same database and is read as Unix seconds, "
+                 "which is the form the visit rows use. This table returned no rows on the two "
+                 "tested images, so the reader is code present and unexercised and the timestamp "
+                 "reading is taken from the sibling tables rather than observed here. The database "
+                 "contains a job named TrailPruningJob, and an empty table is not evidence that the "
+                 "device did not move.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
@@ -180,23 +177,23 @@ __artifacts_v2__ = {
     },
     "foursquare_pilgrim_system_visits": {
         "name": "Foursquare Pilgrim - System Visits",
-        "description": "Rows of the Foursquare Pilgrim SDK system visit table, unpopulated on the "
+        "description": "Rows of the Foursquare Pilgrim SDK PilgrimCLVisit table, unpopulated on the "
                        "two tested images.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Locations",
-        "notes": "One row per row of PilgrimCLVisit, whose columns the store declares as an "
-                 "arrival date, a departure date, a latitude, a longitude, a horizontal accuracy "
-                 "and a visit identifier. The table name and those columns match the shape of "
-                 "the operating system's CLVisit object, which is not sourced here; the rows are "
-                 "a "
-                 "different source from the SDK's own stop detection in the Location Visits "
-                 "artifact, so the two can disagree and neither confirms the other. This table "
-                 "was empty in all three tested stores, so the reader is code present and "
-                 "unexercised, and its dates are read as the same text form the sibling tables "
-                 "in this database use rather than from observation here.",
+        "notes": "One row per row of PilgrimCLVisit, whose columns the store declares as an arrival "
+                 "date, a departure date, a latitude, a longitude, a horizontal accuracy and a "
+                 "visit identifier. The table name and those columns match the shape of the "
+                 "operating system's CLVisit object, which is not sourced here; whether these rows "
+                 "come from a different source than the Location Visits rows is not established "
+                 "here, so one artifact is not treated as confirming the other. This table returned "
+                 "no rows on the two tested images, so the reader is code present and unexercised, "
+                 "and its dates are read as the same text form the sibling tables in this database "
+                 "use, and as UTC on the strength of the Movement Log measurement, rather than from "
+                 "observation here.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/pilgrim-database.sqlite*',
                   '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],

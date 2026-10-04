@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
     "life360Locations": {
         "name": "Life360 - Locations",
-        "description": "Location fixes Life360 prepared for upload, read from the X-UserContext "
-                       "header the app logs, with the fix time, coordinates, altitude, speed, "
+        "description": "Location fixes Life360 wrote into the X-UserContext header value it "
+                       "logged, with the fix time, coordinates, altitude, speed, "
                        "heading, "
                        "accuracy and the device activity and location mode at the time.",
         "author": "@KevinPagano3",
@@ -15,19 +15,22 @@ __artifacts_v2__ = {
                  "geolocation.timestamp, Unix seconds, rendered in UTC; Latitude, Longitude, Altitude, "
                  "Speed, Heading, Accuracy, Vertical Accuracy and Age are the geolocation keys lat, lon, alt, "
                  "speed, heading, accuracy, vertical_accuracy and age as stored. The units in the Speed and "
-                 "Accuracy headers were checked against the same logs: the app also prints Apple's own "
-                 "CLLocation description of a fix (<lat,lon> +/- Nm (speed N mps / course N)), and on one "
-                 "tested image the JSON speed equalled that description's mps value on 726 of 726 fixes at "
-                 "the same coordinates, accuracy its metres value on 678 of 726 and heading its course on "
-                 "691. Activity Type is device.userActivity as stored (vehicle, potentialFlyer, unknown, "
-                 "os_walking, flying and walking across the eight tested images with fixes; an earlier "
-                 "version of this artifact stripped os_ and capitalised the value, which merged os_walking "
-                 "with walking), Location Mode is geolocation_meta.lmode as stored (drive, move, gh, push, "
-                 "geo and fore) and Location Precision is flags.preciseLocation as stored (fullAccuracy on "
-                 "every tested fix, 8,679 across the eight images). Life360 is closed "
-                 "source, so the key names are the only labels; the per-second samples the app logs beside "
-                 "these fixes are in the Location Samples artifact. A row records a fix the app prepared "
-                 "for upload; it does not by itself say who carried the device.",
+                 "Accuracy headers were checked against the same logs (the metres unit in the "
+                 "Vertical Accuracy header was not checked and follows the Accuracy column): the "
+                 "app also prints Apple's own CLLocation description of a fix (<lat,lon> +/- Nm "
+                 "(speed N mps / course N)), and on one tested image the JSON speed equalled that "
+                 "description's mps value on 726 of 726 fixes at the same coordinates, accuracy "
+                 "its metres value on 678 of 726 and heading its course on 691. Activity Type is "
+                 "device.userActivity as stored (vehicle, potentialFlyer, unknown, os_walking, "
+                 "flying and walking across the eight tested images with fixes; an earlier version "
+                 "of this artifact stripped os_ and capitalised the value, which merged os_walking "
+                 "with walking), Location Mode is geolocation_meta.lmode as stored (drive, move, "
+                 "gh, push, geo and fore) and Location Precision is flags.preciseLocation as "
+                 "stored (fullAccuracy was the value seen on the tested images). Life360 is closed "
+                 "source, so the key names are the only labels; the location samples the app logs "
+                 "beside these fixes are in the Location Samples artifact. A row records a fix the "
+                 "app logged in an X-UserContext header value; whether that header was sent is not "
+                 "established here, and a row does not by itself say who carried the device.",
         "paths": ('*/com.life360.safetymap *.log',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "map-pin",
@@ -59,7 +62,7 @@ __artifacts_v2__ = {
     },
     "life360DeviceBattery": {
         "name": "Life360 - Device Battery",
-        "description": "The battery level and charging state Life360 logged in each "
+        "description": "The device.battery and device.charge values Life360 logged in each "
                        "X-UserContext header, with "
                        "the time of the fix it accompanied.",
         "author": "@KevinPagano3",
@@ -69,8 +72,12 @@ __artifacts_v2__ = {
         "category": "Life360",
         "notes": "Read from the same X-UserContext header set lines as the Locations artifact: Timestamp is "
                  "geolocation.timestamp rendered in UTC, Device Battery is device.battery as stored and "
-                 "Charging is Yes when device.charge is 1 and blank when it is 0 (the only two values on "
-                 "the tested images; any other value is shown as stored). Life360 is closed source, so the "
+                 "Charging shows Yes for a stored device.charge of 1 and blank for 0, compared as "
+                 "text (the only two values on the tested images; any other value is shown as "
+                 "stored); the key name is the only basis for reading it as a charging flag, and "
+                 "it was not checked against another record of the device's charging state. The "
+                 "percent sign in the Device Battery header also rests on the key name and was not "
+                 "checked. Life360 is closed source, so the "
                  "key names are the only labels.",
         "paths": ('*/com.life360.safetymap *.log',),
         "output_types": "standard",
@@ -103,39 +110,42 @@ __artifacts_v2__ = {
     },
     "life360LocationSamples": {
         "name": "Life360 - Location Samples",
-        "description": "The per-second location samples Life360 wrote to its own logs, with the sample time, "
-                       "coordinates and accuracy, from the main app log and the location push extension log.",
+        "description": "The location samples Life360 wrote to its own logs, with the sample time, "
+                       "coordinates and accuracy, from the main app log and the sidecar and "
+                       "sidecar-lpse logs.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
         "requirements": "none",
         "category": "Life360",
-        "notes": "Read from the lines of the com.life360.safetymap and com.life360.safetymap.sidecar-lpse "
-                 "logs that end in four comma-separated values, a time of day, a number, a latitude and a "
-                 "longitude, sometimes followed by a fifth word (Strategy). The app writes these under "
-                 "its Sample Points listing and beside its Filtered, Filter out, Sending sample and "
-                 "Transport success messages; Log Contexts joins the message prefixes a sample appeared "
-                 "under and Occurrences counts the lines, because one fix is relogged as it moves "
-                 "through the app's filters (on the twelve main logs of one tested image, 19,941 "
-                 "distinct fixes across 37,949 lines). Life360 is closed source and the four fields "
-                 "carry no labels in the log; the labels here were derived from the same files: the "
-                 "third and fourth values are the lat and lon of the X-UserContext JSON fix the app "
-                 "logged at the same second (3,322 such pairs on that image), and on 3,001 of those "
-                 "pairs the second value equalled the JSON accuracy key and equalled no other key on "
-                 "more than nine, so it is reported as Accuracy (as stored), in the unit the JSON key "
-                 "carries (metres by the check described in the Locations notes). Sample Time is the "
-                 "time of day read in the zone the log line itself carries, attached to the line's date, "
-                 "rendered in UTC; a sample time later than its log line by more than an hour is taken "
-                 "as the previous day, and no sample on the tested images was dated after the line that "
-                 "logged it. First Logged is the time of the earliest line that carried the sample. "
-                 "Strategy is the fifth word as stored: drive, bluetooth, movement, push and foreGround in "
-                 "the main logs and heartbeat and smartRealTime in the push extension logs across the "
-                 "tested images, blank on most sample lines. Log Kind is main or sidecar-lpse from the "
-                 "file name. Sample lines were present on five of the eight tested images holding Life360 "
-                 "logs, the ones running app versions 23.15.0 through 24.34.0, and absent on the three "
-                 "newer ones (25.37.0, 26.22.0 and an iOS 26 image), so their absence on a device says "
-                 "nothing about its movements. A row records "
-                 "that the app held that fix for the device at Sample Time; it does not say who carried "
+        "notes": "Read from the lines of the logs matching com.life360.safetymap*.log that end in "
+                 "four comma-separated values, a time of day, a number, a latitude and a "
+                 "longitude, sometimes followed by a fifth word (Strategy). The app writes these "
+                 "under its Sample Points listing and beside its Filtered, Filter out, Sending "
+                 "sample and Transport success messages; Log Contexts joins the message prefixes a "
+                 "sample appeared under and Occurrences counts the lines within one log file (a "
+                 "sample that appears in two files is reported once per file, and each prefix in "
+                 "Log Contexts is cut to 60 characters), because the same sample values appear on "
+                 "more than one line, under different message prefixes. Life360 is closed source "
+                 "and the four fields carry no labels in the log; the labels here were derived "
+                 "from the same files on one tested image: the third and fourth values were "
+                 "compared with the lat and lon of the X-UserContext JSON fix the app logged at "
+                 "the same second, and the second value with that fix's accuracy key, which is why "
+                 "it is reported as Accuracy (as stored), in the unit the JSON key carries (metres "
+                 "by the check described in the Locations notes). The counts from that comparison "
+                 "are not recorded here. Sample Time is the time of day "
+                 "read in the zone the log line itself carries, attached to the line's date, "
+                 "rendered in UTC; a sample time later than its log line by more than an hour is "
+                 "taken as the previous day. First Logged is the time of the earliest line that "
+                 "carried the sample. Strategy is the fifth word as stored: drive, bluetooth, "
+                 "movement, push and foreGround in the main logs and heartbeat and smartRealTime "
+                 "in the sidecar-lpse logs across the tested images, blank on most sample lines. "
+                 "Log Kind is main, sidecar or sidecar-lpse from the file name. Sample lines were "
+                 "present on five of the eight tested images holding Life360 logs, the ones "
+                 "running app versions 23.15.0 through 24.34.0, and absent on the three newer ones "
+                 "(25.37.0, 26.22.0 and an iOS 26 image), so their absence on a device says "
+                 "nothing about its movements. A row records that the app logged a sample carrying "
+                 "that time and those coordinates; it does not say who carried "
                  "the device.",
         "paths": ('*/com.life360.safetymap*.log',),
         "output_types": "all",
@@ -168,8 +178,9 @@ __artifacts_v2__ = {
     },
     "life360MotionActivity": {
         "name": "Life360 - Motion Activity",
-        "description": "The CoreMotion activity states Life360 logged while deciding how to sample location, "
-                       "with the start time of each state and its walking, driving, stationary and confidence flags.",
+        "description": "The CoreMotion activity states Life360 logged in its own log, with the "
+                       "start time of each state and its stationary, walking, running, automotive, "
+                       "cycling and unknown flags and its confidence value.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-05",
         "last_update_date": "2026-09-05",
@@ -184,11 +195,14 @@ __artifacts_v2__ = {
                  "documentation says the motion properties are not mutually exclusive, so more than one "
                  "can be 1 at once. Start Date is the startDate value, which the log prints with a +0000 "
                  "offset, rendered in UTC. The app repeats the current activity on many lines, so one row "
-                 "is reported per distinct start date and flag set, with Occurrences counting the lines "
-                 "and First Logged the earliest one (4,344 lines became 4,024 rows on one tested image, so "
-                 "most polls report a new state). These lines appeared on one of the eight tested images holding "
-                 "Life360 logs, the one running app version 23.19.0, so the artifact is empty on the other "
-                 "builds. A row records the motion state iOS reported to the app from Start "
+                 "is reported per distinct start date, confidence value and flag set within one "
+                 "log file, with Occurrences counting the lines and First Logged the earliest one "
+                 "(4,344 lines became 4,024 rows on one tested image, so most of those lines "
+                 "carried a start date and flag set not seen before). These lines appeared on one "
+                 "of the eight tested images holding Life360 logs, the one running app version "
+                 "23.19.0, and on none of the other seven, so an empty result on a device says "
+                 "nothing about its motion. A row records the motion state iOS reported to the app "
+                 "from Start "
                  "Date on; it does not by itself say who carried the device.",
         "paths": ('*/com.life360.safetymap*.log',),
         "output_types": "standard",
@@ -227,7 +241,13 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Life360",
-        "notes": "Sent Status maps ZSENTSTATUSASINTEGER 2 to Sent and 3 to Failed; the mapping "
+        "notes": "Direction is derived: Outgoing when the sender's member row has ZISLOGGEDINUSER "
+                 "set to 1, Incoming otherwise, so a message whose sender matches no member row is "
+                 "shown as Incoming. Timestamp reads ZDATE as seconds since 2001 in UTC. Message "
+                 "Seen, Message Deleted (Locally) and Message Liked show Yes for a stored 1 in "
+                 "ZISREAD, ZISLOCALLYDELETED and ZISLIKED; what sets those flags is not "
+                 "established. Sent Status maps ZSENTSTATUSASINTEGER 2 to Sent and 3 to Failed; "
+                 "the mapping "
                  "is not sourced from Life360 and was assigned from tested data with no count "
                  "recorded here. Unrecognized values are reported as stored.",
         "paths": ('*/Library/Application Support/Messaging.sqlite*',),

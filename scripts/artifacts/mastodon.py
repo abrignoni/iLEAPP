@@ -1,13 +1,18 @@
 __artifacts_v2__ = {
     'mastodonDirectMessages': {
         'name': 'Mastodon - Direct Messages',
-        'description': 'Private (direct visibility) statuses cached by the Mastodon application',
+        'description': 'Statuses with direct visibility cached by the Mastodon application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Mastodon',
-        'notes': "Rows are statuses whose stored ZVISIBILITYRAW value is \"direct\".",
+        'notes': "Rows are statuses whose stored ZVISIBILITYRAW value is \"direct\"."
+                 " Conversation and Conversation Key are built by this module from the author "
+                 "handle and the handles mentioned in the status; they are not a thread id the app "
+                 "stored. From Me compares the author with the account id taken from "
+                 "ZMASTODONAUTHENTICATION or, when that table is empty, from the first "
+                 "ZNOTIFICATION row.",
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Databases/shared.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'message',
@@ -29,7 +34,8 @@ __artifacts_v2__ = {
     },
     'mastodonStatuses': {
         'name': 'Mastodon - Statuses',
-        'description': 'Statuses (posts) cached by the Mastodon application, including boosts and replies',
+        'description': 'Statuses (posts) cached by the Mastodon application, with reply references '
+                       'and stored favourite, boost and reply counts',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',
@@ -45,7 +51,9 @@ __artifacts_v2__ = {
     },
     'mastodonUsers': {
         'name': 'Mastodon - Users',
-        'description': 'Mastodon accounts cached by the application, with follow relationships',
+        'description': 'Mastodon accounts cached by the application. The two follow columns are '
+                       'read from the Z_<n>FOLLOWING join table; which of its two columns is the '
+                       'follower was inferred from the column names and is not confirmed',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-08-09',
@@ -77,7 +85,9 @@ __artifacts_v2__ = {
     },
     'mastodonAccount': {
         'name': 'Mastodon - Account Information',
-        'description': 'The Mastodon account signed in on the device and its home instance',
+        'description': 'The Mastodon account named by the app\'s authentication table or, when '
+                       'that table is empty, by the user id on the first notification row, with '
+                       'the instance recorded for its domain. One account is reported',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-07-25',

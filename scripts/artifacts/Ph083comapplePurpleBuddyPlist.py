@@ -1,9 +1,12 @@
 __artifacts_v2__ = {
     "Ph083ComApplePurpleBuddyPlist": {
         "name": "Ph083-Com-Apple-PurpleBuddy-Plist",
-        "description": "Parses basic data from com.apple.purplebuddy.plist which contains some important data"
-        " related to device restore."
-        " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
+        "description": "Parses basic data from com.apple.purplebuddy.plist and lists its keys and values as"
+        " stored. The SetupState key is reported under Device Info and is not in this table."
+        " Scott Koenig compared the guessedCountry and SetupLastExit timestamps of this file"
+        " with a known factory reset on a test device running iOS 14.7:"
+        " https://theforensicscooter.com/2022/05/02/photos-sqlite-query-documentation-notable-artifacts/"
+        " . What the other keys mean is not established here.",
         "author": "Scott Koenig",
         "creation_date": "2025-01-05",
         "last_update_date": "2026-07-21",

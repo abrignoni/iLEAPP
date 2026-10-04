@@ -1,12 +1,14 @@
 __artifacts_v2__ = {
 'Ph030iCloudSharedMethodswithNADPhDaPsql': {
 'name': 'Ph030-iCloud Shared Methods NAD-PhDaPsql',
-'description': 'Parses records for different methods which media files have been shared via iCloud Share'
-' found in the PhotoData-Photos.sqlite ZSHARE Table and supports iOS.'
-' Parses iCloud Share Methods and Participant records only no asset data being parsed.'
-' The iCloud Share methods being stored in these records include'
-' Shared iCloud Links Cloud Master Moments-CMM and Shared iCloud Photo Library SPL.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses records for different methods which media files have been shared via iCloud "
+"Share found in the PhotoData/Photos.sqlite ZSHARE table, one row per share and "
+"participant pair. Queries exist for iOS 14 through 26; other versions return no "
+"rows. Parses iCloud Share Methods and Participant records only no asset data being "
+"parsed. The Scope Type labels (2 iCloud link, 4 and 5 Shared Photo Library) are the "
+"module author's reading of the stored integer, and the integer is kept in each "
+"label. The cited post says other share methods may exist and testing is ongoing. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'version': '6.0',

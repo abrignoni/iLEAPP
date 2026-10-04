@@ -3,17 +3,19 @@ __artifacts_v2__ = {
     "parse_cd_cache": {
         "name": "ParseCD Cache",
         "description": (
-            "Parses Spotlight search completion from ParseCD Cache "
-            "database. Completions that are bundle IDs come from the EngagedCompletions store; "
-            "what an engagement record establishes, including whether the app was opened, is not "
-            "established"
+            "Rows of the completion_cache_engagement table in an EngagedCompletions/Cache.db: "
+            "the input, completion, transformed and score values and the engagement date, read "
+            "as seconds since 2001. The rows come from the EngagedCompletions store, and some "
+            "completions are bundle IDs; what an engagement record establishes, including "
+            "whether the app was opened, is not established"
         ),
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Spotlight Searches",
-        "notes": "",
+        "notes": "When more than one Cache.db is matched all are read, and the report names only "
+                 "the last one as the source.",
         "paths": ("**/EngagedCompletions/Cache.db*"),
         "output_types": "standard",
         "artifact_icon": "search",

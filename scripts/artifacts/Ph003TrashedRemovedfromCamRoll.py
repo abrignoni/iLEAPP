@@ -1,9 +1,9 @@
 __artifacts_v2__ = {
 'Ph003_1TrashedRecentlyDeletedPhDaPsql': {
 'name': 'Ph003.1-Trashed Recently Deleted-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for trashed-recently deleted'
-' assets and supports various iOS versions. The results for this script will contain one row'
-' per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for trashed-recently deleted assets.'
+' The results list assets whose ZTRASHEDSTATE is 1, on iOS 11 through 26. On iOS 16 and later the'
+' query joins the asset contributor table and does not limit it to one row per asset.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -12,7 +12,20 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "On iOS 16 and later: the SPLzSharePartic columns are read from the asset's contributor record"
+' (ZASSETCONTRIBUTOR.ZPARTICIPANT), not from the Trashed by Participant value. Compare the two key'
+' columns on each row before attributing a deletion to that participant. On dexter_ios18 the two'
+' keys were filled and equal on 2 of 3 rows. On abe_ios16 (538 rows), otto_ios17 (2 rows) and'
+' iphone12_ios18 (5 rows) both were blank on every row. No tested row had a contributor different'
+' from the trashing participant, so that case is not exercised. Value labels in this report are'
+" the module author's working interpretations from testing. The module cites no source for them."
+' Each label carries the stored value. Labels marked STILLTESTING are unconfirmed. The Syndication'
+' State labels for values 2, 8 and 10 name a manual save or a user deletion. The store records the'
+" state value. It does not record who changed it. The header 'zCldMast-Import Session ID-"
+" AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and"
+" AirDrop is not established in this module. The header 'zAsset-UUID = store.cloudphotodb' reports"
+" the asset table's ZUUID. The match with store.cloudphotodb that the header names is not"
+' established in this module.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",
@@ -36,9 +49,11 @@ __artifacts_v2__ = {
 },
 'Ph003_2RemovedfromCameraRollSyndPL': {
 'name': 'Ph003.2-Removed from Camera Roll-SyndPL',
-'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite'
-' for syndication PL asserts remvoed from camera roll and supports supports various iOS versions.'
-" The results for this script will contain one row per asset."
+'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for'
+' Syndication library assets whose ZSYNDICATIONSTATE is 8 or 10 (iOS 15 to 17). On iOS 18 through'
+' 26 the current code lists assets whose ZTRASHEDSTATE is 1 instead. No corpus in sample_data'
+" produced a row, so this artifact's output is unexercised. On iOS 16 and later the query joins the"
+' asset contributor table and does not limit it to one row per asset.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -47,7 +62,18 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'On dexter_ios18, iphone12_ios18, hc_ios18_7 and iphone14plus_ios18 the Syndication library held'
+' no asset in state 8 or 10 and no trashed asset (34, 2, 0 and 0 assets), so neither filter'
+" returns a row there. The Syndication State labels are the module author's interpretation from"
+' testing. The module cites no source for them. The store records the state value. It does not'
+' record who changed it. Labels marked STILLTESTING are unconfirmed. On iOS 16 and later: the'
+" SPLzSharePartic columns are read from the asset's contributor record"
+' (ZASSETCONTRIBUTOR.ZPARTICIPANT), not from the Trashed by Participant value. Compare the two key'
+' columns on each row before attributing a deletion to that participant. The header'
+" 'zCldMast-Import Session ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A link"
+" between that value and AirDrop is not established in this module. The header 'zAsset-UUID ="
+" store.cloudphotodb' reports the asset table's ZUUID. The match with store.cloudphotodb that the"
+' header names is not established in this module.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",
@@ -68,9 +94,9 @@ __artifacts_v2__ = {
 },
 'Ph003_3TrashedRecentlyDeletedGenPlayPsql': {
 'name': 'Ph003.3-Trashed Recently Deleted-GenPlayPsql',
-'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for trashed-recently deleted'
-' assets and supports various iOS versions. The results for this script will contain one row'
-' per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for trashed-recently deleted assets on'
+' iOS 18 through 26. Lists assets whose ZTRASHEDSTATE is 1. The query joins the asset contributor'
+' table and does not limit it to one row per asset. The only corpus in sample_data is at 0 rows.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -79,7 +105,17 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains GenPlay-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "The SPLzSharePartic columns are read from the asset's contributor record"
+' (ZASSETCONTRIBUTOR.ZPARTICIPANT), not from the Trashed by Participant value. Compare the two key'
+' columns on each row before attributing a deletion to that participant. Value labels in this'
+" report are the module author's working interpretations from testing. The module cites no source"
+' for them. Each label carries the stored value. Labels marked STILLTESTING are unconfirmed. The'
+' Syndication State labels for values 2, 8 and 10 name a manual save or a user deletion. The store'
+" records the state value. It does not record who changed it. The header 'zCldMast-Import Session"
+" ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and"
+" AirDrop is not established in this module. The header 'zAsset-UUID = store.cloudphotodb' reports"
+" the asset table's ZUUID. The match with store.cloudphotodb that the header names is not"
+' established in this module.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "trash",

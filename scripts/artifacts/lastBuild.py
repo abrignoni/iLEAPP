@@ -3,7 +3,9 @@
 __artifacts_v2__ = {
     "last_build": {
         "name": "iOS Information",
-        "description": "Extract iOS information from the LastBuildInfo.plist file",
+        "description": "Keys and values of LastBuildInfo.plist, or of "
+                       "logs/SystemVersion/SystemVersion.plist when the first file is not "
+                       "present. The source file read is shown with the artifact.",
         "author": "@AlexisBrignoni - @ydkhatri - @stark4n6",
         "creation_date": "2020-04-30",
         "last_update_date": "2025-03-28",

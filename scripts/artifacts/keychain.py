@@ -1,7 +1,13 @@
 __artifacts_v2__ = {
     "keychain_wifi": {
         "name": "Keychain Wifi Credentials",
-        "description": "Parses keychain to extract stored Wi-Fi credentials",
+        "description": "Wi-Fi network names and passwords from keychain records with access group "
+                       "apple and service AirPort. Records are read only from an exported "
+                       "keychain (an iTunes backup keychain with its decryption keys, a "
+                       "KeychainDump backup_keychain_v2.plist, or a keychain plist supplied "
+                       "beside the input zip); keychain-2.db by itself is not decrypted, so no "
+                       "rows does not mean the keychain holds none. Tombstoned records are "
+                       "included and marked.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",
@@ -106,7 +112,13 @@ __artifacts_v2__ = {
     },
     "keychain_bluetooth_paired": {
         "name": "Paired Bluetooth Devices",
-        "description": "Parses keychain to extract the device's paired Bluetooth devices",
+        "description": "Bluetooth key records from the keychain (access group "
+                       "com.apple.bluetooth, services BluetoothLE and MobileBluetooth). The name "
+                       "for a BluetoothLE record is looked up in "
+                       "com.apple.MobileBluetooth.ledevices.paired.db where found; "
+                       "MobileBluetooth records are reported only when "
+                       "com.apple.MobileBluetooth.devices.plist is found, and take their name "
+                       "from it. Tombstoned records are included and marked.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",

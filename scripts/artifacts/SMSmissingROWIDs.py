@@ -1,13 +1,18 @@
 __artifacts_v2__ = {
     "SMS_Missing_ROWIDs": {
         "name": "SMS - Missing ROWIDs",
-        "description": "Parses missing ROWID values from the SMS.db, presents the number of missing rows, and provides timestamps for data rows before and after the missing data",
+        "description": "Lists the gaps in the ROWID sequence of the message table in sms.db: the size of each gap and the timestamps of the rows before and after it. A gap is a run of ROWID values absent from the table. It does not by itself establish that a message was deleted.",
         "author": "@SQLMcGee for Metadata Forensics, LLC",
         "creation_date": "2023-03-20",
         "last_update_date": "2025-11-13",
         "requirements": "none",
         "category": "SMS & iMessage",
-        "notes": "This query was the product of research completed by James McGee, Metadata Forensics, LLC, for 'Lagging for the Win', published by Belkasoft https://belkasoft.com/lagging-for-win, updated upon further research",
+        "notes": "Number of Missing Rows is the size of the gap. A final row compares the table "
+                 "with the message entry in sqlite_sequence and, where they differ, reports the "
+                 "difference with the text 'Time of Extraction' as its end. This query was the "
+                 "product of research completed by James McGee, Metadata Forensics, LLC, for "
+                 "'Lagging for the Win', published by Belkasoft "
+                 "https://belkasoft.com/lagging-for-win",
         "paths": ("*SMS/sms*"),
         "output_types": "standard",
         "artifact_icon": "message-circle",

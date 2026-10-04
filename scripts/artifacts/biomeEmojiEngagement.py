@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
     "get_biomeEmojiEngagement": {
         "name": "Biome - Emoji Engagement",
-        "description": "Parses emoji usage from the Emoji.Engagement biome stream. Each record "
-                       "holds the emoji the user engaged with, along with the Unicode code "
+        "description": "Parses emoji records from the Emoji.Engagement biome stream. Each "
+                       "written record holds an emoji as stored, along with the Unicode code "
                        "points so that skin tone modifiers, variation selectors and zero width "
                        "joiner sequences stay visible in the report.",
         "author": "@abrignoni",

@@ -9,13 +9,15 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Battery",
         "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
-                 "100). Validated against 275 rows across BDC_SBC version 2.9 and 3.0 files "
-                 "from two test images: dividing by 100 yields 21.7-37.2 C, consistent with "
-                 "an operating device and rising while IsCharging is set, while a x1000 scale "
+                 "100). Measured on 275 rows across BDC_SBC version 2.9 and 3.0 files from "
+                 "two test images: dividing by 100 yields 21.7-37.2 C, consistent with an "
+                 "operating device and rising while IsCharging is set, while a x1000 scale "
                  "would imply near-freezing temperatures. The reference below states Celsius "
-                 "x 1000, which this testing indicates is a typo. The CSV header row in the "
-                 "files matches the column positions parsed here. "
-                 "Reference: Kevin Pagano, 'BDC - More Battery Temps & Charging Stats', "
+                 "x 1000, which does not agree with this measurement. This artifact reads "
+                 "columns by position and skips the header row without checking it. Which "
+                 "files' header rows were compared with these positions is not recorded here. "
+                 "Reference: Kevin Pagano, 'BDC - More Battery Temps & Charging Stats for "
+                 "iOS', "
                  "https://www.stark4n6.com/2026/03/bdc-more-battery-temps-charging-stats.html",
         "paths": ('*/Battery/BDC/BDC_SBC_*.csv', '*/BatteryBDC/BDC_SBC_*.csv'),
         "output_types": "standard",
@@ -37,17 +39,16 @@ __artifacts_v2__ = {
     },
     "battery_bdc_once": {
         "name": "Battery Data Collection (BDC) - Once",
-        "description": "Static battery identity written once per battery pack from BDC_Once logs",
+        "description": "Battery identity fields (chemistry IDs, EEEE, YWW, design capacity, gas "
+                       "gauge firmware) from BDC_Once logs, one row per file",
         "author": "@stark4n6, @ChrisJr404",
         "creation_date": "2026-08-17",
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "One row per BDC_Once file. BatterySerialNumber is reported as stored; when the "
-                 "file is written, and whether a new serial number means the battery was "
-                 "replaced, are not sourced here. GasGaugeFirmwareVersion is present in the "
-                 "files whose header carries it and was seen from schema version 1.7 in tested "
-                 "files. "
+        "notes": "One row per BDC_Once file. BatterySerialNumber is not reported by this "
+                 "artifact. When the file is written is not sourced here. "
+                 "GasGaugeFirmwareVersion is present in the files whose header carries it. "
                  "Columns are read by header name, so older narrower-schema files still parse.",
         "paths": ('*/Battery/BDC/BDC_Once_*.csv', '*/BatteryBDC/BDC_Once_*.csv'),
         "output_types": "standard",
@@ -61,7 +62,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "Row cadence in tested files was roughly two per day. NominalChargeCapacity and "
+        "notes": "NominalChargeCapacity and "
                  "DesignCapacity (from BDC_Once) are reported as stored; that their ratio is the "
                  "Maximum Capacity percentage shown in Settings is not sourced here. "
                  "TimeAtHighSoc is left as its raw hex token here; its encoding is not "
@@ -72,7 +73,8 @@ __artifacts_v2__ = {
     },
     "battery_bdc_weekly": {
         "name": "Battery Data Collection (BDC) - Weekly",
-        "description": "Weekly gauge resistance table and operating time from BDC_Weekly logs",
+        "description": "RaTableRaw0, TotalOperatingTime and gas gauge firmware version from "
+                       "BDC_Weekly logs, reported as stored",
         "author": "@stark4n6, @ChrisJr404",
         "creation_date": "2026-08-17",
         "last_update_date": "2026-08-17",
@@ -86,7 +88,9 @@ __artifacts_v2__ = {
     },
     "battery_bdc_obc": {
         "name": "Battery Data Collection (BDC) - OBC",
-        "description": "On-charger and external power transition events from BDC_OBC logs",
+        "description": "External power and charging fields (FamilyCode, "
+                       "ExternalConnected, ChargingOverride, NotChargingReason) from "
+                       "BDC_OBC logs, one row per logged event",
         "author": "@stark4n6, @ChrisJr404",
         "creation_date": "2026-08-17",
         "last_update_date": "2026-08-17",
@@ -102,7 +106,8 @@ __artifacts_v2__ = {
     },
     "battery_bdc_smartcharging": {
         "name": "Battery Data Collection (BDC) - SmartCharging",
-        "description": "Optimized Battery Charging policy decisions from BDC_SmartCharging logs",
+        "description": "Charging state, charge limit and decision fields from "
+                       "BDC_SmartCharging logs, reported as stored",
         "author": "@stark4n6, @ChrisJr404",
         "creation_date": "2026-08-17",
         "last_update_date": "2026-08-17",
@@ -118,31 +123,33 @@ __artifacts_v2__ = {
     },
     "battery_bdc_cpmsrc": {
         "name": "Battery Data Collection (BDC) - CPMSRC",
-        "description": "Battery RC equivalent-circuit impedance model from BDC_CPMSRC logs",
+        "description": "Impedance columns from BDC_CPMSRC logs, reported as stored; not "
+                       "exercised on any tested image",
         "author": "@stark4n6, @ChrisJr404",
         "creation_date": "2026-08-17",
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
-        "notes": "Series resistance plus four RC branch columns, reported as stored. Header "
-                 "units read as mojibake when the file is decoded as Latin-1, so the CSV is read "
-                 "as UTF-8. No tested image carries this file, so the cadence and column "
-                 "meanings are not exercised; parsing is header-driven from column names taken "
-                 "from the reference cited under the Battery Data Collection (BDC) artifact.",
+        "notes": "Series resistance plus four RC branch columns, reported as stored. The CSV is "
+                 "read as UTF-8. No tested image carries this file, so the cadence and column "
+                 "meanings are not exercised. Parsing is header-driven; the source of the column "
+                 "names is not recorded here.",
         "paths": ('*/Battery/BDC/BDC_CPMSRC_*.csv', '*/BatteryBDC/BDC_CPMSRC_*.csv'),
         "output_types": "standard",
         "artifact_icon": "activity",
     },
     "battery_bdc_timestamps": {
         "name": "Battery Data Collection (BDC) - Timestamps",
-        "description": "RTC-to-wall-clock set events for time reconstruction from BDC_Timestamps logs",
+        "description": "System time and RTC tick pairs from BDC_Timestamps logs, reported as "
+                       "stored",
         "author": "@stark4n6, @ChrisJr404",
         "creation_date": "2026-08-17",
         "last_update_date": "2026-08-17",
         "requirements": "none",
         "category": "Battery",
         "notes": "Each row pairs a system time with an RTC tick value as stored; what event "
-                 "writes a row is not sourced here. Times are UTC.",
+                 "writes a row is not sourced here. The zone of the stored times is not "
+                 "established here; they are passed as stored.",
         "paths": ('*/Battery/BDC/BDC_Timestamps_*.csv', '*/BatteryBDC/BDC_Timestamps_*.csv'),
         "output_types": "standard",
         "artifact_icon": "clock",

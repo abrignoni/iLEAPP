@@ -2,7 +2,8 @@
 __artifacts_v2__ = {
     "home_depot_account": {
         "name": "Home Depot - Account",
-        "description": "Home Depot account profile",
+        "description": "Home Depot account profile fields as stored in the app's cached user info "
+                       "(the Email column is the stored logonId)",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
         "last_update_date": "2026-06-26",
@@ -10,7 +11,9 @@ __artifacts_v2__ = {
         "category": "Home Depot",
         "notes": (
             "Account data is parsed from three sources when present: USER_INFO_KEY in "
-            "com.thehomedepot.homedepot.plist, SharedUserInfoKey in group.com.thehomedepot.homedepot.plist, "
+            "the first matched file whose path ends with com.thehomedepot.homedepot.plist (the App "
+            "Group file's name ends the same way, so it can be the file read), SharedUserInfoKey "
+            "in group.com.thehomedepot.homedepot.plist, "
             "and userInfo.txt in the App Group container. Contains PII."
         ),
         "paths": (
@@ -31,7 +34,9 @@ __artifacts_v2__ = {
         "category": "Home Depot",
         "notes": (
             "Store data is parsed from the same three user-info sources as the account artifact. "
-            "Preferred Store IDs are only present when sourced from com.thehomedepot.homedepot.plist."
+            "Preferred Store IDs are filled only on the row read from the file matched as "
+            "com.thehomedepot.homedepot.plist; that match tests the end of the path, which the App "
+            "Group file's name also satisfies."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',
@@ -70,7 +75,8 @@ __artifacts_v2__ = {
     },
     "home_depot_products_viewed": {
         "name": "Home Depot - Cached Products",
-        "description": "Cached product details from THDConsumer Core Data store",
+        "description": "Cached product records from the THDConsumer Core Data store; the Price "
+                       "column is the stored specialPriceKey value",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
         "last_update_date": "2026-07-31",
@@ -96,20 +102,24 @@ __artifacts_v2__ = {
     },
     "home_depot_last_location": {
         "name": "Home Depot - Last Known Location",
-        "description": "Last known location (CLLocation) from Home Depot app preferences",
+        "description": "Location stored under currentLocationKey (an archived CLLocation) in the "
+                       "Home Depot app preferences, with the timestamp the archive carries",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
         "last_update_date": "2026-07-31",
         "requirements": "nska_deserialize",
         "category": "Home Depot",
-        "notes": "Parsed from currentLocationKey CLLocation blob.",
+        "notes": "Parsed from currentLocationKey CLLocation blob. Latitude and Longitude use the "
+                 "archive's raw coordinate keys when its coordinate keys are missing or empty.",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "all",
         "artifact_icon": "map-pin",
     },
     "home_depot_product_image_cache": {
         "name": "Home Depot - Product Image Cache",
-        "description": "Cached product image URLs and HTTP Last-Modified timestamps",
+        "description": "Cached product image URLs and the HTTP Last-Modified value stored with "
+                       "each. The Cache Date column holds that Last-Modified value; it is not "
+                       "shown to be the time the app cached the image",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
         "last_update_date": "2026-08-24",
@@ -141,7 +151,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-06-26",
         "requirements": "none",
         "category": "Home Depot",
-        "notes": "Excludes product image cache, search URL cache, and SDK analytics keys.",
+        "notes": "Leaves out the keys the other Home Depot artifacts read, every key that starts "
+                 "with https://, and keys starting with Adobe., AppsFlyer, com.akamai., "
+                 "clearingCoTheVeryFirstTime or hasAlreadyRegisteredForRemoteNotifications. Some "
+                 "of the https:// keys left out, such as Etag entries, are not reported by any "
+                 "artifact.",
         "paths": ('*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',),
         "output_types": "standard",
         "artifact_icon": "adjustments-alt",

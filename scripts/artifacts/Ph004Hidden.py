@@ -1,10 +1,9 @@
 __artifacts_v2__ = {
 'Ph004_1HiddenPhDaPsql': {
 'name': 'Ph004.1-Hidden-PhDaPsql',
-'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for hidden assets'
-' and supports various iOS versions. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for hidden assets. The results contain'
+' one row per asset (ZASSET, or ZGENERICASSET on iOS 11 to 13) whose ZHIDDEN value is 1, on iOS'
+' 11 through 26. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -12,7 +11,12 @@ __artifacts_v2__ = {
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. The header'
+" 'zCldMast-Import Session ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A"
+" link between that value and AirDrop is not established in this module. The header 'zAsset-UUID"
+" = store.cloudphotodb' reports the asset table's ZUUID. The match with store.cloudphotodb that"
+' the header names is not established in this module.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "eye-off",
@@ -36,9 +40,9 @@ __artifacts_v2__ = {
 },
 'Ph004_3HiddenGenPlayPsql': {
 'name': 'Ph004.3-Hidden-GenPlayPsql',
-'description': 'Parses basic asset row data from GenerativePlayground-Photos.sqlite for hidden assets'
-' and upports various iOS versions. The results for this script will contain'
-' one row per ZASSET table Z_PK value.'
+'description': 'Parses basic asset row data from GenerativePlayground-Photos.sqlite for hidden assets on iOS 18'
+' through 26. The only corpus in sample_data is at 0 rows. The results for this script will'
+' contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
@@ -47,7 +51,12 @@ __artifacts_v2__ = {
 'date': '2026-05-05',
 'requirements': 'Acquisition that contains GenerativePlayground-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': "Value labels in this report are the module author's working interpretations from testing. The"
+' module cites no source for them. Each label carries the stored value. The header'
+" 'zCldMast-Import Session ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A"
+" link between that value and AirDrop is not established in this module. The header 'zAsset-UUID"
+" = store.cloudphotodb' reports the asset table's ZUUID. The match with store.cloudphotodb that"
+' the header names is not established in this module.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "eye-off",

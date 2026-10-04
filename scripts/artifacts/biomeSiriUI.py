@@ -13,8 +13,12 @@ __artifacts_v2__ = {
         "category": "Biome",
         "notes": "Dismissal reasons observed: HardwareButton, Punchout, Timeout and "
                  "TapOutsideOfContent. The two records of a pair share a session identifier, "
-                 "so sort by timestamp and group on it to measure how long the interface was "
-                 "up. Field 5 is 1 on the appearing record and 0 on the dismissing one. The "
+                 "so records can be grouped on it; the time between the two records of a "
+                 "pair is the time between their SEGB record timestamps, and that it equals "
+                 "the time the interface was shown was not tested. On the tested images "
+                 "field 5 was 1 on the record with no dismissal reason and 0 on the record "
+                 "that carries one; the Interface State labels Presented and Dismissed "
+                 "follow that observation. The "
                  "presentation field carried a single constant value in the sample and is "
                  "reported raw.",
         "paths": ('*/streams/*/Siri.UI/local/*',),

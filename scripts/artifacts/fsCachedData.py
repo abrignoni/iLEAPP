@@ -15,7 +15,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Cache Data",
-        "notes": "Source location in the extraction is provided for each item.",
+        "notes": "Source location in the extraction is provided for each item. Timestamp Modified "
+                 "is the modification time of the file as staged from the extraction, shown as UTC; "
+                 "it is not read from the cached content. Bundle Name is inferred from the path and "
+                 "is not a recorded link between the file and an app: for a path under an AppGroup "
+                 "container it is the file name of a preferences plist in that container; for a "
+                 "path under Caches it is the folder path between Caches and fsCachedData or "
+                 "nsurlcache; for other application container paths it is a CFBundleIdentifier or "
+                 "MCMMetadataIdentifier value read from a preferences plist in the same container, "
+                 "or that plist's file name. It is blank when none is found.",
         "paths": (
             '*/fsCachedData/**',
             '*/Shared/AppGroup/*/Library/Preferences/*.plist',

@@ -5,23 +5,34 @@ __artifacts_v2__ = {
         "description": (
             "Parses Telegram messages, including text, media, and forwarding information "
             "from the local cache database. The Chat/Chat ID columns identify the conversation; "
-            "the Author/Author ID columns identify the sender of each individual message. On "
-            "messages without the Incoming flag, the Author ID field, when present, reflects "
-            "the signed-in account's user id."
+            "the Author/Author ID columns identify the sender of each individual message. "
+            "Direction is Incoming when the stored flags carry the Incoming bit and Outgoing "
+            "otherwise."
         ),
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
         "last_update_date": "2026-07-31",
         "requirements": "Python packages: mmh3",
         "category": "Telegram",
-        "notes": "Original Gist: https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713. "
-                 "This module processes the db_sqlite file from Telegram's local cache (postbox/db). "
-                 "Media files are linked from the postbox/media directory. "
-                 "Some media sub-field labels (live-location period, venue fields) are best-effort interpretations of observed keys. "
-                 "A photo is stored on the device once per size the client downloaded, each under its own file name, so every "
-                 "representation of an image is offered to the file search rather than the largest alone. When only a _partial "
-                 "file is present, no complete copy of the media is in the extraction, and the "
-                 "row says so.",
+        "notes": "Original Gist: "
+                 "https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713/"
+                 "9cb766ed4f977d55ccd0187024be92eac11b65ba (the newest revision on 3 October "
+                 "2026; the revision this module was written from is not recorded). This module "
+                 "reads the db_sqlite file of every account under telegram-data. Rows do not name "
+                 "the account, and peer names and media files are looked up across all accounts "
+                 "read. Media files are linked from the postbox/media directory by file name. A "
+                 "database that raises an SQLite error is skipped without a log line, and the "
+                 "located-at path names only the last database read. In the client's "
+                 "TelegramMediaMap record 'bt' is liveBroadcastingTimeout, which this module "
+                 "prints as Period, and 'hdg' is heading (SyncCore_TelegramMediaMap.swift at "
+                 "Telegram-iOS 6ad963e5). A location is labelled Dynamic Location Update when "
+                 "either is present. Venue details are stored under 've' and are not reported by "
+                 "this module. A photo message can reference several representations, each with "
+                 "its own file name, so every representation of an image is offered to the file "
+                 "search rather than the largest alone. When only a file with the _partial suffix "
+                 "is found under the names the message references, that file is attached and the "
+                 "row says so. The row text calls it an incomplete download; what the suffix "
+                 "marks is not sourced here.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/media/**'

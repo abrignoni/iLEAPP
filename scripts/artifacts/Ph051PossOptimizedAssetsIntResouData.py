@@ -1,13 +1,19 @@
 __artifacts_v2__ = {
 'Ph051PossibleOptimizedAssetsIntResouPhDaPsql': {
 'name': 'Ph051-Possible_Optimized_Assets_IntResou-PhDaPsql',
-'description': 'Parses iOS 14-18 asset records from PhotoData-Photos.sqlite ZINTERNALRESOURCE'
-' and other tables. This and other related parsers should provide data for investigative'
-' analysis of assets being stored locally on the device verses assets being stored in'
-' iCloud Photos as the result of optimization. This is very large query and script,'
-' I recommend opening the TSV generated report with Zimmermans Tools'
-' https://ericzimmerman.github.io/#!index.md TimelineExplorer to view, search,'
-' and filter the results.'
+'description': 'Parses asset records from PhotoData-Photos.sqlite ZINTERNALRESOURCE and other tables'
+' on iOS 14 through iOS 26. No iOS 26 image is recorded in sample_data, so the iOS 26'
+' query is unexercised. Rows are limited to ZINTERNALRESOURCE records where'
+' ZDATASTORESUBTYPE is 1, ZLOCALAVAILABILITY is -1 and ZFINGERPRINT is not null. The'
+' module labels those two values as the original-size main asset resource and as not'
+' available locally, and the post by Scott Koenig linked at the end describes this'
+' parser as a way to identify assets optimized for iPhone storage whose full-size file'
+' is not available locally on the device. Assets whose full-size resource is available'
+' locally are not listed. On iOS 16 and later no rows are returned when the'
+' ZADDITIONALASSETATTRIBUTES table lacks the ZDUPLICATEDETECTORPERCEPTUALPROCESSINGSTATE'
+' column, so an empty result does not establish that no such assets exist. The output'
+' has 234 to 303 columns, depending on the iOS version. The TSV export is easier to'
+' search and filter than the HTML page.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',

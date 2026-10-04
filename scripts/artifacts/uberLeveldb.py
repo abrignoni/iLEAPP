@@ -7,7 +7,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "",
         "category": "Uber",
-        "notes": "Thanks to Alex Caithness for the ccc_leveldb libraries",
+        "notes": "Records are read with Alex Caithness's ccl_leveldb library. Every record whose "
+                 "value is JSON is reported, whether or not it holds a location.",
         "paths": (
             '*/Data/Application/*/Library/Application Support/com.ubercab.UberClient/storagev2/*',
         ),

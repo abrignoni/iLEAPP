@@ -8,13 +8,19 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Media Library",
         "notes": (
-            "The media-kind value mapping is not documented by a published source and was read "
-            "from the tested images; unrecognized values are reported as stored. An item that "
-            "carries more than one artwork_token row is reported once per token, so the row "
-            "count can exceed the number of media items: on one tested iOS 18.3.2 image 1099 "
-            "items produced 1339 rows, 240 of them having two tokens each. Date Purchased is "
-            "left blank when item_store.date_purchased is 0; it was 0 on 3822 of 3826 rows "
-            "across the seven tested images that hold media items, and the meaning of a 0 value "
+            "The Media Type labels for media_kind 0, 1, 2, 4 and 33 are this module's own reading "
+            "and no published source for them was found; how each was derived is not recorded, so "
+            "treat the label as unconfirmed. Other values are reported as stored. Album Name, "
+            "Album Artist, Composer and Genre are joined on the representative item of each, so "
+            "they are blank on every other item of the same album, artist, composer or genre; a "
+            "blank does not mean the item has none. Items with no item_stats, item_playback or "
+            "item_video row are not reported. An item that carries more than one artwork_token row "
+            "is reported once per token, so the row count can exceed the number of media items: on "
+            "one tested iOS 18.3.2 image 1099 items produced 1339 rows, 240 of them having two "
+            "tokens each. Date Purchased is item_store.date_purchased read as seconds from "
+            "2001-01-01 UTC, a reading with no published source that only 4 tested rows exercise. "
+            "It is left blank when the stored value is 0, which it was on 3822 of 3826 rows across "
+            "the seven tested images that hold media items; the meaning of a 0 value "
             "is not sourced."),
         "paths": ('**/[Mm]edia[Ll]ibrary.sqlitedb*',),
         "output_types": "standard",
@@ -52,8 +58,10 @@ __artifacts_v2__ = {
         "category": "Media Library",
         "notes": (
             "Every key/value row in the table is reported as stored; the meaning of the "
-            "individual keys is not documented by a published source. In 23 tested images the "
-            "table held between 8 and 37 keys each, 42 distinct keys across all of them."),
+            "individual keys is not documented by a published source. In the 20 tested images "
+            "listed in sample_data the "
+            "table held between 8 and 37 keys each. An earlier count over 23 tested images found "
+            "42 distinct keys; that count was not repeated on the 20 listed images."),
         "paths": ('**/[Mm]edia[Ll]ibrary.sqlitedb*',),
         "output_types": "standard",
         "artifact_icon": "info-circle",

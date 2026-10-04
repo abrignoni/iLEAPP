@@ -1,10 +1,13 @@
 __artifacts_v2__ = {
 'Ph025_1SWYConversationRecordswithNADPhDaPsql': {
 'name': 'Ph025.1-SWY Conversation Records NAD-PhDaPsql',
-'description': 'Parses Shared with You Conversation Album records found in the PhotoData-Photos.sqlite'
-' ZGENERICALBUM Table and supports iOS. Parses Share with You Conversation Album'
-' records only, no asset data being parsed.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses ZGENERICALBUM records of kind 1509 (Shared with You conversation albums) "
+"found in PhotoData/Photos.sqlite. The only asset column reported is the conversation "
+"key of the asset, but the query joins the asset table and the album-asset table, so "
+"an album linked to several assets can appear on more than one row and the row count "
+"is not a count of albums. Queries exist for iOS 15 through 26; other versions return "
+"no rows. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',
@@ -36,10 +39,13 @@ __artifacts_v2__ = {
 },
 'Ph025_2SWYConversationRecordswithNADSyndPL': {
 'name': 'Ph025.2-SWY Conversation Records NAD-SyndPL',
-'description': 'Parses SWY Conversation Album Records found in the'
-' Syndication.photoslibrary-database-Photos.sqlite ZGENERICALBUM Table and supports iOS.'
-' Parses Share with You Conversation Album records only, no asset data being parsed.'
-' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
+'description': "Parses ZGENERICALBUM records of kind 1509 (Shared with You conversation albums) "
+"found in the Syndication.photoslibrary Photos.sqlite. The only asset column reported "
+"is the conversation key of the asset, but the query joins the asset table and the "
+"album-asset table, so an album linked to several assets can appear on more than one "
+"row and the row count is not a count of albums. Queries exist for iOS 15 through 26; "
+"other versions return no rows. "
+"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-07-27',

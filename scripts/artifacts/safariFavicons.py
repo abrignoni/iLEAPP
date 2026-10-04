@@ -1,13 +1,18 @@
 __artifacts_v2__ = {
     "safariFavicons": {
         "name": "Safari Browser - Favicons",
-        "description": "Safari favicon cache entries (page URL, icon URL, dimensions)",
+        "description": "Favicon cache entries (page URL, icon URL, dimensions) from the first Favicons.db found under an app container's Library/Image Cache/Favicons",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Safari Browser",
-        "notes": "",
+        "notes": (
+            "Only the first Favicons.db found is read. The path pattern matches any app "
+            "container; on every image in sample_data the container was com.apple.mobilesafari. "
+            "Timestamp is read as seconds since 2001-01-01 unless the value is above 978307200, "
+            "when it is read as Unix seconds."
+        ),
         "paths": ('*/Containers/Data/Application/*/Library/Image Cache/Favicons/Favicons.db*',),
         "output_types": "standard",
         "artifact_icon": "photo",

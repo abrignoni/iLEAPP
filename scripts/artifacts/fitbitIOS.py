@@ -1,27 +1,30 @@
 __artifacts_v2__ = {
     "fitbit_ios_locations": {
         "name": "Fitbit - Exercise Locations",
-        "description": "Parses the GPS points the Fitbit iOS app recorded during exercise, "
-                       "with the coordinates, altitude, speed and accuracy of each.",
+        "description": "Parses the location points stored in the Fitbit iOS app's database, with "
+                       "the coordinates, altitude, speed and accuracy of each and the exercise "
+                       "session each is linked to where one is.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-20",
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Fitbit",
         "notes": "One row per recorded point. Each point is joined to its session through the "
-                 "location group the record names, so a point carries the name and start time of "
-                 "the exercise it came from. The timestamp is stored as an eight byte value "
-                 "holding a big endian double of seconds since the 2001 Apple epoch, which is "
-                 "unusual enough to be worth stating: it is not a plain numeric column. That "
-                 "reading is corroborated independently, because the heart rate table in the "
-                 "same database stores its own times as ISO text written by a different code "
-                 "path and its dates coincide with the span these points cover. All 9,419 points "
-                 "on the iOS 17.3 image (iphone11_ios17) decoded to one five day window. "
-                 "Interpolated (as stored) is the flag the record carries; its meaning is not "
-                 "established here, so a flagged point is not read as an observed one. "
-                 "Horizontal and vertical "
-                 "accuracy are the values the record carries. Field mapping was done against "
-                 "a private sample provided by Mattia; no sample data is recorded for it. Every copy of the database in the extraction is read rather than the first one found, so a device holding more than one app data container reports all of them.",
+                 "location group the record names, so a point linked to a session carries the name "
+                 "and start time of that session, and both are blank for a point that is not. The "
+                 "timestamp is stored as an eight byte value holding a big endian double of seconds "
+                 "since the 2001 Apple epoch, which is unusual enough to be worth stating: it is "
+                 "not a plain numeric column. That reading is corroborated independently, because "
+                 "the heart rate table in the same database stores its own times as ISO text, a "
+                 "different stored form, and its dates coincide with the span these points cover. "
+                 "All 9,419 points on the iOS 17.3 image (iphone11_ios17) decoded to one five day "
+                 "window. Interpolated (as stored) is the flag the record carries; its meaning is "
+                 "not established here, so the value is reported as stored and no point is treated "
+                 "differently because of it. Horizontal and vertical accuracy are the values the "
+                 "record carries. Field mapping was done against a private sample provided by "
+                 "Mattia; no sample data is recorded for it. Every copy of the database in the "
+                 "extraction is read rather than the first one found, so a device holding more than "
+                 "one app data container reports all of them.",
         "paths": ('*/Documents/fitbit.sqlite*',),
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 9,419 rows",
@@ -34,28 +37,31 @@ __artifacts_v2__ = {
     },
     "fitbit_ios_activities": {
         "name": "Fitbit - Exercise Sessions",
-        "description": "Parses the exercise sessions the Fitbit iOS app logged, with the "
-                       "start time, duration, distance and the tracker that recorded them.",
+        "description": "Parses the exercise sessions the Fitbit iOS app logged, with the start "
+                       "time, duration, distance and the source name, type and ID stored with each.",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-20",
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Fitbit",
-        "notes": "One row per logged session. Start Time uses the same eight byte big endian "
-                 "double of seconds since the 2001 Apple epoch as the location points. "
-                 "Duration values are seconds. Has GPS is the flag the record carries and "
-                 "tells an examiner whether to expect points in the locations artifact for "
-                 "that session. Source Name and Source Type are reported as stored. Distance and "
-                 "speed are reported as stored, because the record separately carries a unit "
-                 "system code and nothing in the extraction maps that code to a unit, so the "
-                 "figures are not converted or labelled with a unit here. A stored date far "
-                 "outside any plausible range is left empty "
-                 "rather than rendered as a first century date. Field mapping was done "
-                 "against a private sample provided by Mattia; no sample data is recorded "
-                 "for it. Source Name is a column older stores lack: the iOS 13.3.1, 14.3 and "
-                 "15.3.1 images carry Source Type and Source ID but no ZSOURCENAME, so the "
-                 "column is blank there and the query reads it as NULL rather than failing. "
-                 "On the iOS 17.3 image 12 of 27 sessions have no Source Name stored either.",
+        "notes": "One row per logged session. Start Time uses the same eight byte big endian double "
+                 "of seconds since the 2001 Apple epoch as the location points. Last Modified is "
+                 "read as a plain number of seconds since the same epoch; these notes record no "
+                 "check of that reading. The column headers label Duration Overall and Duration "
+                 "Active as seconds; the values are reported as stored and the unit is not "
+                 "established here. Has GPS is the flag the record carries, reported as stored; "
+                 "these notes record no measurement of whether it tracks the presence of points in "
+                 "the locations artifact. Source Name and Source Type are reported as stored. "
+                 "Distance and speed are reported as stored, because the record separately carries "
+                 "a unit system code and nothing in the extraction maps that code to a unit, so the "
+                 "figures are not converted or labelled with a unit here. A stored date far outside "
+                 "any plausible range is left empty rather than rendered as a first century date. "
+                 "Field mapping was done against a private sample provided by Mattia; no sample "
+                 "data is recorded for it. Source Name is a column older stores lack: the iOS "
+                 "13.3.1, 14.3 and 15.3.1 images carry Source Type and Source ID but no "
+                 "ZSOURCENAME, so the column is blank there and the query reads it as NULL rather "
+                 "than failing. On the iOS 17.3 image some sessions have no Source Name stored "
+                 "either.",
         "paths": ('*/Documents/fitbit.sqlite*',),
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 27 rows",
@@ -75,19 +81,20 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Fitbit",
-        "notes": "One row per sample. Unlike the location and session times in the same "
-                 "database, these are stored as ISO text and are reported as the time they "
-                 "state; the text carries no zone, so no conversion is applied. Resolution "
-                 "is the value the record carries and is reported as stored. A sample is a "
-                 "tracker reading and not a phone location. On the iOS 17.3 image "
-                 "(iphone11_ios17) the "
-                 "samples were dense, 56,282 of them, so the artifact is large by nature. Field "
-                 "mapping was done against a private sample provided by Mattia; no sample data "
-                 "is recorded for it. Older stores have no ZMANAGEDHEARTRATE table: the iOS "
-                 "13.3.1 and 14.3 images keep per day heart rate rows in ZFBHEARTRATESTAT and "
-                 "the 15.3.1 image in ZHEARTRATESTAT, with intraday points archived in keyed "
-                 "archive blobs, and this artifact reads none of those, so it reports no rows "
-                 "on such stores and logs the skip.",
+        "notes": "One row per sample. Unlike the location and session times in the same database, "
+                 "these are stored as ISO text and are reported as the time they state. A reading "
+                 "whose text carries no zone is given none here. The column is typed as a date and "
+                 "time, and the LAVA output stores a reading with no zone as if it were UTC, so for "
+                 "such a reading the zone of the time shown is not established. Resolution is the "
+                 "value the record carries and is reported as stored. A sample carries no "
+                 "coordinates, and which device produced it is not recorded in the columns read "
+                 "here. On the iOS 17.3 image (iphone11_ios17) the samples were dense, 56,282 of "
+                 "them, so the artifact is large by nature. Field mapping was done against a "
+                 "private sample provided by Mattia; no sample data is recorded for it. Older "
+                 "stores have no ZMANAGEDHEARTRATE table: the iOS 13.3.1 and 14.3 images keep per "
+                 "day heart rate rows in ZFBHEARTRATESTAT and the 15.3.1 image in ZHEARTRATESTAT, "
+                 "with intraday points archived in keyed archive blobs, and this artifact reads "
+                 "none of those, so it reports no rows on such stores and logs the skip.",
         "paths": ('*/Documents/fitbit.sqlite*',),
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 56,282 rows",
@@ -107,12 +114,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Fitbit",
-        "notes": "One row per stored day. These are per day totals as stored; how they were "
-                 "computed is not established here. Distance is reported as stored for the same "
-                 "reason as the "
-                 "sessions artifact: the database carries a unit system code that nothing in "
-                 "the extraction maps to a unit. Field mapping was done against a private "
-                 "sample provided by Mattia; no sample data is recorded for it.",
+        "notes": "One row per row of ZFBACTIVITYSTAT2. Day is read as the eight byte form the "
+                 "session start times use, or as a plain number of seconds since the 2001 Apple "
+                 "epoch when it is not in that form, and is shown as UTC; whether the stored value "
+                 "marks a local midnight is not established here. These are per day totals as "
+                 "stored; how they were computed is not established here. Distance is reported as "
+                 "stored for the same reason as the sessions artifact: the database carries a unit "
+                 "system code that nothing in the extraction maps to a unit. Field mapping was done "
+                 "against a private sample provided by Mattia; no sample data is recorded for it.",
         "paths": ('*/Documents/fitbit.sqlite*',),
         "sample_data": {
             "iphone11_ios17": "iOS 17.3 | 68 rows",

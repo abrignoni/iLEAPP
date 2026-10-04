@@ -7,7 +7,20 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "Which array position holds the connect vs disconnect timestamp is inferred; the cited research documents that both are recorded. Reference: Josh Hickman, 'Ridin' With Apple CarPlay', https://thebinaryhick.blog/2019/05/08/ridin-with-apple-carplay/",
+        "notes": "The first array value is reported as Last Connected, the second as Last "
+                 "Disconnected and the third as Type. On abe_ios16 (LastVehicleConnection, 4 "
+                 "values) and on dexter_ios18, hc_ios18_7 and iphone11_ios17 "
+                 "(LastVehicleConnectionV2, 6 values) the array holds three numeric values: the "
+                 "first, the second, and one more after the text values. The last one is later than "
+                 "the second on all four images and is not reported by this artifact. The cited "
+                 "research, on iOS 12.2, describes three timestamps: the first is the last "
+                 "connection, the one after the vehicle name string is the disconnection, and the "
+                 "one in the middle is not identified as the disconnection. The value reported here "
+                 "as Last Disconnected is the middle one; which value is the disconnect time was "
+                 "not tested on these images. Neither key was present on felix_ios17, hc_ios26, "
+                 "iphone12_ios18, iphone14plus_ios18 or otto_ios17. Reference: Josh Hickman, "
+                 "'Ridin' With Apple CarPlay', "
+                 "https://thebinaryhick.blog/2019/05/08/ridin-with-apple-carplay/",
         "paths": ('*/Library/Caches/locationd/cache.plist'),
         "output_types": "none",
         "artifact_icon": "car",

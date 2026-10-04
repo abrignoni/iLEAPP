@@ -1,7 +1,12 @@
 __artifacts_v2__ = {
     "get_kleinanzeigenuser": {
         "name": "Kleinanzeigen.de - User Account",
-        "description": "Extracts Information about the Kleinanzeigen User Account",
+        "description": "Account values from the currentUserProfile entry of "
+                       "com.ebaykleinanzeigen.ebc.plist: e-mail, id, contact name, initials, "
+                       "account type, and the userSince and lastModified values read as Cocoa "
+                       "seconds. As written the two times are printed in the local time of the "
+                       "computer running the tool, with no zone shown. No tested image is "
+                       "recorded for this artifact.",
         "author": "@C_Peter",
         "creation_date": "2025-02-19",
         "last_update_date": "2025-02-19",
@@ -20,9 +25,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-24",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
-        "notes": "sender=0 is read as the local account; no source for that mapping is given "
-                 "here and it was not measured on a counted sample. The OUTBOUND boundness value "
-                 "is read as the store spells it.",
+        "notes": "sender=0 is read as the local account; no source for that mapping is given here "
+                 "and it was not measured on a counted sample. The OUTBOUND boundness value is "
+                 "read as the store spells it. A conversation with no cached messages is reported "
+                 "as one row built from its preview: the text is the shortened textShortTrimmed "
+                 "value, the time is receivedDate and the Message_ID is blank, so that row is a "
+                 "preview and not a message record. Times are read as Cocoa seconds and shown in "
+                 "UTC. The file is matched by name within any app container, so the owning app "
+                 "should be confirmed from the source path. No tested image is recorded for this "
+                 "artifact.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/conversation_cache', ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -40,7 +51,11 @@ __artifacts_v2__ = {
     },
     "get_kleinanzeigensearchhistory": {
         "name": "Kleinanzeigen.de - Search History",
-        "description": "Extracts searched Keywords",
+        "description": "Entries of searchedKeywords in the advertisementSearchDataHistory value "
+                       "of com.ebaykleinanzeigen.ebc.plist, with each entry's timeStamp read as "
+                       "Cocoa seconds. As written the time is printed in the local time of the "
+                       "computer running the tool, with no zone shown. No tested image is "
+                       "recorded for this artifact.",
         "author": "@C_Peter",
         "creation_date": "2025-02-19",
         "last_update_date": "2025-02-19",

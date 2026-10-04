@@ -39,7 +39,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "WiFi Connections",
-        "notes": "Parses multiple plist files with varying structures. Some fields may be blank.",
+        "notes": "Parses multiple plist files with varying structures. Some fields may be blank. "
+                 "System Joined and User Joined are the stored JoinedBySystemAt and JoinedByUserAt "
+                 "values; what sets each is not established here.",
         "paths": ('*/com.apple.wifi.plist', 
                   '*/com.apple.wifi-networks.plist.backup', 
                   '*/com.apple.wifi.known-networks.plist'),
@@ -65,13 +67,18 @@ __artifacts_v2__ = {
     },
     "appleWifiScannedPrivate": {
         "name": "WiFi Scanned Networks (Private)",
-        "description": "Parses WiFi connection data for networks scanned while using private MAC address",
+        "description": "Entries of the 'List of scanned networks with private mac' list in "
+                       "com.apple.wifi-private-mac-networks.plist, with their stored dates and "
+                       "private MAC address values",
         "author": "@AlexisBrignoni",
         "creation_date": "2023-05-24",
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "WiFi Connections",
-        "notes": "",
+        "notes": "The MAC Used For Network column holds the PRIVATE_MAC_ADDRESS_IN_USE value and "
+                 "the Private MAC Computed For Network column holds the PRIVATE_MAC_ADDRESS_VALUE "
+                 "value, both stored under PRIVATE_MAC_ADDRESS. The two header names are this "
+                 "module's and are not sourced here.",
         "paths": ('*/com.apple.wifi-private-mac-networks.plist',),
         "output_types": "standard",
         "artifact_icon": "eye-off",
@@ -98,7 +105,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "WiFi Connections",
-        "notes": "Extracts detailed BSS information from the com.apple.wifi.known-networks.plist file",
+        "notes": "Extracts BSS entries from the com.apple.wifi.known-networks.plist file. "
+                 "Latitude, Longitude, Location Accuracy and Location Timestamp are the "
+                 "LocationLatitude, LocationLongitude, LocationAccuracy and LocationTimestamp "
+                 "values stored in each BSS entry; what they locate and how they were obtained is "
+                 "not established here.",
         "paths": ('*/com.apple.wifi.known-networks.plist',),
         "output_types": "all",
         "artifact_icon": "wifi",

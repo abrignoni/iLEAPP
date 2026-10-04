@@ -11,7 +11,11 @@ __artifacts_v2__ = {
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Audio",
-        "notes": "2026-07-14 Update: Rewriting the artifact to use the recording database and fix issue #1717.",
+        "notes": "Rows are read from the ZCLOUDRECORDING table of CloudRecordings.db where that "
+                 "file is present, otherwise from the ZRECORDING table of Recordings.db. Date and "
+                 "time is ZDATE read as Cocoa time. Local Path Status says whether the row stores "
+                 "a ZPATH value; a stored path does not establish that the audio file is in the "
+                 "extraction.",
         "paths": (
             "*/Recordings/*Recordings.db*",
             "*/Recordings/*.m4a",

@@ -8,26 +8,30 @@ __artifacts_v2__ = {
         "last_update_date": "2026-09-06",
         "requirements": "none",
         "category": "Zoom",
-        "notes": "One row per row of every per conversation message table in the account's own "
-                 "store, Documents/data/<account>@xmpp.zoom.us/<account>@xmpp.zoom.us.asyn.db. "
-                 "The tables are named for the conversation, so they are found by their name "
-                 "pattern rather than listed: the one tested image that holds the store has three "
-                 "of them and only one carries rows, six of them. Timestamp is the row's "
-                 "millisecond time, reported in UTC, and the six fall inside fifteen minutes of "
-                 "one day in the period the image covers. **Direction is recorded, not "
-                 "inferred**: the row carries a sent by me flag, and it gives 3 outgoing and 3 "
-                 "incoming here, with the sender name on the row agreeing three and three. Two "
-                 "messages name a file, and both are attached: the file table in the same store "
-                 "names the message and gives the path the app wrote the copy to, and that copy "
-                 "was found in the account's own folder inside the same container. The other four "
-                 "rows name no file. Message Type, Message State and Read are reported as stored. "
-                 "Conversation ID and Source Table hold one value each across the six rows "
-                 "because only one conversation table carries any, Message ID and Thread ID are "
-                 "identical on every row, and Giphy ID is empty on every row, so none of the six "
-                 "is an animation. Tables in this store that nothing here reads are named so the "
-                 "omission is visible: the device tables, which hold a certificate, a key and a "
-                 "password for the account's device and from which **no key material is "
-                 "reported**; the configuration table, 52 rows of app settings; the notification "
+        "notes": "One row per row of each per conversation message table in the account's own "
+                 "store that has all the columns the module reads (a table missing one is skipped "
+                 "and named in the run log). The store is "
+                 "Documents/data/<account>@xmpp.zoom.us/<account>@xmpp.zoom.us.asyn.db. The "
+                 "tables are named for the conversation, so they are found by their name pattern "
+                 "rather than listed: the one tested image that holds the store has three of them "
+                 "and only one carries rows, six of them. Timestamp is the row's millisecond time "
+                 "(messageTimestamp), reported in UTC, and where that is empty the row's "
+                 "timeStamp read as Unix seconds. The six fall inside fifteen minutes of one day "
+                 "in the period the image covers. Direction comes from the row's sent by me flag: "
+                 "1 is reported as Outgoing and any other stored value, including an empty one, "
+                 "as Incoming. It gives 3 outgoing and 3 incoming here, with the sender name on "
+                 "the row agreeing three and three. Two messages name a file, and both are "
+                 "attached: the file table in the same store names the message and gives a path "
+                 "for the copy, and a file with that path's file name was found in the account's "
+                 "own folder inside the same container. The match is on the file name, and one "
+                 "file is shown per message. The other four rows name no file. Message Type, "
+                 "Message State and Read are reported as stored. Conversation ID and Source Table "
+                 "hold one value each across the six rows because only one conversation table "
+                 "carries any, and Giphy ID is empty on every row, so none of the six names an "
+                 "entry of the giphy table. Tables in this store that nothing here reads are "
+                 "named so the omission is visible: the device tables, which hold a certificate, "
+                 "a key and a password for the account's device and from which no key material is "
+                 "reported; the configuration table, 52 rows of app settings; the notification "
                  "store, 11 rows; the session table, whose three rows carry a last update time "
                  "and a last message identifier on one and zeros on the other two; the buddy, "
                  "thread time block and file download tables, which repeat identifiers reported "
@@ -62,13 +66,15 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Zoom",
         "notes": "One row per row of the call history table in the account's own store. Timestamp "
-                 "is Unix seconds, reported in UTC. The one tested image that holds the store has "
-                 "a single row, and it carries both party names, a number, and a direction, "
-                 "length, state and call type that are stored as numbers whose meanings nothing "
-                 "here establishes, so all four are reported as stored rather than translated. "
-                 "The caller and callee identifiers are the two accounts the message table shows "
-                 "talking to each other, so the row belongs to that conversation. One row cannot "
-                 "show what the table looks like on a device with more calls.",
+                 "is the time column read as Unix seconds and reported in UTC. No source for the "
+                 "unit is cited here. The one tested image that holds the store has a single row, "
+                 "and it carries both party names, a number, and a direction, length, state and "
+                 "call type that are stored as numbers whose meanings nothing here establishes, "
+                 "so all four are reported as stored rather than translated. The caller and "
+                 "callee identifiers are the two accounts the message table shows talking to each "
+                 "other, so the call is between the same two accounts as that conversation. The "
+                 "module reads no column that links the call row to a conversation. One row "
+                 "cannot show what the table looks like on a device with more calls.",
         "paths": ('*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*.asyn.db*',),
         "output_types": "standard",
         "artifact_icon": "phone",
@@ -92,11 +98,14 @@ __artifacts_v2__ = {
                  "record and then to the file row, which on the two rows here differ from each "
                  "other by under half a second. Both rows on the one tested image that holds the "
                  "store were found on the device and are attached. File Bytes equals Recorded "
-                 "Size (as stored) on both, at 188173 and 188051 bytes, which is the file on disk "
-                 "agreeing with what the store wrote down. Direction comes from the row's own "
-                 "sent by me flag and gives one each way. The file is looked for by the name the "
-                 "store recorded, inside the account's own folder in the same container, so a "
-                 "file from another account or another app cannot be picked up.",
+                 "Size (as stored) on both, which is the file on disk agreeing with what the "
+                 "store wrote down. Direction comes from the row's own sent by me flag, with 1 "
+                 "reported as Outgoing and any other value as Incoming, and gives one each way. "
+                 "The file is looked for by the file name of the path the store recorded, inside "
+                 "the account's own folder in the same container, so a file from another account "
+                 "or another app is not picked up. The match is on the file name alone inside "
+                 "that folder, so where two subfolders hold a file of the same name the first one "
+                 "found is attached.",
         "paths": ('*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*.asyn.db*',
                   '*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*/*'),
         "output_types": "standard",
@@ -115,15 +124,17 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Zoom",
         "notes": "One row per row of the giphy table in the account's own store. A row records an "
-                 "animation held in the giphy table, with the page address, the mobile "
-                 "and full size addresses, and the path it wrote a copy to. All eight rows on the "
-                 "one tested image that holds the store were found on the device and are "
-                 "attached, looked for by the recorded name inside the account's own folder in "
-                 "the same container. The table carries no time, so a row does not say when the "
-                 "animation was chosen or whether it was sent. The message table carries a giphy "
-                 "identifier column and no message on this image fills it, so none of these eight "
-                 "is recorded as having been sent in the conversation the store holds. File "
-                 "Present reads Yes on all eight because every one was found.",
+                 "animation held in the giphy table, with the page address, the mobile and full "
+                 "size addresses, and two recorded paths for a copy on the device, which are not "
+                 "shown as columns. The copy is looked for under the first path's file name and, "
+                 "where that is not found, under the full size picture path's file name, inside "
+                 "the account's own folder in the same container. All eight rows on the one "
+                 "tested image that holds the store were found on the device and are attached. "
+                 "The table carries no time, so a row does not say when the animation was chosen "
+                 "or whether it was sent. The message table carries a giphy identifier column and "
+                 "no message on this image fills it, so none of these eight is recorded as having "
+                 "been sent in the conversation the store holds. File Present reads Yes on all "
+                 "eight because every one was found.",
         "paths": ('*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*.asyn.db*',
                   '*/Containers/Data/Application/*/Documents/data/*@xmpp.zoom.us/*/*'),
         "output_types": "standard",

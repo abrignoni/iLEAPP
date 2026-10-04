@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "textinputTyping": {
         "name": "Text Input Messages",
-        "description": "Typed text captured by the TextInput TypingDESPlugin (.desdata)",
+        "description": "Reads .desdata records of com.apple.TextInput.TypingDESPlugin. No tested image holds one, so this artifact has not been run against data and the meaning of its columns is not established",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",
         "requirements": "none",
         "category": "Text Input Messages",
-        "notes": "No com.apple.TextInput.TypingDESPlugin records exist under DES/Records in any registered corpus image or public path listing checked (iOS 12.4-26.5.2) nor in Mattia Epifani's 2026-08 comparison across 21 extractions (iOS 16.1.1-26.5.2): the system plugin binary ships under System/Library/DistributedEvaluation on the iOS 15-26 images checked, but no image carries recorded .desdata for it, so a no-file result on current extractions is expected.",
+        "notes": "No com.apple.TextInput.TypingDESPlugin records were found under DES/Records in the corpus images and public path listings checked; the number of images and the date of that check are not recorded here. The system plugin binary ships under System/Library/DistributedEvaluation on the images checked, but no image carries recorded .desdata for it, so none of the images checked returns rows. The parser is unexercised: it reads only the last alignedEntries item, reports the timestamp as stored, and adds one row per file holding the contextBeforeInput text in the Text column and the text True in the contextBeforeInput column.",
         "paths": ('*/DES/Records/com.apple.TextInput.TypingDESPlugin/*.desdata',),
         "output_types": "standard",
         "artifact_icon": "typography"

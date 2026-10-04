@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "interactionCContacts": {
         "name": "InteractionC - Contacts",
-        "description": "Contact interactions recorded in interactionC.db",
+        "description": "Interaction rows of interactionC.db with the sender contact each row links to. Direction is reported as stored. Recipient contacts are not listed; only the stored recipient count is reported.",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
         "last_update_date": "2026-06-24",

@@ -4,8 +4,12 @@ __artifacts_v2__ = {
         "description": "IMO HD chat messages and attachments",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-09-06", "requirements": "none",
         "category": "IMO HD Chat",
-        "notes": "URLs are constructed by the parser from object IDs using an observed IMO CDN pattern; "
-                 "they are not stored in the data. Older stores have no ZCONTACT_ALIAS column on the "
+        "notes": "URLs are built by the parser from object IDs with a fixed prefix; they are not "
+                 "stored in the data and were not checked against the service. On a row whose ZISSENT "
+                 "is 1, Sender Name and Sender ID are the imo_account_alias and imo_account_uid values "
+                 "of ZIMOKEYVAL, not values of the message row, and Sender Name reads 'Local User' "
+                 "when no alias is stored. Timestamp is ZTS read as Unix nanoseconds. Only the first "
+                 "IMODb2.sqlite found is read. Older stores have no ZCONTACT_ALIAS column on the "
                  "message table (the iOS 13.3.1 and 14.3 images), so on those the chat and sender names "
                  "fall back from the contact table's display name straight to the alias stored on the "
                  "message.",
@@ -35,7 +39,9 @@ __artifacts_v2__ = {
         "name": "IMO HD Chat - Contacts",
         "description": "IMO HD chat contacts",
         "author": "@stark4n6", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "IMO HD Chat", "notes": "URLs are constructed by the parser from object IDs using an observed IMO CDN pattern; they are not stored in the data.",
+        "category": "IMO HD Chat", "notes": "The URL is built by the parser from ZICON_ID with a fixed "
+                                            "prefix; it is not stored in the data and was not checked "
+                                            "against the service.",
         "paths": ('*/IMODb2.sqlite*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {

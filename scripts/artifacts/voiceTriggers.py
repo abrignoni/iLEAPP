@@ -1,7 +1,11 @@
 __artifacts_v2__ = {
     "voiceTriggers": {
         "name": "Voice-Triggers",
-        "description": "Extracts Voice Trigger audio recordings and metadata.",
+        "description": "Audio files and their JSON metadata from "
+                       "Library/VoiceTrigger/SAT/*/td/audio. The grainedDate value is a date with "
+                       "no time and is shown as midnight UTC; it is a date, not an instant, and "
+                       "what it records is not established. Device is the productType value as "
+                       "stored.",
         "author": "@Anna-Mariya Mateyna",
         "creation_date": "2020-12-21",
         "last_update_date": "2026-07-31",

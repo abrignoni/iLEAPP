@@ -9,8 +9,14 @@ __artifacts_v2__ = {
         'last_update_date': '2025-10-07',
         "requirements": "none",
         "category": "OS Updates",
-        "notes": "Parses migration records found in the Photos.sqlite database. Based on SQL "
-                 "queries written by Scott Koenig, https://theforensicscooter.com/",
+        "notes": "Parses migration records found in the Photos.sqlite database. The query "
+                 "is adapted from Scott Koenig's migration history query "
+                 "(https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS14/Previous_Queries/iOS14_LPL_Phsql_MigrationHistory.txt). "
+                 "The Type labels this artifact prints for ZMIGRATIONTYPE differ from the "
+                 "labels in that file, and what each value means is not established here, so "
+                 "read the leading number as the stored value. Timestamp is ZMIGRATIONDATE "
+                 "read as Core Data seconds since 2001, in UTC. OS Version is looked up from "
+                 "the stored build string.",
         "paths": ('*/PhotoData/Photos.sqlite*',),
         "output_types": "standard",
         'artifact_icon': "chevrons-up",

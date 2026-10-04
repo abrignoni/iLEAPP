@@ -7,7 +7,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Claude",
-        "notes": "Timestamp stored as ISO 8601 combined date-time format. "
+        "notes": "Timestamps are stored as ISO 8601 text ending in Z and are reported as UTC. "
+                 "Only the first bootstrap JSON that holds an account object is read. "
                  "On the test data created with iOS 26, the update time changed when the account "
                  "name was changed. "
                  "Test data created with iOS 26.",
@@ -28,7 +29,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Claude",
-        "notes": "On the test data, conversations marked incognito carried no conversation name, "
+        "notes": "The Incognito Conversation column is the conversations.isTemporary value under "
+                 "this parser's label. On the test data, rows with isTemporary set to 1 carried "
+                 "no conversation name, "
                  "so that column is blank for them. "
                  "Test data created with iOS 26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
@@ -42,14 +45,16 @@ __artifacts_v2__ = {
 
     "iOSclaudeMessages": {
         "name": "Claude Messages",
-        "description": "Parses Claude Messages with some conversations info",
+        "description": "Parses Claude messages with the conversation name and id. The file name shown is that of the first file attached to the message.",
         "author": "Brandon Baye",
         "creation_date": "2026-07-21",
         "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Claude",
-        "notes": "json_each is used to expand the JSON array of sources stored with a message. "
-                 "The final response is stored as a message from assistant. The path containing "
+        "notes": "The Message column joins the text of the blocks of type 'text' in the "
+                 "message's content array; blocks of any other type are not reported. "
+                 "On the test data the response was stored as a message whose sender is "
+                 "assistant. The path containing "
                  "uploaded image files was empty on the test data. The conversation title is "
                  "joined to each message for context. "
                  "Test data created with iOS 26.",
@@ -81,8 +86,8 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-09",
         "requirements": "none",
         "category": "Claude",
-        "notes": "Project rows can reference chats added to the project. Where a document was "
-                 "added to a project, the file name is stored. "
+        "notes": "One row is reported per project document, with the document's file name; a "
+                 "project that holds no document is not listed. "
                  "Test data created with iOS 26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
         "output_types": "standard",

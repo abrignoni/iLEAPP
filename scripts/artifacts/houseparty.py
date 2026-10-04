@@ -10,9 +10,9 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Houseparty",
         "notes": "Read from class_RealmNote in Documents/houseparty.rocky.realm with the vendored "
-                 "realm_parser. Houseparty was a group video chat app; its publisher removed it "
-                 "from the app stores on 9 September 2021 and shut it down in October 2021, so a "
-                 "store found now is a residue of earlier use. Reference: Sarah Perez, 'Epic "
+                 "realm_parser. Houseparty was a group video chat app; its publisher announced on 9 "
+                 "September 2021 that the app was being pulled from the app stores that day and would "
+                 "be discontinued in October 2021. Reference: Sarah Perez, 'Epic "
                  "Games to shut down Houseparty in October, including the video chat Fortnite "
                  "Mode feature', TechCrunch, "
                  "https://techcrunch.com/2021/09/09/epic-games-to-shut-down-houseparty-in-october-including-the-video-chat-fortnite-mode-feature/ "
@@ -20,9 +20,12 @@ __artifacts_v2__ = {
                  "though an iOS data container is named by an identifier; a store without "
                  "class_RealmUser and class_RealmGlobals is skipped and logged. Direction is "
                  "derived by comparing each message's senderId against the currentUserId "
-                 "class_RealmGlobals records, which is the identity the store itself holds, and "
-                 "is left empty when that row is absent. Sender and Recipient are resolved to the "
-                 "username class_RealmPublicUser records for that id, falling back to the id as "
+                 "class_RealmGlobals records, which is the identity the store itself holds, and, when "
+                 "that row is absent or carries no currentUserId, against the id of the first "
+                 "class_RealmUser row; Direction is empty only when neither gives an id or the message "
+                 "has no senderId. Sender, Recipient and Conversation are resolved to the username "
+                 "class_RealmPublicUser records for that id, or its fullName where the username is "
+                 "empty, falling back to the id as "
                  "stored. Sent At is built from the row's own sentAtSeconds and sentAtNanos, "
                  "which agreed with its sentAt text on every message of the tested images, and "
                  "the newest value matched lastNoteSentAt in the app's Houseparty.plist to the "
@@ -32,18 +35,20 @@ __artifacts_v2__ = {
                  "itself is rendered in Facemail Video when Library/Application "
                  "Support/Prefetched-Facemails/<mediaID>.mp4 exists in the same container; on "
                  "the tested images that file was present for the one facemail received and "
-                 "absent for the two sent, so Facemail Video is blank on a sent facemail. A "
-                 "facemail row carries an empty Message. Facemail Watched is the store's watched "
+                 "absent for the two sent, so Facemail Video was blank on the two sent facemails of "
+                 "the tested images. On the tested images the facemail rows carried an empty Message. "
+                 "Facemail Watched is the store's watched "
                  "flag as stored. Unread is the row's isUnread flag and was False on every "
                  "message of the tested images. Note ID is the row's noteId as stored; the row's "
                  "local id "
-                 "differs from it on sent messages and is not reported. Conversation names the "
+                 "differed from it on the sent messages of the tested images and is not reported. "
+                 "Conversation names the "
                  "other account in the exchange, so it holds one value wherever the store records "
                  "messages with a single correspondent, as it did on both tested images. "
                  "class_RealmConversation holds one summary row per correspondent that repeats "
                  "the newest message's time and is not reported. class_RealmHouseMessage and "
-                 "every other class_RealmHouse* table (group chats the app called houses) held no "
-                 "rows on the tested images, so no group message was recovered.",
+                 "every other class_RealmHouse* table held no rows on the tested images and are not "
+                 "read by this artifact.",
         "paths": ('*/Documents/houseparty.rocky.realm',
                   '*/Library/Application Support/Prefetched-Facemails/*.mp4'),
         "output_types": "standard",
@@ -92,7 +97,7 @@ __artifacts_v2__ = {
     "housepartyRooms": {
         "name": "Houseparty - Video Rooms",
         "description": "Video rooms the app recorded, with the time each was created, whether it was locked, "
-                       "who the app had invited to it and the media server session it was carried on.",
+                       "who the app had invited to it and the media server session the row links to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-04",
         "last_update_date": "2026-09-04",
@@ -104,8 +109,10 @@ __artifacts_v2__ = {
                  "that the app held a room, not that a call took place or who was in it. Invited Users lists "
                  "the accounts named in the row's invitedUsers link list, resolved to usernames; it was empty "
                  "on every room of the tested images, and the parser reads link lists elsewhere in the same "
-                 "file, so that is an absence in the data rather than a decoding limit. Locked, Locking User, "
-                 "Video Tech and Secret Version are reported as stored; no room on the tested images was "
+                 "file, so that is an absence in the data rather than a decoding limit. Locked, Video "
+                 "Tech and Secret Version are reported as stored, and Locking User is the "
+                 "lockingUserId resolved to a username where class_RealmPublicUser holds one; no room "
+                 "on the tested images was "
                  "locked, so Locking User is empty on all of them. Media Server is the host the session's "
                  "endpoint row names as stored; it is not an address the device is shown to have "
                  "reached; on the iOS 13 image two of the three sessions named hosts under "
@@ -148,7 +155,8 @@ __artifacts_v2__ = {
         "name": "Houseparty - Account",
         "description": "The signed-in Houseparty account, with the username, full name, email address, "
                        "telephone number and birthday the account held, the privacy settings stored alongside "
-                       "it, and the sign-in and last-use times the app kept in its preferences.",
+                       "it, and the SignedInAt, lastBackgroundedAt and activityLastSeenAt times the "
+                       "app kept in its preferences.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-04",
         "last_update_date": "2026-09-04",
@@ -158,7 +166,7 @@ __artifacts_v2__ = {
                  "joined from class_RealmPublicUser through the row's own publicUser link, the "
                  "settings from class_RealmUserSettings through its settings link, and the "
                  "session dates from class_RealmToken matched on the account id. These are values "
-                 "the account held in the app, which the app received from its service; they are "
+                 "the account held in the app; they are "
                  "not verified identifiers. Signed In At, Last Backgrounded At and Activity Last "
                  "Seen At come from the SignedInAt, lastBackgroundedAt and activityLastSeenAt "
                  "keys of Library/Preferences/Houseparty.plist in the same container and are "
@@ -169,8 +177,9 @@ __artifacts_v2__ = {
                  "it did on both tested images; the meaning of that value is not established. "
                  "The "
                  "token string, the authentication record and the push and VoIP tokens in the "
-                 "same stores are not reported. Linked Accounts lists the display names of linked "
-                 "Epic accounts where the store carries any; on the tested images the list was "
+                 "same stores are not reported. Linked Accounts lists the display name of each "
+                 "linked Epic account, or its id where no display name is stored; on the tested "
+                 "images the list was "
                  "empty on the iOS 14 image and the column absent from the iOS 13 schema. "
                  "Facebook ID is reported as stored and was empty on both. Phone is the number "
                  "the account record holds as stored; it was empty on the iOS 13 image and "
@@ -215,7 +224,8 @@ __artifacts_v2__ = {
     "housepartyContacts": {
         "name": "Houseparty - Contacts",
         "description": "Other Houseparty accounts the app held, with the username and full name each carried, "
-                       "when each was last seen, the address book name the app matched it to, and the "
+                       "the last-seen value the store holds for each, the address book name stored for "
+                       "it, and the "
                        "relationship, interaction and time-together values the app recorded for them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-04",
@@ -231,8 +241,9 @@ __artifacts_v2__ = {
                  "the account id. The signed-in account appears here as well as in the Account "
                  "artifact, because the store keeps a public record for it too. Last Seen and "
                  "Room Created At are values the store holds about that account and are not "
-                 "evidence of activity on this device. Address Book Name is the name the app "
-                 "matched the account to in this device's contacts, as stored, and is blank where "
+                 "evidence of activity on this device. Address Book Name is the addressBookName "
+                 "value of the relevance row, as stored; which address book it was taken from is "
+                 "not established, and the column is blank where "
                  "no relevance row exists. Last Interaction At and Last Interaction Type come "
                  "from the interaction row the relationship links to; the type is an integer the "
                  "store does not explain and is reported as stored. Presence Type, Relationship "
@@ -278,7 +289,7 @@ __artifacts_v2__ = {
     },
     "housepartyPhoneContacts": {
         "name": "Houseparty - Phone Contacts",
-        "description": "Entries from this device's address book that the Houseparty app read, with the "
+        "description": "Contact entries held in the Houseparty app's Realm store, with the "
                        "name and number as stored and the Houseparty account each was matched to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-04",
@@ -288,11 +299,14 @@ __artifacts_v2__ = {
         "notes": "Read from class_RealmContact in the app's Realm store, one row per phone number, with the "
                  "matched account joined from class_RealmPublicUser through the row's own user link and the "
                  "contact record joined from class_RealmLocalContact through its contacts link list. Name In "
-                 "Phone is the name as the app read it from the address book, and Phone is the number in E.164 "
+                 "Phone is the nameInPhone value of the row, or of its class_RealmLocalContact record, "
+                 "as stored, and Phone is the number in E.164 "
                  "form as stored; Phone (as formatted) is the formatted spelling the app keeps for the same "
                  "number in Documents/houseparty.rocky.phonenumbers where that store is present. Score, Invite "
-                 "Sent, Ignored and Suggested are reported as stored. A row means the app read that address "
-                 "book entry; it does not establish that the entry was uploaded or that the person uses "
+                 "Sent, Ignored and Suggested are reported as stored. A row is a contact entry the "
+                 "store holds. On the tested images the table held rows only where the app's traits "
+                 "recorded the contacts permission as allowed; a row does not establish that the entry "
+                 "was uploaded or that the person uses "
                  "Houseparty. Matched Username is the account the store links the entry to. On "
                  "the iOS 13 image the app's traits "
                  "recorded the contacts permission as allowed and this table held two numbers of one contact, "

@@ -7,7 +7,12 @@ __artifacts_v2__ = {
         'last_update_date': '2026-07-31',
         'requirements': 'none',
         'category': 'Truth Social',
-        'notes': 'Message bodies are stored as HTML fragments; the text is extracted alongside the raw content.',
+        'notes': 'Message bodies are stored as HTML fragments; the text is extracted alongside '
+                 'the raw content. From Me is computed by this module: 1 when the event\'s '
+                 'account id equals the chat\'s ZOWNEDBYACCOUNTID, 0 when it differs, blank when '
+                 'either is missing. That the owner id is the account signed in on the device is '
+                 'not established. Unread, Hidden and Failed To Send are blank for both 0 and '
+                 'NULL.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/chat/v1/*/ChatModel.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'message',
@@ -52,8 +57,10 @@ __artifacts_v2__ = {
         'requirements': 'none',
         'category': 'Truth Social',
         'notes': "An account ID that appears only in the chat ZOWNEDBYACCOUNTID column and not "
-                 "in ZMANAGEDACCOUNT is reported from that column as stored; that it is the "
-                 "signed-in account is not established.",
+                 "in ZMANAGEDACCOUNT is reported from that column as stored; the Account Holder "
+                 "column is Yes on such a row and blank on every ZMANAGEDACCOUNT row. The label "
+                 "is this module's; that the id is the account signed in on the device is not "
+                 "established.",
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/chat/v1/*/ChatModel.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'user',

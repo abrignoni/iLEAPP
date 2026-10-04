@@ -1,16 +1,20 @@
 __artifacts_v2__ = {
     "kikGroupadmins": {
         "name": "Kik Group Administrators",
-        "description": "Kik users that are administrators of a group (kik.sqlite)",
+        "description": "ZKIKUSER rows joined to the Z_9ADMINSINVERSE table of kik.sqlite, with "
+                       "the group row each is linked to. The table name is fixed in the query; on "
+                       "a store that does not have a table of that name the query fails and no "
+                       "rows are reported. No tested image returned rows.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Kik",
-        "notes": "Protobuf field positions for username/description/interests strings "
-                 "were assigned from the decoded content of tested stores and are not sourced "
-                 "from Kik; labels are "
-                 "best-effort.",
+        "notes": "The Blob and Additional Info columns are decoded from the ZENTITYUSERDATA and "
+                 "ZROSTERENTRYDATA protobufs by field position. The positions and the column "
+                 "labels are not sourced from Kik, and what each field holds is not established. "
+                 "The artifact returned no rows on any of the seven tested images, so the decode "
+                 "has not been exercised on them.",
         "paths": ('*/kik.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",

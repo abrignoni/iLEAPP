@@ -2,8 +2,7 @@ __artifacts_v2__ = {
     "get_biomeClockAlarm": {
         "name": "Biome - Clock Alarm",
         "description": "Parses alarm state changes from the Clock.Alarm biome stream, including "
-                       "the alarm identifier, which also appears in the _DKEvent.Clock.Alarm "
-                       "stream.",
+                       "the alarm identifier.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
         "last_update_date": "2026-08-20",

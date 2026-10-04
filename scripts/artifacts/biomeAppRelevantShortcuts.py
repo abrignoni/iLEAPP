@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "get_biomeAppRelevantShortcuts": {
         "name": "Biome - App Relevant Shortcuts",
         "description": "Parses relevant shortcuts donated by apps from the "
-                       "App.RelevantShortcuts biome stream: the donating app, the widget the "
-                       "shortcut was offered for, and the relevance window the app suggested "
-                       "the shortcut should appear in.",
+                       "App.RelevantShortcuts biome stream: the donating app, the widgetKind "
+                       "value, and the start and end dates of the first relevance provider "
+                       "in the embedded plist, reported as stored.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-26",
         "last_update_date": "2026-08-20",

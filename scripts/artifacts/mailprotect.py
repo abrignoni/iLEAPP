@@ -7,7 +7,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-21",
         "requirements": "none",
         "category": "Apple Mail",
-        "notes": ("Supports iOS 13 and later. Rows with recipients.type = 1 are reported as To "
+        "notes": ("Reads the Envelope Index and Protected Index layouts found on the tested iOS "
+                  "13.3.1 through 18.7.8 images listed in sample_data; later releases were not "
+                  "tested. Rows with recipients.type = 1 are reported as To "
                   "recipients; no published source for that mapping is cited and other type "
                   "values are not decoded."),
         "paths": ('*/mobile/Library/Mail/* Index*',),

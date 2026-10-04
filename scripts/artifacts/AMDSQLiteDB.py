@@ -1,18 +1,20 @@
 __artifacts_v2__ = {
     "AMDSQLiteDB_UsageEvents": {
         "name": "App Usage Events (AMDSQLiteDB)",
-        "description": "Apple App Store application foreground events",
+        "description": "App events from the AMDAppStoreUsageEvents table of AMDSQLite.db: install or update, uninstall and open, with the stored foreground duration",
         "author": "@stark4n6",
         "creation_date": "2025-07-21",
         "last_update_date": "2026-08-04",
         "requirements": "none",
         "category": "App Usage",
-        "notes": "App names, bundle IDs and vendors are resolved from the extraction itself: "
-                 "storeUser.db current_apps (installed apps) and purchase_history_apps (the "
-                 "account's purchase history). Events whose "
-                 "adamId appears in neither table are labeled Unknown. Earlier versions queried "
-                 "itunes.apple.com per adamId; the online lookup was removed so processing stays "
-                 "offline. Reference: Kevin Pagano, 'iOS App Storage Usage via AMDSQLite.db', "
+        "notes": "The App Action labels (0 Install/Update, 1 Uninstall, 2 Open) follow the "
+                 "reference below, which lists 3 as not determined; other values are reported as "
+                 "stored. App names, bundle IDs and vendors are resolved from the extraction "
+                 "itself: storeUser.db current_apps (installed apps) and purchase_history_apps "
+                 "(the account's purchase history). Events whose adamId appears in neither table "
+                 "are labeled Unknown. Earlier versions queried itunes.apple.com per adamId; the "
+                 "online lookup was removed so processing stays offline. Reference: Kevin Pagano, "
+                 "'iOS App & Storage Usage via AMDSQLite DB', "
                  "https://www.stark4n6.com/2025/07/ios-app-storage-usage-via-amdsqlite-db.html",
         "paths": (
             '*/mobile/Containers/Data/PluginKitPlugin/*/Documents/AMDSQLite.db.0*',

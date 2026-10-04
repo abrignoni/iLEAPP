@@ -2,7 +2,9 @@
 __artifacts_v2__ = {
     "uber_places": {
         "name": "Uber - Places",
-        "description": "Parses Uber Places Database",
+        "description": "Parses the place table of the Uber database.db. Timestamp is "
+                       "place.timestamp_ms passed through as stored; its unit and what it records "
+                       "are not established.",
         "author": "Heather Charpentier, @JamesHabben",
         "creation_date": "2024-04-10",
         "last_update_date": "2026-08-24",

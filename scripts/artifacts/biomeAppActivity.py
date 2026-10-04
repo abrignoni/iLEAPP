@@ -9,8 +9,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The expiration timestamp was observed to be exactly 30 days after the record "
-                 "timestamp. Payload strings are URL-decoded for display. Reference: Mattia "
+        "notes": "On the tested data the expiration timestamp was observed 30 days after the SEGB "
+                 "timestamp; the image and the number of records compared are not recorded here. "
+                 "Payload strings are URL-decoded for display. Reference: Mattia "
                  "Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
                  "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "paths": ('*/streams/*/App.Activity/local/*',),

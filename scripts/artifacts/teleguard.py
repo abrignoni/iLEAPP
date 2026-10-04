@@ -5,12 +5,16 @@ __artifacts_v2__ = {
                        "holds it",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Teleguard",
-        "notes": "Timestamps are UTC (epoch milliseconds). Is Edited? held 0 on every message row of "
-                 "the tested extraction and is reported as stored, so an extraction where the "
-                 "flag is set will show it. Media was empty on "
-                 "every row: each item is resolved by the server file id a message records in its "
-                 "metadata, and the tested extraction carried no files under the app's "
-                 "Library/Caches/images directory, so its media messages have no bytes to show and "
+        "notes": "Timestamps are UTC (epoch milliseconds). Direction is derived by comparing the "
+                 "row's sender with the local account's serverId from the service table; it is "
+                 "blank when either is missing. Only the first teleguard_database.db matched is "
+                 "read. Is Edited? held 0 on every message row of the tested extraction and is "
+                 "reported as stored, so an extraction where the flag is set will show it. Media "
+                 "was empty on every row: each item is looked up by the server file id a message "
+                 "records in its metadata, by file name, among files under any app's "
+                 "Library/Caches/images directory; the match is not limited to TeleGuard's "
+                 "container. The tested extraction carried no such file for TeleGuard, so its "
+                 "media messages have no bytes to show and "
                  "the run logs one unresolved lookup for each. Call events and membership events are "
                  "rows of this same table, of type CALL and SERVICE, and are also reported in full by "
                  "Teleguard Calls and Teleguard Chat Events.",
@@ -36,7 +40,10 @@ __artifacts_v2__ = {
         "name": "Teleguard Posts",
         "description": "TeleGuard channel posts",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Teleguard", "notes": "Timestamps are UTC (epoch milliseconds).",
+        "category": "Teleguard", "notes": "createDate is read as epoch milliseconds, as on the "
+                                          "messages table. The posts table held no rows on the "
+                                          "tested extraction, so this artifact has not been run "
+                                          "against data.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "file-text",
         "sample_data": {
@@ -48,10 +55,12 @@ __artifacts_v2__ = {
         "description": "TeleGuard contacts (with avatar thumbnails)",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Teleguard",
-        "notes": "Timestamps are UTC (epoch milliseconds). Personal ID is an optional identifier "
-                 "separate from the Server ID the app issues. The app's own binary labels it "
-                 "'Personal TeleGuard ID', carries a 'Change personal ID' action and a buyPersonalId "
-                 "endpoint, and adds the column to this table in a migration. It was null on "
+        "notes": "Timestamps are UTC (epoch milliseconds). Personal ID is the personalId column, "
+                 "reported as stored; it is a separate column from Server ID. The app's own "
+                 "binary labels it 'Personal TeleGuard ID', carries a 'Change personal ID' action "
+                 "and a buyPersonalId endpoint, and adds the column to this table in a migration; "
+                 "the app version and platform that binary was read from are not recorded here. "
+                 "It was null on "
                  "every contact row of the tested extraction.",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
         "output_types": "standard", "artifact_icon": "users",
@@ -61,9 +70,9 @@ __artifacts_v2__ = {
     },
     "teleguardChannels": {
         "name": "Teleguard Channels",
-        "description": "Channels from the channels table of the TeleGuard database, with alias, "
-                       "description, category, subscriber and post counts, admin, deleted flag, "
-                       "language and type.",
+        "description": "Rows of the channels table of the TeleGuard database. Columns are "
+                       "labelled by position; the table held no rows on the tested extraction, "
+                       "so the labels have not been checked against data.",
         "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
         "category": "Teleguard", "notes": "",
         "paths": ('*/Shared/AppGroup/*/Library/teleguard_database.db*',),
@@ -84,9 +93,11 @@ __artifacts_v2__ = {
                  "extraction carried all four. Direction is derived by comparing the row's sender "
                  "with the local account's serverId from the service table, which agreed with the "
                  "app's own English event label on every call row in the tested extraction. Duration "
-                 "and outcome are reported as stored: subtext is a localised display string "
-                 "giving either a spelled out minutes and seconds count or a word for why the call "
-                 "did not connect, not a numeric duration; no numeric duration column was found "
+                 "and outcome are reported as stored: on the call rows of the tested extraction "
+                 "subtext was a display string holding either a minutes and seconds count in "
+                 "words or a word for a call that did not connect, not a numeric duration. "
+                 "Connected is the isSuccessfull key shown as Yes or No; its meaning is not "
+                 "sourced here. No numeric duration column was found "
                  "for these rows. The messages table's userTime column is not reported here "
                  "because it held exactly the same value as createDate on every call row, unlike the "
                  "text rows of the same table where the two differ. The database also carries an "
@@ -104,8 +115,9 @@ __artifacts_v2__ = {
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-21", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Teleguard",
-        "notes": "Membership and invitation events are stored as rows of the messages table with "
-                 "type 'SERVICE'. The event text is the app's own localised display string and is "
+        "notes": "This artifact reports the rows of the messages table with type 'SERVICE'. On "
+                 "the tested extraction those five rows were membership and invitation events. "
+                 "The event text is the app's own localised display string and is "
                  "reported as stored. These rows carry no sender in the tested extraction, so no "
                  "direction is derived for them. The messages table's userTime column is not "
                  "reported here because it was null on every service row of the tested extraction.",
@@ -123,9 +135,10 @@ __artifacts_v2__ = {
         "category": "Teleguard",
         "notes": "The local account is stored as the 'user' row of the service table, whose data "
                  "column is JSON. Server ID is the account identifier that appears in the sender, "
-                 "receiver and chatId columns of the messages table. The same JSON carries an RSA key "
-                 "pair in PEM form on some app versions, and carried none on the tested extraction, "
-                 "so Public Key Present and Private Key Present record No and Public Key SHA-256 and "
+                 "receiver and chatId columns of the messages table. The module reads publicKey "
+                 "and privateKey from the same JSON. Neither was present on the tested "
+                 "extraction, so the key columns have not been exercised on iOS data, and Public "
+                 "Key Present and Private Key Present record No and Public Key SHA-256 and "
                  "Private Key SHA-256 are blank there. Where a key is present the key material itself "
                  "is not written to the report; the columns record whether each key was present and a "
                  "SHA-256 fingerprint of the DER body, which is enough to correlate the account "
@@ -142,7 +155,8 @@ __artifacts_v2__ = {
     },
     "teleguardDrafts": {
         "name": "Teleguard Drafts",
-        "description": "TeleGuard unsent message drafts",
+        "description": "Rows of the draft table of TeleGuard's teleguard_temp.db, with the "
+                       "recipient's alias where the contacts table holds it",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-21", "last_update_date": "2026-08-21", "requirements": "none",
         "category": "Teleguard",
@@ -150,8 +164,8 @@ __artifacts_v2__ = {
                  "teleguard_database.db. The draft table is keyed on the recipient's serverId, which "
                  "is resolved to a contact alias from the contacts table of the main database in the "
                  "same app group container. The Draft Text column was an empty string, not null, on "
-                 "every row of the tested extraction, so the tested device held no recoverable "
-                 "draft text; what causes a row to exist with empty text is not established "
+                 "every row of the tested extraction, so this artifact reported no draft text "
+                 "there; what causes a row to exist with empty text is not established "
                  "here. The same "
                  "database carries a messages_buffer table, which held no rows in the tested "
                  "extraction and is not reported.",
@@ -173,10 +187,11 @@ __artifacts_v2__ = {
                  "group.ch.swisscows.messenger.teleguardapp.plist. The two hide settings are "
                  "reported as stored; they are a statement "
                  "about the app's configuration, not about what any particular notification "
-                 "contained. Last Cache Clearing is the flutter.lastCacheClearing value from the "
-                 "app's own preferences plist in its data container, stored as a Unix millisecond "
-                 "epoch. That plist also holds a bundled emoji catalogue that accounts for most of "
-                 "its size and is not user data; it is not reported.",
+                 "contained. Last Cache Clearing is the flutter.lastCacheClearing value of the "
+                 "first ch.swisscows.messenger.teleguardapp.plist matched, read as Unix "
+                 "milliseconds and shown on each row. What event it marks is not sourced here. No "
+                 "row is written when the app group plist is absent. Other keys of "
+                 "ch.swisscows.messenger.teleguardapp.plist are not reported.",
         "paths": ('*/Shared/AppGroup/*/Library/Preferences/group.ch.swisscows.messenger.teleguardapp.plist',
                   '*/Library/Preferences/ch.swisscows.messenger.teleguardapp.plist'),
         "output_types": "standard", "artifact_icon": "settings",

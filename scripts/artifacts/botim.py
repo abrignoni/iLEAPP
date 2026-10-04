@@ -8,17 +8,19 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "BOTIM",
         "notes": "Read from the kFtsMessageTable full text search index in the client's "
-                 "t_common_db_<id>.sqlite store. This is the client's own search index of its "
-                 "messages, not the primary message store, so it holds the messages the client "
-                 "indexed for search rather than necessarily every message, and an examiner should "
-                 "treat the count as a lower bound. The message text is in the clear here. Sent is "
-                 "the timestamp column, Unix milliseconds. Message is taken from the contentStrings "
-                 "array the row carries in its data_extra JSON, the non empty parts joined; the "
-                 "table's own content column holds the same text in the search index's concatenated "
-                 "form. Type is the client's message type integer, reported as stored: no mapping was "
-                 "established from the closed source client, and on the devices tested the rows "
-                 "carrying text held one value. Session ID is the conversation the message belongs "
-                 "to, and Sender UID is the sender, resolved to Sender Name against the user index in "
+                 "t_common_db_<id>.sqlite store. Whether the client keeps its messages in another "
+                 "store, and whether every message reaches this table, was not established, so the row "
+                 "count should not be read as a complete count of messages. The message text is in the "
+                 "clear here. Sent is read from the timestamp column as Unix milliseconds. What moment "
+                 "the client records there (send, receipt or indexing) was not established. Message is "
+                 "taken from the contentStrings array the row carries in its data_extra JSON, the non "
+                 "empty parts joined with a space. When that array is absent, empty or unreadable, the "
+                 "table's content column is used instead, with trailing commas removed. Type is the "
+                 "client's message type integer, reported as stored: no mapping was established from "
+                 "the closed source client, and on the two private samples used for field mapping the "
+                 "rows carrying text held one Type value. Session ID is the sessionId column, reported "
+                 "as stored, and Sender UID is the senderUid column, resolved to Sender Name against "
+                 "the user index in "
                  "the same store where it holds a matching row. Field mapping was done against two "
                  "private samples; no sample data is recorded for them.",
         "paths": ('*/Library/DB/t_common_db_*.sqlite*',),
@@ -34,8 +36,8 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "BOTIM",
         "notes": "Read from the kFtsUserTable full text search index in t_common_db_<id>.sqlite. A "
-                 "row is a user the client indexed, which includes the account's contacts and the "
-                 "senders of indexed messages, so a row is not by itself evidence of a conversation. "
+                 "row is a user entry in the client's search index. Which users the client adds to that "
+                 "index was not established, so a row is not by itself evidence of a conversation. "
                  "UID is the user id the message index refers to. Name is the client's own searchable "
                  "name string for the user, from the content column. The row also carries a data_extra "
                  "JSON with separate name parts under short keys (fn, ln, nn); these are reported as "

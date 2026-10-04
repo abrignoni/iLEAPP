@@ -2,8 +2,9 @@ __artifacts_v2__ = {
     "get_biomeFrontBoardDisplayElement": {
         "name": "Biome - FrontBoard Display Element",
         "description": "Parses app scene display events from the FrontBoard.DisplayElement "
-                       "biome stream: which app scene was recorded against which display and "
-                       "when. This is a high volume stream that may assist in reconstructing "
+                       "biome stream: which app scene was recorded against which display, "
+                       "with the time stored in the record read as Unix epoch seconds. This "
+                       "is a high volume stream that may assist in reconstructing "
                        "app display activity; whether a record corresponds to on-screen "
                        "presentation is not established.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
@@ -11,8 +12,9 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-20",
         "requirements": "none",
         "category": "Biome",
-        "notes": "In sample data, records with an empty bundle id corresponded to system or "
-                 "home screen scenes. Numeric state fields are reported raw as their semantics "
+        "notes": "Records with an empty Bundle ID are reported with their Scene ID as stored; "
+                 "what those scenes are is not established. Numeric state fields are reported "
+                 "raw as their semantics "
                  "are not confirmed.",
         "paths": ('*/streams/*/FrontBoard.DisplayElement/local/*',),
         "output_types": "standard",

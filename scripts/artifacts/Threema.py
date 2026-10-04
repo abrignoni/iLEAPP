@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     'threema_chats': {
         'name': 'Threema - Chats',
-        'description': 'Extract chats from Threema',
+        'description': 'Messages from the ZMESSAGE table of ThreemaData.sqlite, with attachments where the store or its external data folder holds them. System messages are not reported. Sender Name and Receiver are derived from ZISOWN and the conversation',
         'author': '@C_Peter',
         'creation_date': '2026-01-03',
         'last_update_date': '2022-01-03',

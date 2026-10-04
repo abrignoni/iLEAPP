@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "get_bluetoothOtherLE": {
         "name": "Bluetooth Other LE",
-        "description": "Parses non-paired (other) Bluetooth Low Energy devices seen by the device from com.apple.MobileBluetooth.ledevices.other.db.",
+        "description": "Parses Bluetooth Low Energy device records (name, address and UUID) from the OtherDevices table of com.apple.MobileBluetooth.ledevices.other.db.",
         "author": "@JohnHyla",
         "creation_date": "2024-10-21",
         "last_update_date": "2026-08-21",

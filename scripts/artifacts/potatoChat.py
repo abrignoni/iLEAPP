@@ -1,13 +1,18 @@
 __artifacts_v2__ = {
     'potatochat_chats': {
         'name': 'Potato Chat - Chats',
-        'description': 'Extract chats from Potato Chat',
+        'description': 'Messages from the Potato Chat tgdata.db messages table',
         'author': '@C_Peter',
         'creation_date': '2025-08-21',
         'last_update_date': '2025-08-30',
         'requirements': 'none',
         'category': 'Potato Chat',
-        'notes': '',
+        'notes': 'Timestamp is the date column read as Unix seconds in UTC. From Me is the stored '
+                 'outgoing value. Message Type, the call kind and duration, coordinates and the '
+                 '(Secret Chat) chat label are derived by this parser from byte patterns in the '
+                 'media blob; no vendor source or test image is recorded for them, so treat them '
+                 'as the parser\'s reading and check the raw row. Message-ID is transformed from '
+                 'the stored mid.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*',
             '*/mobile/Containers/Shared/AppGroup/*/Documents/files/*',
@@ -30,7 +35,7 @@ __artifacts_v2__ = {
     },
     'potatochat_group_chats': {
         'name': 'Potato Chat - Group Chats',
-        'description': 'Extract group chats from Potato Chat, based off the work by Forrest Cook - https://github.com/Whee30',
+        'description': 'Messages from the Potato Chat channel_messages table, with group names from shareDialogList.db. Blob decoding is based on work by Forrest Cook, https://github.com/Whee30/AppParsers/blob/c4eebc373764eeedccc4d6a73bc9501fb20ed89e/Potato/decode_BLOB.py',
         'author': '@C_Peter',
         'creation_date': '2025-08-21',
         'last_update_date': '2025-08-30',

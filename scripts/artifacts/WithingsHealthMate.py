@@ -16,91 +16,148 @@ __artifacts_v2__ = {
         "last_update_date": "2025-11-12",
         "requirements": "json",
         "category": "Withings Health Mate",
-        "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
+                 "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
+                 "test device, iOS 17.5.1). No sample data is recorded for this artifact. "
+                 "Birthdate is the stored birthday value read as seconds since 2001-01-01 and "
+                 "shown as UTC; the cited post describes it as local time, so read it as a date "
+                 "and allow for the offset. Only the first source entry of the first matched "
+                 "account file is read.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/account'),
         "output_types": "standard",
         "artifact_icon": "user"
     },
     "get_healthmate_sleep_tracking": {
         "name": "Health Mate - Sleep Tracking",
-        "description": "Sleep sessions from the Health Mate app's Core Data track store, with "
-                       "start and end, sleep stage durations, time to sleep and to get up, "
-                       "wake-up count and the device id.",
+        "description": "ZTRACK records with no subcategory and ZTYPE 36 from the Health Mate "
+                       "app's Core Data track store, which the cited post identifies as tracked "
+                       "sleep on its test device, with start and end, sleep stage durations, time "
+                       "to sleep and to get up, wake-up count and the device id.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-23",
         "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Withings Health Mate",
-        "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
+                 "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
+                 "test device, iOS 17.5.1). No sample data is recorded for this artifact. Rows "
+                 "are the ZTRACK records where ZSUBCATEGORY is null and ZTYPE is 36. Duration "
+                 "columns are reported as stored and their units are not stated here. Only the "
+                 "first matched store file is read.",
         "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
         "output_types": "standard",
         "artifact_icon": "moon"
     },
     "get_healthmate_daily_summary": {
         "name": "Health Mate - Daily Summary",
-        "description": "Daily activity summaries from the Health Mate app's Core Data track "
-                       "store, with the day's inactive, soft, moderate and intense durations, "
-                       "steps and distance.",
+        "description": "ZTRACK records with no track id and no device id from the Health Mate "
+                       "app's Core Data track store, which the cited post identifies as the "
+                       "summary of a day on its test device, with the day's inactive, soft, "
+                       "moderate and intense durations, steps and distance.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-24",
         "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Withings Health Mate",
-        "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
+                 "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
+                 "test device, iOS 17.5.1). No sample data is recorded for this artifact. Rows "
+                 "are the ZTRACK records where ZTRACKID and ZDEVICEID are both null. Duration, "
+                 "step and distance columns are reported as stored and their units are not stated "
+                 "here. Only the first matched store file is read.",
         "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
         "output_types": "standard",
         "artifact_icon": "activity"
     },
     "get_healthmate_tracked_activities": {
         "name": "Health Mate - Tracked Activities",
-        "description": "Activities tracked in the Health Mate app's Core Data track store, with "
-                       "start and end, type, durations, heart rate, step, distance, speed and "
-                       "temperature values and start, end and region coordinates.",
+        "description": "ZTRACK records that have an activity subcategory, a track extension "
+                       "record and a step value in the Health Mate app's Core Data track store, "
+                       "with start and end, type, durations, the ZMIN, ZAVG and ZMAX values of "
+                       "the track extension (as stored), step, distance, speed and temperature "
+                       "values and start, end and region centre coordinates as stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-24",
         "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Withings Health Mate",
-        "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
+                 "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
+                 "test device, iOS 17.5.1). No sample data is recorded for this artifact. Tracks "
+                 "lacking an activity subcategory, a track extension record or a step value are "
+                 "not reported. The cited post reads Is Removed 1 as a track removed in the app "
+                 "whose row remains in the database. Three groups of columns do not sit under "
+                 "their own names. The column headed Heart Rate MIN holds ZMIN, the column headed "
+                 "Heart Rate AVG holds ZMAX and the column headed Heart Rate MAX holds ZAVG; the "
+                 "cited post does not say these three are heart rate values. The columns headed "
+                 "Region Center Latitude and Region Center Longitude hold ZENDCOORDINATELATITUDE "
+                 "and ZENDCOORDINATELONGITUDE, and the columns headed End Latitude and End "
+                 "Longitude hold ZREGIONCENTERLATITUDE and ZREGIONCENTERLONGITUDE. Manual End "
+                 "Date is not handled as a date column in the LAVA output. Only the first matched "
+                 "store file is read.",
         "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
         "output_types": "standard",
         "artifact_icon": "activity"
     },
     "get_healthmate_messages": {
         "name": "Health Mate - Messages",
-        "description": "Existing Message data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "description": "Rows of type HMTimelineMessageEvent from the ZHMTIMELINEEVENT table of "
+                       "the Health Mate timeline store, with sender, receiver, type and text as "
+                       "stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-23",
         "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Withings Health Mate",
-        "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
+                 "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
+                 "test device, iOS 17.5.1). No sample data is recorded for this artifact. Only "
+                 "rows whose ZTYPE is HMTimelineMessageEvent are read; the cited post says other "
+                 "row types exist. The cited post describes ZDATE as local time; the column "
+                 "headed Timestamp [Local Time] converts it as UTC, so if the post is right the "
+                 "displayed time is off by the device's offset from UTC. Only the first matched "
+                 "store file is read.",
         "paths": ('*/Library/Application Support/coredata/*_HM3Timeline*'),
         "output_types": "standard",
         "artifact_icon": "message"
     },
     "get_healthmate_measurements": {
         "name": "Health Mate - Measurements",
-        "description": "Existing Measurements data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html.",
+        "description": "Rows of the ZVASISTAS table of the Health Mate measurements store, as "
+                       "stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-23",
         "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Withings Health Mate",
-        "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
+                 "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
+                 "test device, iOS 17.5.1). No sample data is recorded for this artifact. "
+                 "Category labels 0, 2, 5, 6 and 12 follow the cited post, which took them from "
+                 "one test device and says other values may exist; any other stored value is "
+                 "shown as Unknown beside its Category ID. Units are not stated in the report. "
+                 "Only the first matched store file is read.",
         "paths": ('*/Library/Application Support/coredata/*_vasistas*'),
         "output_types": "all",
         "artifact_icon": "activity"
     },
     "get_healthmate_devices": {
         "name": "Health Mate - Devices",
-        "description": "Existing Devices data in Health Mate App from Withings. This decoding is based on the blog post https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "description": "Rows of the ZWTDEVICE table of the Health Mate associated device store, "
+                       "as stored.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-09-16",
         "last_update_date": "2025-11-12",
         "requirements": "none",
         "category": "Withings Health Mate",
-        "notes": "Based on https://bebinary4n6.blogspot.com/2024/09/app-healthmate-on-ios.html",
+        "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
+                 "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
+                 "test device, iOS 17.5.1). No sample data is recorded for this artifact. "
+                 "Association Timestamp is ZCREATED read as Unix seconds. Last Used Timestamp is "
+                 "ZLAST_CONNECTION read as Cocoa Core Data epoch, which the cited post reads as "
+                 "the last connection or sync. Latitude and Longitude are described there as the "
+                 "place of the last sync and as not precise. Only the first matched store file is "
+                 "read.",
         "paths": ('*/Library/Application Support/coredata/associated_device.sqlite*'),
         "output_types": "all",
         "artifact_icon": "device-watch"

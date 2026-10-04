@@ -6,7 +6,7 @@ See artifacts description for more details.
 __artifacts_v2__ = {
     "health_workouts": {
         "name": "Health - Workouts",
-        "description": "Workouts from healthdb_secure.sqlite, with Workout Duration and Total "
+        "description": "Workouts from healthdb_secure.sqlite, with Duration and Total "
                        "Time Duration (end minus start) reported side by side. "
                        "Additional details published within 'Enriching "
                        "Investigations with Apple Watch Data Through the "
@@ -42,12 +42,13 @@ __artifacts_v2__ = {
     },
     "health_provenances": {
         "name": "Health - Provenances",
-        "description": "Devices and Apps collecting Health data."
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
-                       "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+        "description": "Provenance records (source app, device and operating system build) stored "
+                       "for Health data. Queries are a derivative of research provided by Heather "
+                       "Mahalik and Jared Barnhart as part of their SANS DFIR Summit 2022 talk as "
+                       "well as research provided by Sarah Edwards as part of her APOLLO project. "
+                       "https://for585.com/dfirsummit22 - "
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2022-08-15",
         "last_update_date": "2026-07-31",
@@ -77,12 +78,15 @@ __artifacts_v2__ = {
     },
     "health_headphone_audio_levels": {
         "name": "Health - Headphone Audio Levels",
-        "description": "Headphone audio levels"
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
+        "description": "Headphone audio level samples (data type 173), one row per metadata value "
+                       "stored for the sample other than the "
+                       "_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient key. A sample with no "
+                       "metadata value is not reported. Queries are a derivative of research "
+                       "provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR "
+                       "Summit 2022 talk as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
         "last_update_date": "2026-07-31",
@@ -112,19 +116,25 @@ __artifacts_v2__ = {
     },
     "health_heart_rate": {
         "name": "Health - Heart Rate",
-        "description": "Heart Rate. "
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
+        "description": "Heart rate samples (data type 5). Queries are a derivative of research "
+                       "provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR "
+                       "Summit 2022 talk as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2023-03-06",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
-        "notes": "Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate "
-                 "and adding Heart Rate Context and Provenance",
+        "notes": "One row per heart rate sample (data type 5) and metadata value joined to it. On "
+                 "iOS 15 and later a sample that holds a series is reported as one row per value "
+                 "in the series. Rows whose objects.type is 2 are not reported. The four source "
+                 "device values sit under the wrong headers: the Device ID column holds the device "
+                 "name, Device Model holds the manufacturer, Manufacturer holds the hardware "
+                 "identifier and Hardware holds the mapped model name. This was measured on every "
+                 "row with device values on iphone11_ios17 (26,028 rows), hickman_ios13 (3,651), "
+                 "hickman_ios14 (16,287) and cookbook_ios1751 (155).",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -153,14 +163,15 @@ __artifacts_v2__ = {
                        "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
                        "as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2023-03-06",
         "last_update_date": "2026-07-31",
         "requirements": "none",
         "category": "Health",
-        "notes": "Update: @Johann-PLW - Splitting Heart Rate and Resting Heart Rate "
-                 "and adding Heart Rate Context and Provenance",
+        "notes": "One row per resting heart rate sample (data type 118) that stores a quantity. "
+                 "Hardware ID is the product type of the source record.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -184,12 +195,13 @@ __artifacts_v2__ = {
     },
     "health_achievements": {
         "name": "Health - Achievements",
-        "description": "Health achievements"
-                       "Queries are a derivative of research provided by Heather Mahalik "
-                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk "
-                       "as well as research provided by Sarah Edwards as part of "
-                       "her APOLLO project. https://for585.com/dfirsummit22 - "
-                       "https://github.com/mac4n6/APOLLO",
+        "description": "Earned achievement records from the ACHAchievementsPlugin_earned_instances "
+                       "table. Queries are a derivative of research provided by Heather Mahalik "
+                       "and Jared Barnhart as part of their SANS DFIR Summit 2022 talk as well as "
+                       "research provided by Sarah Edwards as part of her APOLLO project. "
+                       "https://for585.com/dfirsummit22 - "
+                       "https://github.com/mac4n6/APOLLO/tree/"
+                       "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
         "last_update_date": "2026-08-04",
@@ -220,7 +232,8 @@ __artifacts_v2__ = {
     "health_steps": {
         "name": "Health - Steps",
         "description": "Step count samples from the samples table of healthdb_secure.sqlite, with "
-                       "start and end, steps, duration and the writing device's id and model.",
+                       "start and end, steps, duration and the origin product type recorded in the "
+                       "sample's provenance and the model it maps to.",
         "author": "@KevinPagano3",
         "creation_date": "2023-10-06",
         "last_update_date": "2025-10-13",
@@ -265,7 +278,10 @@ __artifacts_v2__ = {
                  "HKQuantityTypeIdentifierDistanceWalkingRunning with data type 8 and "
                  "HKQuantityTypeIdentifierStepCount with data type 7. Sarah Edwards "
                  "(@iamevltwin, mac4n6.com) also documented data_type 8 as a distance in "
-                 "meters in her APOLLO research; this query was written independently from "
+                 "meters in her APOLLO research "
+                 "(https://github.com/mac4n6/APOLLO/blob/"
+                 "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/health_distance.txt#L78-L91); "
+                 "this query was written independently from "
                  "the live schema. The stored quantity is in meters: on 205 of the 226 chart "
                  "buckets those records store in meters, the type 8 samples in the bucket "
                  "add up to its total, and the 10 samples on each of hickman_ios13, "
@@ -314,10 +330,11 @@ __artifacts_v2__ = {
     },
     "health_height": {
         "name": "Health - Height Samples",
-        "description": "Height samples recorded in Health; samples may be "
-                       "user-entered or written by apps and connected devices "
-                       "(check the source columns). Height is displayed with the "
-                       "timestamp the sample was recorded followed by height in "
+        "description": "Height samples recorded in Health. This artifact does not report whether "
+                       "a sample was user-entered or written by an app or device; see Health - "
+                       "Provenances for the sources the database records. Height is displayed "
+                       "with the sample's start date "
+                       "followed by height in "
                        "meters, centimeters, feet and inches.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
@@ -348,10 +365,11 @@ __artifacts_v2__ = {
     },
     "health_weight": {
         "name": "Health - Weight Samples",
-        "description": "Weight samples recorded in Health; samples may be "
-                       "user-entered or written by apps and connected devices "
-                       "(check the source columns). Weight is displayed with the "
-                       "timestamp the sample was recorded followed by weight in "
+        "description": "Weight samples recorded in Health. This artifact does not report whether "
+                       "a sample was user-entered or written by an app or device; see Health - "
+                       "Provenances for the sources the database records. Weight is displayed "
+                       "with the sample's start date "
+                       "followed by weight in "
                        "kilograms, stones, and pounds.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
@@ -383,7 +401,11 @@ __artifacts_v2__ = {
     "health_watch_worn_data": {
         "name": "Health - Device - Watch Worn Data",
         "description": "Parses Apple Watch Worn Data from the healthdb_secure.sqlite database"
-                       ", reporting the periods the Health store records the watch as worn. "
+                       ", grouping the data type 70 samples into periods. A period continues "
+                       "while the gap between one sample's end and the next sample's start is "
+                       "3,600 seconds or less. Hours Worn and the hours off before the next "
+                       "period are cut to whole numbers. The reading of data type 70 as watch "
+                       "worn, in one-hour samples, is the cited article's. "
                        "Additional details published within 'Apple Watch Worn Data Analysis' at "
                        "https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
         "author": "@SQLMcGee for Metadata Forensics, LLC",
@@ -421,12 +443,14 @@ __artifacts_v2__ = {
         'last_update_date': '2025-10-13',
         'requirements': 'none',
         'category': 'Health',
-        'notes': "This artifact provides an 'at a glance' review of sleep periods \
-            when the Apple Watch is worn, given required user settings.\
-            Additional details published within 'Sleepless in Cupertino: \
-            A Forensic Dive into Apple Watch Sleep Tracking' at \
-            https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-\
-            forensic-dive-into-apple-watch-sleep-tracking/",
+        'notes': "One row per sleep sample (data type 63) whose provenance names a Watch and whose "
+                 "category value is not 0 or 1. Values 2, 3, 4 and 5 are labelled AWAKE, CORE, "
+                 "DEEP and REM, the names the cited article gives them; any other value is "
+                 "reported with a blank label. Additional details "
+                 "published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep "
+                 "Tracking' at "
+                 "https://metadataperspective.com/2024/08/01/"
+                 "sleepless-in-cupertino-a-forensic-dive-into-apple-watch-sleep-tracking/",
         'paths': ('*Health/healthdb_secure.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'moon',
@@ -451,8 +475,9 @@ __artifacts_v2__ = {
     "health_watch_by_sleep_period": {
         "name": "Health - Sleep - Watch By Sleep Period",
         "description": "Parses Apple Health Sleep Data from the healthdb_secure.sqlite database"
-                       "This artifact provides an 'at a glance' review of sleep periods "
-                       "when the Apple Watch is worn, given required user settings. "
+                       ". One row per run of Watch sleep stage samples with consecutive data_id "
+                       "values, which this artifact treats as one sleep period. Time in Bed is the "
+                       "sum of the Awake, REM, Core and Deep durations. "
                        "Additional details published within 'Sleepless in Cupertino: "
                        "A Forensic Dive into Apple Watch Sleep Tracking' at "
                        "https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-"
@@ -486,8 +511,8 @@ __artifacts_v2__ = {
     },
     "health_source_devices": {
         "name": "Health - Source Devices",
-        "description": "Parses Apple Health device info from the healthdb.sqlite database,\
-            including make/model/software information.",
+        "description": "Parses Apple Health device info from the healthdb.sqlite database, "
+                       "including make, model and software fields.",
         "author": "@stark4n6",
         "creation_date": "2025-03-03",
         "last_update_date": "2025-10-13",
@@ -517,9 +542,11 @@ __artifacts_v2__ = {
     },
     "health_wrist_temperature": {
         "name": "Health - Wrist Temperature",
-        "description": "Parses Apple Health Wrist Temperature, as outlined within \
-            Health Application > Summary > Show All Health Data > Wrist Temperature >\
-            Show All Data > All Recorded Data",
+        "description": "Reads samples of data type 256 as Apple Health wrist temperature. None of "
+                       "the 15 images in sample_data returned a row, so the data type, the unit "
+                       "and the metadata keys are not validated against data. The Health app shows "
+                       "this data at Health Application > Summary > Show All Health Data > Wrist "
+                       "Temperature > Show All Data > All Recorded Data",
         "author": "@SQLMcGee for Metadata Forensics, LLC",
         "creation_date": "2025-06-20",
         "last_update_date": "2025-10-13",
