@@ -3,9 +3,9 @@ __artifacts_v2__ = {
         "name": "LG ThinQ - Devices",
         "description": "LG appliances held in the ThinQ app's Realm store, with the name, model, "
                        "serial number, SSID and room recorded for each.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_Product table of the app's Realm store using the vendored "
@@ -21,10 +21,8 @@ __artifacts_v2__ = {
                  "prefixed file held nothing but its schema version, so neither is reported. SSID "
                  "is the network name stored against the appliance; it is not evidence of the "
                  "phone's own connection. Registered is a 17 digit packed value of the form "
-                 "YYYYMMDDHHMMSSmmm; it is reformatted for reading, with the three digits after "
-                 "the seconds not shown, but no time zone is recorded anywhere in the store for "
-                 "it, so it is reported in a text column rather than rendered as UTC; the column "
-                 "header says 'as stored'. Device Type, Platform Type and Network Type are "
+                 "YYYYMMDDHHMMSSmmm; all stored digits are reported as text without assigning "
+                 "a time zone. Device Type, Platform Type and Network Type are "
                  "reported as stored. Online is reported as stored. It held one value on all 3 "
                  "rows of the tested sample; what the other value looks like and what moment the "
                  "value reflects are not established. Every count recorded here comes from one "
@@ -40,16 +38,15 @@ __artifacts_v2__ = {
         "name": "LG ThinQ - Rooms",
         "description": "Rooms defined in the ThinQ home, with the creation value stored for "
                        "each.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_Room table of the app's Realm store. The created_at column "
                  "holds two different shapes in the same column on the tested sample, an 8 digit "
                  "YYYYMMDD date on one row and a 14 digit YYYYMMDDHHMMSS value on another, so it "
-                 "is reformatted for reading from whichever shape is present and reported in a "
-                 "text column; the column header says 'as stored'. No time zone is recorded for "
+                 "is reported as stored text with all digits retained. No time zone is recorded for "
                  "it. Is Default is the store's flag as stored. Every count recorded here comes "
                  "from one extraction, adams_iphone12mini.",
         "paths": ('*/Documents/*-op-op.realm*',),
@@ -110,19 +107,14 @@ __artifacts_v2__ = {
         "name": "LG ThinQ - Services",
         "description": "Rows of the Service class in the ThinQ app's Realm store, with the "
                        "service name, code, isService flag and joinDate value stored for each.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-01",
-        "last_update_date": "2026-09-01",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "LG ThinQ",
         "notes": "Read from the class_Service table of the app's Realm store. Join Date is stored "
-                 "as a text date whose field order is not stated by the store. It is read as "
-                 "month, day, year on two grounds from the tested sample: the value resolves to "
-                 "the same day the appliances in class_Product record as their registration date, "
-                 "and read as day first it would fall after the date the extraction was taken. "
-                 "The date is reordered to year, month, day for reading and reported in a text "
-                 "column; the column header says 'as stored', and the stored text itself is month "
-                 "first. No time of day or zone is recorded. Service Code is reported as stored. "
+                 "as a text date whose field order is not stated by the store; the original text "
+                 "is retained without reordering it. No time of day or zone is recorded. Service Code is reported as stored. "
                  "Every count recorded here comes from one extraction, adams_iphone12mini.",
         "paths": ('*/Documents/*-op-op.realm*',),
         "output_types": ["html", "tsv", "lava"],
@@ -134,32 +126,23 @@ __artifacts_v2__ = {
 }
 
 import os
-import re
 from datetime import datetime, timezone
 
 from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.realm_parser import realm_rows
 
 _MARKER_CLASS = 'class_Product'
-_PACKED = re.compile(r'^(\d{4})(\d{2})(\d{2})(?:(\d{2})(\d{2})(\d{2}))?\d*$')
 
 
 def _packed_as_stored(value):
-    """Reformat a packed YYYYMMDD[HHMMSS[mmm]] value for reading, or '' when unusable.
+    """Report a packed date value as stored text, with no assigned time zone.
 
-    The store records no time zone for these columns, so the value is reformatted and
-    reported as stored rather than rendered as an instant.
+    The store records no time zone for these columns, so the original digits are retained rather than rendered as an instant.
     """
     if value in (None, ''):
         return ''
-    match = _PACKED.match(str(value).strip())
-    if not match:
-        return str(value)
-    year, month, day, hour, minute, second = match.groups()
-    stamp = f'{year}-{month}-{day}'
-    if hour:
-        stamp += f' {hour}:{minute}:{second}'
-    return stamp
+    return str(value)
+
 
 
 def _utc_marked(value):
@@ -176,14 +159,9 @@ def _utc_marked(value):
 
 
 def _month_first_date(value):
-    """A month-first MM-DD-YYYY text date reformatted as YYYY-MM-DD, or the raw value."""
-    if not value or not isinstance(value, str):
-        return ''
-    match = re.match(r'^(\d{2})-(\d{2})-(\d{4})$', value.strip())
-    if not match:
-        return value
-    month, day, year = match.groups()
-    return f'{year}-{month}-{day}'
+    """A date value as stored text, without assuming its field order."""
+    return '' if value is None else str(value)
+
 
 
 def _stores(files_found):

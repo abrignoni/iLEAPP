@@ -4,21 +4,18 @@ __artifacts_v2__ = {
         "description": "Per-workout location-capture analysis from healthdb_secure.sqlite (point "
                        "count, a computed duration by interval figure, capture timespan/average, "
                        "workout type and times)",
-        "author": "@SQLMcGee",
+        "author": "@SQLMcGee, @AlexisBrignoni, Codex",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC, 'Apple "
                  "Fitness Workout Location Data: Leveraging the healthdb_secure.sqlite Database' "
                  "(https://drive.google.com/file/d/1BGY8kLUyMQaosn-eb3Di98CAZSc8ywBg/view, reached "
                  "through https://tinyurl.com/4zyd6z9n). Timestamps are read as seconds since "
-                 "2001-01-01 and are shown as UTC. Elapsed/Workout/Timespan columns are HH:MM:SS "
-                 "durations, not absolute times, and wrap past 24 hours. Workout Type is a name "
-                 "this module assigns to the stored activity_type number; only the cycle, run and "
-                 "walk names come from the cited research, the others are not sourced here, and the "
-                 "stored number is not shown. 'Undefined' means the number is not in the module's "
-                 "table or the location series matched no workout row. The 'Duration x Avg Interval "
+                 "2001-01-01 and are shown as UTC. Elapsed Time and Location Data Capture "
+                 "Timespan are numeric seconds computed from timestamp differences; duration "
+                 "and activity_type are reported as stored without assigning names. The 'Duration x Avg Interval "
                  "(computed)' column is the product of the workout duration and the average "
                  "location capture interval as computed by the query.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
@@ -47,9 +44,9 @@ __artifacts_v2__ = {
         "description": "Per-point location data in the location_series_data table "
                        "(healthdb_secure.sqlite), with the workout type where the series joins to a "
                        "workout row",
-        "author": "@SQLMcGee",
+        "author": "@SQLMcGee, @AlexisBrignoni, Codex",
         "creation_date": "2023-05-22",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Fitness",
         "notes": "Queries derived from research by James McGee, Metadata Forensics, LLC, 'Apple "
@@ -57,11 +54,10 @@ __artifacts_v2__ = {
                  "(https://drive.google.com/file/d/1BGY8kLUyMQaosn-eb3Di98CAZSc8ywBg/view, reached "
                  "through https://tinyurl.com/4zyd6z9n). Timestamps are read as seconds since "
                  "2001-01-01 and are shown as UTC. Vertical, Speed, and Course Accuracy values also "
-                 "exist in the table but are not surfaced. Altitude is cut to its first 8 "
-                 "characters and Speed, Course and Horizontal Accuracy to their first 6, so those "
-                 "columns are truncated and not rounded. Workout Type is a name this module assigns "
-                 "to the stored activity_type number; 'Undefined' means the number is not in the "
-                 "module's table or the series matched no workout row.",
+                 "exist in the table but are not surfaced. Altitude, Speed, Course and "
+                 "Horizontal Accuracy are reported as stored without truncation. activity_type "
+                 "is reported as stored without assigning names; a missing workout yields a "
+                 "blank value.",
         "paths": ('*Health/healthdb_secure.sqlite*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -87,84 +83,7 @@ __artifacts_v2__ = {
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, does_table_exist_in_db, does_column_exist_in_db, null_absent_columns
 
-_ACTIVITY_TYPE_CASE = '''CASE activity_type
-    WHEN 1 THEN "American Football"
-    WHEN 2 THEN "Archery"
-    WHEN 3 THEN "Australian Football"
-    WHEN 4 THEN "Badminton"
-    WHEN 5 THEN "Baseball"
-    WHEN 6 THEN "Basketball"
-    WHEN 7 THEN "Bowling"
-    WHEN 8 THEN "Boxing"
-    WHEN 9 THEN "Climbing"
-    WHEN 10 THEN "Cricket"
-    WHEN 11 THEN "Cross Training"
-    WHEN 12 THEN "Curling"
-    WHEN 13 THEN "Indoor/Outdoor Cycle"
-    WHEN 16 THEN "Elliptical"
-    WHEN 17 THEN "Equestrian Sports"
-    WHEN 18 THEN "Fencing"
-    WHEN 19 THEN "Fishing"
-    WHEN 20 THEN "Functional Strength Training"
-    WHEN 21 THEN "Golf"
-    WHEN 22 THEN "Gymnastics"
-    WHEN 23 THEN "Handball"
-    WHEN 24 THEN "Hiking"
-    WHEN 25 THEN "Hockey"
-    WHEN 26 THEN "Hunting"
-    WHEN 27 THEN "Lacrosse"
-    WHEN 28 THEN "Martial Arts"
-    WHEN 29 THEN "Mind and Body"
-    WHEN 31 THEN "Paddling"
-    WHEN 32 THEN "Play"
-    WHEN 33 THEN "Rolling"
-    WHEN 34 THEN "Racquetball"
-    WHEN 35 THEN "Rower"
-    WHEN 36 THEN "Rugby"
-    WHEN 37 THEN "Outdoor Run"
-    WHEN 38 THEN "Sailing"
-    WHEN 39 THEN "Skating"
-    WHEN 40 THEN "Snow Sports"
-    WHEN 41 THEN "Soccer"
-    WHEN 42 THEN "Softball"
-    WHEN 43 THEN "Squash"
-    WHEN 44 THEN "Stair Stepper"
-    WHEN 45 THEN "Surfing"
-    WHEN 46 THEN "Pool/Open Water Swim"
-    WHEN 47 THEN "Table Tennis"
-    WHEN 48 THEN "Tennis"
-    WHEN 49 THEN "Track and Field"
-    WHEN 50 THEN "Traditional Strength Training"
-    WHEN 51 THEN "Volleyball"
-    WHEN 52 THEN "Outdoor/Indoor Walk"
-    WHEN 53 THEN "Water Fitness"
-    WHEN 54 THEN "Water Polo"
-    WHEN 55 THEN "Water Sports"
-    WHEN 56 THEN "Wrestling"
-    WHEN 57 THEN "Yoga"
-    WHEN 58 THEN "Barre"
-    WHEN 59 THEN "Core Training"
-    WHEN 60 THEN "Cross Country Skiing"
-    WHEN 62 THEN "Flexibility"
-    WHEN 63 THEN "High Intensity Interval Training"
-    WHEN 64 THEN "Jump Rope"
-    WHEN 65 THEN "Kickboxing"
-    WHEN 66 THEN "Pilates"
-    WHEN 67 THEN "Snowboarding"
-    WHEN 68 THEN "Stairs"
-    WHEN 69 THEN "Step Training"
-    WHEN 72 THEN "Tai Chi"
-    WHEN 73 THEN "Mixed Cardio"
-    WHEN 74 THEN "Hand Cycling"
-    WHEN 75 THEN "Disc Sports"
-    WHEN 76 THEN "Fitness Gaming"
-    WHEN 77 THEN "Dance"
-    WHEN 78 THEN "Social Dance"
-    WHEN 79 THEN "Pickleball"
-    WHEN 80 THEN "Cooldown"
-    WHEN 3000 THEN "Other"
-    ELSE "Undefined"
-    END'''
+
 
 
 def _find_healthdb(context):
@@ -185,8 +104,8 @@ def fitnessWorkoutsAnalysis(context):
     data_headers = (
         ('Workout Start Time', 'datetime'), ('Min Location Timestamp', 'datetime'),
         ('Workout End Time', 'datetime'), ('Max Location Timestamp', 'datetime'),
-        'Number of Location Points', 'Duration x Avg Interval (computed)', 'Workout Type',
-        'Elapsed Time', 'Workout Time', 'Location Data Capture Timespan',
+        'Number of Location Points', 'Duration x Avg Interval (computed)', 'activity_type (as stored)',
+        'Elapsed Time (seconds)', 'duration (as stored)', 'Location Data Capture Timespan (seconds)',
         'Location Data Capture Average (in Seconds)')
     data_list = []
     db_path = _find_healthdb(context)
@@ -196,7 +115,7 @@ def fitnessWorkoutsAnalysis(context):
     associations_child_id_exists = does_column_exist_in_db(db_path, 'associations', 'child_id')
 
     if associations_child_id_exists:
-        query = f'''
+        query = '''
         SELECT
             datetime(workout_activities.start_date + 978307200, 'UNIXEPOCH'),
             min(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
@@ -204,10 +123,10 @@ def fitnessWorkoutsAnalysis(context):
             max(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
             data_series.count,
             round(((workout_activities.end_date - workout_activities.start_date) * ((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count))),
-            {_ACTIVITY_TYPE_CASE},
-            substr(datetime((workout_activities.end_date - workout_activities.start_date) + 978307200, 'UNIXEPOCH'),12,8),
-            substr(datetime(workout_activities.duration + 978307200, 'UNIXEPOCH'),12,8),
-            substr((datetime((max(location_series_data.timestamp) - min(location_series_data.timestamp)) + 978307200, 'UNIXEPOCH')),12,8),
+            activity_type,
+            (workout_activities.end_date - workout_activities.start_date),
+            workout_activities.duration,
+            (max(location_series_data.timestamp) - min(location_series_data.timestamp)),
             substr(((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count),1,5)
             FROM location_series_data
             LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
@@ -217,7 +136,7 @@ def fitnessWorkoutsAnalysis(context):
             ORDER BY workout_activities.start_date
         '''
     else:
-        query = f'''
+        query = '''
         SELECT
             datetime(workout_activities.start_date + 978307200, 'UNIXEPOCH'),
             min(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
@@ -225,10 +144,10 @@ def fitnessWorkoutsAnalysis(context):
             max(datetime(location_series_data.timestamp + 978307200, 'UNIXEPOCH')),
             data_series.count,
             round(((workout_activities.end_date - workout_activities.start_date) * ((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count))),
-            {_ACTIVITY_TYPE_CASE},
-            substr(datetime((workout_activities.end_date - workout_activities.start_date) + 978307200, 'UNIXEPOCH'),12,8),
-            substr(datetime(workout_activities.duration + 978307200, 'UNIXEPOCH'),12,8),
-            substr((datetime((max(location_series_data.timestamp) - min(location_series_data.timestamp)) + 978307200, 'UNIXEPOCH')),12,8),
+            activity_type,
+            (workout_activities.end_date - workout_activities.start_date),
+            workout_activities.duration,
+            (max(location_series_data.timestamp) - min(location_series_data.timestamp)),
             substr(((max(location_series_data.timestamp) - min(location_series_data.timestamp)) / data_series.count),1,5)
             FROM location_series_data
             LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
@@ -247,7 +166,7 @@ def fitnessWorkoutsAnalysis(context):
 @artifact_processor
 def fitnessWorkoutsLocation(context):
     data_headers = (
-        ('Timestamp', 'datetime'), 'Workout Type', 'Latitude', 'Longitude', 'Altitude', 'Speed',
+        ('Timestamp', 'datetime'), 'activity_type (as stored)', 'Latitude', 'Longitude', 'Altitude', 'Speed',
         'Course', 'Horizontal Accuracy', 'Series Identifier')
     data_list = []
     db_path = _find_healthdb(context)
@@ -257,16 +176,16 @@ def fitnessWorkoutsLocation(context):
     associations_child_id_exists = does_column_exist_in_db(db_path, 'associations', 'child_id')
     
     if associations_child_id_exists:
-        query = f'''
+        query = '''
         SELECT
             datetime(timestamp+978307200,'unixepoch'),
-            {_ACTIVITY_TYPE_CASE},
+            activity_type,
             latitude,
             longitude,
-            substr(altitude,1,8),
-            substr(speed,1,6),
-            substr(course,1,6),
-            substr(horizontal_accuracy,1,6),
+            altitude,
+            speed,
+            course,
+            horizontal_accuracy,
             series_identifier
             FROM location_series_data
             LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier
@@ -274,16 +193,16 @@ def fitnessWorkoutsLocation(context):
             LEFT OUTER JOIN workout_activities on workout_activities.owner_id = associations.parent_id
         '''
     else:
-        query = f'''
+        query = '''
         SELECT
             datetime(timestamp+978307200,'unixepoch'),
-            {_ACTIVITY_TYPE_CASE},
+            activity_type,
             latitude,
             longitude,
-            substr(altitude,1,8),
-            substr(speed,1,6),
-            substr(course,1,6),
-            substr(horizontal_accuracy,1,6),
+            altitude,
+            speed,
+            course,
+            horizontal_accuracy,
             series_identifier
             FROM location_series_data
             LEFT OUTER JOIN data_series on data_series.hfd_key = location_series_data.series_identifier

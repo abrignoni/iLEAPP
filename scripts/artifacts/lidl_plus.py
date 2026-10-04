@@ -116,13 +116,13 @@ __artifacts_v2__ = {
     "lidl_promotion_details": {
         "name": "Lidl Plus - Promotion Details",
         "description": "Extracts cached coupon and promotion details.",
-        "author": "@djangofaiola",
+        "author": "@djangofaiola, @AlexisBrignoni, Codex",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "Timestamp is the start of the promotion's validity, the same value as Valid "
-                 "From; Cache Time is when the response was cached. Activated and Redeemed are the "
+        "notes": "Cache Time is when the response was cached. Valid From and Valid To are "
+                 "the promotion validity bounds, not device event times. Activated and Redeemed are the "
                  "isActivated and isRedeemed values. When isActivated is absent, Activated is Yes "
                  "if the status text is ACTIVATED and N/A otherwise; Redeemed is filled the same "
                  "way from REDEEMED. Reference: Django "
@@ -2253,7 +2253,6 @@ def lidl_promotion_details(context):
     """
 
     data_headers = (
-        ('Timestamp', 'datetime'),
         ('Cache Time', 'datetime'),
         'Promotion Type',
         'Product Name',
@@ -2408,7 +2407,6 @@ def lidl_promotion_details(context):
 
             # Base row
             base_data = (
-                start_date,
                 cache_time,
                 prom_type,
                 json_data.get('title'),
@@ -2444,8 +2442,11 @@ def lidl_promotion_details(context):
             continue
 
     # Sort the forensic timeline by Cache Time descending
-    data_list.sort(key=lambda row: row[1] if row[1] else '', reverse=True)
+    data_list.sort(key=lambda row: row[0] if row[0] else '', reverse=True)
 
+    order = (0, 10, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
+    data_headers = tuple(data_headers[i] for i in order)
+    data_list = [tuple(row[i] for i in order) for row in data_list]
     return data_headers, data_list, SOURCE_PATH_NOTE
 
 

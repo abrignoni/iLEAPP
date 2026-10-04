@@ -4,9 +4,9 @@ __artifacts_v2__ = {
         "description": "Correlates Photos.sqlite asset records with on-disk file EXIF to surface "
                        "timestamp and coordinate mismatches between the library database, cached EXIF, "
                        "and the media file.",
-        "author": "@abrignoni",
+        "author": "@abrignoni, @AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Photos",
         "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
@@ -23,9 +23,9 @@ __artifacts_v2__ = {
                  "shown in UTC. What event sets each value is not established here; ZADDEDDATE is "
                  "not read. File DateTime and File DateTimeOriginal are EXIF tags 306 and 36867 "
                  "from the media file; Cache DateTime is ZEXIFTIMESTAMPSTRING from Photos.sqlite. "
-                 "All three are strings with no time zone recorded and are reported as stored. The "
-                 "column headers label them (local) and the comparisons below treat them as local "
-                 "time; that is not established for any given file. DB Modify Lag is the interval "
+                 "All three are strings with no time zone recorded and are reported as stored. "
+                 "EXIF offset tags 36880 to 36882 are not read. The comparisons use wall-clock "
+                 "readings and do not establish a zone for any given file. DB Modify Lag is the interval "
                  "from DB Created to DB Modified; its cause is not established. DB Modify Drift is "
                  "Yes when DB Modify Lag is more than 5 minutes. A stored ZLATITUDE or ZLONGITUDE "
                  "of -180 is shown as blank in DB Latitude and DB Longitude and is treated as no "
@@ -391,9 +391,9 @@ def photosDbexif(context):
         'Bundle Creator',
         'DB Modify Lag',
         'DB Modify Drift',
-        'File DateTime (local)',
-        'File DateTimeOriginal (local)',
-        'Cache DateTime (local)',
+        'File DateTime (no zone recorded)',
+        'File DateTimeOriginal (no zone recorded)',
+        'Cache DateTime (no zone recorded)',
         'File vs DB Delta',
         'File vs Cache Delta',
         'File vs Cache Mismatch',
@@ -518,4 +518,7 @@ def photosDbexif(context):
 
         sources.append(context.get_relative_path(file_found))
 
+    order = (0, 1, 8, 9, 10, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+    data_headers = tuple(data_headers[i] for i in order)
+    data_list = [tuple(row[i] for i in order) for row in data_list]
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))

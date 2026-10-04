@@ -17,13 +17,13 @@ __artifacts_v2__ = {
     "itunes_backup_installed_applications": {
         "name": "iTunes Backup - Installed Applications",
         "description": "Extract information about installed applications from the "
-                       "Info.plist file of an iTunes backup. The Downloaded by column "
+                       "Info.plist file of an iTunes backup. The AppleID (as stored) column "
                        "is the AppleID value of the app's download information as "
-                       "stored, and the storeCohort date is decoded from the digits "
+                       "stored, and the storeCohort Date (decoded) is decoded from the digits "
                        "after date= as Unix seconds.",
-        "author": "@johannplw",
+        "author": "@johannplw, @AlexisBrignoni, Codex",
         "creation_date": "2023-10-11",
-        "last_update_date": "2026-09-28",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "The storeCohort date substring's relationship to install time is "
@@ -163,12 +163,14 @@ def itunes_backup_installed_applications(context):
                 app_info += ('',) * 17
                 data_list.append(app_info)
 
-    data_headers = ('Bundle ID', ('App Icon', 'media', 'width: 60px;'), 'Item Name',
-                    'Artist Name', 'Version', 'Genre', ('storeCohort Date (as stored)', 'date'),
-                    'Downloaded by', ('Purchase Date', 'datetime'),
-                    ('Release Date', 'datetime'), 'Source App', 'Auto Download',
-                    'Purchased Redownload', 'Factory Install', 'Side Loaded',
-                    'Game Center Enabled', 'Game Center Ever Enabled',
+    data_headers = (('storeCohort Date (decoded)', 'date'),
+                    ('Purchase Date', 'datetime'), ('Release Date', 'datetime'),
+                    'Bundle ID', ('App Icon', 'media', 'width: 60px;'), 'Item Name',
+                    'Artist Name', 'Version', 'Genre', 'AppleID (as stored)',
+                    'Source App', 'Auto Download', 'Purchased Redownload', 'Factory Install',
+                    'Side Loaded', 'Game Center Enabled', 'Game Center Ever Enabled',
                     'Messages Extension')
+    data_list = [tuple(row[i] for i in (6, 8, 9, 0, 1, 2, 3, 4, 5, 7, 10, 11, 12,
+                                       13, 14, 15, 16, 17)) for row in data_list]
 
     return data_headers, data_list, recorded_source

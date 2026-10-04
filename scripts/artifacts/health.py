@@ -410,13 +410,13 @@ __artifacts_v2__ = {
                        ", grouping the data type 70 samples into periods. A period continues "
                        "while the gap between one sample's end and the next sample's start is "
                        "3,600 seconds or less. Hours Worn and the hours off before the next "
-                       "period are cut to whole numbers. The reading of data type 70 as watch "
+                       "period retain fractional hours. The reading of data type 70 as watch "
                        "worn, in one-hour samples, is the cited article's. "
                        "Additional details published within 'Apple Watch Worn Data Analysis' at "
                        "https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
-        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "author": "@SQLMcGee for Metadata Forensics, LLC, @AlexisBrignoni, Codex",
         "creation_date": "2024-05-20",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -483,14 +483,14 @@ __artifacts_v2__ = {
         "description": "Parses Apple Health Sleep Data from the healthdb_secure.sqlite database"
                        ". One row per run of Watch sleep stage samples with consecutive data_id "
                        "values, which this artifact treats as one sleep period. Time in Bed is the "
-                       "sum of the Awake, REM, Core and Deep durations. "
+                       "span from the earliest start to the latest end of the period. "
                        "Additional details published within 'Sleepless in Cupertino: "
                        "A Forensic Dive into Apple Watch Sleep Tracking' at "
                        "https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-"
                        "forensic-dive-into-apple-watch-sleep-tracking/",
-        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "author": "@SQLMcGee for Metadata Forensics, LLC, @AlexisBrignoni, Codex",
         "creation_date": "2024-08-01",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -1383,11 +1383,10 @@ def health_watch_worn_data(context):
     )
     SELECT
         s1."Watch Worn Start Time",
-        CAST(s1."Hours Worn" AS INT),
+        s1."Hours Worn",
         s1."Last Watch Worn Hour Time",
-        CAST(
-            (s2."Watch Worn Start Time" - s1."Last Watch Worn Hour Time") / 3600 AS INT
-        ) AS "Hours Off Before Next Worn"
+        (s2."Watch Worn Start Time" - s1."Last Watch Worn Hour Time") / 3600.0
+            AS "Hours Off Before Next Worn"
     FROM
         Summary s1
     LEFT JOIN
@@ -1396,15 +1395,15 @@ def health_watch_worn_data(context):
     '''
 
     data_headers = (
-        ('Watch Worn Start Time', 'datetime'), 'Hours Worn',
-        ('Last Watch Worn Hour Time', 'datetime'), 'Hours Off Before Next Worn Start Time')
+        ('Watch Worn Start Time', 'datetime'), ('Last Watch Worn Hour Time', 'datetime'),
+        'Hours Worn', 'Hours Off Before Next Worn Start')
 
     db_records = get_sqlite_db_records(data_source, query)
 
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         last_hour_time = convert_cocoa_core_data_ts_to_utc(record[2])
-        data_list.append((start_timestamp, record[1], last_hour_time, record[3]))
+        data_list.append((start_timestamp, last_hour_time, record[1], record[3]))
 
     return data_headers, data_list, data_source
 
@@ -1504,9 +1503,7 @@ def health_watch_by_sleep_period(context):
     SELECT
         MIN(start_time),
         MAX(end_time),
-        STRFTIME('%H:%M:%S',
-            SUM(CASE WHEN sleep_value IN ('AWAKE', 'REM', 'CORE', 'DEEP')
-            THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+        MAX(end_time) - MIN(start_time),
         STRFTIME('%H:%M:%S',
             SUM(CASE WHEN sleep_value IN ('REM', 'CORE', 'DEEP')
             THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
@@ -1532,7 +1529,7 @@ def health_watch_by_sleep_period(context):
 
     data_headers = (
         ('Sleep Start Time', 'datetime'), ('Sleep End Time', 'datetime'),
-        'Time in Bed (HH:MM:SS)', 'Time Asleep (HH:MM:SS)', 'Awake Duration (HH:MM:SS)',
+        'Time in Bed (seconds, period span)', 'Time Asleep (HH:MM:SS)', 'Awake Duration (HH:MM:SS)',
         'REM Duration (HH:MM:SS)', 'Core Duration (HH:MM:SS)',
         'Deep Duration (HH:MM:SS)', 'Awake %', 'REM %', 'Core %', 'Deep %')
 

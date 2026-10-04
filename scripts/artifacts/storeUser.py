@@ -2,13 +2,14 @@ __artifacts_v2__ = {
     "storeUser_ca": {  # This should match the function name exactly
         "name": "Installed Apps (storeUser)",
         "description": "Parses storeUser.db for installed app history",
-        "author": "@stark4n6",
+        "author": '@stark4n6, @AlexisBrignoni, Codex',
         "creation_date": "2025-04-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "System-app status is reported only where the column exists and is populated. "
-                 "Deletion Date is reported as stored and is not converted. The cited post "
+                 "deletion_date is reported as stored text; its epoch and unit are not established "
+                 "here, so no datetime is inferred. Install Timestamp retains the existing Cocoa reading. The cited post "
                  "reports that the table can hold a row for each version of an app, so one app "
                  "can appear more than once. Reference: Kevin Pagano, 'Tracking iOS App Installs "
                  "and Purchase History with StoreUser DB', "
@@ -109,20 +110,20 @@ def storeUser_ca(context):
     from current_apps
     '''
 
-    data_headers = (('Install Timestamp', 'datetime'),'Bundle ID','App Name','Developer Name','App Version','App Bundle Version','App Store ID','System App','Deletion Date')
+    data_headers = (('Install Timestamp', 'datetime'),'deletion_date (as stored)','Bundle ID','App Name','Developer Name','App Version','App Bundle Version','App Store ID','System App')
 
     # current_apps is absent on older iOS App Store cache schemas
     if does_table_exist_in_db(source_path, "current_apps"):
         if does_column_exist_in_db(source_path, "current_apps", "is_system_app"):
             db_records = get_sqlite_db_records(source_path, current_app_query)
             for record in db_records:
-                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8]))
+                data_list.append((record[0], str(record[8]) if record[8] is not None else '', record[1], record[2], record[3], record[4], record[5], record[6], record[7]))
 
         else:
             db_records = get_sqlite_db_records(source_path, current_app_prev_query)
             for record in db_records:
                 # schema has no is_system_app column, so System App is left blank
-                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], '', record[7]))
+                data_list.append((record[0], str(record[7]) if record[7] is not None else '', record[1], record[2], record[3], record[4], record[5], record[6], ''))
 
     return data_headers, data_list, source_path
 

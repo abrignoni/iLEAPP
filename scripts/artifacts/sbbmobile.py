@@ -2,13 +2,13 @@ __artifacts_v2__ = {
     "sbb_searchhistory": {
         "name": "SBB Mobile - Search History",
         "description": "Rows of ZSEARCHRESULT in the SBB Mobile app's search history database",
-        "author": "jonah.osterwalder@vd.ch",
+        "author": 'jonah.osterwalder@vd.ch, @AlexisBrignoni, Codex',
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Travel",
         "notes": (
-            "ZTIMESTAMP is read as Unix milliseconds and ZLAT and ZLON as millionths of a degree. "
+            "ZTIMESTAMP, ZLAT and ZLON are reported as stored without unit or epoch conversion. "
             "Neither unit is sourced or measured here, and no tested image is recorded for this "
             "artifact."
         ),
@@ -19,9 +19,9 @@ __artifacts_v2__ = {
     "sbb_easyride_trips": {
         "name": "SBB Mobile - EasyRide Trips",
         "description": "Check-in and check-out times inferred from EasyRide log messages in ch.sbb.coredata.logs.sqlite",
-        "author": "jonah.osterwalder@vd.ch",
+        "author": 'jonah.osterwalder@vd.ch, @AlexisBrignoni, Codex',
         "creation_date": "2026-03-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Travel",
         "notes": (
@@ -29,11 +29,11 @@ __artifacts_v2__ = {
             "'EasyRide slider on the right, starting check-in process' or 'Fairtiq state update: "
             "[checkingIn]' is treated as a check-in, and one containing 'EasyRide slider on the "
             "left, starting check-out process' or 'Fairtiq state update: [checkingOut]' as a "
-            "check-out. Messages are paired in time order and Duration (min) is computed from the "
-            "pair. Unknown marks a message with no partner; when two check-in messages follow "
+            "check-out. Messages are paired in time order and ZTIMESTAMP Difference is computed from the "
+            "pair in the stored units. Unknown marks a message with no partner; when two check-in messages follow "
             "each other, the first is reported with an Unknown check-out. A message that a "
             "process is starting does not establish a completed check-in or check-out. ZTIMESTAMP "
-            "is read as seconds since 2001-01-01. No tested image is recorded for this artifact."
+            "is reported as stored; its epoch and unit are not established. No tested image is recorded for this artifact."
         ),
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/ch.sbb.coredata.logs.sqlite*'),
         "output_types": "standard",
@@ -76,7 +76,7 @@ def sbb_searchhistory(context):
 
     query = """
         SELECT	
-            datetime(ZTIMESTAMP / 1000, 'unixepoch'),
+            ZTIMESTAMP,
             ZFROM,
             ZFROMTYPE,
             ZTO,
@@ -87,25 +87,19 @@ def sbb_searchhistory(context):
     """
 
     data_headers = (
-        ('Search timestamp (UTC)','datetime'),
+        'ZTIMESTAMP (as stored)',
         'Departure', 
         'Departure type', 
         'Target', 
         'Target type', 
-        'Result Coordinates (lat/lon)',
+        'ZLAT (as stored)', 'ZLON (as stored)',
     )
 
     db_records = get_sqlite_db_records(source_path, query)
 
     for record in db_records:
 
-        # Coordinates as text
-        if record[5] and record[6]:
-            map_link = coordinate_to_text(record[5]/1_000_000, record[6]/1_000_000)
-        else:
-            map_link = ""
-
-        data_list.append(record[:5] + (map_link,))
+        data_list.append((str(record[0]) if record[0] is not None else '',) + tuple(record[1:]))
 
     return data_headers, data_list, source_path
 
@@ -124,15 +118,15 @@ def sbb_easyride_trips(context):
         SELECT 
             ZTIMESTAMP,
             ZMESSAGE,
-            datetime(ZTIMESTAMP + 978307200, 'unixepoch')
+            ZTIMESTAMP
         FROM ZLOGENTRY
         ORDER BY ZTIMESTAMP ASC
     '''
 
     data_headers = (
-        ('Check-in Time (UTC)', 'datetime'),
-        'Check-out Time (UTC)',
-        'Duration (min)',
+        'Check-in Log ZTIMESTAMP (as stored)',
+        'Check-out Log ZTIMESTAMP (as stored)',
+        'ZTIMESTAMP Difference (as stored)',
     )
 
     records = get_sqlite_db_records(source_path, query)
@@ -143,7 +137,7 @@ def sbb_easyride_trips(context):
     for record in records:
         timestamp = record[0]
         message = record[1]
-        timestamp_str = record[2]
+        timestamp_str = str(record[2]) if record[2] is not None else ''
 
         # Detect checkin / checkout 
         CHECKIN_MESSAGES = (
@@ -171,7 +165,7 @@ def sbb_easyride_trips(context):
             if current_checkin:
                 # calculate duration in minutes if both times known
                 if checkin_timestamp and timestamp:
-                    duration = round((timestamp - checkin_timestamp)/ 60, 1)
+                    duration = timestamp - checkin_timestamp
                 else:
                     duration = "Unknown"
 

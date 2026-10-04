@@ -31,16 +31,16 @@ __artifacts_v2__ = {
         "name": "GPS Tracks - Track Points",
         "description": "Points recorded along GPS Tracks tracks, with coordinates, altitude, speed "
                        "and heading.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "GPS Tracks",
         "notes": "One row per row of ZCOURSEPOINT. Every one of the 170,418 points on the tested "
                  "image carried a latitude and a longitude, and they fell between 2024-05-12 and "
                  "2024-07-06. Track Name is joined from the track the point names, so a point "
                  "whose track row is gone still reports its coordinates with the name left blank. "
-                 "Speed, Average Speed, Distance, Distance Elapsed (which holds the ZTIMEELAPSED "
+                 "Speed, Average Speed, Distance, Time Elapsed (which holds the ZTIMEELAPSED "
                  "column), Course, True Heading, "
                  "Magnetic Heading and Glide Ratio are reported as stored, because the store "
                  "carries no unit for any of them. Heart Rate is a column of this table and held "
@@ -212,7 +212,7 @@ def gps_tracks_ios_points(context):
     data_headers = (
         ('Timestamp', 'datetime'), 'Latitude', 'Longitude', 'Track Name', 'Altitude',
         'Speed (as stored)', 'Average Speed (as stored)', 'Course (as stored)',
-        'Distance (as stored)', 'Distance Elapsed (as stored)', 'True Heading (as stored)',
+        'Distance (as stored)', 'Time Elapsed (as stored)', 'True Heading (as stored)',
         'Magnetic Heading (as stored)', 'Heading Accuracy', 'Horizontal Accuracy',
         'Vertical Accuracy', 'Glide Ratio (as stored)', 'Heart Rate (as stored)',
         'Track Row ID', 'Row ID',

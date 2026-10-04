@@ -2,13 +2,13 @@ __artifacts_v2__ = {
     "biomeProactiveMail": {
         "name": "Biome - Proactive Harvesting Mail",
         "description": "Email metadata harvested by the system into the ProactiveHarvesting.Mail biome stream "
-                       "(harvest time, the message date, subject, sender and recipient).",
-        "author": "@AlexisBrignoni, Claude",
+                       "(the SEGB record timestamp, the message date, subject, sender and recipient).",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The message date comes from an embedded CFAbsoluteTime value; the Harvest Time "
+        "notes": "The message date comes from an embedded CFAbsoluteTime value; the SEGB Record Timestamp "
                  "column is the SEGB record timestamp, the time the record was written to the "
                  "stream.",
         "paths": ('*/[Bb]iome/streams/restricted/ProactiveHarvesting.Mail/local/*',),
@@ -28,12 +28,12 @@ __artifacts_v2__ = {
     "biomeProactiveMessages": {
         "name": "Biome - Proactive Harvesting Messages",
         "description": "Message records from the ProactiveHarvesting.Messages biome stream "
-                       "(service and handle, message text, sender). The Timestamp column is the "
+                       "(service and handle, message text, sender). The SEGB Record Timestamp column is the "
                        "SEGB record timestamp, the time the record was written to the stream; the "
                        "message's own date is not reported.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -54,11 +54,11 @@ __artifacts_v2__ = {
     "biomeMessagesRead": {
         "name": "Biome - Messages Read",
         "description": "Message read events from the Messages.Read biome stream (message identifier and the "
-                       "SEGB record timestamp, labelled Read Timestamp after the cited research; "
+                       "SEGB record timestamp; "
                        "that it equals the time the message was read was not tested here).",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude, Codex",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
         "notes": "Reference: Mattia Epifani, '84 Streams Later, Part 2: Inside Apple Biome', "
@@ -213,14 +213,14 @@ def _records(context):
 
 @artifact_processor
 def biomeProactiveMail(context):
-    data_headers = (('Harvest Time', 'datetime'), 'SEGB State', ('Message Date', 'datetime'), 'Subject',
+    data_headers = (('Message Date', 'datetime'), ('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Subject',
                     'Sender', 'Recipient', 'Message ID', 'Filename', 'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context):
         if message is None:
-            data_list.append((ts, state, '', '', '', '', '', filename, offset))
+            data_list.append(('', ts, state, '', '', '', '', filename, offset))
             continue
-        data_list.append((ts, state, _cf_double_to_utc(message.get('3')), _txt(message.get('11')),
+        data_list.append((_cf_double_to_utc(message.get('3')), ts, state, _txt(message.get('11')),
                           _header(message, 'from'), _header(message, 'to'), _txt(message.get('2')),
                           filename, offset))
     return data_headers, data_list, _source_path(context)
@@ -228,7 +228,7 @@ def biomeProactiveMail(context):
 
 @artifact_processor
 def biomeProactiveMessages(context):
-    data_headers = (('Timestamp', 'datetime'), 'SEGB State', 'Service and Handle', 'Content', 'Sender',
+    data_headers = (('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Service and Handle', 'Content', 'Sender',
                     'GUID', 'Filename', 'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context):
@@ -244,7 +244,7 @@ def biomeProactiveMessages(context):
 
 @artifact_processor
 def biomeMessagesRead(context):
-    data_headers = (('Read Timestamp', 'datetime'), 'SEGB State', 'Message ID', 'Filename', 'Offset')
+    data_headers = (('SEGB Record Timestamp', 'datetime'), 'SEGB State', 'Message ID', 'Filename', 'Offset')
     data_list = []
     for ts, state, message, filename, offset in _records(context):
         message_id = _txt(message.get('1')) if message else ''

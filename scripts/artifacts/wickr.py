@@ -247,9 +247,9 @@ __artifacts_v2__ = {
         "description": "Notification payload and Download Message lines recorded in the Wickr "
                        "application logs, with the log timestamp, the message and conversation "
                        "identifiers, the payload's userId value and the logged message type",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Claude, Codex',
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from the plaintext application logs the app writes under its Logs "
@@ -844,7 +844,7 @@ def wickr_app_log(context):
                 except ValueError:
                     continue
                 data_list.append((
-                    match.group(1).replace('/', '-'),
+                    match.group(1),
                     'Notification Payload',
                     payload.get('messageId', ''),
                     payload.get('convoId', ''),
@@ -855,7 +855,7 @@ def wickr_app_log(context):
             match = DOWNLOAD_RE.match(line.rstrip('\n'))
             if match:
                 data_list.append((
-                    match.group(1).replace('/', '-'),
+                    match.group(1),
                     'Download Message',
                     match.group(4),
                     match.group(3) or '',

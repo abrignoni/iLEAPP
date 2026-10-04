@@ -4,12 +4,12 @@ __artifacts_v2__ = {
         "description": "Account values from the currentUserProfile entry of "
                        "com.ebaykleinanzeigen.ebc.plist: e-mail, id, contact name, initials, "
                        "account type, and the userSince and lastModified values read as Cocoa "
-                       "seconds. As written the two times are printed in the local time of the "
-                       "computer running the tool, with no zone shown. No tested image is "
+                       "seconds and printed in UTC, independently of the time zone of the "
+                       "computer running the tool. No tested image is "
                        "recorded for this artifact.",
-        "author": "@C_Peter",
+        "author": "@C_Peter, @AlexisBrignoni, Codex",
         "creation_date": "2025-02-19",
-        "last_update_date": "2025-02-19",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
         "notes": "",
@@ -53,12 +53,12 @@ __artifacts_v2__ = {
         "name": "Kleinanzeigen.de - Search History",
         "description": "Entries of searchedKeywords in the advertisementSearchDataHistory value "
                        "of com.ebaykleinanzeigen.ebc.plist, with each entry's timeStamp read as "
-                       "Cocoa seconds. As written the time is printed in the local time of the "
-                       "computer running the tool, with no zone shown. No tested image is "
+                       "Cocoa seconds and printed in UTC, independently of the time zone of the "
+                       "computer running the tool. No tested image is "
                        "recorded for this artifact.",
-        "author": "@C_Peter",
+        "author": "@C_Peter, @AlexisBrignoni, Codex",
         "creation_date": "2025-02-19",
-        "last_update_date": "2025-02-19",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
         "notes": "",
@@ -222,8 +222,8 @@ def get_kleinanzeigenuser(context):
         data_list.append(("Contact Name", name))
         data_list.append(("Contact Initials", u_in))
         data_list.append(("Account Type", atype))
-        data_list.append(("User since", datetime.datetime.fromtimestamp(c_dt + 978307200).strftime('%Y-%m-%d %H:%M:%S')))
-        data_list.append(("Last modified", datetime.datetime.fromtimestamp(m_dt + 978307200).strftime('%Y-%m-%d %H:%M:%S')))
+        data_list.append(("User since (UTC)", datetime.datetime.fromtimestamp(c_dt + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
+        data_list.append(("Last modified (UTC)", datetime.datetime.fromtimestamp(m_dt + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')))
     
     data_headers = ("Property", "Property Value")
     return data_headers, data_list, source_path
@@ -238,8 +238,8 @@ def get_kleinanzeigensearchhistory(context):
         s_hist = json.loads(pref['UserDefaultsKit.UserDefaultItem.advertisementSearchDataHistory'])
         for keyword in s_hist['searchedKeywords']:
             k_word = keyword['value']
-            k_time = datetime.datetime.fromtimestamp(keyword['timeStamp'] + 978307200).strftime('%Y-%m-%d %H:%M:%S')
-            data_list.append((k_word, k_time))
+            k_time = datetime.datetime.fromtimestamp(keyword['timeStamp'] + 978307200, datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            data_list.append((k_time, k_word))
     
-    data_headers = ("Keyword", "Timestamp")
+    data_headers = (("Timestamp", "datetime"), "Keyword")
     return data_headers, data_list, source_path

@@ -24,13 +24,13 @@ __artifacts_v2__ = {
     "swissmeteo_plz": {
         "name": "Swissmeteo - App opening with geolocation",
         "description": "Rows of the app_open table of favorites_prediction_db.sqlite, with the time and coordinates each row stores",
-        "author": "jonah.osterwalder@vd.ch",
+        "author": 'jonah.osterwalder@vd.ch, @AlexisBrignoni, Codex',
         "creation_date": "2026-03-11",
-        "last_update_date": "2026-08-04",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Meteo",
         "notes": "What the app records in this table, and what position the coordinates describe, "
-                 "is not established. Opened Timestamp is the timestamp column read as Unix "
+                 "is not established. app_open.timestamp is the timestamp column read as Unix "
                  "milliseconds. No run against a registered image is recorded for this artifact.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*'),
         "output_types": "all",
@@ -96,7 +96,7 @@ def plz_interaction(context):
 @artifact_processor
 def swissmeteo_plz(context):
     source_path = get_file_path(context.get_files_found(), "favorites_prediction_db.sqlite")
-    data_headers = (('Opened Timestamp','datetime'), 'Latitude', 'Longitude', "Coordinates (lat/lon)")
+    data_headers = (('app_open.timestamp','datetime'), 'Latitude', 'Longitude', "Coordinates (lat/lon)")
     data_list = []
     prediction_db = ""
 

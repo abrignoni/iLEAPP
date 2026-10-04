@@ -2,19 +2,19 @@ __artifacts_v2__ = {
     "netflix_bookmarks": {
         "name": "Netflix - Playback Bookmarks",
         "description": "Stored playback positions the Netflix app held for a title, with the "
-                       "position in seconds, the time the position was last modified and the "
+                       "position as stored, the time the position was last modified and the "
                        "video identifier the position belongs to",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude, Codex",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Read from the app's GraphQL record cache under Library/gqlData, where a record "
                  "keyed on the video id and ending in '.bookmark' carries position and "
                  "lastModified. Two key spellings were seen across the app versions tested, "
                  "'Video:<id>.bookmark' and 'UnifiedEntity:Video:<id>.bookmark', and both are "
-                 "accepted. Position is reported as stored and is read as seconds for the hours, "
-                 "minutes and seconds column; the unit is not sourced in this field. Last Modified "
+                 "accepted. Position is reported as stored without converting to hours, minutes and seconds; "
+                 "its unit is not established. Last Modified "
                  "is an ISO 8601 string carrying its own UTC designator; it is converted to a UTC "
                  "date and time with any fraction of a second dropped. Each gqlData file is named "
                  "<profileGuid>-<appVersion>-gql<schemaVersion>.db; in the samples tested the name "
@@ -496,14 +496,6 @@ def _dedupe(rows, key_length):
     return [(counts[k][0], counts[k][1]) for k in order]
 
 
-def _hms(seconds):
-    try:
-        total = int(seconds)
-    except (TypeError, ValueError):
-        return ''
-    if total < 0:
-        return ''
-    return f'{total // 3600:02d}:{(total % 3600) // 60:02d}:{total % 60:02d}'
 
 
 def _plist(path):
@@ -784,7 +776,6 @@ def netflix_bookmarks(context):
                 title,
                 entity_type,
                 _blank(value.get('position')),
-                _hms(value.get('position')),
                 _blank(value.get('interactivePlaybackProgressPercentage')),
                 profile_guid,
                 app_version,
@@ -796,8 +787,7 @@ def netflix_bookmarks(context):
         'Video ID',
         'Title',
         'Entity Type (as stored)',
-        'Position (seconds)',
-        'Position (hh:mm:ss)',
+        'Position (as stored)',
         'Interactive Progress Percentage (as stored)',
         'Profile Guid (from file name)',
         'App Version (from file name)',
