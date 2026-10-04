@@ -6,18 +6,17 @@ __artifacts_v2__ = {
 " labels '2-iCloudLink-CMMoment-2'. The cited post describes the output as share records for"
 " iCloud Shared Links. A share with more than one participant row is listed once per"
 " participant. No asset data is parsed. Supports iOS 14 through 18 (the code handles versions"
-" from 14 up to, but not including, 26). On iOS 13.7 and earlier and on iOS 26 and later the"
+" from 14 up to, but not including, 26). On versions below iOS 14 and on iOS 26 and later the"
 " artifact logs an unsupported version message, does not query the database and returns no"
 " rows. No recorded run on the test images listed in sample_data returned a row, and two of"
-" them, iOS 12.4 and iOS 13.3.1, are below the supported versions. The text shown beside each"
+" them, iOS 12.4 and iOS 13.3.1, are below the supported versions and were not queried. The text shown beside each"
 " stored integer is the module author's label and no source for the value meanings is cited"
-" here. Labels containing 'StillTesting' are not established. ZSHAREPARTICIPANT.ZISCURRENTUSER"
-" value 1 is labelled 'Is_CurrentUser' for iOS 14 and 15 and 'Is_CloudStorageOwner' for iOS 16"
-" and later. Each mapped label begins with the stored integer. Reference: Scott Koenig,"
+" here. Labels containing 'StillTesting' are not established. The label text for ZSHAREPARTICIPANT.ZISCURRENTUSER values 0 and 1 ('Not_CurrentUser', 'Is_CurrentUser') repeats the column's own name and does not change between the supported versions."
+" Each mapped label begins with the stored integer. Reference: Scott Koenig,"
 " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -27,7 +26,7 @@ __artifacts_v2__ = {
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "link",
 'sample_data': {
-'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'ctf2020_ios12': 'iOS 12.4 | not queried, the code returns before reading the database on versions below iOS 14',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
 'felix_ios17': 'iOS 17.6.1 | 0 rows',
 'fsfull002_ios17': 'iOS 17.1 | 0 rows',
@@ -38,7 +37,7 @@ __artifacts_v2__ = {
 'otto_ios17': 'iOS 17.5.1 | 0 rows',
 'abe_ios16': 'iOS 16.5 | 0 rows',
 'felix23_ios16': 'iOS 16.5 | 0 rows',
-'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | not queried, the code returns before reading the database on versions below iOS 14',
 'hickman_ios14': 'iOS 14.3 | 0 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
@@ -64,7 +63,7 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("26")):
+    if (version.parse(iosversion) < version.parse("14")) or (version.parse(iosversion) >= version.parse("26")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("16")):
@@ -280,8 +279,8 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
-             WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE
@@ -487,8 +486,8 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
-             WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE
@@ -694,8 +693,8 @@ def Ph034iCloudSharedLinkRecordswithNADPhDaPsql(context):
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
-             WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE

@@ -2,8 +2,10 @@ __artifacts_v2__ = {
 'Ph023SharedAlbumRecordsInviteswithNADPhDaPsql': {
 'name': 'Ph023-Shared Album Records & Invites NAD-PhDaPsql',
 'description': "Parses Shared Album records found in the PhotoData/Photos.sqlite ZGENERICALBUM table "
-"(kind 1505). Queries exist for iOS 11 through 18; iOS 26 and later are not parsed, "
-"so an empty result there is not evidence of absence. Parses Shared Album records "
+"(kind 1505). Queries exist for iOS 11 through 26; other versions return no rows. "
+"On iOS 26 the iOS 18 query is run with the album list join table named "
+"Z_32ALBUMLISTS; the two registered iOS 26 images hold no kind 1505 album, so that "
+"path has returned no rows on real data. Parses Shared Album records "
 "only, no asset data being parsed. An album with several invitation records appears "
 "on several rows. Invitation state labels are the module author's reading of the "
 "stored integers, the stored integer is kept in each label, and values labelled "
@@ -11,7 +13,7 @@ __artifacts_v2__ = {
 "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -58,7 +60,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("26")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
@@ -2076,7 +2078,7 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("26")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -2303,6 +2305,10 @@ def Ph023SharedAlbumRecordsInviteswithNADPhDaPsql(context):
         WHERE zGenAlbum.ZKIND = 1505
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
+
+        if version.parse(iosversion) >= version.parse("26"):
+            # On iOS 26 the album to album list join table is Z_32ALBUMLISTS (Z_32ALBUMS).
+            query = query.replace('Z_29ALBUMLISTS', 'Z_32ALBUMLISTS').replace('Z_29ALBUMS', 'Z_32ALBUMS')
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:

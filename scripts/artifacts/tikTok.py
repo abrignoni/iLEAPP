@@ -5,17 +5,31 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok message data from the ChatFiles databases",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-08-29",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
             "Messages are extracted from TIMMessageORM. Contact details are joined from "
-            "the AwemeContacts tables of AwemeIM.db. No messages are reported unless a "
-            "TikTok-owned AwemeIM.db is found. A chat database with no AwemeIM.db in its own "
-            "container is joined to the first one found. A uid held in more than one "
+            "the AwemeContacts tables of the AwemeIM.db in the chat database's own app "
+            "container. A chat database with no TikTok-owned AwemeIM.db in its own container "
+            "is reported without contact details and is not joined to another container's "
+            "AwemeIM.db; that case is logged and was exercised on constructed test data only, "
+            "because each of the ten tested images with a ChatFiles database holds one "
+            "AwemeIM.db in the same container. A uid held in more than one "
             "AwemeContacts table takes the row of the first table by name. The Account ID "
-            "column is the ChatFiles folder name (on the tested images this value also appears "
-            "in AwemeIM.db); messages whose sender matches the Account ID are marked Outgoing. "
+            "column is the ChatFiles folder name. Direction rests on that name being the "
+            "account's own uid: where TIMParticipantORM lists it as a participant (userID) of "
+            "the message's conversation, a message whose sender equals it is marked Outgoing "
+            "and any other is marked Incoming; where it is not listed, Direction is blank and "
+            "the count is logged. On the nine tested images holding messages (abe_ios16, "
+            "dexter_ios18, fsfull002_ios17, hickman_ios13, hickman_ios14, hickman_ios15, "
+            "iphone11_ios17, iphone12_ios18, otto_ios17) the folder name was a listed "
+            "participant of every conversation and no other userID was listed in more than "
+            "one, so no Direction was blank. The folder name equalled the userID in the "
+            "account record of the app's preferences plist on four of them (abe_ios16, "
+            "hickman_ios15, iphone11_ios17, iphone12_ios18) and the WatchHistory file name "
+            "prefix on four (abe_ios16, hickman_ios15, iphone11_ios17, otto_ios17). That "
+            "reading is measured on these images; no TikTok source for it was read. "
             "An iOS app container is a GUID directory, so the database names alone do not "
             "identify the owning app. Each matched database is attributed to the app named by "
             "its container's own .com.apple.mobile_container_manager.metadata.plist (a path "
@@ -393,7 +407,7 @@ def _aweme_for_chat_db(chat_db, aweme_dbs):
     for aweme_db in aweme_dbs:
         if _application_container(aweme_db) == chat_container:
             return aweme_db
-    return aweme_dbs[0] if aweme_dbs else ""
+    return ""
 
 
 def _chat_databases(files_found):
@@ -501,37 +515,53 @@ def tiktok_messages(context):
     data_list = []
     source_paths = set()
 
-    if not aweme_dbs:
-        logfunc("No TikTok-owned AwemeIM.db found. TikTok messages cannot be parsed.")
-        return (), [], ""
-
     for chat_db in _tiktok_owned(_chat_databases(files_found), owners):
         aweme_im_db = _aweme_for_chat_db(chat_db, aweme_dbs)
         account_id = basename(dirname(chat_db))
-        attach_query = attach_sqlite_db_readonly(aweme_im_db, "AwemeIM")
-        message_table = list( get_sqlite_db_records(
+        attach_query = None
+        if aweme_im_db:
+            attach_query = attach_sqlite_db_readonly(aweme_im_db, "AwemeIM")
+        chat_tables = {row[0] for row in get_sqlite_db_records(
             chat_db,
             """
                 SELECT name
                 FROM sqlite_master
                 WHERE type = 'table'
-                    AND name = 'TIMMessageORM'
+                    AND name IN ('TIMMessageORM', 'TIMParticipantORM')
             """,
-        ) )
+        )}
 
-        if not message_table:
+        if 'TIMMessageORM' not in chat_tables:
             logfunc(f"Table TIMMessageORM not found in {chat_db}")
             continue
 
         source_paths.add(chat_db)
+        contact_tables = []
         if aweme_im_db:
             source_paths.add(aweme_im_db)
-        contact_tables = _contact_tables(
-            chat_db,
-            attach_query,
-            required_columns=("uid", "customid", "nickname", "url1"),
-        )
+            contact_tables = _contact_tables(
+                chat_db,
+                attach_query,
+                required_columns=("uid", "customid", "nickname", "url1"),
+            )
+        else:
+            logfunc(f"No TikTok-owned AwemeIM.db in the container of {chat_db}; "
+                    "its messages are reported without contact details")
         contacts_cte = _deduplicated_contacts_cte(contact_tables)
+        # Direction rests on the ChatFiles folder name being the account's own
+        # uid. It is only reported for a conversation whose TIMParticipantORM
+        # rows list that value as a participant.
+        account_is_participant = "0"
+        if 'TIMParticipantORM' in chat_tables and \
+                {'userid', 'belongingconversationidentifier'}.issubset(
+                    _table_columns(chat_db, 'TIMParticipantORM')):
+            account_is_participant = f"""EXISTS (
+                    SELECT 1
+                    FROM TIMParticipantORM
+                    WHERE TIMParticipantORM.belongingConversationIdentifier =
+                            TIMMessageORM.belongingConversationIdentifier
+                        AND CAST(TIMParticipantORM.userID AS TEXT) = {_quote_literal(account_id)}
+                )"""
         query = f"""
             {contacts_cte}
             SELECT
@@ -554,7 +584,8 @@ def tiktok_messages(context):
                 servercreatedat,
                 url1,
                 source_table,
-                belongingConversationIdentifier
+                belongingConversationIdentifier,
+                {account_is_participant} AS account_is_participant
             FROM TIMMessageORM
             LEFT JOIN DeduplicatedContacts ON DeduplicatedContacts.uid = sender
             ORDER BY localcreatedat
@@ -562,11 +593,17 @@ def tiktok_messages(context):
         db_records = get_sqlite_db_records(chat_db, query, attach_query)
         source_file = _source_file_text(context, chat_db, aweme_im_db)
 
+        direction_blank = 0
         for record in db_records:
+            direction = ''
+            if record[12]:
+                direction = 'Outgoing' if str(record[1]) == str(account_id) else 'Incoming'
+            else:
+                direction_blank += 1
             data_list.append((
                 _convert_tiktok_timestamp(record[0]),
                 _convert_tiktok_timestamp(record[8]),
-                'Outgoing' if str(record[1]) == str(account_id) else 'Incoming',
+                direction,
                 record[3],
                 record[4],
                 record[1],
@@ -580,6 +617,10 @@ def tiktok_messages(context):
                 source_file,
                 record[11],
             ))
+        if direction_blank:
+            logfunc(f"Direction left blank on {direction_blank} message(s) of {chat_db}; "
+                    f"TIMParticipantORM does not list the ChatFiles folder name {account_id} "
+                    "as a participant of their conversations")
 
     data_headers = (
         ("Timestamp", "datetime"),

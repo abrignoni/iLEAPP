@@ -10,7 +10,7 @@ __artifacts_v2__ = {
 "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '5.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -57,7 +57,7 @@ def Ph032iCloudSPLAssetswithContributorPhDaPsql(context):
     if report_folder.endswith('-') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
-    if (version.parse(iosversion) <= version.parse("15.8.2")) or (version.parse(iosversion) >= version.parse("27")):
+    if (version.parse(iosversion) < version.parse("16")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("16")) & (version.parse(iosversion) < version.parse("17.6")):

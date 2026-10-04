@@ -238,12 +238,15 @@ __artifacts_v2__ = {
         "description": "Parses Life360 chat messages",
         "author": "@KevinPagano3",
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Life360",
         "notes": "Direction is derived: Outgoing when the sender's member row has ZISLOGGEDINUSER "
-                 "set to 1, Incoming otherwise, so a message whose sender matches no member row is "
-                 "shown as Incoming. Timestamp reads ZDATE as seconds since 2001 in UTC. Message "
+                 "set to 1 and Incoming when it is set to 0. Direction is blank when ZSENDER "
+                 "matches no ZCHATMEMBER row or that row holds neither value, so a blank does not "
+                 "say who sent the message. All 13 messages on felix_ios17 and otto_ios17 matched a "
+                 "member row holding 1 or 0; the blank case was exercised only with a constructed "
+                 "database. Timestamp reads ZDATE as seconds since 2001 in UTC. Message "
                  "Seen, Message Deleted (Locally) and Message Liked show Yes for a stored 1 in "
                  "ZISREAD, ZISLOCALLYDELETED and ZISLIKED; what sets those flags is not "
                  "established. Sent Status maps ZSENTSTATUSASINTEGER 2 to Sent and 3 to Failed; "
@@ -530,7 +533,8 @@ def life360ChatMessages(context):
     query = '''
     SELECT
         datetime(ZCHATMESSAGE.ZDATE + 978307200, 'unixepoch'),
-        CASE ZCHATMEMBER.ZISLOGGEDINUSER WHEN 1 THEN 'Outgoing' ELSE 'Incoming' END,
+        CASE ZCHATMEMBER.ZISLOGGEDINUSER WHEN 1 THEN 'Outgoing' WHEN 0 THEN 'Incoming'
+            ELSE '' END,
         ZCHATMEMBER.ZFIRSTNAME,
         ZCHATMESSAGE.ZMESSAGETEXT,
         ZCHATMESSAGE.ZMESSAGEID,

@@ -65,8 +65,16 @@ __artifacts_v2__ = {
         'last_update_date': '2026-08-21',
         'requirements': 'none',
         'category': 'Installed Apps',
-        'notes': ("Several package rows can join to one install record, so bundle identifiers "
-                  "repeat across rows."),
+        'notes': ("Bundle ID and App Name come from the app_install row whose pid equals the "
+                  "package row's parent_id. The store declares no foreign key for parent_id and "
+                  "declares the column UUID; on the tested images it held integers. Measured on "
+                  "the 14 registered images whose app_package table holds rows (275 package "
+                  "rows, 144 install records): every parent_id equalled the pid of one "
+                  "app_install row, and none equalled a pid in any other table of the store "
+                  "that has a pid column. A package row whose parent_id matches no install "
+                  "record is reported with Bundle ID and App Name blank. Several package rows "
+                  "can join to one install record, so bundle identifiers repeat across rows; "
+                  "on those images an install record had one or two package rows."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
         'output_types': 'standard',
         'artifact_icon': 'package',
@@ -293,8 +301,9 @@ def storeSystemAppPackages(context):
     if not source_path or not does_table_exist_in_db(source_path, 'app_package'):
         return data_headers, data_list, source_path or ''
 
-    # parent_id carries the app_install.pid this package belongs to, despite the
-    # column being declared UUID.
+    # parent_id is declared UUID with no foreign key. It is joined to app_install.pid
+    # on measurement: 275 of 275 package rows on 14 registered images matched one
+    # install row, and none matched a pid in any other table of the store.
     wanted = ('timestamp', 'package_type', 'bytes_total', 'disk_usage',
               'extracted_content_size', 'variant_id', 'compression', 'delta_algorithm',
               'archive_type', 'request_count', 'package_url')

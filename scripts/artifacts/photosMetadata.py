@@ -1,62 +1,70 @@
 __artifacts_v2__ = {
     "photosMetadata": {
         "name": "Photos.sqlite Metadata",
-        "description": "Asset metadata from Photos.sqlite: timestamps, location/reverse-geocode, "
-                       "faces, moments and fingerprints. Supported schemas: iOS 12-14 "
-                       "queries; on iOS 14 and later the iOS 14 query is run with columns the "
-                       "database lacks read as empty, and columns added after iOS 14 are not "
-                       "read. On the dexter_ios18 and iphone12_ios18 images the face and person "
-                       "columns are empty (see the Ph* artifact series for current schemas).",
+        "description": 'Asset metadata from Photos.sqlite: timestamps, location/reverse-geocode, faces, '
+                       'moments and fingerprints. Supported schemas: iOS 12-14 queries; on iOS 14 and later '
+                       'the iOS 14 query is run with columns the database lacks read as empty, and columns '
+                       'added after iOS 14 are not read (see the Ph* artifact series for current schemas). A '
+                       'row is one asset, detected face and album combination, not one asset.',
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-08-08",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Photos",
-        "notes": "Supported schemas: iOS 12-14 queries; on iOS 14 and later the iOS 14 query is "
-                 "run, with columns the database lacks read as empty. Rows were returned on "
-                 "abe_ios16 (iOS 16.5, 2,280), dexter_ios18 (iOS 18.3.2, 1,178) and iphone12_ios18 "
-                 "(iOS 18.7, 7,644). On abe_ios16 two columns were absent and are empty: Creator "
-                 "Bundle ID and Baldness. On the two iOS 18 images seven queried columns were "
-                 "absent, among them ZDETECTEDFACE.ZASSET and ZDETECTEDFACE.ZPERSON, which the "
-                 "query joins faces and persons on, so all face and person columns, Has "
-                 "Adjustments and both fingerprint columns are empty on every row there (18 of 86 "
-                 "columns). An empty face or person column on those images does not mean the store "
-                 "holds no face or person. Columns added after iOS 14 are not read here (see the "
-                 "Ph* artifact series for current schemas). The matching query is "
-                 "selected automatically. "
-                 "Reverse-location bplists are written to the report folder. "
-                 "Orientation values 1, 3, 6 and 8 are given labels adapted from Scott Koenig's "
-                 "queries (his labels for those values are "
-                 "1-Video-Default/Adjustment/Horizontal-Camera-(left)-1, "
-                 "3-Horizontal-Camera-(right)-3, 6-Vertical-Camera-(top)-6 and "
-                 "8-Vertical-Camera-(bottom)-8); the meaning of the values is not established "
-                 "here. In the Orientation column other values are reported as stored. In the Org "
-                 "Orientation column any other value is replaced by the asset's Orientation value, "
-                 "not the stored original orientation. Saved Asset Type, Visibility State, Age "
-                 "Type Estimate, Gender, Glasses Type, Facial Hair Type and Baldness print text "
-                 "labels for stored integers. The labels differ from the ones in the Scott Koenig "
-                 "query cited below and this module cites no other source for them, so the meaning "
-                 "of each value is not established here; check the stored integer in "
-                 "Photos.sqlite. The face attribute columns are values the store holds, not facts "
-                 "about a person. Reference: Scott Koenig, iOS_Local_PL_Photos.sqlite_Queries, "
-                 "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS14/Previous_Queries/iOS14_LPL_Phsql_Large_Reference.txt "
-                 "(the iOS 12 and iOS 13 queries are "
-                 "iOS12/Previous_Queries/iOS12_LPL_Phsql_Large_Reference.txt and "
-                 "iOS13/Previous_Queries/iOS13_LPL_Phsql_Large_Reference.txt at the same commit) "
-                 "and https://theforensicscooter.com/2022/02/21/photos-sqlite-update/",
+        "notes": 'Supported schemas: iOS 12-14 queries; on iOS 14 and later the iOS 14 query is run, '
+                 'with columns the database lacks read as empty. The matching query is selected '
+                 'automatically. A row is one combination of asset, detected face and album, so an '
+                 'asset with several faces or in several albums has several rows. Faces and persons '
+                 'are joined through ZDETECTEDFACE.ZASSET and ZDETECTEDFACE.ZPERSON where the table '
+                 'has those columns, and through ZDETECTEDFACE.ZASSETFORFACE and '
+                 'ZDETECTEDFACE.ZPERSONFORFACE where it has these instead; the Detected Face Asset and '
+                 'Person columns hold whichever pair the library has. The Core Data model stored in '
+                 'the library (Z_MODELCACHE) defines both pairs as to-one relationships from '
+                 'DetectedFace to Asset and to Person; it was read on abe_ios16 (asset, person), '
+                 'otto_ios17 and dexter_ios18 (assetForFace, personForFace). The second pair was the '
+                 'one present on the eight tested iOS 17 and iOS 18 images (felix_ios17, '
+                 'fsfull002_ios17, iphone11_ios17, otto_ios17, dexter_ios18, hc_ios18_7, '
+                 'iphone12_ios18, iphone14plus_ios18) and the first on the four tested iOS 15 and iOS '
+                 '16 images (jess_ios15, abe_ios16, felix23_ios16, magnet_ios16). On those twelve '
+                 'images the row count equalled a separate count of asset, face and album combinations '
+                 'made directly on the tables. Faces linked only through ZASSETFORTORSO or '
+                 'ZASSETFORTEMPORALDETECTEDFACES are not joined. On all twelve images Creator Bundle '
+                 'ID and Baldness are empty because ZCREATORBUNDLEID and ZBALDTYPE are absent; on the '
+                 'four iOS 18 images Has Adjustments?, Master Fingerprint and Adjusted Fingerprint are '
+                 'also empty because ZHASADJUSTMENTS, ZMASTERFINGERPRINT and ZADJUSTEDFINGERPRINT are '
+                 'absent. Columns added after iOS 14 are not read here (see the Ph* artifact series '
+                 'for current schemas). Reverse-location bplists are written to the report folder. '
+                 'Saved Asset Type, Visibility State, Age Type Estimate, Gender, Glasses Type, Facial '
+                 'Hair Type and Baldness hold the integers stored in ZSAVEDASSETTYPE, '
+                 'ZVISIBILITYSTATE, ZAGETYPE, ZGENDERTYPE, ZGLASSESTYPE, ZFACIALHAIRTYPE and '
+                 "ZBALDTYPE; this module assigns no meaning to them. Scott Koenig's query cited below "
+                 'gives his labels for these values. The face attribute columns are values the store '
+                 'holds, not facts about a person. Orientation values 1, 3, 6 and 8 are given labels '
+                 "adapted from Scott Koenig's queries (his labels for those values are "
+                 '1-Video-Default/Adjustment/Horizontal-Camera-(left)-1, '
+                 '3-Horizontal-Camera-(right)-3, 6-Vertical-Camera-(top)-6 and '
+                 '8-Vertical-Camera-(bottom)-8); the meaning of the values is not established here. In '
+                 'the Orientation and Org Orientation columns other values are reported as stored '
+                 '(ZORIENTATION and ZORIGINALORIENTATION). Reference: Scott Koenig, '
+                 'iOS_Local_PL_Photos.sqlite_Queries, '
+                 'https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS14/Previous_Queries/iOS14_LPL_Phsql_Large_Reference.txt '
+                 '(the iOS 12 and iOS 13 queries are '
+                 'iOS12/Previous_Queries/iOS12_LPL_Phsql_Large_Reference.txt and '
+                 'iOS13/Previous_Queries/iOS13_LPL_Phsql_Large_Reference.txt at the same commit) and '
+                 'https://theforensicscooter.com/2022/02/21/photos-sqlite-update/',
         "paths": ('*/mobile/Media/PhotoData/Photos.sqlite*',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "photo",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 381 rows",
-            "dexter_ios18": "iOS 18.3.2 | 1,178 rows",
-            "felix_ios17": "iOS 17.6.1 | 51 rows",
-            "fsfull002_ios17": "iOS 17.1 | 89 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 36 rows",
-            "iphone11_ios17": "iOS 17.3 | 585 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1,590 rows",
+            "felix_ios17": "iOS 17.6.1 | 53 rows",
+            "fsfull002_ios17": "iOS 17.1 | 98 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 40 rows",
+            "iphone11_ios17": "iOS 17.3 | 691 rows",
             "iphone12_ios18": "iOS 18.7 | 7,644 rows",
             "iphone14plus_ios18": "iOS 18.0 | 3 rows",
-            "otto_ios17": "iOS 17.5.1 | 522 rows",
+            "otto_ios17": "iOS 17.5.1 | 709 rows",
             "abe_ios16": "iOS 16.5 | 2,280 rows",
             "felix23_ios16": "iOS 16.5 | 35 rows",
             "hickman_ios13": "iOS 13.3.1 | 70 rows",
@@ -101,19 +109,7 @@ _QUERY_IOS12 = """
                         ZADDITIONALASSETATTRIBUTES.ZEDITORBUNDLEID AS 'EditorBundleID',
                         ZGENERICASSET.ZDIRECTORY AS 'Directory',
                         ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER AS 'UniformID',
-                CASE
-                                ZGENERICASSET.ZSAVEDASSETTYPE
-                                WHEN 0 THEN
-                                'Saved from other source'
-                                WHEN 2 THEN
-                                'Photo Streams Data'
-                                WHEN 3 THEN
-                                'Made/saved with this device'
-                                WHEN 4 THEN
-                                'Default row'
-                                WHEN 7 THEN
-                                'Deleted' ELSE ZGENERICASSET.ZSAVEDASSETTYPE
-                        END AS 'SavedAssetType',
+                ZGENERICASSET.ZSAVEDASSETTYPE AS 'SavedAssetType',
                 CASE
                           WHEN ZGENERICASSET.ZFACEAREAPOINTS > 0 THEN 'Yes'
                           ELSE 'NA'
@@ -125,58 +121,11 @@ _QUERY_IOS12 = """
                         ZPERSON.ZCONTACTMATCHINGDICTIONARY AS 'ContactBlob',
                         ZPERSON.ZPERSONUUID as 'PersonUUID',
                         ZDETECTEDFACE.ZQUALITYMEASURE AS 'DetectedFaceQuality',
-                CASE
-                                ZDETECTEDFACE.ZAGETYPE
-                                WHEN 1 THEN
-                                'Baby/Toddler'
-                                WHEN 2 THEN
-                                'Baby/Toddler'
-                                WHEN 3 THEN
-                                'Child/YoungAdult'
-                                WHEN 4 THEN
-                                'YoungAdult/Adult'
-                                WHEN 5 THEN
-                                'Adult'
-                                ELSE ZDETECTEDFACE.ZAGETYPE
-                        END AS 'AgeTypeEstimate',
-                CASE
-                                ZDETECTEDFACE.ZGENDERTYPE
-                                WHEN 1 THEN
-                                'Male'
-                                WHEN 2 THEN
-                                'Female'
-                                ELSE ZDETECTEDFACE.ZGENDERTYPE
-                        END AS 'Gender',
-                CASE
-                          ZDETECTEDFACE.ZGLASSESTYPE
-                          WHEN 3 THEN
-                          'None'
-                          WHEN 2 THEN
-                          'Sun'
-                          WHEN 1 THEN
-                          'Eye'
-                          ELSE ZDETECTEDFACE.ZGLASSESTYPE
-                        END AS 'GlassesType',
-                CASE
-                          ZDETECTEDFACE.ZFACIALHAIRTYPE
-                          WHEN 1 THEN
-                          'None'
-                          WHEN 2 THEN
-                          'Beard/Mustache'
-                          WHEN 3 THEN
-                          'Goatee'
-                          WHEN 5 THEN
-                          'Stubble'
-                          ELSE ZDETECTEDFACE.ZFACIALHAIRTYPE
-                        END AS 'FacialHairType',
-                CASE
-                          ZDETECTEDFACE.ZBALDTYPE
-                          WHEN 2 THEN
-                          'Bald'
-                          WHEN 3 THEN
-                          'NotBald'
-                          ELSE ZDETECTEDFACE.ZBALDTYPE
-                        END AS 'Baldness',
+                ZDETECTEDFACE.ZAGETYPE AS 'AgeTypeEstimate',
+                ZDETECTEDFACE.ZGENDERTYPE AS 'Gender',
+                ZDETECTEDFACE.ZGLASSESTYPE AS 'GlassesType',
+                ZDETECTEDFACE.ZFACIALHAIRTYPE AS 'FacialHairType',
+                ZDETECTEDFACE.ZBALDTYPE AS 'Baldness',
                         ZGENERICASSET.ZORIGINALCOLORSPACE AS 'ColorSpace',
                         ZGENERICASSET.Zduration AS 'Duration',
                         ZGENERICASSET.Zvideocpdurationvalue AS 'VideoDuration',
@@ -185,15 +134,7 @@ _QUERY_IOS12 = """
                                 WHEN 1 THEN
                                 'Yes'
                         END AS 'Complete',
-                CASE
-                                ZGENERICASSET.ZVISIBILITYSTATE
-                                WHEN 0 THEN
-                                'Visible'
-                                WHEN 1 THEN
-                                'Photo Streams Data'
-                                WHEN 2 THEN
-                                'Burst' ELSE ZVISIBILITYSTATE
-                        END AS 'VisibilityState',
+                ZGENERICASSET.ZVISIBILITYSTATE AS 'VisibilityState',
                 CASE
                                 ZGENERICASSET.ZFAVORITE
                                 WHEN 0 THEN
@@ -254,7 +195,7 @@ _QUERY_IOS12 = """
                                 WHEN 6 THEN
                                 'Vertical (up)'
                                 WHEN 8 THEN
-                                'Vertical (down)' ELSE ZORIENTATION
+                                'Vertical (down)' ELSE ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION
                         END AS 'Org_Orientation',
                         ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME AS 'TimeZoneName',
                         ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET AS 'TimeZoneOffset',
@@ -347,19 +288,7 @@ _QUERY_IOS13 = """
                         ZADDITIONALASSETATTRIBUTES.ZEDITORBUNDLEID AS 'EditorBundleID',
                         ZGENERICASSET.ZDIRECTORY AS 'Directory',
                         ZGENERICASSET.ZUNIFORMTYPEIDENTIFIER AS 'UniformID',
-                CASE
-                                ZGENERICASSET.ZSAVEDASSETTYPE
-                                WHEN 0 THEN
-                                'Saved from other source'
-                                WHEN 2 THEN
-                                'Photo Streams Data'
-                                WHEN 3 THEN
-                                'Made/saved with this device'
-                                WHEN 4 THEN
-                                'Default row'
-                                WHEN 7 THEN
-                                'Deleted' ELSE ZGENERICASSET.ZSAVEDASSETTYPE
-                        END AS 'SavedAssetType',
+                ZGENERICASSET.ZSAVEDASSETTYPE AS 'SavedAssetType',
                 CASE
                           WHEN ZGENERICASSET.ZFACEAREAPOINTS > 0 THEN 'Yes'
                           ELSE 'NA'
@@ -371,58 +300,11 @@ _QUERY_IOS13 = """
                         ZPERSON.ZCONTACTMATCHINGDICTIONARY AS 'ContactBlob',
                         ZPERSON.ZPERSONUUID as 'PersonUUID',
                         ZDETECTEDFACE.ZQUALITYMEASURE AS 'DetectedFaceQuality',
-                CASE
-                                ZDETECTEDFACE.ZAGETYPE
-                                WHEN 1 THEN
-                                'Baby/Toddler'
-                                WHEN 2 THEN
-                                'Baby/Toddler'
-                                WHEN 3 THEN
-                                'Child/YoungAdult'
-                                WHEN 4 THEN
-                                'YoungAdult/Adult'
-                                WHEN 5 THEN
-                                'Adult'
-                                ELSE ZDETECTEDFACE.ZAGETYPE
-                        END AS 'AgeTypeEstimate',
-                CASE
-                                ZDETECTEDFACE.ZGENDERTYPE
-                                WHEN 1 THEN
-                                'Male'
-                                WHEN 2 THEN
-                                'Female'
-                                ELSE ZDETECTEDFACE.ZGENDERTYPE
-                        END AS 'Gender',
-                CASE
-                          ZDETECTEDFACE.ZGLASSESTYPE
-                          WHEN 3 THEN
-                          'None'
-                          WHEN 2 THEN
-                          'Sun'
-                          WHEN 1 THEN
-                          'Eye'
-                          ELSE ZDETECTEDFACE.ZGLASSESTYPE
-                        END AS 'GlassesType',
-                CASE
-                          ZDETECTEDFACE.ZFACIALHAIRTYPE
-                          WHEN 1 THEN
-                          'None'
-                          WHEN 2 THEN
-                          'Beard/Mustache'
-                          WHEN 3 THEN
-                          'Goatee'
-                          WHEN 5 THEN
-                          'Stubble'
-                          ELSE ZDETECTEDFACE.ZFACIALHAIRTYPE
-                        END AS 'FacialHairType',
-                CASE
-                          ZDETECTEDFACE.ZBALDTYPE
-                          WHEN 2 THEN
-                          'Bald'
-                          WHEN 3 THEN
-                          'NotBald'
-                          ELSE ZDETECTEDFACE.ZBALDTYPE
-                        END AS 'Baldness',
+                ZDETECTEDFACE.ZAGETYPE AS 'AgeTypeEstimate',
+                ZDETECTEDFACE.ZGENDERTYPE AS 'Gender',
+                ZDETECTEDFACE.ZGLASSESTYPE AS 'GlassesType',
+                ZDETECTEDFACE.ZFACIALHAIRTYPE AS 'FacialHairType',
+                ZDETECTEDFACE.ZBALDTYPE AS 'Baldness',
                         ZGENERICASSET.ZORIGINALCOLORSPACE AS 'ColorSpace',
                         ZGENERICASSET.Zduration AS 'Duration',
                         ZGENERICASSET.Zvideocpdurationvalue AS 'VideoDuration',
@@ -431,15 +313,7 @@ _QUERY_IOS13 = """
                                 WHEN 1 THEN
                                 'Yes'
                         END AS 'Complete',
-                CASE
-                                ZGENERICASSET.ZVISIBILITYSTATE
-                                WHEN 0 THEN
-                                'Visible'
-                                WHEN 1 THEN
-                                'Photo Streams Data'
-                                WHEN 2 THEN
-                                'Burst' ELSE ZVISIBILITYSTATE
-                        END AS 'VisibilityState',
+                ZGENERICASSET.ZVISIBILITYSTATE AS 'VisibilityState',
                 CASE
                                 ZGENERICASSET.ZFAVORITE
                                 WHEN 0 THEN
@@ -500,7 +374,7 @@ _QUERY_IOS13 = """
                                 WHEN 6 THEN
                                 'Vertical (up)'
                                 WHEN 8 THEN
-                                'Vertical (down)' ELSE ZORIENTATION
+                                'Vertical (down)' ELSE ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION
                         END AS 'Org_Orientation',
                         ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME AS 'TimeZoneName',
                         ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET AS 'TimeZoneOffset',
@@ -595,19 +469,7 @@ _QUERY_IOS14 = """
                         ZADDITIONALASSETATTRIBUTES.ZEDITORBUNDLEID AS 'EditorBundleID',
                         ZASSET.ZDIRECTORY AS 'Directory',
                         ZASSET.ZUNIFORMTYPEIDENTIFIER AS 'UniformID',
-                CASE
-                                ZASSET.ZSAVEDASSETTYPE
-                                WHEN 0 THEN
-                                'Saved from other source'
-                                WHEN 2 THEN
-                                'Photo Streams Data'
-                                WHEN 3 THEN
-                                'Made/saved with this device'
-                                WHEN 4 THEN
-                                'Default row'
-                                WHEN 7 THEN
-                                'Deleted' ELSE ZASSET.ZSAVEDASSETTYPE
-                        END AS 'SavedAssetType',
+                ZASSET.ZSAVEDASSETTYPE AS 'SavedAssetType',
                 CASE
                           WHEN ZASSET.ZFACEAREAPOINTS > 0 THEN 'Yes'
                           ELSE 'NA'
@@ -619,58 +481,11 @@ _QUERY_IOS14 = """
                         ZPERSON.ZCONTACTMATCHINGDICTIONARY AS 'ContactBlob',
                         ZPERSON.ZPERSONUUID as 'PersonUUID',
                         ZDETECTEDFACE.ZQUALITYMEASURE AS 'DetectedFaceQuality',
-                CASE
-                                ZDETECTEDFACE.ZAGETYPE
-                                WHEN 1 THEN
-                                'Baby/Toddler'
-                                WHEN 2 THEN
-                                'Baby/Toddler'
-                                WHEN 3 THEN
-                                'Child/YoungAdult'
-                                WHEN 4 THEN
-                                'YoungAdult/Adult'
-                                WHEN 5 THEN
-                                'Adult'
-                                ELSE ZDETECTEDFACE.ZAGETYPE
-                        END AS 'AgeTypeEstimate',
-                CASE
-                                ZDETECTEDFACE.ZGENDERTYPE
-                                WHEN 1 THEN
-                                'Male'
-                                WHEN 2 THEN
-                                'Female'
-                                ELSE ZDETECTEDFACE.ZGENDERTYPE
-                        END AS 'Gender',
-                CASE
-                          ZDETECTEDFACE.ZGLASSESTYPE
-                          WHEN 3 THEN
-                          'None'
-                          WHEN 2 THEN
-                          'Sun'
-                          WHEN 1 THEN
-                          'Eye'
-                          ELSE ZDETECTEDFACE.ZGLASSESTYPE
-                        END AS 'GlassesType',
-                CASE
-                          ZDETECTEDFACE.ZFACIALHAIRTYPE
-                          WHEN 1 THEN
-                          'None'
-                          WHEN 2 THEN
-                          'Beard/Mustache'
-                          WHEN 3 THEN
-                          'Goatee'
-                          WHEN 5 THEN
-                          'Stubble'
-                          ELSE ZDETECTEDFACE.ZFACIALHAIRTYPE
-                        END AS 'FacialHairType',
-                CASE
-                          ZDETECTEDFACE.ZBALDTYPE
-                          WHEN 2 THEN
-                          'Bald'
-                          WHEN 3 THEN
-                          'NotBald'
-                          ELSE ZDETECTEDFACE.ZBALDTYPE
-                        END AS 'Baldness',
+                ZDETECTEDFACE.ZAGETYPE AS 'AgeTypeEstimate',
+                ZDETECTEDFACE.ZGENDERTYPE AS 'Gender',
+                ZDETECTEDFACE.ZGLASSESTYPE AS 'GlassesType',
+                ZDETECTEDFACE.ZFACIALHAIRTYPE AS 'FacialHairType',
+                ZDETECTEDFACE.ZBALDTYPE AS 'Baldness',
                         ZASSET.ZORIGINALCOLORSPACE AS 'ColorSpace',
                         ZASSET.Zduration AS 'Duration',
                         ZASSET.Zvideocpdurationvalue AS 'VideoDuration',
@@ -679,15 +494,7 @@ _QUERY_IOS14 = """
                                 WHEN 1 THEN
                                 'Yes'
                         END AS 'Complete',
-                CASE
-                                ZASSET.ZVISIBILITYSTATE
-                                WHEN 0 THEN
-                                'Visible'
-                                WHEN 1 THEN
-                                'Photo Streams Data'
-                                WHEN 2 THEN
-                                'Burst' ELSE ZVISIBILITYSTATE
-                        END AS 'VisibilityState',
+                ZASSET.ZVISIBILITYSTATE AS 'VisibilityState',
                 CASE
                                 ZASSET.ZFAVORITE
                                 WHEN 0 THEN
@@ -748,7 +555,7 @@ _QUERY_IOS14 = """
                                 WHEN 6 THEN
                                 'Vertical (up)'
                                 WHEN 8 THEN
-                                'Vertical (down)' ELSE ZORIENTATION
+                                'Vertical (down)' ELSE ZADDITIONALASSETATTRIBUTES.ZORIGINALORIENTATION
                         END AS 'Org_Orientation',
                         ZADDITIONALASSETATTRIBUTES.ZTIMEZONENAME AS 'TimeZoneName',
                         ZADDITIONALASSETATTRIBUTES.ZTIMEZONEOFFSET AS 'TimeZoneOffset',
@@ -950,6 +757,28 @@ def _retarget_album_join(query, source_file):
 
 
 
+def _retarget_face_join(query, source_file):
+    """Point the query's ZDETECTEDFACE.ZASSET and ZDETECTEDFACE.ZPERSON at this file's names.
+
+    The Core Data model in Z_MODELCACHE names the DetectedFace to-one
+    relationships asset and person on the iOS 15 and 16 libraries read, and
+    assetForFace and personForFace on the iOS 17 and 18 ones, so the columns
+    are ZASSET and ZPERSON on the first and ZASSETFORFACE and ZPERSONFORFACE on
+    the second. Each name is swapped only when the old column is absent and the
+    new one is present.
+    """
+    try:
+        columns = {record[1] for record in
+                   get_sqlite_db_records(source_file, 'PRAGMA table_info("ZDETECTEDFACE")')}
+    except sqlite3.Error:
+        return query
+    for old, new in (('ZASSET', 'ZASSETFORFACE'), ('ZPERSON', 'ZPERSONFORFACE')):
+        if old not in columns and new in columns:
+            query = re.sub(rf'ZDETECTEDFACE\.{old}\b', f'ZDETECTEDFACE.{new}', query)
+    return query
+
+
+
 def _postal(blob, report_folder, counter):
     """Write a reverse-location bplist and return (formatted, subadmin, sublocality)."""
     if blob is None:
@@ -1007,6 +836,7 @@ def photosMetadata(context):
         return _HEADERS_IOS14, data_list, context.get_relative_path(source_file)
 
     query = _retarget_album_join(query, source_file)
+    query = _retarget_face_join(query, source_file)
     query = null_absent_columns(source_file, query)
 
     try:

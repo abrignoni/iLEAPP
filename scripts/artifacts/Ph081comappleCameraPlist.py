@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "Ph081ComAppleCameraPlist": {
         "name": "Ph081-Com-Apple-Camera-Plist",
-        "description": "Parses data from */mobile/Library/Preferences/com.apple.camera.plist which is the"
+        "description": "Parses the first file matched by */mobile/Library/Preferences/com.apple.camera.plist, which is the"
             " preferences file of the Camera app. Values are reported as stored; four keys that hold"
             " embedded plists (the three CAMUserPreferenceSharedLibrary location keys and"
             " CAMUserPreferenceExposureBiasByMode) are shown decoded when they can be read. Scott"
@@ -11,7 +11,7 @@ __artifacts_v2__ = {
             " . What the other keys mean is not established here.",
         "author": "Scott Koenig",
         "creation_date": "2025-01-05",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains com.apple.camera.plist",
         "category": "Photos.sqlite",
         "notes": "",
@@ -55,7 +55,7 @@ def Ph081ComAppleCameraPlist(context):
 
             if key == 'CAMUserPreferenceSharedLibraryLastDiscoveryLocation':
                 pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastDiscoveryLocation' + '.bplist')
-                with open(pathto, "ab") as wf:
+                with open(pathto, "wb") as wf:
                     wf.write(val)
 
                 with open(pathto, "rb") as f:
@@ -75,7 +75,7 @@ def Ph081ComAppleCameraPlist(context):
 
             elif key == 'CAMUserPreferenceSharedLibraryLastLocation':
                 pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastLocation' + '.bplist')
-                with open(pathto, "ab") as wf:
+                with open(pathto, "wb") as wf:
                     wf.write(val)
 
                 with open(pathto, "rb") as f:
@@ -95,7 +95,7 @@ def Ph081ComAppleCameraPlist(context):
 
             elif key == 'CAMUserPreferenceSharedLibraryLastUserActionLocation':
                 pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastUserActionLocation' + '.bplist')
-                with open(pathto, "ab") as wf:
+                with open(pathto, "wb") as wf:
                     wf.write(val)
 
                 with open(pathto, "rb") as f:
@@ -115,7 +115,7 @@ def Ph081ComAppleCameraPlist(context):
 
             elif key == 'CAMUserPreferenceExposureBiasByMode':
                 pathto = os.path.join(report_folder, 'CAMUserPreferenceExposureBiasByMode' + '.bplist')
-                with open(pathto, "ab") as wf:
+                with open(pathto, "wb") as wf:
                     wf.write(val)
 
                 with open(pathto, "rb") as f:

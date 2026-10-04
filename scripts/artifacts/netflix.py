@@ -193,7 +193,7 @@ __artifacts_v2__ = {
                        "reported by the kind of value each entry holds",
         "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Netflix",
         "notes": "Rows of the store table in Documents/sqlstore/store.sqlite3. The value blob is "
@@ -209,12 +209,21 @@ __artifacts_v2__ = {
                  "The table mixes two storage forms: some values carry the envelope and some are "
                  "written as plain UTF-8 JSON with no envelope at all, and the Storage column says "
                  "which, so a plaintext row is not reported as a decryption failure. Where the "
-                 "crypto row resolves to a key, that key is applied to every row of the table and "
-                 "the result is accepted without a readability test, so an entry whose plaintext "
-                 "is not text is reported as decrypted with Value Kind 'binary'. A row in such a "
-                 "store that was written under a different key would be reported the same way, so "
-                 "a 'binary' value in the Storage 'Encrypted' group is not established to be a "
-                 "correct decryption. Where the crypto row is not opened by any key present, each "
+                 "crypto row resolves to a key, that key is tried first on each row and its "
+                 "result is accepted when it reads as text or when the envelope's pad count is "
+                 "above zero and the last that many decrypted bytes are all zero. A wrong key "
+                 "passes that pad test by chance about once in 256 for each pad byte. When "
+                 "neither test passes, each other key is tried and only a result that reads as "
+                 "text is accepted; failing that the row is counted as not recovered, except "
+                 "that a row with a pad count of zero whose result under the named key is not "
+                 "text is shown with Storage 'Encrypted (not verified)' and Value Kind 'binary', "
+                 "because nothing confirms or refutes that decryption. A value that is not text "
+                 "and was written under a key other than the named one is therefore counted as "
+                 "not recovered even when that key is present. On dexter_ios18 the table held "
+                 "29 rows, 4 without the envelope and 25 with it; all 25 passed both tests under "
+                 "the named key and none passed the pad test under the other key present, so the "
+                 "not verified and other key branches were exercised only on a constructed "
+                 "store. Where the crypto row is not opened by any key present, each "
                  "key is tried in turn and only a readable result is accepted, so a row whose key "
                  "has since been rotated out of the preference file is counted as not recovered. "
                  "Entries that hold an identity string are listed one per row. All other entries, "
@@ -223,8 +232,9 @@ __artifacts_v2__ = {
                  "so the row count of this artifact does not match the table. One sample tested "
                  "carried a store whose crypto row no key opened, and rows written under the "
                  "retired key were counted as not recovered. No sample_data is recorded for this "
-                 "artifact; the samples it was tested on are not named here, so figures in these "
-                 "notes cannot be tied to a corpus key.",
+                 "artifact; apart from the dexter_ios18 figures above, the samples it was tested "
+                 "on are not named here, so the other figures in these notes cannot be tied to a "
+                 "corpus key.",
         "paths": ('*/Documents/sqlstore/store.sqlite3*',
                   '*/Library/Preferences/__com.netflix.derivationkeyprovider.localPersistanceSuiteName.plist'),
         "output_types": "standard",
@@ -663,13 +673,39 @@ def _named_key(db_path, keys):
     return None
 
 
+def _pad_check(blob, key):
+    """Test the envelope's own pad count against a decryption.
+
+    The envelope's 17th byte counts the zero bytes that end the plaintext. Returns True
+    when the last that many bytes decrypted with this key are all zero (or when there is
+    no ciphertext, so nothing was decrypted), False when they are not, and None when the
+    count is zero or the envelope cannot be read, which leaves nothing to test. A wrong
+    key passes by chance about once in 256 for each pad byte.
+    """
+    parts = _split_envelope(blob)
+    if parts is None or AES is None:
+        return None
+    iv, pad, ciphertext = parts
+    if not ciphertext:
+        return True
+    if not pad:
+        return None
+    if pad > len(ciphertext):
+        return False
+    try:
+        plain = AES.new(key, AES.MODE_CBC, iv).decrypt(ciphertext)
+    except (ValueError, TypeError):
+        return None
+    return plain[-pad:] == b'\x00' * pad
+
+
 def _open_named(blob, keys, named):
     """Decrypt with the key the database's crypto row names.
 
-    That row is a recorded selector rather than a guess, so when it resolves the result
-    is correct by construction even where the plaintext is not text. Returns
-    (key_id, plaintext) or (None, None) when there is no named key or the envelope is
-    malformed.
+    The crypto row names the key the database was written under, but a store can still
+    hold rows written under another key, so the caller tests the result (_readable,
+    _pad_check) before accepting it. Returns (key_id, plaintext) or (None, None) when
+    there is no named key or the envelope is malformed.
     """
     if not named or named not in keys:
         return None, None
@@ -1164,10 +1200,17 @@ def netflix_secure_store(context):
             if plain is not None:
                 storage, key_id = 'Plaintext', ''
             else:
-                key_id, plain = _open_named(record['value'], keys, named)
-                if key_id is None:
+                named_id, named_plain = _open_named(record['value'], keys, named)
+                checked = _pad_check(record['value'], keys[named_id]) if named_id else None
+                if named_id is not None and (checked or _readable(named_plain)):
+                    key_id, plain, storage = named_id, named_plain, 'Encrypted'
+                else:
                     key_id, plain = _open_blob(record['value'], keys, named)
-                storage = 'Encrypted' if plain is not None else 'Not recovered'
+                    storage = 'Encrypted' if plain is not None else 'Not recovered'
+                    if plain is None and named_id is not None and checked is None:
+                        # No pad bytes to test and not text: neither confirmed nor refuted.
+                        key_id, plain = named_id, named_plain
+                        storage = 'Encrypted (not verified)'
             kind, identity = _value_kind(plain)
             if identity or kind in IDENTITY_KINDS:
                 data_list.append((kind, identity, storage,

@@ -2,16 +2,22 @@ __artifacts_v2__ = {
     "teamsSegmentLocations": {
         "name": "Microsoft Teams - Locations",
         "description": "Location records from the JSON-lines files under "
-                       "Library/DriveIQ/segments/current in an app container (seen in Microsoft "
-                       "Teams 2.3.1). The owning app is not checked. Timestamp is the record's "
-                       "sourceTimestamp read as UTC",
+                       "Library/DriveIQ/segments/current in the Microsoft Teams app container",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Microsoft Teams",
-        "notes": "",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
+        "notes": "Rows come only from an app container whose "
+                 ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
+                 "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
+                 "identifier, or whose metadata plist is absent or unreadable, is skipped and named "
+                 "in the run log. On hickman_ios14, the one registered image found to hold such a "
+                 "folder, its container records com.microsoft.skype.teams, so the skip is "
+                 "unexercised on the registered images. What DriveIQ is was not established; the "
+                 "name is the folder's. Timestamp is the record's sourceTimestamp value read as UTC",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "map-pin",
         "sample_data": {
@@ -20,14 +26,23 @@ __artifacts_v2__ = {
     },
     "teamsSegmentMotion": {
         "name": "Microsoft Teams - Motion",
-        "description": "Motion/activity segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "description": "Motion records from the JSON-lines files under Library/DriveIQ/segments/current in the "
+                       "Microsoft Teams app container",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Microsoft Teams",
-        "notes": "",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
+        "notes": "Rows come only from an app container whose "
+                 ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
+                 "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
+                 "identifier, or whose metadata plist is absent or unreadable, is skipped and named "
+                 "in the run log. On hickman_ios14, the one registered image found to hold such a "
+                 "folder, its container records com.microsoft.skype.teams, so the skip is "
+                 "unexercised on the registered images. What DriveIQ is was not established; the "
+                 "name is the folder's. Timestamp is the record's first element read as UTC",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
         "artifact_icon": "activity",
         "sample_data": {
@@ -36,14 +51,23 @@ __artifacts_v2__ = {
     },
     "teamsSegmentTimezone": {
         "name": "Microsoft Teams - Timezone",
-        "description": "Timezone check segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "description": "timeCheck records from the JSON-lines files under Library/DriveIQ/segments/current in "
+                       "the Microsoft Teams app container",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Microsoft Teams",
-        "notes": "",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
+        "notes": "Rows come only from an app container whose "
+                 ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
+                 "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
+                 "identifier, or whose metadata plist is absent or unreadable, is skipped and named "
+                 "in the run log. On hickman_ios14, the one registered image found to hold such a "
+                 "folder, its container records com.microsoft.skype.teams, so the skip is "
+                 "unexercised on the registered images. What DriveIQ is was not established; the "
+                 "name is the folder's. Timestamp is the record's first element read as UTC",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
         "artifact_icon": "clock",
         "sample_data": {
@@ -52,14 +76,23 @@ __artifacts_v2__ = {
     },
     "teamsSegmentPower": {
         "name": "Microsoft Teams - Power Log",
-        "description": "Power/battery segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "description": "Power records from the JSON-lines files under Library/DriveIQ/segments/current in the "
+                       "Microsoft Teams app container",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Microsoft Teams",
-        "notes": "",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
+        "notes": "Rows come only from an app container whose "
+                 ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
+                 "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
+                 "identifier, or whose metadata plist is absent or unreadable, is skipped and named "
+                 "in the run log. On hickman_ios14, the one registered image found to hold such a "
+                 "folder, its container records com.microsoft.skype.teams, so the skip is "
+                 "unexercised on the registered images. What DriveIQ is was not established; the "
+                 "name is the folder's. Timestamp is the record's first element read as UTC",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
         "sample_data": {
@@ -68,14 +101,23 @@ __artifacts_v2__ = {
     },
     "teamsSegmentStateChange": {
         "name": "Microsoft Teams - State Change",
-        "description": "State change segments logged by the DriveIQ SDK (observed in Microsoft Teams)",
+        "description": "stateChange records from the JSON-lines files under Library/DriveIQ/segments/current in "
+                       "the Microsoft Teams app container",
         "author": "@abrignoni",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Microsoft Teams",
-        "notes": "",
-        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',),
+        "notes": "Rows come only from an app container whose "
+                 ".com.apple.mobile_container_manager.metadata.plist records MCMMetadataIdentifier "
+                 "com.microsoft.skype.teams. A DriveIQ folder in a container that records another "
+                 "identifier, or whose metadata plist is absent or unreadable, is skipped and named "
+                 "in the run log. On hickman_ios14, the one registered image found to hold such a "
+                 "folder, its container records com.microsoft.skype.teams, so the skip is "
+                 "unexercised on the registered images. What DriveIQ is was not established; the "
+                 "name is the folder's. Timestamp is the record's first element read as UTC",
+        "paths": ('*/mobile/Containers/Data/Application/*/Library/DriveIQ/segments/current/*.*',
+                  '*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist'),
         "output_types": "standard",
         "artifact_icon": "repeat",
         "sample_data": {
@@ -85,8 +127,31 @@ __artifacts_v2__ = {
 }
 
 import json
+import os
+import plistlib
 
 from scripts.ilapfuncs import artifact_processor, convert_ts_human_to_utc, logfunc
+
+_METADATA_NAME = '.com.apple.mobile_container_manager.metadata.plist'
+_TEAMS_ID = 'com.microsoft.skype.teams'
+
+
+def _container_ids(files_found):
+    """{container directory: MCMMetadataIdentifier} from each container's own metadata plist."""
+    containers = {}
+    for found in files_found:
+        path = str(found)
+        if os.path.basename(path) != _METADATA_NAME or os.path.isdir(path):
+            continue
+        try:
+            with open(path, 'rb') as handle:
+                plist = plistlib.load(handle)
+        except (plistlib.InvalidFileException, OSError, ValueError) as error:
+            logfunc(f'Microsoft Teams DriveIQ: could not read a container metadata plist: {error}')
+            continue
+        if isinstance(plist, dict):
+            containers[os.path.dirname(path).replace('\\', '/')] = plist.get('MCMMetadataIdentifier')
+    return containers
 
 
 def _seg_ts(value):
@@ -104,8 +169,18 @@ def _iter_records(context):
     """Read all DriveIQ segment files and return (parsed JSON records, joined source paths)."""
     records = []
     sources = []
+    containers = _container_ids(context.get_files_found())
     for file_found in context.get_files_found():
         file_found = str(file_found)
+        if os.path.basename(file_found) == _METADATA_NAME or os.path.isdir(file_found):
+            continue
+        # <container>/Library/DriveIQ/segments/current/<file>
+        container = file_found.replace('\\', '/').rsplit('/Library/DriveIQ/', 1)[0]
+        if containers.get(container) != _TEAMS_ID:
+            logfunc(f'Microsoft Teams DriveIQ: skipped {context.get_relative_path(file_found)}; '
+                    f'its container records identifier {containers.get(container)!r}, '
+                    f'not {_TEAMS_ID}')
+            continue
         try:
             with open(file_found, encoding='utf-8') as fh:
                 for line in fh:

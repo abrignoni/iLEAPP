@@ -8,20 +8,19 @@ __artifacts_v2__ = {
 " basic asset data for assets related to iCloud Shared Links. An asset is listed once per"
 " participant row of its share. Share columns are blank when the asset has no ZSHARE row, and a"
 " share with no such asset is not listed. Supports iOS 14 through 18 (the code handles versions"
-" from 14 up to, but not including, 26). On iOS 13.7 and earlier and on iOS 26 and later the"
+" from 14 up to, but not including, 26). On versions below iOS 14 and on iOS 26 and later the"
 " artifact logs an unsupported version message, does not query the database and returns no"
 " rows. No recorded run on the test images listed in sample_data returned a row, and two of"
-" them, iOS 12.4 and iOS 13.3.1, are below the supported versions. The text shown beside each"
+" them, iOS 12.4 and iOS 13.3.1, are below the supported versions and were not queried. The text shown beside each"
 " stored integer is the module author's label and no source for the value meanings is cited"
-" here. Labels containing 'StillTesting' are not established. For iOS 15 and later the labels"
-" shown for ZASSET.ZSYNDICATIONSTATE values 8 and 10 include the words 'User_Deleted'. No"
-" source for that meaning is cited here, and the stored integer begins each of those labels."
-" ZSHAREPARTICIPANT.ZISCURRENTUSER value 1 is labelled 'Is_CurrentUser' for iOS 14 and 15 and"
-" 'Is_CloudStorageOwner' for iOS 16 and later. Reference: Scott Koenig,"
+" here. Labels containing 'StillTesting' are not established. For iOS 15 and later"
+" ZASSET.ZSYNDICATIONSTATE values 8 and 10 are shown as the stored integer with no label,"
+" because no source for their meaning was found. The label text for ZSHAREPARTICIPANT.ZISCURRENTUSER values 0 and 1 ('Not_CurrentUser', 'Is_CurrentUser') repeats the column's own name and does not change between the supported versions."
+" Reference: Scott Koenig,"
 " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -31,7 +30,7 @@ __artifacts_v2__ = {
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "link",
 'sample_data': {
-'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'ctf2020_ios12': 'iOS 12.4 | not queried, the code returns before reading the database on versions below iOS 14',
 'dexter_ios18': 'iOS 18.3.2 | 0 rows',
 'felix_ios17': 'iOS 17.6.1 | 0 rows',
 'fsfull002_ios17': 'iOS 17.1 | 0 rows',
@@ -42,7 +41,7 @@ __artifacts_v2__ = {
 'otto_ios17': 'iOS 17.5.1 | 0 rows',
 'abe_ios16': 'iOS 16.5 | 0 rows',
 'felix23_ios16': 'iOS 16.5 | 0 rows',
-'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | not queried, the code returns before reading the database on versions below iOS 14',
 'hickman_ios14': 'iOS 14.3 | 0 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
@@ -68,7 +67,7 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("26")):
+    if (version.parse(iosversion) < version.parse("14")) or (version.parse(iosversion) >= version.parse("26")):
         logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
@@ -304,9 +303,9 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
             WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -534,9 +533,9 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
             WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -694,8 +693,8 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
-            WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE
@@ -872,9 +871,9 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
             WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -1037,8 +1036,8 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
-            WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE
@@ -1236,9 +1235,9 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
             WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -1401,8 +1400,8 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
-            WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE
@@ -1600,9 +1599,9 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
             WHEN 1 THEN '1-SyndPs-Sent-SWY_Synd_Asset-1'
             WHEN 2 THEN '2-SyndPs-Manually-Saved_SWY_Synd_Asset-2'
             WHEN 3 THEN '3-SyndPs-STILLTESTING_Sent-SWY-3'
-            WHEN 8 THEN '8-SyndPs-Linked_Asset_was_Visible_On-Device_User_Deleted_Link-8'
+            WHEN 8 THEN '8'
             WHEN 9 THEN '9-SyndPs-STILLTESTING_Sent_SWY-9'
-            WHEN 10 THEN '10-SyndPs-Manually-Saved_SWY_Synd_Asset_User_Deleted_From_LPL-10'
+            WHEN 10 THEN '10'
             ELSE 'Unknown-New-Value!: ' || zAsset.ZSYNDICATIONSTATE || ''
         END AS 'zAsset-Syndication State',
         CASE zAsset.ZBUNDLESCOPE
@@ -1765,8 +1764,8 @@ def Ph035iCloudSharedLinkAssetsPhDaPsql(context):
         zSharePartic.ZPARTICIPANTID AS 'zSharePartic-Participant ID',
         zSharePartic.ZUUID AS 'zSharePartic-UUID',  
         CASE zSharePartic.ZISCURRENTUSER
-            WHEN 0 THEN '0-Participant-Not_CloudStorageOwner-0'
-            WHEN 1 THEN '1-Participant-Is_CloudStorageOwner-1'
+            WHEN 0 THEN '0-Participant-Not_CurrentUser-0'
+            WHEN 1 THEN '1-Participant-Is_CurrentUser-1'
             ELSE 'Unknown-New-Value!: ' || zSharePartic.ZISCURRENTUSER || ''
         END AS 'zSharePartic-Is Current User',
         CASE zSharePartic.ZROLE

@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "Ph083ComApplePurpleBuddyPlist": {
         "name": "Ph083-Com-Apple-PurpleBuddy-Plist",
-        "description": "Parses basic data from com.apple.purplebuddy.plist and lists its keys and values as"
+        "description": "Parses the first com.apple.purplebuddy.plist matched and lists its keys and values as"
         " stored. The SetupState key is reported under Device Info and is not in this table."
         " Scott Koenig compared the guessedCountry and SetupLastExit timestamps of this file"
         " with a known factory reset on a test device running iOS 14.7:"

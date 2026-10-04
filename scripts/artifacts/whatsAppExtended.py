@@ -20,23 +20,33 @@ __artifacts_v2__ = {
         "description": "WhatsApp emoji reactions decoded from the ZRECEIPTINFO blob (ChatStorage.sqlite)",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-14",
-        "last_update_date": "2026-08-14",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "WhatsApp",
         "notes": "Reactions are stored inside ZWAMESSAGEINFO.ZRECEIPTINFO, a protobuf blob. Two "
-                 "record shapes were observed under field 7 across the tested images. Shape one "
-                 "(field 7.1) carries a message key id, a JID, the emoji, and a millisecond "
-                 "timestamp; every decoded instance had a well-formed JID and a plausible "
-                 "timestamp (12 of 12). The JID is reported in the Reactor JID column; that it "
-                 "names the party who reacted is this module's reading and is not established by "
-                 "a source. Shape two (field 7.2) carries a key id, the emoji, and a millisecond "
-                 "timestamp but no JID (26 of 26 decoded clean); it was observed on both incoming "
-                 "and outgoing messages, so which party reacted is not established for that shape "
-                 "and the Reactor JID column is empty there. The Record Shape column states which "
-                 "shape each row came from. Decoded with the bundled blackboxprotobuf; no "
-                 "external source documents this blob. A blob the decoder cannot read produces no "
-                 "row. Message Direction is Outgoing where the message's ZISFROMME is 1 and "
-                 "Incoming otherwise, including where no message row is joined.",
+                 "record shapes were observed under field 7 across the tested images. No source "
+                 "that documents this blob was found, so the fields are reported as stored and "
+                 "the Record Shape column states which shape each row came from. Shape one (field "
+                 "7.1) carries a key id, a JID, the emoji, and a millisecond timestamp. The JID is "
+                 "reported in the JID (field 7.1) column; whose JID it is has not been "
+                 "established. Measured on the 12 shape one rows of abe_ios16, dexter_ios18, "
+                 "hc_ios18_7, hc_ios26, iphone11_ios17 and otto_ios17: on the 8 rows whose "
+                 "message is outgoing in a one to one chat the JID equals the Chat JID, and on "
+                 "the 4 rows whose message is incoming in a group chat it ends in @lid and "
+                 "equals neither the Chat JID nor the message's ZFROMJID. Shape two (field 7.2) "
+                 "carries a key id, the emoji, and a millisecond timestamp but no JID, so the JID "
+                 "(field 7.1) column is empty there and which party reacted is not established "
+                 "for that shape; all 25 shape two rows on those six images sit on incoming "
+                 "messages. The Key ID (as stored) column holds the key id of the field 7 entry; "
+                 "on all 37 rows of those six images it differs from the ZSTANZAID of the "
+                 "message the blob is linked to. The row counted on hickman_ios15 was not part "
+                 "of these measurements. Decoded with the bundled blackboxprotobuf. A blob the "
+                 "decoder cannot read produces no row and one line in the run log naming the "
+                 "ZWAMESSAGEINFO row; none of the 215 populated blobs on those six images failed "
+                 "to decode. Message Direction is Outgoing where the linked message's ZISFROMME "
+                 "is 1, Incoming where it is 0, and blank where no message row is linked to the "
+                 "blob or ZISFROMME holds another value; every populated blob on those six "
+                 "images had a linked message.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "thumb-up",
@@ -62,7 +72,7 @@ __artifacts_v2__ = {
                        "(ChatStorage.sqlite), reported as stored",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-14",
-        "last_update_date": "2026-08-14",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "WhatsApp",
         "notes": "Field 7.3 of the ZWAMESSAGEINFO.ZRECEIPTINFO protobuf holds repeated (emoji, "
@@ -71,7 +81,8 @@ __artifacts_v2__ = {
                  "@newsletter chats, the share of rows in such chats was not counted, and the "
                  "counts reach the thousands, consistent with channel-wide totals rather than "
                  "per-contact reactions; that reading is an observation from the tested data, not "
-                 "a documented meaning. One row per emoji per message, count reported as stored.",
+                 "a documented meaning. One row per emoji per message, count reported as stored. "
+                 "A blob the decoder cannot read produces no row and one line in the run log.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/ChatStorage.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "chart-bar",
@@ -159,7 +170,7 @@ import datetime
 from scripts import blackboxprotobuf
 from scripts.ilapfuncs import (artifact_processor,
                                convert_cocoa_core_data_ts_to_utc,
-                               get_file_path, get_sqlite_db_records)
+                               get_file_path, get_sqlite_db_records, logfunc)
 
 
 def _entries(value):
@@ -202,9 +213,12 @@ def _iter_field7(source_path):
             continue
         try:
             decoded, _ = blackboxprotobuf.decode_message(blob)
-        except Exception:  # pylint: disable=broad-exception-caught
+        except Exception as ex:  # pylint: disable=broad-exception-caught
             # blackboxprotobuf raises library-internal types; an undecodable
-            # blob is reported by absence, never by crashing the artifact
+            # blob produces no row and is named in the run log
+            logfunc(f'WhatsApp ZRECEIPTINFO blob of ZWAMESSAGEINFO row '
+                    f'{record["Z_PK"]} could not be decoded '
+                    f'({type(ex).__name__}); no row reported for it')
             continue
         for sub in _entries(decoded.get('7')):
             if isinstance(sub, dict):
@@ -218,7 +232,7 @@ def whatsAppReactions(context):
     data_list = []
     if source_path:
         for sub, record in _iter_field7(source_path):
-            direction = 'Outgoing' if record['ZISFROMME'] == 1 else 'Incoming'
+            direction = {1: 'Outgoing', 0: 'Incoming'}.get(record['ZISFROMME'], '')
             common = (record['ZCONTACTJID'], record['ZPARTNERNAME'], direction,
                       convert_cocoa_core_data_ts_to_utc(record['ZMESSAGEDATE']),
                       record['ZTEXT'])
@@ -235,10 +249,10 @@ def whatsAppReactions(context):
                                   '', 'field 7.2',
                                   *common, _text(entry.get('1'))))
 
-    data_headers = (('Reaction Timestamp', 'datetime'), 'Reaction', 'Reactor JID',
+    data_headers = (('Reaction Timestamp', 'datetime'), 'Reaction', 'JID (field 7.1)',
                     'Record Shape', 'Chat JID', 'Chat Name',
                     'Message Direction', ('Message Timestamp', 'datetime'),
-                    'Message', 'Message Key ID')
+                    'Message', 'Key ID (as stored)')
     return data_headers, data_list, source_path
 
 

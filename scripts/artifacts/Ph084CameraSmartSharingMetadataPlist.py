@@ -5,12 +5,13 @@ __artifacts_v2__ = {
 ' */PhotoData/Caches/SmartSharing/camera_smart_sharing_metadata.plist and reports seven'
 ' keys as stored: creationDate, homeLocations, frequentLocations, identities,'
 ' locationShiftingRequired, version and libraryScopeLocalIdentifier. Other keys are not'
-' reported. One row is written for the first file matched, with blank cells when a key'
-' is absent or the file cannot be decoded. What the keys mean is not established here.'
-' sample_data records a row on one image (iOS 18.3.2).',
+' reported. One row is written for the first file matched, with a blank cell when a key'
+' is absent. No row is written when the file cannot be decoded, and the error is logged.'
+' What the keys mean is not established here. sample_data records a row on one image'
+' (iOS 18.3.2), whose file held these seven keys and no other.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains camera_smart_sharing_metadata.plist',
@@ -38,6 +39,7 @@ def Ph084CameraSmartSharingMetadataPlist(context):
     if source_path.endswith('camera_smart_sharing_metadata.plist'):
         creationdate = homelocations = frequentlocations = identities = ''
         locationshiftingrequired = version = libraryscopelocalidentifier = ''
+        decoded = True
         with open(source_path, 'rb') as f:
             try:
                 deserialized_plist = nd.deserialize_plist(f)
@@ -66,9 +68,11 @@ def Ph084CameraSmartSharingMetadataPlist(context):
             ValueError,
             TypeError, OSError, OverflowError) as ex:
                 logfunc('Had exception: ' + str(ex))
+                decoded = False
 
-        data_list.append((creationdate, homelocations, frequentlocations, identities, locationshiftingrequired,
-        version, libraryscopelocalidentifier))
+        if decoded:
+            data_list.append((creationdate, homelocations, frequentlocations, identities, locationshiftingrequired,
+            version, libraryscopelocalidentifier))
 
     data_headers = (
     ('creationdate', 'datetime'),

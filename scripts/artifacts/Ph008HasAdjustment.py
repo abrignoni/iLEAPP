@@ -7,20 +7,16 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': "Value labels in this report are the module author's working interpretations from testing. The"
-' module cites no source for them. Each label carries the stored value. Labels marked'
-' StillTesting are unconfirmed. The labels for adjustment state, adjustment format version,'
-' adjustment render types and generative AI type name a kind of edit or the tool that made it.'
-' The store records the value. The module cites no source tying a value to a tool. The header'
-" 'zCldMast-Import Session ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A"
-" link between that value and AirDrop is not established in this module. The header 'zAsset-UUID"
-" = store.cloudphotodb' reports the asset table's ZUUID. The match with store.cloudphotodb that"
-' the header names is not established in this module.',
+' module cites no source for them. Each label carries the stored value. Labels marked StillTesting'
+' are unconfirmed. The labels for adjustment state, adjustment format version, adjustment render'
+' types and generative AI type name a kind of edit or the tool that made it. The store records the'
+' value. The module cites no source tying a value to a tool.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "edit",
@@ -49,20 +45,16 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': "Value labels in this report are the module author's working interpretations from testing. The"
-' module cites no source for them. Each label carries the stored value. Labels marked'
-' StillTesting are unconfirmed. The labels for adjustment state, adjustment format version,'
-' adjustment render types and generative AI type name a kind of edit or the tool that made it.'
-' The store records the value. The module cites no source tying a value to a tool. The header'
-" 'zCldMast-Import Session ID- AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A"
-" link between that value and AirDrop is not established in this module. The header 'zAsset-UUID"
-" = store.cloudphotodb' reports the asset table's ZUUID. The match with store.cloudphotodb that"
-' the header names is not established in this module.',
+' module cites no source for them. Each label carries the stored value. Labels marked StillTesting'
+' are unconfirmed. The labels for adjustment state, adjustment format version, adjustment render'
+' types and generative AI type name a kind of edit or the tool that made it. The store records the'
+' value. The module cites no source tying a value to a tool.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "edit",
@@ -137,10 +129,10 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -166,10 +158,10 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
         'zAsset-Filename',
         'zAddAssetAttr- Original Filename',
         'zCldMast- Original Filename',
-        'zCldMast-Import Session ID- AirDrop-StillTesting',
+        'zCldMast-Import Session ID',
         'zAsset-zPK',
         'zAddAssetAttr-zPK',
-        'zAsset-UUID = store.cloudphotodb',
+        'zAsset-UUID',
         'zAddAssetAttr-Master Fingerprint')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -219,10 +211,10 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',        
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',        
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint',
         zAddAssetAttr.ZADJUSTEDFINGERPRINT AS 'zAddAssetAttr.Adjusted Fingerprint'        
         FROM ZASSET zAsset
@@ -249,10 +241,10 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
         'zAsset-Filename-8',
         'zAddAssetAttr- Original Filename-9',
         'zCldMast- Original Filename-10',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-11',
+        'zCldMast-Import Session ID-11',
         'zAsset-zPK-12',
         'zAddAssetAttr-zPK-13',
-        'zAsset-UUID = store.cloudphotodb-14',
+        'zAsset-UUID-14',
         'zAddAssetAttr-Master Fingerprint-15',
         'zAddAssetAttr.Adjusted Fingerprint-16')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -319,7 +311,7 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zCompSyncAttr.ZLOCALANALYSISSTAGE AS 'zCompSyncAttr-Local_Analysis_Stage',
         zCompSyncAttr.ZCLOUDCOMPUTESTATEVERSION AS 'zCompSyncAttr-Cloud_Compute_State_Version',     
         zAsset.Z_PK AS 'zAsset-zPK',
@@ -329,7 +321,7 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
         zCompSyncAttr.ZASSET AS 'zCompSyncAttr-zAsset= zAsset-zPK',
         zCompSyncAttr.Z_ENT AS 'zCompSyncAttr-zENT',
         zCompSyncAttr.Z_OPT AS 'zCompSyncAttr-zOPT',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash',
         zUnmAdj.ZOTHERADJUSTMENTSFINGERPRINT AS 'zUnmAdj-Other Adjustments Fingerprint',
@@ -374,7 +366,7 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
         'zAsset-Filename-12',
         'zAddAssetAttr- Original Filename-13',
         'zCldMast- Original Filename-14',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-15',
+        'zCldMast-Import Session ID-15',
         'zCompSyncAttr-Local_Analysis_Stage-16',
         'zCompSyncAttr-Cloud_Compute_State_Version-17',
         'zAsset-zPK-18',
@@ -384,7 +376,7 @@ def Ph008_1HasAdjustmentPhDaPsql(context):
         'zCompSyncAttr-zAsset= zAsset-zPK-22',
         'zCompSyncAttr-zENT-23',
         'zCompSyncAttr-zOPT-24',
-        'zAsset-UUID = store.cloudphotodb-25',
+        'zAsset-UUID-25',
         'zAddAssetAttr-Original Stable Hash-26',
         'zAddAssetAttr.Adjusted Stable Hash-27',
         'zUnmAdj-Other Adjustments Fingerprint-28',
@@ -473,7 +465,7 @@ def Ph008_3HasAdjustmentGenPlayPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zCompSyncAttr.ZLOCALANALYSISSTAGE AS 'zCompSyncAttr-Local_Analysis_Stage',
         zCompSyncAttr.ZCLOUDCOMPUTESTATEVERSION AS 'zCompSyncAttr-Cloud_Compute_State_Version',     
         zAsset.Z_PK AS 'zAsset-zPK',
@@ -483,7 +475,7 @@ def Ph008_3HasAdjustmentGenPlayPsql(context):
         zCompSyncAttr.ZASSET AS 'zCompSyncAttr-zAsset= zAsset-zPK',
         zCompSyncAttr.Z_ENT AS 'zCompSyncAttr-zENT',
         zCompSyncAttr.Z_OPT AS 'zCompSyncAttr-zOPT',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash',
         zUnmAdj.ZOTHERADJUSTMENTSFINGERPRINT AS 'zUnmAdj-Other Adjustments Fingerprint',
@@ -528,7 +520,7 @@ def Ph008_3HasAdjustmentGenPlayPsql(context):
         'zAsset-Filename-12',
         'zAddAssetAttr- Original Filename-13',
         'zCldMast- Original Filename-14',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-15',
+        'zCldMast-Import Session ID-15',
         'zCompSyncAttr-Local_Analysis_Stage-16',
         'zCompSyncAttr-Cloud_Compute_State_Version-17',
         'zAsset-zPK-18',
@@ -538,7 +530,7 @@ def Ph008_3HasAdjustmentGenPlayPsql(context):
         'zCompSyncAttr-zAsset= zAsset-zPK-22',
         'zCompSyncAttr-zENT-23',
         'zCompSyncAttr-zOPT-24',
-        'zAsset-UUID = store.cloudphotodb-25',
+        'zAsset-UUID-25',
         'zAddAssetAttr-Original Stable Hash-26',
         'zAddAssetAttr.Adjusted Stable Hash-27',
         'zUnmAdj-Other Adjustments Fingerprint-28',
