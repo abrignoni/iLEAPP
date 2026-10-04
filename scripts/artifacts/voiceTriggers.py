@@ -3,12 +3,12 @@ __artifacts_v2__ = {
         "name": "Voice-Triggers",
         "description": "Audio files and their JSON metadata from "
                        "Library/VoiceTrigger/SAT/*/td/audio. The grainedDate value is a date with "
-                       "no time and is shown as midnight UTC; it is a date, not an instant, and "
+                       "no time and is shown as stored text; it is a date, not an instant, and "
                        "what it records is not established. Device is the productType value as "
                        "stored.",
-        "author": "@Anna-Mariya Mateyna",
+        "author": "@Anna-Mariya Mateyna, @AlexisBrignoni, Codex",
         "creation_date": "2020-12-21",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Audio",
         "notes": "",
@@ -41,7 +41,7 @@ from scripts.ilapfuncs import (
 
 def format_time(date_time_str):
     try:
-        return datetime.datetime.strptime(date_time_str, '%Y%m%d').replace(tzinfo=datetime.timezone.utc)
+        return datetime.datetime.strptime(date_time_str, '%Y%m%d').strftime('%Y-%m-%d')
     except (TypeError, ValueError):
         return date_time_str
 
@@ -79,7 +79,7 @@ def voiceTriggers(context):
             logfunc(f"Error processing {info_file}: {e}")
 
     data_headers = (
-        ('Date (grainedDate)', 'datetime'),
+        'Date (grainedDate, no time or zone)',
         'Device',
         'Internal Path Info',
         ('Audio File', 'media'),

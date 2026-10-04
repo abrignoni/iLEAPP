@@ -3,14 +3,15 @@ __artifacts_v2__ = {
         'name': 'Installed Apps - App Store Install Records',
         'description': 'App Store install records from storeSystem.db, including the Apple '
                        'Account values the record stores and the on-disk bundle path',
-        'author': '@AlexisBrignoni',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-04',
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ("Store metadata is an NSKeyedArchiver payload; the version and genre are "
                   "reported from it as stored. Purchase Date and App Release Date are parsed "
-                  "from its ISO 8601 strings, and a string with no time zone is read as UTC. "
+                  "from offset-bearing ISO 8601 strings and converted to UTC. Raw strings are "
+                  "also reported; a zone-less or unsupported string has a blank datetime. "
                   "App Name and Developer come from it when present and otherwise from the "
                   "table's bundle_name and vendor_name columns. When the payload was written is "
                   "not "
@@ -36,13 +37,14 @@ __artifacts_v2__ = {
         'name': 'Installed Apps - App Store Update Records',
         'description': 'Per-app update state from storeSystem.db, with the App Store catalog '
                        'metadata cached alongside it',
-        'author': '@AlexisBrignoni',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2026-07-29',
-        'last_update_date': '2026-08-21',
+        'last_update_date': '2026-10-04',
         'requirements': 'none',
         'category': 'Installed Apps',
         'notes': ("The latest version and release notes come from the catalog metadata and are "
-                  "reported as stored; they are not necessarily what is installed. Update "
+                  "reported as stored; they are not necessarily what is installed. ISO release "
+                  "timestamps convert only when an offset is recorded, and raw values are kept. Update "
                   "state, package type and installer packaging type are stored codes whose "
                   "values are not documented; they are reported as stored."),
         'paths': ('*/containers/Data/System/*/Documents/Persistence/storeSystem.db*',),
@@ -97,21 +99,14 @@ from scripts.ilapfuncs import artifact_processor, \
 
 
 def _iso_to_utc(value):
-    """Convert an App Store ISO 8601 string to an aware datetime.
-
-    The catalog and store metadata use several widths: '2026-06-10T17:01:48Z',
-    '2026-06-10' and occasionally a bare date-time without a zone. Anything that
-    does not parse is returned untouched so the value still reaches the report.
-    """
+    """Only offset-bearing ISO strings establish UTC instants."""
     if not value:
         return ''
     try:
         parsed = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
     except (ValueError, TypeError):
-        return value
-    if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
-    return parsed
+        return ''
+    return parsed.astimezone(timezone.utc) if parsed.tzinfo is not None else ''
 
 
 def _store_metadata(blob):
@@ -173,7 +168,7 @@ def storeSystemAppInstalls(context):
     data_headers = (
         ('Record Timestamp', 'datetime'), ('Install Finished', 'datetime'),
         ('Last Start Date', 'datetime'), ('Purchase Date', 'datetime'),
-        ('App Release Date', 'datetime'), 'App Name', 'Bundle ID', 'Short Version',
+        ('App Release Date', 'datetime'), 'purchaseDate (as stored)', 'releaseDate (as stored)', 'App Name', 'Bundle ID', 'Short Version',
         'Bundle Version', 'Developer', 'Genre', 'Rating', 'Apple ID', 'Account DSID',
         'altDSID', 'Item ID', 'External Version ID', 'Storefront Country', 'Storefront',
         'Source App', 'Client ID', 'Install Path', 'Bundle Directory Name', 'Transaction ID',
@@ -207,6 +202,7 @@ def storeSystemAppInstalls(context):
             convert_cocoa_core_data_ts_to_utc(_get(record, 'last_start_date')),
             _iso_to_utc(metadata.get('purchaseDate')),
             _iso_to_utc(metadata.get('releaseDate')),
+            metadata.get('purchaseDate', ''), metadata.get('releaseDate', ''),
             metadata.get('itemName') or _get(record, 'bundle_name'),
             _get(record, 'bundle_id'),
             metadata.get('bundleShortVersionString', ''),
@@ -245,6 +241,7 @@ def storeSystemAppUpdates(context):
     data_headers = (
         ('Record Timestamp', 'datetime'), ('Install Date', 'datetime'),
         ('Latest Version Released', 'datetime'), ('App First Released', 'datetime'),
+        'releaseTimestamp (as stored)', 'releaseDate (as stored)',
         'App Name', 'Bundle ID', 'Developer', 'Genre', 'Latest Version', 'Release Notes',
         'Item ID', 'Store Software Version ID', 'External Version ID', 'Update State',
         'Package Type', 'Installer Packaging Type', 'App Store URL')
@@ -272,6 +269,7 @@ def storeSystemAppUpdates(context):
             convert_cocoa_core_data_ts_to_utc(_get(record, 'install_date')),
             _iso_to_utc(latest.get('releaseTimestamp')),
             _iso_to_utc(ios.get('releaseDate')),
+            latest.get('releaseTimestamp', ''), ios.get('releaseDate', ''),
             attributes.get('name', ''),
             _get(record, 'bundle_id'),
             attributes.get('artistName', ''),

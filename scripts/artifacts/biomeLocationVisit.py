@@ -9,19 +9,19 @@ __artifacts_v2__ = {
                        "caution. In the tested samples records were written in batches long "
                        "after the visit, so there the SEGB record time is a write time, not a "
                        "visit "
-                       "time, and the Detection Timestamp column does not consistently line up with "
+                       "time, and the Field 1 Timestamp column does not consistently line up with "
                        "the arrival and departure pair. Treat every time in this artifact as "
                        "an indication that needs corroborating from another source before it "
                        "is relied on.",
-        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani), @AlexisBrignoni, Codex",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-29",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
         "notes": "Timestamp reliability, observed in the sample data: every record in a stream "
                  "file shared one identical SEGB write time while the visits themselves spanned "
                  "weeks. Arrival, departure and field 1 are stored as doubles and read here as "
-                 "Unix epoch seconds. Field 1, labelled Detection Timestamp here although what it "
+                 "Unix epoch seconds. Field 1, labelled Field 1 Timestamp here although what it "
                  "marks is not established, ran from hours to more than a day after the recorded "
                  "departure and "
                  "up to 28 days before the SEGB write. Arrival and departure are internally "
@@ -156,7 +156,7 @@ def get_biomeLocationVisit(context):
 
     data_headers = (
         ('Arrival Timestamp', 'datetime'), ('Departure Timestamp', 'datetime'),
-        ('Detection Timestamp', 'datetime'), ('SEGB Write Timestamp', 'datetime'),
+        ('Field 1 Timestamp', 'datetime'), ('SEGB Write Timestamp', 'datetime'),
         'SEGB State', 'Latitude', 'Longitude', 'Horizontal Accuracy (m)', 'Altitude',
         'Vertical Accuracy', 'Confidence', 'Place Name', 'Place Address', 'Place Category',
         'Place ID', 'Visit ID', 'Filename', 'Offset')

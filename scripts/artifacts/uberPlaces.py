@@ -2,15 +2,15 @@
 __artifacts_v2__ = {
     "uber_places": {
         "name": "Uber - Places",
-        "description": "Parses the place table of the Uber database.db. Timestamp is "
+        "description": "Parses the place table of the Uber database.db. timestamp_ms is "
                        "place.timestamp_ms passed through as stored; its unit and what it records "
                        "are not established.",
-        "author": "Heather Charpentier, @JamesHabben",
+        "author": 'Heather Charpentier, @JamesHabben, @AlexisBrignoni, Codex',
         "creation_date": "2024-04-10",
-        "last_update_date": "2026-08-24",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Uber",
-        "notes": "",
+        "notes": "lastUsedTimeMillis is also reported as stored text without imposing a time zone or epoch.",
         "paths": ('*/Documents/database.db*',), # shorter path for itunes backups also
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -22,7 +22,6 @@ __artifacts_v2__ = {
     }
 }
 
-from datetime import datetime, timezone
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, open_sqlite_db_readonly
 
 @artifact_processor
@@ -69,26 +68,9 @@ def uber_places(context):
 
             db_records = get_sqlite_db_records(file_found, query)
             for row in db_records:
-                # Timestamp handling with sub-second precision (float)
-                # Note: timestamp_ms in this table appears to be in seconds despite the name
-                timestamp = row[0]
+                timestamp = str(row[0]) if row[0] is not None else ''
 
-                last_used = row[1]
-                if last_used:
-                    if isinstance(last_used, (int, float)):
-                        last_used = last_used / 1000.0
-                    elif isinstance(last_used, str):
-                        try:
-                            # Try to convert ISO string to float timestamp for sub-second precision
-                            parsed = datetime.fromisoformat(last_used.replace('Z', '+00:00'))
-                            if parsed.tzinfo is None:
-                                # A zone-less string parses naive, and timestamp() would
-                                # read a naive value in the host timezone, so pin UTC.
-                                parsed = parsed.replace(tzinfo=timezone.utc)
-                            last_used = parsed.timestamp()
-                        except ValueError:
-                            # Fallback to cleaned string if conversion fails
-                            last_used = last_used.replace('T', ' ').replace('Z', '')
+                last_used = str(row[1]) if row[1] is not None else ''
 
                 data_list.append((
                     timestamp,
@@ -110,8 +92,8 @@ def uber_places(context):
                 ))
 
     data_headers = (
-        ('Timestamp', 'datetime'),
-        ('Last Used', 'datetime'),
+        'timestamp_ms (as stored)',
+        'lastUsedTimeMillis (as stored)',
         'Personal ID',
         'Title',
         'Subtitle',

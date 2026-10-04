@@ -8,15 +8,15 @@ __artifacts_v2__ = {
                        "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html; "
                        "their meaning is not established. See also the "
                        "App.Install and _DKEvent.App.Install streams.",
-        "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
+        "author": "@abrignoni, @mattiaepi (Mattia Epifani), @AlexisBrignoni, Codex",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-25",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Biome",
         "notes": "The event type field takes values 0, 1, 2 and 3 in the tested sample; which of "
                  "install, update and removal each denotes is not confirmed, so the raw value is "
                  "reported. Two 16 byte values accompany each event and are shown as hex in the "
-                 "Digest 1 and Digest 2 columns; that they are digests is not established and "
+                 "Field 3.4 (hex) and Field 3.5 (hex) columns; their interpretation is not established and "
                  "neither is their role. The version and 16 byte fields are read with a pinned "
                  "field type because some of those values are themselves valid protobuf and an "
                  "inferring decode reports them as empty. Paths containing 'tombstone' are not "
@@ -130,9 +130,9 @@ def get_biomeAppInstallation(context):
                 data_list.append((ts, None, None, record.state.name, None, None, None, None,
                                   None, None, None, filename, record.data_start_offset))
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Event Timestamp', 'datetime'),
-                    ('App Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'App UUID',
-                    'Version', 'Build Version', 'Event Type (raw)', 'Digest 1', 'Digest 2',
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Field 4 Timestamp', 'datetime'),
+                    ('Field 3.1 Timestamp', 'datetime'), 'SEGB State', 'Bundle ID', 'Field 1.2 (as stored)',
+                    'Version', 'Build Version', 'Event Type (raw)', 'Field 3.4 (hex)', 'Field 3.5 (hex)',
                     'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))

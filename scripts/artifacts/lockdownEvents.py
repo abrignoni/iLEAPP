@@ -4,16 +4,13 @@ __artifacts_v2__ = {
         "description": "Passcode-change callbacks, upgrade detections, and lockdownd startup records",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "System Activity",
         "notes": (
-            "Timestamps are stored without a UTC offset and are shown without a zone conversion "
-            "in the TSV and HTML output, in a column headed 'Timestamp (Device Local, No "
-            "Offset)'; the zone is not established, and the words Device Local in the header are "
-            "not a finding. The LAVA output stores this column as if the reading were UTC "
-            "(measured on all 48 rows on iphone11_ios17 and all 38 rows on dexter_ios18), which "
-            "is not established either. One row on each of those corpora carries a reading this "
+            "Timestamps are stored without a UTC offset and are reported as stored text "
+            "in a column headed Timestamp (as stored, no offset); the zone is not established. "
+            "One row on iphone11_ios17 and dexter_ios18 carries a reading the former "
             "parser dates 1969-12-31. A lockdownd startup record shows that the daemon started; "
             "it is not, by itself, proof that the device booted. Event selection is based on "
             "research by Ian Whiffin, 'KnowledgeC (and Friends)'. The Upgrade detected by "
@@ -66,19 +63,19 @@ def _parse_lockdown_line(line):
         return None
 
     try:
-        timestamp = datetime.strptime(
+        datetime.strptime(
             match.group("timestamp"), "%m/%d/%y %H:%M:%S.%f"
         )
     except ValueError:
         return None
 
-    return timestamp, event_type, int(match.group("pid")), message
+    return match.group("timestamp"), event_type, int(match.group("pid")), message
 
 
 @artifact_processor
 def lockdownEvents(context):
     data_headers = (
-        ("Timestamp (Device Local, No Offset)", "datetime"),
+        "Timestamp (as stored, no offset)",
         "Event",
         "PID",
         "Log Message",

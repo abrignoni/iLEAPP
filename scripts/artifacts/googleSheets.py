@@ -5,9 +5,9 @@ __artifacts_v2__ = {
                        "store, "
                        "with the stored title, MIME type, revision, sync timestamps and the cached "
                        "thumbnail where one is present",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude, Codex",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Google Sheets",
         "notes": "One row per row of cross_document_metadata in Documents/<account "
@@ -27,18 +27,16 @@ __artifacts_v2__ = {
                  "inferred: last_server_updated_timestamp_milliseconds and the "
                  "document_properties doubles are Unix milliseconds, "
                  "last_sync_finish_timestamp is Unix seconds; drive_last_server_udated_timestamp "
-                 "(spelled that way in the schema) is selected but not reported by this artifact "
-                 "and its unit was not checked here. Those two units were checked against each "
+                 "(spelled that way in the schema) is reported as stored text because its unit "
+                 "was not checked here. Those two units were checked against each "
                  "other: cross_document_metadata.last_sync_finish_timestamp in seconds and the "
                  "per-document lastSyncedTimestamp in milliseconds are held in different stores "
-                 "and rendered the same instant on all 12 documents, so only Last Synced is "
-                 "reported here. Has Pending Changes, Needs Snapshot and All Pending Commands "
+                 "and rendered the same instant on all 12 documents, and both stored sources are reported here. Has Pending Changes, Needs Snapshot and All Pending Commands "
                  "Persisted read the same value on every row of the tested container, which bounds "
                  "what they demonstrate rather than showing they are the same field. Offline "
                  "Content Parts counts the rows of the document_commands table of that document's "
-                 "own store and Offline Content Bytes totals SQLite LENGTH() of each "
-                 "serialized_commands value, which is a character count when the value is stored "
-                 "as text. Those values are JSON arrays of command code and payload. The command "
+                 "own store and Offline Content Bytes totals SQLite LENGTH() after casting each "
+                 "serialized_commands value to BLOB, so text is measured in bytes rather than characters. Those values are JSON arrays of command code and payload. The command "
                  "codes are undocumented, no value list ships in the container and the sample "
                  "holds no application binary, so the payload is located and measured here rather "
                  "than decoded, and an examiner reading it goes to the source database named per "
@@ -125,9 +123,9 @@ __artifacts_v2__ = {
         "description": "Google accounts known to the Google Sheets app and the app state recorded "
                        "beside them, including the signed in account, app version and the stored "
                        "ASWUniversalMetricsFirstLaunchDateKey date",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude, Codex",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Google Sheets",
         "notes": "One row per account id found in Library/Preferences/com.google.Sheets.plist. Account ids are read from the preference key names that carry one (userid:, GNPRepresentativeTargetIDKey-, GNPRenderContextStorage-), from the values of shared_container_folder_to_id_ keys, from signed_in_user_id and from the keys of MDMACMStorage, and the account named by signed_in_user_id is marked in the Signed In column; the file records account ids only, so no address or display name is available from it. The per-account sync timestamps come from the NSKeyedArchiver archive stored under userid:<account id>, whose date values are Cocoa timestamps counted in seconds from 2001-01-01 UTC as plistlib returns them. Three of those sync fields fell inside the same second in the tested container and so render identically at this resolution; they are separate stored fields and are kept separate. Messaging Cache Locale is the GRWCacheLastSyncLocale value stored under GRWMessagingCacheUserDefaultsKey, reported as stored; what sets it was not established. Version fields are reported from the two keys that carry one, which held different values in the tested container, so both are shown rather than one being chosen. Absence of a key is reported as empty and is not evidence a feature was unused. Validated against a single device plus one corpus image (iphone14plus_ios18, 1 row), so the key set is not corroborated across app versions. This artifact reads only Library/Preferences/com.google.Sheets.plist, so a collection without it reports nothing here and no skip line is logged for it.",
@@ -169,12 +167,12 @@ __artifacts_v2__ = {
         }
     },
     "google_sheets_synced_settings": {
-        "name": "Google Sheets - Synced Settings",
+        "name": "Google Sheets - Stored Settings",
         "description": "One row per account recording how many rows the sync_objects and "
                        "font_metadata tables hold, and which setting groups the store holds",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude, Codex",
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-19",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Google Sheets",
         "notes": "One row per applicationMetadata.db under Documents/<account "
@@ -594,7 +592,7 @@ def google_sheets_documents(context):
             parts = payload_bytes = ''
             if doc_db:
                 counted = list(get_sqlite_db_records(
-                    doc_db, 'SELECT COUNT(*), SUM(LENGTH(serialized_commands)) '
+                    doc_db, 'SELECT COUNT(*), SUM(LENGTH(CAST(serialized_commands AS BLOB))) '
                             'FROM document_commands'))
                 if counted:
                     parts = _number(counted[0][0])
@@ -606,6 +604,8 @@ def google_sheets_documents(context):
                 _from_unix_ms(properties.get('lastServerSnapshotTimestamp')),
                 _from_unix_ms(properties.get('lastColdStartedTimestamp')),
                 _from_unix_ms(properties.get('lastWarmStartedTimestamp')),
+                _text(record[3]),
+                _from_unix_s(record[4]),
                 _text(properties.get('title', '')),
                 document_id,
                 _text(record[1]),
@@ -632,6 +632,8 @@ def google_sheets_documents(context):
         ('Last Server Snapshot', 'datetime'),
         ('Last Cold Started', 'datetime'),
         ('Last Warm Started', 'datetime'),
+        'drive_last_server_udated_timestamp (as stored)',
+        ('last_sync_finish_timestamp', 'datetime'),
         'Title',
         'Document ID',
         'Document Type (as stored)',
@@ -865,7 +867,7 @@ def google_sheets_accounts(context):
         ('Offline Metadata Last Updated', 'datetime'),
         ('Last Settings Sync', 'datetime'),
         ('Last Templates Sync', 'datetime'),
-        ('App First Launch', 'datetime'),
+        'ASWUniversalMetricsFirstLaunchDateKey (as stored)',
         'Account ID',
         'Signed In',
         'App Version (crash state)',
@@ -962,7 +964,7 @@ def google_sheets_synced_settings(context):
         ))
 
     data_headers = (
-        'Settings Synced',
+        'sync_objects Row Count',
         'Setting Groups (as stored)',
         'Fonts Cached',
         'Account',

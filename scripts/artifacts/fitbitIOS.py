@@ -39,16 +39,15 @@ __artifacts_v2__ = {
         "name": "Fitbit - Exercise Sessions",
         "description": "Parses the exercise sessions the Fitbit iOS app logged, with the start "
                        "time, duration, distance and the source name, type and ID stored with each.",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude, Codex",
         "creation_date": "2026-08-20",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Fitbit",
         "notes": "One row per logged session. Start Time uses the same eight byte big endian double "
                  "of seconds since the 2001 Apple epoch as the location points. Last Modified is "
                  "read as a plain number of seconds since the same epoch; these notes record no "
-                 "check of that reading. The column headers label Duration Overall and Duration "
-                 "Active as seconds; the values are reported as stored and the unit is not "
+                 "check of that reading. Duration Overall and Duration Active are reported as stored; their unit is not "
                  "established here. Has GPS is the flag the record carries, reported as stored; "
                  "these notes record no measurement of whether it tracks the presence of points in "
                  "the locations artifact. Source Name and Source Type are reported as stored. "
@@ -76,16 +75,14 @@ __artifacts_v2__ = {
         "name": "Fitbit - Heart Rate",
         "description": "Parses the heart rate samples the Fitbit iOS app stored, with the "
                        "time and value of each.",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude, Codex",
         "creation_date": "2026-08-20",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Fitbit",
         "notes": "One row per sample. Unlike the location and session times in the same database, "
-                 "these are stored as ISO text and are reported as the time they state. A reading "
-                 "whose text carries no zone is given none here. The column is typed as a date and "
-                 "time, and the LAVA output stores a reading with no zone as if it were UTC, so for "
-                 "such a reading the zone of the time shown is not established. Resolution is the "
+                 "these are stored as ISO text and are reported verbatim in a text column, "
+                 "without assigning UTC to a reading with no zone. Resolution is the "
                  "value the record carries and is reported as stored. A sample carries no "
                  "coordinates, and which device produced it is not recorded in the columns read "
                  "here. On the iOS 17.3 image (iphone11_ios17) the samples were dense, 56,282 of "
@@ -135,7 +132,6 @@ __artifacts_v2__ = {
 }
 
 import os
-import re
 import struct
 from datetime import datetime, timedelta, timezone
 
@@ -143,7 +139,6 @@ from scripts.ilapfuncs import (artifact_processor, does_table_exist_in_db, get_s
                                logfunc, null_absent_columns)
 
 _COCOA = datetime(2001, 1, 1, tzinfo=timezone.utc)
-_FRACTION = re.compile(r'^(.*\.)(\d+)(.*)$')
 
 
 def _cocoa_blob(value):
@@ -183,22 +178,7 @@ def _from_cocoa(seconds):
         return ''
 
 
-def _iso(value):
-    '''An ISO text timestamp as a datetime, or '' when it does not parse.
 
-    The fraction is trimmed to six digits before parsing, because releases before 3.11
-    accept only three or six.
-    '''
-    if not value or not isinstance(value, str):
-        return ''
-    text = value.strip().replace('Z', '+00:00')
-    match = _FRACTION.match(text)
-    if match:
-        text = f'{match.group(1)}{match.group(2)[:6]:0<6}{match.group(3)}'
-    try:
-        return datetime.fromisoformat(text)
-    except ValueError:
-        return ''
 
 
 def _text(value):
@@ -308,8 +288,8 @@ def fitbit_ios_activities(context):
     data_list.sort(key=lambda r: str(r[0]), reverse=True)
 
     data_headers = (
-        ('Start Time', 'datetime'), 'Exercise', 'Duration Overall (seconds)',
-        'Duration Active (seconds)', 'Distance (as stored)', 'Steps', 'Calories',
+        ('Start Time', 'datetime'), 'Exercise', 'Duration Overall (as stored)',
+        'Duration Active (as stored)', 'Distance (as stored)', 'Steps', 'Calories',
         'Average Heart Rate', 'Elevation Gain (as stored)', 'Speed (as stored)',
         'Active Minutes', 'Active Zone Minutes', 'Has GPS (as stored)',
         'In Progress (as stored)', 'Source Name', 'Source Type (as stored)', 'Source ID',
@@ -333,13 +313,13 @@ def fitbit_ios_heart_rate(context):
         for stamp, value, resolution, identifier in _rows(
                 source_path,
                 'SELECT ZDATETIME, ZVALUE, ZRESOLUTION, ZID FROM ZMANAGEDHEARTRATE'):
-            data_list.append((_iso(stamp) or _text(stamp), _text(value),
+            data_list.append((_text(stamp), _text(value),
                               _text(resolution), _text(identifier)))
 
     data_list.sort(key=lambda r: str(r[0]), reverse=True)
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Heart Rate', 'Resolution (as stored)', 'Record ID',
+        'Timestamp (as stored)', 'Heart Rate', 'Resolution (as stored)', 'Record ID',
     )
     return data_headers, data_list, '\n'.join(sources)
 

@@ -4,20 +4,20 @@ import plistlib
 import re
 
 from scripts.filetype import guess_mime
-from scripts.ilapfuncs import artifact_processor, check_in_media, convert_unix_ts_to_utc
+from scripts.ilapfuncs import artifact_processor, check_in_media
 
 __artifacts_v2__ = {
     "fsCachedData": {
         "name": "fsCachedData",
         "description": "Media and other files cached under fsCachedData",
-        "author": "@abrignoni & @stark4n6",
+        "author": "@abrignoni & @stark4n6, @AlexisBrignoni, Codex",
         "creation_date": "2023-02-02",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Cache Data",
-        "notes": "Source location in the extraction is provided for each item. Timestamp Modified "
-                 "is the modification time of the file as staged from the extraction, shown as UTC; "
-                 "it is not read from the cached content. Bundle Name is inferred from the path and "
+        "notes": "Source location in the extraction is provided for each item. Staged copy mtime "
+                 "is the modification time returned by the staging filesystem, reported as text; "
+                 "it is not read from the cached content. Bundle Name (inferred) is inferred from the path and "
                  "is not a recorded link between the file and an app: for a path under an AppGroup "
                  "container it is the file name of a preferences plist in that container; for a "
                  "path under Caches it is the folder path between Caches and fsCachedData or "
@@ -184,11 +184,11 @@ def extract_bundle_name(file_path, app_group_plist_map, app_plist_map):
 @artifact_processor
 def fsCachedData(context):
     data_headers = (
-        ('Timestamp Modified', 'datetime'),
+        'Staged copy mtime (Unix value)',
         ('Media', 'media'),
         'Mime Type',
         'Filename',
-        'Bundle Name',
+        'Bundle Name (inferred)',
         'Path')
     files_found = [str(file_found) for file_found in context.get_files_found()]
 
@@ -222,7 +222,7 @@ def fsCachedData(context):
             continue
 
         source_dirs.add(os.path.dirname(file_found))
-        modified_time = convert_unix_ts_to_utc(os.path.getmtime(file_found))
+        modified_time = str(os.path.getmtime(file_found))
         mime = guess_mime(file_found)
         media_ref = check_in_media(file_found)
         bundle_name = extract_bundle_name(file_found, app_group_plist_map, app_plist_map)

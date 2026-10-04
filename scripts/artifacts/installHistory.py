@@ -4,12 +4,12 @@ __artifacts_v2__ = {
         "description": "Successful operating-system install and rollback completion history",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-29",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Software Updates",
         "notes": (
             "The database stores date as text without a UTC offset; it is reported without "
-            "conversion in the 'Timestamp (Device Local, No Offset)' column. The cited "
+            "conversion in the 'Timestamp (as stored, no offset)' column. The cited "
             "SUSHistoryInstalls implementation writes it with a date formatter of pattern "
             "yyyy-MM-dd HH:mm:ss and sets no time zone on it; the zone was not confirmed "
             "against a tested image. SoftwareUpdateServices limits the table to the 25 newest "
@@ -56,7 +56,7 @@ _OPERATION_TYPES = {
 @artifact_processor
 def iosInstallHistory(context):
     data_headers = (
-        ("Timestamp (Device Local, No Offset)", "datetime"),
+        "Timestamp (as stored, no offset)",
         "Record ID",
         "Operation",
         "Operation Type",

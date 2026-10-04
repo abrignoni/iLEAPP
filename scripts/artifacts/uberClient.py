@@ -99,16 +99,16 @@ __artifacts_v2__ = {
     "uber_cached_locations": {
         "name": "Uber - Cached Locations",
         "description": "Parses cached locations from database.db.",
-        "author": "Django Faiola",
+        "author": 'Django Faiola, @AlexisBrignoni, Codex',
         "creation_date": "2024-05-30",
-        "last_update_date": "2026-08-21",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Uber",
-        "notes": "Last hit is place.timestamp_ms read as Unix milliseconds, Type is "
+        "notes": "timestamp_ms is place.timestamp_ms reported as raw text, Type is "
                  "payload.personalPayload.labelType, Name is location.addressLine1 and Address is "
                  "location.fullAddress from the place_result JSON. What event timestamp_ms "
-                 "records is not established. The Uber - Places artifact reports the same column "
-                 "without dividing it by 1000; which unit is right is not established.",
+                 "records is not established. Both this artifact and Uber - Places preserve that value without epoch "
+                 "conversion because its unit is not established.",
         "paths": ('*/Documents/database.db*',),
         "output_types": "all",
         "artifact_icon": "map",
@@ -457,12 +457,12 @@ def uber_cached_locations(context):
     data_list = []
 
     for row in db_records:
-        ts = convert_unix_ts_to_utc(int(row[1]) / 1000) if row[1] else ''
+        ts = str(row[1]) if row[1] is not None else ''
         location = format_location('', row[0], 'place', '_id')
 
         data_list.append((ts, row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], location))
 
-    data_headers = (('Last hit', 'datetime'), 'Type', 'Tag', 'Name', 'Address', 'Latitude', 'Longitude', 'Categories', 'Uber ID', 'Location')
+    data_headers = ('timestamp_ms (as stored)', 'Type', 'Tag', 'Name', 'Address', 'Latitude', 'Longitude', 'Categories', 'Uber ID', 'Location')
     return data_headers, data_list, context.get_relative_path(source_path)
 
 

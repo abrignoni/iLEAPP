@@ -118,11 +118,11 @@ __artifacts_v2__ = {
     "home_depot_product_image_cache": {
         "name": "Home Depot - Product Image Cache",
         "description": "Cached product image URLs and the HTTP Last-Modified value stored with "
-                       "each. The Cache Date column holds that Last-Modified value; it is not "
+                       "each. The Last-Modified column holds that Last-Modified value; it is not "
                        "shown to be the time the app cached the image",
-        "author": "@jameshabben",
+        "author": "@jameshabben, @AlexisBrignoni, Codex",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Home Depot",
         "notes": "",
@@ -658,7 +658,7 @@ def home_depot_last_location(context):
 @artifact_processor
 def home_depot_product_image_cache(context):
     """ see artifact description """
-    data_headers = (('Cache Date', 'datetime'), 'Product Slug', 'Image URL')
+    data_headers = (('Last-Modified', 'datetime'), 'Product Slug', 'Image URL')
     data_list = []
     source_path, plist = _load_preferences(context)
     if not plist:

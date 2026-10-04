@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "mobileContainerManager": {
         "name": "Mobile Container Manager",
         "description": "Group container removals logged by containermanagerd",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-08-14",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Mobile Container Manager",
         "notes": "Two log phrasings are matched. 'Removing group container [id]' from "
@@ -12,11 +12,12 @@ __artifacts_v2__ = {
                  "test image. 'Last reference to group container' from MCMGroupManager "
                  "_removeGroupContainersIfNeeded... appears in no tested log (iOS 12.4 to 17.6.1). "
                  "Which iOS releases write it, and whether such a line records a removal, are not "
-                 "established, and that path has not been exercised on real data. An absence of "
+                 "established, and that path has not been exercised on real data. The suffix after "
+                 "Last reference to group container is reported verbatim rather than assigning "
+                 "one word as the group identifier. An absence of "
                  "removal lines in a capture is not evidence that no group container was removed. "
                  "Datetime is the time written at the start of the log line, which carries no time "
-                 "zone marker; the artifact applies no conversion to it, the report treats it as "
-                 "UTC, and whether the log writes UTC or device-local time is not established here.",
+                 "zone marker; the artifact applies no conversion to it, the report preserves it as text, and whether the log writes UTC or device-local time is not established here.",
         "paths": ('**/containermanagerd*.log.*',),
         "output_types": "standard",
         "artifact_icon": "trash",
@@ -56,12 +57,12 @@ def _line_datetime(txts):
     '''Datetime from the log prefix: <dow> <Mon> <day> <HH:MM:SS> <year>.'''
     month_number = datetime.strptime(txts[1], '%b').month
     return datetime.strptime(f'{txts[4]}-{month_number}-{txts[2]} {txts[3]}',
-                             '%Y-%m-%d %H:%M:%S')
+                             '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
 
 
 @artifact_processor
 def mobileContainerManager(context):
-    data_headers = (('Datetime', 'datetime'), 'Removed', 'Line', 'Source File')
+    data_headers = ('Timestamp (no zone recorded)', 'Group ID / Last-reference suffix', 'Line', 'Source File')
     data_list = []
     sources = []
 
@@ -78,12 +79,8 @@ def mobileContainerManager(context):
         for linecount, line in enumerate(lines, 1):
             group = None
             if _MARKER_LAST_REF in line:
-                txts = line.split()
-                try:
-                    # group id at index 15 in this phrasing
-                    group = txts[15]
-                except IndexError:
-                    continue
+                # Preserve the suffix rather than guessing a group identifier by word position.
+                group = line.split(_MARKER_LAST_REF, 1)[1].strip()
             else:
                 match = _REMOVING_RE.search(line)
                 if match:
