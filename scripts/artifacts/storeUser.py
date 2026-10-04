@@ -37,7 +37,7 @@ __artifacts_v2__ = {
     "storeUser_pha": {  # This should match the function name exactly
         "name": "Purchased Apps History (storeUser)",
         "description": "Parses the purchase_history_apps table of storeUser.db for App Store purchased app records",
-        "author": "@stark4n6",
+        "author": "@stark4n6, @AlexisBrignoni, Codex",
         "last_update_date": "2026-10-04",
         "creation_date": "2025-04-11",
         "requirements": "none",
@@ -45,8 +45,10 @@ __artifacts_v2__ = {
         "notes": "A row shows the purchase_history_apps table holds the app with the account id "
                  "in Purchaser ID. It does not establish that the app was installed on this "
                  "device. Purchaser Apple ID comes from account_events joined on the purchaser "
-                 "id; a purchase can repeat when that account has more than one account_events "
-                 "row. Required Capabilities lists the entries of the stored required_capabilities "
+                 "id using distinct account_id and apple_id pairs. Repeated events with the same "
+                 "pair do not add rows; differing Apple IDs remain separate matches. Individual "
+                 "purchase records and purchases without a matching account are retained. "
+                 "Required Capabilities lists the entries of the stored required_capabilities "
                  "value, one per line. Reference: Kevin Pagano, 'Tracking iOS App Installs and Purchase History with "
                  "StoreUser DB', "
                  "https://www.stark4n6.com/2025/04/tracking-ios-app-installs-and-purchase.html",
@@ -152,7 +154,8 @@ def storeUser_pha(context):
     purchase_history_apps.purchaser_dsid,
     purchase_history_apps.purchase_token
     from purchase_history_apps
-    left join account_events on account_events.account_id = purchase_history_apps.purchaser_dsid
+    left join (select distinct account_id, apple_id from account_events) as account_events
+        on account_events.account_id = purchase_history_apps.purchaser_dsid
     '''
 
     data_headers = (('Purchased Timestamp', 'datetime'),'App Name','App Name (Long)','Bundle ID','Developer Name','App Store URL','App ID','Hidden from Springboard','App Category','Required Capabilities','Purchaser Apple ID','Purchaser ID','Purchase Token')
