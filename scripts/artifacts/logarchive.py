@@ -5,20 +5,16 @@ __artifacts_v2__ = {
                        "extraction or from a json file exported with 'log show'",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-06",
-        "last_update_date": "2026-07-29",
+        "last_update_date": "2026-10-04",
         "requirements": "Reading tracev3 data natively requires the unifiedlog_iterator "
                         "binary; see scripts/unifiedlogs.py",
         "category": "Unified Logs",
         "notes": "",
-        # The tracev3 globs are anchored at db/, not private/var/db/: Cellebrite UFED
-        # zips (and the corpus CSVs in admin/data/filepath-lists) store the data
-        # partition as filesystem2/db/diagnostics with no private/var prefix, and the
-        # anchored form never matched them. fnmatch's '*' crosses path separators, so
-        # these cover the Apple-native layout too.
         "paths": ('*/logarchive*.json',
                   '*/db/diagnostics/*',
                   '*/db/uuidtext/*',
-                  '*.logarchive/*'),
+                  '*.logarchive/*',
+                  '*/sysdiagnose_*.tar.gz'),
         "output_types": "lava_only",
         "artifact_icon": "database",
         "sample_data": {
@@ -260,11 +256,6 @@ __artifacts_v2__ = {
             "hc_ios26": "iOS 26.5.2 | 128 rows; FamiliarRouteAuthorizationChecker and GEONavigationListener only",
         },
     },
-    # The artifacts below come from the 2026-08-01 unified log predicate survey.
-    # Every message pattern is either documented in a cited publication, observed
-    # in an iOS 18.7 (22H20) full file system image, or both; the per-artifact
-    # notes say which. Dynamic payloads in these messages are usually redacted to
-    # <private> on production devices, so the static message text is the signal.
     "logarchive_calls": {
         "name": "logarchive call events",
         "description": "Unified log entries recording telephony activity: call tracking "
@@ -712,10 +703,6 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "grid",
     },
-    # The artifacts below extend the 2026-08-01 survey with patterns that did not
-    # occur on the first validation image and were confirmed against two more:
-    # an iPhone 8 Plus on iOS 16.5 (CTF device with staged usage) and an
-    # iPhone 11 Pro on iOS 17.1.
     "logarchive_driving": {
         "name": "logarchive driving state",
         "description": "Unified log entries recording vehicular motion classification: "
@@ -1121,12 +1108,14 @@ __artifacts_v2__ = {
 }
 
 import os
-
+import re
+import shutil
 import ijson
+from pathlib import Path
 from datetime import datetime, timezone
 from scripts import unifiedlogs
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
-    get_sqlite_db_records, logfunc
+    get_sqlite_db_records, logfunc, get_sysdiagnose_files
 
 DATA_HEADERS = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID',
                 'Subsystem', 'Category', 'Event Message', 'Trace ID')
@@ -1255,6 +1244,58 @@ def logarchive(context):
         return results.extend(rows_from_json(source_path))
 
     logarchive_dir, diagnostics_dir, uuidtext_dir = unifiedlogs.find_archive_roots(files_found)
+    sysdiag_source = None
+
+    if not logarchive_dir and not diagnostics_dir:
+        # If no physical directory was found, check if a sysdiagnose archive is present 
+        # and extract the system_logs.logarchive directories out to a staging folder.
+        temp_log_dir = os.path.join(context.get_data_folder(), '_logarchive_sysdiag')
+        extracted_files = []
+        
+        # Target the unified logs structure buried anywhere inside the sysdiagnose
+        pattern = re.compile(r".*(?:system_logs\.logarchive|db/diagnostics|db/uuidtext)/.*", re.IGNORECASE)
+        
+        for file_obj, virt_path in get_sysdiagnose_files(files_found, pattern):
+            if 'PaxHeader' in virt_path:
+                continue
+                
+            if not sysdiag_source:
+                sysdiag_source = virt_path.split(' >> ')[0] if ' >> ' in virt_path else virt_path
+            
+            # Reconstruct the inner directory paths
+            inner_path = virt_path.split(' >> ')[-1].lstrip('/\\')
+            if 'system_logs.logarchive' in inner_path:
+                inner_path = inner_path[inner_path.find('system_logs.logarchive'):]
+            elif 'db/diagnostics' in inner_path:
+                inner_path = inner_path[inner_path.find('db/diagnostics'):]
+            elif 'db/uuidtext' in inner_path:
+                inner_path = inner_path[inner_path.find('db/uuidtext'):]
+            
+            # Normalize slashes to ensure compatibility with Windows long paths prefix
+            inner_path = os.path.normpath(inner_path.replace('/', os.sep))
+            
+            out_path = os.path.join(temp_log_dir, inner_path)
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            
+            try:
+                with open(out_path, 'wb') as f_out:
+                    if hasattr(file_obj, 'buffer'):
+                        shutil.copyfileobj(file_obj.buffer, f_out)
+                    else:
+                        while True:
+                            chunk = file_obj.read(8192)
+                            if not chunk:
+                                break
+                            if isinstance(chunk, str):
+                                chunk = chunk.encode('latin-1')
+                            f_out.write(chunk)
+                extracted_files.append(Path(out_path))
+            except Exception as e:
+                logfunc(f"logarchive: Error extracting {virt_path}: {e}")
+        
+        if extracted_files:
+            logarchive_dir, diagnostics_dir, uuidtext_dir = unifiedlogs.find_archive_roots(extracted_files)
+
     if not logarchive_dir and not diagnostics_dir:
         return results
 
@@ -1267,7 +1308,7 @@ def logarchive(context):
 
     if logarchive_dir:
         archive_dir = logarchive_dir
-        source_path = logarchive_dir
+        source_path = sysdiag_source if sysdiag_source else logarchive_dir
     else:
         if not uuidtext_dir:
             # Without uuidtext the parser cannot resolve format strings, so the messages
@@ -1278,7 +1319,7 @@ def logarchive(context):
         archive_dir = unifiedlogs.assemble_archive(
             diagnostics_dir, uuidtext_dir,
             os.path.join(context.get_data_folder(), '_logarchive_native'))
-        source_path = f'{diagnostics_dir}\n{uuidtext_dir}'
+        source_path = sysdiag_source if sysdiag_source else f'{diagnostics_dir}\n{uuidtext_dir}'
 
     parser = unifiedlogs.iterator_version(binary) or os.path.basename(binary)
     logfunc(f'Reading Apple Unified Logs natively with {parser}')
