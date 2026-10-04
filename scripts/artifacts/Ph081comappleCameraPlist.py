@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
     "Ph081ComAppleCameraPlist": {
         "name": "Ph081-Com-Apple-Camera-Plist",
-        "description": "Parses the first file matched by */mobile/Library/Preferences/com.apple.camera.plist, which is the"
+        "description": "Parses distinct files matched by */mobile/Library/Preferences/com.apple.camera.plist, which is the"
             " preferences file of the Camera app. Values are reported as stored; four keys that hold"
             " embedded plists (the three CAMUserPreferenceSharedLibrary location keys and"
             " CAMUserPreferenceExposureBiasByMode) are shown decoded when they can be read. Scott"
@@ -9,7 +9,7 @@ __artifacts_v2__ = {
             " 15.1, at"
             " https://theforensicscooter.com/2022/05/02/photos-sqlite-query-documentation-notable-artifacts/"
             " . What the other keys mean is not established here.",
-        "author": "Scott Koenig",
+        "author": "Scott Koenig, @AlexisBrignoni, Codex",
         "creation_date": "2025-01-05",
         "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains com.apple.camera.plist",
@@ -44,97 +44,98 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 
 @artifact_processor
 def Ph081ComAppleCameraPlist(context):
-    files_found = context.get_files_found()
+    files_found = list(dict.fromkeys(str(path) for path in context.get_files_found()))
     report_folder = context.get_report_folder()
     data_list = []
-    source_path = str(files_found[0])
 
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
+    for source_index, source_path in enumerate(files_found):
+        export_suffix = f"-{source_index + 1}" if len(files_found) > 1 else ""
+        with open(source_path, "rb") as fp:
+            pl = plistlib.load(fp)
+            for key, val in pl.items():
 
-            if key == 'CAMUserPreferenceSharedLibraryLastDiscoveryLocation':
-                pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastDiscoveryLocation' + '.bplist')
-                with open(pathto, "wb") as wf:
-                    wf.write(val)
+                if key == 'CAMUserPreferenceSharedLibraryLastDiscoveryLocation':
+                    pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastDiscoveryLocation' + export_suffix + '.bplist')
+                    with open(pathto, "wb") as wf:
+                        wf.write(val)
 
-                with open(pathto, "rb") as f:
-                    try:
-                        deserialized_plist = nd.deserialize_plist(f)
-                        val = deserialized_plist
+                    with open(pathto, "rb") as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            val = deserialized_plist
 
-                    except (nd.DeserializeError,
-                    nd.biplist.NotBinaryPlistException,
-                    nd.biplist.InvalidPlistException,
-                    plistlib.InvalidFileException,
-                    nd.ccl_bplist.BplistError,
-                    ValueError,
-                    TypeError, OSError, OverflowError) as ex:
-                        logfunc('Had exception: ' + str(ex))
-                data_list.append(('CAMUserPreferenceSharedLibraryLastDiscoveryLocation', str(val)))
+                        except (nd.DeserializeError,
+                        nd.biplist.NotBinaryPlistException,
+                        nd.biplist.InvalidPlistException,
+                        plistlib.InvalidFileException,
+                        nd.ccl_bplist.BplistError,
+                        ValueError,
+                        TypeError, OSError, OverflowError) as ex:
+                            logfunc('Had exception: ' + str(ex))
+                    data_list.append(('CAMUserPreferenceSharedLibraryLastDiscoveryLocation', str(val), context.get_relative_path(source_path)))
 
-            elif key == 'CAMUserPreferenceSharedLibraryLastLocation':
-                pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastLocation' + '.bplist')
-                with open(pathto, "wb") as wf:
-                    wf.write(val)
+                elif key == 'CAMUserPreferenceSharedLibraryLastLocation':
+                    pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastLocation' + export_suffix + '.bplist')
+                    with open(pathto, "wb") as wf:
+                        wf.write(val)
 
-                with open(pathto, "rb") as f:
-                    try:
-                        deserialized_plist = nd.deserialize_plist(f)
-                        val = deserialized_plist
+                    with open(pathto, "rb") as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            val = deserialized_plist
 
-                    except (nd.DeserializeError,
-                    nd.biplist.NotBinaryPlistException,
-                    nd.biplist.InvalidPlistException,
-                    plistlib.InvalidFileException,
-                    nd.ccl_bplist.BplistError,
-                    ValueError,
-                    TypeError, OSError, OverflowError) as ex:
-                        logfunc('Had exception: ' + str(ex))
-                data_list.append(('CAMUserPreferenceSharedLibraryLastLocation', str(val)))
+                        except (nd.DeserializeError,
+                        nd.biplist.NotBinaryPlistException,
+                        nd.biplist.InvalidPlistException,
+                        plistlib.InvalidFileException,
+                        nd.ccl_bplist.BplistError,
+                        ValueError,
+                        TypeError, OSError, OverflowError) as ex:
+                            logfunc('Had exception: ' + str(ex))
+                    data_list.append(('CAMUserPreferenceSharedLibraryLastLocation', str(val), context.get_relative_path(source_path)))
 
-            elif key == 'CAMUserPreferenceSharedLibraryLastUserActionLocation':
-                pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastUserActionLocation' + '.bplist')
-                with open(pathto, "wb") as wf:
-                    wf.write(val)
+                elif key == 'CAMUserPreferenceSharedLibraryLastUserActionLocation':
+                    pathto = os.path.join(report_folder, 'CAMUserPreferenceSharedLibraryLastUserActionLocation' + export_suffix + '.bplist')
+                    with open(pathto, "wb") as wf:
+                        wf.write(val)
 
-                with open(pathto, "rb") as f:
-                    try:
-                        deserialized_plist = nd.deserialize_plist(f)
-                        val = deserialized_plist
+                    with open(pathto, "rb") as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            val = deserialized_plist
 
-                    except (nd.DeserializeError,
-                    nd.biplist.NotBinaryPlistException,
-                    nd.biplist.InvalidPlistException,
-                    plistlib.InvalidFileException,
-                    nd.ccl_bplist.BplistError,
-                    ValueError,
-                    TypeError, OSError, OverflowError) as ex:
-                        logfunc('Had exception: ' + str(ex))
-                data_list.append(('CAMUserPreferenceSharedLibraryLastUserActionLocation', str(val)))
+                        except (nd.DeserializeError,
+                        nd.biplist.NotBinaryPlistException,
+                        nd.biplist.InvalidPlistException,
+                        plistlib.InvalidFileException,
+                        nd.ccl_bplist.BplistError,
+                        ValueError,
+                        TypeError, OSError, OverflowError) as ex:
+                            logfunc('Had exception: ' + str(ex))
+                    data_list.append(('CAMUserPreferenceSharedLibraryLastUserActionLocation', str(val), context.get_relative_path(source_path)))
 
-            elif key == 'CAMUserPreferenceExposureBiasByMode':
-                pathto = os.path.join(report_folder, 'CAMUserPreferenceExposureBiasByMode' + '.bplist')
-                with open(pathto, "wb") as wf:
-                    wf.write(val)
+                elif key == 'CAMUserPreferenceExposureBiasByMode':
+                    pathto = os.path.join(report_folder, 'CAMUserPreferenceExposureBiasByMode' + export_suffix + '.bplist')
+                    with open(pathto, "wb") as wf:
+                        wf.write(val)
 
-                with open(pathto, "rb") as f:
-                    try:
-                        deserialized_plist = nd.deserialize_plist(f)
-                        val = deserialized_plist
+                    with open(pathto, "rb") as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            val = deserialized_plist
 
-                    except (nd.DeserializeError,
-                    nd.biplist.NotBinaryPlistException,
-                    nd.biplist.InvalidPlistException,
-                    plistlib.InvalidFileException,
-                    nd.ccl_bplist.BplistError,
-                    ValueError,
-                    TypeError, OSError, OverflowError) as ex:
-                        logfunc('Had exception: ' + str(ex))
-                data_list.append(('CAMUserPreferenceExposureBiasByMode', str(val)))
+                        except (nd.DeserializeError,
+                        nd.biplist.NotBinaryPlistException,
+                        nd.biplist.InvalidPlistException,
+                        plistlib.InvalidFileException,
+                        nd.ccl_bplist.BplistError,
+                        ValueError,
+                        TypeError, OSError, OverflowError) as ex:
+                            logfunc('Had exception: ' + str(ex))
+                    data_list.append(('CAMUserPreferenceExposureBiasByMode', str(val), context.get_relative_path(source_path)))
 
-            else:
-                data_list.append((key, str(val)))
+                else:
+                    data_list.append((key, str(val), context.get_relative_path(source_path)))
 
-    data_headers = ('Property','Property Value')
-    return data_headers, data_list, source_path
+    data_headers = ('Property', 'Property Value', 'Source File')
+    return data_headers, data_list, '\n'.join(files_found)
