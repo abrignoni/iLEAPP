@@ -47,7 +47,7 @@ class PhotosPreferencesMultifile(unittest.TestCase):
                     source = root / f'copy{index}' / prefix / filename
                     source.parent.mkdir(parents=True)
                     value = {'Property': f'value{index}'}
-                    payload = plistlib.dumps({'copy': index}, fmt=plistlib.FMT_BINARY)
+                    payload = plistlib.dumps({'copy': index}, fmt=plistlib.PlistFormat.FMT_BINARY)
                     embedded_bytes.append(payload)
                     value.update({key: payload for key in EMBEDDED.get(module_name, ())})
                     if module_name.startswith('Ph080'):
@@ -60,14 +60,14 @@ class PhotosPreferencesMultifile(unittest.TestCase):
                         plistlib.dump(value, fp)
                     files.append(source)
                 context = SimpleNamespace(
-                    get_files_found=lambda: [files[0], str(files[0]), files[1]],
-                    get_report_folder=lambda: str(report),
-                    get_relative_path=lambda path: str(pathlib.Path(path).relative_to(root)),
+                    get_files_found=lambda matched=tuple(files): [matched[0], str(matched[0]), matched[1]],
+                    get_report_folder=lambda folder=report: str(folder),
+                    get_relative_path=lambda path, evidence_root=root: str(pathlib.Path(path).relative_to(evidence_root)),
                 )
                 with patch.object(module, 'device_info', create=True) as device, \
                      patch.object(module, 'logfunc', create=True), \
                      patch.object(module, 'nd', create=True) as nd:
-                    nd.deserialize_plist.side_effect = lambda fp: plistlib.load(fp)
+                    nd.deserialize_plist.side_effect = plistlib.load
                     headers, rows, sources = parser(context)
                 self.assertEqual(sources.splitlines(), list(map(str, files)))
                 self.assertEqual(headers[-1], 'Source File')
