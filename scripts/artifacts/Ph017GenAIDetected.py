@@ -10,7 +10,7 @@ __artifacts_v2__ = {
 ' table Z_PK value.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -48,7 +48,7 @@ __artifacts_v2__ = {
 ' table Z_PK value.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -83,7 +83,7 @@ __artifacts_v2__ = {
 ' table Z_PK value.',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -259,6 +259,7 @@ def Ph017_1GenAIDetectedPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
     return (), [], source_path
 
 @artifact_processor
@@ -417,6 +418,7 @@ def Ph017_2GenAIDetectedSyndPL(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
     return (), [], source_path
 
 @artifact_processor
@@ -575,3 +577,6 @@ def Ph017_3GenAIDetectedGenPlayPsql(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
+    return (), [], source_path

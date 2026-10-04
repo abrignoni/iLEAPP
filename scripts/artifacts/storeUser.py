@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "name": "Purchased Apps History (storeUser)",
         "description": "Parses the purchase_history_apps table of storeUser.db for App Store purchased app records",
         "author": "@stark4n6",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "creation_date": "2025-04-11",
         "requirements": "none",
         "category": "Installed Apps",
@@ -45,8 +45,8 @@ __artifacts_v2__ = {
                  "in Purchaser ID. It does not establish that the app was installed on this "
                  "device. Purchaser Apple ID comes from account_events joined on the purchaser "
                  "id; a purchase can repeat when that account has more than one account_events "
-                 "row. The module removes the last character of the Required Capabilities text. "
-                 "Reference: Kevin Pagano, 'Tracking iOS App Installs and Purchase History with "
+                 "row. Required Capabilities lists the entries of the stored required_capabilities "
+                 "value, one per line. Reference: Kevin Pagano, 'Tracking iOS App Installs and Purchase History with "
                  "StoreUser DB', "
                  "https://www.stark4n6.com/2025/04/tracking-ios-app-installs-and-purchase.html",
         "paths": ('*/mobile/Library/Caches/com.apple.appstored/storeUser.db*',),
@@ -165,7 +165,7 @@ def storeUser_pha(context):
             for item in capabilities:
                 cleaned_item = item.strip().strip('"')
                 concat_cap.append(cleaned_item)
-            caps = ";\n".join(concat_cap)[:-1]
+            caps = ";\n".join(concat_cap)
         
         data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], caps, record[10], record[11], record[12]))
 

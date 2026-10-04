@@ -8,24 +8,24 @@ __artifacts_v2__ = {
 " run and reports no rows.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-31',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': "The iOS 26 query has not been run on a registered image. Coded columns such as Local"
-" Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are"
-" shown with labels the module author assigned. The post referenced below says the Recipe"
-" ID labels come from the author's research and testing and that several columns are still"
-" being decoded. The module cites no Apple source for the code values. Labels marked"
-" StillTesting or Unknown are not established. Most labels carry the stored number at"
-" their start. Recipe ID 327687 is shown as '627687-WallpaperComputeResource-627687'; the"
-" stored value is 327687. Counted on 3 Oct 2026, that label is on 14 of 6,630 rows on"
-" abe_ios16, 10 of 5,009 on dexter_ios18, 24 of 2,339 on otto_ios17, 6 of 1,521 on"
-" iphone11_ios17 and 1 of 216 on felix_ios17. None of the eight PhotoData stores counted"
-" held a ZRECIPEID of 627687. The query returns more than 230 columns. The TSV export can"
-" be opened in a spreadsheet or CSV viewer such as Timeline Explorer"
-" (https://ericzimmerman.github.io/#!index.md) to search and filter. Reference: Scott"
+" Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are shown"
+" with labels the module author assigned. The post referenced below says the Recipe ID labels"
+" come from the author's research and testing and that several columns are still being"
+" decoded. The module cites no Apple source for the code values. Labels marked StillTesting or"
+" Unknown are not established. Most labels carry the stored number at their start. Recipe ID"
+" 327687 is shown as '327687-WallpaperComputeResource-327687'. Before 2026-10-04 this module"
+" printed that label with the number 627687, which is not the stored value. Counted on 3 Oct"
+" 2026, that label is on 14 of 6,630 rows on abe_ios16, 10 of 5,009 on dexter_ios18, 24 of"
+" 2,339 on otto_ios17, 6 of 1,521 on iphone11_ios17 and 1 of 216 on felix_ios17. None of the"
+" eight PhotoData stores counted held a ZRECIPEID of 627687. The query returns more than 230"
+" columns. The TSV export can be opened in a spreadsheet or CSV viewer such as Timeline"
+" Explorer (https://ericzimmerman.github.io/#!index.md) to search and filter. Reference: Scott"
 " Koenig, 'iLEAPP Parsers & Photos.sqlite Queries',"
 " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'paths': ('*/PhotoData/Photos.sqlite*',),
@@ -60,21 +60,21 @@ __artifacts_v2__ = {
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-07-31',
+'last_update_date': '2026-10-04',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': "The iOS 26 query has not been run on a registered image. Coded columns such as Local"
-" Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are"
-" shown with labels the module author assigned. The post referenced below says the Recipe"
-" ID labels come from the author's research and testing and that several columns are still"
-" being decoded. The module cites no Apple source for the code values. Labels marked"
-" StillTesting or Unknown are not established. Most labels carry the stored number at"
-" their start. Recipe ID 327687 is shown as '627687-WallpaperComputeResource-627687'; the"
-" stored value is 327687. Counted on 3 Oct 2026, no Syndication library counted held that"
-" recipe id, so no reported row shows the label: 0 of 84 rows on abe_ios16 and 0 of 82 on"
-" otto_ios17. The query returns more than 230 columns. The TSV export can be opened in a"
-" spreadsheet or CSV viewer such as Timeline Explorer"
-" (https://ericzimmerman.github.io/#!index.md) to search and filter. Reference: Scott"
+" Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are shown"
+" with labels the module author assigned. The post referenced below says the Recipe ID labels"
+" come from the author's research and testing and that several columns are still being"
+" decoded. The module cites no Apple source for the code values. Labels marked StillTesting or"
+" Unknown are not established. Most labels carry the stored number at their start. Recipe ID"
+" 327687 is shown as '327687-WallpaperComputeResource-327687'. Before 2026-10-04 this module"
+" printed that label with the number 627687, which is not the stored value. Counted on 3 Oct"
+" 2026, no Syndication library counted held that recipe id, so no reported row shows the"
+" label: 0 of 84 rows on abe_ios16 and 0 of 82 on otto_ios17. The query returns more than 230"
+" columns. The TSV export can be opened in a spreadsheet or CSV viewer such as Timeline"
+" Explorer (https://ericzimmerman.github.io/#!index.md) to search and filter. Reference: Scott"
 " Koenig, 'iLEAPP Parsers & Photos.sqlite Queries',"
 " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
@@ -108,25 +108,25 @@ __artifacts_v2__ = {
 " query for iOS 14 through 17.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-31',
+'last_update_date': '2026-10-04',
 'version': '2.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': "Run on one registered image, dexter_ios18 (iOS 18.3.2). The iOS 26 query has not been"
-" run on a registered image. Coded columns such as Local Availability, Remote"
-" Availability, Resource Type, Datastore Sub-Type and Recipe ID are shown with labels the"
-" module author assigned. The post referenced below says the Recipe ID labels come from"
-" the author's research and testing and that several columns are still being decoded. The"
-" module cites no Apple source for the code values. Labels marked StillTesting or Unknown"
-" are not established. Most labels carry the stored number at their start. Recipe ID"
-" 327687 is shown as '627687-WallpaperComputeResource-627687'; the stored value is 327687."
-" Counted on 3 Oct 2026, none of the 81 rows on dexter_ios18 held that recipe id, so no"
-" reported row shows the label. The query returns more than 230 columns. The TSV export"
-" can be opened in a spreadsheet or CSV viewer such as Timeline Explorer"
-" (https://ericzimmerman.github.io/#!index.md) to search and filter. The post referenced"
-" below does not cover the Generative Playground library; the same query is applied to it"
-" here. Reference for the query and the column labels as written for"
+'notes': "Run on one registered image, dexter_ios18 (iOS 18.3.2). The iOS 26 query has not been run on"
+" a registered image. Coded columns such as Local Availability, Remote Availability, Resource"
+" Type, Datastore Sub-Type and Recipe ID are shown with labels the module author assigned. The"
+" post referenced below says the Recipe ID labels come from the author's research and testing"
+" and that several columns are still being decoded. The module cites no Apple source for the"
+" code values. Labels marked StillTesting or Unknown are not established. Most labels carry the"
+" stored number at their start. Recipe ID 327687 is shown as"
+" '327687-WallpaperComputeResource-327687'. Before 2026-10-04 this module printed that label"
+" with the number 627687, which is not the stored value. Counted on 3 Oct 2026, none of the 81"
+" rows on dexter_ios18 held that recipe id, so no reported row shows the label. The query"
+" returns more than 230 columns. The TSV export can be opened in a spreadsheet or CSV viewer"
+" such as Timeline Explorer (https://ericzimmerman.github.io/#!index.md) to search and filter."
+" The post referenced below does not cover the Generative Playground library; the same query is"
+" applied to it here. Reference for the query and the column labels as written for"
 " PhotoData/Photos.sqlite and the Syndication library: Scott Koenig, 'iLEAPP Parsers &"
 " Photos.sqlite Queries',"
 " https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
@@ -246,7 +246,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -652,7 +652,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -1248,7 +1248,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -1693,7 +1693,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -2359,7 +2359,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -2817,7 +2817,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -3515,7 +3515,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -3973,7 +3973,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -4681,7 +4681,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -5162,7 +5162,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -5942,7 +5942,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -6409,7 +6409,7 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -7099,6 +7099,9 @@ def Ph050_1AssetIntResouPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph050_2AssetIntResouSyndPL(context):
     files_found = context.get_files_found()
@@ -7202,7 +7205,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -7608,7 +7611,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -8204,7 +8207,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -8649,7 +8652,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -9315,7 +9318,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -9773,7 +9776,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -10471,7 +10474,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -10929,7 +10932,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -11637,7 +11640,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -12118,7 +12121,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -12898,7 +12901,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -13365,7 +13368,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -14055,6 +14058,9 @@ def Ph050_2AssetIntResouSyndPL(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph050_3AssetIntResouGenPlayPsql(context):
     files_found = context.get_files_found()
@@ -14161,7 +14167,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -14642,7 +14648,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -15422,7 +15428,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID-4QueryStart',
 		CASE zAsset.ZCOMPLETE
@@ -15889,7 +15895,7 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -16578,3 +16584,6 @@ def Ph050_3AssetIntResouGenPlayPsql(context):
         data_list = list(get_sqlite_db_records(source_path, null_absent_columns(source_path, query)))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for GenPlay-Photos.sqlite from iOS " + iosversion)
+    return (), [], source_path
