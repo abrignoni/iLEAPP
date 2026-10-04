@@ -26,14 +26,17 @@ __artifacts_v2__ = {
         "description": "Parses Claude Conversations",
         "author": "Brandon Baye",
         "creation_date": "2026-07-23",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Claude",
-        "notes": "The Incognito Conversation column is the conversations.isTemporary value under "
-                 "this parser's label. On the test data, rows with isTemporary set to 1 carried "
-                 "no conversation name, "
-                 "so that column is blank for them. "
-                 "Test data created with iOS 26.",
+        "notes": "The Is Temporary column is the conversations.isTemporary value: 0 is shown as False "
+                 "and 1 as True. What the app sets it for is not established here. On hc_ios26 the one"
+                 " row with isTemporary set to 1 carried no conversation name, so that column is blank"
+                 " for it; the other 6 rows there and both rows on hc_ios18_7 hold 0. Every "
+                 "cache_*.sqlite the paths match is read, and the Source File column names the file "
+                 "each row came from; each of the two tested images holds one such file, so reading "
+                 "more than one was exercised only on constructed copies. Test data created with iOS "
+                 "26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -48,7 +51,7 @@ __artifacts_v2__ = {
         "description": "Parses Claude messages with the conversation name and id. The file name shown is that of the first file attached to the message.",
         "author": "Brandon Baye",
         "creation_date": "2026-07-21",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Claude",
         "notes": "The Message column joins the text of the blocks of type 'text' in the "
@@ -57,7 +60,10 @@ __artifacts_v2__ = {
                  "assistant. The path containing "
                  "uploaded image files was empty on the test data. The conversation title is "
                  "joined to each message for context. "
-                 "Test data created with iOS 26.",
+                 "Every cache_*.sqlite the paths match is read, and the Source File column names the "
+                 "file each row came from; each of the two tested images holds one such file, so "
+                 "reading more than one was exercised only on constructed copies. Test data created "
+                 "with iOS 26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -83,12 +89,17 @@ __artifacts_v2__ = {
         "description": "Parses projects made within Claude",
         "author": "Brandon Baye",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-08-09",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Claude",
-        "notes": "One row is reported per project document, with the document's file name; a "
-                 "project that holds no document is not listed. "
-                 "Test data created with iOS 26.",
+        "notes": "One row is reported per project document, with the document's file name; a project "
+                 "with no row in projectDocuments is listed once with that column blank. On hc_ios26 "
+                 "the one project holds one document; hc_ios18_7 holds no project. The blank-document "
+                 "row was exercised only on a constructed copy with the document row removed. Every "
+                 "cache_*.sqlite the paths match is read, and the Source File column names the file "
+                 "each row came from; each of the two tested images holds one such file, so reading "
+                 "more than one was exercised only on constructed copies. Test data created with iOS "
+                 "26.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -99,13 +110,22 @@ __artifacts_v2__ = {
     }
 }
 
+from pathlib import Path
+
 from scripts.ilapfuncs import (
     artifact_processor, 
-    get_file_path, 
     get_sqlite_db_records,
     json,
     convert_human_ts_to_utc
 )
+
+def _cache_databases(files_found):
+    # One cache_<id>.sqlite can exist per app container, and the paths also
+    # match its -wal and -shm files. Return each database once, in path order.
+    return sorted({
+        str(file_found) for file_found in files_found
+        if Path(str(file_found)).match('cache_*.sqlite')
+    })
 
 @artifact_processor
 def iOSclaudeAccountInfo(context):
@@ -179,7 +199,7 @@ def iOSclaudeAccountInfo(context):
 @artifact_processor
 def iOSclaudeConversations(context):
     files_found = context.get_files_found()
-    source_path = get_file_path(files_found, "cache_*.sqlite")
+    source_paths = _cache_databases(files_found)
     data_list = []
     
     query = '''
@@ -193,7 +213,7 @@ def iOSclaudeConversations(context):
             WHEN 0 THEN 'False'
             WHEN 1 THEN 'True'
             ELSE 'Unknown'
-            END AS 'Incognito Conversation',
+            END AS 'Is Temporary',
         CASE conversations.isStarred
             WHEN 0 THEN 'False'
             WHEN 1 THEN 'True'
@@ -202,42 +222,46 @@ def iOSclaudeConversations(context):
     FROM conversations
     '''
             
-    records = get_sqlite_db_records(source_path, query)
-    for record in records:
-        createdAT = convert_human_ts_to_utc(
-            record[0]
-        ) if record[0] else None
-            
-        updatedAT = convert_human_ts_to_utc(
-            record[1]
-        ) if record[1] else None
-                
-        data_list.append((
-            createdAT,
-            updatedAT,
-            record[2],
-            record[3],
-            record[4],
-            record[5],
-            record[6]
-        ))
-        
+    for source_path in source_paths:
+        source_file = context.get_relative_path(source_path)
+        records = get_sqlite_db_records(source_path, query)
+        for record in records:
+            createdAT = convert_human_ts_to_utc(
+                record[0]
+            ) if record[0] else None
+
+            updatedAT = convert_human_ts_to_utc(
+                record[1]
+            ) if record[1] else None
+
+            data_list.append((
+                createdAT,
+                updatedAT,
+                record[2],
+                record[3],
+                record[4],
+                record[5],
+                record[6],
+                source_file
+            ))
+
     data_headers = (
         ('Conversation Start Time', 'datetime'),
         ('Conversation Updated Time', 'datetime'),
         'Conversation ID',
         'Conversation Name',
         'Model',
-        'Incognito Conversation',
-        'Conversation Starred'
+        'Is Temporary',
+        'Conversation Starred',
+        'Source File'
     )
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
 
 @artifact_processor
 def iOSclaudeMessages(context):
     files_found = context.get_files_found()
-    source_path = get_file_path(files_found, "cache_*.sqlite")
+    source_paths = _cache_databases(files_found)
     data_list = []
     
     query = '''
@@ -256,21 +280,24 @@ def iOSclaudeMessages(context):
     LEFT JOIN conversations ON conversations.id = messages.conversationId
     '''
             
-    records = get_sqlite_db_records(source_path, query)
-    for record in records:   
-        createdAT = convert_human_ts_to_utc(
-            record[0]
-        ) if record[0] else None           
-        
-        data_list.append((
-            createdAT,
-            record[3],
-            record[4],
-            record[1],
-            record[2],
-            record[5],
-        ))
-        
+    for source_path in source_paths:
+        source_file = context.get_relative_path(source_path)
+        records = get_sqlite_db_records(source_path, query)
+        for record in records:
+            createdAT = convert_human_ts_to_utc(
+                record[0]
+            ) if record[0] else None           
+
+            data_list.append((
+                createdAT,
+                record[3],
+                record[4],
+                record[1],
+                record[2],
+                record[5],
+                source_file
+            ))
+
     data_headers = (
         ('Message Created Time', 'datetime'),
         'Message Sender',
@@ -278,14 +305,15 @@ def iOSclaudeMessages(context):
         'Message',
         'Image File Name',
         'Conversation ID',
+        'Source File',
     )
 
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
 
 @artifact_processor
 def iOSclaudeProjects(context):
     files_found = context.get_files_found()
-    source_path = get_file_path(files_found, 'cache_*.sqlite')
+    source_paths = _cache_databases(files_found)
     data_list = []
     
     query = '''
@@ -303,30 +331,33 @@ def iOSclaudeProjects(context):
         projects.docsCount as 'Number of Documents',
         projectDocuments.fileName as 'Document File Name(s)'
     FROM projects
-    JOIN projectDocuments on projectID = projects.id
+    LEFT JOIN projectDocuments on projectDocuments.projectId = projects.id
     '''
     
-    records = get_sqlite_db_records(source_path, query)
-    for record in records:
-        created_at = convert_human_ts_to_utc(
-            record[0]
-            ) if record[0] else None
-            
-        updated_at = convert_human_ts_to_utc(
-            record[1]
-            ) if record[1] else None
-        
-        data_list.append((
-            created_at,
-            updated_at,
-            record[2],
-            record[3],
-            record[4],
-            record[5],
-            record[6],
-            record[7]
-        ))
-        
+    for source_path in source_paths:
+        source_file = context.get_relative_path(source_path)
+        records = get_sqlite_db_records(source_path, query)
+        for record in records:
+            created_at = convert_human_ts_to_utc(
+                record[0]
+                ) if record[0] else None
+
+            updated_at = convert_human_ts_to_utc(
+                record[1]
+                ) if record[1] else None
+
+            data_list.append((
+                created_at,
+                updated_at,
+                record[2],
+                record[3],
+                record[4],
+                record[5],
+                record[6],
+                record[7],
+                source_file
+            ))
+
     data_headers = (
         ('Project Created Time', 'datetime'),
         ('Project Updated Time', 'datetime'),
@@ -335,7 +366,8 @@ def iOSclaudeProjects(context):
         'Project Creator',
         'Project Starred',
         'Number of Documents',
-        'Document File Name(s)'
+        'Document File Name(s)',
+        'Source File'
     )
     
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)

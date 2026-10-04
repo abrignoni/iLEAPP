@@ -1,20 +1,29 @@
 __artifacts_v2__ = {
     "kikGroupadmins": {
         "name": "Kik Group Administrators",
-        "description": "ZKIKUSER rows joined to the Z_9ADMINSINVERSE table of kik.sqlite, with "
-                       "the group row each is linked to. The table name is fixed in the query; on "
-                       "a store that does not have a table of that name the query fails and no "
-                       "rows are reported. No tested image returned rows.",
+        "description": "ZKIKUSER rows joined to the administrators join table of kik.sqlite "
+                       "(Z_9ADMINSINVERSE on the tested images), with the ZKIKUSER row each is "
+                       "linked to. No tested image returned rows.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-06-22",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Kik",
         "notes": "The Blob and Additional Info columns are decoded from the ZENTITYUSERDATA and "
                  "ZROSTERENTRYDATA protobufs by field position. The positions and the column "
                  "labels are not sourced from Kik, and what each field holds is not established. "
-                 "The artifact returned no rows on any of the seven tested images, so the decode "
-                 "has not been exercised on them.",
+                 "On each of the seven tested images kik.sqlite holds a Z_9ADMINSINVERSE table "
+                 "with columns Z_9ADMINS and Z_9ADMINSINVERSE and no rows, and Z_PRIMARYKEY "
+                 "numbers the KikUser entity 9. The artifact therefore returned no rows on any of "
+                 "them, and neither the join nor the decode has been exercised on real data. "
+                 "Which of the two join columns holds the administrator and which the group is "
+                 "not established: the query matches Z_<n>ADMINS to the reported user row and "
+                 "looks up Z_<n>ADMINSINVERSE as the group row, and the Administrator Group ID "
+                 "column is the Z_<n>ADMINSINVERSE value as stored. The number in the table name "
+                 "is read from the store's own table list, not fixed in the query; that was "
+                 "checked on a constructed copy of the iphone11_ios17 store with the table "
+                 "renamed and one row added, not on a real store with another number. A store "
+                 "with no such table is logged and reports no rows.",
         "paths": ('*/kik.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -32,7 +41,9 @@ __artifacts_v2__ = {
 
 from scripts import blackboxprotobuf
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly
+import re
+
+from scripts.ilapfuncs import artifact_processor, logfunc, open_sqlite_db_readonly
 
 
 def _decode_additional_info(blob):
@@ -81,7 +92,7 @@ def _decode_entity_blob(blob):
 
 @artifact_processor
 def kikGroupadmins(context):
-    data_headers = ('User ID', 'Display Name', 'Username', 'Profile Pic URL', 'Member Group ID',
+    data_headers = ('User ID', 'Display Name', 'Username', 'Profile Pic URL', 'Administrator Group ID',
                     'Group Tag', 'Group Name', 'Group ID', 'Group Pic URL', 'Blob User',
                     'Blob Description', 'Blob Interests', 'Additional Info User A',
                     'Additional Info User B', 'Additional Info Display', 'Additional Info Value')
@@ -98,18 +109,37 @@ def kikGroupadmins(context):
 
     db = open_sqlite_db_readonly(source_path)
     cursor = db.cursor()
-    cursor.execute('''
+
+    # Core Data names the join table after the KikUser entity's number, which is set by
+    # the store's model. Take the table and its two columns from the store itself.
+    join_table = admins_col = inverse_col = ''
+    cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name")
+    for (table_name,) in cursor.fetchall():
+        matched = re.fullmatch(r'Z_(\d+)ADMINSINVERSE', table_name or '')
+        if not matched:
+            continue
+        columns = [info[1] for info in cursor.execute(f'PRAGMA table_info("{table_name}")')]
+        wanted = (f'Z_{matched.group(1)}ADMINS', table_name)
+        if all(column in columns for column in wanted):
+            join_table, admins_col, inverse_col = table_name, wanted[0], wanted[1]
+            break
+    if not join_table:
+        logfunc('Kik Group Administrators: no Z_<n>ADMINSINVERSE table in kik.sqlite')
+        db.close()
+        return data_headers, data_list, source_path
+
+    cursor.execute(f'''
     SELECT ZKIKUSER.Z_PK,
         ZKIKUSER.ZDISPLAYNAME,
         ZKIKUSER.ZUSERNAME,
         ZKIKUSER.ZPPURL,
-        Z_9ADMINSINVERSE.Z_9ADMINSINVERSE,
+        {join_table}.{inverse_col},
         ZKIKUSEREXTRA.ZENTITYUSERDATA,
         ZKIKUSEREXTRA.ZROSTERENTRYDATA
     FROM ZKIKUSER
-        INNER JOIN Z_9ADMINSINVERSE ON ZKIKUSER.Z_PK = Z_9ADMINSINVERSE.Z_9ADMINS
+        INNER JOIN {join_table} ON ZKIKUSER.Z_PK = {join_table}.{admins_col}
         LEFT JOIN ZKIKUSEREXTRA ON ZKIKUSER.Z_PK = ZKIKUSEREXTRA.ZUSER
-    ORDER BY Z_9ADMINSINVERSE
+    ORDER BY {join_table}.{inverse_col}
     ''')
 
     for row in cursor.fetchall():

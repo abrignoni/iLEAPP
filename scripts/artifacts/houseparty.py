@@ -229,7 +229,7 @@ __artifacts_v2__ = {
                        "relationship, interaction and time-together values the app recorded for them.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-04",
-        "last_update_date": "2026-09-04",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Houseparty",
         "notes": "Read from class_RealmPublicUser in the app's Realm store, with presence joined "
@@ -241,10 +241,13 @@ __artifacts_v2__ = {
                  "the account id. The signed-in account appears here as well as in the Account "
                  "artifact, because the store keeps a public record for it too. Last Seen and "
                  "Room Created At are values the store holds about that account and are not "
-                 "evidence of activity on this device. Address Book Name is the addressBookName "
-                 "value of the relevance row, as stored; which address book it was taken from is "
-                 "not established, and the column is blank where "
-                 "no relevance row exists. Last Interaction At and Last Interaction Type come "
+                 "evidence of activity on this device. Address Book Name (as stored) is the "
+                 "addressBookName value of the relevance row; the store does not record which "
+                 "address book it was taken from, and the column is blank where "
+                 "no relevance row exists. On hickman_ios13 the one relevance row carried a value, "
+                 "which equalled the name of an entry in that image's AddressBook.sqlitedb and "
+                 "differed from the Full Name of the same account; hickman_ios14 held no relevance "
+                 "row. Last Interaction At and Last Interaction Type come "
                  "from the interaction row the relationship links to; the type is an integer the "
                  "store does not explain and is reported as stored. Presence Type, Relationship "
                  "Status, Relevance Reason, On Phone, Notifications Enabled and Ghosting are "
@@ -293,14 +296,15 @@ __artifacts_v2__ = {
                        "name and number as stored and the Houseparty account each was matched to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-04",
-        "last_update_date": "2026-09-04",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Houseparty",
         "notes": "Read from class_RealmContact in the app's Realm store, one row per phone number, with the "
                  "matched account joined from class_RealmPublicUser through the row's own user link and the "
-                 "contact record joined from class_RealmLocalContact through its contacts link list. Name In "
-                 "Phone is the nameInPhone value of the row, or of its class_RealmLocalContact record, "
-                 "as stored, and Phone is the number in E.164 "
+                 "contact record joined from class_RealmLocalContact through its contacts link list. "
+                 "Name In Phone (as stored) is the nameInPhone value of the row, or of its "
+                 "class_RealmLocalContact record; the store does not record where the name was taken "
+                 "from. Phone is the number in E.164 "
                  "form as stored; Phone (as formatted) is the formatted spelling the app keeps for the same "
                  "number in Documents/houseparty.rocky.phonenumbers where that store is present. Score, Invite "
                  "Sent, Ignored and Suggested are reported as stored. A row is a contact entry the "
@@ -310,7 +314,9 @@ __artifacts_v2__ = {
                  "Houseparty. Matched Username is the account the store links the entry to. On "
                  "the iOS 13 image the app's traits "
                  "recorded the contacts permission as allowed and this table held two numbers of one contact, "
-                 "one of them matched to a Houseparty account; on the iOS 14 image the permission was recorded "
+                 "one of them matched to a Houseparty account, and both numbers and the name stored with "
+                 "them were present under one entry of that image's AddressBook.sqlitedb "
+                 "(hickman_ios13, two of two rows); on the iOS 14 image the permission was recorded "
                  "as denied, the table held no rows and the phone-number store was absent. The iOS 14 schema "
                  "keeps the contact name only on class_RealmLocalContact, and the artifact reads it from there "
                  "when the row itself carries none. There is no timestamp in these rows.",
@@ -731,7 +737,7 @@ def housepartyContacts(context):
         'Username',
         'Full Name',
         'Account ID',
-        'Address Book Name',
+        'Address Book Name (as stored)',
         'Relationship Status (as stored)',
         'Last Interaction Type (as stored)',
         'Presence Type (as stored)',
@@ -800,7 +806,7 @@ def housepartyContacts(context):
 @artifact_processor
 def housepartyPhoneContacts(context):
     data_headers = (
-        'Name In Phone',
+        'Name In Phone (as stored)',
         'Phone',
         'Phone (as formatted)',
         'Matched Username',

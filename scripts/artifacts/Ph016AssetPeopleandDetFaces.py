@@ -1,23 +1,29 @@
 __artifacts_v2__ = {
 'Ph016_1PeopleFacesAssetDataPhDaPsql': {
 'name': 'Ph016.1-People & Faces Asset Data-PhDaPsql',
-'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for basic asset people'
-' and faces data. The labels shown for the face and person attribute codes (gender, age, ethnicity,'
-' skin tone, expression and others) were assigned by the module author. No source for each mapping'
-' is cited here, and the cited post states that the people and face data still require additional'
+'description': 'Parses basic asset record data from PhotoData-Photos.sqlite for basic asset people and faces'
+' data. The labels shown for the face and person attribute codes (gender, age, ethnicity, skin'
+' tone, expression and others) were assigned by the module author. No source for each mapping is'
+' cited here, and the cited post states that the people and face data still require additional'
 ' research and decoding and should be verified. The stored integer is kept in each label. Values'
 ' labelled StillTesting have no established meaning. The results may contain multiple records per'
-' ZASSET table Z_PK value. Rows are limited to assets that have a detected face record. Face crops'
-' are joined through the person and not through the face, so a detected face is repeated once for'
-' each face crop held for its person, and the face crop shown on a row is one of the crops of that'
-' person and is not established to be a crop of the face on that row. A row count is not a count of'
-' faces or of assets. The artifact runs on iOS 14 through 26. On other iOS versions it returns no'
-' rows without reading the database, so an empty result there is not evidence that the database'
-' holds no face records.'
+' ZASSET table Z_PK value. Rows are limited to assets that have a detected face record. The asset'
+' is joined to the detected face on ZDETECTEDFACE.ZASSET on iOS 14 through 16 and on'
+' ZDETECTEDFACE.ZASSETFORFACE on iOS 17 through 26, and the zDetFace-AssetForFace column holds'
+' that stored value. A row count is not a count of assets. The face crop columns are joined'
+' through the face crop key stored on the detected face record (ZDETECTEDFACE.ZFACECROP ='
+' ZFACECROP.Z_PK) and are blank on a row whose detected face stores no face crop key. On the'
+' registered images abe_ios16, dexter_ios18, iphone11_ios17 and otto_ios17, 13 detected faces'
+' stored a face crop key and each of those face crop records named the same detected face in its'
+' ZFACE column. A face crop record that no detected face points to is not reported. None of those'
+' 13 detected faces stored an asset key, so this artifact reported no face crop on those images;'
+' the Ph015 People & Faces NAD artifact reports them. The artifact runs on iOS 14 through 26. On'
+' other iOS versions it returns no rows without reading the database, so an empty result there is'
+' not evidence that the database holds no face records.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-09-19',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -27,7 +33,7 @@ __artifacts_v2__ = {
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "mood-smile",
 'sample_data': {
-'ctf2020_ios12': 'iOS 12.4 | 0 rows',
+'ctf2020_ios12': 'iOS 12.4 | 0 rows (version gate, database not read)',
 'dexter_ios18': 'iOS 18.3.2 | 729 rows',
 'felix_ios17': 'iOS 17.6.1 | 6 rows',
 'fsfull002_ios17': 'iOS 17.1 | 30 rows',
@@ -36,9 +42,9 @@ __artifacts_v2__ = {
 'iphone12_ios18': 'iOS 18.7 | 1201 rows',
 'iphone14plus_ios18': 'iOS 18.0 | 1 row',
 'otto_ios17': 'iOS 17.5.1 | 332 rows',
-'abe_ios16': 'iOS 16.5 | 708 rows',
+'abe_ios16': 'iOS 16.5 | 700 rows',
 'felix23_ios16': 'iOS 16.5 | 5 rows',
-'hickman_ios13': 'iOS 13.3.1 | 0 rows',
+'hickman_ios13': 'iOS 13.3.1 | 0 rows (version gate, database not read)',
 'hickman_ios14': 'iOS 14.3 | 46 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
@@ -46,24 +52,29 @@ __artifacts_v2__ = {
 },
 'Ph016_2PeopleFacesAssetDataSyndPL': {
 'name': 'Ph016.2-People & Faces Asset Data-SyndPL',
-'description': 'Parses basic asset record data from'
-' Syndication.photoslibrary-database-Photos.sqlite for basic asset people and faces data. The'
-' labels shown for the face and person attribute codes (gender, age, ethnicity, skin tone,'
-' expression and others) were assigned by the module author. No source for each mapping is cited'
-' here, and the cited post states that the people and face data still require additional research'
-' and decoding and should be verified. The stored integer is kept in each label. Values labelled'
-' StillTesting have no established meaning. The results may contain multiple records per ZASSET'
-' table Z_PK value. Rows are limited to assets that have a detected face record. Face crops are'
-' joined through the person and not through the face, so a detected face is repeated once for each'
-' face crop held for its person, and the face crop shown on a row is one of the crops of that'
-' person and is not established to be a crop of the face on that row. A row count is not a count of'
-' faces or of assets. The artifact runs on iOS 14 through 26. On other iOS versions it returns no'
-' rows without reading the database, so an empty result there is not evidence that the database'
-' holds no face records.'
+'description': 'Parses basic asset record data from Syndication.photoslibrary-database-Photos.sqlite for basic'
+' asset people and faces data. The labels shown for the face and person attribute codes (gender,'
+' age, ethnicity, skin tone, expression and others) were assigned by the module author. No source'
+' for each mapping is cited here, and the cited post states that the people and face data still'
+' require additional research and decoding and should be verified. The stored integer is kept in'
+' each label. Values labelled StillTesting have no established meaning. The results may contain'
+' multiple records per ZASSET table Z_PK value. Rows are limited to assets that have a detected'
+' face record. The asset is joined to the detected face on ZDETECTEDFACE.ZASSET on iOS 14 through'
+' 16 and on ZDETECTEDFACE.ZASSETFORFACE on iOS 17 through 26, and the zDetFace-AssetForFace column'
+' holds that stored value. A row count is not a count of assets. The face crop columns are joined'
+' through the face crop key stored on the detected face record (ZDETECTEDFACE.ZFACECROP ='
+' ZFACECROP.Z_PK) and are blank on a row whose detected face stores no face crop key. On the'
+' registered images abe_ios16, dexter_ios18, iphone11_ios17 and otto_ios17, 13 detected faces'
+' stored a face crop key and each of those face crop records named the same detected face in its'
+' ZFACE column. A face crop record that no detected face points to is not reported. None of those'
+' 13 detected faces stored an asset key, so this artifact reported no face crop on those images;'
+' the Ph015 People & Faces NAD artifact reports them. The artifact runs on iOS 14 through 26. On'
+' other iOS versions it returns no rows without reading the database, so an empty result there is'
+' not evidence that the database holds no face records.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-09-19',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -431,7 +442,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSET
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSON
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0      
         ORDER BY zAsset.ZDATECREATED
@@ -1016,7 +1027,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSET
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSON
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP       
         WHERE zDetFace.Z_PK > 0  
         ORDER BY zAsset.ZDATECREATED
@@ -1626,7 +1637,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSET
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSON
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0  
         ORDER BY zAsset.ZDATECREATED
@@ -2242,7 +2253,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSETFORFACE
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSONFORFACE
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0  
         ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zMedAnlyAstAttr.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid
@@ -2870,7 +2881,7 @@ def Ph016_1PeopleFacesAssetDataPhDaPsql(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSETFORFACE
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSONFORFACE
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0  
         ORDER BY zAsset.ZDATECREATED
@@ -3412,7 +3423,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSET
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSON
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0      
         ORDER BY zAsset.ZDATECREATED
@@ -3997,7 +4008,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSET
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSON
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP       
         WHERE zDetFace.Z_PK > 0  
         ORDER BY zAsset.ZDATECREATED
@@ -4607,7 +4618,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSET
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSON
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0  
         ORDER BY zAsset.ZDATECREATED
@@ -5223,7 +5234,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSETFORFACE
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSONFORFACE
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0  
         ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid, zMedAnlyAstAttr.rowid, zDetFace.rowid, zPerson.rowid, zDetFacePrint.rowid, zFaceCrop.rowid, zDetFaceGroup.rowid
@@ -5851,7 +5862,7 @@ def Ph016_2PeopleFacesAssetDataSyndPL(context):
             LEFT JOIN ZDETECTEDFACE zDetFace ON zAsset.Z_PK = zDetFace.ZASSETFORFACE
             LEFT JOIN ZPERSON zPerson ON zPerson.Z_PK = zDetFace.ZPERSONFORFACE
             LEFT JOIN ZDETECTEDFACEPRINT zDetFacePrint ON zDetFacePrint.ZFACE = zDetFace.Z_PK
-            LEFT JOIN ZFACECROP zFaceCrop ON zPerson.Z_PK = zFaceCrop.ZPERSON
+            LEFT JOIN ZFACECROP zFaceCrop ON zFaceCrop.Z_PK = zDetFace.ZFACECROP
             LEFT JOIN ZDETECTEDFACEGROUP zDetFaceGroup ON zDetFaceGroup.Z_PK = zDetFace.ZFACEGROUP
         WHERE zDetFace.Z_PK > 0  
         ORDER BY zAsset.ZDATECREATED

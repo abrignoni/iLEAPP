@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
 'Ph086assetsdcloudServiceEnableLogPlist': {
 'name': 'Ph086-assetsd-cloud-Service-Enable-Log-Plist',
-'description': 'Parses the first file matched by */com.apple.assetsd/cloudServiceEnableLog.plist.'
+'description': 'Parses the first file matched by */PhotoData/private/com.apple.assetsd/cloudServiceEnableLog.plist.'
 ' Scott Koenig reports, from the testing described in the linked post (test devices on'
 ' iOS 14.7 and iOS 15), that this plist holds a UTC timestamp for when iCloud Photo'
 ' Library (CPL) was enabled or disabled, shown as a True or False value, with False read'
@@ -12,11 +12,11 @@ __artifacts_v2__ = {
 'creation_date': '2026-05-28',
 'version': '5.0',
 'date': '2025-01-05',
-'last_update_date': '2026-09-12',
+'last_update_date': '2026-10-04',
 'requirements': 'Acquisition that contains assetsd cloudServiceEnableLog.plist',
 'category': 'Photos.sqlite',
 'notes': '',
-'paths': ('*/com.apple.assetsd/cloudServiceEnableLog.plist',),
+'paths': ('*/PhotoData/private/com.apple.assetsd/cloudServiceEnableLog.plist',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "settings",
 'sample_data': {

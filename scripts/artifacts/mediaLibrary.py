@@ -4,17 +4,24 @@ __artifacts_v2__ = {
         "description": "Media items (music, video, podcasts, e-books) from MediaLibrary.sqlitedb",
         "author": "@ydkhatri",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-08-13",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Media Library",
         "notes": (
-            "The Media Type labels for media_kind 0, 1, 2, 4 and 33 are this module's own reading "
-            "and no published source for them was found; how each was derived is not recorded, so "
-            "treat the label as unconfirmed. Other values are reported as stored. Album Name, "
-            "Album Artist, Composer and Genre are joined on the representative item of each, so "
-            "they are blank on every other item of the same album, artist, composer or genre; a "
-            "blank does not mean the item has none. Items with no item_stats, item_playback or "
-            "item_video row are not reported. An item that carries more than one artwork_token row "
+            "Media Kind is item_extra.media_kind as stored; no published source for its values was "
+            "found. On six tested images (abe_ios16, dexter_ios18, hickman_ios13, hickman_ios14, "
+            "iphone11_ios17, otto_ios17; 2847 items) value 1 was on 2754 items, whose File Format "
+            "was m4a or blank; value 4 was on 87 items, all with base_location path Podcasts and a "
+            "feed_url; value 0 was on 4 items, all with File Format .epub; value 33 was on 2 "
+            "items, both with File Format m4v. No other value was present. Album Name, Album "
+            "Artist, Composer and Genre are read through the item row's own album_pid, "
+            "album_artist_pid, composer_pid and genre_id, which are the primary keys of the "
+            "album, album_artist, composer and genre tables. On those six images every non-zero "
+            "value resolved to a row; composer_pid was 0 on 521 items and genre_id on 87, and "
+            "those cells are blank. File Format, Content Rating and Movie Information are blank "
+            "for an item with no item_playback or item_video row; every item had both rows on "
+            "the six images, so that case is unexercised. "
+            "An item that carries more than one artwork_token row "
             "is reported once per token, so the row count can exceed the number of media items: on "
             "one tested iOS 18.3.2 image 1099 items produced 1339 rows, 240 of them having two "
             "tokens each. Date Purchased is item_store.date_purchased read as seconds from "
@@ -94,8 +101,6 @@ import sqlite3
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
 
-_MEDIA_KIND = {0: 'E-book', 1: 'Audio', 2: 'Film', 4: 'Podcast', 33: 'Video M4V'}
-
 _MEDIA_QUERY = '''
 SELECT
     ext.title, ext.media_kind, itep.format,
@@ -112,14 +117,12 @@ SELECT
 FROM item_extra ext
 JOIN item_store sto USING (item_pid)
 JOIN item ite USING (item_pid)
-JOIN item_stats ites USING (item_pid)
-JOIN item_playback itep USING (item_pid)
-JOIN item_video itev USING (item_pid)
-LEFT JOIN album alb ON sto.item_pid = alb.representative_item_pid
-LEFT JOIN album_artist alba ON sto.item_pid = alba.representative_item_pid
-LEFT JOIN composer com ON sto.item_pid = com.representative_item_pid
-LEFT JOIN genre gen ON sto.item_pid = gen.representative_item_pid
-LEFT JOIN item_artist itea ON sto.item_pid = itea.representative_item_pid
+LEFT JOIN item_playback itep USING (item_pid)
+LEFT JOIN item_video itev USING (item_pid)
+LEFT JOIN album alb ON ite.album_pid = alb.album_pid
+LEFT JOIN album_artist alba ON ite.album_artist_pid = alba.album_artist_pid
+LEFT JOIN composer com ON ite.composer_pid = com.composer_pid
+LEFT JOIN genre gen ON ite.genre_id = gen.genre_id
 LEFT JOIN artwork_token art ON sto.item_pid = art.entity_pid
 '''
 
@@ -138,7 +141,7 @@ def _find_db(context):
 @artifact_processor
 def mediaLibrary(context):
     data_headers = (
-        'Title', 'Media Type', 'File Format', 'File', 'Total Time (ms)', 'File Size', 'Year',
+        'Title', 'Media Kind', 'File Format', 'File', 'Total Time (ms)', 'File Size', 'Year',
         'Album Name', 'Album Artist', 'Composer', 'Genre', 'Track Number', 'Artwork',
         'Content Rating', 'Movie Information', 'Description', 'Account ID',
         ('Date Purchased', 'datetime'), 'Item ID', 'Purchase History ID', 'Copyright')
@@ -154,9 +157,7 @@ def mediaLibrary(context):
         return data_headers, data_list, context.get_relative_path(source_path)
 
     for row in rows:
-        values = list(row)
-        values[1] = _MEDIA_KIND.get(values[1], values[1])
-        data_list.append(tuple(values))
+        data_list.append(tuple(row))
 
     return data_headers, data_list, context.get_relative_path(source_path)
 

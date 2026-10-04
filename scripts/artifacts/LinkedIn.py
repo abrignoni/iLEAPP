@@ -43,16 +43,18 @@ __artifacts_v2__ = {
         "description": "LinkedIn Conversations",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creation_date": "2024-10-01",
-        "last_update_date": "2026-06-15",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "LinkedIn",
-        "notes": "Messages joined to their conversation record. Sent is 1 when the sender's "
-                 "distance value in the message record is SELF and 0 otherwise; no other field was "
-                 "used to confirm direction. A message whose conversationUrn has no row in the "
-                 "conversations table is not reported here. Conversation Name is the second listed "
-                 "participant when the first listed participant's distance is SELF, and the first "
-                 "listed participant otherwise, so it does not name every member of a group "
-                 "conversation.",
+        "notes": "Messages with their conversation record where one exists. Sent is 1 when the "
+                 "sender's distance value in the message record is SELF and 0 otherwise; no other "
+                 "field was used to confirm direction. A message whose conversationUrn has no row "
+                 "in the conversations table is reported with a blank Conversation Name. "
+                 "Conversation Name lists, separated by commas, the first and last name of each "
+                 "member in the conversation record's conversationParticipants whose distance "
+                 "value is not SELF; a participant stored with no member name is not listed, and "
+                 "the column is blank when none is. No registered corpus holds this database; the "
+                 "query was run on a constructed database only.",
         "paths": ('*/Documents/msg_database.sqlite*'),
         "output_types": "all", 
         "data_views": {
@@ -166,15 +168,15 @@ def linkedin_conversations(context):
         ELSE 0
         END [Sent],
 		json_extract(serializedMessage, '$.body.text') [message], 
-		CASE WHEN json_extract(serializedConversation, '$.conversationParticipants[0].participantType.member.distance') = 'SELF'
-        THEN CONCAT (json_extract(serializedConversation, '$.conversationParticipants[1].participantType.member.firstName.text'), ' ', 
-		        json_extract(serializedConversation, '$.conversationParticipants[1].participantType.member.lastName.text'))
-        ELSE CONCAT (json_extract(serializedConversation, '$.conversationParticipants[0].participantType.member.firstName.text'), ' ', 
-		        json_extract(serializedConversation, '$.conversationParticipants[0].participantType.member.lastName.text'))
-        END [data-name],
+		(SELECT group_concat(participant_name, ', ') FROM (
+            SELECT trim(coalesce(json_extract(p.value, '$.participantType.member.firstName.text'), '') || ' ' ||
+                        coalesce(json_extract(p.value, '$.participantType.member.lastName.text'), '')) AS participant_name
+            FROM json_each(c.serializedConversation, '$.conversationParticipants') p
+            WHERE coalesce(json_extract(p.value, '$.participantType.member.distance'), '') != 'SELF')
+         WHERE participant_name != '') [data-name],
 		messages.conversationUrn [conversationUrn]
         FROM messages
-		INNER JOIN conversations c on messages.conversationUrn = c.conversationUrn
+		LEFT JOIN conversations c on messages.conversationUrn = c.conversationUrn
     ''')
 
     db_records = get_sqlite_db_records(source_path, query)
@@ -183,7 +185,7 @@ def linkedin_conversations(context):
     for record in db_records:
         delivery_date = convert_unix_ts_to_utc(record[0])
         conversation_urn = record[5]
-        conversation_label = record[4]
+        conversation_label = record[4] or ''
         message = record[3]
         sent = record[2]
         sender_name = record[1]

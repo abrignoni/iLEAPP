@@ -84,16 +84,22 @@ __artifacts_v2__ = {
     },
     'meWePolls': {
         'name': 'MeWe - Polls',
-        'description': 'Polls cached by the MeWe application. Options, votes and the option '
-                       'flagged ZISSELECTED are read through the ZPOLLOPTION column Z29OPTIONS as '
-                       'found on the tested image; on a store where that column has another number '
-                       'these columns are blank. What ZISSELECTED records is not established',
+        'description': 'Polls cached by the MeWe application, with their options and vote counts',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-04',
         'requirements': 'none',
         'category': 'MeWe',
-        'notes': '',
+        'notes': 'Options, votes and the option flagged ZISSELECTED are read from ZPOLLOPTION '
+                 'through its Z<number>OPTIONS column, which holds the Z_PK of the ZPOLL row. '
+                 'The number in that column name differs between stores: Z29OPTIONS on '
+                 'iphone11_ios17, hc_ios18_7 and hc_ios26, Z30OPTIONS on hickman_ios13 and '
+                 'hickman_ios14, in each case the Z_ENT of the Poll entity in Z_PRIMARYKEY. '
+                 'The module reads the name from the table itself. Only iphone11_ios17 holds '
+                 'poll rows (10 polls, 48 options, every option resolving to a poll); the other '
+                 'four stores hold none, so reading under another column number was exercised '
+                 'on a constructed copy only. If no such column is found the option columns '
+                 'are blank and the log says so. What ZISSELECTED records is not established.',
         'paths': ('*/mobile/Containers/Data/Application/*/Documents/sgrouplesdb.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'chart-bar',
@@ -122,7 +128,8 @@ __artifacts_v2__ = {
 import re
 
 from scripts.ilapfuncs import artifact_processor, \
-    get_file_path, get_sqlite_db_records, null_absent_columns, convert_cocoa_core_data_ts_to_utc
+    get_file_path, get_sqlite_db_records, null_absent_columns, convert_cocoa_core_data_ts_to_utc, \
+    logfunc
 
 # MeWe sends a shared location as an OpenStreetMap link in the message body,
 # e.g. https://www.openstreetmap.org/?mlat=35.66119068&mlon=-78.87362671
@@ -488,19 +495,35 @@ def meWePolls(context):
     source_path = get_file_path(context.get_files_found(), 'sgrouplesdb.sqlite')
     data_list = []
 
-    query = '''
+    # Core Data names the option-to-poll column after the Poll entity's number
+    # (Z29OPTIONS, Z30OPTIONS, ...), which differs between app data models, so the
+    # name is read from the table rather than fixed.
+    options_fk = ''
+    for column in get_sqlite_db_records(
+            source_path, "SELECT name FROM pragma_table_info('ZPOLLOPTION')"):
+        if re.fullmatch(r'Z\d+OPTIONS', column['name']):
+            options_fk = column['name']
+            break
+    if not options_fk:
+        logfunc('MeWe - Polls: no Z<number>OPTIONS column in ZPOLLOPTION; '
+                'poll options are not reported')
+        options_fk = 'NULL'
+    else:
+        options_fk = 'o.' + options_fk
+
+    query = f'''
     SELECT
         p.Z_PK AS pollRowId,
         p.ZQUESTION AS question,
         p.ZISCLOSED AS isClosed,
         p.ZENDDATE AS endDate,
         (SELECT GROUP_CONCAT(o.ZTEXT, ' | ') FROM ZPOLLOPTION o
-          WHERE o.Z29OPTIONS = p.Z_PK) AS options,
+          WHERE {options_fk} = p.Z_PK) AS options,
         (SELECT GROUP_CONCAT(o.ZVOTES, ' | ') FROM ZPOLLOPTION o
-          WHERE o.Z29OPTIONS = p.Z_PK) AS optionVotes,
-        (SELECT COUNT(*) FROM ZPOLLOPTION o WHERE o.Z29OPTIONS = p.Z_PK) AS optionCount,
+          WHERE {options_fk} = p.Z_PK) AS optionVotes,
+        (SELECT COUNT(*) FROM ZPOLLOPTION o WHERE {options_fk} = p.Z_PK) AS optionCount,
         (SELECT GROUP_CONCAT(o.ZTEXT, ' | ') FROM ZPOLLOPTION o
-          WHERE o.Z29OPTIONS = p.Z_PK AND o.ZISSELECTED = 1) AS selectedOptions,
+          WHERE {options_fk} = p.Z_PK AND o.ZISSELECTED = 1) AS selectedOptions,
         (SELECT post.ZPOSTID FROM ZPOST post WHERE post.ZPOLL = p.Z_PK) AS postId,
         (SELECT post.ZUSERID FROM ZPOST post WHERE post.ZPOLL = p.Z_PK) AS postUserId,
         (SELECT post.ZCREATIONDATE FROM ZPOST post WHERE post.ZPOLL = p.Z_PK) AS postCreated

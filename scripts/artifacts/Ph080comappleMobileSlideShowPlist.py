@@ -9,7 +9,7 @@ __artifacts_v2__ = {
         " plist shown decoded when it can be read. What each key means is not established here.",
         "author": "Scott Koenig",
         "creation_date": "2025-01-05",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains com.apple.mobileslideshow.plist",
         "category": "Photos.sqlite",
         "notes": "",
@@ -62,7 +62,7 @@ def Ph080ComAppleMobileSlideshowPlist(context):
 
             elif key == 'TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo':
                 pathto = os.path.join(report_folder, 'TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo' + '.bplist')
-                with open(pathto, "ab") as wf:
+                with open(pathto, "wb") as wf:
                     wf.write(val)
 
                 with open(pathto, "rb") as f:

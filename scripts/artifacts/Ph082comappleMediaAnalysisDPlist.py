@@ -1,8 +1,8 @@
 __artifacts_v2__ = {
     "Ph082ComAppleMediaAnalysisDPlist": {
         "name": "Ph082-Com-Apple-MediaAnalysisD-Plist",
-        "description": "Parses basic data from */mobile/Library/Preferences/com.apple.mediaanalysisd.plist and"
-        " lists each key with its value as stored. What the keys mean is not established here.",
+        "description": "Parses the first file matched by */mobile/Library/Preferences/com.apple.mediaanalysisd.plist"
+        " and lists each key with its value as stored. What the keys mean is not established here.",
         "author": "Scott Koenig",
         "creation_date": "2025-01-05",
         "last_update_date": "2026-07-21",

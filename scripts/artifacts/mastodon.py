@@ -51,15 +51,35 @@ __artifacts_v2__ = {
     },
     'mastodonUsers': {
         'name': 'Mastodon - Users',
-        'description': 'Mastodon accounts cached by the application. The two follow columns are '
-                       'read from the Z_<n>FOLLOWING join table; which of its two columns is the '
-                       'follower was inferred from the column names and is not confirmed',
+        'description': 'Mastodon accounts cached by the application, with the follow '
+                       'relationships the cache holds between each account and the account holder',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
         'last_update_date': '2026-08-09',
         'requirements': 'none',
         'category': 'Mastodon',
-        'notes': '',
+        'notes': 'Followed By Account Holder and Follows Account Holder are read from the '
+                 'Z_<n>FOLLOWING join table, where <n> is the MastodonUser entity number in '
+                 'Z_PRIMARYKEY. The Z_<n>FOLLOWINGBY column is read as the follower and the '
+                 'Z_<n>FOLLOWING column as the account followed. Measured on iphone11_ios17: the '
+                 'account holder is in Z_8FOLLOWINGBY on 3 rows and in Z_8FOLLOWING on 4 rows, '
+                 'equal to the ZFOLLOWINGCOUNT of 3 and the ZFOLLOWERSCOUNT of 4 stored on the '
+                 'account holder row, and each of the 3 accounts named by a follow notification '
+                 'is in Z_8FOLLOWINGBY on a row with the account holder in Z_8FOLLOWING. The '
+                 'opposite reading fits neither count. On magnet_ios16 the account holder is in '
+                 'Z_7FOLLOWINGBY on 5 rows and in Z_7FOLLOWING on none, while both stored counts '
+                 'on the account holder row are 0, so that image does not test the direction. '
+                 'The app source declares the two relationships as following and followingBy, and '
+                 'its predicate named followingBy matches accounts whose followingBy set holds a '
+                 'given user id. Reference: '
+                 'Mastodon, mastodon-ios MastodonUser.swift, https://github.com/mastodon/mastodon-ios/'
+                 'blob/e668b21da54059f6f15d75e6537a29f36f289d42/MastodonSDK/Sources/CoreDataStack/'
+                 'Entity/Mastodon/MastodonUser.swift#L76-L77 and #L189-L190. The app version that '
+                 'wrote the tested databases was not established. The join table holds only the '
+                 'relationships the app cached, so a blank is not evidence that no follow '
+                 'relationship exists. The account holder is the user id in '
+                 'ZMASTODONAUTHENTICATION or, when that table is empty, on the first '
+                 'ZNOTIFICATION row.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Databases/shared.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'users',

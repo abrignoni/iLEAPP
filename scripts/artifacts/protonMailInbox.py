@@ -12,8 +12,9 @@ Two databases are read, dispatched by the tables they carry:
   - support/account.db          -> core_accounts / users -> account artifact
   - support/<base64 id>.db      -> messages, contacts, attachments, labels
 
-Timestamps are Unix seconds. Folder names come from the app's own labels table
-(label_type 4), resolved per database. Address columns hold JSON, decoded here to
+Timestamps are Unix seconds. Label names come from the app's own labels table
+through message_labels, resolved per database, with no filter on label_type.
+Address columns hold JSON, decoded here to
 'Name <address>' strings.
 """
 __artifacts_v2__ = {
@@ -23,7 +24,7 @@ __artifacts_v2__ = {
                        "body, sender and recipients as cached",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-14",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-10-04",
         "requirements": "BeautifulSoup",
         "category": "Proton Mail",
         "notes": "Reads the group.me.proton.mail cache (Proton Mail Inbox); the tested image ran "
@@ -36,9 +37,13 @@ __artifacts_v2__ = {
                  "numbers, as stored; a repeated target keeps its first number. A link with no "
                  "words of its own, such as a linked image, still gets a marker, so the words just "
                  "before a marker are not always the link's text. The unmodified "
-                 "HTML stays in the source database. Folder lists the name of every labels row that "
-                 "message_labels links to the message, sorted and separated by commas. Whether a "
-                 "name is a folder or a label is not distinguished. From Me is derived by comparing "
+                 "HTML stays in the source database. Labels lists the name of every labels row that "
+                 "message_labels links to the message, whatever its label_type, sorted and separated "
+                 "by commas; a name carried by more than one linked row appears once. Whether a "
+                 "name is a folder or a label is not distinguished. On hc_ios18_7 all 24 labels "
+                 "rows stored label_type 4, each of the 2 messages was linked to 4 labels rows, and "
+                 "2 of those rows shared one name, so each Labels cell lists 3 names. What a "
+                 "label_type value means is not established here. From Me is derived by comparing "
                  "the message sender to the account's "
                  "own addresses. The Attachment column shows the first cached attachment file for the "
                  "message when it is present in the extraction; the Inbox Attachments artifact lists "
@@ -214,7 +219,7 @@ def _format_addresses(raw):
 
 
 def _labels_by_message(file_found):
-    """message local_id -> sorted folder names, from labels + message_labels."""
+    """message local_id -> sorted names of every linked labels row (any label_type)."""
     names = {row[0]: row[1] for row in
              get_sqlite_db_records(file_found, 'SELECT local_id, name FROM labels')}
     out = {}
@@ -236,7 +241,7 @@ def protonMailInboxMessages(context):
         'Body',
         ('Attachment', 'media'),
         'Links',
-        'Folder',
+        'Labels',
         'Conversation ID',
         'Subject',
         'To',

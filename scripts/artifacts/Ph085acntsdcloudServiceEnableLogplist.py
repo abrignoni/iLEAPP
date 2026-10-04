@@ -1,7 +1,7 @@
 __artifacts_v2__ = {
 'Ph085accountsdcloudServiceEnableLogPlist': {
 'name': 'Ph085-accountsd-cloud-Service-Enable-Log-Plist',
-'description': 'Parses the first file matched by */com.apple.accountsd/cloudServiceEnableLog.plist.'
+'description': 'Parses the first file matched by */PhotoData/private/com.apple.accountsd/cloudServiceEnableLog.plist.'
 ' Scott Koenig reports, from the testing described in the linked post (test devices on'
 ' iOS 14.7 and iOS 15), that this plist holds a UTC timestamp for when iCloud Photo'
 ' Library (CPL) and Shared Albums were enabled or disabled, shown as a True or False'
@@ -11,13 +11,13 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2022/05/02/photos-sqlite-query-documentation-notable-artifacts/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-09-12',
+'last_update_date': '2026-10-04',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains accountsd cloudServiceEnableLog.plist',
 'category': 'Photos.sqlite',
 'notes': '',
-'paths': ('*/com.apple.accountsd/cloudServiceEnableLog.plist',),
+'paths': ('*/PhotoData/private/com.apple.accountsd/cloudServiceEnableLog.plist',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "settings",
 'sample_data': {

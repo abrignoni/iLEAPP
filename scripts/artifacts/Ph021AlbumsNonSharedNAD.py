@@ -6,15 +6,14 @@ __artifacts_v2__ = {
 ' columns were assigned by the module author, the source for each mapping is not established here,'
 ' and the stored integer is kept in each label. Values labelled StillTesting have no established'
 ' meaning. Query branches exist for iOS 11 through 26. Parses Non-Shared Album records only, no'
-' asset data being parsed. The query joins the album list link table, whose name depends on the iOS'
-' version, and the shared album invitation table without reporting any column from them, so an'
-' album can appear on more than one identical row, and an empty result can mean the link table name'
-' did not match the database. The record that the ZPARENTFOLDER value of a row points to is shown'
+' asset data being parsed. The query reads ZGENERICALBUM only, joined to itself for the parent'
+' record, so each kind 2 record gives one row. The record that the ZPARENTFOLDER value of a row'
+' points to is shown'
 ' in the ParentzGenAlbum columns. Records of other kinds, including parent folders, get no row of'
 ' their own. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -206,10 +205,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         DateTime(zGenAlbum.ZTRASHEDDATE + 978307200, 'UNIXEPOCH') AS 'zGenAlbum-Trash Date'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_19ALBUMLISTS z19AlbumLists ON z19AlbumLists.Z_19ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z19AlbumLists.Z_3ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZSTARTDATE
         '''
@@ -413,10 +408,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         END AS 'zGenAlbum-Cloud Delete State'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_22ALBUMLISTS z22AlbumLists ON z22AlbumLists.Z_22ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z22AlbumLists.Z_3ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZSTARTDATE
         '''
@@ -633,10 +624,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         END AS 'zGenAlbum-Cloud Delete State'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_25ALBUMLISTS z25AlbumLists ON z25AlbumLists.Z_25ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z25AlbumLists.Z_3ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
@@ -867,10 +854,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         END AS 'zGenAlbum-Cloud Delete State'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_25ALBUMLISTS z25AlbumLists ON z25AlbumLists.Z_25ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z25AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
@@ -1105,10 +1088,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         END AS 'zGenAlbum-Cloud Delete State'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_26ALBUMLISTS z26AlbumLists ON z26AlbumLists.Z_26ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z26AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
@@ -1361,10 +1340,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         END AS 'zGenAlbum-Privacy State'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_27ALBUMLISTS z27AlbumLists ON z27AlbumLists.Z_27ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z27AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
@@ -1621,10 +1596,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         END AS 'zGenAlbum-Privacy State'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_28ALBUMLISTS z28AlbumLists ON z28AlbumLists.Z_28ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z28AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
@@ -1881,10 +1852,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         END AS 'zGenAlbum-Privacy State'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_29ALBUMLISTS z29AlbumLists ON z29AlbumLists.Z_29ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z29AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''
@@ -2141,10 +2108,6 @@ def Ph021NonSharedAlbumRecordswithNADPhDaPsql(context):
         END AS 'zGenAlbum-Privacy State'
         FROM ZGENERICALBUM zGenAlbum
             LEFT JOIN ZGENERICALBUM ParentzGenAlbum ON ParentzGenAlbum.Z_PK = zGenAlbum.ZPARENTFOLDER
-            LEFT JOIN Z_32ALBUMLISTS z32AlbumLists ON z32AlbumLists.Z_32ALBUMS = zGenAlbum.Z_PK
-            LEFT JOIN ZALBUMLIST zAlbumList ON zAlbumList.Z_PK = z32AlbumLists.Z_2ALBUMLISTS
-            LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON zGenAlbum.Z_PK
-             = zCldShareAlbumInvRec.ZALBUM
         WHERE zGenAlbum.ZKIND = 2
         ORDER BY zGenAlbum.ZCREATIONDATE
         '''

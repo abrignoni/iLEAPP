@@ -3,13 +3,17 @@ __artifacts_v2__ = {
 'name': 'Ph31-iCloud SPL with Participants NAD-PhDaPsql',
 'description': "Parses iCloud Shared Photo Library records and invites from the "
 "PhotoData/Photos.sqlite ZSHARE table, limited to rows whose ZSCOPETYPE is 4 or 5. "
-"Queries exist for iOS 14 through 18; iOS 26 and later are not parsed, so an empty "
-"result there is not evidence of absence. Parses iCloud SPL and Participant "
+"Queries exist for iOS 14 through 26; other versions return no rows. On iOS 26 the "
+"iOS 18 query is run with the participant column Z66_SHARE in place of Z61_SHARE; "
+"the two registered iOS 26 images hold no ZSHARE record, so that path has returned "
+"no rows on real data, and the entity labels (55, 56, 63, 64) were written for "
+"earlier versions, so an iOS 26 value is shown as stored after 'Unknown-New-Value!'. "
+"Parses iCloud SPL and Participant "
 "information records only no asset data being parsed. "
 "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -56,7 +60,7 @@ def Ph031iCloudSPLwithParticipantswithNADPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
-    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("26")):
+    if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("16")):
@@ -586,7 +590,7 @@ def Ph031iCloudSPLwithParticipantswithNADPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("26")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -730,6 +734,10 @@ def Ph031iCloudSPLwithParticipantswithNADPhDaPsql(context):
         ORDER BY zShare.ZCREATIONDATE
         '''
 
+        if version.parse(iosversion) >= version.parse("26"):
+            # On iOS 26 the participant's share entity column is Z66_SHARE.
+            query = query.replace('Z61_SHARE', 'Z66_SHARE')
+
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:
             data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -782,6 +790,9 @@ def Ph031iCloudSPLwithParticipantswithNADPhDaPsql(context):
         ('zShare-LastParticipant Asset Trash Notification Date-41', 'datetime'),
         ('zShare-Last Participant Asset Trash Notification View Date-42', 'datetime'),
         'zShare-zENT-43')
+        if version.parse(iosversion) >= version.parse("26"):
+            data_headers = tuple('zSharePartic-z66SHARE-6' if header == 'zSharePartic-z61SHARE-6'
+                                 else header for header in data_headers)
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path

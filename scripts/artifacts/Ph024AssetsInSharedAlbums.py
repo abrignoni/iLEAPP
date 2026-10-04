@@ -2,8 +2,10 @@ __artifacts_v2__ = {
 'Ph024AssetinSharedAlbumsInvitesPhDaPsql': {
 'name': 'Ph024-Assets in Shared Albums & Invites-PhDaPsql',
 'description': "Parses Assets in Shared Albums found in PhotoData/Photos.sqlite (albums of kind "
-"1505). Queries exist for iOS 11 through 18; iOS 26 and later are not parsed, so an "
-"empty result there is not evidence of absence. An asset appears on one row for each "
+"1505). Queries exist for iOS 11 through 26; other versions return no rows. On iOS "
+"26 the iOS 18 query is run with the join tables named Z_33ASSETS and "
+"Z_32ALBUMLISTS; the two registered iOS 26 images hold no kind 1505 album, so that "
+"path has returned no rows on real data. An asset appears on one row for each "
 "combination of album, album list record and invitation record joined to it. Parses "
 "selected asset columns with the shared album, album list and invitation record "
 "columns listed in the report. "
@@ -12,7 +14,7 @@ __artifacts_v2__ = {
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-07-31',
+'last_update_date': '2026-10-04',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': '',
@@ -57,7 +59,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
-    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("26")):
+    if (version.parse(iosversion) <= version.parse("10.3.4")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("11")) & (version.parse(iosversion) < version.parse("12")):
@@ -2623,7 +2625,7 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
-    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("26")):
+    elif (version.parse(iosversion) >= version.parse("18")) & (version.parse(iosversion) < version.parse("27")):
         source_path = get_file_path(files_found,"Photos.sqlite")
         if source_path is None or not os.path.exists(source_path):
             logfunc(f"Photos.sqlite not found for iOS version {iosversion}")
@@ -2921,6 +2923,11 @@ def Ph024AssetinSharedAlbumsInvitesPhDaPsql(context):
         WHERE zGenAlbum.ZKIND = 1505
         ORDER BY zAsset.ZDATECREATED        
         '''
+
+        if version.parse(iosversion) >= version.parse("26"):
+            # On iOS 26 the join tables are Z_33ASSETS (Z_33ALBUMS) and Z_32ALBUMLISTS (Z_32ALBUMS).
+            query = query.replace('Z_30ASSETS', 'Z_33ASSETS').replace('Z_30ALBUMS', 'Z_33ALBUMS')
+            query = query.replace('Z_29ALBUMLISTS', 'Z_32ALBUMLISTS').replace('Z_29ALBUMS', 'Z_32ALBUMS')
 
         db_records = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
         for row in db_records:

@@ -2,15 +2,15 @@ __artifacts_v2__ = {
 'Ph025_1SWYConversationRecordswithNADPhDaPsql': {
 'name': 'Ph025.1-SWY Conversation Records NAD-PhDaPsql',
 'description': "Parses ZGENERICALBUM records of kind 1509 (Shared with You conversation albums) "
-"found in PhotoData/Photos.sqlite. The only asset column reported is the conversation "
-"key of the asset, but the query joins the asset table and the album-asset table, so "
-"an album linked to several assets can appear on more than one row and the row count "
-"is not a count of albums. Queries exist for iOS 15 through 26; other versions return "
-"no rows. "
+"found in PhotoData/Photos.sqlite. One row per album record: the query joins the asset "
+"table and the album-asset table and groups on the album's Z_PK, so an album linked to "
+"several assets is reported once. The only asset column reported is the conversation "
+"key of a linked asset, which equals the album's Z_PK and is blank when no asset links "
+"to the album. Queries exist for iOS 15 through 26; other versions return no rows. "
 "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -40,15 +40,16 @@ __artifacts_v2__ = {
 'Ph025_2SWYConversationRecordswithNADSyndPL': {
 'name': 'Ph025.2-SWY Conversation Records NAD-SyndPL',
 'description': "Parses ZGENERICALBUM records of kind 1509 (Shared with You conversation albums) "
-"found in the Syndication.photoslibrary Photos.sqlite. The only asset column reported "
-"is the conversation key of the asset, but the query joins the asset table and the "
-"album-asset table, so an album linked to several assets can appear on more than one "
-"row and the row count is not a count of albums. Queries exist for iOS 15 through 26; "
-"other versions return no rows. "
+"found in the Syndication.photoslibrary Photos.sqlite. One row per album record: the "
+"query joins the asset table and the album-asset table and groups on the album's Z_PK, "
+"so an album linked to several assets is reported once. The only asset column reported "
+"is the conversation key of a linked asset, which equals the album's Z_PK and is blank "
+"when no asset links to the album. Queries exist for iOS 15 through 26; other versions "
+"return no rows. "
 "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '5.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -58,16 +59,16 @@ __artifacts_v2__ = {
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "message",
 'sample_data': {
-'dexter_ios18': 'iOS 18.3.2 | 56 rows',
-'felix_ios17': 'iOS 17.6.1 | 24 rows',
-'fsfull002_ios17': 'iOS 17.1 | 65 rows',
+'dexter_ios18': 'iOS 18.3.2 | 36 rows',
+'felix_ios17': 'iOS 17.6.1 | 17 rows',
+'fsfull002_ios17': 'iOS 17.1 | 49 rows',
 'hc_ios18_7': 'iOS 18.7.8 | 26 rows',
-'iphone11_ios17': 'iOS 17.3 | 37 rows',
+'iphone11_ios17': 'iOS 17.3 | 34 rows',
 'iphone12_ios18': 'iOS 18.7 | 11 rows',
 'iphone14plus_ios18': 'iOS 18.0 | 5 rows',
-'otto_ios17': 'iOS 17.5.1 | 33 rows',
-'abe_ios16': 'iOS 16.5 | 35 rows',
-'felix23_ios16': 'iOS 16.5 | 14 rows',
+'otto_ios17': 'iOS 17.5.1 | 20 rows',
+'abe_ios16': 'iOS 16.5 | 20 rows',
+'felix23_ios16': 'iOS 16.5 | 8 rows',
 'jess_ios15': 'iOS 15.0.2 | 7 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
 }
@@ -185,6 +186,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -312,6 +314,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -441,6 +444,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -570,6 +574,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -699,6 +704,7 @@ def Ph025_1SWYConversationRecordswithNADPhDaPsql(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -839,6 +845,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -966,6 +973,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -1095,6 +1103,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -1224,6 +1233,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
@@ -1353,6 +1363,7 @@ def Ph025_2SWYConversationRecordswithNADSyndPL(context):
             LEFT JOIN ZCLOUDSHAREDALBUMINVITATIONRECORD zCldShareAlbumInvRec ON SWYConverszGenAlbum.Z_PK
              = zCldShareAlbumInvRec.ZALBUM
         WHERE SWYConverszGenAlbum.ZKIND = 1509
+        GROUP BY SWYConverszGenAlbum.Z_PK
         ORDER BY SWYConverszGenAlbum.ZCREATIONDATE        
         '''
 
