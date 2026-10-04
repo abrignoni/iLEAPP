@@ -2,12 +2,12 @@ __artifacts_v2__ = {
     "augustLocks": {
         "name": "August - Locks",
         "description": "Locks recorded in the August app's network cache, with the lock name, "
-                       "serial number, MAC address, owning house, the key names of the "
+                       "serial number, MAC address, owning house, the entries of the "
                        "service's currentFirmwareVersion object, battery level and "
                        "the lock status the service last returned.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-31",
-        "last_update_date": "2026-08-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "August",
         "notes": "Read from the app's NSURLCache at Library/Caches/com.august.yale.app/nscache, which "
@@ -20,7 +20,10 @@ __artifacts_v2__ = {
                  "equalled the Updated value inside its own body, which the service writes with an "
                  "explicit Z, to the second. Body timestamps are ISO 8601 carrying their own UTC "
                  "offset and are not inferred. Lock Status and Type are reported as stored. "
-                 "Battery Level is the fraction the service returned. This artifact does NOT "
+                 "Battery Level is the fraction the service returned. Firmware Version lists each "
+                 "key of the service's currentFirmwareVersion object with the value stored under "
+                 "it, as key: value; what each key names is not established. On the tested sample "
+                 "that object held two keys on both locks, each with a text value. This artifact does NOT "
                  "recover a door operation log: on the tested sample the app's lock log endpoint "
                  "was present in the cache 25 times and every one of those responses was an "
                  "acknowledgement carrying no event payload, so that cache held no open, close, "
@@ -432,7 +435,8 @@ def augustLocks(context):
                 _text(body.get('macAddress')),
                 _text(status.get('status')) if isinstance(status, dict) else '',
                 _text(body.get('battery')),
-                ', '.join(sorted(firmware)) if isinstance(firmware, dict) else '',
+                ', '.join(f'{key}: {firmware[key]}' for key in sorted(firmware))
+                if isinstance(firmware, dict) else '',
                 _text(body.get('timeZone')),
                 _text(body.get('Type')),
                 _text(body.get('skuNumber')),

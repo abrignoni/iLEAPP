@@ -124,17 +124,23 @@ __artifacts_v2__ = {
                        "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3 - @Johann-PLW",
         "creation_date": "2023-03-06",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
-        "notes": "One row per heart rate sample (data type 5) and metadata value joined to it. On "
+        "notes": "One row per heart rate sample (data type 5). On "
                  "iOS 15 and later a sample that holds a series is reported as one row per value "
-                 "in the series. Rows whose objects.type is 2 are not reported. The four source "
-                 "device values sit under the wrong headers: the Device ID column holds the device "
-                 "name, Device Model holds the manufacturer, Manufacturer holds the hardware "
-                 "identifier and Hardware holds the mapped model name. This was measured on every "
-                 "row with device values on iphone11_ios17 (26,028 rows), hickman_ios13 (3,651), "
-                 "hickman_ios14 (16,287) and cookbook_ios1751 (155).",
+                 "in the series. Rows whose objects.type is 2 are not reported. Heart Rate Context "
+                 "is read only from the sample's metadata value whose key is "
+                 "_HKPrivateHeartRateContext, as named in the store's metadata_keys table; it is "
+                 "blank when the sample has none. On hickman_ios13, hickman_ios14, iphone11_ios17 "
+                 "and cookbook_ios1751 no heart rate sample held more than one such value, and "
+                 "that key was the only metadata key on these samples. A sample holding two such "
+                 "values would be reported twice. The Heart Rate Context labels are not in the "
+                 "cited APOLLO health_heart_rate module and their source is not established here; "
+                 "a value with no label is shown as stored. Device Name, Manufacturer and "
+                 "Hardware are the source_devices name, manufacturer and hardware values of the "
+                 "sample's provenance; Device Model is the name this tool maps the Hardware value "
+                 "to.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "activity",
@@ -1033,7 +1039,9 @@ def health_heart_rate(context):
         healthdb.sources.source_options
     FROM samples
     LEFT JOIN quantity_samples on samples.data_id = quantity_samples.data_id
+    LEFT JOIN metadata_keys ON metadata_keys.key = '_HKPrivateHeartRateContext'
     LEFT JOIN metadata_values ON samples.data_id = metadata_values.object_id
+        AND metadata_values.key_id = metadata_keys.ROWID
     LEFT JOIN objects ON samples.data_id = objects.data_id
     LEFT JOIN data_provenances ON objects.provenance = data_provenances.ROWID
     LEFT JOIN healthdb.sources ON data_provenances.source_id = healthdb.sources.ROWID
@@ -1079,13 +1087,13 @@ def health_heart_rate(context):
     if version.parse(os_version) >= version.parse("15"):
         data_headers = (
             ('Date', 'datetime'), 'Heart Rate (BPM)', 'Heart Rate Context',
-            ('Date added to Health', 'datetime'), 'Device ID', 'Device Model',
-            'Manufacturer', 'Hardware', 'Source', 'Software Version', 'Timezone')
+            ('Date added to Health', 'datetime'), 'Device Name', 'Manufacturer',
+            'Hardware', 'Device Model', 'Source', 'Software Version', 'Timezone')
     else:
         data_headers = (
             ('Start Date', 'datetime'), ('End Date', 'datetime'), 'Heart Rate (BPM)',
             'Heart Rate Context', ('Date added to Health', 'datetime'),
-            'Device ID', 'Device Model', 'Manufacturer', 'Hardware', 'Source',
+            'Device Name', 'Manufacturer', 'Hardware', 'Device Model', 'Source',
             'Software Version', 'Timezone')
 
     return data_headers, data_list, data_source

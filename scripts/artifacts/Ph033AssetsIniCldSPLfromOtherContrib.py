@@ -15,7 +15,7 @@ __artifacts_v2__ = {
 "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -532,3 +532,6 @@ def Ph033iCldSPLAssetsfromothercontribPhDaPsql(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version PhotoData-Photos.sqlite from iOS " + iosversion)
+    return (), [], source_path

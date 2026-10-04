@@ -66,21 +66,28 @@ __artifacts_v2__ = {
     "zangi_contacts": {
         "name": "Zangi Messenger - Contacts",
         "description": "Contacts from the Zangi Messenger database (ZCONTACT with its numbers), "
-                       "with names, number, email, blocked and favourite flags and modification "
-                       "and activity times. The column headed Registration Type holds the name of "
-                       "the number type row that shares the contact's row number (no recorded "
-                       "link between the two is used, so this value is not established as the "
-                       "contact's). The modification time is read as seconds from 2001 and the "
-                       "activity time as Unix time; neither reading has been checked on data "
-                       "here, because the one image recorded in sample_data returned no contact "
-                       "rows.",
+                       "with names, number, email, number type name, blocked and favourite flags "
+                       "and modification and activity times. The modification time is read as "
+                       "seconds from 2001 and the activity time as Unix time; neither reading "
+                       "has been checked on data here, because the one image recorded in "
+                       "sample_data returned no contact rows.",
         "author": "Marco Neumann {kalinko@be-binary.de}",
         "creatin_date": "2026-03-01",
         "creation_date": "2026-03-01",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "",
         "category": "Contacts",
-        "notes": "",
+        "notes": "Number Type holds ZNAME of the ZCONTACTNUMBERTYPE row that the number's own "
+                 "ZCONTACTNUMBER.ZTYPE column points at. The Core Data model shipped with the "
+                 "app on iphone14plus_ios18 (zangidb 7.7, whose version hashes equal the "
+                 "store's) defines that column as the to-one relationship named type from "
+                 "ContactNumber to ContactNumberType, so the value belongs to the number on "
+                 "the row and not to the contact. On that image the user's store held 2 "
+                 "ZCONTACTNUMBER rows, both resolving to the 1 ZCONTACTNUMBERTYPE row, whose "
+                 "ZNAME is empty, and no ZCONTACT row, so the artifact returned no rows and "
+                 "the column was exercised only on a constructed copy of that store. What "
+                 "the type names mean is not established. Where a database has no "
+                 "ZCONTACTNUMBER.ZTYPE column the Number Type column is left blank.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/zangidb*.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -412,14 +419,14 @@ def zangi_contacts(context):
                 zc.ZDISPLAYNAME [Display Name],
                 zcn.ZFULLNUMBER [Contact Number],
                 zcn.ZEMAIL [Contact Mail],
-                zcnt.ZNAME [Registration Number Type],
+                {number_type} [Number Type],
                 zc.ZIDENTIFIRE [Contact ID],
                 zc.ZISBLOCKED [Blocked?],
                 zcn.ZISFAVORITE [Favorite?]
                 FROM ZCONTACT zc
             LEFT JOIN Z_4CONTACTNUMBER z4cn ON zc.Z_PK = z4cn.Z_4CONTACT
             LEFT JOIN ZCONTACTNUMBER zcn ON zcn.Z_PK = z4cn.Z_5CONTACTNUMBER
-            LEFT JOIN ZCONTACTNUMBERTYPE zcnt ON zcnt.Z_PK = zc.Z_PK
+            {type_join}
             '''
 
     source_files = set()
@@ -430,7 +437,7 @@ def zangi_contacts(context):
                         'Display Name',
                         'Contact Number',
                         'Contact Email',
-                        'Registration Type',
+                        'Number Type',
                         'Contact ID',
                         'Is Blocked?',
                         'Is Favorite?',
@@ -442,7 +449,19 @@ def zangi_contacts(context):
         source_files.add(main_db)
         source_db = context.get_relative_path(main_db)
 
-        db_records = get_sqlite_db_records(main_db, query)
+        # The number type is linked from the number row (ZCONTACTNUMBER.ZTYPE holds the
+        # ZCONTACTNUMBERTYPE row key). Without that column no type is reported.
+        number_columns = {r['name'].upper()
+                          for r in get_sqlite_db_records(
+                              main_db, "PRAGMA table_info('ZCONTACTNUMBER')")}
+        if 'ZTYPE' in number_columns and does_table_exist_in_db(main_db, 'ZCONTACTNUMBERTYPE'):
+            db_query = query.format(
+                number_type='zcnt.ZNAME',
+                type_join='LEFT JOIN ZCONTACTNUMBERTYPE zcnt ON zcnt.Z_PK = zcn.ZTYPE')
+        else:
+            db_query = query.format(number_type='NULL', type_join='')
+
+        db_records = get_sqlite_db_records(main_db, db_query)
 
         for row in db_records:
             mod_timestamp = convert_cocoa_core_data_ts_to_utc(row[0])

@@ -12,7 +12,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -52,7 +52,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
 ' the GenerativePlayground library, which this artifact reads on iOS 18 through 26 only)',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -396,6 +396,9 @@ def Ph020_1AlbumRecordswithNADPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph020_2AlbumRecordswithNADSyndPL(context):
     files_found = context.get_files_found()
@@ -681,6 +684,9 @@ def Ph020_2AlbumRecordswithNADSyndPL(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for Syndication.photoslibrary iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph020_3AlbumRecordswithNADGenPlayPsql(context):
     files_found = context.get_files_found()
@@ -765,3 +771,6 @@ def Ph020_3AlbumRecordswithNADGenPlayPsql(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for GenPlay-Photos.sqlite iOS " + iosversion)
+    return (), [], source_path

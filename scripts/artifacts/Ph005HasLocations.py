@@ -2,22 +2,30 @@ __artifacts_v2__ = {
 'Ph005_1AssetshavevalidlocationsPhDaPsql': {
 'name': 'Ph005.1-Assets have valid locations-PhDaPsql',
 'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose ZASSET latitude or'
-' ZEXTENDEDATTRIBUTES latitude is greater than 0 (iOS 11 to 13: ZGENERICASSET latitude only), on'
-' iOS 11 through 26. An asset with a stored latitude of 0 or below is not listed, which includes'
-' southern hemisphere coordinates. The results contain one row per asset (ZASSET table, or'
+' ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0 (iOS 11 to 13: ZGENERICASSET'
+' latitude only), on iOS 11 through 26. The results contain one row per asset (ZASSET table, or'
 " ZGENERICASSET on iOS 11 to 13). Each row's shifted and reverse location plists are exported to"
 ' the report folder and shown decoded.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': 'On abe_ios16 and dexter_ios18 the only assets left out were those storing -180.0 (79 of 1,918'
 ' and 108 of 1,167). Neither library held a latitude of 0 or a negative latitude other than'
-' -180.0. The exported plist files are named from the asset file name and opened in append mode.'
+' -180.0.'
+' The filter was latitude greater than 0 until 2026-10-04 and left out southern hemisphere'
+' coordinates. It now leaves out only the stored value -180.0. Measured on the Photos.sqlite'
+' libraries of 20 registered iOS zip extractions (iOS 12.4 to 26.5.2): every asset latitude was'
+' either -180.0 or above 0, every ZEXTENDEDATTRIBUTES latitude was empty or above 0, and both'
+' filters returned the same rows on each. No tested library held a latitude of 0 or a negative'
+' latitude other than -180.0, so the listing of a southern hemisphere asset was shown on a'
+' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
+' stored latitude is not listed.'
+' The exported plist files are named from the asset file name and opened in append mode.'
 ' Two assets with the same file name write to one file. What the decode then returns for the'
 " second asset was not tested. Value labels in this report are the module author's working"
 ' interpretations from testing. The module cites no source for them. Each label carries the stored'
@@ -51,21 +59,29 @@ __artifacts_v2__ = {
 'Ph005_2AssetshavevalidlocationsSyndPL': {
 'name': 'Ph005.2-Assets have valid locations-SyndPL',
 'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets'
-' whose ZASSET latitude or ZEXTENDEDATTRIBUTES latitude is greater than 0 (iOS 11 to 13:'
-' ZGENERICASSET latitude only), on iOS 11 through 26. An asset with a stored latitude of 0 or'
-' below is not listed, which includes southern hemisphere coordinates. The results for this'
+' whose ZASSET latitude or ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0 (iOS 11'
+' to 13: ZGENERICASSET latitude only), on iOS 11 through 26. The results for this'
 ' script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': 'On abe_ios16 and dexter_ios18 the only Syndication assets left out were those storing -180.0 (30'
 ' of 39 and 21 of 34). Neither library held a latitude of 0 or a negative latitude other than'
-" -180.0. Each row's shifted and reverse location plists are exported to the report folder and"
+" -180.0."
+' The filter was latitude greater than 0 until 2026-10-04 and left out southern hemisphere'
+' coordinates. It now leaves out only the stored value -180.0. Measured on the Photos.sqlite'
+' libraries of 20 registered iOS zip extractions (iOS 12.4 to 26.5.2): every asset latitude was'
+' either -180.0 or above 0, every ZEXTENDEDATTRIBUTES latitude was empty or above 0, and both'
+' filters returned the same rows on each. No tested library held a latitude of 0 or a negative'
+' latitude other than -180.0, so the listing of a southern hemisphere asset was shown on a'
+' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
+' stored latitude is not listed.'
+" Each row's shifted and reverse location plists are exported to the report folder and"
 ' shown decoded. The exported plist files are named from the asset file name and opened in append'
 ' mode. Two assets with the same file name write to one file. What the decode then returns for the'
 " second asset was not tested. Value labels in this report are the module author's working"
@@ -97,19 +113,27 @@ __artifacts_v2__ = {
 'Ph005_3AssetshavevalidlocationsGenPlayPsql': {
 'name': 'Ph005.3-Assets have valid locations-GenPlayPsql',
 'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose ZASSET latitude or'
-' ZEXTENDEDATTRIBUTES latitude is greater than 0, on iOS 18 through 26. An asset with a stored'
-' latitude of 0 or below is not listed, which includes southern hemisphere coordinates. The'
+' ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0, on iOS 18 through 26. The'
 ' results for this script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': 'On dexter_ios18 all 27 assets of this library stored latitude -180.0, so the artifact returned 0'
-" rows. Each row's shifted and reverse location plists are exported to the report folder and shown"
+" rows."
+' The filter was latitude greater than 0 until 2026-10-04 and left out southern hemisphere'
+' coordinates. It now leaves out only the stored value -180.0. Measured on the Photos.sqlite'
+' libraries of 20 registered iOS zip extractions (iOS 12.4 to 26.5.2): every asset latitude was'
+' either -180.0 or above 0, every ZEXTENDEDATTRIBUTES latitude was empty or above 0, and both'
+' filters returned the same rows on each. No tested library held a latitude of 0 or a negative'
+' latitude other than -180.0, so the listing of a southern hemisphere asset was shown on a'
+' constructed copy only. A source for what -180.0 marks was not found. An asset with no'
+' stored latitude is not listed.'
+" Each row's shifted and reverse location plists are exported to the report folder and shown"
 ' decoded. The exported plist files are named from the asset file name and opened in append mode.'
 ' Two assets with the same file name write to one file. What the decode then returns for the'
 " second asset was not tested. Value labels in this report are the module author's working"
@@ -202,7 +226,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
-        WHERE zAsset.ZLATITUDE > 0
+        WHERE zAsset.ZLATITUDE != -180.0
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -345,7 +369,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE zAsset.ZLATITUDE > 0
+        WHERE zAsset.ZLATITUDE != -180.0
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -512,8 +536,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -685,8 +709,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid
         '''
 
@@ -860,8 +884,8 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1014,7 +1038,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
             LEFT JOIN ZCLOUDMASTER zCldMast ON zAsset.ZMASTER = zCldMast.Z_PK
-        WHERE zAsset.ZLATITUDE > 0
+        WHERE zAsset.ZLATITUDE != -180.0
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1157,7 +1181,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE zAsset.ZLATITUDE > 0
+        WHERE zAsset.ZLATITUDE != -180.0
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1324,8 +1348,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1497,8 +1521,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED, zAsset.rowid, zAddAssetAttr.rowid, zExtAttr.rowid, zCldMast.rowid, AAAzCldMastMedData.rowid, CMzCldMastMedData.rowid
         '''
 
@@ -1672,8 +1696,8 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 
@@ -1865,8 +1889,8 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
              AAAzCldMastMedData.Z_PK = zAddAssetAttr.ZMEDIAMETADATA
             LEFT JOIN ZCLOUDMASTERMEDIAMETADATA CMzCldMastMedData ON
              CMzCldMastMedData.Z_PK = zCldMast.ZMEDIAMETADATA
-        WHERE (zAsset.ZLATITUDE > 0) OR
-          (zExtAttr.ZLATITUDE > 0)
+        WHERE (zAsset.ZLATITUDE != -180.0) OR
+          (zExtAttr.ZLATITUDE != -180.0)
         ORDER BY zAsset.ZDATECREATED
         '''
 

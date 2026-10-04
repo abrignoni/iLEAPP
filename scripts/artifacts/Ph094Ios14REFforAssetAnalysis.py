@@ -12,7 +12,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
 ' page. https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-07-27',
+'last_update_date': '2026-10-04',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
@@ -581,7 +581,7 @@ def Ph094_1iOS14RefforAssetAnalysisPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -4605,6 +4605,9 @@ def Ph094_1iOS14RefforAssetAnalysisPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph094_2iOS14RefforAssetAnalysisSyndPL(context):
     files_found = context.get_files_found()
@@ -5103,7 +5106,7 @@ def Ph094_2iOS14RefforAssetAnalysisSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -9126,3 +9129,6 @@ def Ph094_2iOS14RefforAssetAnalysisSyndPL(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
+    return (), [], source_path

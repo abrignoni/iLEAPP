@@ -1,28 +1,27 @@
 __artifacts_v2__ = {
     "Ph098_1iOS18RefforAssetAnalysisPhDaPsql": {
         "name": "Ph098.1-iOS18_Ref_for_Asset_Analysis-PhDaPsql",
-        "description": "Reads PhotoData/Photos.sqlite on iOS 18 and joins each ZASSET record to its related "
-            "tables. One asset can produce several rows, one for each combination of related "
-            "records (internal resources, albums, faces, share participants, memories and others). "
-            "When the detected iOS version is not 18 the artifact returns no rows. The table has "
-            "1,160 columns. The TSV export can be opened in a spreadsheet or table viewer for "
-            "searching and filtering. Value labels come from research by Scott Koenig, see the "
-            "reference at the end. The reference calls the iOS 18 queries preliminary. Labels marked "
-            "STILLTESTING, StillTesting, Still_Testing or Still-Testing (263 of the 917 value "
-            "labels in this query) are not established. Labels that name an act by a person (for "
-            "example User_Deleted) are the researcher's reading of the stored value and are not "
-            "established here. Many labels do not start with the stored number, and one shows a "
-            "different number: the label for ZINTERNALRESOURCE.ZRECIPEID 327687 (column "
-            "zIntResou-Recipe ID) prints 627687-WallpaperComputeResource-627687; the stored value "
-            "is 327687. On dexter_ios18 109 of 31,445 rows carry that label, from 10 stored "
-            "ZINTERNALRESOURCE rows. On hc_ios18_7, iphone12_ios18 and iphone14plus_ios18 no row "
-            "does. None of those four stores held a ZRECIPEID of 627687. Reference: Scott Koenig, "
-            "'iLEAPP Parsers & Photos.sqlite Queries', "
+        "description": "Reads PhotoData/Photos.sqlite on iOS 18 and joins each ZASSET record to its related tables. "
+            "One asset can produce several rows, one for each combination of related records (internal "
+            "resources, albums, faces, share participants, memories and others). When the detected iOS "
+            "version is not 18 the artifact returns no rows. The table has 1,160 columns. The TSV export "
+            "can be opened in a spreadsheet or table viewer for searching and filtering. Value labels come "
+            "from research by Scott Koenig, see the reference at the end. The reference calls the iOS 18 "
+            "queries preliminary. Labels marked STILLTESTING, StillTesting, Still_Testing or Still-Testing "
+            "(263 of the 917 value labels in this query) are not established. Labels that name an act by a "
+            "person (for example User_Deleted) are the researcher's reading of the stored value and are not "
+            "established here. Many labels do not start with the stored number. The label for "
+            "ZINTERNALRESOURCE.ZRECIPEID 327687 (column zIntResou-Recipe ID) is "
+            "327687-WallpaperComputeResource-327687. Before 2026-10-04 this module printed that label with "
+            "the number 627687, which is not the stored value. On dexter_ios18 109 of 31,445 rows carry "
+            "that label, from 10 stored ZINTERNALRESOURCE rows. On hc_ios18_7, iphone12_ios18 and "
+            "iphone14plus_ios18 no row does. None of those four stores held a ZRECIPEID of 627687. "
+            "Reference: Scott Koenig, 'iLEAPP Parsers & Photos.sqlite Queries', "
             "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-01-05",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains PhotoData-Photos.sqlite",
         "category": "Photos.sqlite",
         "notes": "",
@@ -49,29 +48,28 @@ __artifacts_v2__ = {
     },
     "Ph098_2iOS18RefforAssetAnalysisSyndPL": {
         "name": "Ph098.2-iOS18_Ref_for_Asset_Analysis-SyndPL",
-        "description": "Reads Syndication.photoslibrary/database/Photos.sqlite on iOS 18 and joins each ZASSET "
-            "record to its related tables. One asset can produce several rows, one for each "
-            "combination of related records (internal resources, albums, faces, share participants, "
-            "memories and others). When the detected iOS version is not 18 the artifact returns no "
-            "rows. The table has 1,160 columns. The TSV export can be opened in a spreadsheet or "
-            "table viewer for searching and filtering. Value labels come from research by Scott "
-            "Koenig, see the reference at the end. The reference calls the iOS 18 queries preliminary. "
-            "Labels marked STILLTESTING, StillTesting, Still_Testing or Still-Testing (263 of the "
-            "921 value labels in this query) are not established. Labels that name an act by a "
-            "person (for example User_Deleted) are the researcher's reading of the stored value and "
-            "are not established here. Many labels do not start with the stored number, and one "
-            "shows a different number: the label for ZINTERNALRESOURCE.ZRECIPEID 327687 (column "
-            "zIntResou-Recipe ID) prints 627687-WallpaperComputeResource-627687; the stored value "
-            "is 327687. No row of the Syndication photo library held that value on dexter_ios18, "
-            "hc_ios18_7, iphone12_ios18 or iphone14plus_ios18, so this artifact did not show the "
-            "label on those images. In the main Photos.sqlite of dexter_ios18, 10 ZINTERNALRESOURCE "
+        "description": "Reads Syndication.photoslibrary/database/Photos.sqlite on iOS 18 and joins each ZASSET record to "
+            "its related tables. One asset can produce several rows, one for each combination of related "
+            "records (internal resources, albums, faces, share participants, memories and others). When the "
+            "detected iOS version is not 18 the artifact returns no rows. The table has 1,160 columns. The TSV "
+            "export can be opened in a spreadsheet or table viewer for searching and filtering. Value labels "
+            "come from research by Scott Koenig, see the reference at the end. The reference calls the iOS 18 "
+            "queries preliminary. Labels marked STILLTESTING, StillTesting, Still_Testing or Still-Testing "
+            "(263 of the 921 value labels in this query) are not established. Labels that name an act by a "
+            "person (for example User_Deleted) are the researcher's reading of the stored value and are not "
+            "established here. Many labels do not start with the stored number. The label for "
+            "ZINTERNALRESOURCE.ZRECIPEID 327687 (column zIntResou-Recipe ID) is "
+            "327687-WallpaperComputeResource-327687. Before 2026-10-04 this module printed that label with the "
+            "number 627687, which is not the stored value. No row of the Syndication photo library held that "
+            "value on dexter_ios18, hc_ios18_7, iphone12_ios18 or iphone14plus_ios18, so this artifact did not "
+            "show the label on those images. In the main Photos.sqlite of dexter_ios18, 10 ZINTERNALRESOURCE "
             "rows store 327687 and none stores 627687. Reference: Scott Koenig, 'iLEAPP Parsers & "
             "Photos.sqlite Queries', "
             "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-01-05",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite",
         "category": "Photos.sqlite",
         "notes": "",
@@ -97,32 +95,26 @@ __artifacts_v2__ = {
         "name": "Ph098.3-iOS18_Ref_for_Asset_Analysis-GenPlayPsql",
         "description": "Reads the Photos.sqlite database of the com.apple.GenerativePlayground photo library "
             "(Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database) "
-            "on iOS 18 and joins each ZASSET record to its related tables. One asset can produce "
-            "several rows, one for each combination of related records (internal resources, albums, "
-            "faces, share participants, memories and others). When the detected iOS version is not "
-            "18 the artifact returns no rows. The table has 1,160 columns. The TSV export can be "
-            "opened in a spreadsheet or table viewer for searching and filtering. Value labels come "
-            "from research by Scott Koenig, see the reference at the end. The reference calls the iOS 18 "
-            "queries preliminary. Labels marked STILLTESTING, StillTesting, Still_Testing or "
-            "Still-Testing (263 of the 917 value labels in this query) are not established. Labels "
-            "that name an act by a person (for example User_Deleted) are the researcher's reading "
-            "of the stored value and are not established here. Many labels do not start with the "
-            "stored number, and one shows a different number: the label for "
-            "ZINTERNALRESOURCE.ZRECIPEID 327687 (column zIntResou-Recipe ID) prints "
-            "627687-WallpaperComputeResource-627687; the stored value is 327687. This artifact "
-            "produced rows on dexter_ios18 only, of dexter_ios18, hc_ios18_7, iphone12_ios18 and "
-            "iphone14plus_ios18, and no row of that library stored 327687, so this artifact did not "
-            "show the label on those images. In the main Photos.sqlite of dexter_ios18, 10 "
-            "ZINTERNALRESOURCE rows store 327687 and none stores 627687. The query is the same one "
-            "this module runs against PhotoData/Photos.sqlite. The reference names "
-            "PhotoData/Photos.sqlite and Syndication.photoslibrary for this parser and does not "
-            "mention the Generative Playground library. Reference: Scott Koenig, 'iLEAPP Parsers & "
-            "Photos.sqlite Queries', "
+            "on iOS 18 and joins each ZASSET record to its related tables. One asset can produce several rows, one for each "
+            "combination of related records (internal resources, albums, faces, share participants, memories and others). When the "
+            "detected iOS version is not 18 the artifact returns no rows. The table has 1,160 columns. The TSV export can be opened in "
+            "a spreadsheet or table viewer for searching and filtering. Value labels come from research by Scott Koenig, see the "
+            "reference at the end. The reference calls the iOS 18 queries preliminary. Labels marked STILLTESTING, StillTesting, "
+            "Still_Testing or Still-Testing (263 of the 917 value labels in this query) are not established. Labels that name an act "
+            "by a person (for example User_Deleted) are the researcher's reading of the stored value and are not established here. "
+            "Many labels do not start with the stored number. The label for ZINTERNALRESOURCE.ZRECIPEID 327687 (column "
+            "zIntResou-Recipe ID) is 327687-WallpaperComputeResource-327687. Before 2026-10-04 this module printed that label with the "
+            "number 627687, which is not the stored value. This artifact produced rows on dexter_ios18 only, of dexter_ios18, "
+            "hc_ios18_7, iphone12_ios18 and iphone14plus_ios18, and no row of that library stored 327687, so this artifact did not "
+            "show the label on those images. In the main Photos.sqlite of dexter_ios18, 10 ZINTERNALRESOURCE rows store 327687 and "
+            "none stores 627687. The query is the same one this module runs against PhotoData/Photos.sqlite. The reference names "
+            "PhotoData/Photos.sqlite and Syndication.photoslibrary for this parser and does not mention the Generative Playground "
+            "library. Reference: Scott Koenig, 'iLEAPP Parsers & Photos.sqlite Queries', "
             "https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
         "author": "Scott Koenig",
         "creation_date": "2026-05-28",
         "created_date": "2025-02-05",
-        "last_update_date": "2026-08-06",
+        "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains Library GenPlay Photos.sqlite",
         "category": "Photos.sqlite",
         "notes": "",
@@ -753,7 +745,7 @@ def Ph098_1iOS18RefforAssetAnalysisPhDaPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -4200,6 +4192,9 @@ def Ph098_1iOS18RefforAssetAnalysisPhDaPsql(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for PhotoData-Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph098_2iOS18RefforAssetAnalysisSyndPL(context):
     files_found = context.get_files_found()
@@ -4813,7 +4808,7 @@ def Ph098_2iOS18RefforAssetAnalysisSyndPL(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -8264,6 +8259,9 @@ def Ph098_2iOS18RefforAssetAnalysisSyndPL(context):
 
         return data_headers, data_list, source_path
 
+    logfunc("Unsupported version for Syndication.photoslibrary for iOS " + iosversion)
+    return (), [], source_path
+
 @artifact_processor
 def Ph098_3iOS18RefforAssetAnalysisGenPlayPsql(context):
     files_found = context.get_files_found()
@@ -8878,7 +8876,7 @@ def Ph098_3iOS18RefforAssetAnalysisGenPlayPsql(context):
 			WHEN 131277 THEN '131277-No-IR-Asset_LivePhoto-iCloud_Sync_Asset-131277'
 			WHEN 131475 THEN '131475-medium-hdr-MOV-131475'
 			WHEN 327683 THEN '327683-JPG-Thumb_for_3rdParty-StillTesting-327683'
-			WHEN 327687 THEN '627687-WallpaperComputeResource-627687'
+			WHEN 327687 THEN '327687-WallpaperComputeResource-327687'
 			ELSE 'Unknown-New-Value!: ' || zIntResou.ZRECIPEID || ''
 		END AS 'zIntResou-Recipe ID',
 		CASE zIntResou.ZCLOUDLASTPREFETCHDATE
@@ -12324,3 +12322,6 @@ def Ph098_3iOS18RefforAssetAnalysisGenPlayPsql(context):
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
         return data_headers, data_list, source_path
+
+    logfunc("Unsupported version for GenPlay-Photos.sqlite for iOS " + iosversion)
+    return (), [], source_path

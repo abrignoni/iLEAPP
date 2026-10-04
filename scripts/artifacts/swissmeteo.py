@@ -4,19 +4,19 @@ __artifacts_v2__ = {
         "description": "Rows of the plz_interaction table of favorites_prediction_db.sqlite, with the place name looked up in localdata.sqlite",
         "author": "jonah.osterwalder@vd.ch",
         "creation_date": "2026-03-11",
-        "last_update_date": "2026-08-04",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Meteo",
         "notes": "What the app records as an interaction is not established. Interaction "
-                 "Timestamp is the timestamp column read as Unix milliseconds. When the row's "
-                 "postal code has a row in the plz table of localdata.sqlite, Meteo of the city "
-                 "holds that row's primary_name, Meteo of the city (lat/lon) holds coordinates "
-                 "this module converts from the Swiss LV03 grid values in localdata.sqlite, and "
-                 "Coordinates (lat/lon) holds the row's own lat and lon. When it has none, or "
-                 "localdata.sqlite is absent, the stored values are reported as they are: the "
-                 "postal code under Meteo of the city, lat under Meteo of the city (lat/lon) and "
-                 "lon under Coordinates (lat/lon). No run against a registered image is recorded "
-                 "for this artifact.",
+                 "Timestamp is the timestamp column read as Unix milliseconds. Postal Code (plz) "
+                 "is the row's plz value as stored. Coordinates (lat/lon) holds the row's own lat "
+                 "and lon, and is blank when either is empty or 0. When the row's postal code has "
+                 "a row in the plz table of localdata.sqlite, Meteo of the city holds that row's "
+                 "primary_name and Meteo of the city (lat/lon) holds coordinates this module "
+                 "converts from the Swiss LV03 grid values in localdata.sqlite. When it has none, "
+                 "or localdata.sqlite is absent, those two columns are blank. None of the 22 "
+                 "registered iOS zip extractions listed on 2026-10-04 held this app's databases, "
+                 "so the artifact was exercised on a constructed database only.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/databases/favorites_prediction_db.sqlite*', '*/mobile/Containers/Data/Application/*/Documents/localdata.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "flag"
@@ -44,7 +44,7 @@ from scripts.ilapfuncs import artifact_processor, get_file_path, \
 @artifact_processor
 def plz_interaction(context):
     source_path = get_file_path(context.get_files_found(), "favorites_prediction_db.sqlite")
-    data_headers = (('Interaction Timestamp','datetime'), "Meteo of the city", "Meteo of the city (lat/lon)", "Coordinates (lat/lon)")
+    data_headers = (('Interaction Timestamp','datetime'), "Postal Code (plz)", "Meteo of the city", "Meteo of the city (lat/lon)", "Coordinates (lat/lon)")
     data_list = []
     cursor = None
     prediction_db = ""
@@ -77,16 +77,17 @@ def plz_interaction(context):
 
         for record in db_records:
             local_data = get_location_infos(cursor, record[1]) if cursor else []
+            if not (record[2] and record[3]):
+                cons_link = ''
+            else:
+                cons_link = coordinate_to_text(record[2], record[3])
             # test for 1111 postal code case
             if len(local_data) > 0:
                 meteo_link = lv03_to_text(local_data[0][1], local_data[0][2])
-                if not (record[2] and record[3]):
-                    cons_link = ''
-                else:
-                    cons_link = coordinate_to_text(record[2], record[3])
-                data_list.append((record[0], local_data[0][4], meteo_link, cons_link))
+                data_list.append((record[0], record[1], local_data[0][4], meteo_link, cons_link))
             else:
-                data_list.append(record)
+                # no plz row to resolve the postal code: the two looked-up columns stay blank
+                data_list.append((record[0], record[1], '', '', cons_link))
     else:
         logfunc('No Swissmeteo')
 

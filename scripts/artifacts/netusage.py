@@ -34,49 +34,52 @@ __artifacts_v2__ = {
     },
     "netusage_connections": {
         "name": "Connections",
-        "description": "Parses connections from netusage.sqlite",
+        "description": "Network attachments and their route performance counters from netusage.sqlite",
         "author": "@stark4n6, @snoop168",
         "creation_date": "2023-02-13",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Network Usage",
-        "notes": "Until the query is corrected: the byte, packet and connection columns are joined "
-                 "to each network by row number (Z_PK of both tables), not by "
-                 "ZLIVEROUTEPERF.ZHASNETWORKATTACHMENT, the relationship the reference below uses. "
-                 "Measured on abe_ios16, the row-number join filled those columns on 189 of 3,160 "
-                 "rows and none of the 189 was a ZLIVEROUTEPERF row linked to that network; 2,971 "
-                 "rows had the columns empty, and 3,240 of the 3,429 ZLIVEROUTEPERF rows were not "
-                 "reported. On dexter_ios18 it filled them on 300 of 1,457 rows, none of them the "
-                 "linked row; 1,157 were empty and 1,234 of 1,534 ZLIVEROUTEPERF rows were not "
-                 "reported. Do not read the byte, packet or connection columns as belonging to the "
-                 "network on the same row. By ZHASNETWORKATTACHMENT every network on both images "
-                 "had one to three ZLIVEROUTEPERF rows. Network Type is mapped from "
+        "notes": "One row per ZLIVEROUTEPERF row linked to a network. The byte, packet and connection "
+                 "columns are joined to their network through ZLIVEROUTEPERF.ZHASNETWORKATTACHMENT = "
+                 "ZNETWORKATTACHMENT.Z_PK, the join the reference below uses. The Core Data model "
+                 "cached in the dexter_ios18 store (Z_MODELCACHE) defines hasNetworkAttachment as a "
+                 "to-one relationship from LiveRoutePerf to NetworkAttachment. A network with more "
+                 "than one linked ZLIVEROUTEPERF row is listed once per linked row, with the network "
+                 "columns repeated; a network with none would be listed once with those columns empty. "
+                 "Measured on the 14 listed images that hold the tables: all 9,266 ZLIVEROUTEPERF "
+                 "rows carried a link, each link named an existing network, and each of the 8,722 "
+                 "networks had one to three linked rows (531 had more than one). Before 2026-10-04 "
+                 "this artifact paired the two tables by their own row numbers (Z_PK of both), which "
+                 "filled the counters on 3,234 of 8,722 rows on those images, 152 of them from a "
+                 "linked row. Route Performance Timestamp is ZLIVEROUTEPERF.ZTIMESTAMP read as seconds "
+                 "from 2001-01-01 UTC; what it marks is not sourced. Network Type is mapped from "
                  "ZNETWORKATTACHMENT.ZKIND (1 Wifi, 2 Cellular); the reference maps "
-                 "ZLIVEROUTEPERF.ZKIND, and the two held the same value on every linked pair on "
-                 "both images (3,429 and 1,534). The two timestamp columns are "
-                 "ZNETWORKATTACHMENT.ZFIRSTTIMESTAMP and ZTIMESTAMP; the reference labels them "
-                 "first network attachment and network attachment timestamp. Reference: Sarah "
-                 "Edwards, APOLLO netusage_zliverouteperf module, "
+                 "ZLIVEROUTEPERF.ZKIND, and the two held the same value on all 9,266 linked pairs. "
+                 "The first two timestamp columns are ZNETWORKATTACHMENT.ZFIRSTTIMESTAMP and "
+                 "ZTIMESTAMP; the reference labels them first network attachment and network "
+                 "attachment timestamp. Only the first netusage.sqlite that holds both tables is "
+                 "read. Reference: Sarah Edwards, APOLLO netusage_zliverouteperf module, "
                  "https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/netusage_zliverouteperf.txt",
         "paths": ('*/netusage.sqlite*'),
         "output_types": "standard",
         "artifact_icon": "network",
         "sample_data": {
-            "ctf2020_ios12": "iOS 12.4 | 518 rows",
-            "dexter_ios18": "iOS 18.3.2 | 1457 rows",
-            "felix_ios17": "iOS 17.6.1 | 974 rows",
-            "fsfull002_ios17": "iOS 17.1 | 4 rows",
-            "hc_ios18_7": "iOS 18.7.8 | 430 rows",
-            "iphone11_ios17": "iOS 17.3 | 1232 rows",
+            "ctf2020_ios12": "iOS 12.4 | 522 rows",
+            "dexter_ios18": "iOS 18.3.2 | 1534 rows",
+            "felix_ios17": "iOS 17.6.1 | 980 rows",
+            "fsfull002_ios17": "iOS 17.1 | 5 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 431 rows",
+            "iphone11_ios17": "iOS 17.3 | 1334 rows",
             "iphone12_ios18": "iOS 18.7 | 287 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 16 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 20 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
-            "abe_ios16": "iOS 16.5 | 3160 rows",
-            "felix23_ios16": "iOS 16.5 | 313 rows",
-            "hickman_ios13": "iOS 13.3.1 | 44 rows",
+            "abe_ios16": "iOS 16.5 | 3429 rows",
+            "felix23_ios16": "iOS 16.5 | 366 rows",
+            "hickman_ios13": "iOS 13.3.1 | 52 rows",
             "hickman_ios14": "iOS 14.3 | 49 rows",
-            "jess_ios15": "iOS 15.0.2 | 222 rows",
-            "magnet_ios16": "iOS 16.1.1 | 16 rows",
+            "jess_ios15": "iOS 15.0.2 | 240 rows",
+            "magnet_ios16": "iOS 16.1.1 | 17 rows",
         },
     }
 }
@@ -144,7 +147,8 @@ def netusage_appdata(context):
 
 @artifact_processor
 def netusage_connections(context):
-    data_headers = (('First Connection Timestamp', 'datetime'), ('Last Connection Timestamp', 'datetime'), 'Network Name', 'Network Identifier',
+    data_headers = (('First Connection Timestamp', 'datetime'), ('Last Connection Timestamp', 'datetime'),
+                    ('Route Performance Timestamp', 'datetime'), 'Network Name', 'Network Identifier',
                     'Network Type', 'Bytes In', 'Bytes Out', 'Connection Attempts', 'Connection Successes',
                     'Packets In',
                     'Packets Out')
@@ -167,28 +171,30 @@ def netusage_connections(context):
                 ZLIVEROUTEPERF.ZCONNATTEMPTS,
                 ZLIVEROUTEPERF.ZCONNSUCCESSES,
                 ZLIVEROUTEPERF.ZPACKETSIN,
-                ZLIVEROUTEPERF.ZPACKETSOUT
+                ZLIVEROUTEPERF.ZPACKETSOUT,
+                ZLIVEROUTEPERF.ZTIMESTAMP
                 from ZNETWORKATTACHMENT
-                left join ZLIVEROUTEPERF on ZLIVEROUTEPERF.Z_PK = ZNETWORKATTACHMENT.Z_PK
+                left join ZLIVEROUTEPERF on ZLIVEROUTEPERF.ZHASNETWORKATTACHMENT = ZNETWORKATTACHMENT.Z_PK
                 ''')
 
         for row in all_rows:
             first_connected = convert_cocoa_core_data_ts_to_utc(row[0])
             last_connected = convert_cocoa_core_data_ts_to_utc(row[1])
+            perf_timestamp = convert_cocoa_core_data_ts_to_utc(row[10])
 
             if row[2] is None:
-                data_list.append((first_connected, last_connected, '', '', row[3], row[4], row[5], row[6], row[7],
+                data_list.append((first_connected, last_connected, perf_timestamp, '', '', row[3], row[4], row[5], row[6], row[7],
                                   row[8], row[9]))
             else:
                 if '-' not in row[2]:
-                    data_list.append((first_connected, last_connected, row[2], '', row[3], row[4], row[5], row[6],
+                    data_list.append((first_connected, last_connected, perf_timestamp, row[2], '', row[3], row[4], row[5], row[6],
                                       row[7],row[8],row[9]))
                 else:
                     id_split = row[2].rsplit('-',1)
                     netname = id_split[0]
                     id_mac = pad_mac_adr(id_split[1])
 
-                    data_list.append((first_connected, last_connected , netname, id_mac, row[3], row[4], row[5], row[6],
+                    data_list.append((first_connected, last_connected, perf_timestamp, netname, id_mac, row[3], row[4], row[5], row[6],
                                       row[7], row[8], row[9]))
 
     return data_headers, data_list, data_source
