@@ -1,11 +1,11 @@
 __artifacts_v2__ = {
     "Ph082ComAppleMediaAnalysisDPlist": {
         "name": "Ph082-Com-Apple-MediaAnalysisD-Plist",
-        "description": "Parses the first file matched by */mobile/Library/Preferences/com.apple.mediaanalysisd.plist"
+        "description": "Parses distinct files matched by */mobile/Library/Preferences/com.apple.mediaanalysisd.plist"
         " and lists each key with its value as stored. What the keys mean is not established here.",
-        "author": "Scott Koenig",
+        "author": "Scott Koenig, @AlexisBrignoni, Codex",
         "creation_date": "2025-01-05",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains com.apple.mediaanalysisd.plist",
         "category": "Photos.sqlite",
         "notes": "",
@@ -35,14 +35,14 @@ from scripts.ilapfuncs import artifact_processor
 
 @artifact_processor
 def Ph082ComAppleMediaAnalysisDPlist(context):
-    files_found = context.get_files_found()
+    files_found = list(dict.fromkeys(str(path) for path in context.get_files_found()))
     data_list = []
-    source_path = str(files_found[0])
 
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
-            data_list.append((key, str(val)))
+    for source_path in files_found:
+        with open(source_path, "rb") as fp:
+            pl = plistlib.load(fp)
+            for key, val in pl.items():
+                data_list.append((key, str(val), context.get_relative_path(source_path)))
 
-    data_headers = ('Property','Property Value')
-    return data_headers, data_list, source_path
+    data_headers = ('Property', 'Property Value', 'Source File')
+    return data_headers, data_list, '\n'.join(files_found)
