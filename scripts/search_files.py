@@ -28,10 +28,11 @@ import os
 import tarfile
 import hashlib
 import struct
+import zlib
 
 from pathlib import Path
 from shutil import copy2, copyfileobj
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 from fnmatch import _compile_pattern
 from functools import lru_cache
 
@@ -45,6 +46,18 @@ from scripts.ilapfuncs import get_plist_file_content, get_plist_content, logfunc
 from scripts.filetype import guess_mime
 
 normcase = lru_cache(maxsize=None)(os.path.normcase)
+
+# A damaged or unsupported member of an otherwise readable zip (bad CRC-32,
+# truncated deflate stream, unsupported compression or encryption).
+_ZIP_MEMBER_ERRORS = (BadZipFile, zlib.error, RuntimeError, NotImplementedError)
+
+
+def _remove_partial(path):
+    try:
+        if path and os.path.isfile(path):
+            os.remove(path)
+    except OSError:
+        pass
 domains = {
     "AppDomain-": "private/var/mobile/Containers/Data/Application",
     "AppDomainGroup-": "private/var/mobile/Containers/Shared/AppGroup",
@@ -1198,6 +1211,7 @@ class FileSeekerZip(FileSeekerBase):
             if pat(root + normcase(member)) is not None:
                 if member not in self.copied or force:
                     source = self._chosen.get(member, member)
+                    dest_path = None
                     try:
                         if member.endswith('/'):
                             # Case-variant directories fold into one on a
@@ -1206,10 +1220,9 @@ class FileSeekerZip(FileSeekerBase):
                             extracted_path = self._extract_member(member, source=source)
                         else:
                             intended = self._intended_extract_path(member)
+                            dest_path = self._unique_data_path(intended, member)
                             extracted_path = self._extract_member(
-                                member,
-                                dest_path=self._unique_data_path(intended, member),
-                                source=source)
+                                member, dest_path=dest_path, source=source)
                         f = self.zip_file.getinfo(member) if source is member else source
                         creation_date, modification_date = self.decode_extended_timestamp(f.extra)
                         file_info = FileInfo(member, creation_date, modification_date)
@@ -1220,6 +1233,11 @@ class FileSeekerZip(FileSeekerBase):
                         self.copied[member] = extracted_path
                     except OSError as ex:
                         logfunc(f'Could not write file to filesystem, path was {member} ' + str(ex))
+                        continue
+                    except _ZIP_MEMBER_ERRORS as ex:
+                        # One corrupt member must not abort the whole run.
+                        _remove_partial(dest_path)
+                        logfunc(f'Could not extract corrupt zip member, skipped: {member} ({ex})')
                         continue
                     self._stage_other_versions(member)
                 else:
@@ -1250,6 +1268,9 @@ class FileSeekerZip(FileSeekerBase):
                         f'entry {index} ({info.file_size} bytes) staged as {dest_path}')
             except OSError as ex:
                 logfunc(f'Could not write file to filesystem, path was {member} (entry {index}) ' + str(ex))
+            except _ZIP_MEMBER_ERRORS as ex:
+                _remove_partial(dest_path)
+                logfunc(f'Could not extract corrupt zip member, skipped: {member} (entry {index}) ({ex})')
 
     def _intended_extract_path(self, member):
         clean_member = sanitize_file_path(member)
