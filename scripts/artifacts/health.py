@@ -122,20 +122,25 @@ __artifacts_v2__ = {
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO/tree/"
                        "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
-        "author": "@KevinPagano3 - @Johann-PLW",
+        "author": "@KevinPagano3 - @Johann-PLW, @AlexisBrignoni, Codex",
         "creation_date": "2023-03-06",
         "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
-        "notes": "One row per heart rate sample (data type 5). On "
+        "notes": "One row per heart rate sample and distinct stored numeric context value (data type 5). On "
                  "iOS 15 and later a sample that holds a series is reported as one row per value "
-                 "in the series. Rows whose objects.type is 2 are not reported. Heart Rate Context "
+                 "in the series and distinct context value. Repeated identical context pairs do not "
+                 "add rows; differing values remain separate, without choosing one. "
+                 "Rows whose objects.type is 2 are not reported. Heart Rate Context "
                  "is read only from the sample's metadata value whose key is "
                  "_HKPrivateHeartRateContext, as named in the store's metadata_keys table; it is "
                  "blank when the sample has none. On hickman_ios13, hickman_ios14, iphone11_ios17 "
                  "and cookbook_ios1751 no heart rate sample held more than one such value, and "
                  "that key was the only metadata key on these samples. A sample holding two such "
-                 "values would be reported twice. The Heart Rate Context labels are not in the "
+                 "distinct numeric values is reported for both. Heart Rate Context Value reports the "
+                 "stored numerical_value separately from the existing label. The quantity-times-60 "
+                 "BPM conversion is retained; its basis is not established here. "
+                 "The Heart Rate Context labels are not in the "
                  "cited APOLLO health_heart_rate module and their source is not established here; "
                  "a value with no label is shown as stored. Device Name, Manufacturer and "
                  "Hardware are the source_devices name, manufacturer and hardware values of the "
@@ -1036,12 +1041,16 @@ def health_heart_rate(context):
         data_provenances.tz_name,
         quantity_sample_series.hfd_key,
         quantity_sample_series.count,
-        healthdb.sources.source_options
+        healthdb.sources.source_options,
+        metadata_values.numerical_value
     FROM samples
     LEFT JOIN quantity_samples on samples.data_id = quantity_samples.data_id
-    LEFT JOIN metadata_keys ON metadata_keys.key = '_HKPrivateHeartRateContext'
-    LEFT JOIN metadata_values ON samples.data_id = metadata_values.object_id
-        AND metadata_values.key_id = metadata_keys.ROWID
+    LEFT JOIN (
+        SELECT DISTINCT metadata_values.object_id, metadata_values.numerical_value
+        FROM metadata_values
+        JOIN metadata_keys ON metadata_values.key_id = metadata_keys.ROWID
+        WHERE metadata_keys.key = '_HKPrivateHeartRateContext'
+    ) AS metadata_values ON samples.data_id = metadata_values.object_id
     LEFT JOIN objects ON samples.data_id = objects.data_id
     LEFT JOIN data_provenances ON objects.provenance = data_provenances.ROWID
     LEFT JOIN healthdb.sources ON data_provenances.source_id = healthdb.sources.ROWID
@@ -1072,29 +1081,29 @@ def health_heart_rate(context):
                 for qsd_record in quantity_series_data_records:
                     series_data_date = convert_cocoa_core_data_ts_to_utc(qsd_record[0])
                     data_list.append(
-                        (series_data_date, qsd_record[1], record[3], added_timestamp,
+                        (series_data_date, added_timestamp, qsd_record[1], record[3],
                          record[5], record[6], record[7], device_model, record[8],
-                         record[9], record[10]))
+                         record[9], record[10], record[14]))
             else:
                 data_list.append(
-                    (start_timestamp, record[2], record[3], added_timestamp, record[5],
-                     record[6], record[7], device_model, record[8], record[9], record[10]))
+                    (start_timestamp, added_timestamp, record[2], record[3], record[5],
+                     record[6], record[7], device_model, record[8], record[9], record[10], record[14]))
         else:
             data_list.append(
-                (start_timestamp, end_timestamp, record[2], record[3], added_timestamp,
-                 record[5], record[6], record[7], device_model, record[8], record[9], record[10]))
+                (start_timestamp, end_timestamp, added_timestamp, record[2], record[3],
+                 record[5], record[6], record[7], device_model, record[8], record[9], record[10], record[14]))
 
     if version.parse(os_version) >= version.parse("15"):
         data_headers = (
-            ('Date', 'datetime'), 'Heart Rate (BPM)', 'Heart Rate Context',
-            ('Date added to Health', 'datetime'), 'Device Name', 'Manufacturer',
-            'Hardware', 'Device Model', 'Source', 'Software Version', 'Timezone')
+            ('Date', 'datetime'), ('Date added to Health', 'datetime'),
+            'Heart Rate (BPM)', 'Heart Rate Context', 'Device Name', 'Manufacturer',
+            'Hardware', 'Device Model', 'Source', 'Software Version', 'Timezone', 'Heart Rate Context Value')
     else:
         data_headers = (
-            ('Start Date', 'datetime'), ('End Date', 'datetime'), 'Heart Rate (BPM)',
-            'Heart Rate Context', ('Date added to Health', 'datetime'),
+            ('Start Date', 'datetime'), ('End Date', 'datetime'),
+            ('Date added to Health', 'datetime'), 'Heart Rate (BPM)', 'Heart Rate Context',
             'Device Name', 'Manufacturer', 'Hardware', 'Device Model', 'Source',
-            'Software Version', 'Timezone')
+            'Software Version', 'Timezone', 'Heart Rate Context Value')
 
     return data_headers, data_list, data_source
 
