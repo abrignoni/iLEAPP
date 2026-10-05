@@ -15,7 +15,7 @@ __artifacts_v2__ = {
                  "If native logs are present, sysdiagnose tarballs are ignored. If multiple "
                  "sysdiagnoses are present, each is extracted to its own temporary folder in "
                  "the report directory and processed sequentially, with temp folders deleted "
-                 "afterwards.",
+                 "afterwards. Note: Processing multiple sysdiagnoses may result in overlapping or duplicated log entries.",
         # The tracev3 globs are anchored at db/, not private/var/db/: Cellebrite UFED
         # zips (and the corpus CSVs in admin/data/filepath-lists) store the data
         # partition as filesystem2/db/diagnostics with no private/var prefix, and the
@@ -1282,7 +1282,8 @@ def logarchive(context):
                 current_sysdiag = virt_path.split(' >> ')[0] if ' >> ' in virt_path else virt_path
                 if current_sysdiag not in sysdiag_extractions:
                     safe_name = os.path.basename(current_sysdiag).replace('.tar.gz', '')
-                    temp_dir = os.path.join(context.get_data_folder(), f'_logarchive_{safe_name}')
+                    unique_index = len(sysdiag_extractions)
+                    temp_dir = os.path.join(context.get_data_folder(), f'_logarchive_{safe_name}_{unique_index}')
                     sysdiag_extractions[current_sysdiag] = {
                         'temp_dir': temp_dir,
                         'extracted_files': []
