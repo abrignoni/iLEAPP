@@ -42,6 +42,7 @@ __artifacts_v2__ = {
             "iphone12_ios18": "20491691 rows",
             "jess_ios15": "16558937 rows",
             "rodeo_ios17_sysdiag": "17.3 | 3647611 rows",
+            "hickman_ios14_sysdiag": "14.3 | 6033460 rows",
         },
     },
     "logarchive_artifacts": {
