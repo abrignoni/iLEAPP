@@ -53,6 +53,11 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_Once_*.csv', '*/BatteryBDC/BDC_Once_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row"
+        },
     },
     "battery_bdc_daily": {
         "name": "Battery Data Collection (BDC) - Daily",
@@ -70,6 +75,11 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_Daily_*.csv', '*/BatteryBDC/BDC_Daily_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 53 rows",
+            "iphone11_ios17": "iOS 17.3 | 601 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 288 rows"
+        },
     },
     "battery_bdc_weekly": {
         "name": "Battery Data Collection (BDC) - Weekly",
@@ -85,6 +95,11 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_Weekly_*.csv', '*/BatteryBDC/BDC_Weekly_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows",
+            "iphone11_ios17": "iOS 17.3 | 44 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 26 rows"
+        },
     },
     "battery_bdc_obc": {
         "name": "Battery Data Collection (BDC) - OBC",
@@ -103,6 +118,11 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_OBC_*.csv', '*/BatteryBDC/BDC_OBC_*.csv'),
         "output_types": "standard",
         "artifact_icon": "plug",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 11 rows",
+            "iphone11_ios17": "iOS 17.3 | 228 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 315 rows"
+        },
     },
     "battery_bdc_smartcharging": {
         "name": "Battery Data Collection (BDC) - SmartCharging",
@@ -120,6 +140,11 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_SmartCharging_*.csv', '*/BatteryBDC/BDC_SmartCharging_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 12 rows",
+            "iphone11_ios17": "iOS 17.3 | 245 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 248 rows"
+        },
     },
     "battery_bdc_cpmsrc": {
         "name": "Battery Data Collection (BDC) - CPMSRC",
@@ -153,6 +178,11 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_Timestamps_*.csv', '*/BatteryBDC/BDC_Timestamps_*.csv'),
         "output_types": "standard",
         "artifact_icon": "clock",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row"
+        },
     },
 }
 
