@@ -7,7 +7,7 @@ __artifacts_v2__ = {
 " ZGENERICASSET on iOS 11 to 13). Each row's shifted and reverse location plists are exported to"
 ' the report folder and shown decoded.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-10-04',
 'version': '6.0',
@@ -30,11 +30,9 @@ __artifacts_v2__ = {
 " second asset was not tested. Value labels in this report are the module author's working"
 ' interpretations from testing. The module cites no source for them. Each label carries the stored'
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
-" value. Labels marked StillTesting are unconfirmed. The header 'zCldMast-Import Session ID-"
-" AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and"
-" AirDrop is not established in this module. The header 'zAsset-UUID = store.cloudphotodb' reports"
-" the asset table's ZUUID. The match with store.cloudphotodb that the header names is not"
-' established in this module.',
+" value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
+" ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
+' values do not establish an AirDrop provenance link or equality with another database.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -63,7 +61,7 @@ __artifacts_v2__ = {
 ' to 13: ZGENERICASSET latitude only), on iOS 11 through 26. The results for this'
 ' script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-10-04',
 'version': '6.0',
@@ -87,11 +85,9 @@ __artifacts_v2__ = {
 " second asset was not tested. Value labels in this report are the module author's working"
 ' interpretations from testing. The module cites no source for them. Each label carries the stored'
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
-" value. Labels marked StillTesting are unconfirmed. The header 'zCldMast-Import Session ID-"
-" AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and"
-" AirDrop is not established in this module. The header 'zAsset-UUID = store.cloudphotodb' reports"
-" the asset table's ZUUID. The match with store.cloudphotodb that the header names is not"
-' established in this module.',
+" value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
+" ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
+' values do not establish an AirDrop provenance link or equality with another database.',
 'paths': ('*/mobile/Library/Photos/Libraries/Syndication.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -116,7 +112,7 @@ __artifacts_v2__ = {
 ' ZEXTENDEDATTRIBUTES latitude holds a value other than -180.0, on iOS 18 through 26. The'
 ' results for this script will contain one row per ZASSET table Z_PK value.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
 'last_update_date': '2026-10-04',
 'version': '2.0',
@@ -139,11 +135,9 @@ __artifacts_v2__ = {
 " second asset was not tested. Value labels in this report are the module author's working"
 ' interpretations from testing. The module cites no source for them. Each label carries the stored'
 ' value, except the has_Plist and Empty-NULL labels, which only show whether the field holds a'
-" value. Labels marked StillTesting are unconfirmed. The header 'zCldMast-Import Session ID-"
-" AirDrop-StillTesting' reports ZCLOUDMASTER.ZIMPORTSESSIONID. A link between that value and"
-" AirDrop is not established in this module. The header 'zAsset-UUID = store.cloudphotodb' reports"
-" the asset table's ZUUID. The match with store.cloudphotodb that the header names is not"
-' established in this module.',
+" value. Labels marked StillTesting are unconfirmed. zCldMast-Import Session ID reports"
+" ZCLOUDMASTER.ZIMPORTSESSIONID. zAsset-UUID reports the asset table's ZUUID. These stored"
+' values do not establish an AirDrop provenance link or equality with another database.',
 'paths': ('*/mobile/Library/Photos/Libraries/Application/com.apple.GenerativePlayground/00000000-0000-0000-0000-000000000001.photoslibrary/database/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "map-pin",
@@ -198,7 +192,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -221,7 +215,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAddAssetAttr.ZREVERSELOCATIONDATA AS 'zAddAssetAttr-Reverse Location Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -274,7 +268,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-4',
         'zAddAssetAttr- Original Filename-5',
         'zCldMast- Original Filename-6',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zCldMast-Import Session ID-7',
         'zAddAssetAttr-Shifted Location Valid-8',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
         'zAddAssetAttr-Shifted Location Data-geoPlaceResult-10',
@@ -283,7 +277,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAddAssetAttr-Reverse Location Data-geoPlaceResult-13',
         'zAsset-zPK-14',
         'zAddAssetAttr-zPK-15',
-        'zAsset-UUID = store.cloudphotodb-16',
+        'zAsset-UUID-16',
         'zAddAssetAttr-Master Fingerprint-17')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -311,7 +305,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -360,7 +354,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -428,7 +422,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-4',
         'zAddAssetAttr- Original Filename-5',
         'zCldMast- Original Filename-6',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zCldMast-Import Session ID-7',
         'zAddAssetAttr-Shifted Location Valid-8',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
         'zAddAssetAttr-Shifted Location Data-bplist_postal_address-10',
@@ -443,7 +437,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'CMzCldMastMedData-Data-19',
         'zAsset-zPK-20',
         'zAddAssetAttr-zPK-21',
-        'zAsset-UUID = store.cloudphotodb-22',
+        'zAsset-UUID-22',
         'zAddAssetAttr-Master Fingerprint-23')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -477,7 +471,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -526,7 +520,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -600,7 +594,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr-Shifted Location Valid-11',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-12',
         'zAddAssetAttr-Shifted Location Data-bplist_postal_address-13',
@@ -615,7 +609,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'CMzCldMastMedData-Data-22',
         'zAsset-zPK-23',
         'zAddAssetAttr-zPK-24',
-        'zAsset-UUID = store.cloudphotodb-25',
+        'zAsset-UUID-25',
         'zAddAssetAttr-Master Fingerprint-26')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -649,7 +643,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -699,7 +693,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -773,7 +767,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -789,7 +783,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Master Fingerprint-27')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -823,7 +817,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -873,7 +867,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -948,7 +942,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -964,7 +958,7 @@ def Ph005_1AssetshavevalidlocationsPhDaPsql(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -1010,7 +1004,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -1033,7 +1027,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAddAssetAttr.ZREVERSELOCATIONDATA AS 'zAddAssetAttr-Reverse Location Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1086,7 +1080,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-4',
         'zAddAssetAttr- Original Filename-5',
         'zCldMast- Original Filename-6',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zCldMast-Import Session ID-7',
         'zAddAssetAttr-Shifted Location Valid-8',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
         'zAddAssetAttr-Shifted Location Data-geoPlaceResult-10',
@@ -1095,7 +1089,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAddAssetAttr-Reverse Location Data-geoPlaceResult-13',
         'zAsset-zPK-14',
         'zAddAssetAttr-zPK-15',
-        'zAsset-UUID = store.cloudphotodb-16',
+        'zAsset-UUID-16',
         'zAddAssetAttr-Master Fingerprint-17')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1123,7 +1117,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -1172,7 +1166,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZGENERICASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1240,7 +1234,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-4',
         'zAddAssetAttr- Original Filename-5',
         'zCldMast- Original Filename-6',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-7',
+        'zCldMast-Import Session ID-7',
         'zAddAssetAttr-Shifted Location Valid-8',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-9',
         'zAddAssetAttr-Shifted Location Data-bplist_postal_address-10',
@@ -1255,7 +1249,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'CMzCldMastMedData-Data-19',
         'zAsset-zPK-20',
         'zAddAssetAttr-zPK-21',
-        'zAsset-UUID = store.cloudphotodb-22',
+        'zAsset-UUID-22',
         'zAddAssetAttr-Master Fingerprint-23')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1289,7 +1283,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
             WHEN 1 THEN '1-Shifted Location Valid-1'
@@ -1338,7 +1332,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1412,7 +1406,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr-Shifted Location Valid-11',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-12',
         'zAddAssetAttr-Shifted Location Data-bplist_postal_address-13',
@@ -1427,7 +1421,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'CMzCldMastMedData-Data-22',
         'zAsset-zPK-23',
         'zAddAssetAttr-zPK-24',
-        'zAsset-UUID = store.cloudphotodb-25',
+        'zAsset-UUID-25',
         'zAddAssetAttr-Master Fingerprint-26')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1461,7 +1455,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -1511,7 +1505,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZMASTERFINGERPRINT AS 'zAddAssetAttr-Master Fingerprint'
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -1585,7 +1579,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -1601,7 +1595,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Master Fingerprint-27')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -1635,7 +1629,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -1685,7 +1679,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -1760,7 +1754,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -1776,7 +1770,7 @@ def Ph005_2AssetshavevalidlocationsSyndPL(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -1828,7 +1822,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         zAsset.ZFILENAME AS 'zAsset-Filename',
         zAddAssetAttr.ZORIGINALFILENAME AS 'zAddAssetAttr- Original Filename',
         zCldMast.ZORIGINALFILENAME AS 'zCldMast- Original Filename',
-        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID- AirDrop-StillTesting',
+        zCldMast.ZIMPORTSESSIONID AS 'zCldMast-Import Session ID',
         zAddAssetAttr.ZSYNDICATIONIDENTIFIER AS 'zAddAssetAttr- Syndication Identifier-SWY-Files',
         CASE zAddAssetAttr.ZSHIFTEDLOCATIONISVALID
             WHEN 0 THEN '0-Shifted Location Not Valid-0'
@@ -1878,7 +1872,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         END AS 'CMzCldMastMedData-Data',
         zAsset.Z_PK AS 'zAsset-zPK',
         zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK',
-        zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
+        zAsset.ZUUID AS 'zAsset-UUID',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash'
         FROM ZASSET zAsset
@@ -1953,7 +1947,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         'zAsset-Filename-7',
         'zAddAssetAttr- Original Filename-8',
         'zCldMast- Original Filename-9',
-        'zCldMast-Import Session ID- AirDrop-StillTesting-10',
+        'zCldMast-Import Session ID-10',
         'zAddAssetAttr- Syndication Identifier-SWY-Files-11',
         'zAddAssetAttr-Shifted Location Valid-12',
         'zAddAssetAttr-Shifted Location Data-HasDataIndicator-13',
@@ -1969,7 +1963,7 @@ def Ph005_3AssetshavevalidlocationsGenPlayPsql(context):
         'CMzCldMastMedData-Data-23',
         'zAsset-zPK-24',
         'zAddAssetAttr-zPK-25',
-        'zAsset-UUID = store.cloudphotodb-26',
+        'zAsset-UUID-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
