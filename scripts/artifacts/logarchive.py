@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Processes Apple Unified Logs, either from tracev3 data in the "
                        "extraction, from a json file exported with 'log show', or from "
                        "an embedded sysdiagnose tarball",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, @stark4n6",
         "creation_date": "2025-05-06",
         "last_update_date": "2026-10-05",
         "requirements": "Reading tracev3 data natively requires the unifiedlog_iterator "
