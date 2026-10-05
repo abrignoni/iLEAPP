@@ -12,10 +12,13 @@ __artifacts_v2__ = {
         "category": "Unified Logs",
         "notes": "Sources are processed in priority order: 1) logarchive*.json, "
                  "2) extracted native db/diagnostics, 3) embedded sysdiagnose tar.gz files. "
-                 "If native logs are present, sysdiagnose tarballs are ignored. If multiple "
-                 "sysdiagnoses are present, each is extracted to its own temporary folder in "
-                 "the report directory and processed sequentially, with temp folders deleted "
-                 "afterwards. Note: Processing multiple sysdiagnoses may result in overlapping or duplicated log entries.",
+                 "If native logs are present, sysdiagnose tarballs are ignored and the run log "
+                 "says so. If several sysdiagnoses are present, each is extracted to its own "
+                 "temporary folder in the report directory and read in turn, and the temporary "
+                 "folders are deleted afterwards. Rows are not marked with the sysdiagnose they "
+                 "came from, and Row Number starts again for each one. Whether the logs of two "
+                 "sysdiagnoses from one device overlap was not measured, so the same entry can "
+                 "appear more than once; the run log states how many entries were read from each.",
         # The tracev3 globs are anchored at db/, not private/var/db/: Cellebrite UFED
         # zips (and the corpus CSVs in admin/data/filepath-lists) store the data
         # partition as filesystem2/db/diagnostics with no private/var prefix, and the
@@ -1239,6 +1242,12 @@ def rows_from_tracev3(binary, archive_dir):
                '')
 
 
+def _is_sysdiagnose_tarball(path):
+    """True for a finished sysdiagnose tar.gz (an IN_PROGRESS_ one is not)."""
+    name = os.path.basename(str(path))
+    return name.startswith('sysdiagnose_') and name.endswith('.tar.gz') and 'IN_PROGRESS_' not in name
+
+
 @artifact_processor
 def logarchive(context):
     """Import Apple Unified Logs into the LAVA database.
@@ -1264,126 +1273,125 @@ def logarchive(context):
         return results.extend(rows_from_json(source_path))
 
     logarchive_dir, diagnostics_dir, uuidtext_dir = unifiedlogs.find_archive_roots(files_found)
-    sysdiag_extractions = {}
-
-    if logarchive_dir or diagnostics_dir:
-        has_sysdiag = any(str(f).endswith('.tar.gz') and 'sysdiagnose' in str(f) for f in files_found)
-        if has_sysdiag:
-            logfunc("logarchive: Native logarchive/diagnostics directories found. Skipping sysdiagnose tarball extraction.")
-    else:
-        # Target the unified logs structure buried anywhere inside the sysdiagnose
-        pattern = re.compile(r".*(?:system_logs\.logarchive|db/diagnostics|db/uuidtext)/.*", re.IGNORECASE)
-        
-        try:
-            for file_obj, virt_path in get_sysdiagnose_files(files_found, pattern, text_mode=False):
-                if 'PaxHeader' in virt_path:
-                    continue
-                    
-                current_sysdiag = virt_path.split(' >> ')[0] if ' >> ' in virt_path else virt_path
-                if current_sysdiag not in sysdiag_extractions:
-                    safe_name = os.path.basename(current_sysdiag).replace('.tar.gz', '')
-                    unique_index = len(sysdiag_extractions)
-                    temp_dir = os.path.join(context.get_data_folder(), f'_logarchive_{safe_name}_{unique_index}')
-                    sysdiag_extractions[current_sysdiag] = {
-                        'temp_dir': temp_dir,
-                        'extracted_files': []
-                    }
-                
-                temp_log_dir = sysdiag_extractions[current_sysdiag]['temp_dir']
-                
-                # Reconstruct the inner directory paths
-                inner_path = virt_path.split(' >> ')[-1].lstrip('/\\')
-                if 'system_logs.logarchive' in inner_path:
-                    inner_path = inner_path[inner_path.find('system_logs.logarchive'):]
-                elif 'db/diagnostics' in inner_path:
-                    inner_path = inner_path[inner_path.find('db/diagnostics'):]
-                elif 'db/uuidtext' in inner_path:
-                    inner_path = inner_path[inner_path.find('db/uuidtext'):]
-                
-                # Normalize slashes to ensure compatibility with Windows long paths prefix
-                inner_path = os.path.normpath(inner_path.replace('/', os.sep))
-                
-                out_path = os.path.join(temp_log_dir, inner_path)
-                os.makedirs(os.path.dirname(out_path), exist_ok=True)
-                
-                try:
-                    with open(out_path, 'wb') as f_out:
-                        shutil.copyfileobj(file_obj, f_out)
-                    sysdiag_extractions[current_sysdiag]['extracted_files'].append(Path(out_path))
-                except OSError as e:
-                    logfunc(f"logarchive: OS Error extracting {virt_path}: {e}")
-        except OSError as e:
-            logfunc(f"logarchive: OS Error during sysdiagnose extraction: {e}")
+    native = bool(logarchive_dir or diagnostics_dir)
+    has_sysdiag = any(_is_sysdiagnose_tarball(f) for f in files_found)
+    if not native and not has_sysdiag:
+        return results
 
     binary = unifiedlogs.find_iterator()
     if not binary:
-        logfunc('Unified Log tracev3 data was found but the unifiedlog_iterator binary is not '
-                'available, so it cannot be read natively. Either install the binary (see '
-                'scripts/unifiedlogs.py) or supply a logarchive*.json export.')
-        for data in sysdiag_extractions.values():
-            shutil.rmtree(data['temp_dir'], ignore_errors=True)
+        logfunc('Unified Log tracev3 data, or a sysdiagnose archive that may hold it, was found but '
+                'the unifiedlog_iterator binary is not available, so it cannot be read natively. '
+                'Either install the binary (see scripts/unifiedlogs.py) or supply a '
+                'logarchive*.json export.')
         return results
 
-    if logarchive_dir or diagnostics_dir:
-        # Native uncompressed directory structure is present
+    if native:
+        if has_sysdiag:
+            logfunc('logarchive: native logarchive or diagnostics data was found, so the '
+                    'sysdiagnose archives are not read.')
         if logarchive_dir:
             archive_dir = logarchive_dir
-            final_source_path = logarchive_dir
+            source_path = logarchive_dir
         else:
             if not uuidtext_dir:
+                # Without uuidtext the parser cannot resolve format strings, so the messages
+                # would come back as placeholders. Better to say why than to import junk.
                 logfunc('Unified Log tracev3 data was found but the uuidtext directory was not, '
                         'so log messages cannot be resolved. Skipping.')
                 return results
             archive_dir = unifiedlogs.assemble_archive(
                 diagnostics_dir, uuidtext_dir,
                 os.path.join(context.get_data_folder(), '_logarchive_native'))
-            final_source_path = f'{diagnostics_dir}\n{uuidtext_dir}'
+            source_path = f'{diagnostics_dir}\n{uuidtext_dir}'
 
         parser = unifiedlogs.iterator_version(binary) or os.path.basename(binary)
         logfunc(f'Reading Apple Unified Logs natively with {parser}')
-        results.set_source_path(final_source_path)
+        results.set_source_path(source_path)
         return results.extend(rows_from_tracev3(binary, archive_dir))
 
-    else:
-        if not sysdiag_extractions:
-            return results
-            
-        source_paths = list(sysdiag_extractions.keys())
-        results.set_source_path('\n'.join(source_paths))
-        
-        def process_all_sysdiagnoses():
+    # Only sysdiagnose archives: stage the unified log folders out of each into its own
+    # temporary folder, then read them one after another.
+    pattern = re.compile(r".*(?:system_logs\.logarchive|db/diagnostics|db/uuidtext)/.*", re.IGNORECASE)
+    sysdiag_extractions = {}
+    try:
+        for file_obj, virt_path in get_sysdiagnose_files(files_found, pattern, text_mode=False):
+            if 'PaxHeader' in virt_path:
+                continue
+
+            current_sysdiag = virt_path.split(' >> ')[0] if ' >> ' in virt_path else virt_path
+            if current_sysdiag not in sysdiag_extractions:
+                safe_name = os.path.basename(current_sysdiag).replace('.tar.gz', '')
+                unique_index = len(sysdiag_extractions)
+                temp_dir = os.path.join(context.get_data_folder(), f'_logarchive_{safe_name}_{unique_index}')
+                sysdiag_extractions[current_sysdiag] = {'temp_dir': temp_dir, 'extracted_files': []}
+
+            temp_log_dir = sysdiag_extractions[current_sysdiag]['temp_dir']
+
+            # Reconstruct the inner directory paths
+            inner_path = virt_path.split(' >> ')[-1].lstrip('/\\')
+            if 'system_logs.logarchive' in inner_path:
+                inner_path = inner_path[inner_path.find('system_logs.logarchive'):]
+            elif 'db/diagnostics' in inner_path:
+                inner_path = inner_path[inner_path.find('db/diagnostics'):]
+            elif 'db/uuidtext' in inner_path:
+                inner_path = inner_path[inner_path.find('db/uuidtext'):]
+
+            inner_path = os.path.normpath(inner_path.replace('/', os.sep))
+            out_path = os.path.join(temp_log_dir, inner_path)
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
             try:
-                for sysdiag_name, data in sysdiag_extractions.items():
-                    extracted_files = data['extracted_files']
-                    temp_log_dir = data['temp_dir']
-                    
-                    if not extracted_files:
-                        continue
-                        
-                    la_dir, diag_dir, uuid_dir = unifiedlogs.find_archive_roots(extracted_files)
-                    
-                    if not la_dir and not diag_dir:
-                        continue
-                        
-                    if la_dir:
-                        archive_dir = la_dir
-                    else:
-                        if not uuid_dir:
-                            logfunc(f'logarchive: Skipping {sysdiag_name}: uuidtext missing.')
-                            continue
-                        archive_dir = unifiedlogs.assemble_archive(
-                            diag_dir, uuid_dir,
-                            os.path.join(temp_log_dir, '_native'))
-                    
-                    parser = unifiedlogs.iterator_version(binary) or os.path.basename(binary)
-                    logfunc(f'Reading Apple Unified Logs natively from {sysdiag_name} with {parser}')
-                    yield from rows_from_tracev3(binary, archive_dir)
-            finally:
-                for data in sysdiag_extractions.values():
-                    if os.path.exists(data['temp_dir']):
-                        shutil.rmtree(data['temp_dir'], ignore_errors=True)
-                        
-        return results.extend(process_all_sysdiagnoses())
+                with open(out_path, 'wb') as f_out:
+                    shutil.copyfileobj(file_obj, f_out)
+                sysdiag_extractions[current_sysdiag]['extracted_files'].append(Path(out_path))
+            except OSError as e:
+                logfunc(f"logarchive: OS Error extracting {virt_path}: {e}")
+    except OSError as e:
+        logfunc(f"logarchive: OS Error during sysdiagnose extraction: {e}")
+
+    def remove_staged():
+        for data in sysdiag_extractions.values():
+            shutil.rmtree(data['temp_dir'], ignore_errors=True)
+
+    # Work out, before anything is read, which sysdiagnoses hold usable unified log data, so
+    # the source path names only those.
+    plans = []
+    for sysdiag_name, data in sysdiag_extractions.items():
+        label = os.path.basename(sysdiag_name)
+        if not data['extracted_files']:
+            continue
+        la_dir, diag_dir, uuid_dir = unifiedlogs.find_archive_roots(data['extracted_files'])
+        if not la_dir and not diag_dir:
+            logfunc(f'logarchive: no unified log data found in {label}.')
+            continue
+        if not la_dir and not uuid_dir:
+            logfunc(f'logarchive: skipping {label}: uuidtext missing.')
+            continue
+        plans.append((sysdiag_name, label, data['temp_dir'], la_dir, diag_dir, uuid_dir))
+
+    if not plans:
+        remove_staged()
+        return results
+
+    results.set_source_path('\n'.join(plan[0] for plan in plans))
+    parser = unifiedlogs.iterator_version(binary) or os.path.basename(binary)
+
+    def process_all_sysdiagnoses():
+        try:
+            for _name, label, temp_dir, la_dir, diag_dir, uuid_dir in plans:
+                archive_dir = la_dir or unifiedlogs.assemble_archive(
+                    diag_dir, uuid_dir, os.path.join(temp_dir, '_native'))
+                logfunc(f'Reading Apple Unified Logs natively from {label} with {parser}')
+                count = 0
+                for row in rows_from_tracev3(binary, archive_dir):
+                    count += 1
+                    yield row
+                logfunc(f'logarchive: {count} entries read from {label}.')
+        finally:
+            remove_staged()
+
+    return results.extend(process_all_sysdiagnoses())
 
 @artifact_processor
 def logarchive_artifacts(context):
