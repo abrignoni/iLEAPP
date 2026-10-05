@@ -3,9 +3,9 @@ __artifacts_v2__ = {
     "battery_bdc": {
         "name": "Battery Data Collection (BDC)",
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
-        "author": "@stark4n6",
+        "author": "@stark4n6, @AlexisBrignoni, Codex",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Battery",
         "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
@@ -41,9 +41,9 @@ __artifacts_v2__ = {
         "name": "Battery Data Collection (BDC) - Once",
         "description": "Battery identity fields (chemistry IDs, EEEE, YWW, design capacity, gas "
                        "gauge firmware) from BDC_Once logs, one row per file",
-        "author": "@stark4n6, @ChrisJr404",
+        "author": "@stark4n6, @ChrisJr404, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-17",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Battery",
         "notes": "One row per BDC_Once file. BatterySerialNumber is not reported by this "
@@ -53,13 +53,18 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_Once_*.csv', '*/BatteryBDC/BDC_Once_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 1 row",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row"
+        },
     },
     "battery_bdc_daily": {
         "name": "Battery Data Collection (BDC) - Daily",
         "description": "Daily battery health snapshots (capacity, cycle count) from BDC_Daily logs",
-        "author": "@stark4n6, @ChrisJr404",
+        "author": "@stark4n6, @ChrisJr404, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-17",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Battery",
         "notes": "NominalChargeCapacity and "
@@ -70,14 +75,19 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_Daily_*.csv', '*/BatteryBDC/BDC_Daily_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 53 rows",
+            "iphone11_ios17": "iOS 17.3 | 601 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 288 rows"
+        },
     },
     "battery_bdc_weekly": {
         "name": "Battery Data Collection (BDC) - Weekly",
         "description": "RaTableRaw0, TotalOperatingTime and gas gauge firmware version from "
                        "BDC_Weekly logs, reported as stored",
-        "author": "@stark4n6, @ChrisJr404",
+        "author": "@stark4n6, @ChrisJr404, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-17",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Battery",
         "notes": "Row cadence in tested files was one per seven days. RaTableRaw0 is left as its "
@@ -85,15 +95,20 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_Weekly_*.csv', '*/BatteryBDC/BDC_Weekly_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 6 rows",
+            "iphone11_ios17": "iOS 17.3 | 44 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 26 rows"
+        },
     },
     "battery_bdc_obc": {
         "name": "Battery Data Collection (BDC) - OBC",
         "description": "External power and charging fields (FamilyCode, "
                        "ExternalConnected, ChargingOverride, NotChargingReason) from "
                        "BDC_OBC logs, one row per logged event",
-        "author": "@stark4n6, @ChrisJr404",
+        "author": "@stark4n6, @ChrisJr404, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-17",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Battery",
         "notes": "One row per logged event. FamilyCode is reported as stored and as a hex value; "
@@ -103,14 +118,19 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_OBC_*.csv', '*/BatteryBDC/BDC_OBC_*.csv'),
         "output_types": "standard",
         "artifact_icon": "plug",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 11 rows",
+            "iphone11_ios17": "iOS 17.3 | 228 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 315 rows"
+        },
     },
     "battery_bdc_smartcharging": {
         "name": "Battery Data Collection (BDC) - SmartCharging",
         "description": "Charging state, charge limit and decision fields from "
                        "BDC_SmartCharging logs, reported as stored",
-        "author": "@stark4n6, @ChrisJr404",
+        "author": "@stark4n6, @ChrisJr404, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-17",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Battery",
         "notes": "One row per logged event. ChargeLimit and ChargingState are reported as "
@@ -120,14 +140,19 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_SmartCharging_*.csv', '*/BatteryBDC/BDC_SmartCharging_*.csv'),
         "output_types": "standard",
         "artifact_icon": "battery-charging",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 12 rows",
+            "iphone11_ios17": "iOS 17.3 | 245 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 248 rows"
+        },
     },
     "battery_bdc_cpmsrc": {
         "name": "Battery Data Collection (BDC) - CPMSRC",
         "description": "Impedance columns from BDC_CPMSRC logs, reported as stored; not "
                        "exercised on any tested image",
-        "author": "@stark4n6, @ChrisJr404",
+        "author": "@stark4n6, @ChrisJr404, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-17",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Battery",
         "notes": "Series resistance plus four RC branch columns, reported as stored. The CSV is "
@@ -142,9 +167,9 @@ __artifacts_v2__ = {
         "name": "Battery Data Collection (BDC) - Timestamps",
         "description": "System time and RTC tick pairs from BDC_Timestamps logs, reported as "
                        "stored",
-        "author": "@stark4n6, @ChrisJr404",
+        "author": "@stark4n6, @ChrisJr404, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-17",
-        "last_update_date": "2026-08-17",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Battery",
         "notes": "Each row pairs a system time with an RTC tick value as stored; what event "
@@ -153,6 +178,11 @@ __artifacts_v2__ = {
         "paths": ('*/Battery/BDC/BDC_Timestamps_*.csv', '*/BatteryBDC/BDC_Timestamps_*.csv'),
         "output_types": "standard",
         "artifact_icon": "clock",
+        "sample_data": {
+            "iphone14plus_ios18": "iOS 18.0 | 2 rows",
+            "iphone11_ios17": "iOS 17.3 | 1 row",
+            "hc_ios18_7": "iOS 18.7.8 | 1 row"
+        },
     },
 }
 
@@ -262,7 +292,7 @@ def battery_bdc(context):
                 ))
 
     data_headers = (
-        ('Timestamp', 'datetime'),
+        'Timestamp (as stored, no zone recorded)',
         'UI Displayed Capacity (%)',
         'Raw Battery Capacity (%)',
         'Is Charging',
@@ -283,11 +313,11 @@ def battery_bdc_once(context):
             'DesignCapacity', 'GasGaugeFirmwareVersion']
     data_list = _simple_stream(context, keys)
     data_headers = (
-        ('Timestamp', 'datetime'),
+        'Timestamp (as stored, no zone recorded)',
         'Chem ID',
         'Algo Chem ID',
-        'EEEE (Factory Code)',
-        'YWW (Mfr Date Code)',
+        'EEEE (as stored)',
+        'YWW (as stored)',
         'Design Capacity (mAh)',
         'Gas Gauge Firmware Version',
         'Source File',
@@ -302,7 +332,7 @@ def battery_bdc_daily(context):
             'TimeAtHighSoc', 'ChargingVoltage', 'BHServiceFlags', 'BHCalibrationFlags']
     data_list = _simple_stream(context, keys)
     data_headers = (
-        ('Timestamp', 'datetime'),
+        'Timestamp (as stored, no zone recorded)',
         'Weighted Ra',
         'Qmax0 (mAh)',
         'Cycle Count',
@@ -322,9 +352,9 @@ def battery_bdc_weekly(context):
     keys = ['TimeStamp', 'RaTableRaw0', 'TotalOperatingTime', 'GasGaugeFirmwareVersion']
     data_list = _simple_stream(context, keys)
     data_headers = (
-        ('Timestamp', 'datetime'),
+        'Timestamp (as stored, no zone recorded)',
         'Ra Table Raw0',
-        'Total Operating Time (hrs)',
+        'Total Operating Time (as stored)',
         'Gas Gauge Firmware Version',
         'Source File',
     )
@@ -355,7 +385,7 @@ def battery_bdc_obc(context):
                 source,
             ))
     data_headers = (
-        ('Timestamp', 'datetime'),
+        'Timestamp (as stored, no zone recorded)',
         'Family Code',
         'Family Code (Hex)',
         'External Connected',
@@ -375,10 +405,10 @@ def battery_bdc_smartcharging(context):
             'DecisionMaker', 'ModeOfOperation']
     data_list = _simple_stream(context, keys)
     data_headers = (
-        ('Timestamp', 'datetime'),
+        'Timestamp (as stored, no zone recorded)',
         'Charging State',
         'Inflow State',
-        'Charge Limit (%)',
+        'Charge Limit (as stored)',
         'Check Point',
         'Decision Maker',
         'Mode Of Operation',
@@ -395,16 +425,16 @@ def battery_bdc_cpmsrc(context):
             'ImpedanceRCFreq3', 'ImpedanceRCFreq4']
     data_list = _simple_stream(context, keys)
     data_headers = (
-        ('Timestamp', 'datetime'),
-        'R0 + Rtrace (mOhm)',
-        'R1 (mOhm)',
-        'R2 (mOhm)',
-        'R3 (mOhm)',
-        'R4 (mOhm)',
-        'RC Freq1 (Hz)',
-        'RC Freq2 (Hz)',
-        'RC Freq3 (Hz)',
-        'RC Freq4 (Hz)',
+        'Timestamp (as stored, no zone recorded)',
+        'R0 + Rtrace (as stored)',
+        'R1 (as stored)',
+        'R2 (as stored)',
+        'R3 (as stored)',
+        'R4 (as stored)',
+        'RC Freq1 (as stored)',
+        'RC Freq2 (as stored)',
+        'RC Freq3 (as stored)',
+        'RC Freq4 (as stored)',
         'Source File',
     )
     return data_headers, data_list, _source_dirs(context)
@@ -417,8 +447,8 @@ def battery_bdc_timestamps(context):
             'reference_rtc_ticks', 'current_rtc_ticks']
     data_list = _simple_stream(context, keys)
     data_headers = (
-        ('Reference System Time', 'datetime'),
-        ('Set System Time', 'datetime'),
+        'Reference System Time (as stored)',
+        'Set System Time (as stored)',
         'Reference RTC Ticks',
         'Current RTC Ticks',
         'Source File',

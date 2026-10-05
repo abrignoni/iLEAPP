@@ -1,10 +1,10 @@
 __artifacts_v2__ = {
     "get_bluetoothPairedLE": {
         "name": "Bluetooth Paired LE",
-        "description": "Parses paired Bluetooth Low Energy devices, including name, address and the LastConnectionTime value as stored (not converted to a date), from com.apple.MobileBluetooth.ledevices.paired.db.",
-        "author": "@JohnHyla",
+        "description": "Parses paired Bluetooth Low Energy devices, including name, address and the LastConnectionTime and LastSeenTime values as stored (not converted to dates), from com.apple.MobileBluetooth.ledevices.paired.db.",
+        "author": "@JohnHyla, @AlexisBrignoni, Codex",
         "creation_date": "2024-10-21",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Bluetooth",
         "notes": "",
@@ -60,11 +60,12 @@ def get_bluetoothPairedLE(context):
 
             all_rows = cursor.fetchall()
             for row in all_rows:
-                data_list.append((row[0], row[1], row[2], row[3], row[4],row[6], context.get_relative_path(file_found)))
+                data_list.append((row[6], row[5], row[0], row[1], row[2], row[3], row[4], context.get_relative_path(file_found)))
 
             db.close()
 
-    data_headers = ('UUID','Name','Name Origin','Address','Resolved Address','Last Connection Time', 'Source File')
+    data_headers = ('LastConnectionTime (as stored)', 'LastSeenTime (as stored)',
+                    'UUID', 'Name', 'Name Origin', 'Address', 'Resolved Address', 'Source File')
 
     return data_headers, data_list, '\n'.join(sorted(source_paths))
 

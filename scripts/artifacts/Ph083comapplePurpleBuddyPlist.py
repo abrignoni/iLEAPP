@@ -1,15 +1,15 @@
 __artifacts_v2__ = {
     "Ph083ComApplePurpleBuddyPlist": {
         "name": "Ph083-Com-Apple-PurpleBuddy-Plist",
-        "description": "Parses the first com.apple.purplebuddy.plist matched and lists its keys and values as"
+        "description": "Parses matched com.apple.purplebuddy.plist files and lists their keys and values as"
         " stored. The SetupState key is reported under Device Info and is not in this table."
         " Scott Koenig compared the guessedCountry and SetupLastExit timestamps of this file"
         " with a known factory reset on a test device running iOS 14.7:"
         " https://theforensicscooter.com/2022/05/02/photos-sqlite-query-documentation-notable-artifacts/"
         " . What the other keys mean is not established here.",
-        "author": "Scott Koenig",
+        "author": "Scott Koenig, @AlexisBrignoni, Codex",
         "creation_date": "2025-01-05",
-        "last_update_date": "2026-07-21",
+        "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains com.apple.purplebuddy.plist",
         "category": "Photos.sqlite",
         "notes": "",
@@ -41,20 +41,20 @@ from scripts.ilapfuncs import artifact_processor, logfunc, device_info
 
 @artifact_processor
 def Ph083ComApplePurpleBuddyPlist(context):
-    files_found = context.get_files_found()
+    files_found = list(dict.fromkeys(str(path) for path in context.get_files_found()))
     data_list = []
-    source_path = str(files_found[0])
 
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
+    for source_path in files_found:
+        with open(source_path, "rb") as fp:
+            pl = plistlib.load(fp)
+            for key, val in pl.items():
 
-            if key == 'SetupState':
-                logfunc(f"SetupState: {val}")
-                device_info("com.apple.purplebuddy.plist", "SetupState", str(val), source_path)
+                if key == 'SetupState':
+                    logfunc(f"SetupState: {val}")
+                    device_info("com.apple.purplebuddy.plist", "SetupState", str(val), source_path)
 
-            else:
-                data_list.append((key, str(val)))
+                else:
+                    data_list.append((key, str(val), context.get_relative_path(source_path)))
 
-    data_headers = ('Property','Property Value')
-    return data_headers, data_list, source_path
+    data_headers = ('Property', 'Property Value', 'Source File')
+    return data_headers, data_list, '\n'.join(files_found)

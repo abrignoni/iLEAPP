@@ -11,18 +11,17 @@ __artifacts_v2__ = {
         "description": "The account recorded in the Health Mate app's Application Support/account "
                        "file, with user id, names, birthdate and email and its creation and "
                        "modification times.",
-        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "author": "Marco Neumann {kalinko@be-binary.de}, @AlexisBrignoni, Codex",
         "creation_date": "2024-09-22",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-10-04",
         "requirements": "json",
         "category": "Withings Health Mate",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. "
-                 "Birthdate is the stored birthday value read as seconds since 2001-01-01 and "
-                 "shown as UTC; the cited post describes it as local time, so read it as a date "
-                 "and allow for the offset. Only the first source entry of the first matched "
-                 "account file is read.",
+                 "Birthdate is reported as the stored birthday value in a text column without "
+                 "assigning an epoch, time or zone. Every source entry in every matched account "
+                 "file is read.",
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/account'),
         "output_types": "standard",
         "artifact_icon": "user"
@@ -76,9 +75,9 @@ __artifacts_v2__ = {
                        "with start and end, type, durations, the ZMIN, ZAVG and ZMAX values of "
                        "the track extension (as stored), step, distance, speed and temperature "
                        "values and start, end and region centre coordinates as stored.",
-        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "author": "Marco Neumann {kalinko@be-binary.de}, @AlexisBrignoni, Codex",
         "creation_date": "2024-09-24",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
@@ -93,7 +92,7 @@ __artifacts_v2__ = {
                  "Region Center Latitude and Region Center Longitude hold ZENDCOORDINATELATITUDE "
                  "and ZENDCOORDINATELONGITUDE, and the columns headed End Latitude and End "
                  "Longitude hold ZREGIONCENTERLATITUDE and ZREGIONCENTERLONGITUDE. Manual End "
-                 "Date is not handled as a date column in the LAVA output. Only the first matched "
+                 "Date is handled as a date column in the LAVA output. Only the first matched "
                  "store file is read.",
         "paths": ('*/Library/Application Support/coredata/*_Tracks*'),
         "output_types": "standard",
@@ -104,19 +103,18 @@ __artifacts_v2__ = {
         "description": "Rows of type HMTimelineMessageEvent from the ZHMTIMELINEEVENT table of "
                        "the Health Mate timeline store, with sender, receiver, type and text as "
                        "stored.",
-        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "author": "Marco Neumann {kalinko@be-binary.de}, @AlexisBrignoni, Codex",
         "creation_date": "2024-09-23",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. Only "
                  "rows whose ZTYPE is HMTimelineMessageEvent are read; the cited post says other "
-                 "row types exist. The cited post describes ZDATE as local time; the column "
-                 "headed Timestamp [Local Time] converts it as UTC, so if the post is right the "
-                 "displayed time is off by the device's offset from UTC. Only the first matched "
-                 "store file is read.",
+                 "row types exist. The cited post describes ZDATE as local time; because its "
+                 "zone is not established, ZDATE is reported as stored text without conversion. "
+                 "Only the first matched store file is read.",
         "paths": ('*/Library/Application Support/coredata/*_HM3Timeline*'),
         "output_types": "standard",
         "artifact_icon": "message"
@@ -145,20 +143,19 @@ __artifacts_v2__ = {
         "name": "Health Mate - Devices",
         "description": "Rows of the ZWTDEVICE table of the Health Mate associated device store, "
                        "as stored.",
-        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "author": "Marco Neumann {kalinko@be-binary.de}, @AlexisBrignoni, Codex",
         "creation_date": "2024-09-16",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Withings Health Mate",
         "notes": "Field meanings follow the Be-binary 4n6 blog post 'Withings HealthMate on iOS', "
                  "https://bebinary4n6.blogspot.com/2024/09/withings-healthmate-on-ios.html (one "
                  "test device, iOS 17.5.1). No sample data is recorded for this artifact. "
-                 "Association Timestamp is ZCREATED read as Unix seconds. Last Used Timestamp is "
-                 "ZLAST_CONNECTION read as Cocoa Core Data epoch, which the cited post reads as "
+                 "ZCREATED is read as Unix seconds. ZLAST_CONNECTION is read as Cocoa Core Data epoch, which the cited post reads as "
                  "the last connection or sync. Latitude and Longitude are described there as the "
                  "place of the last sync and as not precise. Only the first matched store file is "
                  "read.",
-        "paths": ('*/Library/Application Support/coredata/associated_device.sqlite*'),
+        "paths": ('*/Library/Application Support/coredata/associated_device*.sqlite*'),
         "output_types": "all",
         "artifact_icon": "device-watch"
     }
@@ -176,30 +173,31 @@ from scripts.ilapfuncs import (
 @artifact_processor
 def get_healthmate_accounts(context):
     files_found = context.get_files_found()
-    with open(str(files_found[0]),encoding="utf-8") as json_file:
-        json_data = json.load(json_file)
-
     data_list = []
-    for user in json_data['account']['sources'][0]['users']:
-        user_id = user['userId']
-        lastname = user['lastName']
-        firstname = user['firstName']
-        shortname = user['shortName']
-        birthdate = convert_cocoa_core_data_ts_to_utc(user['birthday'])
-        email = user['email']
-        creationdate = convert_unix_ts_to_utc(user['created'])
-        modifieddate = convert_unix_ts_to_utc(user['modified'])
+    for file_found in files_found:
+        with open(str(file_found), encoding="utf-8") as json_file:
+            json_data = json.load(json_file)
+        for source in json_data['account']['sources']:
+            for user in source.get('users', []):
+                user_id = user['userId']
+                lastname = user['lastName']
+                firstname = user['firstName']
+                shortname = user['shortName']
+                birthdate = str(user['birthday'])
+                email = user['email']
+                creationdate = convert_unix_ts_to_utc(user['created'])
+                modifieddate = convert_unix_ts_to_utc(user['modified'])
 
-        data_list.append((
-            creationdate,
-            modifieddate,
-            user_id,
-            lastname,
-            firstname,
-            shortname,
-            birthdate,
-            email
-            ))
+                data_list.append((
+                    creationdate,
+                    modifieddate,
+                    user_id,
+                    lastname,
+                    firstname,
+                    shortname,
+                    birthdate,
+                    email
+                    ))
 
     data_headers = (
         ('Creation Timestamp', 'datetime'),
@@ -208,11 +206,14 @@ def get_healthmate_accounts(context):
         'Last Name',
         'First Name',
         'Short Name',
-        ('Birthdate', 'datetime'),
+        'birthday (as stored)',
         'E-mail',
         )
 
-    return data_headers, data_list, files_found[0]
+    order = (0, 1, 6, 2, 3, 4, 5, 7)
+    data_headers = tuple(data_headers[i] for i in order)
+    data_list = [tuple(row[i] for i in order) for row in data_list]
+    return data_headers, data_list, '\n'.join(str(f) for f in files_found)
 
 
 @artifact_processor
@@ -492,7 +493,7 @@ def get_healthmate_tracked_activities(context):
         ('Reference Date', 'datetime'),
         ('Modified Date', 'datetime'),
         ('Manual Start Date', 'datetime'),
-        ('Manual End Date', ' datetime'),
+        ('Manual End Date', 'datetime'),
         'Device ID',
         'Track ID',
         'Type',
@@ -555,7 +556,7 @@ def get_healthmate_messages(context):
         receiverid = row[2]
         sender_name = row[3]
         sender_first_name = row[4]
-        date = convert_cocoa_core_data_ts_to_utc(row[5])
+        date = str(row[5]) if row[5] is not None else ''
         date_mod = convert_cocoa_core_data_ts_to_utc(row[6])
         date_exp = convert_cocoa_core_data_ts_to_utc(row[7])
         message_type = row[8]
@@ -575,7 +576,7 @@ def get_healthmate_messages(context):
             ))
 
     data_headers = (
-        ('Timestamp [Local Time]', 'datetime'),
+        'ZDATE (as stored)',
         ('Timestamp Modified', 'datetime'),
         ('Timestamp Expiration', 'datetime'),
         'Account ID',
@@ -741,8 +742,8 @@ def get_healthmate_devices(context):
             ))
 
     data_headers = (
-        ('Association Timestamp', 'datetime'),
-        ('Last Used Timestamp', 'datetime'),
+        ('ZCREATED', 'datetime'),
+        ('ZLAST_CONNECTION', 'datetime'),
         ('Last Weighin Timestamp', 'datetime'),
         'ID',
         'User ID',

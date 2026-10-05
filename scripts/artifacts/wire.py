@@ -28,14 +28,14 @@ __artifacts_v2__ = {
     "wireMessages": {
         "name": "Wire Secure Messenger Messages",
         "description": "Wire messages, including message sender, associated user identifiers and message type",
-        "author": "Elliot Glendye",
+        "author": 'Elliot Glendye, @AlexisBrignoni, Codex',
         "creation_date": "2024-01-21",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-04',
         "requirements": "",
         "category": "Business",
-        "notes": "Rows with category 1 (undefined per the Wire source) and rows with no stored "
-                 "category are excluded. Message is the ZNORMALIZEDTEXT column as stored. Call "
-                 "Duration (seconds) is the ZDURATION column as stored; its unit is not sourced "
+        "notes": "Rows with category 1 (undefined per the Wire source) are excluded; rows with "
+                 "no stored category are retained. Message is the ZNORMALIZEDTEXT column as stored. ZDURATION "
+                 "is reported as stored; its unit is not sourced "
                  "here. Unrecognized category values (including bitmask combinations) are "
                  "reported as stored. Reference: Wire open source, wire-ios-data-model "
                  "MessageCategory (OptionSet raw values), "
@@ -167,10 +167,10 @@ def wireMessages(context):
             WHEN 2048 THEN 'System Message'
             ELSE ZMESSAGE.ZCACHEDCATEGORY
         END AS 'Message Type',
-        ZMESSAGE.ZDURATION AS 'Call Duration (seconds)'
+        ZMESSAGE.ZDURATION AS 'ZDURATION (as stored)'
     FROM ZMESSAGE
     LEFT Join ZUSER On ZUSER.Z_PK = ZMESSAGE.ZSENDER
-    WHERE ZMESSAGE.ZCACHEDCATEGORY != 1;
+    WHERE ZMESSAGE.ZCACHEDCATEGORY != 1 OR ZMESSAGE.ZCACHEDCATEGORY IS NULL;
     '''
     data_headers = (
         ('Date / Time', 'datetime'),
@@ -178,7 +178,7 @@ def wireMessages(context):
         'Display Name',
         'Message',
         'Message Type',
-        'Call Duration (seconds)')
+        'ZDURATION (as stored)')
 
     db_records = get_sqlite_db_records(source_path, query)
     for record in db_records:

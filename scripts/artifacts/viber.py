@@ -5,15 +5,16 @@ __artifacts_v2__ = {
         'name': 'Viber - Settings',
         'description': "Parses settings db, extracts and reports on user's available "
                        "information regarding Viber settings.",
-        'author': 'Evangelos Dragonas (@theAtropos4n6)',
+        'author': 'Evangelos Dragonas (@theAtropos4n6), @AlexisBrignoni, Codex',
         'creation_date': '2022-03-09',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-04',
         'requirements': '',
         'category': 'Viber',
         'notes': 'The _autoBackupLastRunTime value is converted from Unix time to UTC unless it '
-                 'is negative, in which case it is shown as stored. The _lastBackupStartDate '
-                 'value and the two backup attempt counters are shown as stored with no '
-                 'conversion. What a negative value records is not established.',
+                 'is negative, in which case it is shown as stored. _lastBackupStartDate is '
+                 'reported as stored without an asserted epoch. The two backup attempt counters '
+                 'are reported as hexadecimal for bytes and unchanged otherwise because their '
+                 'byte order is not established. What a negative value records is not established.',
         'paths': ('*/com.viber/settings/Settings.data',),
         'output_types': ['html', 'tsv', 'lava'],
         'artifact_icon': 'settings',
@@ -118,7 +119,7 @@ __artifacts_v2__ = {
 }
 
 import json
-from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc, \
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
     convert_unix_ts_to_utc, convert_cocoa_core_data_ts_to_utc, get_birthdate_from_unix_ts, \
     check_in_media, check_in_embedded_media, does_table_exist_in_db
 
@@ -167,7 +168,7 @@ def viber_settings(context):
         if record[0] == '_appVersion':
             setting = 'Application Version'
         elif record[0] == '_lastBackupStartDate':
-            setting = 'Last Backup Start Date - UTC'
+            setting = '_lastBackupStartDate (as stored)'
         elif record[0] == '_myUserName':
             setting = 'User Name'
         elif record[0] == '_currentEmail':
@@ -202,29 +203,13 @@ def viber_settings(context):
                 thumb = check_in_embedded_media(data_source, record[1], "Viber Profile Picture")
                 value = thumb
         elif record[0] == '_attemptsToDownloadBackupForRestore':
-            setting = 'Attempts To Download Backup For Restore'
-            try:
-                int.from_bytes(record[1], byteorder='big')  # needs further validation about the byteorder
-            except TypeError as err:
-                error_message = "Viber - Settings '_attemptsToDownloadBackupForRestore' could not be extracted. "
-                error_message += f"The error was: {err}"
-                logfunc(error_message)
+            setting = '_attemptsToDownloadBackupForRestore (as stored)'
+            value = record[1].hex() if isinstance(record[1], bytes) else record[1]
         elif record[0] == '_backupAttemptsCount':
-            setting = 'Backup Attempts Count'
-            try:
-                int.from_bytes(record[1], byteorder='big')  # needs further validation about the byteorder
-            except TypeError as err:
-                error_message = "Viber - Settings '_backupAttemptsCount' could not be extracted. "
-                error_message += f"The error was: {err}"
-                logfunc(error_message)
+            setting = '_backupAttemptsCount (as stored)'
+            value = record[1].hex() if isinstance(record[1], bytes) else record[1]
         elif record[0] == '_autoBackupLastRunTime':
             setting = 'Auto Backup Last Run Time - UTC'
-            x = str(record[1])
-            if x.startswith("-"):
-                value = record[1]
-            else:
-                value = convert_unix_ts_to_utc(record[1])
-        elif record[0] == '_lastBackupStartDate':
             x = str(record[1])
             if x.startswith("-"):
                 value = record[1]

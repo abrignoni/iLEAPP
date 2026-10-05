@@ -122,20 +122,25 @@ __artifacts_v2__ = {
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
                        "https://github.com/mac4n6/APOLLO/tree/"
                        "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
-        "author": "@KevinPagano3 - @Johann-PLW",
+        "author": "@KevinPagano3 - @Johann-PLW, @AlexisBrignoni, Codex",
         "creation_date": "2023-03-06",
         "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
-        "notes": "One row per heart rate sample (data type 5). On "
+        "notes": "One row per heart rate sample and distinct stored numeric context value (data type 5). On "
                  "iOS 15 and later a sample that holds a series is reported as one row per value "
-                 "in the series. Rows whose objects.type is 2 are not reported. Heart Rate Context "
+                 "in the series and distinct context value. Repeated identical context pairs do not "
+                 "add rows; differing values remain separate, without choosing one. "
+                 "Rows whose objects.type is 2 are not reported. Heart Rate Context "
                  "is read only from the sample's metadata value whose key is "
                  "_HKPrivateHeartRateContext, as named in the store's metadata_keys table; it is "
                  "blank when the sample has none. On hickman_ios13, hickman_ios14, iphone11_ios17 "
                  "and cookbook_ios1751 no heart rate sample held more than one such value, and "
                  "that key was the only metadata key on these samples. A sample holding two such "
-                 "values would be reported twice. The Heart Rate Context labels are not in the "
+                 "distinct numeric values is reported for both. Heart Rate Context Value reports the "
+                 "stored numerical_value separately from the existing label. The quantity-times-60 "
+                 "BPM conversion is retained; its basis is not established here. "
+                 "The Heart Rate Context labels are not in the "
                  "cited APOLLO health_heart_rate module and their source is not established here; "
                  "a value with no label is shown as stored. Device Name, Manufacturer and "
                  "Hardware are the source_devices name, manufacturer and hardware values of the "
@@ -410,13 +415,13 @@ __artifacts_v2__ = {
                        ", grouping the data type 70 samples into periods. A period continues "
                        "while the gap between one sample's end and the next sample's start is "
                        "3,600 seconds or less. Hours Worn and the hours off before the next "
-                       "period are cut to whole numbers. The reading of data type 70 as watch "
+                       "period retain fractional hours. The reading of data type 70 as watch "
                        "worn, in one-hour samples, is the cited article's. "
                        "Additional details published within 'Apple Watch Worn Data Analysis' at "
                        "https://metadataperspective.com/2024/05/20/apple-watch-worn-data-analysis/",
-        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "author": "@SQLMcGee for Metadata Forensics, LLC, @AlexisBrignoni, Codex",
         "creation_date": "2024-05-20",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -483,14 +488,14 @@ __artifacts_v2__ = {
         "description": "Parses Apple Health Sleep Data from the healthdb_secure.sqlite database"
                        ". One row per run of Watch sleep stage samples with consecutive data_id "
                        "values, which this artifact treats as one sleep period. Time in Bed is the "
-                       "sum of the Awake, REM, Core and Deep durations. "
+                       "span from the earliest start to the latest end of the period. "
                        "Additional details published within 'Sleepless in Cupertino: "
                        "A Forensic Dive into Apple Watch Sleep Tracking' at "
                        "https://metadataperspective.com/2024/08/01/sleepless-in-cupertino-a-"
                        "forensic-dive-into-apple-watch-sleep-tracking/",
-        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "author": "@SQLMcGee for Metadata Forensics, LLC, @AlexisBrignoni, Codex",
         "creation_date": "2024-08-01",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
         "notes": "",
@@ -1036,12 +1041,16 @@ def health_heart_rate(context):
         data_provenances.tz_name,
         quantity_sample_series.hfd_key,
         quantity_sample_series.count,
-        healthdb.sources.source_options
+        healthdb.sources.source_options,
+        metadata_values.numerical_value
     FROM samples
     LEFT JOIN quantity_samples on samples.data_id = quantity_samples.data_id
-    LEFT JOIN metadata_keys ON metadata_keys.key = '_HKPrivateHeartRateContext'
-    LEFT JOIN metadata_values ON samples.data_id = metadata_values.object_id
-        AND metadata_values.key_id = metadata_keys.ROWID
+    LEFT JOIN (
+        SELECT DISTINCT metadata_values.object_id, metadata_values.numerical_value
+        FROM metadata_values
+        JOIN metadata_keys ON metadata_values.key_id = metadata_keys.ROWID
+        WHERE metadata_keys.key = '_HKPrivateHeartRateContext'
+    ) AS metadata_values ON samples.data_id = metadata_values.object_id
     LEFT JOIN objects ON samples.data_id = objects.data_id
     LEFT JOIN data_provenances ON objects.provenance = data_provenances.ROWID
     LEFT JOIN healthdb.sources ON data_provenances.source_id = healthdb.sources.ROWID
@@ -1072,29 +1081,29 @@ def health_heart_rate(context):
                 for qsd_record in quantity_series_data_records:
                     series_data_date = convert_cocoa_core_data_ts_to_utc(qsd_record[0])
                     data_list.append(
-                        (series_data_date, qsd_record[1], record[3], added_timestamp,
+                        (series_data_date, added_timestamp, qsd_record[1], record[3],
                          record[5], record[6], record[7], device_model, record[8],
-                         record[9], record[10]))
+                         record[9], record[10], record[14]))
             else:
                 data_list.append(
-                    (start_timestamp, record[2], record[3], added_timestamp, record[5],
-                     record[6], record[7], device_model, record[8], record[9], record[10]))
+                    (start_timestamp, added_timestamp, record[2], record[3], record[5],
+                     record[6], record[7], device_model, record[8], record[9], record[10], record[14]))
         else:
             data_list.append(
-                (start_timestamp, end_timestamp, record[2], record[3], added_timestamp,
-                 record[5], record[6], record[7], device_model, record[8], record[9], record[10]))
+                (start_timestamp, end_timestamp, added_timestamp, record[2], record[3],
+                 record[5], record[6], record[7], device_model, record[8], record[9], record[10], record[14]))
 
     if version.parse(os_version) >= version.parse("15"):
         data_headers = (
-            ('Date', 'datetime'), 'Heart Rate (BPM)', 'Heart Rate Context',
-            ('Date added to Health', 'datetime'), 'Device Name', 'Manufacturer',
-            'Hardware', 'Device Model', 'Source', 'Software Version', 'Timezone')
+            ('Date', 'datetime'), ('Date added to Health', 'datetime'),
+            'Heart Rate (BPM)', 'Heart Rate Context', 'Device Name', 'Manufacturer',
+            'Hardware', 'Device Model', 'Source', 'Software Version', 'Timezone', 'Heart Rate Context Value')
     else:
         data_headers = (
-            ('Start Date', 'datetime'), ('End Date', 'datetime'), 'Heart Rate (BPM)',
-            'Heart Rate Context', ('Date added to Health', 'datetime'),
+            ('Start Date', 'datetime'), ('End Date', 'datetime'),
+            ('Date added to Health', 'datetime'), 'Heart Rate (BPM)', 'Heart Rate Context',
             'Device Name', 'Manufacturer', 'Hardware', 'Device Model', 'Source',
-            'Software Version', 'Timezone')
+            'Software Version', 'Timezone', 'Heart Rate Context Value')
 
     return data_headers, data_list, data_source
 
@@ -1383,11 +1392,10 @@ def health_watch_worn_data(context):
     )
     SELECT
         s1."Watch Worn Start Time",
-        CAST(s1."Hours Worn" AS INT),
+        s1."Hours Worn",
         s1."Last Watch Worn Hour Time",
-        CAST(
-            (s2."Watch Worn Start Time" - s1."Last Watch Worn Hour Time") / 3600 AS INT
-        ) AS "Hours Off Before Next Worn"
+        (s2."Watch Worn Start Time" - s1."Last Watch Worn Hour Time") / 3600.0
+            AS "Hours Off Before Next Worn"
     FROM
         Summary s1
     LEFT JOIN
@@ -1396,15 +1404,15 @@ def health_watch_worn_data(context):
     '''
 
     data_headers = (
-        ('Watch Worn Start Time', 'datetime'), 'Hours Worn',
-        ('Last Watch Worn Hour Time', 'datetime'), 'Hours Off Before Next Worn Start Time')
+        ('Watch Worn Start Time', 'datetime'), ('Last Watch Worn Hour Time', 'datetime'),
+        'Hours Worn', 'Hours Off Before Next Worn Start')
 
     db_records = get_sqlite_db_records(data_source, query)
 
     for record in db_records:
         start_timestamp = convert_cocoa_core_data_ts_to_utc(record[0])
         last_hour_time = convert_cocoa_core_data_ts_to_utc(record[2])
-        data_list.append((start_timestamp, record[1], last_hour_time, record[3]))
+        data_list.append((start_timestamp, last_hour_time, record[1], record[3]))
 
     return data_headers, data_list, data_source
 
@@ -1504,9 +1512,7 @@ def health_watch_by_sleep_period(context):
     SELECT
         MIN(start_time),
         MAX(end_time),
-        STRFTIME('%H:%M:%S',
-            SUM(CASE WHEN sleep_value IN ('AWAKE', 'REM', 'CORE', 'DEEP')
-            THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
+        MAX(end_time) - MIN(start_time),
         STRFTIME('%H:%M:%S',
             SUM(CASE WHEN sleep_value IN ('REM', 'CORE', 'DEEP')
             THEN duration_minutes * 60 ELSE 0 END), 'unixepoch'),
@@ -1532,7 +1538,7 @@ def health_watch_by_sleep_period(context):
 
     data_headers = (
         ('Sleep Start Time', 'datetime'), ('Sleep End Time', 'datetime'),
-        'Time in Bed (HH:MM:SS)', 'Time Asleep (HH:MM:SS)', 'Awake Duration (HH:MM:SS)',
+        'Time in Bed (seconds, period span)', 'Time Asleep (HH:MM:SS)', 'Awake Duration (HH:MM:SS)',
         'REM Duration (HH:MM:SS)', 'Core Duration (HH:MM:SS)',
         'Deep Duration (HH:MM:SS)', 'Awake %', 'REM %', 'Core %', 'Deep %')
 

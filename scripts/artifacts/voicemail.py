@@ -2,22 +2,19 @@ __artifacts_v2__ = {
     'voicemail': {
         'name': 'Voicemail',
         'description': 'Extract voicemail',
-        'author': '@JohannPLW - @AlexisBrignoni',
+        'author': '@JohannPLW - @AlexisBrignoni, Codex',
         'creation_date': '2023-09-30',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-04',
         'requirements': "none",
         'category': 'Call History',
-        'notes': "The Deleted column is Yes when trashed_date is 0 and flags is 75, No when "
-                 "trashed_date is 0 with any other flags value, and otherwise the trashed_date "
-                 "value read as Cocoa time; the date column is read as Unix time. The flags "
-                 "reading follows A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' (Syngress, "
-                 "2011), which lists 67 = old, 75 = deleted, 3 = recent. Whether those values "
-                 "hold on the tested iOS versions is not established in these notes. When no "
-                 "voicemail.db is present, one row is reported per audio file with its transcript "
-                 "matched by file stem, and the report names the audio and transcript files read. "
-                 "No registered corpus was found carrying voicemail files without the database, "
-                 "so that path was exercised on a constructed tree of audio and "
-                 "transcript files without it.",
+        'notes': "date and trashed_date are reported as raw text in separate columns because "
+                 "their epochs are not sourced here. flags is reported as stored without a "
+                 "derived Deleted label. A. Hoog & K. Strzempka, 'iPhone and iOS Forensics' "
+                 "(Syngress, 2011), lists 67 = old, 75 = deleted, 3 = recent; applicability to "
+                 "the tested iOS versions is not established. Without voicemail.db, audio files "
+                 "are matched to transcripts by stem and metadata comes from the seeker's "
+                 "FileInfo rather than database timestamps. That path was previously exercised "
+                 "on a constructed tree because no registered sample carried audio without the database.",
         'paths': (
             '*/mobile/Library/Voicemail/voicemail.db*',
             '*/mobile/Library/Voicemail/*.amr',
@@ -47,8 +44,7 @@ __artifacts_v2__ = {
 from pathlib import Path
 from scripts.ilapfuncs import artifact_processor, \
     get_file_path, does_table_exist_in_db, get_sqlite_db_records, \
-    get_plist_file_content, check_in_media, convert_unix_ts_to_utc, \
-    convert_cocoa_core_data_ts_to_utc
+    get_plist_file_content, check_in_media, convert_unix_ts_to_utc
 
 
 @artifact_processor
@@ -81,19 +77,15 @@ def voicemail(context):
                 voicemail.receiver,
                 map.account,
                 time(voicemail.duration, 'unixepoch'),
-                CASE
-                    WHEN voicemail.trashed_date = 0 AND voicemail.flags = 75 THEN 'Yes'
-                    WHEN voicemail.trashed_date = 0 THEN 'No'
-                    ELSE voicemail.trashed_date
-                END,
+                voicemail.trashed_date, voicemail.flags,
                 voicemail.ROWID
             FROM voicemail
             LEFT OUTER JOIN map ON voicemail.label = map.label
             '''
             data_headers = (
-                ('Date and time', 'datetime'), ('Sender', 'phonenumber'),
+                'date (as stored)', 'trashed_date (as stored)', 'flags (as stored)', ('Sender', 'phonenumber'),
                 ('Receiver', 'phonenumber'), 'ICCID receiver', 'Duration',
-                'Deleted', ('Audio File', 'media'), 'Transcript',
+                ('Audio File', 'media'), 'Transcript',
                 'Transcript confidence')
         else:
             query = '''
@@ -102,30 +94,21 @@ def voicemail(context):
                 voicemail.sender,
                 voicemail.callback_num,
                 time(voicemail.duration, 'unixepoch'),
-                CASE
-                    WHEN voicemail.trashed_date = 0 AND voicemail.flags = 75 THEN 'Yes'
-                    WHEN voicemail.trashed_date = 0 THEN 'No'
-                    ELSE voicemail.trashed_date
-                END,
+                voicemail.trashed_date, voicemail.flags,
                 voicemail.ROWID
             FROM voicemail
             '''
             data_headers = (
-                ('Date and time', 'datetime'), ('Sender', 'phonenumber'),
-                ('Callback Number', 'phonenumber'), 'Duration', 'Deleted',
+                'date (as stored)', 'trashed_date (as stored)', 'flags (as stored)', ('Sender', 'phonenumber'),
+                ('Callback Number', 'phonenumber'), 'Duration',
                 ('Audio File', 'media'), 'Transcript', 'Transcript confidence',)
 
         db_records = get_sqlite_db_records(db_file, query)
 
         for record in db_records:
-            timestamp = convert_unix_ts_to_utc(record[0])
-
-            deleted_raw = record[-2]
-            if isinstance(deleted_raw, int) and deleted_raw != 0:
-                deleted = convert_cocoa_core_data_ts_to_utc(deleted_raw)
-            else:
-                deleted = deleted_raw
-
+            timestamp = str(record[0]) if record[0] is not None else ''
+            trashed = str(record[-3]) if record[-3] is not None else ''
+            flags = record[-2]
             row_id = record[-1]
             audio_name_target = f'{row_id}.amr'
             transcript_name_target = f'{row_id}.transcript'
@@ -149,12 +132,12 @@ def voicemail(context):
 
             if table_map_exists:
                 data_list.append(
-                    (timestamp, record[1], record[2], record[3], record[4],
-                     deleted, media_item, transcription_string,
+                    (timestamp, trashed, flags, record[1], record[2], record[3], record[4],
+                     media_item, transcription_string,
                      transcription_confidence))
             else:
                 data_list.append(
-                    (timestamp, record[1], record[2], record[3], deleted,
+                    (timestamp, trashed, flags, record[1], record[2], record[3],
                      media_item, transcription_string,
                      transcription_confidence))
 

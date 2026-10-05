@@ -2,9 +2,9 @@ __artifacts_v2__ = {
     "icloudmeta": {
         "name": "iCloud - File Metadata",
         "description": "iCloud Drive file metadata parsed from Metadata.txt (iCloud Returns)",
-        "author": "@abrignoni",
+        "author": "@abrignoni, @AlexisBrignoni, Codex",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "iCloud Returns",
         "notes": "btime, ctime and mtime are converted as Unix epoch values, with the "
@@ -22,7 +22,7 @@ from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc
 
 
 def _ms_to_utc(value):
-    """Epoch-milliseconds (UTC) to an aware UTC datetime; blank for missing/zero values."""
+    """Unix epoch value to UTC, with its unit inferred by the shared converter; blank if absent."""
     if isinstance(value, (int, float)) and value > 0:
         return convert_unix_ts_to_utc(value)
     return ''

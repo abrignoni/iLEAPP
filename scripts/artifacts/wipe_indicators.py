@@ -1,19 +1,15 @@
 __artifacts_v2__ = {
     "wipe_indicators": {
         "name": "Wipe Indicators",
-        "description": "Reports the last-modified time of /root/.obliterated and "
-                       "/root/.bootstrapped as extracted; the cited reference describes "
-                       ".obliterated as a zero-byte file created by the device upon booting after "
-                       "a wipe and reads its creation time, which this artifact does not report, "
-                       "and .bootstrapped is not covered by it",
-        "author": "@JohnHyla",
+        "description": "Reports source metadata times for /root/.obliterated and /root/.bootstrapped from the seeker's FileInfo",
+        "author": '@JohnHyla, @AlexisBrignoni, Codex',
         "creation_date": "2026-08-06",
         "version": "0.0.3",
         "date": "2024-10-17",
-        "last_update_date": "2026-08-21",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "The file is not present in every extraction and extraction handling can disturb file times; corroborate with containermanagerd logs. Reference: Cellebrite, 'Upgrade From Null: Detecting iOS Wipe Artifacts', https://cellebrite.com/en/blog/upgrade-from-null-detecting-ios-wipe-artifacts/",
+        "notes": "Creation and modification values come from source FileInfo, not getmtime on the staged copy. A missing source time stays blank; tar lacks creation time, and zip requires an extended timestamp field. Directory input uses filesystem ctime for the creation slot, which is not necessarily birth time. The cited reference reads creation time for .obliterated and does not cover .bootstrapped. The file is not present in every extraction and extraction handling can disturb file times; corroborate with containermanagerd logs. Reference: Cellebrite, 'Upgrade From Null: Detecting iOS Wipe Artifacts', https://cellebrite.com/en/blog/upgrade-from-null-detecting-ios-wipe-artifacts/",
         "paths": ('*/root/.obliterated','*/root/.bootstrapped'),
         "output_types": "standard",
         "artifact_icon": "trash",
@@ -41,16 +37,19 @@ from scripts.ilapfuncs import device_info, artifact_processor, convert_unix_ts_t
 def wipe_indicators(context):
     files_found = context.get_files_found()
     data_list = []
+    file_infos = context.get_seeker().file_infos
     source_path = ""
     
     for source_path in files_found:
         source_name = str(context.get_relative_path(source_path))
         source_name_log = os.path.basename(source_name.replace('\\', '/'))
-        utc_modified_date = convert_unix_ts_to_utc(os.path.getmtime(source_path))
+        info = file_infos.get(source_path)
+        created = convert_unix_ts_to_utc(info.creation_date) if info and info.creation_date else ''
+        modified = convert_unix_ts_to_utc(info.modification_date) if info and info.modification_date else ''
     
-        device_info("Wipe Indicators", f"{source_name_log}", utc_modified_date, source_name)
+        device_info("Wipe Indicators", f"{source_name_log}", created, source_name)
     
-        data_list.append((utc_modified_date, source_name_log, source_name))
+        data_list.append((created, modified, source_name_log, source_name))
 
-    data_headers = (('Timestamp', 'datetime'),'Source File','Source Path')
+    data_headers = (('Source Metadata Created', 'datetime'), ('Source Metadata Modified', 'datetime'),'Source File','Source Path')
     return data_headers, data_list, '\n'.join(sorted(str(file_found) for file_found in files_found))

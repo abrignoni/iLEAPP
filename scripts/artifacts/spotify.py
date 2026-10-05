@@ -4,9 +4,9 @@ __artifacts_v2__ = {
         "description": "Tracks, playlists, albums and artists the Spotify app's own "
                        "store lists as recently played, with the times it records "
                        "against them.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per distinct key, time and record state in the recently "
@@ -21,11 +21,11 @@ __artifacts_v2__ = {
                  "drop them. Records that repeat a key, a time and "
                  "a state are counted once. Record State says whether the record the "
                  "row came from is a value or a deletion, and it reads Deleted on 1 of "
-                 "258 rows, which is an entry the app had dropped from the list. Played "
+                 "258 rows, which is an entry the app had dropped from the list. Candidate Time Integer "
                  "is the first integer in the record that falls in the range of Unix "
                  "seconds from 2008 to 2036, found by value and not by field number, "
-                 "read as Unix seconds and reported in UTC. What the app records in it "
-                 "is not established by a source. Played is blank on "
+                 "reported as raw text without epoch conversion. What the app records in it "
+                 "is not established by a source. Candidate Time Integer is blank on "
                  "1 row, the deleted one. The module reads keys that begin !rp#trk#, "
                  "!rp#ctx# or !yl#rpp#. Reading them as recently played comes from the "
                  "key names; no source for these keys is cited here. On "
@@ -66,9 +66,9 @@ __artifacts_v2__ = {
         "description": "Entries the Spotify store holds for the account's saved "
                        "collection and under its offlkeys keys, which the module "
                        "labels from the key name.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per collection or offline key in the same LevelDB the "
@@ -79,10 +79,10 @@ __artifacts_v2__ = {
                  "device row is a deletion. Whether that means a download was removed "
                  "or the app rewrote its index was not established, and what these "
                  "keys record is not established either. On the tested images every "
-                 "Saved to collection row is live. Saved is the first integer in the "
+                 "Saved to collection row is live. Candidate Time Integer is the first integer in the "
                  "collection record that falls in the range of Unix seconds from 2008 "
-                 "to 2036, found by value and not by field number, reported in UTC. "
-                 "What the app records in it is not established by a source. Saved is "
+                 "to 2036, found by value and not by field number, reported as raw text. "
+                 "What the app records in it is not established by a source. Candidate Time Integer is "
                  "blank on the Marked to keep on device rows because the module reads "
                  "no time from those records. Item "
                  "Type comes from the address: 93 tracks, 31 artists, and 4 rows whose "
@@ -110,9 +110,9 @@ __artifacts_v2__ = {
         "name": "Spotify - Player State",
         "description": "The track held in the Spotify app's saved player state file, "
                        "with the position, flags and times the file stores.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per Library/Application "
@@ -263,20 +263,19 @@ __artifacts_v2__ = {
         "name": "Spotify - Podcast Playback",
         "description": "Podcast episodes the Spotify app recorded a playback position "
                        "for, with the time each record stores.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per record in Library/Application "
                  "Support/PersistentCache/Users/<account>-user/played-state-storage, "
-                 "which the module reads as a protobuf. Last Played is "
-                 "field 4 of the record read as Unix seconds and reported in UTC. "
-                 "Position and Duration are fields 3 and 8 as stored. The roles of "
+                 "which the module reads as a protobuf. Field 4 is reported as raw text "
+                 "without an assumed time unit or event meaning. "
+                 "Fields 3 and 8 are reported as stored without asserted roles or units. The roles of "
                  "these fields and the seconds unit are this module's reading of the "
                  "stored values; no source for the format is cited, and what field 4 "
-                 "marks is not established. Played Through is Position divided by "
-                 "Duration, which is a calculation here and not a stored value. The "
+                 "marks is not established. Field 3 / Field 8 is the ratio of those integers, which is a calculation here and not a stored value. The "
                  "file is two bytes long and holds nothing on the three oldest tested "
                  "images, holds records on two of the newer ones, and is absent from "
                  "the newest, so it is worth opening on any image rather than being "
@@ -303,9 +302,9 @@ __artifacts_v2__ = {
         "description": "The Spotify account named in the app's settings file under "
                        "autologin.canonical_username, with values from its cached "
                        "profile record.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per settings file the app writes at Library/Application "
@@ -329,8 +328,7 @@ __artifacts_v2__ = {
                  "fixed value: two of the tested images hold the same account with the "
                  "name capitalised differently. Sign In Credential Stored says only "
                  "whether the settings file holds the saved sign in blob. It does on "
-                 "all 6 rows. The blob itself is not printed. Clock Offset From Server "
-                 "(Seconds) is the value the app stores under core.clock_delta, "
+                 "all 6 rows. The blob itself is not printed. core.clock_delta (as stored) is the value the app stores under core.clock_delta, "
                  "reported as stored; it reads 0 on four rows and a small negative "
                  "number on two. The column name is this module's reading of the key "
                  "name; what the value measures and its unit are not established. "
@@ -359,19 +357,18 @@ __artifacts_v2__ = {
         "name": "Spotify - Followed Artists",
         "description": "Artists the subscription list the Spotify app cached names the "
                        "account as following, with the time recorded against each.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex, Claude',
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Spotify",
         "notes": "One row per entry of the subscription list the app cached in "
                  "Library/Application Support/PersistentCache/mercury.db. The row that "
                  "holds it records the request it answered, which names the account, so "
                  "the account each entry belongs to is recorded rather than assumed. "
-                 "Followed is the Unix time the entry carries, reported in UTC. This "
+                 "Subscription Integer is the value the entry carries, reported as raw text. This "
                  "is the list as the cache row holds it. What the time in each entry "
-                 "marks is not established by a source; it is reported under Followed "
-                 "because it sits in each subscription entry. The times cluster: on "
+                 "marks and its unit are not established by a source. The times cluster: on "
                  "each "
                  "of the 3 images that carry the list all of its entries fall inside "
                  "four minutes of one day. "
@@ -828,7 +825,7 @@ def spotify_ios_recently_played(context):
             track = uri.split(':')[-1] if uri.startswith('spotify:track:') else ''
             named = lyrics.get((container, track), {})
             data_list.append((
-                _unix_to_utc(stamp),
+                _text(stamp),
                 _item_type(uri),
                 named.get('artist', ''),
                 named.get('title', ''),
@@ -838,7 +835,7 @@ def spotify_ios_recently_played(context):
             ))
 
     data_headers = (
-        ('Played', 'datetime'), 'Item Type', 'Artist', 'Title', 'Item URI', 'Account',
+        'Candidate Time Integer (as stored)', 'Item Type', 'Artist', 'Title', 'Item URI', 'Account',
         'Record State')
     return data_headers, data_list, '\n'.join(sources)
 
@@ -865,8 +862,8 @@ def spotify_ios_saved_items(context):
             if not uri:
                 continue
             data_list.append((
+                _text(stamp),
                 kind,
-                _unix_to_utc(stamp),
                 _item_type(uri),
                 uri,
                 account,
@@ -874,7 +871,7 @@ def spotify_ios_saved_items(context):
             ))
 
     data_headers = (
-        'Kind', ('Saved', 'datetime'), 'Item Type', 'Item URI', 'Account', 'Record State')
+        'Candidate Time Integer (as stored)', 'Kind', 'Item Type', 'Item URI', 'Account', 'Record State')
     return data_headers, data_list, '\n'.join(sources)
 
 
@@ -921,7 +918,7 @@ def spotify_ios_player_state(context):
 
     data_headers = (
         ('State Saved', 'datetime'), ('Playback Reported', 'datetime'), 'Title', 'Artist',
-        'Album', 'Track URI', 'Played From URI', 'Position (ms)', 'Duration (ms)',
+        'Album', 'Track URI', 'Played From URI', 'Position (as stored)', 'Duration (as stored)',
         'Playing', 'Paused', 'Shuffle', 'Repeat Context', 'Repeat Track',
         'Explicit Content Filtered', 'Feature', 'Reached From', 'App Version', 'Album URI',
         'Artist URI', 'Account')
@@ -1019,7 +1016,7 @@ def spotify_ios_podcast_playback(context):
             if isinstance(position, int) and isinstance(duration, int) and duration:
                 through = f'{position / duration:.1%}'
             data_list.append((
-                _unix_to_utc(one(4)),
+                _text(one(4)),
                 _text(one(2)),
                 _text(one(1)),
                 _text(position),
@@ -1029,8 +1026,8 @@ def spotify_ios_podcast_playback(context):
             ))
 
     data_headers = (
-        ('Last Played', 'datetime'), 'Episode URI', 'Show URI', 'Position (Seconds)',
-        'Duration (Seconds)', 'Played Through', 'Account')
+        'Field 4 (as stored)', 'Episode URI', 'Show URI', 'Field 3 (as stored)',
+        'Field 8 (as stored)', 'Field 3 / Field 8 (calculated)', 'Account')
     return data_headers, data_list, '\n'.join(sources)
 
 @artifact_processor
@@ -1062,7 +1059,7 @@ def spotify_ios_account(context):
 
     sources = [source for source in sources if source]
     data_headers = (
-        'Username', 'Display Name', 'Language', 'Clock Offset From Server (Seconds)',
+        'Username', 'Display Name', 'Language', 'core.clock_delta (as stored)',
         'Sign In Credential Stored', 'Profile Picture URL', 'Profile Picture URL (Large)')
     return data_headers, data_list, '\n'.join(sources)
 
@@ -1081,10 +1078,10 @@ def spotify_ios_followed_artists(context):
         for artist, stamp in _SUBSCRIPTION_ENTRY.findall(value):
             number, _ = _varint(stamp, 0)
             data_list.append((
-                _unix_to_utc(number),
+                _text(number),
                 f'spotify:artist:{artist.decode()}',
                 owner.group(1).decode(),
             ))
 
-    data_headers = (('Followed', 'datetime'), 'Artist URI', 'Account')
+    data_headers = ('Subscription Integer (as stored)', 'Artist URI', 'Account')
     return data_headers, data_list, '\n'.join(sources)

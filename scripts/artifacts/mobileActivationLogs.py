@@ -3,13 +3,13 @@ __artifacts_v2__ = {
         "name": "Mobile Activation Logs",
         "description": "Upgrade and Mobile Activation Startup events parsed from mobileactivationd.log "
                        "(including logs found inside sysdiagnose archives)",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-09-10",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Mobile Activation Logs",
         "notes": "Timestamps are read from the log line, which carries no time zone marker; the "
-                 "artifact stores them as UTC, and whether the log writes UTC or device-local time "
+                 "artifact reports them as text, and whether the log writes UTC or device-local time "
                  "is not established here. A log present both in the file system and inside a "
                  "sysdiagnose archive is read from each, so the same event can appear more than "
                  "once; Log Name gives the file. Only two kinds of line are reported: 'Upgrade "
@@ -36,7 +36,7 @@ __artifacts_v2__ = {
 }
 
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 from scripts.ilapfuncs import artifact_processor, get_sysdiagnose_files
@@ -51,7 +51,7 @@ _LOG_MATCH_RE = re.compile(r"mobileactivationd\.log(\.\d+)?$")
 
 @artifact_processor
 def mobileActivationLogs(context):
-    data_headers = (('Datetime', 'datetime'), 'Event', 'Log Name')
+    data_headers = ('Timestamp (no zone recorded)', 'Event', 'Log Name')
     data_list = []
     source_files = []
 
@@ -76,7 +76,7 @@ def mobileActivationLogs(context):
                 continue
             try:
                 dtime_obj = datetime.strptime(' '.join(match.group(3, 5, 4)),
-                                              '%b %d %Y %H:%M:%S').replace(tzinfo=timezone.utc)
+                                              '%b %d %Y %H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
             except ValueError:
                 continue
 

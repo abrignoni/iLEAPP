@@ -3,9 +3,9 @@ __artifacts_v2__ = {
         "name": "PowerLog - Application Runtime",
         "description": "Per-application ScreenOnTime and BackgroundTime values recorded "
                        "by PowerLog (PLAppTimeService_Aggregate_AppRunTime table)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -17,8 +17,7 @@ __artifacts_v2__ = {
             "oldest entry) and the applied offset is reported in its own column. Where a "
             "database holds no offset entries the raw value is reported unchanged and the "
             "offset column is empty, so that timestamp is on the log's uncorrected clock. "
-            "ScreenOnTime/BackgroundTime read as seconds are "
-            "consistent with the sampling-window durations in test data. Gzipped rotated "
+            "ScreenOnTime/BackgroundTime values are reported as stored without a unit assertion. Gzipped rotated "
             "logs (*.PLSQL.gz) are decompressed to a temporary location and parsed; the "
             "Source File column carries the archive path. The databases under "
             "logs/powerlogs in a packed sysdiagnose (sysdiagnose_*.tar.gz, such as those "
@@ -69,14 +68,13 @@ __artifacts_v2__ = {
         "name": "PowerLog - Battery Level",
         "description": "Battery level and charging state samples recorded by PowerLog "
                        "(PLBatteryAgent_EventBackward_BatteryUI table)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
-            "Level is reported as stored. The Battery Level (%) header reads it as a "
-            "percentage; no source for the unit is cited. IsCharging holds 0/1, "
+            "Level is reported as stored without an asserted percentage unit. IsCharging holds 0/1, "
             "reported as No/Yes with other values passed through as stored. Timestamps "
             "are adjusted using PowerLog's time-offset table and the applied offset is "
             "reported per row; see the PowerLog - Application Runtime notes for the "
@@ -638,17 +636,17 @@ __artifacts_v2__ = {
         "name": "PowerLog - Generative Function Summarization",
         "description": "Summarization request events recorded by PowerLog "
                        "(GenerativeFunctionMetrics_Summarization_1_2 table)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
             "bundleID holds app bundle identifiers as recorded. kind, exitReason, "
             "and isUrgent are integer codes reported as stored. In test data these "
             "tables held rows only on an Apple Intelligence capable device (iPhone 16, "
-            "iOS 26.5.2 sysdiagnose); on other iOS 18-26 test images they exist with "
-            "zero rows. Timestamps are adjusted using PowerLog's time-offset table and "
+            "iOS 26.5.2 sysdiagnose). A zero row count elsewhere does not establish "
+            "whether the table exists. Timestamps are adjusted using PowerLog's time-offset table and "
             "the applied offset is reported per row; end times preserve the recorded "
             "duration against the corrected start. See the PowerLog - Application "
             "Runtime notes for the mechanism."
@@ -689,9 +687,9 @@ __artifacts_v2__ = {
         "description": "Request records recorded by PowerLog in the "
                        "GenerativeFunctionMetrics_tgiExecuteRequest_1_2 table (token "
                        "counts and request type as stored)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -699,8 +697,8 @@ __artifacts_v2__ = {
             "latency column is read here. The table carries additional "
             "columns whose names begin with sd_ that are not parsed here. "
             "In test data these tables held rows only on an Apple Intelligence "
-            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
-            "test images they exist with zero rows. Timestamps are adjusted using "
+            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose). A zero row count elsewhere "
+            "does not establish whether the table exists. Timestamps are adjusted using "
             "PowerLog's time-offset table and the applied offset is reported per "
             "row; end times preserve the recorded duration against the corrected "
             "start. See the PowerLog - Application Runtime notes for the mechanism."
@@ -794,9 +792,9 @@ __artifacts_v2__ = {
         "name": "PowerLog - Generative Function Asset Loads",
         "description": "Model asset load events recorded by PowerLog "
                        "(GenerativeFunctionMetrics_assetLoad_1_2 table)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -805,8 +803,8 @@ __artifacts_v2__ = {
             "each identifier refers to is not established here. loadType, reason, and "
             "result are integer codes reported as stored. In test data these tables "
             "held rows only on an Apple Intelligence capable device (iPhone 16, iOS "
-            "26.5.2 sysdiagnose); on other iOS 18-26 test images they exist with zero "
-            "rows. Timestamps are adjusted using PowerLog's time-offset table and the "
+            "26.5.2 sysdiagnose). A zero row count elsewhere does not establish "
+            "whether the table exists. Timestamps are adjusted using PowerLog's time-offset table and the "
             "applied offset is reported per row; end times preserve the recorded "
             "duration against the corrected start. See the PowerLog - Application "
             "Runtime notes for the mechanism."
@@ -846,9 +844,9 @@ __artifacts_v2__ = {
         "name": "PowerLog - Generative Function Opt-In",
         "description": "Opt-in state samples recorded by PowerLog "
                        "(GenerativeFunctionMetrics_OptIn_1_2 table)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "PowerLog",
         "notes": (
@@ -858,8 +856,8 @@ __artifacts_v2__ = {
             "time-offset table, so the reported offset column is essential "
             "context. "
             "In test data these tables held rows only on an Apple Intelligence "
-            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose); on other iOS 18-26 "
-            "test images they exist with zero rows. Timestamps are adjusted using "
+            "capable device (iPhone 16, iOS 26.5.2 sysdiagnose). A zero row count elsewhere "
+            "does not establish whether the table exists. Timestamps are adjusted using "
             "PowerLog's time-offset table and the applied offset is reported per "
             "row. See the PowerLog - Application Runtime notes for the mechanism."
         ),
@@ -898,16 +896,15 @@ __artifacts_v2__ = {
         "name": "Power Telemetry - Battery Data Daily",
         "description": "Daily battery data samples recorded in the PerfPowerTelemetry "
                        "extended persistence log (BatteryDataCollection_BDC_Daily table)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
             "CycleCount, MaxCapacityPercent, NominalChargeCapacity, and "
-            "ChargingVoltage are reported as stored. The Max Capacity (%) header takes its "
-            "percent sign from the database column name MaxCapacityPercent; no unit is "
-            "asserted for the other columns. MaxCapacityPercent is not present in every "
+            "ChargingVoltage are reported as stored under the database field names; no units "
+            "are asserted from those names. MaxCapacityPercent is not present in every "
             "schema and is reported empty where absent. Raw timestamp values are adjusted "
             "using the time-offset table in this log (PPTStorageOperator_TimeOffset; its "
             "retention suffix varies by iOS version) and the applied offset is reported per "
@@ -1048,9 +1045,9 @@ __artifacts_v2__ = {
         "description": "Daily trusted battery data samples recorded in the "
                        "PerfPowerTelemetry extended persistence log "
                        "(BatteryTrustedData_Daily table)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
@@ -1102,9 +1099,9 @@ __artifacts_v2__ = {
         "description": "Background task execution records from the PerfPowerTelemetry "
                        "background processing log (BackgroundProcessing_TaskInstanceData "
                        "table)",
-        "author": "@AlexisBrignoni",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-09-18",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Power Telemetry",
         "notes": (
@@ -1502,9 +1499,9 @@ def _yes_no(value):
 @artifact_processor
 def powerlogApplicationRuntime(context):
     data_headers = (
-        ("Timestamp", "datetime"), "Bundle ID", "Background Time (seconds)",
-        "Screen-on Time (seconds)", "In-Call Background Time (seconds)",
-        "In-Call Screen-on Time (seconds)", "Time Offset (seconds)", "Source File",
+        ("Timestamp", "datetime"), "Bundle ID", "BackgroundTime (as stored)",
+        "ScreenOnTime (as stored)", "InCallBackgroundTime (as stored)",
+        "InCallScreenOnTime (as stored)", "Time Offset (seconds)", "Source File",
     )
     results, source = _parse_powerlog_table(
         context, data_headers, "PLAppTimeService_Aggregate_AppRunTime",
@@ -1520,7 +1517,7 @@ def powerlogApplicationRuntime(context):
 @artifact_processor
 def powerlogBatteryLevel(context):
     data_headers = (
-        ("Timestamp", "datetime"), "Battery Level (%)", "Is Charging",
+        ("Timestamp", "datetime"), "Level (as stored)", "Is Charging",
         "Time Offset (seconds)", "Source File",
     )
     results, source = _parse_powerlog_table(
@@ -1799,7 +1796,7 @@ BGSQL_OFFSET = "BackgroundProcessing_TimeOffset"
 @artifact_processor
 def powerTelemetryBatteryDataDaily(context):
     data_headers = (
-        ("Timestamp", "datetime"), "Cycle Count", "Max Capacity (%)",
+        ("Timestamp", "datetime"), "Cycle Count", "MaxCapacityPercent (as stored)",
         "Nominal Charge Capacity (as stored)", "Charging Voltage (as stored)",
         "Time Offset (seconds)", "Source File",
     )
@@ -1858,10 +1855,9 @@ def powerTelemetryBatteryHardware(context):
 @artifact_processor
 def powerTelemetryBatteryTrustedDaily(context):
     data_headers = (
-        ("Timestamp", "datetime"), "Trusted Cycle Count",
+        ("Timestamp", "datetime"), ("Trusted Date Of First Use", "datetime"), "Trusted Cycle Count",
         "Trusted Maximum Capacity (as stored)",
         "Trusted LifeTime Max WRdc (as stored)",
-        ("Trusted Date Of First Use", "datetime"),
         "Time Offset (seconds)", "Source File",
     )
     results, source = _parse_powerlog_table(
@@ -1869,7 +1865,7 @@ def powerTelemetryBatteryTrustedDaily(context):
         ("timestamp", "TrustedCycleCount", "TrustedMaximumCapacity",
          "TrustedLifeTimeMaxWRdc", "TrustedDateOfFirstUse"),
         lambda ts, offset, row, rel: (
-            ts, row[1], row[2], row[3], convert_unix_ts_to_utc(row[4]),
+            ts, convert_unix_ts_to_utc(row[4]), row[1], row[2], row[3],
             offset, rel),
         extension=".EPSQL", offset_prefix=EPSQL_OFFSET,
     )
@@ -1879,8 +1875,8 @@ def powerTelemetryBatteryTrustedDaily(context):
 @artifact_processor
 def powerTelemetryBackgroundTaskInstances(context):
     data_headers = (
-        ("Timestamp", "datetime"), "Process Name", "PID",
-        ("Start Date", "datetime"), ("End Date", "datetime"),
+        ("Timestamp", "datetime"), ("Start Date", "datetime"), ("End Date", "datetime"),
+        "Process Name", "PID",
         "Started On Battery", "Task ID", "Time Offset (seconds)",
         "Source File",
     )
@@ -1889,8 +1885,8 @@ def powerTelemetryBackgroundTaskInstances(context):
         ("timestamp", "ProcessName", "PID", "StartDate", "EndDate",
          "StartedOnBattery", "TaskID"),
         lambda ts, offset, row, rel: (
-            ts, row[1], row[2], convert_unix_ts_to_utc(row[3]),
-            convert_unix_ts_to_utc(row[4]), _yes_no(row[5]), row[6], offset,
+            ts, convert_unix_ts_to_utc(row[3]), convert_unix_ts_to_utc(row[4]),
+            row[1], row[2], _yes_no(row[5]), row[6], offset,
             rel),
         extension=".BGSQL", offset_prefix=BGSQL_OFFSET,
     )

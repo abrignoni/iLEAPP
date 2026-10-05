@@ -1,13 +1,13 @@
 __artifacts_v2__ = {
     "Ph080ComAppleMobileSlideshowPlist": {
         "name": "Ph080-Com-Apple-MobileSlideshow-Plist",
-        "description": "Lists the keys and values of the first com.apple.mobileslideshow.plist matched, which"
+        "description": "Lists the keys and values of matched com.apple.mobileslideshow.plist files, which"
         " is the preferences file of the Photos app (bundle id com.apple.mobileslideshow). The"
         " keys downloadAndKeepOriginals and PhotosSharedLibrarySyncingIsActive are reported"
         " under Device Info and are not in this table. Values are shown as stored, except"
         " TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo, which is an embedded"
         " plist shown decoded when it can be read. What each key means is not established here.",
-        "author": "Scott Koenig",
+        "author": "Scott Koenig, @AlexisBrignoni, Codex",
         "creation_date": "2025-01-05",
         "last_update_date": "2026-10-04",
         "requirements": "Acquisition that contains com.apple.mobileslideshow.plist",
@@ -43,45 +43,46 @@ from scripts.ilapfuncs import artifact_processor, logfunc, device_info
 
 @artifact_processor
 def Ph080ComAppleMobileSlideshowPlist(context):
-    files_found = context.get_files_found()
+    files_found = list(dict.fromkeys(str(path) for path in context.get_files_found()))
     report_folder = context.get_report_folder()
     data_list = []
-    source_path = str(files_found[0])
 
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
-        for key, val in pl.items():
+    for source_index, source_path in enumerate(files_found):
+        export_suffix = f"-{source_index + 1}" if len(files_found) > 1 else ""
+        with open(source_path, "rb") as fp:
+            pl = plistlib.load(fp)
+            for key, val in pl.items():
 
-            if key == 'downloadAndKeepOriginals':
-                logfunc(f"downloadAndKeepOriginals: {val}")
-                device_info("com.apple.mobileslideshow.plist", "downloadAndKeepOriginals", str(val), source_path)
+                if key == 'downloadAndKeepOriginals':
+                    logfunc(f"downloadAndKeepOriginals: {val}")
+                    device_info("com.apple.mobileslideshow.plist", "downloadAndKeepOriginals", str(val), source_path)
 
-            elif key == 'PhotosSharedLibrarySyncingIsActive':
-                logfunc(f"PhotosSharedLibrarySyncingIsActive: {val}")
-                device_info("com.apple.mobileslideshow.plist", "PhotosSharedLibrarySyncingIsActive", str(val), source_path)
+                elif key == 'PhotosSharedLibrarySyncingIsActive':
+                    logfunc(f"PhotosSharedLibrarySyncingIsActive: {val}")
+                    device_info("com.apple.mobileslideshow.plist", "PhotosSharedLibrarySyncingIsActive", str(val), source_path)
 
-            elif key == 'TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo':
-                pathto = os.path.join(report_folder, 'TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo' + '.bplist')
-                with open(pathto, "wb") as wf:
-                    wf.write(val)
+                elif key == 'TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo':
+                    pathto = os.path.join(report_folder, 'TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo' + export_suffix + '.bplist')
+                    with open(pathto, "wb") as wf:
+                        wf.write(val)
 
-                with open(pathto, "rb") as f:
-                    try:
-                        deserialized_plist = nd.deserialize_plist(f)
-                        val = deserialized_plist
+                    with open(pathto, "rb") as f:
+                        try:
+                            deserialized_plist = nd.deserialize_plist(f)
+                            val = deserialized_plist
 
-                    except (nd.DeserializeError,
-                    nd.biplist.NotBinaryPlistException,
-                    nd.biplist.InvalidPlistException,
-                    plistlib.InvalidFileException,
-                    nd.ccl_bplist.BplistError,
-                    ValueError,
-                    TypeError, OSError, OverflowError) as ex:
-                        logfunc('Had exception: ' + str(ex))
-                data_list.append(('TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo', str(val)))
+                        except (nd.DeserializeError,
+                        nd.biplist.NotBinaryPlistException,
+                        nd.biplist.InvalidPlistException,
+                        plistlib.InvalidFileException,
+                        nd.ccl_bplist.BplistError,
+                        ValueError,
+                        TypeError, OSError, OverflowError) as ex:
+                            logfunc('Had exception: ' + str(ex))
+                    data_list.append(('TipKitEligibleContents-com.apple.mobileslideshow.one-up-photo', str(val), context.get_relative_path(source_path)))
 
-            else:
-                data_list.append((key, str(val)))
+                else:
+                    data_list.append((key, str(val), context.get_relative_path(source_path)))
 
-    data_headers = ('Property','Property Value')
-    return data_headers, data_list, source_path
+    data_headers = ('Property', 'Property Value', 'Source File')
+    return data_headers, data_list, '\n'.join(files_found)

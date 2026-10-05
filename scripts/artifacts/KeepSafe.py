@@ -2,32 +2,28 @@ __artifacts_v2__ = {
     "keepsafe_vault_items": {
         "name": "KeepSafe - Vault Items",
         "description": (
-            "Encrypted item files found under Documents/<table>/ in KeepSafe's container, one row "
-            "per file, each matched by its item id to the record for that id in the write-ahead "
-            "logs of the app's RocksDB stores (Documents/rdb and "
-            "Documents/rdb_backups/<timestamp>), with the values of the numbered fields this "
-            "module labels as name, two times, album, coordinates, SHA-1 and dimensions. The "
-            "labels were assigned by this module; no KeepSafe source for them is cited. Records "
-            "held only in the .sst tables are not read."
+            "KeepSafe item files and resolved item records in the write-ahead logs under "
+            "Documents/rdb and Documents/rdb_backups/<timestamp>. Files are matched by item id "
+            "to decoded records. Log-only items are retained with a blank Source File. "
+            "Numbered fields are reported under this module's labels; their meanings are not "
+            "established by KeepSafe source. Records held only in .sst tables are not read."
         ),
-        "author": "@Gear-I, Claude",
+        "author": "@Gear-I, Claude, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-23",
-        "last_update_date": "2026-08-23",
+        "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
-            "RocksDB *.sst tables are not read. A row is produced for each item file found on "
-            "disk. Where the write-ahead logs hold a record for that item id its fields are "
-            "reported; where they do not, those columns are blank. A log record whose file is not "
-            "in the extraction produces no row, so the row count is the number of item files "
-            "found and is not a count of what the vault holds or has held. 'breakin_alert' and "
+            "RocksDB *.sst tables are not read. A row is produced for each item file, with "
+            "its matching resolved WAL fields when present; an item found only in the resolved "
+            "WAL state also produces a row, with no linked item file. This is not a complete "
+            "count of what the vault holds or has held. 'breakin_alert' and "
             "'fake' were empty directories with no live records on hickman_ios14, so their field "
-            "mapping is unexercised. The column labels (Original Filename, Content Date, Date "
-            "Added to Vault, Album, GPS Latitude and Longitude, SHA-1, Dimensions and the rest) "
+            "mapping is unexercised. The column labels (Original Filename, Album, GPS Latitude and Longitude, "
+            "SHA-1, Dimensions and the rest) "
             "were assigned by this module to numbered keys of the log values; no KeepSafe source "
             "for them is cited, and how each was identified and on which image is not recorded "
-            "here. Content Date and Date Added to Vault are read as Unix seconds; the basis for "
-            "that unit is not stated in this module. On the iOS 17.3 image each table is sharded "
+            "here. Keys 21 and 22 are retained as stored text without assigning a unit or epoch. On the iOS 17.3 image each table is sharded "
             "into two-letter folders (primary/<xx>/<item-id>_100); the folder entries the file "
             "search returns beside the files, and the rdb_backups/<timestamp> folder itself, are "
             "skipped. The KeepSafe version recorded in sample_data is the app's own "
@@ -136,7 +132,7 @@ from scripts.ilapfuncs import artifact_processor, convert_unix_ts_to_utc, logfun
 
 # ---------------------------------------------------------------------------
 # Minimal MessagePack decoder (nil/bool/int/float/str/array/map only).
-# See module docstring for why this is hand-rolled rather than a dependency.
+# This decoder supports only the MessagePack tags listed below.
 # ---------------------------------------------------------------------------
 
 class _MsgpackError(ValueError):
@@ -378,7 +374,7 @@ def _resolve_album_names(files_found):
 _VAULT_TABLES = ("primary", "breakin_alert", "fake")
 
 # The encrypted content file for an item is named "<item-id>:100" on disk (matching
-# the ":100" RocksDB record suffix documented above). ":" is the classic Mac OS path
+# the ":100" RocksDB record suffix used for the item metadata). ":" is the classic Mac OS path
 # separator, and several real-world extraction paths -- confirmed against a real
 # device extraction, not just the raw tar used to build/validate this module --
 # sanitize it to "_" when the file is written back out to a modern filesystem, so the
@@ -435,7 +431,16 @@ def keepsafe_vault_items(context):
     data_list = []
     source_files = set()
 
-    for table, item_id, enc_path in _item_files(files_found):
+    items = list(_item_files(files_found))
+    file_ids = {(table, item_id) for table, item_id, _path in items}
+    log_ids = set()
+    for key in state:
+        match = re.fullmatch(r'tb#(primary|breakin_alert|fake)##k~\|([^:]+)(?::100)?', key)
+        if match:
+            log_ids.add(match.groups())
+    items.extend((table, item_id, '') for table, item_id in sorted(log_ids - file_ids))
+
+    for table, item_id, enc_path in items:
         base_key = f"tb#{table}##k~|{item_id}"
         exif_key = f"tb#{table}##k~|{item_id}:100"
 
@@ -478,7 +483,8 @@ def keepsafe_vault_items(context):
         except OSError:
             on_disk_bytes = ""
 
-        source_files.add(enc_path)
+        if enc_path:
+            source_files.add(enc_path)
         for extra_src in (base_src, exif_src):
             if extra_src:
                 source_files.add(extra_src)
@@ -488,8 +494,8 @@ def keepsafe_vault_items(context):
             original_name,
             table,
             album_name or album_id,
-            convert_unix_ts_to_utc(content_ts) if content_ts else "",
-            convert_unix_ts_to_utc(added_ts) if added_ts else "",
+            str(content_ts) if content_ts is not None else "",
+            str(added_ts) if added_ts is not None else "",
             mime_type,
             dims,
             dominant_color,
@@ -502,7 +508,7 @@ def keepsafe_vault_items(context):
             photos_asset_id,
             account_id,
             "Yes" if base_deleted else "No",
-            context.get_relative_path(enc_path),
+            context.get_relative_path(enc_path) if enc_path else "",
         ))
 
     data_headers = (
@@ -510,8 +516,8 @@ def keepsafe_vault_items(context):
         "Original Filename",
         "Vault Table",
         "Album",
-        ("Content Date", "datetime"),
-        ("Date Added to Vault", "datetime"),
+        "Key 21 (as stored)",
+        "Key 22 (as stored)",
         "MIME Type",
         "Dimensions (WxH)",
         "Dominant Color (as recorded)",
@@ -527,6 +533,9 @@ def keepsafe_vault_items(context):
         "Source File",
     )
 
+    order = (4, 5, 0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)
+    data_headers = tuple(data_headers[i] for i in order)
+    data_list = [tuple(row[i] for i in order) for row in data_list]
     return data_headers, data_list, "\n".join(sorted(source_files))
 
 

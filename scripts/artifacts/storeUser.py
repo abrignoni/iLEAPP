@@ -2,13 +2,14 @@ __artifacts_v2__ = {
     "storeUser_ca": {  # This should match the function name exactly
         "name": "Installed Apps (storeUser)",
         "description": "Parses storeUser.db for installed app history",
-        "author": "@stark4n6",
+        "author": '@stark4n6, @AlexisBrignoni, Codex',
         "creation_date": "2025-04-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-04',
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "System-app status is reported only where the column exists and is populated. "
-                 "Deletion Date is reported as stored and is not converted. The cited post "
+                 "deletion_date is reported as stored text; its epoch and unit are not established "
+                 "here, so no datetime is inferred. Install Timestamp retains the existing Cocoa reading. The cited post "
                  "reports that the table can hold a row for each version of an app, so one app "
                  "can appear more than once. Reference: Kevin Pagano, 'Tracking iOS App Installs "
                  "and Purchase History with StoreUser DB', "
@@ -36,7 +37,7 @@ __artifacts_v2__ = {
     "storeUser_pha": {  # This should match the function name exactly
         "name": "Purchased Apps History (storeUser)",
         "description": "Parses the purchase_history_apps table of storeUser.db for App Store purchased app records",
-        "author": "@stark4n6",
+        "author": "@stark4n6, @AlexisBrignoni, Codex",
         "last_update_date": "2026-10-04",
         "creation_date": "2025-04-11",
         "requirements": "none",
@@ -44,8 +45,10 @@ __artifacts_v2__ = {
         "notes": "A row shows the purchase_history_apps table holds the app with the account id "
                  "in Purchaser ID. It does not establish that the app was installed on this "
                  "device. Purchaser Apple ID comes from account_events joined on the purchaser "
-                 "id; a purchase can repeat when that account has more than one account_events "
-                 "row. Required Capabilities lists the entries of the stored required_capabilities "
+                 "id using distinct account_id and apple_id pairs. Repeated events with the same "
+                 "pair do not add rows; differing Apple IDs remain separate matches. Individual "
+                 "purchase records and purchases without a matching account are retained. "
+                 "Required Capabilities lists the entries of the stored required_capabilities "
                  "value, one per line. Reference: Kevin Pagano, 'Tracking iOS App Installs and Purchase History with "
                  "StoreUser DB', "
                  "https://www.stark4n6.com/2025/04/tracking-ios-app-installs-and-purchase.html",
@@ -109,20 +112,20 @@ def storeUser_ca(context):
     from current_apps
     '''
 
-    data_headers = (('Install Timestamp', 'datetime'),'Bundle ID','App Name','Developer Name','App Version','App Bundle Version','App Store ID','System App','Deletion Date')
+    data_headers = (('Install Timestamp', 'datetime'),'deletion_date (as stored)','Bundle ID','App Name','Developer Name','App Version','App Bundle Version','App Store ID','System App')
 
     # current_apps is absent on older iOS App Store cache schemas
     if does_table_exist_in_db(source_path, "current_apps"):
         if does_column_exist_in_db(source_path, "current_apps", "is_system_app"):
             db_records = get_sqlite_db_records(source_path, current_app_query)
             for record in db_records:
-                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8]))
+                data_list.append((record[0], str(record[8]) if record[8] is not None else '', record[1], record[2], record[3], record[4], record[5], record[6], record[7]))
 
         else:
             db_records = get_sqlite_db_records(source_path, current_app_prev_query)
             for record in db_records:
                 # schema has no is_system_app column, so System App is left blank
-                data_list.append((record[0], record[1], record[2], record[3], record[4], record[5], record[6], '', record[7]))
+                data_list.append((record[0], str(record[7]) if record[7] is not None else '', record[1], record[2], record[3], record[4], record[5], record[6], ''))
 
     return data_headers, data_list, source_path
 
@@ -151,7 +154,8 @@ def storeUser_pha(context):
     purchase_history_apps.purchaser_dsid,
     purchase_history_apps.purchase_token
     from purchase_history_apps
-    left join account_events on account_events.account_id = purchase_history_apps.purchaser_dsid
+    left join (select distinct account_id, apple_id from account_events) as account_events
+        on account_events.account_id = purchase_history_apps.purchaser_dsid
     '''
 
     data_headers = (('Purchased Timestamp', 'datetime'),'App Name','App Name (Long)','Bundle ID','Developer Name','App Store URL','App ID','Hidden from Springboard','App Category','Required Capabilities','Purchaser Apple ID','Purchaser ID','Purchase Token')
