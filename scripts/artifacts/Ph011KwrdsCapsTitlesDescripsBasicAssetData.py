@@ -7,16 +7,16 @@ __artifacts_v2__ = {
 ' likes appears on several rows. The tests are: ZASSETDESCRIPTION.ZLONGDESCRIPTION,'
 ' ZADDITIONALASSETATTRIBUTES.ZTITLE, ZADDITIONALASSETATTRIBUTES.ZACCESSIBILITYDESCRIPTION,'
 ' ZKEYWORD.ZSHORTCUT, ZKEYWORD.ZTITLE or ZCLOUDSHAREDCOMMENT.ZCOMMENTTEXT not empty,'
-' ZCLOUDSHAREDCOMMENT.ZCOMMENTTYPE above 0, or ZISLIKE equal to 1.'
+' ZCLOUDSHAREDCOMMENT.ZCOMMENTTYPE not NULL and not empty, or ZISLIKE equal to 1.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
-'author': 'Scott Koenig',
+'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-05',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Keywords are joined through Z_1KEYWORDS. The name of its keyword column carries a Core Data'
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig. Comment type is selected by stored value presence without assigning a numeric domain or action meaning. Keywords are joined through Z_1KEYWORDS. The name of its keyword column carries a Core Data'
 ' entity number that differs between iOS versions, so the module reads the column name from the'
 ' table. In the tested PhotoData databases it was Z_38KEYWORDS on jess_ios15, Z_40KEYWORDS on'
 ' abe_ios16 and otto_ios17, Z_41KEYWORDS on felix_ios17, Z_47KEYWORDS on dexter_ios18 and'
@@ -56,16 +56,16 @@ __artifacts_v2__ = {
 ' several rows. The tests are: ZASSETDESCRIPTION.ZLONGDESCRIPTION,'
 ' ZADDITIONALASSETATTRIBUTES.ZTITLE, ZADDITIONALASSETATTRIBUTES.ZACCESSIBILITYDESCRIPTION,'
 ' ZKEYWORD.ZSHORTCUT, ZKEYWORD.ZTITLE or ZCLOUDSHAREDCOMMENT.ZCOMMENTTEXT not empty,'
-' ZCLOUDSHAREDCOMMENT.ZCOMMENTTYPE above 0, or ZISLIKE equal to 1.'
+' ZCLOUDSHAREDCOMMENT.ZCOMMENTTYPE not NULL and not empty, or ZISLIKE equal to 1.'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',    
-'author': 'Scott Koenig',
+'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-05',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': 'Keywords are joined through Z_1KEYWORDS. The name of its keyword column carries a Core Data'
+'notes': 'Original parser and Photos.sqlite research: Scott Koenig. Comment type is selected by stored value presence without assigning a numeric domain or action meaning. Keywords are joined through Z_1KEYWORDS. The name of its keyword column carries a Core Data'
 ' entity number that differs between iOS versions, so the module reads the column name from the'
 ' table. In the tested PhotoData databases it was Z_38KEYWORDS on jess_ios15, Z_40KEYWORDS on'
 ' abe_ios16 and otto_ios17, Z_41KEYWORDS on felix_ios17, Z_47KEYWORDS on dexter_ios18 and'
@@ -265,7 +265,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED        
         '''
 
@@ -526,7 +526,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED        
         '''
 
@@ -799,7 +799,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED        
         '''
 
@@ -1074,7 +1074,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED        
         '''
 
@@ -1355,7 +1355,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED       
         '''
 
@@ -1638,7 +1638,7 @@ def Ph011_1KwrdsCapsTitlesDescripsLikesBasicAsstDataPhDaPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED       
         '''
 
@@ -1938,7 +1938,7 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED       
         '''
 
@@ -2221,7 +2221,7 @@ def Ph011_3KwrdsCapsTitlesDescripsLikesBasicAsstDataGenPlayPsql(context):
             LEFT JOIN ZCLOUDFEEDENTRY zCldFeedEnt ON zAsset.ZCLOUDFEEDASSETSENTRY = zCldFeedEnt.Z_PK
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedComment ON zAsset.Z_PK = zCldSharedComment.ZCOMMENTEDASSET
             LEFT JOIN ZCLOUDSHAREDCOMMENT zCldSharedCommentLiked ON zAsset.Z_PK = zCldSharedCommentLiked.ZLIKEDASSET
-        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE > 0) or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
+        WHERE (zAssetDes.ZLONGDESCRIPTION IS NOT NULL AND zAssetDes.ZLONGDESCRIPTION <> '') or (zAddAssetAttr.ZTITLE IS NOT NULL AND zAddAssetAttr.ZTITLE <> '') or (zAddAssetAttr.ZACCESSIBILITYDESCRIPTION IS NOT NULL AND zAddAssetAttr.ZACCESSIBILITYDESCRIPTION <> '') or (zKeywrd.ZSHORTCUT IS NOT NULL AND zKeywrd.ZSHORTCUT <> '') or (zKeywrd.ZTITLE IS NOT NULL AND zKeywrd.ZTITLE <> '') or (zCldSharedComment.ZCOMMENTTYPE IS NOT NULL AND zCldSharedComment.ZCOMMENTTYPE <> '') or (zCldSharedComment.ZCOMMENTTEXT IS NOT NULL AND zCldSharedComment.ZCOMMENTTEXT <> '') or (zCldSharedCommentLiked.ZISLIKE = 1)
         ORDER BY zAsset.ZDATECREATED       
         '''
 
