@@ -2,19 +2,20 @@ __artifacts_v2__ = {
     "logarchive": {
         "name": "logarchive",
         "description": "Processes Apple Unified Logs, either from tracev3 data in the "
-                       "extraction, a json file exported with 'log show', or from embedded "
-                       "sysdiagnose tarballs",
+                       "extraction, from a json file exported with 'log show', or from "
+                       "an embedded sysdiagnose tarball",
         "author": "@AlexisBrignoni",
         "creation_date": "2025-05-06",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-05",
         "requirements": "Reading tracev3 data natively requires the unifiedlog_iterator "
                         "binary; see scripts/unifiedlogs.py",
         "category": "Unified Logs",
         "notes": "Sources are processed in priority order: 1) logarchive*.json, "
                  "2) extracted native db/diagnostics, 3) embedded sysdiagnose tar.gz files. "
-                 "If multiple sysdiagnoses are present, each is extracted to its own temporary "
-                 "folder in the report directory and processed sequentially. The temp folders "
-                 "are cleanly deleted once parsing completes.",
+                 "If native logs are present, sysdiagnose tarballs are ignored. If multiple "
+                 "sysdiagnoses are present, each is extracted to its own temporary folder in "
+                 "the report directory and processed sequentially, with temp folders deleted "
+                 "afterwards.",
         # The tracev3 globs are anchored at db/, not private/var/db/: Cellebrite UFED
         # zips (and the corpus CSVs in admin/data/filepath-lists) store the data
         # partition as filesystem2/db/diagnostics with no private/var prefix, and the
@@ -38,7 +39,6 @@ __artifacts_v2__ = {
             "iphone12_ios18": "20491691 rows",
             "jess_ios15": "16558937 rows",
             "rodeo_ios17_sysdiag": "17.3 | 3647611 rows",
-            "hickman_ios14_sysdiag": "14.3 | 6033460 rows",
         },
     },
     "logarchive_artifacts": {
@@ -267,6 +267,11 @@ __artifacts_v2__ = {
             "hc_ios26": "iOS 26.5.2 | 128 rows; FamiliarRouteAuthorizationChecker and GEONavigationListener only",
         },
     },
+    # The artifacts below come from the 2026-08-01 unified log predicate survey.
+    # Every message pattern is either documented in a cited publication, observed
+    # in an iOS 18.7 (22H20) full file system image, or both; the per-artifact
+    # notes say which. Dynamic payloads in these messages are usually redacted to
+    # <private> on production devices, so the static message text is the signal.
     "logarchive_calls": {
         "name": "logarchive call events",
         "description": "Unified log entries recording telephony activity: call tracking "
@@ -714,6 +719,10 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "grid",
     },
+    # The artifacts below extend the 2026-08-01 survey with patterns that did not
+    # occur on the first validation image and were confirmed against two more:
+    # an iPhone 8 Plus on iOS 16.5 (CTF device with staged usage) and an
+    # iPhone 11 Pro on iOS 17.1.
     "logarchive_driving": {
         "name": "logarchive driving state",
         "description": "Unified log entries recording vehicular motion classification: "
@@ -1133,14 +1142,15 @@ DATA_HEADERS = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', '
 
 
 def convert_to_utc(timestamp):
+    # dt_local = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f%z")
+    # dt_utc = dt_local.astimezone(timezone.utc)
+    # return dt_utc.astimezone(timezone.utc)
     # NOTE:
     #   python 3.7-3.10 have datetime.fromisoformat() but it had a bug where it didn't
     #   parse timezones correctly -- so this is now 3.11 onwards:
     #   if you're on 3.10 and know your python-fun, uncomment the first 3 lines
     #   but it'll run much slower than 3.11+ with this new version
-    # dt_local = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S.%f%z")
-    # dt_utc = dt_local.astimezone(timezone.utc)
-    # return dt_utc.astimezone(timezone.utc)
+    
     return datetime.fromisoformat(timestamp).astimezone(timezone.utc)
 
 
@@ -1289,9 +1299,10 @@ def logarchive(context):
                 elif 'db/uuidtext' in inner_path:
                     inner_path = inner_path[inner_path.find('db/uuidtext'):]
                 
+                # Normalize slashes to ensure compatibility with Windows long paths prefix
                 inner_path = os.path.normpath(inner_path.replace('/', os.sep))
-                out_path = os.path.join(temp_log_dir, inner_path)
                 
+                out_path = os.path.join(temp_log_dir, inner_path)
                 os.makedirs(os.path.dirname(out_path), exist_ok=True)
                 
                 try:
@@ -1316,7 +1327,7 @@ def logarchive(context):
         # Native uncompressed directory structure is present
         if logarchive_dir:
             archive_dir = logarchive_dir
-            source_path = logarchive_dir
+            final_source_path = logarchive_dir
         else:
             if not uuidtext_dir:
                 logfunc('Unified Log tracev3 data was found but the uuidtext directory was not, '
@@ -1325,11 +1336,11 @@ def logarchive(context):
             archive_dir = unifiedlogs.assemble_archive(
                 diagnostics_dir, uuidtext_dir,
                 os.path.join(context.get_data_folder(), '_logarchive_native'))
-            source_path = f'{diagnostics_dir}\n{uuidtext_dir}'
+            final_source_path = f'{diagnostics_dir}\n{uuidtext_dir}'
 
         parser = unifiedlogs.iterator_version(binary) or os.path.basename(binary)
         logfunc(f'Reading Apple Unified Logs natively with {parser}')
-        results.set_source_path(source_path)
+        results.set_source_path(final_source_path)
         return results.extend(rows_from_tracev3(binary, archive_dir))
 
     else:
@@ -1582,7 +1593,6 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%action reply for notification%'
         -- logarchive_app_focus
         OR event_message LIKE '%/device/app/inFocus%'
-        -- iOS 17+ and iOS 16 bootstrap forms respectively
         OR event_message LIKE '%Bootstrapping app<%'
         OR event_message LIKE '%Bootstrapping application<%'
         OR event_message LIKE '%killed from app switcher%'
@@ -1642,10 +1652,7 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%PedestrianAfterDriving%'
         -- logarchive_bluetooth_pairing
         OR event_message LIKE '%Device found: CBDevice%'
-        -- Matches rapportd 'Pairing completed' and the documented bluetoothd
-        -- 'pairing complete' event form
         OR event_message LIKE '%pairing complete%'
-        -- Documented-only below; no new pairing occurred in the validation images
         OR event_message LIKE '%pairing started%'
         OR event_message LIKE '%numeric comparison%'
         OR event_message LIKE '%Running SDP%'
