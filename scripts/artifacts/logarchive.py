@@ -97,17 +97,36 @@ __artifacts_v2__ = {
     "logarchive_executed_apps": {
         "name": "logarchive executed apps",
         "description": "Unified log entries containing 'Allowing tap for icon view', 'Launching "
-                       "application' or 'transition source:'; what each form records is not "
-                       "sourced here",
-        "author": "@AlexisBrignoni",
+                       "application' or 'transition source:', and entries of the "
+                       "com.apple.UserNotifications subsystem containing 'Launch application'; what "
+                       "each form records is not sourced here",
+        "author": "@AlexisBrignoni, @Hexordia",
         "creation_date": "2025-05-26",
-        "last_update_date": "2025-05-26",
+        "last_update_date": "2026-10-06",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "'Launch application' is matched only in the com.apple.UserNotifications subsystem. "
+                 "Those entries were on two of the five tested images: 7 rows on the iOS 12.4 image "
+                 "and 8 on the iOS 26.5.2 image, logged by SpringBoard in the AppLaunching category. "
+                 "9 of the 15 contain 'Launch application in foreground for notification response "
+                 "action' and 6 contain 'Launch application in background for notification "
+                 "response'; 3 of the iOS 26.5.2 rows hold <private> in place of the value that ends "
+                 "the others. The other three images held no such entry, and the clause adds no row "
+                 "that the three older terms already matched. Process Image Path was SpringBoard and "
+                 "Process ID held one value on the rows of each tested image. The iOS 12.4 image "
+                 "held only the UserNotifications entries, so Subsystem and Category each held "
+                 "one value there. Trace ID held no value on any row of the tested images: rows "
+                 "read from tracev3 data leave it empty.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "code",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 7 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 752 rows",
+            "dexter_ios18": "iOS 18.3.2 | 95 rows",
+            "iphone12_ios18": "iOS 18.7 | 1676 rows",
+            "hc_ios26": "iOS 26.5.2 | 442 rows",
+        },
     },
     "logarchive_tethering": {
         "name": "logarchive personal hotspot",
@@ -1129,6 +1148,56 @@ __artifacts_v2__ = {
             "hc_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
+    "logarchive_app_state": {
+        "name": "logarchive app install and state",
+        "description": "Unified log entries from installd in the com.apple.appinstallation "
+                       "TransactionLog category, and CommCenter ct.server entries beginning 'App "
+                       "state'; what each entry records about an app is reported as logged and is "
+                       "not sourced here",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-06",
+        "last_update_date": "2026-10-06",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms provided by Hexordia as part of private R&D work; what the entries "
+                 "mean is not sourced here, so they are reported as logged. Two filters feed this "
+                 "artifact. (1) Entries logged by /usr/libexec/installd in the TransactionLog "
+                 "category of the com.apple.appinstallation subsystem. On the five tested images "
+                 "each message ended with a phase and an action separated by ' : '. Phases seen: "
+                 "'Start', 'Success (End)' and 'Fail (End)'. Actions seen: 'Install (New)', "
+                 "'Install (Placeholder)', 'Install (Parallel Placeholder)', 'Install (Promote From "
+                 "Placeholder)', 'Install (Patch Update)', 'Uninstall (Application)', 'Uninstall "
+                 "(Parallel Placeholder)', 'Staged Update Placeholder' and 'Apply Staged Update'. "
+                 "The message begins with an identifier followed by four numbers; on the iOS "
+                 "17.2.1, 18.3.2, 18.7 and 26.5.2 images a slash and a second value follow the "
+                 "identifier, and on the iOS 12.4 image they do not. What the numbers and the "
+                 "second value are is not established. No installd message held <private> on a "
+                 "tested image. Other processes log in the same category (19 to 53 processes per "
+                 "tested image, 1,992 to 21,210 entries against 20 to 468 from installd); their "
+                 "entries are not reported here. (2) CommCenter entries in the ct.server category "
+                 "that begin 'App state'. They read 'App state[...] is suspended' or 'App "
+                 "state[...] is moving from <state> to <state>'. State names seen: kUnknown, "
+                 "kInBackgroundUnknownRestriction, kInBackgroundRestricted, "
+                 "kInForegroundUnknownRestriction, kInForegroundRestricted and kNoRestrictions. "
+                 "What each state means is not established. On the iOS 12.4 image the bracketed "
+                 "value was <private> on each of the 1,237 rows. On the other four images it was "
+                 "not redacted, and it was a name followed by a number in parentheses on 514 of "
+                 "515 rows; whether that name is a bundle or a process name, and what the number "
+                 "is, is not established. Only the direct tracev3 import was tested. A 'log show' "
+                 "JSON export was not, and the installd filter relies on the Process Image Path "
+                 "column holding the /usr/libexec/installd path. Trace ID held no value on any row "
+                 "of the tested images: rows read from tracev3 data leave it empty.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 1449 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 155 rows",
+            "dexter_ios18": "iOS 18.3.2 | 133 rows",
+            "iphone12_ios18": "iOS 18.7 | 335 rows",
+            "hc_ios26": "iOS 26.5.2 | 590 rows",
+        },
+    },
 }
 
 import os
@@ -1521,6 +1590,7 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Allowing tap for icon view%'
         OR event_message LIKE '%Launching application%'
         OR event_message LIKE '%transition source:%'
+        OR (event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%')
         OR event_message LIKE '%[Flashlight Controller]%'
         OR event_message LIKE '%<<<<AVFlashlight>>>>-%'
         -- AVFoundation's logging macro renders as '<<<< AVFlashlight >>>> -[AVFlashlight
@@ -1744,6 +1814,9 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%bump_connection_count%'
         -- logarchive_touch addition (iOS 26)
         OR event_message LIKE '%Touch entered%'
+        -- logarchive_app_state
+        OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
+        OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
     '''
 
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -1805,6 +1878,7 @@ def logarchive_executed_apps(context):
     WHERE event_message LIKE '%Allowing tap for icon view%'
         OR event_message LIKE '%Launching application%'
         OR event_message LIKE '%transition source:%'
+        OR (event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%')
     '''
     
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -2353,4 +2427,11 @@ def logarchive_usb_host(context):
         OR event_message LIKE '%launching clients due to connectType%'
         OR event_message LIKE '%usb_host_connected%'
         OR event_message LIKE '%bump_connection_count%'
+    ''')
+
+@artifact_processor
+def logarchive_app_state(context):
+    return _artifacts_table_records(context, '''
+        (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
+        OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
     ''')
