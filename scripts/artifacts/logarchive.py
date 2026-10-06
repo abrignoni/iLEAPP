@@ -97,11 +97,11 @@ __artifacts_v2__ = {
     "logarchive_executed_apps": {
         "name": "logarchive executed apps",
         "description": "Unified log entries containing 'Allowing tap for icon view', 'Launching "
-                       "application' or 'transition source:'; what each form records is not "
+                       "application', 'transition source:' or 'launch application'; what each form records is not "
                        "sourced here",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni & @Hexordia",
         "creation_date": "2025-05-26",
-        "last_update_date": "2025-05-26",
+        "last_update_date": "2026-10-06",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "",
@@ -1129,6 +1129,26 @@ __artifacts_v2__ = {
             "hc_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
+    "logarchive_app_state": {
+        "name": "Logarchive - App State",
+        "description": "Unified log entries about the install, uninstall and update "
+                       "events of applications on the device. "
+                       "It also provides app states such as to background, foreground, suspended, etc. from CommCenter. "
+                       "App bundle name may be redacted.",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-06",
+        "last_update_date": "2026-10-06",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms provided as part of private R&D work. "
+                 "Query filters on installd process, the daemon responsible for installing, updating, and removing applications. "
+                 "Category filter on TransactionLog shows start, end (success/failure) along with app bundle name.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+        },
+    },
 }
 
 import os
@@ -1521,6 +1541,7 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Allowing tap for icon view%'
         OR event_message LIKE '%Launching application%'
         OR event_message LIKE '%transition source:%'
+        OR event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%'
         OR event_message LIKE '%[Flashlight Controller]%'
         OR event_message LIKE '%<<<<AVFlashlight>>>>-%'
         -- AVFoundation's logging macro renders as '<<<< AVFlashlight >>>> -[AVFlashlight
@@ -1744,6 +1765,9 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%bump_connection_count%'
         -- logarchive_touch addition (iOS 26)
         OR event_message LIKE '%Touch entered%'
+        -- logarchive_app_state
+        OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
+        OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
     '''
 
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -1805,6 +1829,7 @@ def logarchive_executed_apps(context):
     WHERE event_message LIKE '%Allowing tap for icon view%'
         OR event_message LIKE '%Launching application%'
         OR event_message LIKE '%transition source:%'
+        OR event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%'
     '''
     
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -2353,4 +2378,11 @@ def logarchive_usb_host(context):
         OR event_message LIKE '%launching clients due to connectType%'
         OR event_message LIKE '%usb_host_connected%'
         OR event_message LIKE '%bump_connection_count%'
+    ''')
+
+@artifact_processor
+def logarchive_app_state(context):
+    return _artifacts_table_records(context, '''
+        (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
+        OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
     ''')
