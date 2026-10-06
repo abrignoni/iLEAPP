@@ -84,12 +84,12 @@ __artifacts_v2__ = {
         },
     },
     "iftttDetectedApps": {
-        "name": "IFTTT - Detected Apps",
+        "name": "IFTTT - App-detector Preference Entries",
         "description": "The service identifiers IFTTT recorded under its app-detector "
                        "preference key on this device.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude; @AlexisBrignoni, Codex",
         "creation_date": "2026-09-02",
-        "last_update_date": "2026-09-02",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "IFTTT",
         "notes": "Read from the app-detector.my-apps key of "
