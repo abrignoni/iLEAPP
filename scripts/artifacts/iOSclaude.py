@@ -48,10 +48,10 @@ __artifacts_v2__ = {
 
     "iOSclaudeMessages": {
         "name": "Claude Messages",
-        "description": "Parses Claude messages with the conversation name and id. The file name shown is that of the first file attached to the message.",
-        "author": "Brandon Baye",
+        "description": "Parses Claude messages with the conversation name and id. The first attached-file name and the files field as stored are reported without verifying attachment type or content.",
+        "author": "Brandon Baye, @AlexisBrignoni, Codex",
         "creation_date": "2026-07-21",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Claude",
         "notes": "The Message column joins the text of the blocks of type 'text' in the "
@@ -63,7 +63,10 @@ __artifacts_v2__ = {
                  "Every cache_*.sqlite the paths match is read, and the Source File column names the "
                  "file each row came from; each of the two tested images holds one such file, so "
                  "reading more than one was exercised only on constructed copies. Test data created "
-                 "with iOS 26.",
+                 "with iOS 26. Files (As Stored) retains the native messages.files value for rows "
+                 "the existing JSON query can read, without parsing or rewriting it. First Attached "
+                 "File Name is files[0].fileName and does not establish an image or recover file bytes. "
+                 "Malformed JSON and unsupported content shapes retain the existing query failure behavior.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/ClaudeCache/cache_*.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -272,10 +275,11 @@ def iOSclaudeMessages(context):
 			FROM json_each(messages.content) je
 			WHERE json_extract(je.value, '$.type') = 'text'
 		) as 'Message',
-        json_extract(messages.files, '$[0].fileName') AS 'Image File Name',
+        json_extract(messages.files, '$[0].fileName') AS 'First Attached File Name',
         sender AS 'Message Sender',
         conversations.name AS 'Conversation Name',
-        conversations.id AS 'Conversation ID'
+        conversations.id AS 'Conversation ID',
+        messages.files AS 'Files (As Stored)'
     FROM messages
     LEFT JOIN conversations ON conversations.id = messages.conversationId
     '''
@@ -294,6 +298,7 @@ def iOSclaudeMessages(context):
                 record[4],
                 record[1],
                 record[2],
+                record[6],
                 record[5],
                 source_file
             ))
@@ -303,7 +308,8 @@ def iOSclaudeMessages(context):
         'Message Sender',
         'Conversation Name',
         'Message',
-        'Image File Name',
+        'First Attached File Name',
+        'Files (As Stored)',
         'Conversation ID',
         'Source File',
     )
