@@ -1,16 +1,20 @@
 __artifacts_v2__ = {
     "twint_transactions": {
         "name": "Twint - Transactions",
-        "description": "Rows of the ZTRANSACTION table of Twint.sqlite. The order state, order "
-                       "type and transaction side values are reported as stored; what each number "
-                       "means is not established. No registered corpus is recorded for this "
-                       "artifact.",
-        "author": "@KefreR (Frank Ressat)",
+        "description": "Rows of the ZTRANSACTION table of Twint.sqlite. ZP2PHASPICTURE, "
+                       "ZORDERSTATEVALUE, ZORDERTYPEVALUE and ZTRANSACTIONSIDEVALUE are "
+                       "reported as stored; their value meanings are not established. "
+                       "No registered corpus coverage is recorded for this artifact.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Finance",
-        "notes": "",
+        "notes": "The four As Stored columns use their SQLite column names and retain the "
+                 "selected values without interpretation. Their names do not establish "
+                 "attachment presence, transaction status, transaction type or transaction "
+                 "direction. Only the first matched Twint.sqlite is read. "
+                 "Original parser credit: @KefreR (Frank Ressat).",
         "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "currency-dollar"
@@ -86,8 +90,8 @@ def twint_transactions(context):
         'Receiver contact name', 'Response message',
         'Amount authorized for the transaction', 'Paid amount',
         'Requested amount', 'Discount', 'Currency',
-        'Content reference', 'Order link', 'Presence of multimedia content',
-        'Transaction status', 'Type of transaction',
-        'Direction of the transaction', 'Merchant confirmation')
+        'Content reference', 'Order link', 'ZP2PHASPICTURE (As Stored)',
+        'ZORDERSTATEVALUE (As Stored)', 'ZORDERTYPEVALUE (As Stored)',
+        'ZTRANSACTIONSIDEVALUE (As Stored)', 'Merchant confirmation')
 
     return data_headers, data_list, context.get_relative_path(db_file)
