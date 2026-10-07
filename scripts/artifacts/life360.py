@@ -65,20 +65,12 @@ __artifacts_v2__ = {
         "description": "The device.battery and device.charge values Life360 logged in each "
                        "X-UserContext header, with "
                        "the time of the fix it accompanied.",
-        "author": "@KevinPagano3",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2024-01-15",
-        "last_update_date": "2026-09-05",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Life360",
-        "notes": "Read from the same X-UserContext header set lines as the Locations artifact: Timestamp is "
-                 "geolocation.timestamp rendered in UTC, Device Battery is device.battery as stored and "
-                 "Charging shows Yes for a stored device.charge of 1 and blank for 0, compared as "
-                 "text (the only two values on the tested images; any other value is shown as "
-                 "stored); the key name is the only basis for reading it as a charging flag, and "
-                 "it was not checked against another record of the device's charging state. The "
-                 "percent sign in the Device Battery header also rests on the key name and was not "
-                 "checked. Life360 is closed source, so the "
-                 "key names are the only labels.",
+        "notes": 'Read from the same X-UserContext header set lines as the Locations artifact: Timestamp is geolocation.timestamp rendered in UTC. device.battery (as stored) and device.charge (as stored) report the parsed JSON values without a percent unit or charging-state mapping. Missing battery or charge keys retain the existing empty-string default; this does not distinguish a missing key from a stored empty string. The key names alone do not establish units or device charging state. Original artifact contribution: @KevinPagano3.',
         "paths": ('*/com.life360.safetymap *.log',),
         "output_types": "standard",
         "artifact_icon": "battery",
@@ -411,13 +403,12 @@ def life360Locations(context):
 
 @artifact_processor
 def life360DeviceBattery(context):
-    data_headers = (('Timestamp', 'datetime'), 'Device Battery (%)', 'Charging')
+    data_headers = (('Timestamp', 'datetime'), 'device.battery (as stored)', 'device.charge (as stored)')
     data_list = []
     items, source_path = _iter_usercontext(context)
     for time_create, jl in items:
         device = jl.get('device', {})
         charge = device.get('charge', '')
-        charge = 'Yes' if charge == '1' else ('' if charge == '0' else charge)
         data_list.append((time_create, device.get('battery', ''), charge))
     return data_headers, data_list, source_path
 
