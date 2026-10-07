@@ -19,21 +19,25 @@ __artifacts_v2__ = {
     },
     "get_kleinanzeigenmessagecache": {
         "name": "Kleinanzeigen.de - Message Cache",
-        "description": "Extracts cached Messages",
-        "author": "@C_Peter",
+        "description": "Rows from the selected conversation_cache JSON file, labelled by the existing preview or "
+                 "messages branch. The cache filename alone does not establish app ownership.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-02-18",
-        "last_update_date": "2026-08-24",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
-        "notes": "sender=0 is read as the local account; no source for that mapping is given here "
-                 "and it was not measured on a counted sample. The OUTBOUND boundness value is "
-                 "read as the store spells it. A conversation with no cached messages is reported "
-                 "as one row built from its preview: the text is the shortened textShortTrimmed "
-                 "value, the time is receivedDate and the Message_ID is blank, so that row is a "
-                 "preview and not a message record. Times are read as Cocoa seconds and shown in "
-                 "UTC. The file is matched by name within any app container, so the owning app "
-                 "should be confirmed from the source path. No tested image is recorded for this "
-                 "artifact.",
+        "notes": "sender=0 is read as the local account; no source for that mapping is given here and it was "
+                 "not measured on a counted sample. The OUTBOUND boundness value is read as the store spells "
+                 "it. A conversation with no cached messages is reported as one row built from its preview: "
+                 "the text is the shortened textShortTrimmed value, the time is receivedDate and the "
+                 "Message_ID is blank, so that row is a preview and not a message record. Times are read as "
+                 "Cocoa seconds and shown in UTC. The file is matched by name within any app container, so "
+                 "the owning app should be confirmed from the source path. No tested image is recorded for "
+                 "this artifact. Cache Row Origin is Preview only for rows emitted from an empty messages "
+                 "list using the existing preview fallback, and Cached Message only for rows emitted by the "
+                 "messages loop. Those labels describe parser row origin, not independently verified event "
+                 "type, authorship, completeness, or whether a message was sent. The existing conversation "
+                 "view includes both origins without filtering. Original contribution credited to @C_Peter.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Caches/conversation_cache', ),
         "output_types": "standard",
         "artifact_icon": "message-circle",
@@ -131,7 +135,7 @@ def get_kleinanzeigenmessagecache(context):
                     id_to = my_id
                     out = 0
                 conv_name = f"{ad_name} ({counter_name})"
-                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat))
+                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat, "Preview"))
 
             except (KeyError, TypeError, ValueError, OverflowError, OSError):
                 pass
@@ -161,7 +165,7 @@ def get_kleinanzeigenmessagecache(context):
                     id_to = my_id
                     out = 0
                 conv_name = f"{ad_name} ({counter_name})"
-                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat))
+                data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat, "Cached Message"))
 
     data_headers = (
         ('Timestamp', 'datetime'),
@@ -177,6 +181,7 @@ def get_kleinanzeigenmessagecache(context):
         "Attachment",
         "Message_ID",
         "AD-Status",
+        "Cache Row Origin",
     )
     return data_headers, data_list, source_path
 
