@@ -522,14 +522,27 @@ __artifacts_v2__ = {
     },
     "health_source_devices": {
         "name": "Health - Source Devices",
-        "description": "Parses Apple Health device info from the healthdb.sqlite database, "
-                       "including make, model and software fields.",
-        "author": "@stark4n6",
+        "description": "Source device records selected from healthdb.sqlite, including the stored "
+                       "model field beside the existing mapped Model value.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-03-03",
-        "last_update_date": "2025-10-13",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "The model (as stored) column retains source_devices.model without conversion "
+                 "beside Model (existing mapping), which retains the existing Bluetooth PID "
+                 "lookup and fallback. A mapped product name does not establish physical device "
+                 "identity or ownership. Existing selection remains name NOT LIKE '__NONE__' AND"
+                 " localIdentifier NOT LIKE '__NONE__': underscores are SQL LIKE wildcards and "
+                 "NULL predicates exclude rows. Local ID retains the existing str() conversion "
+                 "and terminal -tacl suffix removal. Optional Sync Provenance and Sync ID "
+                 "columns retain their existing schema-dependent presence and values. Creation "
+                 "Date conversion, first selected healthdb.sqlite, hardware-to-device lookup, "
+                 "row order and all prior values are unchanged; this stage does not repair "
+                 "selection, suffix trimming or source association. Original artifact "
+                 "contribution/research attribution: @stark4n6; existing Bluetooth PID reference"
+                 " retained in the source comment. Historical sample_data counts remain recorded"
+                 " and are not assumed remeasured by this change.",
         "paths": ("*Health/healthdb.sqlite*",),
         "output_types": "standard",
         "artifact_icon": "device-mobile",
@@ -1603,7 +1616,7 @@ def health_source_devices(context):
     '''
 
     data_headers = [
-        ('Creation Date', 'datetime'), 'Device Name', 'Manufacturer', 'Model',
+        ('Creation Date', 'datetime'), 'Device Name', 'Manufacturer', 'Model (existing mapping)', 'model (as stored)',
         'Device ID', 'Device Model', 'Firmware', 'Software', 'Local ID'
     ]
     if sync_provenance_exists:
@@ -1633,6 +1646,7 @@ def health_source_devices(context):
             record[column_positions['name']],
             record[column_positions['manufacturer']],
             model,
+            model_value,
             hardware_value,
             device_model,
             record[column_positions['firmware']],
