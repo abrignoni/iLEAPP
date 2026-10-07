@@ -1,20 +1,25 @@
 __artifacts_v2__ = {
     "mapsSync": {
         "name": "Maps Sync",
-        "description": "Apple Maps history items from MapsSync_0.0.1. The Type label is assigned "
-                       "from the row's Core Data entity number as published for iOS 14 and has not "
-                       "been checked against each store's Z_PRIMARYKEY table",
-        "author": "@abrignoni",
+        "description": 'Apple Maps MapsSync history rows with the stored Z_ENT value when available. Fixed-ID Type '
+                       "Interpretation retains the parser's existing mapping and does not resolve each store's "
+                       'Core Data entity names.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Location",
-        "notes": "Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of "
-                 "CheekyForensicsMonkey "
-                 "(https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html). "
-                 "Whether an entry was created on this device or synced from another device on "
-                 "the same account is not established here, and an entry is not evidence that "
-                 "travel took place.",
+        "notes": 'Journey/Map Item addresses are decoded from protobuf BLOBs. Query courtesy of '
+                 'CheekyForensicsMonkey '
+                 '(https://cheeky4n6monkey.blogspot.com/2020/11/ios14-maps-history-blob-script.html). '
+                 'Whether an entry was created on this device or synced from another device on the same '
+                 'account is not established here, and an entry is not evidence that travel took place. '
+                 'Original parser attribution: @abrignoni. Fixed-ID Type Interpretation preserves the '
+                 'existing 14/16/12 labels in the modern query and the literal Unknown in the two fallback '
+                 'queries. These are parser interpretations, not verified per-store entity or event '
+                 'meanings. Z_ENT (As Stored) is the direct SQLite value when the selected schema exposes '
+                 'the column; fallback schemas without the column report SQL NULL. That output does not '
+                 'distinguish an absent column from a stored NULL. No Z_PRIMARYKEY resolution is performed.',
         "paths": ('*/MapsSync_0.0.1*',),
         "output_types": "all",
         "artifact_icon": "map-pin",
@@ -151,13 +156,16 @@ def _build_query(file_found):
         ZHISTORYITEM.ZLATITUDE1,
         ZHISTORYITEM.ZLONGITUDE1,
         ZHISTORYITEM.ZROUTEREQUESTSTORAGE,
-        ZMIXINMAPITEM.ZMAPITEMSTORAGE
+        ZMIXINMAPITEM.ZMAPITEMSTORAGE,
+        ZHISTORYITEM.Z_ENT
         from ZHISTORYITEM
         left join ZMIXINMAPITEM on ZMIXINMAPITEM.Z_PK=ZHISTORYITEM.ZMAPITEM
         '''
+    entity_column = ('ZHISTORYITEM.Z_ENT'
+                     if does_column_exist_in_db(file_found, 'ZHISTORYITEM', 'Z_ENT') else 'NULL')
     if does_column_exist_in_db(file_found, 'ZMIXINMAPITEM', 'ZNAME'):
         logfunc("INFO: MapsSync modern schema columns not found. Trying iOS 15 schema.")
-        return '''
+        return f'''
         SELECT
         datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
         datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
@@ -167,12 +175,13 @@ def _build_query(file_found):
         ZMIXINMAPITEM.ZNAME,
         ZHISTORYITEM.ZLATITUDE,
         ZHISTORYITEM.ZLONGITUDE,
-        NULL, NULL, NULL, NULL
+        NULL, NULL, NULL, NULL,
+        {entity_column}
         FROM ZHISTORYITEM
         LEFT JOIN ZMIXINMAPITEM ON ZHISTORYITEM.ZMAPITEM = ZMIXINMAPITEM.Z_PK
         '''
     logfunc("INFO: MapsSync mixin map item columns not found. Trying basic history query.")
-    return '''
+    return f'''
     SELECT
     datetime(ZHISTORYITEM.ZCREATETIME + 978307200, 'UNIXEPOCH'),
     datetime(ZHISTORYITEM.ZMODIFICATIONTIME + 978307200, 'UNIXEPOCH'),
@@ -182,7 +191,8 @@ def _build_query(file_found):
     '',
     ZHISTORYITEM.ZLATITUDE,
     ZHISTORYITEM.ZLONGITUDE,
-    NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL,
+    {entity_column}
     FROM ZHISTORYITEM
     '''
 
@@ -190,7 +200,8 @@ def _build_query(file_found):
 @artifact_processor
 def mapsSync(context):
     data_headers = (
-        ('Timestamp', 'datetime'), ('Modified Time', 'datetime'), 'Item Number', 'Type',
+        ('Timestamp', 'datetime'), ('Modified Time', 'datetime'), 'Item Number', 'Fixed-ID Type Interpretation',
+        'Z_ENT (As Stored)',
         'Location Search', 'Location Display', 'Latitude', 'Longitude', 'Latitude1', 'Longitude1',
         'Journey Destination Address', 'Map Item Storage BLOB Address')
     data_list = []
@@ -214,7 +225,7 @@ def mapsSync(context):
         db.close()
 
         for row in all_rows:
-            data_list.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7],
+            data_list.append((row[0], row[1], row[2], row[3], row[12], row[4], row[5], row[6], row[7],
                               row[8], row[9], _parse_journey_blob(row[10]), _parse_mapitem_blob(row[11])))
 
         if all_rows:
