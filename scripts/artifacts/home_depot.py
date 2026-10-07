@@ -70,14 +70,13 @@ __artifacts_v2__ = {
     },
     "home_depot_products_viewed": {
         "name": "Home Depot - Cached Products",
-        "description": "Cached product records from the THDConsumer Core Data store; the Price "
-                       "column is the stored specialPriceKey value",
-        "author": "@jameshabben",
+        "description": "Cached product records from the THDConsumer Core Data store, including the decoded specialPriceKey field with the parser's existing rendering.",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-07-31",
+        "last_update_date": '2026-10-07',
         "requirements": "nska_deserialize",
         "category": "Home Depot",
-        "notes": "",
+        "notes": "The specialPriceKey (as decoded) column reports the existing _product_field result from the decoded product object. A missing key becomes an empty string; an explicit null remains None. Zero, False, empty strings and other native values are retained. A dictionary containing NS.string yields that key's value without recursive conversion; other dictionaries and lists remain native containers until existing report rendering. These values do not establish a monetary amount, currency, purchase or user view. Only the first matched THDConsumer.sqlite is queried, and repeated records remain separate. The artifact has no event timestamp; no timestamp is introduced by this header correction. Original contribution credited to @jameshabben. Historical sample or research statements are not revalidated here.",
         "paths": ('*/Containers/Data/Application/*/Documents/THDConsumer.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "shopping-bag",
@@ -565,7 +564,7 @@ def home_depot_search_history(context):
 def home_depot_products_viewed(context):
     """ see artifact description """
     data_headers = (
-        'Item ID', 'Product Label', 'Brand', 'Model Number', 'Store SKU', 'Price', 'Product URL', 'Image URL',
+        'Item ID', 'Product Label', 'Brand', 'Model Number', 'Store SKU', 'specialPriceKey (as decoded)', 'Product URL', 'Image URL',
     )
     data_list = []
     source_path = _find_sqlite(context)
