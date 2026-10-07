@@ -4,6 +4,7 @@ Usage: python admin/scripts/check_frozen_log_filter.py path/to/ileapp
 For a source check, pass: python3 ileapp.py
 """
 import json
+from contextlib import closing
 from pathlib import Path
 import sqlite3
 import subprocess
@@ -42,7 +43,7 @@ def main():
         assert mode in result.stdout, result.stdout[-4000:]
         report = output / 'filter-smoke'
         assert (report / 'index.html').is_file()
-        with sqlite3.connect(report / '_lava_artifacts.db') as db:
+        with closing(sqlite3.connect(report / '_lava_artifacts.db')) as db:
             assert db.execute('SELECT count(*) FROM logarchive').fetchone()[0] == 4
             selected = db.execute('SELECT event_message FROM logarchive_artifacts '
                                   'ORDER BY rowid').fetchall()

@@ -86,7 +86,8 @@ def accelerate_query(db, query):
         return query, 'SQLite fallback (unsupported filter expression)'
     machines = []
     for anchors in patterns.values():
-        machine = ahocorasick.Automaton()
+        # Automaton is supplied by the C extension and exercised by the SQL tests.
+        machine = ahocorasick.Automaton()  # pylint: disable=c-extension-no-member
         for anchor in anchors:
             machine.add_word(anchor, 1)
         machine.make_automaton()
