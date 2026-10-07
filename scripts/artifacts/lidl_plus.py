@@ -175,20 +175,23 @@ __artifacts_v2__ = {
     },
     "lidl_store_searches": {
         "name": "Lidl Plus - Store Searches",
-        "description": "Extracts cached store-search requests, the latitude and longitude "
-                       "parameters of the request, and returned stores.",  # pylint: disable=line-too-long
-        "author": "@djangofaiola",
+        "description": "Extracts cached store-search requests, request latitude and longitude parameters, and "
+                       "returned store fields including distance as stored without a verified unit.",  # pylint: disable=line-too-long
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "Latitude and Longitude are the values sent in the request URL, reported as "
-                 "transmitted. The research cited below describes them as the centre of the search "
-                 "area or map sent to the server, so they are not reported as the device's "
-                 "location. Distance (m) is the distance value of each returned store as stored; "
-                 "the response does not state a unit, and the cited research reads it as metres "
-                 "from the search point. Reference: Django Faiola, 'What's in Your Lidl Plus App? "
-                 "An iOS Forensic Analysis', "
+        "notes": "Latitude and Longitude are the values sent in the request URL, reported as transmitted. "
+                 "The research cited below describes them as the centre of the search area or map sent to "
+                 "the server, so they are not reported as the device's location. distance (as stored) "
+                 "reports the decoded response's distance field through the existing projection, without "
+                 "unit conversion. The parser does not establish its unit or reference point. A missing "
+                 "distance key and explicit JSON null both yield None through the existing dictionary "
+                 "lookup; other supported decoded values retain the existing native values and rendering. "
+                 "This header correction does not revalidate the cited research's interpretation. Original"
+                 " contribution and research credited to @djangofaiola (Django Faiola). Reference: Django "
+                 "Faiola, 'What's in Your Lidl Plus App? An iOS Forensic Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Caches/com.lidl.eci.lidl.plus/Cache.db*",),
@@ -2853,7 +2856,7 @@ def lidl_store_searches(context):
         'Store Locality',
         'Store Latitude',
         'Store Longitude',
-        'Distance (m)',
+        'distance (as stored)',
         'Request URL',
         SOURCE_FILE_NAME,
         'Location'
