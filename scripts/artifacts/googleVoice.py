@@ -30,12 +30,12 @@ __artifacts_v2__ = {
         'name': 'Google Voice - Calls',
         'description': 'Call items (itemType IncomingCall, OutgoingCall, MissedCall) from the '
                        'Google Voice threading store',
-        'author': '@AlexisBrignoni',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-10-07',
         'requirements': 'none',
         'category': 'Google Voice',
-        'notes': '',
+        'notes': 'senderPhoneNumber (as stored) is the ThreadItem.senderPhoneNumber column returned by the query; the header does not assign a local or remote participant role. duration (as stored) is ThreadItem.duration without a unit conversion or an asserted unit. Call selection and the existing direction mapping are unchanged. These column names do not establish number ownership or duration units. Original parser contribution: @AlexisBrignoni.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/threadingStore.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'phone',
@@ -205,8 +205,8 @@ def googleVoiceCalls(context):
         ))
 
     data_headers = (
-        ('Timestamp', 'datetime'), 'Direction', ('Other Party', 'phonenumber'),
-        'Duration (Seconds)', 'Ring Group Name', 'Ring Group Number',
+        ('Timestamp', 'datetime'), 'Direction', ('senderPhoneNumber (as stored)', 'phonenumber'),
+        'duration (as stored)', 'Ring Group Name', 'Ring Group Number',
         'Transferred From', 'Transferred To', 'Deleted', 'Thread Key')
 
     return data_headers, data_list, source_path
