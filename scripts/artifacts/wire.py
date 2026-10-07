@@ -1,18 +1,13 @@
 __artifacts_v2__ = {
     "wireAccount": {
         "name": "Wire Secure Messenger Account",
-        "description": "User records (ZUSER) held in the Wire store, with handle, display name, "
-                       "phone and email as stored, and the activation date (and activation "
-                       "location where the store has those columns) of each linked client record. "
-                       "The rows are not limited to the account signed in on the device, and a "
-                       "user linked to client records with different activation values appears "
-                       "on one row for each.",
-        "author": "Elliot Glendye",
+        "description": "Results of the ZUSER LEFT JOIN ZUSERCLIENT query, with handle, display name, phone and email as stored, and the existing activation-date conversion and optional activation coordinates. Equal projected rows are retained, including results for users with no matching client. The query is not limited to the account signed in on the device.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2024-01-21",
-        "last_update_date": "2025-11-12",
+        "last_update_date": "2026-10-07",
         "requirements": "",
         "category": "Business",
-        "notes": "",
+        "notes": "Each result of the existing ZUSER LEFT JOIN ZUSERCLIENT query is reported without DISTINCT, including repeated equal projections. These are query results, not a count of unique users, client devices or activation events. Unmatched users remain through the LEFT JOIN; clients with no matching ZUSER are not selected. The existing Activation Date conversion, column position and first matching store selection are unchanged. Source ownership and self-account identity are not established here. Original contribution credited to Elliot Glendye.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/AccountData/*/store/store.wiredatabase*'),
         "output_types": "all",
         "artifact_icon": "user",
@@ -84,7 +79,7 @@ def wireAccount(context):
     if has_location_data:
         query = f'''
         SELECT
-            DISTINCT ZUSER.ZHANDLE AS 'User ID',
+            ZUSER.ZHANDLE AS 'User ID',
             ZUSER.ZNAME AS 'Display Name',
             ZUSERCLIENT.ZACTIVATIONDATE AS 'Activation Date',
             {phone_column} AS 'Phone Number',
@@ -106,7 +101,7 @@ def wireAccount(context):
     else:
         query = f'''
         SELECT
-            DISTINCT ZUSER.ZHANDLE AS 'User ID',
+            ZUSER.ZHANDLE AS 'User ID',
             ZUSER.ZNAME AS 'Display Name',
             ZUSERCLIENT.ZACTIVATIONDATE AS 'Activation Date',
             {phone_column} AS 'Phone Number',
