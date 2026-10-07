@@ -1198,6 +1198,23 @@ __artifacts_v2__ = {
             "hc_ios26": "iOS 26.5.2 | 590 rows",
         },
     },
+    "logarchive_device_id": {
+        "name": "Logarchive - Device Identifiers",
+        "description": "Unified log entries that have identifiers of the device "
+                       "including OS version info, make and model of the hardware, and device name and serial number.",
+        "author": "@Hexordia & Kevin Pagano (@stark4n6)",
+        "creation_date": "2026-10-06",
+        "last_update_date": "2026-10-06",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Search terms provided as part of private R&D work. "
+                 "Query filters on terminusd, sharingd, securityd processes with specific keyword event message filters.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+        },
+    },
 }
 
 import os
@@ -1817,6 +1834,10 @@ def logarchive_artifacts(context):
         -- logarchive_app_state
         OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        -- logarchive_device_id
+        (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
+        OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
+        OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%'
     '''
 
     data_list = list( get_sqlite_db_records(source_path, query) )
@@ -2434,4 +2455,12 @@ def logarchive_app_state(context):
     return _artifacts_table_records(context, '''
         (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+    ''')
+
+@artifact_processor
+def logarchive_device_id(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
+        OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
+        OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%'
     ''')
