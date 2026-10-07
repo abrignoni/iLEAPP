@@ -153,32 +153,35 @@ __artifacts_v2__ = {
     "telegramPeerPresence": {
         "name": "Telegram Peer Presence",
         "description": (
-            "Parses the last-seen state Telegram cached for each peer, from table t20 of "
-            "each account's Postbox database. Reports the status the server last returned "
-            "for the peer, the time it applies to when the status carries one, the hidden "
-            "flag stored with a bucketed status, and the last activity time the client "
-            "recorded."
+            "Parses cached presence records from table t20 of each Telegram account's "
+            "Postbox database. Reports the current decoder's v and h values beside the "
+            "status interpretation and h truthiness, with Last Activity and Status Time."
         ),
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-05",
-        "last_update_date": "2026-08-05",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Table t20 is the Postbox PeerPresenceTable (tableSpec(20) in Postbox.swift). "
                  "The record is a TelegramUserPresence: 'v' selects the status, where 0 is "
                  "none, 1 is present with the time in 't', which the client fills with either "
                  "the time an online status expires or the time the peer was last online (the "
-                 "Status column shows value 1 as 'Online until' in both cases), 2 is "
+                 "Status Interpretation shows Stored Status 1 without choosing either meaning), 2 is "
                  "recently, 3 is last week and 4 is last month, and 'h' is the isHidden flag "
                  "those bucketed statuses carry, which the client sets from the server's "
                  "by_me bit. Telegram's API documentation says that bit means the peer's "
                  "exact status is available but is not shown to this account unless it has "
                  "Premium or lets that peer see its own exact last-seen time "
-                 "(core.telegram.org/constructor/userStatusRecently). The Hides Last Seen "
-                 "column holds this flag as stored. "
+                 "(core.telegram.org/constructor/userStatusRecently). Decoded v and Decoded h "
+                 "retain the current decoder results, not the original Postbox bytes. "
+                 "Missing and explicit null fields both show blank. h Truthiness keeps "
+                 "the existing Yes for truthy h and blank for falsy h. "
                  "'la' is the last activity value the client stored. The bucketed statuses "
                  "are reported as stored and are not an exact time; what causes the server to "
-                 "return a bucketed status rather than a time is not sourced here.",
+                 "return a bucketed status rather than a time is not sourced here. The other "
+                 "status labels remain existing interpretations; this change does not "
+                 "verify them for all app versions. Original parser and research credit: "
+                 "@AlexisBrignoni.",
         "paths": (
             '*/telegram-data/account-*/postbox/db/db_sqlite*',
         ),
@@ -919,7 +922,7 @@ def telegramDeviceContacts(context):
 
 # UserPresenceStatus, per SyncCore_TelegramUserPresence.swift.
 _PRESENCE_STATUS = {
-    0: 'None', 1: 'Online until', 2: 'Recently',
+    0: 'None', 1: 'Stored Status 1', 2: 'Recently',
     3: 'Within last week', 4: 'Within last month',
 }
 
@@ -951,12 +954,14 @@ def telegramPeerPresence(context):
     """ see artifact description """
     data_headers = [
         ('Last Activity', 'datetime'),
+        ('Status Time', 'datetime'),
         'Account ID',
         'Peer ID',
         'Peer',
-        'Status',
-        ('Status Time', 'datetime'),
-        'Hides Last Seen',
+        'Decoded v',
+        'Status Interpretation',
+        'Decoded h',
+        'h Truthiness',
     ]
     data_list = []
     source_paths = []
@@ -980,12 +985,14 @@ def telegramPeerPresence(context):
                 data_list.append((
                     datetime.datetime.fromtimestamp(activity, tz=datetime.timezone.utc)
                     if isinstance(activity, int) and activity > 0 else '',
+                    datetime.datetime.fromtimestamp(status_time, tz=datetime.timezone.utc)
+                    if isinstance(status_time, int) and 0 < status_time < 2147483647 else '',
                     account_id,
                     peer_id,
                     names.get(peer_id, ''),
+                    variant,
                     _PRESENCE_STATUS.get(variant, f'Unrecognised ({variant})'),
-                    datetime.datetime.fromtimestamp(status_time, tz=datetime.timezone.utc)
-                    if isinstance(status_time, int) and 0 < status_time < 2147483647 else '',
+                    record.get('h'),
                     'Yes' if record.get('h') else '',
                 ))
             source_paths.append(db_path)
