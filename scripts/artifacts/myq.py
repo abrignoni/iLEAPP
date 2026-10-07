@@ -4,16 +4,18 @@ __artifacts_v2__ = {
         "description": "Garage door and opener events the myQ service returned, with the "
                        "event, the device it happened on and the account the service "
                        "attributed it to.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Claude; @AlexisBrignoni, Codex",
         "creation_date": "2026-08-31",
-        "last_update_date": "2026-08-31",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "myQ",
         "notes": "Read from the app's NSURLCache at Library/Caches/com.myliftmaster.myq, from "
                  "every cached accounthistory.myq-cloud.com deviceHistory response. An event id "
                  "found in more than one cached response is reported once, from the oldest "
-                 "response holding it. Events with no id are treated as one id, so only the first "
-                 "of them is reported. Event timestamps are ISO 8601 carrying an explicit UTC "
+                 "response holding it. Every event occurrence with a missing or null id is "
+                 "reported, including repeated cached responses. Their Event ID is empty; this "
+                 "does not distinguish missing from null or establish distinct real-world events. "
+                 "Event timestamps are ISO 8601 carrying an explicit UTC "
                  "offset. Device Event and Event Type are the strings the service returned and are "
                  "reported as stored. Attributed To Name and Attributed To Source come from the "
                  "event_by object the service returns, and both were absent on some events in the "
@@ -283,9 +285,10 @@ def myqDeviceHistory(context):
                 if not isinstance(event, dict):
                     continue
                 identity = event.get('id')
-                if identity in seen:
-                    continue
-                seen.add(identity)
+                if identity is not None:
+                    if identity in seen:
+                        continue
+                    seen.add(identity)
                 rows += 1
                 detail = event.get('event') if isinstance(event.get('event'), dict) else {}
                 actor = event.get('event_by') if isinstance(event.get('event_by'), dict) else {}
