@@ -97,24 +97,13 @@ __artifacts_v2__ = {
     },
     "netflix_continue_watching": {
         "name": "Netflix - Continue Watching",
-        "description": "Entries the Netflix app cached for its Continue Watching row, with the "
-                       "record's display string and the video identifier each entry points at",
-        "author": "@AlexisBrignoni, @mattiaepi (Mattia Epifani), Claude",
+        "description": 'Cached PinotContinueWatchingEntityTreatment record entries, with the displayString field and referenced video identifier using the existing rendering',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-19",
-        "last_update_date": "2026-08-21",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Netflix",
-        "notes": "Read from records whose __typename is PinotContinueWatchingEntityTreatment under "
-                 "Library/gqlData. The record's displayString is reported as stored under the "
-                 "heading Displayed Title; that the app displayed it is not established. These "
-                 "rows are cached records, so an entry records what the cache held rather than an "
-                 "individual playback event; the Netflix - Playback Bookmarks artifact carries the "
-                 "stored positions and their times. No timestamp is stored on the row itself. The "
-                 "same entry is cached by more than one section and more than one file, so rows "
-                 "identical across every reported field are collapsed to one and the Cache Entries "
-                 "Holding This Row column gives the number that held it. No sample_data is "
-                 "recorded for this artifact; the samples it was tested on are not named here, so "
-                 "figures in these notes cannot be tied to a corpus key.",
+        "notes": "Read from records whose __typename is PinotContinueWatchingEntityTreatment under Library/gqlData. The record's displayString is reported as stored under the heading displayString (as stored); that the app displayed it is not established. These rows are cached records, so an entry records what the cache held rather than an individual playback event; the Netflix - Playback Bookmarks artifact carries the stored positions and their times. No timestamp is stored on the row itself. The same entry is cached by more than one section and more than one file, so rows identical across every reported field are collapsed to one and the Cache Entries Holding This Row column gives the number that held it. No sample_data is recorded for this artifact; the samples it was tested on are not named here, so figures in these notes cannot be tied to a corpus key. This header correction preserves the existing _blank rendering: missing or JSON null displayString becomes an empty string; other decoded native values are not changed. Existing grouping uses the first five native fields, excludes the source path, counts matching occurrences and keeps the first source path; native equality can group zero and False together. No per-occurrence or cross-container source association repair is included. Original artifact contribution/research attribution: @mattiaepi (Mattia Epifani), Claude. Historical sample statements above remain recorded and were not revalidated by this header correction.",
         "paths": ('*/Library/gqlData/*gql*.db*',),
         "output_types": "standard",
         "artifact_icon": "player-play",
@@ -974,7 +963,7 @@ def netflix_continue_watching(context):
         data_list.append(row[:5] + (occurrences, row[5]))
 
     data_headers = (
-        'Displayed Title',
+        'displayString (as stored)',
         'Video ID',
         'Cached Title',
         'Entity Type (as stored)',
