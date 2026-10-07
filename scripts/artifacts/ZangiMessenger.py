@@ -14,17 +14,18 @@ __artifacts_v2__ = {
                        "note and image rows fill Attachment File, other types fill Attachment "
                        "Link. Reads two database layouts: the older ZZANGIMESSAGE table and the "
                        "newer ZZMESSAGE family, whichever a database carries.",
-        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "author": "Marco Neumann {kalinko@be-binary.de}, @AlexisBrignoni, Codex",
         "creatin_date": "2026-03-03",
         "creation_date": "2026-03-03",
-        "last_update_date": "2026-09-22",
+        "last_update_date": "2026-10-06",
         "requirements": "pathlib",
         "category": "Chats",
         "notes": "Message type labels are a reading of rows from app version 5.6.7 and are not "
                  "vendor-documented. Which of the eleven mapped codes the tested data held is not "
-                 "recorded here. On the newer layout a message type code with no mapping is "
-                 "reported as stored. On the older layout it is reported as Other/Unknown and the "
-                 "stored code is not shown. The module reads two database layouts and produces "
+                 "recorded here. On the newer layout the Message Type label for an unmapped code is "
+                 "cast to text. On the older layout it is Other/Unknown. ZTYPE (as stored) "
+                 "separately retains the native SQLite value on each joined row in both layouts; "
+                 "it does not establish what the code means. The module reads two database layouts and produces "
                  "the same columns from each. A row is one joined row: a message that matches "
                  "more than one group, contact, sender or media row is listed once per match. The "
                  "layouts are the older single ZZANGIMESSAGE table, and the newer layout where "
@@ -190,7 +191,8 @@ def zangi_messages(context):
                 NULLIF(zm.ZENCRYPTFILEREMOTEPATH, '')
             ) [Media Path],
             zm.ZFILEEXTENSION [Media Extension],
-            zm.ZMESSAGEINFO [Message Info]
+            zm.ZMESSAGEINFO [Message Info],
+            zm.ZTYPE [ZTYPE (as stored)]
         FROM ZZANGIMESSAGE zm
         LEFT JOIN ZCONVERSATION cnv         ON cnv.Z_PK = zm.ZCONVERSATION
         LEFT JOIN ZGROUP grp                ON grp.ZCONVERSATION = cnv.Z_PK
@@ -206,7 +208,7 @@ def zangi_messages(context):
     # Newer layout: message data moved to ZZMESSAGE, with the sender in a per-message
     # ZZMESSAGEUSER row and the attachment in a per-message ZZMESSAGEMEDIA row. Returns
     # the same columns in the same order as the legacy query so the row handling below is
-    # shared. Message type codes with no mapping are returned as stored.
+    # shared. Unmapped Message Type labels are cast to text; raw ZTYPE is separate.
     query_new = '''
         SELECT
             zm.ZMESSAGETIME [Message Timestamp],
@@ -260,7 +262,8 @@ def zangi_messages(context):
                 NULLIF(mm.ZMEDIAASSETSLIBRARYURL, '')
             ) [Media Path],
             mm.ZFILEEXTENSION [Media Extension],
-            zm.ZMESSAGEINFO [Message Info]
+            zm.ZMESSAGEINFO [Message Info],
+            zm.ZTYPE [ZTYPE (as stored)]
         FROM ZZMESSAGE zm
         LEFT JOIN ZCONVERSATION cnv         ON cnv.Z_PK = zm.ZCONVERSATION
         LEFT JOIN ZGROUP grp                ON grp.ZCONVERSATION = cnv.Z_PK
@@ -371,6 +374,7 @@ def zangi_messages(context):
                 attachment_file,
                 row[2],
                 row[3],
+                row[13],
                 row[4],
                 row[5],
                 row[8],
@@ -389,6 +393,7 @@ def zangi_messages(context):
         ('Attachment File', 'media'),
         'Conversation Type',
         'Message Type',
+        'ZTYPE (as stored)',
         'Message ID',
         'Conversation ID',
         'Sender Number',
