@@ -178,34 +178,40 @@ __artifacts_v2__ = {
     },
     "spotify_ios_play_history": {
         "name": "Spotify - Play History",
-        "description": "The list of tracks the Spotify app's saved player state carries "
-                       "as its own play history.",
-        "author": "@AlexisBrignoni, Claude",
+        "description": (
+            "Entries reported from the play_history.tracks list in Spotify's saved player state, "
+            "including each entry's uid value under its stored key name."
+        ),
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Spotify",
-        "notes": "One row per entry of the play history list inside "
-                 "context_player_state_restore, in the order the file lists them, which "
-                 "Position In List reports. 15 rows across 3 images. The list carries "
-                 "no time of its own, so State Saved repeats the time the file was "
-                 "written and is the same value on every row from one file. It bounds "
-                 "the entries rather than dating them: the list was written by then, "
-                 "and how long before is not recorded. The module reads this list only "
-                 "from the JSON form of the file. In the protobuf form it reads one "
-                 "track by shape, and whether that form also holds a history list was "
-                 "not established. On the three images running app version 8.8 or "
-                 "later the file is in the protobuf form, so those images report "
-                 "nothing here even though they carry "
-                 "the file. Account is the name of the per-user folder the file sits in "
-                 "and holds one value per image because each tested image had one "
-                 "signed in account. Item Type comes from the address, and one row is "
-                 "an advertisement rather than a track, which is what the app recorded "
-                 "in the list. Artist and Title are filled where the same container "
-                 "cached the lyrics for that track, which is 2 of 15 rows; the rest "
-                 "carry the address only. Play ID is the entry's uid value as stored "
-                 "and is blank on 1 row, the advertisement; what it identifies is not "
-                 "established.",
+        "notes": (
+            'One row per entry of the play history list inside context_player_state_restore, in '
+            'the order the file lists them, which Position In List reports. 15 rows across 3 '
+            'images. The list carries no time of its own, so State Saved repeats the time the '
+            'file was written and is the same value on every row from one file. It bounds the '
+            'entries rather than dating them: the list was written by then, and how long before '
+            'is not recorded. The module reads this list only from the JSON form of the file. In '
+            'the protobuf form it reads one track by shape, and whether that form also holds a '
+            'history list was not established. On the three images running app version 8.8 or '
+            'later the file is in the protobuf form, so those images report nothing here even '
+            'though they carry the file. Account is the name of the per-user folder the file '
+            'sits in and holds one value per image because each tested image had one signed in '
+            'account. Item Type comes from the address, and one row is an advertisement rather '
+            'than a track, which is what the app recorded in the list. Artist and Title are '
+            'filled where the same container cached the lyrics for that track, which is 2 of 15 '
+            "rows; the rest carry the address only. uid (as stored) is the entry's uid value as "
+            'currently rendered and is blank on 1 row, the advertisement; what it identifies is '
+            "not established. The uid field is passed through the parser's existing text "
+            'conversion: missing or null becomes empty, and other decoded JSON values become '
+            'Python text. This header does not establish a play identifier, identity, ownership '
+            'or uniqueness; no raw JSON field type or byte retention is added. All image counts '
+            'and observations above are historical and have not been revalidated by this header '
+            'correction. Combined rows do not retain a per-row source filename; source paths '
+            'remain aggregated as before. Original contribution credited to Claude.'
+        ),
         "paths": ('*/Containers/Data/Application/*/Library/Application Support/PersistentCache/Users/*',
                   '*/Containers/Data/Application/*/Library/Caches/genius/*'),
         "output_types": "standard",
@@ -954,7 +960,7 @@ def spotify_ios_play_history(context):
 
     data_headers = (
         ('State Saved', 'datetime'), 'Position In List', 'Item Type', 'Artist', 'Title',
-        'Item URI', 'Play ID', 'Account')
+        'Item URI', 'uid (as stored)', 'Account')
     return data_headers, data_list, '\n'.join(sources)
 
 
