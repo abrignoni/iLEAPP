@@ -4,9 +4,9 @@ __artifacts_v2__ = {
         "description": "Correlates Photos.sqlite asset records with on-disk file EXIF to surface "
                        "timestamp and coordinate mismatches between the library database, cached EXIF, "
                        "and the media file.",
-        "author": "@abrignoni, @AlexisBrignoni, Codex",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Photos",
         "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
@@ -16,9 +16,9 @@ __artifacts_v2__ = {
                  "matching on-disk image file and readable EXIF are output. The number of assets "
                  "skipped for each reason is written to the run log, not to the table. Search "
                  "patterns cover files in DCIM and PhotoCloudSharingData whose names end in .HEIC, "
-                 ".HEIF, .JPG, .JPEG or .PNG as spelled, in upper case. On macOS and Linux a file "
-                 "with a lower-case extension is not collected, and its asset is skipped as having "
-                 "no matching file. DB Created is ZDATECREATED and DB Modified is "
+                 ".HEIF, .JPG, .JPEG or .PNG in any ASCII letter case. This extends only extension "
+                 "discovery; directory and basename matching behavior is unchanged. Original contribution "
+                 "credited to @abrignoni. DB Created is ZDATECREATED and DB Modified is "
                  "ZMODIFICATIONDATE from the asset table, read as seconds from 2001-01-01 and "
                  "shown in UTC. What event sets each value is not established here; ZADDEDDATE is "
                  "not read. File DateTime and File DateTimeOriginal are EXIF tags 306 and 36867 "
@@ -47,16 +47,16 @@ __artifacts_v2__ = {
                  "not conclusions.",
         "paths": (
             '*Media/PhotoData/Photos.sqlite*',
-            '*Media/DCIM/*/*.HEIC',
-            '*Media/DCIM/*/*.HEIF',
-            '*Media/DCIM/*/*.JPG',
-            '*Media/DCIM/*/*.JPEG',
-            '*Media/DCIM/*/*.PNG',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.HEIC',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.HEIF',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.JPG',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.JPEG',
-            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.PNG',
+            '*Media/DCIM/*/*.[Hh][Ee][Ii][Cc]',
+            '*Media/DCIM/*/*.[Hh][Ee][Ii][Ff]',
+            '*Media/DCIM/*/*.[Jj][Pp][Gg]',
+            '*Media/DCIM/*/*.[Jj][Pp][Ee][Gg]',
+            '*Media/DCIM/*/*.[Pp][Nn][Gg]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Hh][Ee][Ii][Cc]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Hh][Ee][Ii][Ff]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Jj][Pp][Gg]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Jj][Pp][Ee][Gg]',
+            '*Media/PhotoData/PhotoCloudSharingData/*/*/*/*.[Pp][Nn][Gg]',
         ),
         "output_types": "all",
         "artifact_icon": "photo",
