@@ -34,6 +34,7 @@ import tempfile
 import time
 
 from scripts.ilapfuncs import logfunc, is_platform_windows, open_sqlite_db_readonly
+from scripts.log_filter import accelerate_query
 
 BINARY_NAME = 'unifiedlog_iterator.exe' if is_platform_windows() else 'unifiedlog_iterator'
 
@@ -304,6 +305,8 @@ def filtered_records(source_path, query, batch_size=10000, interval=20.0,
         raise OSError('Cannot open imported Unified Logs for filtering')
     selected = 0
     try:
+        query, filter_mode = accelerate_query(db, query)
+        log(f'Unified Log filtering mode: {filter_mode}')
         first = db.execute('SELECT rowid FROM logarchive ORDER BY rowid LIMIT 1').fetchone()
         if first is None:
             log('Unified Log filtering finished: 0 selected (empty source)')

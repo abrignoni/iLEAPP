@@ -54,7 +54,9 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Filters imported logs in bounded row ranges and reports progress, "
-                 "including ranges with no matching events. Selected rows stream into LAVA.",
+                 "including ranges with no matching events. Selected rows stream into LAVA. "
+                 "A compiled multi-pattern prefilter accelerates comparisons when available; "
+                 "the original SQLite predicates determine which events are selected.",
         "paths": None,
         "output_types": "lava_only",
         "artifact_icon": "database",

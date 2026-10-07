@@ -132,6 +132,19 @@ jobs:
         shell: bash
         run: python packaging/build.py exe
 
+      - name: Verify filtering in the built executable
+        shell: bash
+        run: |
+          python admin/test/scripts/test_log_filter.py
+          python admin/test/scripts/test_logarchive_filtering.py
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            python admin/scripts/check_frozen_log_filter.py dist/iLEAPP/ileapp.exe
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            python admin/scripts/check_frozen_log_filter.py dist/iLEAPP.app/Contents/MacOS/ileapp
+          else
+            python admin/scripts/check_frozen_log_filter.py dist/iLEAPP/ileapp
+          fi
+
       - name: Smoke test the build
         shell: bash
         run: |
