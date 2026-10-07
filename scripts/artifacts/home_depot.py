@@ -2,19 +2,14 @@
 __artifacts_v2__ = {
     "home_depot_account": {
         "name": "Home Depot - Account",
-        "description": "Home Depot account profile fields as stored in the app's cached user info "
-                       "(the Email column is the stored logonId)",
-        "author": "@jameshabben",
+        "description": 'Home Depot account profile fields from cached user info, including the parser-selected accountIdentity.logonId value under its stored field name.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": '2026-10-07',
         "requirements": "nska_deserialize",
         "category": "Home Depot",
         "notes": (
-            "Account data is parsed from three sources when present: USER_INFO_KEY in "
-            "the first matched file whose path ends with com.thehomedepot.homedepot.plist (the App "
-            "Group file's name ends the same way, so it can be the file read), SharedUserInfoKey "
-            "in group.com.thehomedepot.homedepot.plist, "
-            "and userInfo.txt in the App Group container. Contains PII."
+            "Account data is parsed from three sources when present: USER_INFO_KEY in the first matched file whose path ends with com.thehomedepot.homedepot.plist (the App Group file's name ends the same way, so it can be the file read), SharedUserInfoKey in group.com.thehomedepot.homedepot.plist, and userInfo.txt in the App Group container. Contains PII. In emitted rows, missing or null logonId values, or a non-dictionary parent, remain empty under existing parsing. Other values retain the parser's current representation. The stored field name does not establish an email address, active account or ownership. Original contribution credited to @jameshabben."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',
@@ -487,7 +482,7 @@ def _build_store_row(user_info, preferred_store_ids, source):
 def home_depot_account(context):
     """ see artifact description """
     data_headers = (
-        'Source', 'User ID', 'Email', 'First Name', 'Last Name', ('Phone', 'phonenumber'), 'Customer Type',
+        'Source', 'User ID', 'logonId (as stored)', 'First Name', 'Last Name', ('Phone', 'phonenumber'), 'Customer Type',
         'Zip Code', 'Customer Account ID', 'Local Store ID', 'Preferred Store IDs',
     )
     data_list = []
