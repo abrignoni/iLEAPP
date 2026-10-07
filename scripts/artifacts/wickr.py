@@ -244,33 +244,13 @@ __artifacts_v2__ = {
     },
     "wickr_app_log": {
         "name": "Wickr - App Log Message Events",
-        "description": "Notification payload and Download Message lines recorded in the Wickr "
-                       "application logs, with the log timestamp, the message and conversation "
-                       "identifiers, the payload's userId value and the logged message type",
-        "author": '@AlexisBrignoni, Claude, Codex',
+        "description": "Notification payload and Download Message lines recorded in the Wickr application logs, with the log timestamp, the message and conversation identifiers, the payload's userId value as decoded from JSON and the logged message type",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-07",
-        "last_update_date": '2026-10-04',
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Wickr",
-        "notes": "Read from the plaintext application logs the app writes under its Logs "
-                 "directories. The parsed lines are the notification payloads logged as 'Payload: "
-                 "{\"messageId\"...}' and the 'Download Message with Type' lines, both of which "
-                 "carry identifiers in the clear. The events present are bounded by the log files "
-                 "held in the extraction. Log line timestamps are recorded by the app without a "
-                 "zone and are reported as written.\n"
-                 "On the tested image, where an identifier here also appears in ZWICKR_MESSAGE, "
-                 "the logged time and the database timestamp read as UTC agree to within a "
-                 "second. The number of identifiers compared was not recorded.\n"
-                 "Most of them do not appear there. On the tested image the logs name 69 distinct "
-                 "message identifiers and 48 of those have no row in ZWICKR_MESSAGE, so this "
-                 "artifact reports logged message events that have no row in the message store, "
-                 "together with the conversation, the payload's userId value (the column headed "
-                 "Sender User ID Hash) and the logged type for each. Those 48 include the only "
-                 "occurrences of type values 4006 and 9000 anywhere in the data. Why a logged "
-                 "message has no row is not established here. A log that covers a longer period "
-                 "than the store retains, removal of the rows, or a message type the app does not "
-                 "write to the table would each produce this, and the records do not distinguish "
-                 "them.",
+        "notes": 'Read from the plaintext application logs the app writes under its Logs directories. The parsed lines are the notification payloads logged as \'Payload: {"messageId"...}\' and the \'Download Message with Type\' lines, both of which carry identifiers in the clear. The events present are bounded by the log files held in the extraction. Log line timestamps are recorded by the app without a zone and are reported as written.\nOn the tested image, where an identifier here also appears in ZWICKR_MESSAGE, the logged time and the database timestamp read as UTC agree to within a second. The number of identifiers compared was not recorded.\nMost of them do not appear there. On the tested image the logs name 69 distinct message identifiers and 48 of those have no row in ZWICKR_MESSAGE, so this artifact reports logged message events that have no row in the message store, together with the conversation, the payload\'s userId value and the logged type for each. Those 48 include the only occurrences of type values 4006 and 9000 anywhere in the data. Why a logged message has no row is not established here. A log that covers a longer period than the store retains, removal of the rows, or a message type the app does not write to the table would each produce this, and the records do not distinguish them. Payload userId is the JSON-decoded field value; it is not compared with ZUSERIDHASH and does not establish a sender or owner. Missing userId yields an empty string; explicit JSON null remains None in native rows. Download Message lines keep an empty value. Per-row log filenames are not retained; successfully read log paths are returned together, including logs that emit no rows. The 69/48 and time-comparison observations above are previously recorded, not revalidated by this header correction. Original contribution credited to Claude.',
         "paths": ('*/Logs/com.wickr*.log', '*/Logs/com.mywickr*.log'),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -870,7 +850,7 @@ def wickr_app_log(context):
         'Event',
         'Message ID',
         'Conversation Group ID',
-        'Sender User ID Hash',
+        'Payload userId (as decoded)',
         'Message Type (as stored)',
     )
     return data_headers, data_list, '\n'.join(source_paths)
