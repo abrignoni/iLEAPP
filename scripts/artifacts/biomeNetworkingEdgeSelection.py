@@ -1,26 +1,33 @@
 __artifacts_v2__ = {
     "get_biomeNetworkingEdgeSelection": {
         "name": "Biome - Networking Edge Selection",
-        "description": "Parses the apparent public-facing network prefix (a truncated IP address), "
-                       "interface type, radio technology, country and device time zone recorded by "
-                       "the Device.Networking.EdgeSelection biome stream",
-        "author": "@AlexisBrignoni, Claude",
+        "description": 'Reports decoded Written records and structural Deleted records yielded by the '
+                       'Device.Networking.EdgeSelection SEGB reader. Deleted rows do not establish a network event'
+                       ' or user deletion.',
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-28",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Biome",
-        "notes": "Only records in the Written SEGB state are reported; deleted slots produce no "
-                 "row. Each written record is read here as a network-edge observation: the values "
-                 "are consistent with a "
-                 "device-side public network prefix; this interpretation is inferred from observed "
-                 "values and is unverified. IMPORTANT: the address is TRUNCATED to the accompanying "
-                 "prefix length, not the device's full public IP - every observed value has its host "
-                 "bits zeroed (an IPv4 seen as 69.143.130.0 is the /24 network, an IPv6 as "
-                 "2600:380:1871:6d00:: is the /56). Report it as a network, not as an endpoint "
-                 "address. The stream is protobuf, which carries field numbers but no field names, "
-                 "so the column names other than the timestamp are inferred from the observed "
-                 "values; field 6 has no established meaning and is reported as Field 6. Files "
-                 "under a tombstone folder are skipped.",
+        "notes": 'Reports successfully yielded Written and Deleted SEGB records. Written payload columns '
+                 'retain the existing decoder and interpretations. Deleted rows contain only the SEGB '
+                 'timestamp, structural SEGB State, Filename and Offset; all eight payload columns are '
+                 'empty. Deleted is a structural reader state, not proof of a user deletion or a network '
+                 'event. Offset is the shared reader data_start_offset within the source file. Unknown and '
+                 'reader-excluded states are not recovered. Files under a tombstone folder and dot files '
+                 'remain excluded. A Source File column appears only when contributing file paths have the '
+                 'same basename and existing report source information cannot associate that basename and '
+                 'offset with one source path. Historical Written-only sample counts below are not a recount'
+                 ' of the expanded output. Original implementation/research attribution: @AlexisBrignoni, '
+                 'Claude. Each written record is read here as a network-edge observation: the values are '
+                 'consistent with a device-side public network prefix; this interpretation is inferred from '
+                 'observed values and is unverified. IMPORTANT: the address is TRUNCATED to the accompanying'
+                 " prefix length, not the device's full public IP - every observed value has its host bits "
+                 'zeroed (an IPv4 seen as 69.143.130.0 is the /24 network, an IPv6 as 2600:380:1871:6d00:: '
+                 'is the /56). Report it as a network, not as an endpoint address. The stream is protobuf, '
+                 'which carries field numbers but no field names, so the eight Written payload column names '
+                 'are inferred from the observed values; field 6 has no established meaning and is reported '
+                 'as Field 6. Files under a tombstone folder are skipped.',
         "paths": ('*/streams/*/Device.Networking.EdgeSelection/local/*',),
         "output_types": "standard",
         "artifact_icon": "network",
@@ -73,6 +80,8 @@ def get_biomeNetworkingEdgeSelection(context):
 
     data_list = []
     source_dirs = set()
+    row_sources = []
+    paths_by_basename = {}
     for file_found in context.get_files_found():
         file_found = str(file_found)
         filename = os.path.basename(file_found)
@@ -83,6 +92,13 @@ def get_biomeNetworkingEdgeSelection(context):
 
         source_dirs.add(os.path.dirname(file_found))
         for record in read_segb_file(file_found):
+            if record.state == EntryState.Deleted:
+                timestamp = record.timestamp1.replace(tzinfo=timezone.utc)
+                data_list.append((timestamp, record.state.name, None, None, None, None,
+                                  None, None, None, None, filename, record.data_start_offset))
+                row_sources.append(file_found)
+                paths_by_basename.setdefault(filename, set()).add(file_found)
+                continue
             if record.state != EntryState.Written:
                 continue
 
@@ -106,11 +122,19 @@ def get_biomeNetworkingEdgeSelection(context):
 
             timestamp = record.timestamp1.replace(tzinfo=timezone.utc)
 
-            data_list.append((timestamp, ip_address, ip_version, prefix_length, interface,
-                              radio_technology, field_6, country, time_zone, filename))
+            data_list.append((timestamp, record.state.name, ip_address, ip_version, prefix_length,
+                              interface, radio_technology, field_6, country, time_zone,
+                              filename, record.data_start_offset))
+            row_sources.append(file_found)
+            paths_by_basename.setdefault(filename, set()).add(file_found)
 
-    data_headers = (('SEGB Timestamp', 'datetime'), 'IP Address (Truncated)', 'IP Version',
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'IP Address (Truncated)', 'IP Version',
                     'Prefix Length', 'Interface', 'Radio Technology', 'Field 6', 'Country',
-                    'Time Zone', 'Filename')
+                    'Time Zone', 'Filename', 'Offset')
+
+    if any(len(paths) > 1 for paths in paths_by_basename.values()):
+        data_headers += ('Source File',)
+        data_list = [row + (context.get_relative_path(path),)
+                     for row, path in zip(data_list, row_sources)]
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
