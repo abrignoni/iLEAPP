@@ -1,16 +1,19 @@
 __artifacts_v2__ = {
     "get_biomeDKKeybag": {
         "name": "Biome - Keybag",
-        "description": "Parses records from the _DKEvent.Keybag.IsLocked biome "
-                       "stream. isLocked reads 1 - Locked where the stored value is 1 "
-                       "and 0 - Unlocked for any other value. Only records in the "
+        "description": "Parses records from the _DKEvent.Keybag.IsLocked biome stream. Field 4.4 is "
+                       "reported as decoded, without a Locked or Unlocked label. Only records in the "
                        "Written state are reported.",
-        "author": "@JohnHyla",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-04-29",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Biome",
-        "notes": "",
+        "notes": "Field 4.4 (as stored) retains the decoded protobuf value without Boolean conversion. "
+                 "Its meaning is not established by this change. Missing required fields retain the "
+                 "existing skipped-record behavior, and Deleted-state records remain omitted. Start Time"
+                 " and End Time retain the existing timestamp conversion. Original parser contribution: "
+                 "@JohnHyla.",
         "paths": ('*/Biome/streams/restricted/_DKEvent.Keybag.IsLocked/local/*'),
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -107,13 +110,13 @@ def get_biomeDKKeybag(context):
                     time2 = (webkit_timestampsconv(protostuff['2']))
                     time3 = (webkit_timestampsconv(protostuff['3']))
 
-                    data_list.append((ts, time2, time3, '1 - Locked ' if protostuff['4']['4'] == 1 else '0 - Unlocked', filename))
+                    data_list.append((ts, time2, time3, protostuff['4']['4'], filename))
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     logfunc(f"Skipping biomeDKKeybag record due to protobuf decode error: {ex} | "
                             f"File: {context.get_relative_path(file_found)} | "
                             f"Offset: {record.data_start_offset}")
                     continue
 
-    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Time', 'datetime'), ('End Time', 'datetime'), 'isLocked', 'Filename')
+    data_headers = (('SEGB Timestamp', 'datetime'), ('Start Time', 'datetime'), ('End Time', 'datetime'), 'Field 4.4 (as stored)', 'Filename')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
