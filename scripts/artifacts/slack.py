@@ -94,11 +94,10 @@ __artifacts_v2__ = {
     "slackChannels": {
         "name": "Slack - Channel Data",
         "description": "Slack channels from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "Only the first main_db found is read. DM Channels is the "
-                                      "channel row's ZTSID and Other Channels its ZTSID1, as "
-                                      "stored; those two column names are this artifact's and "
-                                      "what separates the two identifiers is not established. "
+        "author": "@abrignoni, @AlexisBrignoni, Codex", "creation_date": "2026-06-23", "last_update_date": "2026-10-06", "requirements": "none",
+        "category": "Slack", "notes": "Only the first main_db found is read. Channel SID (as stored) "
+                                      "is the channel row's ZTSID and Channel SID1 (as stored) is "
+                                      "its ZTSID1. What separates these identifiers is not established. "
                                       "Latest is ZLATEST read as Unix seconds.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "hash",
@@ -353,7 +352,7 @@ def slackAttachments(context):
 def slackChannels(context):
     data_headers = (('Timestamp Created', 'datetime'), ('Purpose Last Set', 'datetime'),
                     ('Topic Last Set', 'datetime'), ('Latest', 'datetime'), 'Channel Names',
-                    'DM Channels', 'Other Channels', 'User ID', 'Creator ID', 'Purpose Creator ID',
+                    'Channel SID (as stored)', 'Channel SID1 (as stored)', 'User ID', 'Creator ID', 'Purpose Creator ID',
                     'Purpose Text', 'Topic Creator ID', 'Topic Text')
     data_list = []
     db_path = _find_main_db(context)
