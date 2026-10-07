@@ -45,9 +45,9 @@ __artifacts_v2__ = {
             "saved contact; "
             "the Messages In Chat column is 0 and In Contact List is blank for such peers."
         ),
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Peer record field names (fn, ln, un, p, ph) follow the open-source "
@@ -55,8 +55,11 @@ __artifacts_v2__ = {
                  "from the Postbox ContactTable (table t16; "
                  "https://github.com/TelegramMessenger/Telegram-iOS/blob/"
                  "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/Postbox/Sources/"
-                 "Postbox.swift#L1926), keyed by peer id. If the table cannot be read the "
-                 "column is blank on every row. Avatar images are matched "
+                 "Postbox.swift#L1926), keyed by peer id. If a table read fails, membership "
+                 "may be incomplete: IDs already read can still show Yes, and other rows "
+                 "are blank. Up to ten failed reads are logged per invocation, followed by "
+                 "a summary. Original parser and research credit: @AlexisBrignoni. "
+                 "Avatar images are matched "
                  "from telegram-peer-photo-size files in postbox/media and from the "
                  "accounts-metadata Spotlight cache.",
         "paths": (
@@ -546,6 +549,25 @@ def telegramAccounts(context):
 
 # --- Telegram Contacts & Peers ----------------------------------------------
 
+def _contact_read_diagnostic(context, db_path, err):
+    """Bound the optional-table diagnostic without exposing SQLite error text."""
+    relative = context.get_relative_path(db_path)
+    if relative.startswith(('/', '\\')) or re.match(r'^[A-Za-z]:[/\\]', relative):
+        relative = 'relative-path-unavailable'
+    escaped = json.dumps(relative, ensure_ascii=True)
+    for character, replacement in (('<', '\\u003c'), ('>', '\\u003e'), ('&', '\\u0026')):
+        escaped = escaped.replace(character, replacement)
+    truncated = len(escaped) > 512
+    error_class = type(err).__name__
+    if error_class not in (
+            'Error', 'DatabaseError', 'DataError', 'IntegrityError', 'InterfaceError',
+            'InternalError', 'NotSupportedError', 'OperationalError', 'ProgrammingError'):
+        error_class = 'Error'
+    return (f'Telegram contacts: t16 read failed at {escaped[:512]} '
+            f'(path length={len(relative)}, truncated={truncated}; {error_class}); '
+            'membership may be incomplete.')
+
+
 @artifact_processor
 def telegramContacts(context):
     """ see artifact description """
@@ -599,6 +621,8 @@ def telegramContacts(context):
         if len(parts) >= 6:
             avatar_files.setdefault((_account_id_from_path(path), parts[5]), path)
 
+    contact_read_failures = 0
+    contact_read_examples = 0
     for account_id, db_path in _postbox_dbs(files_found):
         db = open_sqlite_db_readonly(db_path)
         if db is None:
@@ -625,8 +649,11 @@ def telegramContacts(context):
                         contact_ids.add(struct.unpack('>q', key)[0])
                     elif isinstance(key, int):
                         contact_ids.add(key)
-            except sqlite3.Error:
-                pass
+            except sqlite3.Error as err:
+                contact_read_failures += 1
+                if contact_read_examples < 10:
+                    logfunc(_contact_read_diagnostic(context, db_path, err))
+                    contact_read_examples += 1
 
             cursor.execute('SELECT key, value FROM t2')
             for key, value in cursor.fetchall():
@@ -676,6 +703,11 @@ def telegramContacts(context):
         finally:
             db.close()
 
+    if contact_read_failures:
+        logfunc(f'Telegram contacts: t16 read failures={contact_read_failures}, '
+                f'shown={contact_read_examples}, '
+                f'suppressed={contact_read_failures - contact_read_examples}; '
+                'membership may be incomplete.')
     source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
     return data_headers, data_list, source_path
 
