@@ -3,14 +3,14 @@ __artifacts_v2__ = {
 'name': 'Ph017.1-Gen_AI_Detected-PhDaPsql',
 'description': 'Parses basic asset row data from PhotoData-Photos.sqlite for assets whose'
 ' ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
-' values record is not established here. The labels shown for values 1 and 2 were assigned by'
-' the module author and no source for them is cited. The stored integer is kept in each label.'
+' values record is not established here. This field is reported as stored, without assigning'
+' meanings to its values.'
 ' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it returns no rows'
 ' without reading the database. The results for this script will contain one row per ZASSET'
 ' table Z_PK value.',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-07',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -41,14 +41,14 @@ __artifacts_v2__ = {
 'name': 'Ph017.2-Gen_AI_Detected-SyndPL',
 'description': 'Parses basic asset row data from Syndication.photoslibrary-database-Photos.sqlite for assets'
 ' whose ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
-' values record is not established here. The labels shown for values 1 and 2 were assigned by'
-' the module author and no source for them is cited. The stored integer is kept in each label.'
+' values record is not established here. This field is reported as stored, without assigning'
+' meanings to its values.'
 ' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it returns no rows'
 ' without reading the database. The results for this script will contain one row per ZASSET'
 ' table Z_PK value.',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-07',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
@@ -76,14 +76,14 @@ __artifacts_v2__ = {
 'name': 'Ph017.3-Gen_AI_Detected-GenPlayPsql',
 'description': 'Parses basic asset row data from GenPlay-Photos.sqlite for assets whose'
 ' ZEXTENDEDATTRIBUTES.ZGENERATIVEAITYPE value is greater than 0. What the column and its'
-' values record is not established here. The labels shown for values 1 and 2 were assigned by'
-' the module author and no source for them is cited. The stored integer is kept in each label.'
+' values record is not established here. This field is reported as stored, without assigning'
+' meanings to its values.'
 ' The artifact runs on iOS 18 through 26 only. On earlier iOS versions it produces no rows and'
 ' does not read the database. The results for this script will contain one row per ZASSET'
 ' table Z_PK value.',
-'author': 'Scott Koenig',
+'author': 'Scott Koenig, @AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-07',
 'version': '2.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
@@ -200,12 +200,7 @@ def Ph017_1GenAIDetectedPhDaPsql(context):
         zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash',
-		CASE zExtAttr.ZGENERATIVEAITYPE
-			WHEN 0 THEN '0-Gen_AI_Type_Not_Detected-0'
-			WHEN 1 THEN '1-GenPlayground_or_3rdPrty_GenAI-1'
-			WHEN 2 THEN '2-CleanUp-SafetyFilter-2'
-			ELSE 'Unknown-New-Value!: ' || zExtAttr.ZGENERATIVEAITYPE || ''
-		END AS 'zExtAttr-Generative_AI_Type',
+		zExtAttr.ZGENERATIVEAITYPE AS 'zExtAttr-Generative_AI_Type',
 		zExtAttr.ZCREDIT AS 'zExtAttr-Credit'		
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -252,7 +247,7 @@ def Ph017_1GenAIDetectedPhDaPsql(context):
         'zAsset-UUID = store.cloudphotodb-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28',
-        'zExtAttr-Generative_AI_Type-29',
+        'zExtAttr-Generative_AI_Type (as stored)-29',
         'zExtAttr-Credit-30')
 
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
@@ -360,12 +355,7 @@ def Ph017_2GenAIDetectedSyndPL(context):
         zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash',
-		CASE zExtAttr.ZGENERATIVEAITYPE
-			WHEN 0 THEN '0-Gen_AI_Type_Not_Detected-0'
-			WHEN 1 THEN '1-GenPlayground_or_3rdPrty_GenAI-1'
-			WHEN 2 THEN '2-CleanUp-SafetyFilter-2'
-			ELSE 'Unknown-New-Value!: ' || zExtAttr.ZGENERATIVEAITYPE || ''
-		END AS 'zExtAttr-Generative_AI_Type',
+		zExtAttr.ZGENERATIVEAITYPE AS 'zExtAttr-Generative_AI_Type',
 		zExtAttr.ZCREDIT AS 'zExtAttr-Credit'		
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -412,7 +402,7 @@ def Ph017_2GenAIDetectedSyndPL(context):
         'zAsset-UUID = store.cloudphotodb-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28',
-        'zExtAttr-Generative_AI_Type-29',
+        'zExtAttr-Generative_AI_Type (as stored)-29',
         'zExtAttr-Credit-30')
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
 
@@ -519,12 +509,7 @@ def Ph017_3GenAIDetectedGenPlayPsql(context):
         zAsset.ZUUID AS 'zAsset-UUID = store.cloudphotodb',
         zAddAssetAttr.ZORIGINALSTABLEHASH AS 'zAddAssetAttr-Original Stable Hash',
         zAddAssetAttr.ZADJUSTEDSTABLEHASH AS 'zAddAssetAttr.Adjusted Stable Hash',
-		CASE zExtAttr.ZGENERATIVEAITYPE
-			WHEN 0 THEN '0-Gen_AI_Type_Not_Detected-0'
-			WHEN 1 THEN '1-GenPlayground_or_3rdPrty_GenAI-1'
-			WHEN 2 THEN '2-CleanUp-SafetyFilter-2'
-			ELSE 'Unknown-New-Value!: ' || zExtAttr.ZGENERATIVEAITYPE || ''
-		END AS 'zExtAttr-Generative_AI_Type',
+		zExtAttr.ZGENERATIVEAITYPE AS 'zExtAttr-Generative_AI_Type',
 		zExtAttr.ZCREDIT AS 'zExtAttr-Credit'		
         FROM ZASSET zAsset
             LEFT JOIN ZADDITIONALASSETATTRIBUTES zAddAssetAttr ON zAddAssetAttr.Z_PK = zAsset.ZADDITIONALATTRIBUTES
@@ -571,7 +556,7 @@ def Ph017_3GenAIDetectedGenPlayPsql(context):
         'zAsset-UUID = store.cloudphotodb-26',
         'zAddAssetAttr-Original Stable Hash-27',
         'zAddAssetAttr.Adjusted Stable Hash-28',
-        'zExtAttr-Generative_AI_Type-29',
+        'zExtAttr-Generative_AI_Type (as stored)-29',
         'zExtAttr-Credit-30')
 
 # data_list = get_sqlite_db_records(source_path, null_absent_columns(source_path, query))
