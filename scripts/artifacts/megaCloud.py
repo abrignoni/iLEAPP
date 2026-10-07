@@ -3,88 +3,81 @@ __artifacts_v2__ = {
         "name": "MEGA - Cloud Files",
         "description": 'Files, folders and root nodes in the MEGA node cache, with the folder '
                        'path rebuilt from the stored parent links',
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-09-11",
-        "last_update_date": "2026-09-11",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "MEGA",
-        "notes": 'Read from the nodes table of megaclient_statecache<version>_<account>.db, '
-                 'the local node cache the MEGA SDK keeps for a signed in account. The nodes '
-                 'table appears from cache version 13: the SDK\'s LAST_DB_VERSION_WITHOUT_NOD '
-                 'is 12 '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/db.cpp#L137), '
-                 'and the version 12 store on fsfull002_ios17 holds only the statecache blob '
-                 'table, whose rows DbTable::put writes through PaddedCBC::encrypt '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/db.cpp#L68), '
-                 'and it produces no rows here. Cache versions 13 and 14 were read across the '
-                 'tested images. The name column is the value Node::displayname returns '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/db/sqlite.cpp#L1619), '
-                 'so it is the decrypted file or folder name rather than ciphertext. '
-                 'displayname returns the literal CRYPTO_ERROR when a node carries no name '
-                 'attribute '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/node.cpp#L1013); '
-                 'that was the case on 12 rows across the tested images, and all 12 of them '
-                 'are the root, vault and rubbish nodes, which have no name attribute of '
-                 'their own. Item Type is the SDK\'s nodetype_t '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L421), '
-                 'Share Type decodes the ShareType_t bits the SDK writes from getShareType '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L434), '
-                 'Label (as stored) holds the name of the nodelabel_t value '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L456), '
-                 'and In Rubbish, Is Version and Marked Sensitive are the three bits of '
-                 'Node::Flags '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/node.h#L474). '
-                 'Values outside those vocabularies are reported as stored. Folder Path is built '
-                 'by walking each node\'s parenthandle to the root. The root, vault and rubbish '
-                 'nodes carry no name of their own, so a path starts at the first named folder '
-                 'below them; 3 rows per image have no path on that basis, and on every tested '
-                 'image those are exactly the rows whose Item Type is one of those three. Created '
-                 'and Modified are the ctime and mtime columns, which the SDK binds from the '
-                 'node\'s own ctime and mtime. The SDK documents ctime as the creation time of the '
-                 'node in MEGA and mtime as the modification time of the file that was uploaded, '
-                 'valid for files only, both in seconds since the epoch '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/megaapi.h#L1333 '
-                 'and '
-                 'https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/megaapi.h#L1342). '
-                 'The stored schema differs between images that report the same cache version in '
-                 'their file name, so every column is resolved per file. A label, description or '
-                 'tags column the store lacks is reported blank (the iphone11_ios17 store lacks '
-                 'all three and they are blank on its 1,301 rows). Favourite is the exception: the '
-                 'code prints No when the store has no fav column, so No on such a store is not a '
-                 'recorded value. Every store read on iphone11_ios17, hc_ios18_7 and hc_ios26 has '
-                 'the fav column and it holds 0 on every node. Measured on the tested images: '
-                 'Modified is blank on every row of hickman_ios15, whose store has no mtime '
-                 'column; the stores on hc_ios18_7 and hc_ios26 have no size column, so a file\'s '
-                 'Size is taken from the counter blob instead (Size is filled on 16 of 20 rows on '
-                 'each), which NodeCounter::serialize writes as files, folders, storage, versions '
-                 'and version storage '
-                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/node.cpp#L4018); '
-                 'Label (as stored) is filled on hc_ios18_7 and hc_ios26 and blank elsewhere; '
-                 'Description and Tags were empty on every row of every tested image, including '
-                 'the images whose store has those columns. Files in Folder, Folders in Folder and '
-                 'Folder Size come from that same counter blob on folder rows. On the folder rows '
-                 'of the stores compared directly while this artifact was built, Files in Folder '
-                 'equalled the number of files below the folder, Folder Size equalled the sum of '
-                 'their sizes, and Folders in Folder equalled the number of folders below it plus '
-                 'the folder itself; the number of rows compared is not recorded in sample_data. '
-                 'Share Type was LINK on 4 rows and NO_SHARES on the rest, Favourite was Yes '
-                 'on 0 rows and none of the three flag columns was Yes on any row. The same '
-                 'node cache is written to more than one container on a device, and the '
-                 'copies can differ: on hc_ios18_7 the app\'s own container held 8 nodes the '
-                 'shared group container did not, while on iphone11_ios17 all three copies '
-                 'held the identical 1,301 nodes. Rows are therefore unioned on the node '
-                 'handle within an account, so hc_ios18_7 reports 20 rows rather than the 44 '
-                 'a per file reading would give, and every copy read is named on the located '
-                 'at line. Cached Copy is the file MEGA kept on the device for that node, '
-                 'matched on the handle in the cache file name; 62 of the 2627 rows reported '
-                 'across the tested images carried one, and Cache Holding the Copy names '
-                 'which cache it came from. Three columns hold one value per image and are '
-                 'kept for that reason: Account Handle and Node Cache Version, because each '
-                 'tested image held one account\'s cache at one version, and Share Value (as '
-                 'stored), the integer behind Share Type. Cached Copy and Cache Holding the '
-                 'Copy are blank on every row of an image whose MEGA container has no '
-                 'thumbnailsV3, previewsV3 or originalV3 directory, which is the case on '
-                 'hc_ios26.',
+        "notes": 'Read from the nodes table of megaclient_statecache<version>_<account>.db, the local node'
+                 ' cache the MEGA SDK keeps for a signed in account. The nodes table appears from cache '
+                 "version 13: the SDK's LAST_DB_VERSION_WITHOUT_NOD is 12 "
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/db.cpp#L137),'
+                 ' and the version 12 store on fsfull002_ios17 holds only the statecache blob table, whose'
+                 ' rows DbTable::put writes through PaddedCBC::encrypt '
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/db.cpp#L68),'
+                 ' and it produces no rows here. Cache versions 13 and 14 were read across the tested '
+                 'images. The name column is the value Node::displayname returns '
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/db/sqlite.cpp#L1619),'
+                 ' so it is the decrypted file or folder name rather than ciphertext. displayname returns '
+                 'the literal CRYPTO_ERROR when a node carries no name attribute '
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/node.cpp#L1013);'
+                 ' that was the case on 12 rows across the tested images, and all 12 of them are the root,'
+                 ' vault and rubbish nodes, which have no name attribute of their own. Item Type is the '
+                 "SDK's nodetype_t "
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L421),'
+                 ' Share Type decodes the ShareType_t bits the SDK writes from getShareType '
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L434),'
+                 ' Label (as stored) holds the name of the nodelabel_t value '
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L456),'
+                 ' and In Rubbish, Is Version and Marked Sensitive are the three bits of Node::Flags '
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/node.h#L474).'
+                 ' Values outside those vocabularies are reported as stored. Folder Path is built by '
+                 "walking each node's parenthandle to the root. The root, vault and rubbish nodes carry no"
+                 ' name of their own, so a path starts at the first named folder below them; 3 rows per '
+                 'image have no path on that basis, and on every tested image those are exactly the rows '
+                 'whose Item Type is one of those three. Created and Modified are the ctime and mtime '
+                 "columns, which the SDK binds from the node's own ctime and mtime. The SDK documents "
+                 'ctime as the creation time of the node in MEGA and mtime as the modification time of the'
+                 ' file that was uploaded, valid for files only, both in seconds since the epoch '
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/megaapi.h#L1333'
+                 ' and '
+                 'https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/megaapi.h#L1342).'
+                 ' The stored schema differs between images that report the same cache version in their '
+                 'file name, so every column is resolved per file. A label, description or tags column the'
+                 ' store lacks is reported blank (the iphone11_ios17 store lacks all three and they are '
+                 "blank on its 1,301 rows). fav (as stored) reports the query's fav value without a Yes/No"
+                 ' conversion. A store lacking the fav column projects SQL NULL, which is '
+                 'indistinguishable in this column from a recorded SQL NULL; no negative favourite state '
+                 'is inferred. Every store read on iphone11_ios17, hc_ios18_7 and hc_ios26 has the fav '
+                 'column and it holds 0 on every node. Measured on the tested images: Modified is blank on'
+                 ' every row of hickman_ios15, whose store has no mtime column; the stores on hc_ios18_7 '
+                 "and hc_ios26 have no size column, so a file's Size is taken from the counter blob "
+                 'instead (Size is filled on 16 of 20 rows on each), which NodeCounter::serialize writes '
+                 'as files, folders, storage, versions and version storage '
+                 '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/node.cpp#L4018);'
+                 ' Label (as stored) is filled on hc_ios18_7 and hc_ios26 and blank elsewhere; Description'
+                 ' and Tags were empty on every row of every tested image, including the images whose '
+                 'store has those columns. Files in Folder, Folders in Folder and Folder Size come from '
+                 'that same counter blob on folder rows. On the folder rows of the stores compared '
+                 'directly while this artifact was built, Files in Folder equalled the number of files '
+                 'below the folder, Folder Size equalled the sum of their sizes, and Folders in Folder '
+                 'equalled the number of folders below it plus the folder itself; the number of rows '
+                 'compared is not recorded in sample_data. Share Type was LINK on 4 rows and NO_SHARES on '
+                 'the rest, In historical runs before raw fav reporting, Favourite was Yes on 0 rows and '
+                 'none of the three flag columns was Yes on any row. The same node cache is written to '
+                 "more than one container on a device, and the copies can differ: on hc_ios18_7 the app's "
+                 'own container held 8 nodes the shared group container did not, while on iphone11_ios17 '
+                 'all three copies held the identical 1,301 nodes. Rows are therefore unioned on the node '
+                 'handle within an account, so hc_ios18_7 reports 20 rows rather than the 44 a per file '
+                 'reading would give, and every copy read is named on the located at line. Cached Copy is '
+                 'the file MEGA kept on the device for that node, matched on the handle in the cache file '
+                 'name; 62 of the 2627 rows reported across the tested images carried one, and Cache '
+                 'Holding the Copy names which cache it came from. Three columns hold one value per image '
+                 'and are kept for that reason: Account Handle and Node Cache Version, because each tested'
+                 " image held one account's cache at one version, and Share Value (as stored), the integer"
+                 ' behind Share Type. Cached Copy and Cache Holding the Copy are blank on every row of an '
+                 'image whose MEGA container has no thumbnailsV3, previewsV3 or originalV3 directory, '
+                 'which is the case on hc_ios26. Original parser contribution: @AlexisBrignoni, Claude.',
         "paths": ('*/megaclient_statecache*.db*',
                   '*/Library/Caches/thumbnailsV3/*',
                   '*/Library/Caches/previewsV3/*',
@@ -477,7 +470,7 @@ def mega_cloud_files(context):
                 _flag(row[9], _FLAG_IS_IN_RUBBISH),
                 _flag(row[9], _FLAG_IS_VERSION),
                 _flag(row[9], _FLAG_IS_MARKED_SENSITIVE),
-                'Yes' if row[8] else 'No',
+                row[8],
                 _share_type(row[7]),
                 _stored(row[10], _LABELS),
                 row[11] or '',
@@ -494,7 +487,7 @@ def mega_cloud_files(context):
     data_headers = (
         ('Created', 'datetime'), ('Modified', 'datetime'), 'Folder Path', 'Name', 'Item Type',
         'Size', 'Files in Folder', 'Folders in Folder', 'Folder Size', 'In Rubbish',
-        'Is Version', 'Marked Sensitive', 'Favourite', 'Share Type', 'Label (as stored)',
+        'Is Version', 'Marked Sensitive', 'fav (as stored)', 'Share Type', 'Label (as stored)',
         'Description', 'Tags', 'Share Value (as stored)', 'Node Handle', 'Parent Handle', 'Account Handle',
         'Node Cache Version', ('Cached Copy', 'media'), 'Cache Holding the Copy', 'Source File')
     return data_headers, data_list, '\n'.join(sources)
