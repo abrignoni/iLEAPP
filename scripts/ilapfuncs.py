@@ -9,6 +9,7 @@ import json
 import math
 import nska_deserialize
 import os
+import errno
 import plistlib
 import re  # pylint: disable=unused-import  # re-exported for modules importing it from here
 import shutil
@@ -217,8 +218,14 @@ def logfunc(message=""):
         sys.stdout.write = redirect_logs
 
     if OutputParameters.screen_output_file_path:
-        with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
-            a.write(message + '<br>' + OutputParameters.nl)
+        try:
+            with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
+                a.write(message + '<br>' + OutputParameters.nl)
+        except OSError as exc:
+            if exc.errno not in (errno.EMFILE, errno.ENFILE):
+                raise
+            # Error reporting must survive exhausted descriptors. @AlexisBrignoni, Codex.
+            print(f'HTML log unavailable ({exc}); continuing with console logging.')
     print(message)
 
 
