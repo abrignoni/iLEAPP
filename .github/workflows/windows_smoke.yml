@@ -82,3 +82,6 @@ jobs:
       # on Windows until sanitize_file_path covered them.
       - name: Stage archive members whose names hold characters Windows forbids
         run: python admin/test/scripts/test_extraction_illegal_filenames.py
+
+      - name: Recover HTML run logging and close its handle
+        run: python admin/test/scripts/test_screen_log_recovery.py

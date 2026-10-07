@@ -9,7 +9,7 @@ import json
 import math
 import nska_deserialize
 import os
-import errno
+import atexit
 import plistlib
 import re  # pylint: disable=unused-import  # re-exported for modules importing it from here
 import shutil
@@ -48,6 +48,7 @@ from leapp_functions.app.output import (
     validate_output_folder_available,
 )
 from leapp_functions.app.artifact_result import ArtifactResult
+from leapp_functions.app.screen_log import ScreenLogWriter
 # pylint: enable=unused-import
 
 _console_write = sys.stdout.write
@@ -198,6 +199,26 @@ class MediaReferences():
         self.name = media_ref_info[4]
 
 
+_screen_log = ScreenLogWriter()
+
+
+def close_screen_log():
+    """Flush pending run messages and release the HTML log handle."""
+    _screen_log.close()
+
+
+atexit.register(close_screen_log)
+
+
+def screen_log_session(func):
+    """Keep the HTML log open during processing and close it on every exit."""
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        with _screen_log.session(OutputParameters.screen_output_file_path):
+            return func(*args, **kwargs)
+    return wrapped
+
+
 def logfunc(message=""):
     def redirect_logs(string):
         _console_write(string)
@@ -218,14 +239,10 @@ def logfunc(message=""):
         sys.stdout.write = redirect_logs
 
     if OutputParameters.screen_output_file_path:
-        try:
-            with open(OutputParameters.screen_output_file_path, 'a', encoding='utf8') as a:
-                a.write(message + '<br>' + OutputParameters.nl)
-        except OSError as exc:
-            if exc.errno not in (errno.EMFILE, errno.ENFILE):
-                raise
-            # Error reporting must survive exhausted descriptors. @AlexisBrignoni, Codex.
-            print(f'HTML log unavailable ({exc}); continuing with console logging.')
+        _screen_log.write(OutputParameters.screen_output_file_path,
+                          message + '<br>' + OutputParameters.nl)
+    else:
+        _screen_log.write('', '')
     print(message)
 
 
