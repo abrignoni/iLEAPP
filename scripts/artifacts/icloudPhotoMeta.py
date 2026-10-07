@@ -5,18 +5,25 @@ __artifacts_v2__ = {
                        "including decoded filenames, timestamps, and the GPS, EXIF and TIFF values "
                        "of the embedded metadata as stored (latitude and longitude are reported "
                        "without their N/S and E/W reference).",
-        "author": "@abrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "iCloud",
-        "notes": "The decoded media-metadata bplist of a record is written to the report "
-                 "folder's 'bplists' subfolder under the record's Row ID. Row ID restarts "
-                 "on each line of Metadata.txt, so a later record with the same Row ID "
-                 "replaces the earlier file. Timestamp is the record's "
-                 "originalCreationDate where present and its created timestamp otherwise. "
-                 "The GPS, EXIF and TIFF columns are filled only when the decoded metadata "
-                 "carries a {TIFF} entry.",
+        "notes": 'Each successfully base64-decoded mediaMetaDataEnc value is exported as its original decoded '
+                 "bytes under the report's bplists subfolder. The export filename identifies this "
+                 "invocation's input occurrence, physical text-line number and record ordinal; it is "
+                 'independent of the unchanged Row ID, which restarts on each line. Exported Bplist gives '
+                 'that report-relative path only after a successful write, and is blank when mediaMetaDataEnc '
+                 'is absent or None. Equal bytes and repeated input paths are retained as separate '
+                 'occurrences; the filename is not a persistent record identifier. An export does not '
+                 "establish a valid plist or independently verify its contents. Timestamp is the record's "
+                 'originalCreationDate where present and its created timestamp otherwise. The GPS, EXIF and '
+                 'TIFF columns are filled only when the decoded metadata carries a {TIFF} entry. Original '
+                 'contribution credited to @abrignoni. This update only prevents per-occurrence export '
+                 'collisions and records the export path; coordinate/reference, TIFF gating, duplicate '
+                 'filesize projection, date ordering/interpretation, source association and unsupported '
+                 'input-shape policies remain unchanged and unresolved.',
         "paths": ('*/cloudphotolibrary/Metadata.txt',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "photo"
@@ -53,14 +60,14 @@ def icloudPhotoMeta(context):
         ('Timestamp', 'datetime'), 'Row ID', 'Record Type', 'Decoded', 'Title', 'Original Filesize',
         'Latitude', 'Longitude', 'Altitude', 'GPS Datestamp', 'GPS Time', ('Added Date', 'datetime'),
         'Timezone Offset', 'Decoded TZ', 'Is Deleted?', 'Is Expunged?', ('Import Date', 'datetime'),
-        ('Modification Date', 'datetime'), 'Res Original Filesize', 'ID', 'TIFF', 'EXIF')
+        ('Modification Date', 'datetime'), 'Res Original Filesize', 'ID', 'TIFF', 'EXIF', 'Exported Bplist')
     data_list = []
     sources = []
 
     bplist_folder = os.path.join(context.get_report_folder(), "bplists")
     os.makedirs(bplist_folder, exist_ok=True)
 
-    for file_found in context.get_files_found():
+    for input_occurrence, file_found in enumerate(context.get_files_found(), start=1):
         file_found = str(file_found)
         try:
             with open(file_found, "r", encoding="utf-8") as filecontent:
@@ -70,7 +77,7 @@ def icloudPhotoMeta(context):
             continue
 
         rel = context.get_relative_path(file_found)
-        for line in lines:
+        for physical_line_number, line in enumerate(lines, start=1):
             try:
                 jsonconv = json.loads(line)
             except json.JSONDecodeError:
@@ -79,6 +86,7 @@ def icloudPhotoMeta(context):
                 jsonconv = jsonconv.get('results', [])
 
             for i, record in enumerate(jsonconv):
+                exported_bplist = ""
                 created_timestamp = ''
                 latitude = longitude = altitude = datestamp = timestamp = ''
                 decoded = decoded_tz = title = ''
@@ -112,8 +120,11 @@ def icloudPhotoMeta(context):
                     coded_bplist = fields.get('mediaMetaDataEnc')
                     if coded_bplist is not None:
                         decoded_bplist = base64.b64decode(coded_bplist)
-                        with open(os.path.join(bplist_folder, rowid + ".bplist"), 'wb') as g:
+                        export_name = (f"input-{input_occurrence:06d}-line-{physical_line_number:06d}-"
+                                       f"record-{i:06d}.bplist")
+                        with open(os.path.join(bplist_folder, export_name), 'wb') as g:
                             g.write(decoded_bplist)
+                        exported_bplist = "bplists/" + export_name
                         try:
                             pl = plistlib.loads(decoded_bplist)
                         except (plistlib.InvalidFileException, ValueError):
@@ -132,7 +143,7 @@ def icloudPhotoMeta(context):
                 data_list.append((created_timestamp, rowid, recordtype, decoded, title, org_filesize,
                                   latitude, longitude, altitude, datestamp, timestamp, added_date,
                                   timezoneoffse, decoded_tz, is_deleted, is_expunged, import_date,
-                                  rec_mod_date, res_org_filesize, rec_id, tiff, exif))
+                                  rec_mod_date, res_org_filesize, rec_id, tiff, exif, exported_bplist))
         sources.append(rel)
 
     return data_headers, data_list, ', '.join(dict.fromkeys(sources))
