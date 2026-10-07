@@ -270,17 +270,14 @@ __artifacts_v2__ = {
     "telegramSettings": {
         "name": "Telegram Settings",
         "description": (
-            "Parses Telegram application settings from the shared settings store "
-            "(accounts-metadata database, table t2) and each account's preferences "
-            "(Postbox database, table t35). Includes media auto-download, save-to-Photos, "
-            "app passcode, contact synchronization, notification, and privacy settings. "
-            "A setting shown as 'Not present in database' has no stored record in these "
-            "tables. The report text adds that the app default is in effect; no source "
-            "for that is cited here."
+            "Parses named Telegram settings from the shared accounts-metadata table t2 "
+            "and account Postbox table t35. Headline settings receive a placeholder when "
+            "no supported stored record is reported for the key. That placeholder does "
+            "not establish whether the app uses a default value."
         ),
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Setting key IDs are taken from the open-source Telegram-iOS client "
@@ -289,7 +286,11 @@ __artifacts_v2__ = {
                  "stored as ID + 1000). Values are reported as stored, using Telegram's "
                  "internal field names, and cut at 1,000 characters. Keys with no name "
                  "in this module are not reported. App passcode, media auto-download and "
-                 "save-to-Photos settings get a row even when no record is stored.",
+                 "save-to-Photos settings get a placeholder when no supported named record "
+                 "was reported for the key. This parser requires a four-byte key and a byte "
+                 "value with a mapped key ID; an existing record with an unsupported shape "
+                 "can also lead to a placeholder. Original parser and research credit: "
+                 "@AlexisBrignoni.",
         "paths": (
             '*/telegram-data/accounts-metadata/db/db_sqlite*',
             '*/telegram-data/account-*/postbox/db/db_sqlite*'
@@ -1288,8 +1289,8 @@ _ACCOUNT_APP_KEYS = {
     1021: 'Age verification state',
 }
 
-# Settings reported even when absent, because Telegram only writes them once
-# the user changes the app default.
+# Headline settings get a placeholder when no supported named record was reported
+# for the key.
 _HEADLINE_SHARED = {
     1001: 'App passcode settings',
     1002: 'Media auto-download settings',
@@ -1298,7 +1299,7 @@ _HEADLINE_ACCOUNT = {
     1020: 'Save to Photos settings',
 }
 
-_ABSENT_VALUE = 'Not present in database (app default in effect)'
+_ABSENT_VALUE = 'No supported stored record reported'
 _VALUE_LIMIT = 1000
 
 
