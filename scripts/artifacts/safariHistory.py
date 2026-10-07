@@ -2,15 +2,16 @@ __artifacts_v2__ = {
     "safariHistory": {
         "name": "Safari Browser - History",
         "description": "Safari web history visits",
-        "author": "@KevinPagano3",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2023-02-14",
-        "last_update_date": "2026-10-01",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": (
-            "Origin is history_visits.origin. The labels Local Device for 0 and iCloud Synced "
-            "Device for 1 are applied by this artifact, no primary source for the meaning of either "
-            "value was located, and any other value is shown blank. Visit Timestamp reads "
+            "Origin (as stored) reports history_visits.origin without the former Local Device and "
+            "iCloud Synced Device labels. Its native SQLite value and type are retained, including "
+            "SQL NULL and values outside 0 and 1; what each value means is not established here. "
+            "Visit Timestamp reads "
             "visit_time as seconds since 2001-01-01 unless the value is above 978307200, when it is "
             "read as Unix seconds. Redirect Source and Redirect Destination show the URL of the "
             "visit the stored id names. "
@@ -44,7 +45,7 @@ __artifacts_v2__ = {
             "the history item, so each visit of that item shows the same tags. Tags and Tag "
             "Identifiers are blank when the item has no link and on a database that lacks "
             "either table. ctf2020_ios12 (iOS 12.4) has neither. The tags, their timestamps and the tags no item is linked to are "
-            "reported by Safari Browser - History Tags."
+            "reported by Safari Browser - History Tags. Original history artifact contribution: @KevinPagano3."
         ),
         "paths": (
             '**/Safari/History.db*',
@@ -259,7 +260,7 @@ def _item_tags(source_path):
 @artifact_processor
 def safariHistory(context):
     data_headers = (('Visit Timestamp', 'datetime'), 'Title', 'URL', 'Visit Count',
-                    'Redirect Source', 'Redirect Destination', 'Visit ID', 'Origin',
+                    'Redirect Source', 'Redirect Destination', 'Visit ID', 'Origin (as stored)',
                     'Tags', 'Tag Identifiers', 'Profile', 'Profile Name')
     data_list = []
 
@@ -284,7 +285,7 @@ def safariHistory(context):
         history_visits.redirect_source,
         history_visits.redirect_destination,
         history_visits.id,
-        CASE history_visits.origin WHEN 0 THEN 'Local Device' WHEN 1 THEN 'iCloud Synced Device' END,
+        history_visits.origin,
         history_visits.history_item
     FROM history_visits
     LEFT JOIN history_items ON history_visits.history_item = history_items.id
