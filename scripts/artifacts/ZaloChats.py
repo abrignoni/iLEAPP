@@ -52,15 +52,19 @@ __artifacts_v2__ = {
         "artifact_icon": "message"
     },
     "zalo_users": {
-        "name": "Zalo - Known Users",
-        "description": "Profile rows from the ProfileEntity table of Zalo's profile.sqlite, with the phone number from BuddyEntity and, where the store has it, the global id from GlobalIdEntity. What places a profile in the table is not established.",
-        "author": "C_Peter",
+        "name": "Zalo - Stored Profile Entries",
+        "description": "Stored ProfileEntity rows from the selected profile.sqlite, with mobile values joined from BuddyEntity and optional globalid values from GlobalIdEntity.",
+        "author": "C_Peter, @AlexisBrignoni, Codex",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "Zalo",
-        "notes": "",
+        "notes": "Profile inclusion and relationship to a device user are not established. Rows are stored "
+                 "profile/join observations, not verified contacts or known relationships. LEFT JOINs "
+                 "retain missing joined values and may return multiple rows per profile when matching "
+                 "join records repeat. Only the selected profile.sqlite is read; no app ownership or "
+                 "interaction is inferred from a profile entry.",
         "paths": (  
             '*/mobile/Containers/Data/Application/*/Documents/profile.sqlite*'
         ),
