@@ -33,7 +33,7 @@ import sys
 import tempfile
 import time
 
-from scripts.ilapfuncs import logfunc, is_platform_windows
+from scripts.ilapfuncs import logfunc, is_platform_windows, open_sqlite_db_readonly
 
 BINARY_NAME = 'unifiedlog_iterator.exe' if is_platform_windows() else 'unifiedlog_iterator'
 
@@ -278,6 +278,62 @@ def _format_duration(seconds):
     if hours:
         return f'{hours}:{minutes:02d}:{secs:02d}'
     return f'{minutes}:{secs:02d}'
+
+
+def filtered_records(source_path, query, batch_size=10000, interval=20.0,
+                     clock=time.monotonic, log=logfunc):
+    """Filter the imported logarchive in bounded rowid ranges, reporting progress.
+
+    ``query`` is a SELECT from logarchive with its WHERE predicates enclosed in
+    parentheses. Range bounds are appended outside those parentheses so every OR
+    branch respects them. The table is immutable during filtering; rowid endpoints
+    provide a cheap progress denominator without a preliminary COUNT(*) scan.
+    Percent describes the source rowid range, so gaps do not inflate a row count.
+
+    Each SELECT is exhausted and closed before yielding its matches. The caller
+    can then write/commit them to another table in the same database without a
+    reader holding a lock. Errors propagate so the artifact processor can discard
+    partial output rather than report an incomplete collection as successful.
+    """
+    if batch_size <= 0:
+        raise ValueError('Unified Log filter batch_size must be positive')
+    started = last_report = clock()
+    log('Filtering imported Unified Logs for relevant events...')
+    db = open_sqlite_db_readonly(source_path)
+    if db is None:
+        raise OSError('Cannot open imported Unified Logs for filtering')
+    selected = 0
+    try:
+        first = db.execute('SELECT rowid FROM logarchive ORDER BY rowid LIMIT 1').fetchone()
+        if first is None:
+            log('Unified Log filtering finished: 0 selected (empty source)')
+            return
+        last = db.execute('SELECT rowid FROM logarchive ORDER BY rowid DESC LIMIT 1').fetchone()[0]
+        lower = first[0] - 1
+        span = last - lower
+        completed = 0
+        bounded_query = query + ' AND rowid > ? AND rowid <= ? ORDER BY rowid'
+        while lower < last:
+            upper = min(lower + batch_size, last)
+            cursor = db.execute(bounded_query, (lower, upper))
+            try:
+                rows = cursor.fetchall()
+            finally:
+                cursor.close()
+            # Finish writing these rows before starting the next SELECT.
+            yield from rows
+            selected += len(rows)
+            completed += upper - lower
+            lower = upper
+            now = clock()
+            if now - last_report >= interval:
+                log(f'Unified Log filtering: {100.0 * completed / span:.0f}% of source range'
+                    f' | {selected:,} selected | elapsed {_format_duration(now - started)}')
+                last_report = now
+        log(f'Unified Log filtering finished: 100% of source range | {selected:,} selected'
+            f' | elapsed {_format_duration(clock() - started)}')
+    finally:
+        db.close()
 
 
 class ImportProgress:
