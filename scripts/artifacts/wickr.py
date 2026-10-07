@@ -172,19 +172,14 @@ __artifacts_v2__ = {
         },
     },
     "wickr_devices": {
-        "name": "Wickr - Devices",
-        "description": "Secex_App records from the Wickr local store, giving the stored "
-                       "ZAPPIDHASH value and the user record each one is linked to",
-        "author": "@AlexisBrignoni, Claude",
+        "name": 'Wickr - Secex_App Records',
+        "description": 'Rows selected from ZSECEX_APP with linked ZSECEX_USER values from wickrLocal.sqlite.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Wickr",
-        "notes": "Read from ZSECEX_APP in wickrLocal.sqlite, which the Z_PRIMARYKEY table in the "
-                 "same file names Secex_App. Rows are joined to ZSECEX_USER through ZUSER. "
-                 "ZAPPIDHASH is stored in the clear and is reported as stored; ZSAPPID, ZPUBS and "
-                 "ZPUBSIG are encrypted blobs and are not decoded. A row count above one for a "
-                 "given user reflects the number of these records present in this database.",
+        "notes": "Read from ZSECEX_APP in wickrLocal.sqlite. The previously examined model names this entity Secex_App in Z_PRIMARYKEY; Kind continues to use the current file's entity-name lookup or the parser's Z_ENT fallback. Rows are LEFT JOINed to ZSECEX_USER through a.ZUSER = u.Z_PK. ZAPPIDHASH is reported through the existing projection; ZSAPPID, ZPUBS and ZPUBSIG are not decoded. The record name does not establish a physical device or ownership. A matching user key can yield multiple joined rows when it is not unique; unmatched app rows are retained. The recorded sample counts of 49 and 2 are historical metadata, not revalidated by this naming correction. Original contribution credited to Claude.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "smartphone",
