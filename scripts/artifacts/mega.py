@@ -47,17 +47,24 @@ __artifacts_v2__ = {
     },
     "mega_chats": {
         "name": "MEGA - Chats",
-        "description": "Chats listed in the MEGA karere store, with the peer resolved to an email "
-                       "and the creation time",
-        "author": "@AlexisBrignoni, Claude",
+        "description": "Chats listed in the first MEGA karere store, with creation time and a peer "
+                       "display value from a contacts.email lookup or the stored peer rendered as "
+                       "text. The value does not establish identity.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-06",
         "requirements": "none",
         "category": "MEGA",
         "notes": "Read from the chats table of the first karere-*.db file found; if an extraction "
-                 "holds more than one, the others are not read. A peer handle of 0 does not "
-                 "resolve to a contact and is reported as blank; "
-                 "its meaning is not sourced.",
+                 "holds more than one, the others are not read. Peer Display Value uses a lookup "
+                 "of str(peer) against str(contacts.userid). A truthy contacts.email value takes "
+                 "precedence; it is not validated as an email or an identity. For duplicate string "
+                 "keys the last truthy email read wins, and false values do not replace an earlier "
+                 "entry. On a lookup miss, any non-NULL peer is rendered with str(), including "
+                 "numeric zero, REAL zero and an empty BLOB (as a bytes representation). SQL NULL "
+                 "has a blank fallback; the existing lookup can still match its literal 'None' key. "
+                 "This mixed display field does not preserve the peer's native type or establish "
+                 "the meaning of zero. Original parser contribution: @AlexisBrignoni, Claude.",
         "paths": ('*/karere-*.db*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -246,7 +253,7 @@ def mega_chats(context):
         data_list.append((
             convert_unix_ts_to_utc(record[0]),
             str(record[1]),
-            emails.get(peer_handle, peer_handle if record[2] else ''),
+            emails.get(peer_handle, peer_handle if record[2] is not None else ''),
             record[3],
             record[4],
             record[5],
@@ -255,7 +262,7 @@ def mega_chats(context):
     data_headers = (
         ('Created', 'datetime'),
         'Chat ID',
-        'Peer',
+        'Peer Display Value',
         'Title',
         'Shard',
         'Mode',
