@@ -48,12 +48,15 @@ __artifacts_v2__ = {
     "logarchive_artifacts": {
         "name": "logarchive artifacts",
         "description": "Extract relevant entries from the logarchive table of LAVA db",
-        "author": "@AlexisBrignoni, @JohannPLW",
+        "author": "@AlexisBrignoni, Codex, @JohannPLW",
         "creation_date": "2025-05-19",
-        "last_update_date": "2025-05-21",
+        "last_update_date": "2026-10-07",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "Filters imported logs in bounded row ranges and reports progress, "
+                 "including ranges with no matching events. Selected rows stream into LAVA. "
+                 "A compiled multi-pattern prefilter accelerates comparisons when available; "
+                 "the original SQLite predicates determine which events are selected.",
         "paths": None,
         "output_types": "lava_only",
         "artifact_icon": "database",
@@ -1206,6 +1209,7 @@ import shutil
 import ijson
 from pathlib import Path
 from datetime import datetime, timezone
+from contextlib import closing
 from scripts import unifiedlogs
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
     get_sqlite_db_records, logfunc, get_sysdiagnose_files
@@ -1466,12 +1470,12 @@ def logarchive(context):
 @artifact_processor
 def logarchive_artifacts(context):
     source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
-    data_list = []
+    results = context.create_artifact_result(headers=DATA_HEADERS, source_path=source_path)
 
     query = '''
     SELECT *
     FROM logarchive
-    WHERE event_message LIKE '%Take screenshot%'
+    WHERE (event_message LIKE '%Take screenshot%'
         OR event_message LIKE '%Time change: Clock shifted by%'
         OR event_message LIKE '%BoutDetector (stepBout): Identified potential walking bout%'
         OR event_message LIKE '%Has contact name and phone number%'
@@ -1817,13 +1821,12 @@ def logarchive_artifacts(context):
         -- logarchive_app_state
         OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+    )
     '''
 
-    data_list = list( get_sqlite_db_records(source_path, query) )
-    data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
-                    'Subsystem', 'Category', 'Event Message', 'Trace ID')
-
-    return data_headers, data_list, source_path
+    with closing(unifiedlogs.filtered_records(source_path, query)) as rows:
+        results.extend(rows)
+    return results
 
 @artifact_processor
 def logarchive_time_change(context):
