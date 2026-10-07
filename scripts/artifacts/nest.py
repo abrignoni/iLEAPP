@@ -169,25 +169,25 @@ __artifacts_v2__ = {
         },
     },
     "nestAccount": {
-        "name": "Nest - Account",
+        "name": "Nest - User Object Entries",
         "description": "User objects recorded in the app's transport store, with the email "
                        "address, name and the number of structures each lists.",
-        "author": "@AlexisBrignoni, Claude",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-31",
-        "last_update_date": "2026-08-31",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Nest",
         "notes": "Read from the ZNLTRANSPORTOBJECT rows whose ZOBJECT_KEY begins 'user.', whose "
-                 "ZOBJECTVALUE is an NSKeyedArchiver archive. The email and name are the values "
-                 "held in the user object; that the object is the signed-in account is not "
-                 "established here, and a store holding more than one user object produces one row "
-                 "for each. Structure Count is the number of entries in the object's structures "
-                 "list. Merged With GAIA is reported as stored; the meaning of the flag is not "
-                 "sourced. Short Name was empty on the account in the tested sample; the column is "
-                 "kept because the object defines the field and another account may carry it. "
-                 "Every count recorded here comes from one extraction, adams_iphone12mini, so no "
-                 "field has been seen to vary across devices or app versions. A "
-                 "second extraction carrying this app would close that gap.",
+                 "ZOBJECTVALUE is an NSKeyedArchiver archive. The email and name are the values held in "
+                 "the user object; that the object is the signed-in account is not established here, "
+                 "and a store holding more than one user object produces one row for each. Structure "
+                 "Count is the number of entries in the object's structures list. Merged With GAIA is "
+                 "reported as stored; the meaning of the flag is not sourced. Short Name was empty on "
+                 "the user object in the tested sample; the column is kept because the object defines "
+                 "the field and another user object may carry it. Every count recorded here comes from "
+                 "one extraction, adams_iphone12mini, so no field has been seen to vary across devices "
+                 "or app versions. A second extraction carrying this app would close that gap. Original "
+                 "parser and historical sample observations credited to @AlexisBrignoni, Claude.",
         "paths": ('*/Documents/Nest.sqlite*',),
         "output_types": ["html", "tsv", "lava", "timeline"],
         "artifact_icon": "user",
