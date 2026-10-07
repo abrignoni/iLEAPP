@@ -40,7 +40,7 @@ class ScreenLogRecoveryTests(unittest.TestCase):
             with self.writer.session(self.path):
                 for message in ['first<br>\n', '<b>é漢字</b><br>\n', '\n<br>\n']:
                     self.writer.write(self.path, message)
-                self.assertEqual(self.path.read_text(), 'first<br>\n<b>é漢字</b><br>\n\n<br>\n')
+                self.assertEqual(self.path.read_text(encoding='utf8'), 'first<br>\n<b>é漢字</b><br>\n\n<br>\n')
                 self.assertEqual(len(handles), 1)
                 self.assertFalse(handles[0].closed)
             self.assertTrue(handles[0].closed)
@@ -56,14 +56,14 @@ class ScreenLogRecoveryTests(unittest.TestCase):
                 self.assertEqual(output.getvalue().count('HTML log unavailable'), 1)
                 self.writer.write(path, 'three<br>\n')
                 self.writer.write(path, 'four<br>\n')
-            self.assertEqual(path.read_text(), 'one<br>\ntwo é<br>\nthree<br>\nfour<br>\n')
+            self.assertEqual(path.read_text(encoding='utf8'), 'one<br>\ntwo é<br>\nthree<br>\nfour<br>\n')
 
     def test_close_retries_pending_messages_without_needing_another_log_call(self):
         with patch('builtins.open', side_effect=OSError(errno.EMFILE, 'exhausted')):
             self.writer.write(self.path, 'last message<br>\n')
         self.writer.close()
         self.writer.close()
-        self.assertEqual(self.path.read_text(), 'last message<br>\n')
+        self.assertEqual(self.path.read_text(encoding='utf8'), 'last message<br>\n')
 
     def test_session_releases_handle_on_early_return_and_base_exception(self):
         for error in [RuntimeError('failed'), KeyboardInterrupt()]:
@@ -113,7 +113,7 @@ class ScreenLogRecoveryTests(unittest.TestCase):
             for message in ['one\n', 'two\n', 'three\n', 'four\n']:
                 self.writer.write(self.path, message)
         self.writer.write(self.path, 'recovered\n')
-        text = self.path.read_text()
+        text = self.path.read_text(encoding='utf8')
         self.assertTrue(text.startswith('one\ntwo\nHTML log buffer full: 2 message(s) omitted;'))
         self.assertTrue(text.endswith('recovered\n'))
         self.assertNotIn('three', text)
@@ -122,7 +122,7 @@ class ScreenLogRecoveryTests(unittest.TestCase):
         self.writer.MAX_PENDING_BYTES = 10
         text = 'é' * 1000 + '<br>\n'
         self.writer.write(self.path, text)
-        self.assertEqual(self.path.read_text(), text)
+        self.assertEqual(self.path.read_text(encoding='utf8'), text)
 
     def test_unresolved_close_reports_loss_without_leaking_into_the_next_run(self):
         with patch('sys.stdout', new_callable=io.StringIO) as output:
@@ -132,7 +132,7 @@ class ScreenLogRecoveryTests(unittest.TestCase):
             self.assertIn('1 buffered message(s) remain unwritten', output.getvalue())
         other = self.path.with_name('next.html')
         self.writer.write(other, 'new report message<br>\n')
-        self.assertEqual(other.read_text(), 'new report message<br>\n')
+        self.assertEqual(other.read_text(encoding='utf8'), 'new report message<br>\n')
         self.assertFalse(self.path.exists())
 
     def test_path_change_drains_the_old_report_before_switching(self):
@@ -140,8 +140,8 @@ class ScreenLogRecoveryTests(unittest.TestCase):
             self.writer.write(self.path, 'old<br>\n')
         other = self.path.with_name('next.html')
         self.writer.write(other, 'new<br>\n')
-        self.assertEqual(self.path.read_text(), 'old<br>\n')
-        self.assertEqual(other.read_text(), 'new<br>\n')
+        self.assertEqual(self.path.read_text(encoding='utf8'), 'old<br>\n')
+        self.assertEqual(other.read_text(encoding='utf8'), 'new<br>\n')
 
     def test_unrelated_open_and_write_errors_still_raise_and_close(self):
         with patch('builtins.open', side_effect=PermissionError(errno.EACCES, 'denied')):
@@ -162,7 +162,7 @@ class ScreenLogRecoveryTests(unittest.TestCase):
         with self.writer.session(self.path):
             with ThreadPoolExecutor(max_workers=4) as pool:
                 list(pool.map(write, range(200)))
-        self.assertCountEqual(self.path.read_text().splitlines(), [f'{n}:é漢字<br>' for n in range(200)])
+        self.assertCountEqual(self.path.read_text(encoding='utf8').splitlines(), [f'{n}:é漢字<br>' for n in range(200)])
 
     def test_windows_newline_translation_matches_the_previous_text_writer(self):
         with patch('leapp_functions.app.screen_log.os.linesep', '\r\n'):
@@ -199,7 +199,7 @@ class LoggingIntegrationTests(unittest.TestCase):
             self.assertEqual(run(), 42)
             with self.assertRaises(RuntimeError):
                 run(True)
-        self.assertEqual(self.path.read_text(), 'processing message<br>\n' * 2)
+        self.assertEqual(self.path.read_text(encoding='utf8'), 'processing message<br>\n' * 2)
         self.assertIsNone(ilapfuncs._screen_log._handle)  # pylint: disable=protected-access
 
     def test_console_and_worker_gui_receive_original_messages_once(self):
@@ -215,7 +215,7 @@ class LoggingIntegrationTests(unittest.TestCase):
         queued = ''.join(item[1] for item in list(messages.queue))
         self.assertEqual(queued.count('during exhaustion'), 1)
         self.assertEqual(queued.count('after recovery'), 1)
-        self.assertEqual(self.path.read_text(), 'during exhaustion<br>\nafter recovery<br>\n')
+        self.assertEqual(self.path.read_text(encoding='utf8'), 'during exhaustion<br>\nafter recovery<br>\n')
 
     def test_disabled_html_keeps_console_only_behavior_for_non_string_messages(self):
         ilapfuncs.OutputParameters.screen_output_file_path = ''
@@ -248,7 +248,7 @@ class LoggingIntegrationTests(unittest.TestCase):
             with patch.object(module, 'FileSeekerDir', side_effect=OSError('seeker failed')):
                 self.assertFalse(module.crunch_artifacts(**arguments))
             self.assertIsNone(ilapfuncs._screen_log._handle)  # pylint: disable=protected-access
-        self.assertIn('seeker failed', self.path.read_text())
+        self.assertIn('seeker failed', self.path.read_text(encoding='utf8'))
 
     def test_process_exit_retries_pending_output_through_atexit(self):
         code = '''import errno
@@ -263,7 +263,7 @@ with patch('builtins.open', side_effect=OSError(errno.EMFILE, 'exhausted')):
                                 cwd=REPO_ROOT, capture_output=True, text=True, timeout=30, check=False)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertNotIn('Exception ignored in atexit', result.stderr)
-        self.assertEqual(self.path.read_text(), 'saved at process exit<br>\n')
+        self.assertEqual(self.path.read_text(encoding='utf8'), 'saved at process exit<br>\n')
 
 
 def descriptor_stress():
@@ -296,20 +296,20 @@ def descriptor_stress():
                 exhaust()
                 writer.write(path, 'during é<br>\n')
                 release()
-                assert path.read_text() == 'before<br>\nduring é<br>\n'
+                assert path.read_text(encoding='utf8') == 'before<br>\nduring é<br>\n'
             path = root / 'replay.html'
             exhaust()
             writer.write(path, 'one<br>\n')
             writer.write(path, 'two<br>\n')
             release()
             writer.write(path, 'three<br>\n')
-            assert path.read_text() == 'one<br>\ntwo<br>\nthree<br>\n'
+            assert path.read_text(encoding='utf8') == 'one<br>\ntwo<br>\nthree<br>\n'
             path = root / 'shutdown.html'
             exhaust()
             writer.write(path, 'last<br>\n')
             release()
             writer.close()
-            assert path.read_text() == 'last<br>\n'
+            assert path.read_text(encoding='utf8') == 'last<br>\n'
         finally:
             release()
             writer.close()
