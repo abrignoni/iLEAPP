@@ -2,15 +2,16 @@ __artifacts_v2__ = {
     "SMS_Missing_ROWIDs": {
         "name": "SMS - Missing ROWIDs",
         "description": "Lists the gaps in the ROWID sequence of the message table in sms.db: the size of each gap and the timestamps of the rows before and after it. A gap is a run of ROWID values absent from the table. It does not by itself establish that a message was deleted.",
-        "author": "@SQLMcGee for Metadata Forensics, LLC",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2023-03-20",
-        "last_update_date": "2025-11-13",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "SMS & iMessage",
         "notes": "Number of Missing Rows is the size of the gap. A final row compares the table "
-                 "with the message entry in sqlite_sequence and, where they differ, reports the "
-                 "difference with the text 'Time of Extraction' as its end. This query was the "
-                 "product of research completed by James McGee, Metadata Forensics, LLC, for "
+                 "using its greatest live ROWID record with the message entry in sqlite_sequence. "
+                 "Only a positive sequence difference is reported, using that record's date and guid, "
+                 "with the text 'Time of Extraction' as its end. This query was the "
+                 "product of research completed by @SQLMcGee (James McGee), Metadata Forensics, LLC, for "
                  "'Lagging for the Win', published by Belkasoft "
                  "https://belkasoft.com/lagging-for-win",
         "paths": ("*SMS/sms*"),
@@ -67,35 +68,20 @@ def SMS_Missing_ROWIDs(context):
 			UNION ALL
 
             SELECT
-            CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN MAX(message.date)
-                END AS "Beginning Timestamp",
-            CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN "Time of Extraction"
-                END AS "Ending Timestamp",
-            CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN guid
-                END AS "Previous guid",
-            CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN "Unknown" 
-                END AS "guid",
-            CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN MAX(ROWID)
-                END AS "Previous ROWID",
-            CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN (SELECT last_rowid FROM LastROWID)
-                END AS "ROWID",
-            CASE
-                WHEN message.ROWID != (SELECT last_rowid FROM LastROWID)
-                THEN ((SELECT last_rowid FROM LastROWID) - message.ROWID)
-                END AS "Number of Missing Rows"
-            FROM message)
+                last_live.date AS "Beginning Timestamp",
+                'Time of Extraction' AS "Ending Timestamp",
+                last_live.guid AS "Previous guid",
+                'Unknown' AS "guid",
+                last_live.live_rowid AS "Previous ROWID",
+                (SELECT last_rowid FROM LastROWID) AS "ROWID",
+                ((SELECT last_rowid FROM LastROWID) - last_live.live_rowid) AS "Number of Missing Rows"
+            FROM (
+                SELECT date, guid, ROWID AS live_rowid
+                FROM message
+                ORDER BY ROWID DESC
+                LIMIT 1
+            ) AS last_live
+            WHERE ((SELECT last_rowid FROM LastROWID) - last_live.live_rowid) > 0)
         WHERE "ROWID" IS NOT NULL;'''
     
     data_headers = (('Beginning Timestamp', 'datetime'), ('Ending Timestamp', 'datetime'), 'Previous guid', 'guid', 'Previous ROWID', 'ROWID', 'Number of Missing Rows')
