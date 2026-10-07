@@ -10,16 +10,13 @@
 __artifacts_v2__ = {    
     "linkedin_account": {
         "name": "LinkedIn - Account",
-        "description": "Member identifier and profile fields from the voy.authenticatedMemberId "
-                       "and voy.authenticatedDashProfileModel keys of the LinkedIn preferences "
-                       "plist, as stored. One row is written even when the keys are absent, so a "
-                       "row of blanks does not show an account.",
-        "author": "Marco Neumann {kalinko@be-binary.de}",
+        "description": 'Member identifier and profile fields from the voy.authenticatedMemberId and voy.authenticatedDashProfileModel keys of the LinkedIn preferences plist. A dictionary lacking both keys produces no row; the existing six-field projection is retained when either key is present.',
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2024-10-01",
-        "last_update_date": "2026-06-15",
+        "last_update_date": '2026-10-07',
         "requirements": "ccl_bplist",
         "category": "LinkedIn",
-        "notes": "",
+        "notes": 'Row retention tests presence of the two top-level keys, not truthiness or presence of every nested field. A present empty, null or partial profile value retains the existing projection and can still produce blank cells. Non-dictionary decoded roots retain existing behavior. A row does not establish an account, authentication or ownership. Original contribution: Marco Neumann (kalinko@be-binary.de).',
         "paths": ('*/Library/Preferences/com.linkedin.LinkedIn.plist'),
         "output_types": "html",
         "artifact_icon": "user"
@@ -110,7 +107,10 @@ def linkedin_account(context):
     except (IndexError, TypeError, KeyError):
         public_identifier = ''
 
-    data_list.append((member_id, lastname, firstname, headline, location, public_identifier))
+    if (not isinstance(bplist_data, dict)
+            or 'voy.authenticatedMemberId' in bplist_data
+            or 'voy.authenticatedDashProfileModel' in bplist_data):
+        data_list.append((member_id, lastname, firstname, headline, location, public_identifier))
 
     return data_headers, data_list, source_path
 
