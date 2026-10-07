@@ -52,31 +52,33 @@ __artifacts_v2__ = {
                        "identifier, the kind of conversation, the last message and sync "
                        "timestamps, the users linked to the conversation record and the users "
                        "linked to the secure room record",
-        "author": "@AlexisBrignoni, Claude",
+        "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": '2026-10-07',
         "requirements": "none",
         "category": "Wickr",
-        "notes": "Read from ZSECEX_CONVO in wickrLocal.sqlite. The Kind column is the Core Data "
-                 "entity name looked up from the Z_PRIMARYKEY table in the same file, which maps "
-                 "each Z_ENT number to an entity name such as Secex_Convo or Secex_Secure_Room. "
-                 "Entity numbers depend on the model version, so they are resolved from "
-                 "Z_PRIMARYKEY at run time rather than hardcoded. The two join tables that link "
-                 "these records to users are named after those same entity numbers, so they are "
-                 "located at run time by decoding their column names through Z_PRIMARYKEY rather "
-                 "than by name; the file-to-message join table is Z_13MSG on both images tested; "
-                 "Josh Hickman, 'Wickr. Alright. We'll Call It A Draw.', "
-                 "https://thebinaryhick.blog/2019/08/23/wickr-alright-well-call-it-a-draw/ "
-                 "(2019), shows the table as Z_11MSG. Member User ID Hashes lists the users in "
-                 "the join table for Secex_Convo and Secex_User, and Administrator User ID Hashes "
-                 "lists the users in the join table for Secex_Secure_Room and Secex_User, each as "
-                 "the user's stored ZUSERIDHASH value. The relationship names were not read from "
-                 "the model and no source names these users administrators, so that column header "
-                 "is this module's label. Last Timestamp, Last Sync Timestamp and Message Sync "
-                 "Timestamp are read as Unix seconds. Flag columns show Yes for a non-zero value "
-                 "and No otherwise, including where the value is null or the column does not "
-                 "exist in that app version. Conversation names and descriptions are stored as "
-                 "encrypted blobs and are not decoded.",
+        "notes": 'Read from ZSECEX_CONVO in wickrLocal.sqlite. The Kind column is the Core Data entity '
+                 'name looked up from the Z_PRIMARYKEY table in the same file, which maps each Z_ENT '
+                 'number to an entity name such as Secex_Convo or Secex_Secure_Room. Entity numbers depend'
+                 ' on the model version, so they are resolved from Z_PRIMARYKEY at run time rather than '
+                 'hardcoded. The two join tables that link these records to users are named after those '
+                 'same entity numbers, so they are located at run time by decoding their column names '
+                 'through Z_PRIMARYKEY rather than by name; the file-to-message join table is Z_13MSG on '
+                 "both images tested; Josh Hickman, 'Wickr. Alright. We'll Call It A Draw.', "
+                 'https://thebinaryhick.blog/2019/08/23/wickr-alright-well-call-it-a-draw/ (2019), shows '
+                 'the table as Z_11MSG. Member User ID Hashes lists the users in the join table for '
+                 "Secex_Convo and Secex_User. Secex_Secure_Room User Lookup Values lists the parser's "
+                 'current Secex_Secure_Room-to-Secex_User join lookup values, without assigning a role. '
+                 'The user lookup maps each user Z_PK to its ZUSERIDHASH value or an empty string when '
+                 'that value is falsey; a join user key absent from that lookup falls back to the key '
+                 'rendered as text. Values are joined with comma-space in the order returned by the '
+                 'current query, including repeated join occurrences. The relationship names were not read'
+                 ' from the model and no source establishes an administrator role for these linked rows. '
+                 'Last Timestamp, Last Sync Timestamp and Message Sync Timestamp are read as Unix seconds.'
+                 ' Flag columns show Yes for a non-zero value and No otherwise, including where the value '
+                 'is null or the column does not exist in that app version. Conversation names and '
+                 'descriptions are stored as encrypted blobs and are not decoded. Original contribution '
+                 'credited to Claude.',
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "users",
@@ -486,7 +488,7 @@ def wickr_conversations(context):
         'Kind',
         'Group ID',
         'Member User ID Hashes',
-        'Administrator User ID Hashes',
+        'Secex_Secure_Room User Lookup Values',
         'Is External',
         'Is Pinned',
         'Chat Blocked',
