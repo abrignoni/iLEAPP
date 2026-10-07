@@ -27,7 +27,8 @@ __artifacts_v2__ = {
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L421),'
                  ' Share Type decodes the ShareType_t bits the SDK writes from getShareType '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L434),'
-                 ' Label (as stored) holds the name of the nodelabel_t value '
+                 " Label (existing mapping) retains this parser's existing _LABELS name mapping for the "
+                 'label value '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/types.h#L456),'
                  ' and In Rubbish, Is Version and Marked Sensitive are the three bits of Node::Flags '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/include/mega/node.h#L474).'
@@ -55,10 +56,10 @@ __artifacts_v2__ = {
                  'instead (Size is filled on 16 of 20 rows on each), which NodeCounter::serialize writes '
                  'as files, folders, storage, versions and version storage '
                  '(https://github.com/meganz/sdk/blob/b93cc672b92eb61fefe84a21719657c13a9b11c0/src/node.cpp#L4018);'
-                 ' Label (as stored) is filled on hc_ios18_7 and hc_ios26 and blank elsewhere; Description'
-                 ' and Tags were empty on every row of every tested image, including the images whose '
-                 'store has those columns. Files in Folder, Folders in Folder and Folder Size come from '
-                 'that same counter blob on folder rows. On the folder rows of the stores compared '
+                 ' Label (existing mapping) is filled on hc_ios18_7 and hc_ios26 and blank elsewhere; '
+                 'Description and Tags were empty on every row of every tested image, including the images'
+                 ' whose store has those columns. Files in Folder, Folders in Folder and Folder Size come '
+                 'from that same counter blob on folder rows. On the folder rows of the stores compared '
                  'directly while this artifact was built, Files in Folder equalled the number of files '
                  'below the folder, Folder Size equalled the sum of their sizes, and Folders in Folder '
                  'equalled the number of folders below it plus the folder itself; the number of rows '
@@ -77,7 +78,11 @@ __artifacts_v2__ = {
                  " image held one account's cache at one version, and Share Value (as stored), the integer"
                  ' behind Share Type. Cached Copy and Cache Holding the Copy are blank on every row of an '
                  'image whose MEGA container has no thumbnailsV3, previewsV3 or originalV3 directory, '
-                 'which is the case on hc_ios26. Original parser contribution: @AlexisBrignoni, Claude.',
+                 'which is the case on hc_ios26. Original parser contribution: @AlexisBrignoni, Claude. '
+                 'The label column retains the existing rendering: SQL NULL becomes blank, a value '
+                 'matching an existing _LABELS key becomes its mapped name, and another value becomes '
+                 'str(value). This is not raw label-value retention; no new enum interpretation is '
+                 'established by this header correction.',
         "paths": ('*/megaclient_statecache*.db*',
                   '*/Library/Caches/thumbnailsV3/*',
                   '*/Library/Caches/previewsV3/*',
@@ -487,7 +492,7 @@ def mega_cloud_files(context):
     data_headers = (
         ('Created', 'datetime'), ('Modified', 'datetime'), 'Folder Path', 'Name', 'Item Type',
         'Size', 'Files in Folder', 'Folders in Folder', 'Folder Size', 'In Rubbish',
-        'Is Version', 'Marked Sensitive', 'fav (as stored)', 'Share Type', 'Label (as stored)',
+        'Is Version', 'Marked Sensitive', 'fav (as stored)', 'Share Type', 'Label (existing mapping)',
         'Description', 'Tags', 'Share Value (as stored)', 'Node Handle', 'Parent Handle', 'Account Handle',
         'Node Cache Version', ('Cached Copy', 'media'), 'Cache Holding the Copy', 'Source File')
     return data_headers, data_list, '\n'.join(sources)
