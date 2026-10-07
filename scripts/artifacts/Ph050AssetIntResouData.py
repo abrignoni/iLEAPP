@@ -56,14 +56,16 @@ __artifacts_v2__ = {
 " its internal resource rows, so an asset with several resources appears on several rows"
 " and an asset with none appears once. On iOS 13.7 and earlier, and on iOS 27 and later,"
 " the artifact does not run and reports no rows.",
-'author': 'Scott Koenig',
+'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-07',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': "The iOS 26 query has not been run on a registered image. Coded columns such as Local"
+'notes': "Original parser and Photos.sqlite research credited to Scott Koenig. Unsupported-version"
+" diagnostics identify Syndication.photoslibrary; query and output behavior are unchanged. "
+"The iOS 26 query has not been run on a registered image. Coded columns such as Local"
 " Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are shown"
 " with labels the module author assigned. The post referenced below says the Recipe ID labels"
 " come from the author's research and testing and that several columns are still being"
@@ -7117,7 +7119,7 @@ def Ph050_2AssetIntResouSyndPL(context):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
     if (version.parse(iosversion) <= version.parse("13.7")) or (version.parse(iosversion) >= version.parse("27")):
-        logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
+        logfunc("Unsupported version for Syndication.photoslibrary from iOS " + iosversion)
         return (), [], source_path
     if (version.parse(iosversion) >= version.parse("14")) & (version.parse(iosversion) < version.parse("15")):
         source_path = get_file_path(files_found, "Photos.sqlite")
@@ -14058,7 +14060,7 @@ def Ph050_2AssetIntResouSyndPL(context):
 
         return data_headers, data_list, source_path
 
-    logfunc("Unsupported version for PhotoData-Photos.sqlite from iOS " + iosversion)
+    logfunc("Unsupported version for Syndication.photoslibrary from iOS " + iosversion)
     return (), [], source_path
 
 @artifact_processor
