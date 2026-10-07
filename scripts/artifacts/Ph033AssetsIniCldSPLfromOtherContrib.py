@@ -1,26 +1,15 @@
 __artifacts_v2__ = {
 'Ph033iCldSPLAssetsfromothercontribPhDaPsql': {
-'name': 'Ph033-iCld SPL Assets from other contrib-PhDaPsql',
-'description': "Parses ZASSET records from PhotoData/Photos.sqlite for assets tied to an iCloud "
-"Shared Photo Library, joined to their ZSHARE and ZSHAREPARTICIPANT records. Queries "
-"exist for iOS 16 through 26; other versions return no rows. On iOS 16 and 17 the "
-"rows are limited to assets whose contributor record has ZISCURRENTUSER = 0. On iOS "
-"18 and later the query applies no contributor filter and returns each asset whose "
-"ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE is 1; read the SPLzSharePartic-Is Current User "
-"column on each row. On dexter_ios18 (iOS 18.3.2) that column marks the current user "
-"on 801 of the 864 rows and another participant on 63. The iOS 16 and 17 filter "
-"returned no rows on abe_ios16, otto_ios17, felix_ios17 and iphone11_ios17, so it is "
-"not exercised. If you are attempting to match SPL count with results please check "
-"hidden, trashed, and burst assets. "
-"https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/",
-'author': 'Scott Koenig',
+'name': 'Ph033-Shared Photo Library Asset Records-PhDaPsql',
+'description': 'Reports ZASSET rows selected by version-specific Shared Photo Library predicates in PhotoData/Photos.sqlite, with joined share and participant fields. On iOS 16 and 17, rows require the joined participant ZISCURRENTUSER value to equal 0. On iOS 18 through 26, rows require ZASSET.ZACTIVELIBRARYSCOPEPARTICIPATIONSTATE to equal 1 and no participant-current-user predicate is applied. Joined rows may repeat assets. These predicates and stored identifiers do not by themselves establish ownership or who created, added, or contributed an asset. Other versions return no rows. Original query research: Scott Koenig, https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.',
+'author': '@AlexisBrignoni, Codex',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-07',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': '',
+'notes': 'Original contribution and Photos query research credited to Scott Koenig. Artifact naming was neutralized to cover both existing version-specific selections; no query, native value, timestamp, source selection, or row multiplicity was changed. Historical sample_data entries are retained and are not a claim of fresh validation. Existing enum interpretations and contributor/ownership meanings are not independently established by this metadata change. Existing first-main selection, scattered date columns, unsupported-version behavior, and unrelated repetitive Photos SQL semantics remain outside this scope.',
 'paths': ('*/PhotoData/Photos.sqlite*',),
 "output_types": ["standard", "tsv", "none"],
 "artifact_icon": "cloud-download",
