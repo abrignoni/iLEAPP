@@ -199,7 +199,10 @@ class LoggingLifecycleTests(unittest.TestCase):
     def setUp(self):
         self.old_path = ilapfuncs.OutputParameters.screen_output_file_path
         self.addCleanup(setattr, ilapfuncs.OutputParameters, 'screen_output_file_path', self.old_path)
-        ilapfuncs.OutputParameters.screen_output_file_path = 'unused.html'
+        self.log_temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.log_temp.cleanup)
+        self.addCleanup(ilapfuncs.close_screen_log)
+        ilapfuncs.OutputParameters.screen_output_file_path = str(pathlib.Path(self.log_temp.name) / 'log.html')
 
     def test_descriptor_errors_fall_back_to_console(self):
         for code in (errno.EMFILE, errno.ENFILE):
@@ -208,6 +211,7 @@ class LoggingLifecycleTests(unittest.TestCase):
                 ilapfuncs.logfunc('original parser failure')
             self.assertIn('HTML log unavailable', output.getvalue())
             self.assertIn('original parser failure', output.getvalue())
+            ilapfuncs.close_screen_log()
 
     def test_unrelated_logging_errors_remain_visible(self):
         with patch('builtins.open', side_effect=PermissionError(errno.EACCES, 'permission denied')):
@@ -256,6 +260,7 @@ def descriptor_stress():
             for handle in handles:
                 handle.close()
             resource.setrlimit(resource.RLIMIT_NOFILE, original)
+            ilapfuncs.close_screen_log()
     print('160 tables; two raw passes; exhausted-descriptor logging: PASS')
 
 
