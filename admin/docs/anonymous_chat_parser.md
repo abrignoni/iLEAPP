@@ -46,7 +46,10 @@ A local file is associated only through a recorded relationship:
 - An SDImageCache filename is the MD5 of the exact stored HTTP(S) URL text.
   The parser hashes URL text only, never media content, and never follows the
   URL.
-- A `message_info` media token explicitly joins a message to a media-table row.
+- A media-ID token in `message_info` can join a message to the media-table
+  `media_id`. Explicit path-bearing fields can link directly to a matching local
+  path. Filename-only fields such as `message_info.filename` are descriptive;
+  neither they nor media-table filenames establish a message-to-media join.
 - A media-table `media_id` such as `ph://<UUID>` joins to a unique Photos
   `ZASSET.ZUUID` row in the same extraction root, with a safe stored DCIM path.
   A message is linked to that Photos asset only with a separate explicit

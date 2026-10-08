@@ -515,7 +515,7 @@ class AnonymousChatHardeningTests(unittest.TestCase):
     def test_media_table_message_link_requires_explicit_join(self):
         media = reference(kind='Media Table Metadata', media_id='ph://synthetic-asset',
                           filename='asset.jpg', reference='asset.jpg', source=DB_A,
-                          join_tokens=['ph://synthetic-asset', 'asset.jpg'])
+                          join_tokens=['ph://synthetic-asset'])
         message_ref = reference(source=DB_A, reference='', message_id='message-2',
                                 join_tokens=['ph://synthetic-asset'])
         direct = {0: [(0, media, 'Direct: media-table stored filename')]}
@@ -528,10 +528,36 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         other_database = dict(message_ref, source=DB_B, message_id='message-3')
         self.assertEqual(module._explicit_media_table_message_matches(
             [classified()], [media, other_database], direct, {0}), {})
-        duplicate_media = dict(media, media_id='ph://other-asset',
+        duplicate_media = dict(media, media_id='ph://synthetic-asset',
                                join_tokens=['ph://synthetic-asset'])
         self.assertEqual(module._explicit_media_table_message_matches(
             [classified()], [media, duplicate_media, message_ref], direct, {0}), {})
+
+    def test_filename_equality_does_not_link_message_to_photos_asset(self):
+        message_row = message(message_info=json.dumps({'filename': 'image.jpg'}))
+        media_row = {'media_id': 'ph://synthetic-asset',
+                     'media_name': 'image.jpg', 'media_time': ''}
+        with patch.object(module, '_message_rows', return_value=[message_row]), \
+                patch.object(module, '_media_table_rows', return_value=[media_row]):
+            references = module._attachment_references([DB_A], MetadataContext())
+
+        message_references = [row for row in references
+                              if row['kind'] == 'Message Attachment Reference']
+        self.assertEqual(message_references, [])
+        self.assertEqual(module._message_info_media_tokens(
+            json.dumps({'filename': 'image.jpg'})), ([], []))
+
+        media_reference = next(row for row in references
+                               if row['kind'] == 'Media Table Metadata')
+        photos_original = classified(DATA_A + '/Photos/DCIM/100APPLE/image.jpg')
+        photos_original['entry']['photos_original'] = True
+        direct = {0: [(0, media_reference,
+                       'Direct: Photos asset UUID + stored path')]}
+        filename_only_message = reference(
+            source=DB_A, reference='', message_id='filename-only',
+            join_tokens=['image.jpg'])
+        self.assertEqual(module._explicit_media_table_message_matches(
+            [photos_original], references + [filename_only_message], direct, {0}), {})
 
     def test_photos_uuid_requires_unique_safe_relative_path(self):
         photo_uuid = 'AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA'

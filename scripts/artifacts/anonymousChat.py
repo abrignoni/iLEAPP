@@ -377,9 +377,9 @@ _MESSAGE_INFO_PATH_KEYS = {
     'mediaurl', 'attachmenturl', 'localpath', 'filepath', 'storedpath',
     'cachekey', 'cachefilename',
 }
-_MESSAGE_INFO_JOIN_KEYS = _MESSAGE_INFO_MEDIA_ID_KEYS | _MESSAGE_INFO_PATH_KEYS | {
-    'filename', 'mediafilename', 'storedfilename',
-}
+# Generic filenames are descriptive but non-unique, so they cannot establish a
+# message-to-media relationship. Keep only identifiers and explicit path fields.
+_MESSAGE_INFO_JOIN_KEYS = _MESSAGE_INFO_MEDIA_ID_KEYS | _MESSAGE_INFO_PATH_KEYS
 
 _CONTAINER_RE = re.compile(
     r'/containers/(bundle/application|data/application|shared/appgroup)'
@@ -1752,8 +1752,7 @@ def _attachment_references(db_paths, context):
                 'media_id': _text(row.get('media_id')),
                 'filename': _text(row.get('media_name')),
                 'path_references': [_text(row.get('media_name')).strip()],
-                'join_tokens': [_text(row.get('media_id')).strip(),
-                                _text(row.get('media_name')).strip()],
+                'join_tokens': [_text(row.get('media_id')).strip()],
                 'mime': '',
                 'size': '',
                 'duration': '',
@@ -2021,8 +2020,10 @@ def _explicit_media_table_message_matches(media_entries, references,
     for media_row_index, media_row in enumerate(references):
         if media_row.get('kind') != 'Media Table Metadata':
             continue
-        tokens = list(media_row.get('join_tokens', ()))
-        tokens.extend((media_row.get('media_id'), media_row.get('filename')))
+        # Match message join tokens to the media row's recorded ID only. The
+        # row's filename is not a unique key and must never be a message join
+        # target.
+        tokens = (media_row.get('media_id'),)
         for token in {_normalised_media_token(item) for item in tokens} - {''}:
             media_rows_by_token.setdefault(token, set()).add(media_row_index)
 
