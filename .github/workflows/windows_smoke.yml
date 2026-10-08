@@ -85,3 +85,9 @@ jobs:
 
       - name: Recover HTML run logging and close its handle
         run: python admin/test/scripts/test_screen_log_recovery.py
+
+      - name: Verify compiled Unified Log filtering and SQLite fallback
+        run: |
+          python -c "import ahocorasick"
+          python admin/test/scripts/test_log_filter.py
+          python admin/test/scripts/test_logarchive_filtering.py
