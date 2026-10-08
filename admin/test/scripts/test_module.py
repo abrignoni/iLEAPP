@@ -34,6 +34,7 @@ import inspect
 
 # Adjust import paths as necessary
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
+from snapshot_metadata import snapshot_author_email
 # import scripts.ilapfuncs as ilapfuncs
 from scripts.context import Context
 
@@ -669,7 +670,7 @@ def get_last_commit_info(file_path):
         return {
             'hash': commit_hash,
             'author_name': author_name,
-            'author_email': author_email,
+            'author_email': snapshot_author_email(author_email),
             'date': commit_date,
             'message': commit_message
         }
