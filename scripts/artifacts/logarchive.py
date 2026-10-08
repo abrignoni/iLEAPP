@@ -1211,7 +1211,8 @@ __artifacts_v2__ = {
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Search terms provided as part of private R&D work. "
-                 "Query filters on terminusd, sharingd, securityd processes with specific keyword event message filters.",
+                 "Query filters on terminusd, sharingd, securityd processes with specific keyword event message filters. "
+                 "securityd filter may surface peer circle information for other devices associated with the same iCloud account.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "package",
