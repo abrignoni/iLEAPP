@@ -19,6 +19,7 @@ from scripts.artifacts import anonymousChat as module
 DATA_UUID = '11111111-1111-4111-8111-111111111111'
 APP_DB = ('private/var/mobile/Containers/Data/Application/' + DATA_UUID +
           '/Library/LocalDatabase/anonimchat.db')
+APP_CONTAINER = ('', 'data', DATA_UUID)
 PHOTO_UUID = 'AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA'
 BASE_TIME = datetime(2030, 1, 1, tzinfo=timezone.utc)
 PHOTO_URL = 'https://example.invalid/synthetic/photo.png'
@@ -171,7 +172,7 @@ class AnonymousChatSyntheticTests(unittest.TestCase):
                         else 'media-ref-photo')
 
         with patch.object(module, '_target_containers',
-                          return_value=(set(), {DATA_UUID}, set(), {})), \
+                          return_value=(set(), {APP_CONTAINER}, set(), {})), \
                 patch.object(module, '_attachment_references',
                               return_value=references), \
                 patch.object(module, '_iter_source_entries',

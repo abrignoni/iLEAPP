@@ -11,7 +11,8 @@ __artifacts_v2__ = {
         'category': 'Anonymous Chat & Fun',
         'notes': 'This module targets the iOS app "Anonymous Chat & Fun" identified by '
                  'bundle ID com.anonimchat.app. The bundle ID and container UUIDs are '
-                 'verified from extraction metadata; no container UUID is hard-coded.',
+                 'verified from extraction metadata; container identity also includes the '
+                 'evidence root and container type, and no UUID is hard-coded.',
         'paths': (
             '*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*',
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
@@ -60,6 +61,7 @@ __artifacts_v2__ = {
                  'and account-value reads are bounded to 1 MiB. Long values may be stored in an '
                  'MD5-named sidecar and are read only for explicit account keys. The Accounts '
                  'Evidence and Source fields retain manifest and hashed-sidecar source paths. '
+                 'Account rows remain scoped to their data container and extraction root. '
                  'Multiple distinct account identifiers are ambiguous; direction is assigned only '
                  'when one identifier matches exactly one endpoint and the stored sender name '
                  'and flag agree. Otherwise direction remains unconfirmed. The database does not '
@@ -159,7 +161,10 @@ __artifacts_v2__ = {
                  'or an explicit stored join. A matching container UUID is insufficient across '
                  'different extraction roots. Size, timestamps, MIME compatibility, and a bare '
                  'filename alone never link a file to a message. Unlinked media remains in the '
-                 'media artifact with an explanatory correlation note. Photos originals are labelled '
+                 'media artifact with an explanatory correlation note. Staged Photos database '
+                 'paths are mapped to evidence-relative sources before root comparison; one '
+                 'Photos.sqlite per root and its WAL when present are used. Photos originals '
+                 'are labelled '
                  'as originals and may differ from transmitted media. The examiner-run report uses '
                   'iLEAPP Media Manager for locally linked files; remote URLs are never followed. '
                   'Numeric message times are converted as Unix seconds; the artifact has no separate '
@@ -500,35 +505,37 @@ def _is_target_group_identifier(value, known_group_identifiers=()):
 
 
 def _target_containers(context, files=None):
-    """Discover app containers from metadata, never from a fixed UUID."""
+    """Discover verified app containers, isolated by source root and container type."""
     files = _files_found(context) if files is None else files
     bundle_ids = set()
     data_ids = set()
     group_ids = set()
     app_plists = {}
-    known_group_identifiers = set()
+    known_group_identifiers = {}
 
-    # Bundle metadata is the best source for any app-group entitlement names;
-    # collect it before evaluating shared-container metadata.
+    # Bundle metadata is the best source for app-group entitlement names;
+    # keep those names scoped to the bundle's extraction root.
     for path in files:
-        kind, uuid = _container_location(path)
-        if kind != 'bundle' or not uuid or os.path.basename(path).lower() != 'info.plist':
+        identity = _container_identity(context, path)
+        if (not identity or identity[1] != 'bundle' or
+                os.path.basename(path).lower() != 'info.plist'):
             continue
+        root, _kind, _uuid = identity
         plist = _read_plist(path)
         if plist.get('CFBundleIdentifier') == _BUNDLE_ID:
-            bundle_ids.add(uuid)
-            app_plists.setdefault('bundles', {})[uuid] = plist
-            known_group_identifiers.update(_group_identifiers(plist))
+            bundle_ids.add(identity)
+            app_plists.setdefault('bundles', {})[identity] = plist
+            known_group_identifiers.setdefault(root, set()).update(_group_identifiers(plist))
 
     for path in files:
-        kind, uuid = _container_location(path)
-        if not kind or not uuid:
+        identity = _container_identity(context, path)
+        if not identity:
             continue
+        root, kind, uuid = identity
         if kind == 'data' and uuid == _BUNDLE_ID.upper():
             # iTunes AppDomain paths use the exact bundle identifier in place
-            # of the on-device data-container UUID.  The exact token is already
-            # validated by _container_location, so it is sufficient on its own.
-            data_ids.add(uuid)
+            # of the on-device data-container UUID.
+            data_ids.add(identity)
         name = os.path.basename(path).lower()
         if name == '.com.apple.mobile_container_manager.metadata.plist':
             plist = _read_plist(path)
@@ -537,19 +544,20 @@ def _target_containers(context, files=None):
             if kind in ('bundle', 'data') and any(
                     _text(identifier).strip().casefold() == _BUNDLE_ID.casefold()
                     for identifier in identifiers):
-                {'bundle': bundle_ids, 'data': data_ids}[kind].add(uuid)
+                {'bundle': bundle_ids, 'data': data_ids}[kind].add(identity)
             elif kind == 'group' and any(
-                    _is_target_group_identifier(identifier, known_group_identifiers)
+                    _is_target_group_identifier(
+                        identifier, known_group_identifiers.get(root, ()))
                     for identifier in identifiers):
-                group_ids.add(uuid)
+                group_ids.add(identity)
         elif name == 'com.anonimchat.app.plist' and kind == 'data':
             # The preference path itself is an app-specific identifier and is a
             # useful fallback when a partial extraction lacks MCM metadata.
-            data_ids.add(uuid)
+            data_ids.add(identity)
         elif name == 'itunesmetadata.plist' and kind == 'bundle':
             plist = _read_plist(path)
             if plist.get('softwareVersionBundleId') == _BUNDLE_ID:
-                bundle_ids.add(uuid)
+                bundle_ids.add(identity)
     return bundle_ids, data_ids, group_ids, app_plists
 
 
@@ -558,14 +566,30 @@ def _target_db_paths(context, files=None):
     _bundle_ids, data_ids, _group_ids, _app_plists = _target_containers(context, files)
     result = []
     for path in files:
-        kind, uuid = _container_location(path)
-        if kind == 'data' and uuid in data_ids and os.path.basename(path).lower() == _DB_NAME:
+        identity = _container_identity(context, path)
+        if identity in data_ids and os.path.basename(path).lower() == _DB_NAME:
             result.append(path)
     return sorted(set(result))
 
 
 def _source_label(context, path):
+    """Map a staged seeker path to its evidence-relative source label."""
     return _relative_source(context, path)
+
+
+def _container_identity_from_source(path):
+    """Key a container by evidence-root, container type and identifier."""
+    source_path = _normalise_path(path)
+    root = _extraction_root(source_path)
+    kind, uuid = _container_location(source_path)
+    if root is None or not kind or not uuid:
+        return None
+    return root, kind, uuid
+
+
+def _container_identity(context, path):
+    """Map a staged path to its evidence path before identifying its container."""
+    return _container_identity_from_source(_source_label(context, path))
 
 
 def _query_rows(path, table, query):
@@ -625,9 +649,8 @@ def _read_json(path):
 
 
 def _account_container_key(context, path):
-    path = _relative_source(context, path)
-    match = _CONTAINER_RE.search(path)
-    return path[:match.end()] if match else ''
+    identity = _container_identity(context, path)
+    return identity if identity and identity[1] == 'data' else None
 
 
 def _normalised_manifest_key(value):
@@ -752,13 +775,14 @@ def _manifest_account_identifiers(context, files=None, return_sources=False):
     by_container = {}
     sources_by_container = {}
     for path in files:
-        kind, token = _container_location(path)
-        if kind != 'data' or token not in data_ids or not _is_async_storage_manifest_path(path):
+        identity = _container_identity(context, path)
+        if (not identity or identity[1] != 'data' or identity not in data_ids or
+                not _is_async_storage_manifest_path(path)):
             continue
         manifest = _read_json(path)
         if not isinstance(manifest, dict):
             continue
-        container_key = _account_container_key(context, path)
+        container_key = identity
         manifest_source = _source_label(context, path)
         identifiers = _manifest_usernames(manifest)
         if identifiers:
@@ -1422,7 +1446,12 @@ def _reference_candidate_indices(indexes, reference):
 
 
 def _extraction_root(path):
-    """Return a stable extraction/volume prefix, or None when the root is unknown."""
+    """Return the prefix before the iOS system-path anchor, or None if unknown.
+
+    A direct, unwrapped path has the empty prefix. Wrapper directories and raw
+    volume labels remain part of the root key so same-UUID containers from
+    separate inputs cannot authorize or merge with one another.
+    """
     normalized = _normalise_path(path).strip('/').casefold()
     if not normalized:
         return None
@@ -1444,13 +1473,9 @@ def _extraction_root(path):
 
 def _reference_in_scope(entry, reference):
     source = reference.get('source')
-    source_kind, source_uuid = _container_location(source)
-    entry_kind, entry_uuid = _container_location(entry['path'])
-    if not source_kind or not entry_kind or source_kind != entry_kind or source_uuid != entry_uuid:
-        return False
-    source_root = _extraction_root(source)
-    entry_root = _extraction_root(entry['path'])
-    return source_root is not None and source_root == entry_root
+    source_identity = _container_identity_from_source(source)
+    entry_identity = _container_identity_from_source(entry['path'])
+    return source_identity is not None and source_identity == entry_identity
 
 
 def _media_reference_indexes(references):
@@ -1739,11 +1764,12 @@ def _attachment_references(db_paths, context):
 
 
 def _target_media_entry(entry, _target_bundle_ids, target_data_ids, target_group_ids):
-    kind, uuid = _container_location(entry['path'])
+    identity = _container_identity_from_source(entry['path'])
     # The app bundle is executable/package content; its icons and resources are
     # not user/chat media. Inventory only data and app-group containers.
-    return ((kind == 'data' and uuid in target_data_ids) or
-            (kind == 'group' and uuid in target_group_ids))
+    return bool(identity and
+                ((identity[1] == 'data' and identity in target_data_ids) or
+                 (identity[1] == 'group' and identity in target_group_ids)))
 
 
 def _media_entry_type(entry, indexes):
@@ -2068,15 +2094,18 @@ def _photos_asset_paths(context, references):
                 if os.path.basename(str(path)) == 'Photos.sqlite']
     dbs_by_root = {}
     for db_path in db_paths:
-        root = _extraction_root(db_path)
+        # Seeker results are physical staged paths. Resolve their recorded
+        # source path before comparing roots with app-database references.
+        source_path = _source_label(context, db_path)
+        root = _extraction_root(source_path)
         if root is not None:
-            dbs_by_root.setdefault(root, []).append(db_path)
+            dbs_by_root.setdefault(root, []).append((db_path, source_path))
     paths = {}
     for root, wanted in wanted_by_root.items():
         root_dbs = dbs_by_root.get(root, [])
         if len(root_dbs) != 1:
             continue
-        db_path = root_dbs[0]
+        db_path, source_path = root_dbs[0]
         rows = _query_rows(db_path, 'ZASSET',
                            'SELECT ZUUID AS uuid, ZDIRECTORY AS directory, '
                            'ZFILENAME AS filename FROM ZASSET')
@@ -2100,7 +2129,7 @@ def _photos_asset_paths(context, references):
                     filename in ('.', '..')):
                 continue
             method = ('Photos original: app media_id = ZASSET.ZUUID; source ' +
-                      _source_label(context, db_path))
+                      source_path)
             matches = [(index, reference, method) for index, reference in wanted[uuid]]
             path = (root, directory + '/' + filename)
             if path in path_owners and path_owners[path] != uuid:
@@ -2120,9 +2149,10 @@ def _photos_relative_path(path):
     return marker.group(1) if marker else ''
 
 
-def _photos_asset_key(path):
-    root = _extraction_root(path)
-    relative_path = _photos_relative_path(path)
+def _photos_asset_key(path, context=None):
+    source_path = _source_label(context, path) if context is not None else path
+    root = _extraction_root(source_path)
+    relative_path = _photos_relative_path(source_path)
     return (root, relative_path) if root is not None and relative_path else None
 
 
@@ -2140,10 +2170,10 @@ def _analyse_media(db_paths, context):
         # Filter listing paths before stat calls on unrelated files in large inputs.
         if _target_media_entry({'path': path}, bundle_ids, data_ids, group_ids):
             return True
-        return _photos_asset_key(path) in photos_paths
+        return _photos_asset_key(path, context) in photos_paths
 
     for entry in _iter_source_entries(context, include=include):
-        photo_matches = photos_paths.get(_photos_asset_key(entry['path']))
+        photo_matches = photos_paths.get(_photos_asset_key(entry['path'], context))
         if photo_matches:
             extension, classification = _extension_classification(entry['path'])
             if classification:
@@ -2416,22 +2446,25 @@ def _common_media_values(row):
 def anonymousChat_appInfo(context):
     files = _files_found(context)
     bundle_ids, data_ids, group_ids, app_plists = _target_containers(context, files)
-    store_by_uuid = {}
+    store_by_container = {}
     sources = []
     for path in files:
-        kind, uuid = _container_location(path)
-        if ((kind == 'bundle' and uuid in bundle_ids) or
-                (kind == 'data' and uuid in data_ids) or
-                (kind == 'group' and uuid in group_ids)) and path.lower().endswith('.plist'):
+        identity = _container_identity(context, path)
+        if (identity in (bundle_ids | data_ids | group_ids) and
+                path.lower().endswith('.plist')):
             sources.append(_source_label(context, path))
         if os.path.basename(path).lower() == 'itunesmetadata.plist':
             plist = _read_plist(path)
-            if plist.get('softwareVersionBundleId') == _BUNDLE_ID:
-                store_by_uuid[uuid] = plist
+            if identity in bundle_ids and plist.get('softwareVersionBundleId') == _BUNDLE_ID:
+                store_by_container[identity] = plist
     rows = []
-    for bundle_uuid in sorted(bundle_ids):
-        info = app_plists.get('bundles', {}).get(bundle_uuid, {})
-        iTunes_values = store_by_uuid.get(bundle_uuid, {})
+    for bundle_identity in sorted(bundle_ids):
+        root, _kind, bundle_uuid = bundle_identity
+        data_uuids = sorted(identity[2] for identity in data_ids if identity[0] == root)
+        group_uuids = sorted(identity[2] for identity in group_ids if identity[0] == root)
+        root_sources = [path for path in sources if _extraction_root(path) == root]
+        info = app_plists.get('bundles', {}).get(bundle_identity, {})
+        iTunes_values = store_by_container.get(bundle_identity, {})
         app_name = (info.get('CFBundleDisplayName') or info.get('CFBundleName') or
                     iTunes_values.get('itemName') or _APP_NAME)
         version = info.get('CFBundleShortVersionString') or iTunes_values.get(
@@ -2443,16 +2476,21 @@ def anonymousChat_appInfo(context):
             version,
             build,
             bundle_uuid,
-            '; '.join(sorted(data_ids)),
-            '; '.join(sorted(group_ids)),
+            '; '.join(data_uuids),
+            '; '.join(group_uuids),
             iTunes_values.get('itemName', ''),
             iTunes_values.get('artistName', ''),
             iTunes_values.get('purchaseDate', ''),
-            _source_paths(context, sources),
+            _source_paths(context, root_sources),
         ))
     if not rows and data_ids:
-        rows.append((_BUNDLE_ID, _APP_NAME, '', '', '', '; '.join(sorted(data_ids)),
-                     '; '.join(sorted(group_ids)), '', '', '', _source_paths(context, sources)))
+        roots = sorted({identity[0] for identity in data_ids})
+        for root in roots:
+            data_uuids = sorted(identity[2] for identity in data_ids if identity[0] == root)
+            group_uuids = sorted(identity[2] for identity in group_ids if identity[0] == root)
+            root_sources = [path for path in sources if _extraction_root(path) == root]
+            rows.append((_BUNDLE_ID, _APP_NAME, '', '', '', '; '.join(data_uuids),
+                         '; '.join(group_uuids), '', '', '', _source_paths(context, root_sources)))
     headers = (
         'Bundle ID', 'Application Name', 'Version', 'Build', 'Bundle Container UUID',
         'Data Container UUID(s)', 'App Group UUID(s)', 'Store Item Name', 'Developer',
@@ -2467,19 +2505,23 @@ def anonymousChat_accounts(context):
     accounts_by_container, evidence_sources_by_container = _manifest_account_identifiers(
         context, return_sources=True)
     aggregate = {}
-    source_by_account = {}
     for db_path in db_paths:
         source = _source_label(context, db_path)
-        local_accounts = accounts_by_container.get(_account_container_key(context, db_path), ())
+        container_key = _account_container_key(context, db_path)
+        local_accounts = accounts_by_container.get(container_key, ())
         for row in _message_rows(db_path):
             local = _local_participant(row, local_accounts)
             account = local or _text(row.get('from_username'))
             if not account:
                 continue
-            item = aggregate.setdefault(account, {
+            # Keep the same displayed identifier separate when it appears in
+            # different app containers or extraction roots.
+            account_key = (container_key, account)
+            item = aggregate.setdefault(account_key, {
                 'conversations': set(), 'messages': 0, 'outgoing': 0, 'incoming': 0,
                 'first': None, 'last': None, 'supported': 0, 'undetermined': 0,
                 'fields': set(), 'confirmed_fields': set(), 'account_evidence_sources': set(),
+                'sources': set(),
             })
             field = ('to_username' if local and
                      local == _text(row.get('to_username')).strip() else 'from_username')
@@ -2490,9 +2532,8 @@ def anonymousChat_accounts(context):
             item['messages'] += 1
             if local:
                 account_sources = evidence_sources_by_container.get(
-                    _account_container_key(context, db_path), {}).get(local.casefold(), set())
+                    container_key, {}).get(local.casefold(), set())
                 item['account_evidence_sources'].update(account_sources)
-                source_by_account.setdefault(account, set()).update(account_sources)
             direction = _direction(row, local_accounts)
             if direction == 'Outgoing':
                 item['outgoing'] += 1
@@ -2506,10 +2547,11 @@ def anonymousChat_accounts(context):
             if timestamp is not None:
                 item['first'] = timestamp if item['first'] is None else min(item['first'], timestamp)
                 item['last'] = timestamp if item['last'] is None else max(item['last'], timestamp)
-            source_by_account.setdefault(account, set()).add(source)
+            item['sources'].add(source)
     rows = []
-    for account in sorted(aggregate):
-        item = aggregate[account]
+    for account_key in sorted(aggregate):
+        _container_key, account = account_key
+        item = aggregate[account_key]
         evidence = (f'{", ".join(sorted(item["fields"]))}; '
                     'sender/name relationship supports direction for '
                     f'{item["supported"]} message(s)')
@@ -2535,7 +2577,7 @@ def anonymousChat_accounts(context):
              if item['confirmed_fields'] else
              'Stored conversation participant; local account unconfirmed'),
             evidence,
-            '\n'.join(sorted(source_by_account[account])),
+            '\n'.join(sorted(item['sources'] | item['account_evidence_sources'])),
         ))
     headers = (
         'Account Identifier', 'Conversation Count', 'Message Count', 'Outgoing Count',
