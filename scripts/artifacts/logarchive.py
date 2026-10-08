@@ -1617,6 +1617,7 @@ def logarchive_artifacts(context):
         -- prefix is not matched, so class methods ('+[') are picked up too.
         OR event_message LIKE '%<<<< AVFlashlight >>>>%'
         OR event_message LIKE '%Tethering is now enabled with%'
+        OR event_message LIKE '%Tethering is now disabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
         -- logarchive_navigation. Collected by subsystem rather than by spoken
@@ -1934,6 +1935,7 @@ def logarchive_tethering(context):
     SELECT *
     FROM logarchive_artifacts
     WHERE event_message LIKE '%Tethering is now enabled with%'
+        OR event_message LIKE '%Tethering is now disabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
     '''
