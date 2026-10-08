@@ -17,6 +17,8 @@ from scripts.artifacts import anonymousChat as module
 
 
 DATA_UUID = '11111111-1111-4111-8111-111111111111'
+APP_DB = ('private/var/mobile/Containers/Data/Application/' + DATA_UUID +
+          '/Library/LocalDatabase/anonimchat.db')
 PHOTO_UUID = 'AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA'
 BASE_TIME = datetime(2030, 1, 1, tzinfo=timezone.utc)
 PHOTO_URL = 'https://example.invalid/synthetic/photo.png'
@@ -29,7 +31,7 @@ class SyntheticSeeker:
 
     def search(self, pattern, return_on_first_hit=False):
         if pattern == '*/Media/PhotoData/Photos.sqlite*':
-            return ['C:/synthetic/Photos.sqlite']
+            return ['private/var/mobile/Media/PhotoData/Photos.sqlite']
         if return_on_first_hit:
             return 'C:/synthetic/' + pattern.rstrip('/').rsplit('/', 1)[-1]
         return []
@@ -103,6 +105,7 @@ class AnonymousChatSyntheticTests(unittest.TestCase):
         cache_reference = _reference(
             'Message Attachment Reference',
             reference=PHOTO_URL,
+            source=APP_DB,
             message_timestamp=BASE_TIME,
             conversation_id='conversation-cache',
             message_id='cache-message',
@@ -116,6 +119,7 @@ class AnonymousChatSyntheticTests(unittest.TestCase):
         )
         photo_reference = _reference(
             'Message Attachment Reference',
+            source=APP_DB,
             message_timestamp=BASE_TIME,
             conversation_id='conversation-photo',
             message_id='photo-message',
@@ -129,6 +133,7 @@ class AnonymousChatSyntheticTests(unittest.TestCase):
         )
         media_table_reference = _reference(
             'Media Table Metadata',
+            source=APP_DB,
             reference='SYNTH001.PNG',
             media_timestamp=BASE_TIME,
             media_id='ph://' + PHOTO_UUID + '/L0/001',

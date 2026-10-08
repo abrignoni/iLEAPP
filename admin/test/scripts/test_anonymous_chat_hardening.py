@@ -20,7 +20,7 @@ from contextlib import ExitStack
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, mock_open, patch
 
 from scripts.artifacts import anonymousChat as module
 from scripts.search_files import FileSeekerItunes
@@ -134,9 +134,43 @@ class AnonymousChatHardeningTests(unittest.TestCase):
 
     def test_message_filename_alone_is_not_a_match(self):
         matches, blocked = module._direct_media_matches(
-            [classified()], [reference()], filenames_only=True)
+            [classified()], [reference()])
         self.assertFalse(blocked)
         self.assertEqual(matches, {})
+
+    def test_media_table_filename_alone_never_classifies_or_links_a_file(self):
+        media_row = reference(kind='Media Table Metadata', reference='image.jpg',
+                              path_references=['image.jpg'], filename='image.jpg',
+                              source=DB_A, mime='', size=1234)
+        candidate = classified(DATA_A + '/Library/Caches/image.jpg')
+        indexes = module._media_reference_indexes([media_row])
+        matched, _blocked = module._entry_reference_indices(candidate['entry'], indexes)
+        self.assertEqual(matched, set())
+        self.assertEqual(module._direct_media_matches([candidate], [media_row]), ({}, set()))
+
+    def test_duplicate_container_uuid_message_id_and_filename_stay_in_their_input_roots(self):
+        root_a = 'synthetic-extraction-a/' + DATA_A
+        root_b = 'synthetic-extraction-b/' + DATA_A
+        stored_path = 'Library/Caches/image.jpg'
+        references = [
+            reference(source='synthetic-extraction-a/' + DB_A,
+                      reference=stored_path, path_references=[stored_path]),
+            reference(source='synthetic-extraction-b/' + DB_A,
+                      reference=stored_path, path_references=[stored_path]),
+        ]
+        entries = [entry(root_a + '/' + stored_path), entry(root_b + '/' + stored_path)]
+        rows = self.media_rows(entries, references)
+        linked = [row['filesystem_path'] for row in rows if row.get('media_ref')]
+        self.assertEqual(linked, [root_a + '/' + stored_path, root_b + '/' + stored_path])
+        self.assertEqual([row['message_id'] for row in rows if row.get('media_ref')],
+                         ['message-1', 'message-1'])
+        table_reference = reference(kind='Media Table Metadata',
+                                    source='synthetic-extraction-a/' + DB_A,
+                                    reference=stored_path, path_references=[stored_path],
+                                    media_id='asset.synthetic')
+        table_matches, _blocked = module._direct_media_matches(
+            [classified(file['path']) for file in entries], [table_reference])
+        self.assertEqual(set(table_matches), {0})
 
     def test_exact_path_disambiguates_same_basename(self):
         target = DATA_A + '/Library/Caches/a/image.jpg'
@@ -254,15 +288,131 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         self.assertEqual(module._direction(message(sender_name='REMOTE.SYNTHETIC'),
                                            {'LOCAL.SYNTHETIC'}), 'Incoming')
 
+    def test_conflicting_account_claims_remain_ambiguous_even_if_one_matches_endpoint(self):
+        accounts = {'local.synthetic', 'unrelated.account.synthetic'}
+        self.assertEqual(module._local_participant(message(), accounts), '')
+        self.assertEqual(module._direction(message(), accounts), '')
+
     def test_cached_contact_usernames_are_not_signed_in_evidence(self):
-        manifest = {'username': 'local.synthetic',
+        manifest = {'username': 'unconfirmed.synthetic',
                     'contacts': [{'username': 'remote.synthetic'}],
                     'messages': json.dumps([{'user': {'username': 'another.synthetic'}}]),
                     'session': json.dumps({'username': 'session.synthetic'})}
         self.assertEqual(module._manifest_usernames(manifest),
-                         {'local.synthetic', 'session.synthetic'})
+                         {'session.synthetic'})
         self.assertEqual(module._manifest_usernames({'signedInUsername': ' local.synthetic '}),
                          {'local.synthetic'})
+
+    def test_manifest_account_objects_require_explicit_context_and_limit_depth(self):
+        self.assertEqual(module._manifest_usernames({
+            'cache': {'account': {'username': 'cached.synthetic'}},
+            'account': {'username': 'account.synthetic',
+                        'contacts': [{'username': 'contact.synthetic'}]},
+        }), {'account.synthetic'})
+        deeply_nested = '{' + '"account":{' * 40 + '"username":"deep.synthetic"' + '}' * 40 + '}'
+        self.assertEqual(module._manifest_usernames({'session': deeply_nested}), set())
+
+    def test_legacy_documents_asyncstorage_manifest_path_is_supported(self):
+        root = 'synthetic-volume'
+        manifest_path = (root + '/' + DATA_A +
+                         '/Documents/RCTAsyncLocalStorage_V1/manifest.json')
+        manifest = {manifest_path: {'signedInUsername': 'legacy.synthetic'}}
+        context = MetadataContext([manifest_path])
+        with patch.object(module, '_target_containers',
+                          return_value=(set(), {UUID_A}, set(), {})), \
+                patch.object(module, '_read_json', side_effect=manifest.get):
+            accounts = module._manifest_account_identifiers(context)
+        self.assertEqual(accounts, {root + '/' + DATA_A: {'legacy.synthetic'}})
+
+    def test_asyncstorage_manifest_discovery_accepts_only_supported_locations(self):
+        supported = (
+            DATA_A + '/Library/Application Support/com.anonimchat.app/'
+            'RCTAsyncLocalStorage_V1/manifest.json',
+            DATA_A + '/Documents/RCTAsyncLocalStorage_V1/manifest.json',
+        )
+        for path in supported:
+            with self.subTest(path=path):
+                self.assertTrue(module._is_async_storage_manifest_path(path))
+        for path in (
+                DATA_A + '/Library/Caches/manifest.json',
+                DATA_A + '/Documents/RCTAsyncLocalStorage_V1/36b7150f73ef77aeb482bf78ccf580a4',
+                DATA_A + '/Library/Application Support/other.bundle/'
+                'RCTAsyncLocalStorage_V1/manifest.json'):
+            with self.subTest(path=path):
+                self.assertFalse(module._is_async_storage_manifest_path(path))
+        self.assertEqual(module._manifest_usernames({
+            '../signedInUsername': 'attacker.synthetic',
+            'users': [{'username': 'cached.synthetic'}],
+        }), set())
+
+    def test_asyncstorage_long_account_value_uses_md5_sidecar_in_same_directory(self):
+        with tempfile.TemporaryDirectory(prefix='anonymouschat-manifest-') as temporary:
+            manifest_dir = Path(temporary) / DATA_A / 'Documents' / 'RCTAsyncLocalStorage_V1'
+            manifest_dir.mkdir(parents=True)
+            manifest_path = manifest_dir / 'manifest.json'
+            key = 'signedInUsername'
+            digest = hashlib.md5(key.encode('utf-8'), usedforsecurity=False).hexdigest()
+            (manifest_dir / digest).write_text('sidecar.synthetic', encoding='utf-8')
+            manifest_path.write_text(json.dumps({key: None}), encoding='utf-8')
+            context = MetadataContext([str(manifest_path).replace('\\', '/')])
+            source_key = module._account_container_key(
+                context, str(manifest_path).replace('\\', '/'))
+            with patch.object(module, '_target_containers',
+                              return_value=(set(), {UUID_A}, set(), {})):
+                accounts, sources = module._manifest_account_identifiers(
+                    context, return_sources=True)
+        self.assertEqual(accounts, {source_key: {'sidecar.synthetic'}})
+        self.assertEqual(sources[source_key]['sidecar.synthetic'],
+                         {str(manifest_path).replace('\\', '/'),
+                          str(manifest_dir / digest).replace('\\', '/')})
+
+    def test_asyncstorage_sidecar_lookup_cannot_cross_input_roots(self):
+        key = 'signedInUsername'
+        digest = hashlib.md5(key.encode('utf-8'), usedforsecurity=False).hexdigest()
+        manifest = ('synthetic-root-a/' + DATA_A +
+                    '/Documents/RCTAsyncLocalStorage_V1/manifest.json')
+        other_root_sidecar = ('synthetic-root-b/' + DATA_A +
+                              '/Documents/RCTAsyncLocalStorage_V1/' + digest)
+        context = MetadataContext([manifest])
+        context.seeker.search.return_value = [other_root_sidecar]
+        self.assertIsNone(module._read_async_storage_sidecar(context, manifest, key))
+
+    def test_manifest_and_sidecar_reads_are_bounded_and_corrupt_values_fail_closed(self):
+        with tempfile.TemporaryDirectory(prefix='anonymouschat-manifest-limits-') as temporary:
+            manifest_dir = Path(temporary) / DATA_A / 'Documents' / 'RCTAsyncLocalStorage_V1'
+            manifest_dir.mkdir(parents=True)
+            manifest_path = manifest_dir / 'manifest.json'
+            manifest_path.write_bytes(b'{' + b' ' * module._MAX_MANIFEST_BYTES)
+            self.assertIsNone(module._read_json(str(manifest_path)))
+            manifest_path.write_text('{broken', encoding='utf-8')
+            self.assertIsNone(module._read_json(str(manifest_path)))
+            manifest_path.write_text('{"nested":' * 1100 + '0' + '}' * 1100,
+                                     encoding='utf-8')
+            self.assertIsNone(module._read_json(str(manifest_path)))
+            key = 'signedInUsername'
+            digest = hashlib.md5(key.encode('utf-8'), usedforsecurity=False).hexdigest()
+            sidecar_path = manifest_dir / digest
+            sidecar_path.write_text('x' * (module._MAX_MANIFEST_VALUE_BYTES + 1),
+                                    encoding='utf-8')
+            manifest_path.write_text(json.dumps({key: None}), encoding='utf-8')
+            context = MetadataContext([str(manifest_path).replace('\\', '/')])
+            with patch.object(module, '_target_containers',
+                              return_value=(set(), {UUID_A}, set(), {})):
+                self.assertEqual(module._manifest_account_identifiers(context), {})
+
+    def test_conflicting_current_and_legacy_manifests_remain_ambiguous(self):
+        current = DATA_A + '/Library/Application Support/com.anonimchat.app/' \
+                  'RCTAsyncLocalStorage_V1/manifest.json'
+        legacy = DATA_A + '/Documents/RCTAsyncLocalStorage_V1/manifest.json'
+        manifests = {current: {'signedInUsername': 'current.synthetic'},
+                     legacy: {'signedInUsername': 'legacy.synthetic'}}
+        context = MetadataContext([current, legacy])
+        with patch.object(module, '_target_containers',
+                          return_value=(set(), {UUID_A}, set(), {})), \
+                patch.object(module, '_read_json', side_effect=manifests.get):
+            accounts = module._manifest_account_identifiers(context)
+        self.assertEqual(accounts, {DATA_A: {'current.synthetic', 'legacy.synthetic'}})
+        self.assertEqual(module._direction(message(), accounts[DATA_A]), '')
 
     def test_manifest_evidence_cannot_cross_container_or_input_root(self):
         suffix = ('/Library/Application Support/com.anonimchat.app/'
@@ -275,9 +425,14 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         with patch.object(module, '_target_containers',
                           return_value=(set(), {UUID_A, UUID_B}, set(), {})), \
                 patch.object(module, '_read_json', side_effect=manifests.get):
-            accounts = module._manifest_account_identifiers(context)
+            accounts, sources = module._manifest_account_identifiers(
+                context, return_sources=True)
         self.assertEqual(accounts, {DATA_A: {'local.synthetic'}, DATA_B: {'other.synthetic'},
                                     'copy/' + DATA_A: {'copy.synthetic'}})
+        self.assertEqual(sources[DATA_A]['local.synthetic'], {DATA_A + suffix})
+        self.assertEqual(sources[DATA_B]['other.synthetic'], {DATA_B + suffix})
+        self.assertEqual(sources[DATA_A]['local.synthetic'], {DATA_A + suffix})
+        self.assertEqual(sources[DATA_B]['other.synthetic'], {DATA_B + suffix})
         with patch.object(module, '_target_db_paths', return_value=[DB_A, DB_B]), \
                 patch.object(module, '_manifest_account_identifiers', return_value=accounts), \
                 patch.object(module, '_message_rows', return_value=[message()]), \
@@ -349,20 +504,63 @@ class AnonymousChatHardeningTests(unittest.TestCase):
 
     def test_photos_uuid_requires_unique_safe_relative_path(self):
         photo_uuid = 'AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA'
-        refs = [reference(kind='Media Table Metadata', media_id='ph://' + photo_uuid + '/L0/001')]
+        refs = [reference(kind='Media Table Metadata', media_id='ph://' + photo_uuid + '/L0/001',
+                          source=DB_A)]
         context = MetadataContext()
-        context.seeker.search.return_value = ['C:/synthetic/Photos.sqlite']
+        photos_db = 'private/var/mobile/Media/PhotoData/Photos.sqlite'
+        context.seeker.search.return_value = [photos_db]
         safe = dict(uuid=photo_uuid, directory='DCIM/100APPLE', filename='SYNTH001.JPG')
         for assets in ([safe, safe], [dict(safe, directory='DCIM/../elsewhere')],
                        [dict(safe, filename='../outside.jpg')]):
             with patch.object(module, '_query_rows', return_value=assets):
                 self.assertEqual(module._photos_asset_paths(context, refs), {})
         with patch.object(module, '_query_rows', return_value=[safe]):
-            self.assertIn('DCIM/100APPLE/SYNTH001.JPG',
+            self.assertIn(('', 'DCIM/100APPLE/SYNTH001.JPG'),
                           module._photos_asset_paths(context, refs))
         other_uuid = 'BBBBBBBB-BBBB-4BBB-8BBB-BBBBBBBBBBBB'
         refs.append(reference(kind='Media Table Metadata', media_id='ph://' + other_uuid))
         with patch.object(module, '_query_rows', return_value=[safe, dict(safe, uuid=other_uuid)]):
+            self.assertEqual(module._photos_asset_paths(context, refs), {})
+
+    def test_photos_asset_uuid_and_path_are_partitioned_by_extraction_root(self):
+        photo_uuid = 'AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA'
+        path_a = 'synthetic-root-a/private/var/mobile/Media/PhotoData/Photos.sqlite'
+        path_b = 'synthetic-root-b/private/var/mobile/Media/PhotoData/Photos.sqlite'
+        refs = [
+            reference(kind='Media Table Metadata', media_id='ph://' + photo_uuid,
+                      source='synthetic-root-a/' + DB_A),
+            reference(kind='Media Table Metadata', media_id='ph://' + photo_uuid,
+                      source='synthetic-root-b/' + DB_A),
+        ]
+        context = MetadataContext()
+        context.seeker.search.return_value = [path_a, path_b]
+        rows_by_db = {
+            path_a: [{'uuid': photo_uuid, 'directory': 'DCIM/100APPLE',
+                      'filename': 'ROOTA.JPG'}],
+            path_b: [{'uuid': photo_uuid, 'directory': 'DCIM/100APPLE',
+                      'filename': 'ROOTB.JPG'}],
+        }
+        with patch.object(module, '_query_rows',
+                          side_effect=lambda path, *_args: rows_by_db[path]):
+            paths = module._photos_asset_paths(context, refs)
+        self.assertEqual(set(paths), {
+            ('synthetic-root-a', 'DCIM/100APPLE/ROOTA.JPG'),
+            ('synthetic-root-b', 'DCIM/100APPLE/ROOTB.JPG'),
+        })
+        self.assertEqual([item[0] for item in paths[
+            ('synthetic-root-a', 'DCIM/100APPLE/ROOTA.JPG')]], [0])
+        self.assertEqual([item[0] for item in paths[
+            ('synthetic-root-b', 'DCIM/100APPLE/ROOTB.JPG')]], [1])
+
+    def test_photos_uuid_does_not_use_a_database_from_another_extraction_root(self):
+        photo_uuid = 'AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA'
+        context = MetadataContext()
+        context.seeker.search.return_value = [
+            'synthetic-root-b/private/var/mobile/Media/PhotoData/Photos.sqlite']
+        refs = [reference(kind='Media Table Metadata', media_id='ph://' + photo_uuid,
+                          source='synthetic-root-a/' + DB_A)]
+        with patch.object(module, '_query_rows', return_value=[{
+                'uuid': photo_uuid, 'directory': 'DCIM/100APPLE', 'filename': 'OTHER.JPG'}]):
             self.assertEqual(module._photos_asset_paths(context, refs), {})
 
     def test_fnmatch_literals_do_not_stage_a_different_file(self):
@@ -616,7 +814,7 @@ class AnonymousChatHardeningTests(unittest.TestCase):
             name_list=[path],
             _entries={path: SimpleNamespace(size=1234, mtime=WHEN.timestamp(), reading='')},
             search=Mock(return_value='C:/synthetic/staged/' + key))
-        rows, checkin = self.seeker_media_rows(context, [reference()])
+        rows, checkin = self.seeker_media_rows(context, [reference(source='lba0/' + DB_A)])
         media = [row for row in rows if row['kind'] == 'Filesystem Media']
         self.assertEqual(len(media), 1)
         self.assertEqual(media[0]['message_id'], 'message-1')
@@ -741,6 +939,36 @@ class AnonymousChatHardeningTests(unittest.TestCase):
         context.seeker = SimpleNamespace(_all_files=['C:/synthetic/unrelated.txt'], directory='C:/synthetic')
         with patch.object(module.os, 'stat', side_effect=AssertionError('Unrelated stat')):
             self.assertEqual(list(module._iter_source_entries(context, include=lambda _: False)), [])
+
+
+class AnonymousChatFileTypeTests(unittest.TestCase):
+    """Show the reported basis without inspecting any real media."""
+
+    def test_misleading_extension_is_labelled_as_extension_not_signature(self):
+        candidate = entry(DATA_A + '/Library/Caches/synthetic-video.jpg')
+        with patch.object(module, '_signature_from_entry') as signature:
+            result = module._media_entry_type(candidate, module._media_reference_indexes([]))
+        self.assertEqual(result[:3], ('.jpg', 'JPEG', 'Image'))
+        self.assertEqual(result[3], 'Filename extension (not content-verified)')
+        signature.assert_not_called()
+
+    def test_mime_classification_reports_stored_metadata_basis(self):
+        path = DATA_A + '/Library/Caches/synthetic-extensionless'
+        reference_row = reference(source=DB_A, reference=path,
+                                  path_references=[path], mime='image/png')
+        result = module._media_entry_type(
+            entry(path), module._media_reference_indexes([reference_row]))
+        self.assertEqual(result, ('', 'image/png', 'Image', 'Stored MIME metadata'))
+
+    def test_signature_identification_reads_only_the_4096_byte_header(self):
+        opener = mock_open(read_data=b'\xff\xd8\xff' + b'x' * 5000)
+        with patch('builtins.open', opener):
+            result = module._signature_from_entry({
+                'path': DATA_A + '/Library/Caches/extensionless',
+                'kind': 'directory', 'info': 'synthetic-media-only.bin',
+            })
+        self.assertEqual(result, ('JPEG', 'Image', module._SIGNATURE_METHOD))
+        opener.return_value.read.assert_called_once_with(4096)
 
 
 if __name__ == '__main__':

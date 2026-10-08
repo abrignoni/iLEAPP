@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "module_name": "anonymousChat",
+    "artifact_name": "Anonymous Chat & Fun - Accounts",
+    "function_name": "anonymousChat_accounts",
+    "case_number": "case1",
+    "number_of_columns": 10,
+    "number_of_rows": 1,
+    "total_data_size_bytes": 717,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin\\test\\cases\\data\\anonymousChat\\testdata.anonymousChat.anonymousChat_accounts.case1.zip",
+    "start_time": "2026-10-08T17:03:20.898234+00:00",
+    "end_time": "2026-10-08T17:03:20.950831+00:00",
+    "run_time_seconds": 0.0029981136322021484,
+    "last_commit": {
+      "hash": "7433c6fcf73d38c27b1d85652f4f4f3cf8edbd01",
+      "author_name": "Darren",
+      "author_email": "N/A",
+      "date": "2026-09-13T02:07:39+01:00",
+      "message": "Fix Anonymous Chat media discovery and account evidence"
+    }
+  },
+  "headers": [
+    "Account Identifier",
+    "Conversation Count",
+    "Message Count",
+    "Outgoing Count",
+    "Incoming Count",
+    "First Message Timestamp",
+    "Last Message Timestamp",
+    "Owner Attribution",
+    "Evidence",
+    "Source"
+  ],
+  "data": [
+    [
+      "local.synthetic",
+      1,
+      3,
+      1,
+      2,
+      1770000000,
+      1770000002,
+      "Candidate local account identifier; owner not established",
+      "from_username; sender/name relationship supports direction for 3 message(s); app manifest signed-in username matches from_username; AsyncStorage evidence source(s): private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json",
+      "private/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/Application Support/com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json\nprivate/var/mobile/Containers/Data/Application/11111111-1111-4111-8111-111111111111/Library/LocalDatabase/anonimchat.db"
+    ]
+  ]
+}

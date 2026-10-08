@@ -80,7 +80,8 @@ class AnonymousChatCliTests(unittest.TestCase):
             others = {'remote.synthetic'} if tenants == 1 else {'remote.synthetic', 'remote.synthetic.second'}
             if not confirmed_account:
                 others = {'Participants: local.synthetic, remote.synthetic'}
-            self.assertEqual({row[2] for row in rows}, others)
+            self.assertEqual({row[2] for row in rows}, others,
+                             completed.stdout + completed.stderr)
             expected_directions = (['Outgoing'] * tenants + ['Incoming'] * (2 * tenants)
                                    if confirmed_account else [''] * (3 * tenants))
             self.assertEqual([row[3] for row in rows], expected_directions)
@@ -90,6 +91,12 @@ class AnonymousChatCliTests(unittest.TestCase):
             evidence_by_account = dict(account_rows)
             self.assertEqual('app manifest signed-in username' in
                              evidence_by_account['local.synthetic'], confirmed_account)
+            if confirmed_account:
+                account_evidence = evidence_by_account['local.synthetic'].replace('\\', '/')
+                self.assertIn('AsyncStorage evidence source(s):',
+                              account_evidence)
+                self.assertIn('RCTAsyncLocalStorage_V1/manifest.json',
+                              account_evidence)
             if tenants == 2:
                 self.assertIn('app manifest signed-in username',
                               evidence_by_account['local.synthetic.second'])
@@ -175,6 +182,20 @@ class AnonymousChatCliTests(unittest.TestCase):
                     'RCTAsyncLocalStorage_V1/manifest.json')
         manifest.write_bytes(json.dumps({'signedInUsername': 'unrelated.synthetic'}).encode())
         self.run_report('fs', confirmed_account=False)
+
+    def test_legacy_documents_manifest_and_md5_sidecar_confirm_account(self):
+        data_root = self.extraction / BUILDER.DATA_ROOT
+        current = (data_root / 'Library/Application Support/com.anonimchat.app/'
+                   'RCTAsyncLocalStorage_V1/manifest.json')
+        current.unlink()
+        legacy_dir = data_root / 'Documents/RCTAsyncLocalStorage_V1'
+        legacy_dir.mkdir(parents=True)
+        key = 'signedInUsername'
+        digest = hashlib.md5(key.encode('utf-8'), usedforsecurity=False).hexdigest()
+        (legacy_dir / 'manifest.json').write_text(
+            json.dumps({key: None}), encoding='utf-8')
+        (legacy_dir / digest).write_text('local.synthetic', encoding='utf-8')
+        self.run_report('tar')
 
     def test_directory_cli_escapes_hostile_metadata_in_html(self):
         payload = '<img src="https://example.invalid/never-fetched" onerror="alert(1)">'

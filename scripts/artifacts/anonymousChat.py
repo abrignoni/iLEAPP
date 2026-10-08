@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        'identified from bundle and container metadata.',
         'author': 'Darren Rooney',
         'creation_date': '2026-09-11',
-        'last_update_date': '2026-09-13',
+        'last_update_date': '2026-10-08',
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'This module targets the iOS app "Anonymous Chat & Fun" identified by '
@@ -18,6 +18,7 @@ __artifacts_v2__ = {
             '*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist',
             '*/Containers/Data/Application/*/Library/Application Support/'
             'com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json',
+            '*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist',
@@ -44,22 +45,33 @@ __artifacts_v2__ = {
                        'manifest evidence where available and limits on owner attribution.',
         'author': 'Darren Rooney',
         'creation_date': '2026-09-11',
-        'last_update_date': '2026-09-13',
+        'last_update_date': '2026-10-08',
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'This artifact is from the iOS app "Anonymous Chat & Fun" '
-                 '(bundle ID com.anonimchat.app). Signed-in usernames are read from explicit '
-                 'account fields in the same container\'s AsyncStorage manifest; usernames in '
-                 'cached contact/message objects are not account evidence. Without a confirmed '
-                 'local endpoint, the stored from_username is reported as an unconfirmed '
-                 'participant and direction counts stay unassigned. The database does not '
-                 'establish the legal or physical device owner.',
+                 '(bundle ID com.anonimchat.app). Signed-in usernames are read only from explicit '
+                 'account keys or username fields inside named account/session objects '
+                 'in the same data container\'s AsyncStorage manifest. Generic root-level usernames '
+                 'and names '
+                 'inside contacts, messages, or cached objects are ignored. Discovery '
+                 'checks the current Library/Application Support location and the legacy '
+                 'Documents/RCTAsyncLocalStorage_V1 location; the legacy path is supported from '
+                 'React Native source, but its use by this app has not been established. Manifest '
+                 'and account-value reads are bounded to 1 MiB. Long values may be stored in an '
+                 'MD5-named sidecar and are read only for explicit account keys. The Accounts '
+                 'Evidence and Source fields retain manifest and hashed-sidecar source paths. '
+                 'Multiple distinct account identifiers are ambiguous; direction is assigned only '
+                 'when one identifier matches exactly one endpoint and the stored sender name '
+                 'and flag agree. Otherwise direction remains unconfirmed. The database does not '
+                 'establish the legal '
+                 'or physical device owner.',
         'paths': (
             '*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*',
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist',
             '*/Containers/Data/Application/*/Library/Application Support/'
             'com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json',
+            '*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist',
@@ -85,7 +97,7 @@ __artifacts_v2__ = {
                        'app "Anonymous Chat & Fun" (bundle ID com.anonimchat.app).',
         'author': 'Darren Rooney',
         'creation_date': '2026-09-11',
-        'last_update_date': '2026-09-13',
+        'last_update_date': '2026-10-08',
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'This artifact is from the iOS app "Anonymous Chat & Fun" '
@@ -94,14 +106,17 @@ __artifacts_v2__ = {
                  'opposite endpoint only when the same container\'s manifest establishes one '
                  'local participant; otherwise the label lists the stored participants. '
                  'Conversation Key combines the source database and stored conversation ID; '
-                 'it is a report grouping key, not a stored field. Integer conversation times '
-                 'are Unix timestamps. Text without a timezone is preserved only in the raw field.',
+                 'it is a report grouping key, not a stored field. Numeric conversation times are '
+                 'converted as Unix seconds by the parser; text without an explicit timezone is '
+                 'preserved only in the raw field. Synthetic tests cannot establish the app\'s '
+                 'timestamp epoch for every version.',
         'paths': (
             '*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*',
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist',
             '*/Containers/Data/Application/*/Library/Application Support/'
             'com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json',
+            '*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist',
@@ -128,29 +143,35 @@ __artifacts_v2__ = {
                        '(bundle ID com.anonimchat.app).',
         'author': 'Darren Rooney',
         'creation_date': '2026-09-11',
-        'last_update_date': '2026-09-13',
+        'last_update_date': '2026-10-08',
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'This artifact is from the iOS app "Anonymous Chat & Fun" '
                  '(bundle ID com.anonimchat.app). Direction requires one signed-in username from '
-                 'the same container\'s AsyncStorage manifest to match a conversation endpoint, '
+                 'the same data container\'s supported AsyncStorage manifest location to match '
+                 'exactly one conversation endpoint, '
                  'and the sender name and flag to agree (0 local, 1 remote). Missing, ambiguous '
                  'or contradictory account evidence leaves direction blank; raw endpoints and '
                  'sender flags remain available. This does not establish legal owner attribution. '
                  'Conversation Key scopes the stored conversation ID to its source '
                  'database. Media is populated only when the application records a relationship '
                  'to a local file: stored path, SDImageCache URL-derived key, explicit media ID, '
-                 'or an equivalent stored join. Size, timestamps, MIME compatibility, and filename '
-                 'similarity alone never link a file to a message. Unlinked media remains in the '
+                 'or an explicit stored join. A matching container UUID is insufficient across '
+                 'different extraction roots. Size, timestamps, MIME compatibility, and a bare '
+                 'filename alone never link a file to a message. Unlinked media remains in the '
                  'media artifact with an explanatory correlation note. Photos originals are labelled '
                  'as originals and may differ from transmitted media. The examiner-run report uses '
-                 'iLEAPP Media Manager for locally linked files; remote URLs are never followed.',
+                  'iLEAPP Media Manager for locally linked files; remote URLs are never followed. '
+                  'Numeric message times are converted as Unix seconds; the artifact has no separate '
+                  'raw numeric time column. Synthetic tests do not establish the '
+                  'app-specific epoch.',
         'paths': (
             '*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*',
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist',
             '*/Containers/Data/Application/*/Library/Application Support/'
             'com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json',
+            '*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist',
@@ -190,7 +211,7 @@ __artifacts_v2__ = {
                        '(bundle ID com.anonimchat.app).',
         'author': 'Darren Rooney',
         'creation_date': '2026-09-11',
-        'last_update_date': '2026-09-13',
+        'last_update_date': '2026-10-08',
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'This artifact is from the iOS app "Anonymous Chat & Fun" '
@@ -202,6 +223,7 @@ __artifacts_v2__ = {
             '*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist',
             '*/Containers/Data/Application/*/Library/Application Support/'
             'com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json',
+            '*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist',
@@ -228,15 +250,19 @@ __artifacts_v2__ = {
                        '(bundle ID com.anonimchat.app).',
         'author': 'Darren Rooney',
         'creation_date': '2026-09-11',
-        'last_update_date': '2026-09-13',
+        'last_update_date': '2026-10-08',
         'requirements': 'none',
         'category': 'Anonymous Chat & Fun',
         'notes': 'This artifact is from the iOS app "Anonymous Chat & Fun" '
                  '(bundle ID com.anonimchat.app). Media are identified and correlated by metadata. '
                  'A message is linked only when the application records a stored path, an exact '
                  'SDImageCache key derived from stored URL text, an explicit media ID, or another '
-                 'stored join. Size, timestamps, MIME compatibility, and filename similarity alone '
-                 'are not evidence of a message relationship. One filesystem row is reported per '
+                 'explicit stored join. A bare media-table filename, matching container UUID, '
+                 'size, timestamp, MIME compatibility, or filename similarity alone does not '
+                 'establish a file relationship. Container and extraction-root scope must both '
+                 'agree. Photos originals outside the app container require an app media_id to '
+                 'match ZASSET.ZUUID in the same extraction root and a safe stored DCIM path. '
+                 'One filesystem row is reported per '
                  'association, or one inventory row for an unlinked file; unlinked rows explain why '
                  'no association was made. Only locally linked media are checked in through iLEAPP '
                  'Media Manager for report display; remote URLs are never followed. Folder input '
@@ -248,18 +274,22 @@ __artifacts_v2__ = {
                  'metadata. Both inputs support extensionless SDImageCache files through stored '
                  'URL keys and MIME metadata. Their seekers expose no bounded header-read API, '
                  'so otherwise unclassified cache entries remain Filesystem Candidate rows with '
-                 'type Unknown and no inferred message link. ZIP/TAR/folder signature checks, '
-                 'when necessary, are limited to the first 4096 bytes. Classification and '
+                 'type Unknown and no inferred message link. File Type Classification is based on '
+                 'a filename extension, stored MIME metadata, or a file signature as shown in '
+                 'Identification Method. An extension or MIME value is not content verification. '
+                 'ZIP/TAR/folder signature checks, when necessary, are limited to the first 4096 '
+                 'bytes; full-file scanning is not used. Classification and '
                  'correlation are indexed and reused across Messages and Media; each artifact '
-                 'registers its own media references. '
-                 'Photos originals outside the app container are included only through app media_id '
-                 '= ZASSET.ZUUID and a safe stored DCIM path. Original and transmitted media may differ.',
+                 'registers its own media references. Created/modified/access values describe the '
+                 'input format and source; they do not always represent device timestamps. '
+                 'Original and transmitted media may differ.',
         'paths': (
             '*/Containers/Data/Application/*/Library/LocalDatabase/anonimchat.db*',
             '*/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/Containers/Data/Application/*/Library/Preferences/com.anonimchat.app.plist',
             '*/Containers/Data/Application/*/Library/Application Support/'
             'com.anonimchat.app/RCTAsyncLocalStorage_V1/manifest.json',
+            '*/Containers/Data/Application/*/Documents/RCTAsyncLocalStorage_V1/manifest.json',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/.com.apple.mobile_container_manager.metadata.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/*.app/Info.plist',
             '*/[Cc]ontainers/[Bb]undle/[Aa]pplication/*/iTunesMetadata.plist',
@@ -309,6 +339,10 @@ _BUNDLE_ID = 'com.anonimchat.app'
 _APP_NAME = 'Anonymous Chat & Fun'
 _DB_NAME = 'anonimchat.db'
 _MAX_HEADER_BYTES = 4096
+_MAX_MANIFEST_BYTES = 1024 * 1024
+_MAX_MANIFEST_VALUE_BYTES = 1024 * 1024
+_MAX_MANIFEST_DEPTH = 16
+_SIGNATURE_METHOD = 'File signature (first 4096 bytes)'
 _SDIMAGECACHE_PATH = '/library/caches/com.hackemist.sdimagecache/default/'
 _SDIMAGECACHE_KEY_RE = re.compile(r'^[0-9a-f]{32}$')
 _CONTAINER_UUID_RE = re.compile(
@@ -321,6 +355,15 @@ _MANIFEST_ACCOUNT_KEYS = {
 }
 _MANIFEST_ACCOUNT_OBJECTS = {'session', 'auth', 'account', 'currentuser',
                              'signedinuser', 'loggedinuser'}
+_MANIFEST_UNRELATED_OBJECTS = {
+    'cache', 'cached', 'contacts', 'conversations', 'friends', 'history',
+    'messages', 'recentcontacts', 'users',
+}
+_ASYNC_STORAGE_MANIFEST_PATHS = {
+    'library/application support/com.anonimchat.app/'
+    'rctasynclocalstorage_v1/manifest.json',
+    'documents/rctasynclocalstorage_v1/manifest.json',
+}
 _MESSAGE_INFO_MEDIA_ID_KEYS = {
     'mediaid', 'mediauuid', 'assetid', 'assetuuid', 'attachmentid',
     'attachmentuuid',
@@ -558,13 +601,26 @@ def _raw(value):
     return '' if value is None else value
 
 
+def _read_limited_text(path, limit, label):
+    """Read a bounded UTF-8 metadata value without loading an unbounded file."""
+    try:
+        with open(path, 'rb') as metadata_file:
+            payload = metadata_file.read(limit + 1)
+        if len(payload) > limit:
+            logfunc(f'Anonymous Chat: {label} exceeds the {limit}-byte read limit: {path}')
+            return None
+        return payload.decode('utf-8')
+    except (OSError, UnicodeError) as ex:
+        logfunc(f'Anonymous Chat: could not read {label} {path}: {ex}')
+        return None
+
+
 def _read_json(path):
     try:
-        with open(path, 'r', encoding='utf-8') as json_file:
-            value = json.load(json_file)
-        return value
-    except (OSError, UnicodeError, json.JSONDecodeError, TypeError, ValueError) as ex:
-        logfunc(f'Anonymous Chat: could not read JSON metadata {path}: {ex}')
+        payload = _read_limited_text(path, _MAX_MANIFEST_BYTES, 'JSON metadata')
+        return json.loads(payload) if payload is not None else None
+    except (json.JSONDecodeError, TypeError, ValueError, RecursionError) as ex:
+        logfunc(f'Anonymous Chat: could not parse JSON metadata {path}: {ex}')
         return None
 
 
@@ -574,55 +630,161 @@ def _account_container_key(context, path):
     return path[:match.end()] if match else ''
 
 
-def _manifest_usernames(value):
-    """Read explicit account fields, not usernames in cached contacts/messages."""
+def _normalised_manifest_key(value):
+    """Normalize a storage/JSON key while refusing path-like or oversized keys."""
+    value = _text(value).strip()
+    if (not value or len(value) > 256 or
+            not re.fullmatch(r'[@A-Za-z0-9_.:-]+', value)):
+        return ''
+    return re.sub(r'[^a-z0-9]', '', value.casefold())
+
+
+def _decoded_manifest_value(value):
+    if not isinstance(value, str):
+        return value
+    if len(value) > _MAX_MANIFEST_VALUE_BYTES:
+        return None
+    value = value.strip()
+    if value[:1] in ('{', '[', '"'):
+        try:
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError, ValueError, RecursionError):
+            return None
+    return value
+
+
+def _account_value(value, depth=0):
+    if depth > _MAX_MANIFEST_DEPTH:
+        return set()
+    value = _decoded_manifest_value(value)
+    if isinstance(value, str) and value.strip() and len(value.strip()) <= 256:
+        return {value.strip().casefold()}
+    if isinstance(value, dict):
+        return _account_object_usernames(value, depth + 1)
+    return set()
+
+
+def _account_object_usernames(value, depth=0):
+    """Extract fields only inside a manifest entry explicitly named as account state."""
     identifiers = set()
 
-    def collect(value, key='', account_object=False, depth=0):
-        if depth > 32:
+    def collect(item, current_depth):
+        if current_depth > _MAX_MANIFEST_DEPTH:
             return
-        if isinstance(value, str) and value.lstrip()[:1] in ('{', '['):
-            try:
-                collect(json.loads(value), key, account_object, depth + 1)
-            except (json.JSONDecodeError, TypeError, ValueError):
-                pass
+        item = _decoded_manifest_value(item)
+        if not isinstance(item, dict):
+            # Arrays such as contacts/messages can contain many unrelated usernames.
             return
-        if isinstance(value, dict):
-            for child_key, child in value.items():
-                normalized_key = re.sub(r'[^a-z0-9]', '', _text(child_key).casefold())
-                collect(child, normalized_key,
-                        depth == 0 or key in _MANIFEST_ACCOUNT_OBJECTS, depth + 1)
-            return
-        if isinstance(value, (list, tuple)):
-            for child in value:
-                collect(child, key, False, depth + 1)
-            return
-        if (not isinstance(value, str) or
-                not (key in _MANIFEST_ACCOUNT_KEYS or key == 'username' and account_object)):
-            return
-        value = value.strip()
-        if value:
-            identifiers.add(value.casefold())
+        for child_key, child in item.items():
+            key = _normalised_manifest_key(child_key)
+            if not key or key in _MANIFEST_UNRELATED_OBJECTS:
+                continue
+            if key in _MANIFEST_ACCOUNT_KEYS or key == 'username':
+                identifiers.update(_account_value(child, current_depth + 1))
+            elif key in _MANIFEST_ACCOUNT_OBJECTS:
+                collect(child, current_depth + 1)
 
-    collect(value)
+    collect(value, depth)
     return identifiers
 
 
-def _manifest_account_identifiers(context, files=None):
+def _manifest_usernames(value):
+    """Read explicit AsyncStorage account keys, not arbitrary cached objects."""
+    identifiers = set()
+    if not isinstance(value, dict):
+        return identifiers
+    for storage_key, stored_value in value.items():
+        key = _normalised_manifest_key(storage_key)
+        if key in _MANIFEST_ACCOUNT_KEYS:
+            identifiers.update(_account_value(stored_value))
+        elif key in _MANIFEST_ACCOUNT_OBJECTS:
+            identifiers.update(_account_object_usernames(stored_value))
+    return identifiers
+
+
+def _is_async_storage_manifest_path(path):
+    normalized = _normalise_path(path).casefold()
+    match = _CONTAINER_RE.search(normalized)
+    if not match:
+        return False
+    relative_to_container = normalized[match.end():].lstrip('/')
+    return relative_to_container in _ASYNC_STORAGE_MANIFEST_PATHS
+
+
+def _read_async_storage_sidecar(context, manifest_path, storage_key):
+    """Read only the MD5-named sibling selected by an explicit account key."""
+    digest = hashlib.md5(
+        _text(storage_key).encode('utf-8'), usedforsecurity=False).hexdigest()
+    sidecar_path = os.path.join(os.path.dirname(manifest_path), digest)
+    if os.path.isfile(sidecar_path):
+        return _read_limited_text(
+            sidecar_path, _MAX_MANIFEST_VALUE_BYTES, 'AsyncStorage sidecar')
+
+    # Archive, raw-image and iTunes seekers stage matched files into the report
+    # data folder. Resolve the exact source sibling lazily so unrelated AsyncStorage
+    # files are neither staged nor opened.
+    relative_manifest = _relative_source(context, manifest_path).replace('\\', '/').lstrip('/')
+    if '/' not in relative_manifest:
+        return None
+    expected_relative = relative_manifest.rsplit('/', 1)[0] + '/' + digest
+    try:
+        seeker = context.get_seeker()
+        found = seeker.search('*/' + expected_relative)
+    except (AttributeError, OSError, RuntimeError, ValueError) as ex:
+        logfunc(f'Anonymous Chat: could not stage AsyncStorage sidecar: {ex}')
+        return None
+    candidates = [str(path) for path in ([found] if isinstance(found, str) else (found or []))
+                  if _relative_source(context, path).replace('\\', '/').lstrip('/').casefold()
+                  == expected_relative.casefold()]
+    if len(candidates) != 1:
+        if candidates:
+            logfunc('Anonymous Chat: ambiguous AsyncStorage sidecar path; '
+                    'account evidence ignored')
+        return None
+    return _read_limited_text(
+        candidates[0], _MAX_MANIFEST_VALUE_BYTES, 'AsyncStorage sidecar')
+
+
+def _manifest_account_identifiers(context, files=None, return_sources=False):
     """Scope account evidence to each source container, including its input root."""
     files = _files_found(context) if files is None else files
     _bundle_ids, data_ids, _group_ids, _app_plists = _target_containers(context, files)
     by_container = {}
+    sources_by_container = {}
     for path in files:
         kind, token = _container_location(path)
-        if (kind != 'data' or token not in data_ids or not _normalise_path(path).endswith(
-                '/Library/Application Support/com.anonimchat.app/'
-                'RCTAsyncLocalStorage_V1/manifest.json')):
+        if kind != 'data' or token not in data_ids or not _is_async_storage_manifest_path(path):
             continue
         manifest = _read_json(path)
-        if manifest is not None:
-            by_container.setdefault(_account_container_key(context, path), set()).update(
-                _manifest_usernames(manifest))
+        if not isinstance(manifest, dict):
+            continue
+        container_key = _account_container_key(context, path)
+        manifest_source = _source_label(context, path)
+        identifiers = _manifest_usernames(manifest)
+        if identifiers:
+            by_container.setdefault(container_key, set()).update(identifiers)
+            for identifier in identifiers:
+                sources_by_container.setdefault(container_key, {}).setdefault(
+                    identifier, set()).add(manifest_source)
+        for storage_key, stored_value in manifest.items():
+            key = _normalised_manifest_key(storage_key)
+            if (stored_value is not None or
+                    key not in _MANIFEST_ACCOUNT_KEYS | _MANIFEST_ACCOUNT_OBJECTS):
+                continue
+            sidecar_path = os.path.join(os.path.dirname(path), hashlib.md5(
+                _text(storage_key).encode('utf-8'), usedforsecurity=False).hexdigest())
+            sidecar_value = _read_async_storage_sidecar(context, path, storage_key)
+            if sidecar_value is not None:
+                sidecar_identifiers = _manifest_usernames(
+                    {storage_key: sidecar_value})
+                if sidecar_identifiers:
+                    by_container.setdefault(container_key, set()).update(sidecar_identifiers)
+                    for identifier in sidecar_identifiers:
+                        sources_by_container.setdefault(container_key, {}).setdefault(
+                            identifier, set()).update((manifest_source,
+                                                       _source_label(context, sidecar_path)))
+    if return_sources:
+        return by_container, sources_by_container
     return by_container
 
 
@@ -719,6 +881,8 @@ def _message_rows(db_path):
 
 def _local_participant(row, local_accounts):
     accounts = {_text(account).strip().casefold() for account in local_accounts} - {''}
+    if len(accounts) != 1:
+        return ''
     participants = [_text(row.get(key)).strip() for key in ('from_username', 'to_username')]
     if (not all(participants) or
             participants[0].casefold() == participants[1].casefold()):
@@ -1087,40 +1251,40 @@ def _signature_from_entry(entry):
 def _signature_classification(header):
     """Classify straightforward signatures without parsing media structure."""
     if header.startswith(b'\xff\xd8\xff'):
-        return 'JPEG', 'Image', 'File Signature'
+        return 'JPEG', 'Image', _SIGNATURE_METHOD
     if header.startswith(b'\x89PNG\r\n\x1a\n'):
-        return 'PNG', 'Image', 'File Signature'
+        return 'PNG', 'Image', _SIGNATURE_METHOD
     if header.startswith((b'GIF87a', b'GIF89a')):
-        return 'GIF', 'Image', 'File Signature'
+        return 'GIF', 'Image', _SIGNATURE_METHOD
     if len(header) >= 12 and header[:4] == b'RIFF' and header[8:12] == b'WEBP':
-        return 'WebP', 'Image', 'File Signature'
+        return 'WebP', 'Image', _SIGNATURE_METHOD
     if header.startswith(b'BM'):
-        return 'BMP', 'Image', 'File Signature'
+        return 'BMP', 'Image', _SIGNATURE_METHOD
     if header.startswith((b'II*\x00', b'MM\x00*')):
-        return 'TIFF', 'Image', 'File Signature'
+        return 'TIFF', 'Image', _SIGNATURE_METHOD
     if header.startswith(b'\xabKTX 11\xbb\r\n\x1a\n'):
-        return 'KTX texture', 'Image/Texture', 'File Signature'
+        return 'KTX texture', 'Image/Texture', _SIGNATURE_METHOD
     if len(header) >= 12 and header[:4] == b'RIFF' and header[8:12] == b'WAVE':
-        return 'WAV', 'Audio', 'File Signature'
+        return 'WAV', 'Audio', _SIGNATURE_METHOD
     if header.startswith(b'ID3'):
-        return 'MP3', 'Audio', 'File Signature'
+        return 'MP3', 'Audio', _SIGNATURE_METHOD
     if header.startswith(b'OggS'):
-        return 'Ogg', 'Audio', 'File Signature'
+        return 'Ogg', 'Audio', _SIGNATURE_METHOD
     if header.startswith(b'fLaC'):
-        return 'FLAC', 'Audio', 'File Signature'
+        return 'FLAC', 'Audio', _SIGNATURE_METHOD
     if header.startswith(b'\x1a\x45\xdf\xa3'):
-        return 'WebM/Matroska', 'Video', 'File Signature'
+        return 'WebM/Matroska', 'Video', _SIGNATURE_METHOD
     if len(header) >= 8 and header[4:8] == b'ftyp':
         brand = header[8:12]
         if brand == b'qt  ':
-            return 'MOV', 'Video', 'File Signature'
+            return 'MOV', 'Video', _SIGNATURE_METHOD
         if brand in (b'heic', b'heix', b'hevc', b'hevx'):
-            return 'HEIC/HEIF', 'Image', 'File Signature'
+            return 'HEIC/HEIF', 'Image', _SIGNATURE_METHOD
         if brand in (b'avif', b'avis'):
-            return 'AVIF', 'Image', 'File Signature'
+            return 'AVIF', 'Image', _SIGNATURE_METHOD
         if brand in (b'mp4 ', b'isom', b'iso2', b'mp41', b'mp42', b'M4V '):
-            return 'MP4/ISO Base Media', 'Video', 'File Signature'
-        return 'ISO Base Media', 'Media Container', 'File Signature'
+            return 'MP4/ISO Base Media', 'Video', _SIGNATURE_METHOD
+        return 'ISO Base Media', 'Media Container', _SIGNATURE_METHOD
     return None
 
 
@@ -1200,7 +1364,7 @@ def _reference_path(reference):
 
 def _entry_matches_reference(entry_path, reference):
     entry_normalized = _normalise_path(entry_path).rstrip('/')
-    reference_path, reference_basename = _reference_path(reference)
+    reference_path, _reference_basename = _reference_path(reference)
     if not reference_path:
         return False, ''
     parsed = _split_reference(reference)
@@ -1214,10 +1378,6 @@ def _entry_matches_reference(entry_path, reference):
             entry_normalized.endswith('/' + reference_path.lstrip('/')) or
             reference_path.endswith('/' + entry_normalized.lstrip('/'))):
         return True, 'Path/URL path'
-    if (reference_basename and not remote_url and
-            '/' not in reference_without_root and
-            os.path.basename(entry_normalized) == reference_basename):
-        return True, 'Filename'
     return False, ''
 
 
@@ -1233,7 +1393,7 @@ def _reference_path_values(reference):
 
 
 def _media_entry_indexes(media_entries):
-    indexes = {'paths': {}, 'suffixes': {}, 'filenames': {}}
+    indexes = {'paths': {}, 'suffixes': {}}
     for entry_index, media_entry in enumerate(media_entries):
         normalized = _normalise_path(media_entry['entry']['path']).strip('/').rstrip('/')
         if not normalized:
@@ -1243,14 +1403,13 @@ def _media_entry_indexes(media_entries):
         for offset in range(len(parts)):
             suffix = '/'.join(parts[offset:])
             indexes['suffixes'].setdefault(suffix, []).append(entry_index)
-        indexes['filenames'].setdefault(parts[-1], []).append(entry_index)
     return indexes
 
 
 def _reference_candidate_indices(indexes, reference):
     candidates = set()
     for value in _reference_path_values(reference):
-        reference_path, reference_basename = _reference_path(value)
+        reference_path, _ = _reference_path(value)
         stripped = reference_path.strip('/')
         parsed = _split_reference(value)
         remote_url = bool(parsed and parsed.scheme and parsed.netloc)
@@ -1259,25 +1418,44 @@ def _reference_candidate_indices(indexes, reference):
         if '/' in stripped:
             candidates.update(indexes['paths'].get(stripped, ()))
             candidates.update(indexes['suffixes'].get(stripped, ()))
-        elif reference_basename and not remote_url:
-            candidates.update(indexes['filenames'].get(reference_basename, ()))
     return sorted(candidates)
 
 
+def _extraction_root(path):
+    """Return a stable extraction/volume prefix, or None when the root is unknown."""
+    normalized = _normalise_path(path).strip('/').casefold()
+    if not normalized:
+        return None
+    # An iOS system path can differ between private/var and var roots while still
+    # belonging to the same archive wrapper or raw-image volume. Anchor both at
+    # private/var so app containers and Photos paths share one root identity.
+    match = re.search(r'(?:^|/)(?:private/var|var)/', normalized)
+    if match:
+        return normalized[:match.start()].rstrip('/')
+    # iTunes paths map AppDomain and MediaDomain entries under these same system
+    # roots. ZIP/TAR wrappers and raw volume prefixes remain in the returned key.
+    match = re.search(
+        r'(?:^|/)containers/(?:bundle/application|data/application|shared/appgroup)/[^/]+',
+        normalized)
+    if not match:
+        match = re.search(r'(?:^|/)media/photodata(?:/|$)', normalized)
+    return normalized[:match.start()].rstrip('/') if match else None
+
+
 def _reference_in_scope(entry, reference):
-    source_kind, source_uuid = _container_location(reference.get('source'))
+    source = reference.get('source')
+    source_kind, source_uuid = _container_location(source)
     entry_kind, entry_uuid = _container_location(entry['path'])
-    if source_kind and entry_kind:
-        return source_kind == entry_kind and source_uuid == entry_uuid
-    # Bundle/group ownership was established by container metadata. Photos entries
-    # never reach the cache matchers; they have their own explicit UUID bridge.
-    return True
+    if not source_kind or not entry_kind or source_kind != entry_kind or source_uuid != entry_uuid:
+        return False
+    source_root = _extraction_root(source)
+    entry_root = _extraction_root(entry['path'])
+    return source_root is not None and source_root == entry_root
 
 
 def _media_reference_indexes(references):
     """Index metadata before classification, including extensionless cache keys."""
-    indexes = {'references': references, 'paths': {}, 'suffixes': {},
-               'filenames': {}, 'cache_keys': {}}
+    indexes = {'references': references, 'paths': {}, 'suffixes': {}, 'cache_keys': {}}
     for index, reference in enumerate(references):
         for value in _reference_path_values(reference):
             parsed = _split_reference(value)
@@ -1286,15 +1464,13 @@ def _media_reference_indexes(references):
                     key = hashlib.md5(value.encode('utf-8'), usedforsecurity=False).hexdigest()
                     indexes['cache_keys'].setdefault(key, set()).add(index)
                 continue
-            path, basename = _reference_path(value)
+            path, _basename = _reference_path(value)
             path = path.strip('/')
             if '/' in path:
                 indexes['paths'].setdefault(path, set()).add(index)
                 parts = path.split('/')
                 for offset in range(len(parts) - 1):
                     indexes['suffixes'].setdefault('/'.join(parts[offset:]), set()).add(index)
-            elif basename and reference.get('kind') == 'Media Table Metadata':
-                indexes['filenames'].setdefault(basename, set()).add(index)
     return indexes
 
 
@@ -1304,25 +1480,18 @@ def _entry_reference_indices(entry, indexes):
     candidates = set(indexes['suffixes'].get(path, ()))
     for offset in range(len(parts) - 1):
         candidates.update(indexes['paths'].get('/'.join(parts[offset:]), ()))
-    candidates.update(indexes['filenames'].get(parts[-1], ()))
     cache_candidates = indexes['cache_keys'].get(_sdimagecache_key(path), set())
     return candidates | cache_candidates, cache_candidates
 
 
-def _direct_media_matches(media_entries, references, matched_reference_ids=(),
-                          filenames_only=False, indexes=None):
-    """Resolve explicit stored paths, or stored media-table names, only."""
+def _direct_media_matches(media_entries, references, matched_reference_ids=(), indexes=None):
+    """Resolve recorded paths only; bare filename equality is not a file link."""
     proposals = {}
     blocked = set()
     if indexes is None:
         indexes = _media_entry_indexes(media_entries)
     for ref_index, reference in enumerate(references):
         if ref_index in matched_reference_ids:
-            continue
-        if filenames_only and reference.get('kind') != 'Media Table Metadata':
-            # A message's filename, size, or timestamp is not an app-to-file
-            # relationship. Message attachments must use their stored path/URL
-            # or the dedicated SDImageCache key tier.
             continue
         if not _reference_path_values(reference):
             continue
@@ -1335,7 +1504,7 @@ def _direct_media_matches(media_entries, references, matched_reference_ids=(),
             accepted = False
             for path_reference in _reference_path_values(reference):
                 matched, method = _entry_matches_reference(entry['path'], path_reference)
-                if matched and (method == 'Filename') == filenames_only:
+                if matched and method != 'Filename':
                     accepted = True
                     break
             if accepted:
@@ -1353,8 +1522,7 @@ def _direct_media_matches(media_entries, references, matched_reference_ids=(),
                  _media_size(media_entry['entry'].get('size')))):
             blocked.add(ref_index)
             continue
-        method = ('Direct: media-table stored filename' if filenames_only
-                  else 'Direct: stored path/URL path')
+        method = 'Direct: stored path/URL path'
         method += '; compatible MIME/category'
         if stored_size is not None:
             method += '; exact stored size'
@@ -1582,7 +1750,8 @@ def _media_entry_type(entry, indexes):
     path = entry['path']
     extension, extension_type = _extension_classification(path)
     if extension_type:
-        return extension, extension_type[0], extension_type[1], 'Extension'
+        return (extension, extension_type[0], extension_type[1],
+                'Filename extension (not content-verified)')
 
     # A known database MIME can identify a non-standard filename without
     # inspecting bytes.  This is still a textual metadata classification.
@@ -1601,8 +1770,8 @@ def _media_entry_type(entry, indexes):
             recorded_link = True
             mime_type, category = _mime_classification(reference.get('mime'))
             if category:
-                methods.add('Stored MIME Type via SDImageCache URL key'
-                            if index in cache_candidates else 'Stored MIME Type')
+                methods.add('Stored MIME metadata via SDImageCache URL-derived filename'
+                            if index in cache_candidates else 'Stored MIME metadata')
                 matched_refs.add((mime_type or category, category))
     if matched_refs:
         if len(matched_refs) != 1:
@@ -1871,15 +2040,19 @@ def _explicit_media_table_message_matches(media_entries, references,
 
 def _photos_asset_paths(context, references):
     """Resolve only app-referenced Photos UUIDs using safe SQLite text fields."""
-    wanted = {}
+    wanted_by_root = {}
     for index, reference in enumerate(references):
         if reference.get('kind') != 'Media Table Metadata':
+            continue
+        root = _extraction_root(reference.get('source'))
+        if root is None:
             continue
         asset_id = _text(reference.get('media_id')).removeprefix('ph://')
         uuid = asset_id.split('/', 1)[0]
         if re.fullmatch(r'[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}', uuid):
-            wanted.setdefault(uuid.upper(), []).append((index, reference))
-    if not wanted:
+            wanted_by_root.setdefault(root, {}).setdefault(uuid.upper(), []).append(
+                (index, reference))
+    if not wanted_by_root:
         return {}
     try:
         seeker = context.get_seeker()
@@ -1893,42 +2066,49 @@ def _photos_asset_paths(context, references):
         staged = [staged]
     db_paths = [str(path) for path in (staged or [])
                 if os.path.basename(str(path)) == 'Photos.sqlite']
-    if len(db_paths) != 1:
-        return {}
-    db_path = db_paths[0]
-    rows = _query_rows(db_path, 'ZASSET',
-                       'SELECT ZUUID AS uuid, ZDIRECTORY AS directory, '
-                       'ZFILENAME AS filename FROM ZASSET')
-    by_uuid = {}
-    for row in rows:
-        uuid = _text(row.get('uuid')).upper()
-        if uuid in wanted:
-            by_uuid.setdefault(uuid, []).append(row)
+    dbs_by_root = {}
+    for db_path in db_paths:
+        root = _extraction_root(db_path)
+        if root is not None:
+            dbs_by_root.setdefault(root, []).append(db_path)
     paths = {}
-    path_owners = {}
-    ambiguous_paths = set()
-    for uuid, assets in by_uuid.items():
-        if len(assets) != 1:
+    for root, wanted in wanted_by_root.items():
+        root_dbs = dbs_by_root.get(root, [])
+        if len(root_dbs) != 1:
             continue
-        row = assets[0]
-        directory = _text(row.get('directory'))
-        filename = _text(row.get('filename'))
-        # Restrict to relative DCIM paths stored in Photos, rejecting traversal.
-        if (not directory.startswith('DCIM/') or not filename or
-                '\\' in directory or '\\' in filename or '/' in filename or
-                any(part in ('', '.', '..') for part in directory.split('/')) or
-                filename in ('.', '..')):
-            continue
-        method = ('Photos original: app media_id = ZASSET.ZUUID; source ' +
-                  _source_label(context, db_path))
-        matches = [(index, reference, method) for index, reference in wanted[uuid]]
-        path = directory + '/' + filename
-        if path in path_owners and path_owners[path] != uuid:
-            ambiguous_paths.add(path)
-        path_owners[path] = uuid
-        paths[path] = matches
-    for path in ambiguous_paths:
-        paths.pop(path, None)
+        db_path = root_dbs[0]
+        rows = _query_rows(db_path, 'ZASSET',
+                           'SELECT ZUUID AS uuid, ZDIRECTORY AS directory, '
+                           'ZFILENAME AS filename FROM ZASSET')
+        by_uuid = {}
+        for row in rows:
+            uuid = _text(row.get('uuid')).upper()
+            if uuid in wanted:
+                by_uuid.setdefault(uuid, []).append(row)
+        path_owners = {}
+        ambiguous_paths = set()
+        for uuid, assets in by_uuid.items():
+            if len(assets) != 1:
+                continue
+            row = assets[0]
+            directory = _text(row.get('directory'))
+            filename = _text(row.get('filename'))
+            # Restrict to relative DCIM paths stored in Photos, rejecting traversal.
+            if (not directory.startswith('DCIM/') or not filename or
+                    '\\' in directory or '\\' in filename or '/' in filename or
+                    any(part in ('', '.', '..') for part in directory.split('/')) or
+                    filename in ('.', '..')):
+                continue
+            method = ('Photos original: app media_id = ZASSET.ZUUID; source ' +
+                      _source_label(context, db_path))
+            matches = [(index, reference, method) for index, reference in wanted[uuid]]
+            path = (root, directory + '/' + filename)
+            if path in path_owners and path_owners[path] != uuid:
+                ambiguous_paths.add(path)
+            path_owners[path] = uuid
+            paths[path] = matches
+        for path in ambiguous_paths:
+            paths.pop(path, None)
     return paths
 
 
@@ -1938,6 +2118,12 @@ def _photos_relative_path(path):
     marker = re.search(r'(?:^|/)(?:private/)?var/mobile/Media/(DCIM/.+)$',
                        normalized, re.IGNORECASE)
     return marker.group(1) if marker else ''
+
+
+def _photos_asset_key(path):
+    root = _extraction_root(path)
+    relative_path = _photos_relative_path(path)
+    return (root, relative_path) if root is not None and relative_path else None
 
 
 def _analyse_media(db_paths, context):
@@ -1954,10 +2140,10 @@ def _analyse_media(db_paths, context):
         # Filter listing paths before stat calls on unrelated files in large inputs.
         if _target_media_entry({'path': path}, bundle_ids, data_ids, group_ids):
             return True
-        return _photos_relative_path(path) in photos_paths
+        return _photos_asset_key(path) in photos_paths
 
     for entry in _iter_source_entries(context, include=include):
-        photo_matches = photos_paths.get(_photos_relative_path(entry['path']))
+        photo_matches = photos_paths.get(_photos_asset_key(entry['path']))
         if photo_matches:
             extension, classification = _extension_classification(entry['path'])
             if classification:
@@ -1966,7 +2152,8 @@ def _analyse_media(db_paths, context):
                 photos_entries.append(({
                     'entry': entry, 'extension': extension,
                     'detected_type': classification[0], 'category': classification[1],
-                    'identification': 'Photos asset UUID + stored path + extension',
+                    'identification': ('Photos asset UUID + stored path + filename extension '
+                                       '(not content-verified)'),
                 }, photo_matches))
             continue
         if not _target_media_entry(entry, bundle_ids, data_ids, group_ids):
@@ -1993,15 +2180,6 @@ def _analyse_media(db_paths, context):
         media_entries, references, direct_entry_indices,
         matched_reference_ids | blocked_reference_ids, blocked_reference_ids)
     for entry_index, matches in cache_key_matches_by_entry.items():
-        direct_matches_by_entry.setdefault(entry_index, []).extend(matches)
-        direct_entry_indices.add(entry_index)
-        matched_reference_ids.update(match[0] for match in matches)
-
-    filename_matches, filename_blocked = _direct_media_matches(
-        media_entries, references, matched_reference_ids | blocked_reference_ids,
-        filenames_only=True, indexes=entry_indexes)
-    blocked_reference_ids.update(filename_blocked)
-    for entry_index, matches in filename_matches.items():
         direct_matches_by_entry.setdefault(entry_index, []).extend(matches)
         direct_entry_indices.add(entry_index)
         matched_reference_ids.update(match[0] for match in matches)
@@ -2286,7 +2464,8 @@ def anonymousChat_appInfo(context):
 @artifact_processor
 def anonymousChat_accounts(context):
     db_paths = _target_db_paths(context)
-    accounts_by_container = _manifest_account_identifiers(context)
+    accounts_by_container, evidence_sources_by_container = _manifest_account_identifiers(
+        context, return_sources=True)
     aggregate = {}
     source_by_account = {}
     for db_path in db_paths:
@@ -2300,7 +2479,7 @@ def anonymousChat_accounts(context):
             item = aggregate.setdefault(account, {
                 'conversations': set(), 'messages': 0, 'outgoing': 0, 'incoming': 0,
                 'first': None, 'last': None, 'supported': 0, 'undetermined': 0,
-                'fields': set(), 'confirmed_fields': set(),
+                'fields': set(), 'confirmed_fields': set(), 'account_evidence_sources': set(),
             })
             field = ('to_username' if local and
                      local == _text(row.get('to_username')).strip() else 'from_username')
@@ -2309,6 +2488,11 @@ def anonymousChat_accounts(context):
                 item['confirmed_fields'].add(field)
             item['conversations'].add((source, _text(row.get('conversation_id'))))
             item['messages'] += 1
+            if local:
+                account_sources = evidence_sources_by_container.get(
+                    _account_container_key(context, db_path), {}).get(local.casefold(), set())
+                item['account_evidence_sources'].update(account_sources)
+                source_by_account.setdefault(account, set()).update(account_sources)
             direction = _direction(row, local_accounts)
             if direction == 'Outgoing':
                 item['outgoing'] += 1
@@ -2332,6 +2516,9 @@ def anonymousChat_accounts(context):
         if item['confirmed_fields']:
             evidence += ('; app manifest signed-in username matches ' +
                          ', '.join(sorted(item['confirmed_fields'])))
+            if item['account_evidence_sources']:
+                evidence += '; AsyncStorage evidence source(s): ' + ', '.join(
+                    sorted(item['account_evidence_sources']))
         else:
             evidence += '; signed-in account unconfirmed'
         if item['undetermined']:
