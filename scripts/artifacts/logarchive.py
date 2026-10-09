@@ -1439,7 +1439,7 @@ import re
 import shutil
 import ijson
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from contextlib import closing
 from scripts import unifiedlogs
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
@@ -2083,7 +2083,7 @@ def logarchive_time_change(context):
         OR event_message LIKE '%setting manual time%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2104,7 +2104,7 @@ def logarchive_flashlight(context):
     OR event_message LIKE '%<<<< AVFlashlight >>>>%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2124,7 +2124,7 @@ def logarchive_executed_apps(context):
         OR (event_message LIKE '%Launch application%' AND subsystem LIKE '%com.apple.UserNotifications%')
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2141,7 +2141,7 @@ def logarchive_motionstate(context):
     WHERE event_message LIKE '%Motion State Transition:%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2161,7 +2161,7 @@ def logarchive_tethering(context):
         OR event_message LIKE '%Previous tethering state was%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2193,7 +2193,7 @@ def logarchive_airplane_mode(context):
         OR event_message LIKE '%Setting airplane mode enabled%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2218,7 +2218,7 @@ def logarchive_lock_status(context):
 
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2268,7 +2268,7 @@ def logarchive_wifi_status(context):
         OR event_message LIKE '%Total connection time%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2313,7 +2313,7 @@ def logarchive_bluetooth_status(context):
 
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2336,7 +2336,7 @@ def logarchive_audio_status(context):
         OR event_message LIKE '%volumeValueDidChange%'
     '''
     
-    data_list = list( get_sqlite_db_records(source_path, query) )
+    data_list = _report_rows(get_sqlite_db_records(source_path, query))
     data_headers = (('Timestamp', 'datetime'), 'Row Number', 'Process Image Path', 'Process ID', 
                     'Subsystem', 'Category', 'Event Message', 'Trace ID')
     
@@ -2363,16 +2363,43 @@ def logarchive_navigation(context):
     """)
 
 
-def _artifacts_table_records(context, where_clause):
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+def _report_time(value):
+    """The table's epoch seconds as a UTC datetime; anything else as stored."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        try:
+            return _EPOCH + timedelta(seconds=value)
+        except (OverflowError, ValueError):
+            return value
+    return value
+
+
+def _report_rows(records):
+    """Table rows with the leading timestamp column as a datetime.
+
+    The logarchive_artifacts table holds the timestamp as epoch seconds, which is what
+    the HTML report, the TSV export and the timeline would print. Handed a datetime they
+    print a date and time, and LAVA stores the same epoch seconds it did before.
+    """
+    return [(_report_time(record[0]),) + tuple(record[1:]) for record in records]
+
+
+def _artifacts_table_records(context, where_clause, report_time=True):
     """Rows from the logarchive_artifacts table matching where_clause.
 
     Shared by the artifacts added in the 2026-08-01 predicate survey. Each one is a
     filter over the table the logarchive_artifacts artifact materializes, exactly like
     the older artifacts above; the WHERE fragment is the only thing that varies.
+
+    report_time=False returns the rows as stored. The lava_only artifacts use it: they
+    write no report, so the conversion would only be undone on the way into LAVA.
     """
     source_path = get_file_path(context.get_files_found(), '_lava_artifacts.db')
     query = f'SELECT * FROM logarchive_artifacts WHERE {where_clause}'
-    data_list = list(get_sqlite_db_records(source_path, query))
+    records = get_sqlite_db_records(source_path, query)
+    data_list = _report_rows(records) if report_time else list(records)
     return DATA_HEADERS, data_list, source_path
 
 @artifact_processor
@@ -2415,7 +2442,7 @@ def logarchive_typing(context):
         OR event_message LIKE '%Incoming Request : actionID 1104%'
         OR event_message LIKE '%Incoming Request : actionID 1155%'
         OR event_message LIKE '%Incoming Request : actionID 1156%'
-    ''')
+    ''', report_time=False)
 
 @artifact_processor
 def logarchive_faceid_presence(context):
@@ -2427,7 +2454,7 @@ def logarchive_faceid_presence(context):
         -- form is documented-only (see artifact notes)
         OR event_message LIKE '%kAppleBiometricFinger%'
         OR event_message LIKE '%Home Button Was Pressed%'
-    ''')
+    ''', report_time=False)
 
 @artifact_processor
 def logarchive_pocket_state(context):
@@ -2444,7 +2471,7 @@ def logarchive_touch(context):
         OR event_message LIKE '%received tapToWake%'
         OR event_message LIKE '%AttentionAwareness.Touch%'
         OR event_message LIKE '%Touch entered%'
-    ''')
+    ''', report_time=False)
 
 @artifact_processor
 def logarchive_usb_connections(context):
@@ -2662,19 +2689,14 @@ def _bc_row(pairs, leftover, shown_keys):
     return tuple(shown.get(key, '') for key in shown_keys) + ('; '.join(other),)
 
 
-def _bc_time(value):
-    """The table's epoch seconds as a UTC datetime; anything else as stored."""
-    if isinstance(value, (int, float)):
-        return datetime.fromtimestamp(value, tz=timezone.utc)
-    return value
-
-
 def _bc_entries(context, where_clause, pairs_of, shown_keys):
-    _headers, records, source_path = _artifacts_table_records(context, where_clause)
+    # As stored, so the rows can still be read by column name; the time is converted below.
+    _headers, records, source_path = _artifacts_table_records(context, where_clause,
+                                                              report_time=False)
     data_list = []
     for record in records:
         pairs, leftover = pairs_of(record['event_message'] or '')
-        data_list.append((_bc_time(record['timestamp']),) + _bc_row(pairs, leftover, shown_keys)
+        data_list.append((_report_time(record['timestamp']),) + _bc_row(pairs, leftover, shown_keys)
                          + (record['process_image_path'], record['process_id'],
                             record['row_number']))
     return data_list, source_path
@@ -2811,7 +2833,7 @@ def logarchive_orientation(context):
         event_message LIKE '%Received orientation%'
         OR event_message LIKE '%Gesture notification:%'
         OR event_message LIKE '%[TTW] Orientation changed%'
-    ''')
+    ''', report_time=False)
 
 @artifact_processor
 def logarchive_system_gestures(context):
