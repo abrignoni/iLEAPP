@@ -2,13 +2,18 @@ __artifacts_v2__ = {
     "iOSclaudeAccountInfo": {
         "name": "Claude Account Information",
         "description": "Parses the account information for the Claude app",
-        "author": "Brandon Baye",
+        "author": "Brandon Baye, @AlexisBrignoni, Claude",
         "creation_date": "2026-07-24",
         "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Claude",
-        "notes": "Timestamps are stored as ISO 8601 text ending in Z and are reported as UTC. "
-                 "Only the first bootstrap JSON that holds an account object is read. "
+        "notes": "Timestamps are stored as ISO 8601 text ending in Z and are reported as UTC; a "
+                 "time in another form is left blank and written to the run log. "
+                 "Each bootstrap JSON the paths match that holds an account object gives one row, "
+                 "and the Source File column names the file each row came from; an account whose "
+                 "bootstrap JSON exists in more than one folder gives one row per file. Each of the "
+                 "two tested images holds one such file, so reading more than one was exercised only "
+                 "on constructed copies. A field missing from the account object is left blank. "
                  "On the test data created with iOS 26, the update time changed when the account "
                  "name was changed. "
                  "Test data created with iOS 26. App version 1.261005.20 moved the file to "
@@ -146,6 +151,7 @@ from scripts.ilapfuncs import (
     artifact_processor, 
     get_sqlite_db_records,
     json,
+    logfunc,
     convert_human_ts_to_utc
 )
 
@@ -160,20 +166,41 @@ def _cache_databases(files_found):
         or Path(str(file_found)).name == 'chat.sqlite'
     })
 
+def _bootstrap_time(value):
+    # Stored as ISO 8601 text ending in Z. A value of another shape is logged
+    # and left blank so one file cannot cost the rows of the others.
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return convert_human_ts_to_utc(value.replace('T', ' ').replace('Z', ''))
+    except ValueError:
+        logfunc(f'Claude bootstrap time not in the expected form: {value}')
+        return None
+
 @artifact_processor
 def iOSclaudeAccountInfo(context):
     files_found = context.get_files_found()
     data_list = []
+    source_paths = []
 
-    # iOS application containers are UUID-named, so the bootstrap glob cannot
+    data_headers = (
+        ('Account Created Time', 'datetime'),
+        ('Account Updated Time', 'datetime'),
+        'Full Name',
+        'Display Name',
+        'Email Address',
+        'Tagged ID',
+        'Source File'
+    )
+
+    # iOS application containers are UUID-named, so the bootstrap globs cannot
     # be anchored to the Claude app; another app shipping a Library/Caches/
-    # bootstrap directory would match too. Select by content: the first json
-    # that carries an account object. On the two corpus images tested only
-    # the Claude app has bootstrap jsons, so this changes nothing there.
-    source_path = None
-    account = None
-    for file_found in files_found:
-        file_found = str(file_found)
+    # bootstrap directory would match too. Select by content: every json that
+    # carries an account object gives one row. The accounts/<account>/claude.ai/
+    # orgs/<org>/<locale>/ layout (#2411) can hold one bootstrap.json per
+    # account, organization and locale, so stopping at the first would drop
+    # the others. Each file is read once, in path order.
+    for file_found in sorted({str(file_found) for file_found in files_found}):
         if not file_found.endswith('.json'):
             continue
         try:
@@ -181,53 +208,21 @@ def iOSclaudeAccountInfo(context):
                 data = json.load(f)
         except (OSError, ValueError):
             continue
-        if isinstance(data, dict) and isinstance(data.get('account'), dict):
-            source_path = file_found
-            account = data['account']
-            break
+        if not isinstance(data, dict) or not isinstance(data.get('account'), dict):
+            continue
+        account = data['account']
+        source_paths.append(file_found)
+        data_list.append((
+            _bootstrap_time(account.get('created_at')),
+            _bootstrap_time(account.get('updated_at')),
+            account.get('full_name'),
+            account.get('display_name'),
+            account.get('email_address'),
+            account.get('tagged_id'),
+            context.get_relative_path(file_found),
+        ))
 
-    if account is None:
-        return (
-            ('Account Created Time', 'datetime'),
-            ('Account Updated Time', 'datetime'),
-            'Full Name',
-            'Display Name',
-            'Email Address',
-            'Tagged ID'
-        ), data_list, ''
-
-    ts = account['created_at']
-    ts = ts.replace('T', ' ').replace('Z', '')
-    created_at = convert_human_ts_to_utc(ts)
-    
-    ts = account['updated_at']
-    ts = ts.replace('T', ' ').replace('Z', '')
-    updated_at = convert_human_ts_to_utc(ts)
-    
-    full_name = account['full_name']
-    display_name = account['display_name']
-    email = account['email_address']
-    tagged_id = account['tagged_id']
-       
-    data_list.append((
-        created_at,
-        updated_at,
-        full_name,
-        display_name,
-        email,
-        tagged_id,
-    ))
-        
-    data_headers = (
-        ('Account Created Time', 'datetime'),
-        ('Account Updated Time', 'datetime'),
-        'Full Name',
-        'Display Name',
-        'Email Address',
-        'Tagged ID'
-    )
-    
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(source_paths)
 
 @artifact_processor
 def iOSclaudeConversations(context):

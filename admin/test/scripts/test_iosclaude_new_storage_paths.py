@@ -12,8 +12,13 @@ These tests match the artifact paths with fnmatch against both layouts the way t
 seekers do, and run the messages artifact over a chat.sqlite at the new location. The
 database here is constructed with the schema the existing queries read; whether the
 real chat.sqlite keeps that schema is not established by these tests.
+
+The account artifact gives one row per bootstrap JSON that holds an account object, so a
+second account, organization or locale folder is not dropped. The JSON files here are
+constructed with the account fields the artifact reads.
 """
 import fnmatch
+import json
 from pathlib import Path
 import sqlite3
 import tempfile
@@ -83,6 +88,60 @@ class IOSClaudeNewStoragePathsTest(unittest.TestCase):
             self.assertEqual(rows[0][1:4], ('human', 'constructed', 'hello'))
             self.assertEqual(rows[0][-1], NEW_DATABASE)
             self.assertEqual(source, str(path))
+
+    def test_every_bootstrap_json_with_an_account_gives_a_row(self):
+        other_account = CONTAINER + '/Library/Application Support/accounts/9b2e3d4f/claude.ai/orgs/1c0f9e8d'
+        other_container = CONTAINER[:-1] + 'E'
+        accounts = {
+            OLD_BOOTSTRAP: 'user_old',
+            NEW_BOOTSTRAP: 'user_a',
+            ACCOUNT + '/fr-FR/bootstrap.json': 'user_a',
+            other_account + '/en-US/bootstrap.json': 'user_b',
+        }
+        with tempfile.TemporaryDirectory() as folder:
+            def write(relative, content):
+                path = Path(folder) / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding='utf-8')
+                return str(path)
+
+            files = [write(relative, json.dumps({'account': {
+                'created_at': '2026-10-05T12:00:00.123456Z', 'updated_at': '2026-10-06T13:00:00Z',
+                'full_name': 'Full ' + tagged_id, 'display_name': 'Display', 'email_address': tagged_id + '@example.com',
+                'tagged_id': tagged_id}})) for relative, tagged_id in accounts.items()]
+            # A decoy app's bootstrap json, a json that is not an object, a damaged json,
+            # and an account object that lacks the fields: only the last gives a row.
+            decoy = write(other_container + '/Library/Caches/bootstrap/config.json', '{"settings": {}}')
+            array = write(CONTAINER + '/Library/Caches/bootstrap/list.json', '[1, 2]')
+            damaged = write(CONTAINER + '/Library/Caches/bootstrap/damaged.json', '{"account": ')
+            sparse = write(CONTAINER + '/Library/Caches/bootstrap/sparse.json',
+                           '{"account": {"tagged_id": "user_sparse", "created_at": "not a time"}}')
+            folder_match = Path(folder) / (CONTAINER + '/Library/Caches/bootstrap/folder.json')
+            folder_match.mkdir()
+            found = files + [decoy, array, damaged, sparse, str(folder_match), files[1]]
+
+            headers, rows, source = module.iOSclaudeAccountInfo.__wrapped__(Context(folder, found))
+
+            expected = sorted(files + [sparse])
+            self.assertEqual(source.split('\n'), expected)
+            self.assertEqual(len(headers), len(rows[0]))
+            self.assertEqual([row[-1] for row in rows], [str(Path(f).relative_to(folder)) for f in expected])
+            by_file = {row[-1]: row for row in rows}
+            for relative, tagged_id in accounts.items():
+                row = by_file[relative]
+                self.assertEqual(row[0].isoformat(), '2026-10-05T12:00:00+00:00')
+                self.assertEqual(row[1].isoformat(), '2026-10-06T13:00:00+00:00')
+                self.assertEqual(row[2:6], ('Full ' + tagged_id, 'Display', tagged_id + '@example.com', tagged_id))
+            self.assertEqual(by_file[str(Path(sparse).relative_to(folder))][:6],
+                             (None, None, None, None, None, 'user_sparse'))
+
+    def test_no_bootstrap_json_with_an_account_gives_no_row_and_no_source(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / OLD_BOOTSTRAP
+            path.parent.mkdir(parents=True)
+            path.write_text('{"settings": {}}', encoding='utf-8')
+            _, rows, source = module.iOSclaudeAccountInfo.__wrapped__(Context(folder, [str(path)]))
+            self.assertEqual((rows, source), ([], ''))
 
 
 if __name__ == '__main__':
