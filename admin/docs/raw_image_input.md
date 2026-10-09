@@ -214,6 +214,12 @@ for it, so no report field carries a zone the evidence never had.
   `Not staged` with the size recorded and the bytes stored. A file overlay-compressed
   with LZX (`compact /exe:lzx`) is not decoded and is not staged either; the three
   XPRESS forms are. Before qnxprobe 1.56 both kinds were staged as zeros.
+- It does not stage a FAT32 or exFAT file whose cluster chain ends before its
+  recorded size. The directory entry records the size and the allocation table
+  records the clusters, and a volume can hold the two in disagreement. The run log
+  says `Not staged` with the size recorded, the clusters the chain holds and the
+  clusters that size needs. Before qnxprobe 1.59 the log said only that the reader
+  returned fewer bytes than the size. The file is not staged in either case.
 - A sparse file is staged at its recorded size with its holes written as zeros, so
   the copy can occupy more than the file did in the image: an emulator disk recording
   6.4 GB and storing 108 MB stages as 6.4 GB. `qnxprobe.allocation(walker, node)` gives
