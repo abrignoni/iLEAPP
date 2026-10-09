@@ -37,6 +37,25 @@ class FailedGzipTests(unittest.TestCase):
                     materialized)
                 self.assertEqual(len(list(output.iterdir())), 1)
 
+    def test_read_error_is_retried(self):
+        """A failure that is not the archive's own damage is not remembered."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            output = root / 'output'
+            output.mkdir()
+            source = root / 'good.PLSQL.gz'
+            payload = b'SQLite format 3\x00' + b'synthetic' * 1000
+            source.write_bytes(gzip.compress(payload))
+            with mock.patch.object(powerlog, '_GZ_CACHE', {}), \
+                 mock.patch.object(powerlog, '_session_temp_dir', return_value=str(output)), \
+                 mock.patch.object(powerlog, 'logfunc'):
+                with mock.patch.object(powerlog.shutil, 'copyfileobj',
+                                       side_effect=OSError(24, 'Too many open files')):
+                    self.assertIsNone(powerlog._materialize_gz(str(source)))  # pylint: disable=protected-access
+                self.assertEqual(list(output.iterdir()), [])
+                materialized = powerlog._materialize_gz(str(source))  # pylint: disable=protected-access
+                self.assertEqual(pathlib.Path(materialized).read_bytes(), payload)
+
 
 if __name__ == '__main__':
     unittest.main()

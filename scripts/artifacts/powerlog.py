@@ -1304,7 +1304,9 @@ def _materialize_gz(gz_path):
         with gzip.open(gz_path, "rb") as src, open(out_path, "wb") as dst:
             shutil.copyfileobj(src, dst)
     except (OSError, EOFError, gzip.BadGzipFile) as e:
-        _GZ_CACHE[gz_path] = None
+        if isinstance(e, (EOFError, gzip.BadGzipFile)):
+            # The archive itself is damaged, so another attempt reads the same bytes.
+            _GZ_CACHE[gz_path] = None
         try:
             os.remove(out_path)
         except FileNotFoundError:

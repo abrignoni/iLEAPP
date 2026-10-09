@@ -100,7 +100,61 @@ class RecordsCleanupTests(unittest.TestCase):
         """An unavailable source yields no rows."""
         with mock.patch.object(ilapfuncs, 'logfunc'):
             rows = ilapfuncs.get_sqlite_db_records(self.path + '.absent', 'SELECT 1')
-            self.assertEqual(list(rows), [])
+            self.assertEqual(rows, [])
+
+    def test_failure_is_falsy_and_success_is_not(self):
+        """Callers test the result before using it, so a failed read stays empty."""
+        with mock.patch.object(ilapfuncs, 'logfunc'):
+            self.assertFalse(self.records('SELECT * FROM absent'))
+        self.assertTrue(self.records('SELECT * FROM sample WHERE 0'))
+
+    def test_query_runs_at_the_call(self):
+        """A caller that only probes the database never iterates the result."""
+        with mock.patch.object(ilapfuncs, 'logfunc') as log:
+            self.records('SELECT * FROM absent')
+            self.assertTrue(log.called)
+        self.assert_closed()
+
+    def test_description_names_the_columns_of_an_empty_result(self):
+        """Column names are available without reading a row."""
+        records = self.records('SELECT value AS renamed FROM sample WHERE 0')
+        self.assertEqual([column[0] for column in records.description], ['renamed'])
+        self.assertEqual(list(records), [])
+        self.assert_closed()
+
+    def test_dropped_result_closes_without_garbage_collection(self):
+        """A result nobody iterates or closes still releases its connection."""
+        enabled = gc.isenabled()
+        gc.disable()
+        try:
+            self.records('SELECT value FROM sample')
+            next(self.records('SELECT value FROM sample'))
+            self.assert_closed()
+        finally:
+            if enabled:
+                gc.enable()
+
+    def test_read_error_reaches_the_caller_and_closes(self):
+        """A database that fails part way must not pass as a complete result."""
+        path = str(pathlib.Path(self.temp) / 'damaged.sqlite')
+        with contextlib.closing(sqlite3.connect(path)) as db:
+            db.execute('PRAGMA page_size = 512')
+            db.execute('CREATE TABLE sample (value TEXT)')
+            db.executemany('INSERT INTO sample VALUES (?)', [('x' * 100,)] * 400)
+            db.commit()
+        damaged = bytearray(pathlib.Path(path).read_bytes())
+        self.assertGreater(len(damaged), 512 * 40)
+        damaged[512 * 30:512 * 40] = b'\xff' * 5120
+        pathlib.Path(path).write_bytes(damaged)
+        records = ilapfuncs.get_sqlite_db_records(path, 'SELECT value FROM sample')
+        read = 0
+        with self.assertRaises(sqlite3.DatabaseError):
+            for _ in records:
+                read += 1
+        self.assertGreater(read, 0)
+        self.assertLess(read, 400)
+        self.assertEqual(list(records), [])
+        self.assert_closed()
 
     def test_repeated_reads_do_not_depend_on_garbage_collection(self):
         """Repeated queries release handles with the collector disabled."""
