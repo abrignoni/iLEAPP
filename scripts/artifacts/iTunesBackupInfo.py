@@ -23,7 +23,7 @@ __artifacts_v2__ = {
                        "after date= as Unix seconds.",
         "author": "@johannplw, @AlexisBrignoni, Codex",
         "creation_date": "2023-10-11",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "The storeCohort date substring's relationship to install time is "
@@ -39,7 +39,7 @@ import datetime
 import os
 import plistlib
 from scripts.ilapfuncs import artifact_processor, get_plist_file_content, \
-    check_in_embedded_media, device_info, logfunc, iOS
+    check_in_embedded_media, convert_plist_date_to_utc, device_info, logfunc, iOS
 
 
 def _backup_info_plist(context):
@@ -136,7 +136,13 @@ def itunes_backup_installed_applications(context):
                     if account_info:
                         apple_id = account_info.get('AppleID')
                     purchase_date = download_info.get('purchaseDate', '')
-                    if purchase_date:
+                    # purchaseDate is an ISO-8601 string with a trailing Z in some
+                    # backups and a plist <date>, which plistlib loads as a datetime,
+                    # in others (seen on an iOS 12.3 backup). Slicing the datetime
+                    # raised TypeError and stopped the artifact (#1950).
+                    if isinstance(purchase_date, datetime.datetime):
+                        purchase_date = convert_plist_date_to_utc(purchase_date)
+                    elif purchase_date:
                         purchase_date = purchase_date[:-1].replace('T', ' ')
                 release_date = itunes_metadata.get('releaseDate', '')
                 source_app = itunes_metadata.get('sourceApp', '')
