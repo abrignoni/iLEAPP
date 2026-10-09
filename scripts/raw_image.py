@@ -1011,8 +1011,9 @@ class FileSeekerRaw(FileSeekerBase):
         """Copy one member out of the image. Returns the staged path, or None.
 
         None means the member is listed but could not be handed to an artifact:
-        the reader refused it (an encrypted NTFS file), it raised part way, or
-        the image ends before the file does. Each case is logged by name; a
+        the reader refused it (an encrypted NTFS file), it raised part way, the
+        image ends before the file does, or the volume records fewer clusters
+        for the file than its size needs. Each case is logged by name; a
         partial or empty copy is never left where a pattern could find it,
         because a truncated database parses as a smaller one, not as an error.
         """
@@ -1068,11 +1069,21 @@ class FileSeekerRaw(FileSeekerBase):
                     f'the image (the image ends before the file does)')
             return None
         if got != entry.size:
-            # The image holds the whole file and the reader still returned a
-            # different length: that is the reader's, and a copy of the wrong
-            # length must not reach an artifact, because a database cut short
-            # parses as a smaller one rather than as an error.
+            # A copy of the wrong length must not reach an artifact, because a
+            # database cut short parses as a smaller one rather than as an error.
             self._discard(dest_path)
+            # A FAT32 or exFAT volume records a file's size in its directory
+            # entry and its clusters in the allocation table, and can hold the
+            # two in disagreement. A read that stops where the chain does is
+            # then what the volume describes, not something the reader lost.
+            cut = qnxprobe.chain_shortfall(entry.walker, entry.node)
+            if cut and got < entry.size:
+                logfunc(f'Not staged, {member}: the volume records {entry.size:,} bytes '
+                        f'for it and a cluster chain that ends after {cut[0]:,} of the '
+                        f'{cut[1]:,} clusters that size needs ({got:,} bytes read)')
+                return None
+            # The image holds the whole file, the volume does not account for
+            # the difference, and the reader still returned another length.
             logfunc(f'Not staged, {member}: the reader returned {got:,} bytes for a '
                     f'{entry.size:,} byte file')
             return None

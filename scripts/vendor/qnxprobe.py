@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.58"
+QNXPROBE_VERSION = "1.59"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -2530,6 +2530,26 @@ class Fat32Walker:
         clus, sz, _ = node
         yield self._read_chain(clus, sz)
 
+    def chain_shortfall(self, node):
+        """(clusters in the chain, clusters the recorded size needs) for a file
+        whose cluster chain ends before its size is covered, else None.
+
+        The directory entry records the size and the allocation table records
+        where the data is, and nothing makes the two agree. When the chain is
+        the shorter one read_file() returns only what the chain reaches. The
+        walk is the one read_file() makes, so the two cannot disagree.
+        """
+        clus, sz, is_dir = node
+        if is_dir or not sz:
+            return None
+        need = (sz + self.cluster_bytes - 1) // self.cluster_bytes
+        have = 0
+        for _c in self._chain(clus):
+            have += 1
+            if have >= need:
+                return None
+        return (have, need)
+
 
 def _dos_stamp(date, time_, tenths=0):
     """A FAT date and time pair as text, exactly as stored, or "" if unset.
@@ -2939,7 +2959,39 @@ class ExfatWalker:
 
     def read_file(self, node, size):
         clus, sz, _, contig = node
+        if not sz:
+            # _read() takes a size of zero to mean a directory, read to the end
+            # of its allocation. An empty file has no first cluster, and read
+            # that way it came back as one cluster of the volume's own bytes.
+            yield b""
+            return
         yield self._read(clus, sz, contig)
+
+    def chain_shortfall(self, node):
+        """(clusters in the chain, clusters the recorded size needs) for a file
+        whose FAT chain ends before its size is covered, else None.
+
+        Only a file whose stream extension leaves NoFatChain clear is described
+        by the FAT; one that sets it is a single run and has no chain to fall
+        short. The directory entry records the size, the FAT records where the
+        data is, and nothing makes the two agree. When the chain is the shorter
+        one read_file() returns only what the chain reaches. The walk is the
+        one _read() makes, so the two cannot disagree.
+        """
+        clus, sz, is_dir, contig = node
+        if contig or is_dir or not sz:
+            return None
+        need = (sz + self.cluster_bytes - 1) // self.cluster_bytes
+        have = 0
+        seen = set()
+        c = clus
+        while 0x2 <= c < 0xFFFFFFF7 and c not in seen:
+            seen.add(c)
+            have += 1
+            if have >= need:
+                return None
+            c = self._fat_next(c)
+        return (have, need)
 
 
 # ---------------------------------------------------------------------------
@@ -10358,6 +10410,25 @@ def allocation(w, node):
         return None
 
 
+def chain_shortfall(w, node):
+    """(clusters in the chain, clusters the recorded size needs) when a FAT32
+    or exFAT file's cluster chain ends before its recorded size is covered,
+    else None.
+
+    A caller whose read came back shorter than the size, with nothing lost past
+    the end of the image, can ask this to tell a volume that contradicts itself
+    from a reader that went wrong. None means the chain covers the size or the
+    walker has no such chain, not that the file is whole.
+    """
+    report = getattr(w, "chain_shortfall", None)
+    if report is None:
+        return None
+    try:
+        return report(node)
+    except Exception:                                # pylint: disable=broad-except
+        return None
+
+
 def collect(w, num, prefix="", depth=0, seen=None, out=None, times=None):
     """Every regular file under this inode, as (path, inode, size, mtime).
 
@@ -10552,7 +10623,8 @@ def extract_to_zip(zf, w, volume, entries, log, progress=None):
                     spool.write(chunk)
                     got += len(chunk)
                 # Only now, with the whole file read, does anything reach the zip.
-                got = min(got, max(size - (EOF_SHORTFALL["bytes"] - before), 0))
+                past_end = EOF_SHORTFALL["bytes"] - before
+                got = min(got, max(size - past_end, 0))
                 if got < size:
                     info.filename = f"{arc}.SHORT-{got}-of-{size}-bytes"
                 spool.seek(0)
@@ -10564,8 +10636,14 @@ def extract_to_zip(zf, w, volume, entries, log, progress=None):
             if got < size:
                 short += 1
                 written += got
-                log.append(f"        SHORT {arc}: {got:,} of {size:,} bytes are in the "
-                           f"image, the rest lies past its end")
+                cut = None if past_end else chain_shortfall(w, ino)
+                if cut:
+                    log.append(f"        SHORT {arc}: {got:,} of {size:,} bytes read, "
+                               f"its cluster chain ends after {cut[0]:,} of the "
+                               f"{cut[1]:,} clusters that size needs")
+                else:
+                    log.append(f"        SHORT {arc}: {got:,} of {size:,} bytes are in "
+                               f"the image, the rest lies past its end")
             else:
                 files += 1
                 written += size
@@ -17049,6 +17127,66 @@ def self_test():
         _nobm[_ex_root - 32] = 0x85                  # and the TexFAT one with it
         exfat_no_bitmap_ok = ExfatWalker(io.BytesIO(bytes(_nobm)), 0).free_extents() == []
 
+        # A file's size is in its directory entry and its clusters are in the
+        # FAT, and a volume can hold the two in disagreement. Three files in the
+        # exFAT root, each recorded as four clusters less ten bytes: one whose
+        # chain stops after two clusters, one whose chain is whole, and one
+        # that sets NoFatChain and so has no chain at all. The whole one is the
+        # control: a check that called every file short would fail on it. A
+        # fourth is empty, with no first cluster, and must read as no bytes.
+        _exsf = bytearray(_exbuf)
+        _ex_fat = 4 * 512
+        EX_FILE_BYTES = 4 * 512 - 10
+
+        def _ex_file(at, name, first, flags, size):
+            _exsf[at] = 0x85
+            _exsf[at + 1] = 2                        # stream extension and one name
+            _exsf[at + 4] = 0x20
+            _exsf[at + 32] = 0xC0
+            _exsf[at + 33] = flags
+            _exsf[at + 35] = len(name)
+            struct.pack_into("<Q", _exsf, at + 40, size)
+            struct.pack_into("<I", _exsf, at + 52, first)
+            struct.pack_into("<Q", _exsf, at + 56, size)
+            _exsf[at + 64] = 0xC1
+            _exsf[at + 66:at + 66 + 2 * len(name)] = name.encode("utf-16-le")
+
+        _ex_file(_ex_root + 32, "CUT", 5, 0x01, EX_FILE_BYTES)
+        _ex_file(_ex_root + 128, "WHOLE", 12, 0x01, EX_FILE_BYTES)
+        _ex_file(_ex_root + 224, "RUN", 26, 0x03, EX_FILE_BYTES)
+        _ex_file(_ex_root + 320, "EMPTY", 0, 0x03, 0)
+        for _c, _next in ((5, 6), (6, 0xFFFFFFFF),
+                          (12, 13), (13, 14), (14, 15), (15, 0xFFFFFFFF)):
+            struct.pack_into("<I", _exsf, _ex_fat + _c * 4, _next)
+        for _c in list(range(5, 9)) + list(range(12, 16)) + list(range(26, 30)):
+            _at = _ex_heap + (_c - 2) * 512
+            _exsf[_at:_at + 512] = bytes([_c]) * 512
+        _exsw = ExfatWalker(io.BytesIO(bytes(_exsf)), 0)
+        _exs = {n: nd for n, nd in _exsw.listdir(_exsw.root)}
+        _exs_len = {n: len(b"".join(_exsw.read_file(nd, nd[1]))) for n, nd in _exs.items()}
+        exfat_empty_ok = (_exsw.chain_shortfall(_exs["EMPTY"]) is None
+                          and _exs_len["EMPTY"] == 0)
+        exfat_chain_ok = (sorted(_exs) == ["CUT", "EMPTY", "RUN", "WHOLE"]
+                          and _exsw.chain_shortfall(_exs["CUT"]) == (2, 4)
+                          and _exs_len["CUT"] == 2 * 512
+                          and _exsw.chain_shortfall(_exs["WHOLE"]) is None
+                          and _exs_len["WHOLE"] == EX_FILE_BYTES
+                          and _exsw.chain_shortfall(_exs["RUN"]) is None
+                          and _exs_len["RUN"] == EX_FILE_BYTES
+                          and chain_shortfall(_exsw, _exs["CUT"]) == (2, 4)
+                          and chain_shortfall(object(), _exs["CUT"]) is None)
+        # FAT32 keeps the same two records apart. HELLO.TXT is one cluster and
+        # its chain is one cluster; recorded as three clusters it is two short.
+        _fatw = Fat32Walker(io.BytesIO(bytes(_fatbuf)), 0)
+        _fat_hello = dict(_fatw.listdir(_fatw.root))["HELLO.TXT"]
+        _fatcut = bytearray(_fatbuf)
+        struct.pack_into("<I", _fatcut, _de + 28, 3 * 512)
+        _fatcw = Fat32Walker(io.BytesIO(bytes(_fatcut)), 0)
+        _fat_cut = dict(_fatcw.listdir(_fatcw.root))["HELLO.TXT"]
+        fat_chain_ok = (_fatw.chain_shortfall(_fat_hello) is None
+                        and _fatcw.chain_shortfall(_fat_cut) == (1, 3)
+                        and len(b"".join(_fatcw.read_file(_fat_cut, 3 * 512))) == 512)
+
         # A qnx6 volume's free space. 512-byte blocks, 4,997 of them, so the
         # bitmap is 625 bytes: two blocks, reached through one indirect block.
         # That indirect block is stored block 0, as it is on the Ford Sync G4
@@ -17259,6 +17397,13 @@ def self_test():
                  "clusters out of it", exfat_free_ok),
                 ("an exFAT volume whose root names no bitmap reports nothing "
                  "rather than nothing free", exfat_no_bitmap_ok),
+                ("an exFAT file whose FAT chain ends before its recorded size "
+                 "says so, and a whole chain or a NoFatChain run does not",
+                 exfat_chain_ok),
+                ("an empty exFAT file reads as no bytes, not as a cluster of the "
+                 "volume's own", exfat_empty_ok),
+                ("a FAT32 file whose cluster chain ends before its recorded size "
+                 "says so, and a whole chain does not", fat_chain_ok),
                 ("a qnx6 volume reads its free blocks out of the bitmap tree, least "
                  "significant bit first, as offsets into the image", qnx6_free_ok),
                 ("a qnx6 free-space floor drops the short runs", qnx6_floor_ok),
