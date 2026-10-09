@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
         "author": "@stark4n6, @AlexisBrignoni, Codex",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Battery",
         "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
@@ -16,6 +16,7 @@ __artifacts_v2__ = {
                  "x 1000, which does not agree with this measurement. This artifact reads "
                  "columns by position and skips the header row without checking it. Which "
                  "files' header rows were compared with these positions is not recorded here. "
+                 "Data rows shorter than 9 columns are skipped with a diagnostic. "
                  "Reference: Kevin Pagano, 'BDC - More Battery Temps & Charging Stats for "
                  "iOS', "
                  "https://www.stark4n6.com/2026/03/bdc-more-battery-temps-charging-stats.html",
@@ -270,6 +271,12 @@ def battery_bdc(context):
                 continue
 
             for item in (first_row, *delimited):
+                if len(item) < 9:
+                    logfunc(
+                        f"Skipping BDC data row: expected at least 9 columns, "
+                        f"found {len(item)}"
+                    )
+                    continue
                 timestamp = item[0]
                 current_cap = item[2]
                 is_charging = int(item[3])
