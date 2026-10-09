@@ -27,15 +27,17 @@ __artifacts_v2__ = {
     "lidl_shopping_list": {
         "name": "Lidl Plus - Shopping List",
         "description": "Extracts shopping lists and item details.",
-        "author": "@djangofaiola",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-07-03",
-        "last_update_date": "2026-08-12",
+        "last_update_date": "2026-10-07",
         "requirements": "none",
         "category": "Lidl Plus",
-        "notes": "Is Purchased is the isChecked value of the list item (1 is shown as Yes and 0 as "
-                 "No). The label follows the research cited below; a checked item is not by itself "
-                 "proof that the product was bought. Reference: Django Faiola, 'What's in Your "
-                 "Lidl Plus App? An iOS Forensic Analysis', "
+        "notes": "Is Checked reports ListItemEntity.isChecked through the existing SQL CASE: NULL is shown as "
+                 "N/A, empty text as N/D, 1 as Yes, 0 as No, and other stored values as Unknown (value). A "
+                 "checked list item does not by itself establish a purchase. Item Last Updated is followed by "
+                 "List Last Updated; both retain the existing SQLite unixepoch projection and UTC conversion. "
+                 "Original contribution and research credited to @djangofaiola (Django Faiola). Reference: Django "
+                 "Faiola, 'What's in Your Lidl Plus App? An iOS Forensic Analysis', "
                  "https://djangofaiola.blogspot.com/2026/08/whats-in-your-lidl-plus-app-ios.html",
         "paths": ("*/mobile/Containers/Data/Application/*/Library/"
                   "Application Support/databases/ShoppingListDatabase.db*",
@@ -1351,6 +1353,7 @@ def lidl_shopping_list(context):
 
     data_headers = (
         ('Item Last Updated', 'datetime'),
+        ('List Last Updated', 'datetime'),
         'Item Type',
         'Product ID',
         'Product Name',
@@ -1360,7 +1363,7 @@ def lidl_shopping_list(context):
         'Price',
         'Discount Message',
         'Currency',
-        'Is Purchased',
+        'Is Checked',
         ('Product Image', 'media', 'height: 48px; border-radius: 5%;'),
         'Image URL',
         'Image Cache Match',
@@ -1372,7 +1375,6 @@ def lidl_shopping_list(context):
         'Item UUID',
         'List Type',
         'List Name',
-        ('List Last Updated', 'datetime'),
         'List UUID',
         SOURCE_FILE_NAME,
         'Location'
@@ -1517,13 +1519,13 @@ def lidl_shopping_list(context):
 
                 # Base row
                 base_data = (
-                    i_updated, i_type, prod_id, prod_name, brand,
+                    i_updated, l_updated, i_type, prod_id, prod_name, brand,
                     packing, quantity, price, price_discount,
                     currency, purchased, media_ref_id,
-                    img_url,                                            # 12 Image URL
+                    img_url,                                            # 13 Image URL
                     image_cache_match,
                     prod_source, sort_pos, offer_id, coupon_id,
-                    pend_action, i_uuid, l_type, l_name, l_updated,
+                    pend_action, i_uuid, l_type, l_name,
                     l_uuid,
                     device_path,                                        # 24 SOURCE_FILE_NAME
                     location                                            # 25 Location
