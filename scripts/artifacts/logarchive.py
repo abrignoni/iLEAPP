@@ -50,7 +50,7 @@ __artifacts_v2__ = {
         "description": "Extract relevant entries from the logarchive table of LAVA db",
         "author": "@AlexisBrignoni, Codex, @JohannPLW",
         "creation_date": "2025-05-19",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-10-09",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Filters imported logs in bounded row ranges and reports progress, "
@@ -726,6 +726,161 @@ __artifacts_v2__ = {
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "battery-charging",
+    },
+    "logarchive_battery_center_sources": {
+        "name": "logarchive Battery Center power sources",
+        "description": "Unified log entries in which Battery Center listed a power source, the "
+                       "internal battery or a wireless accessory, with the name, type, transport, "
+                       "charge values and identifiers it logged",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-09",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive "
+                 "module must run in the same session. Row Number is the entry's row number in "
+                 "the logarchive table. Selects com.apple.BatteryCenter entries containing 'Found "
+                 "power source: {', whose message is a dictionary of 'key = value;' lines. Each "
+                 "column named for a key holds that key's value as logged, with the quotes and "
+                 "backslash escapes of a quoted value removed. Every other key goes to Other "
+                 "Values as 'key = value', a value that is itself a dictionary is kept there "
+                 "as one value (Trusted Battery Data, AdapterDetails), and so is any line that is not a "
+                 "key and value pair. The meaning and units of the values are not established "
+                 "here. Howard Oakley describes these entries on macOS in 'How macOS keeps an eye "
+                 "on UPS and wireless devices' "
+                 "(https://eclecticlight.co/2024/06/21/how-macos-keeps-an-eye-on-ups-and-wireless-devices/) "
+                 "and 'Check UPS, batteries and input devices using Unhidden' "
+                 "(https://eclecticlight.co/2024/07/08/check-ups-batteries-and-input-devices-using-unhidden/). "
+                 "His posts do not cover iOS, and the second reports the BatteryCenter framework "
+                 "as added in macOS Sonoma; the iOS 12.4 image tested here, whose rows are dated "
+                 "2020, already holds these entries. Tested on the 14 images in sample_data, iOS "
+                 "12.4 to 26.6, read from tracev3 data; a 'log show' JSON export was not tested. "
+                 "13 images gave 12,582 rows, 2,591 at most on one image. hc_ios18_7 held no "
+                 "com.apple.BatteryCenter entry among its 726,120 log entries, which is not "
+                 "evidence about its battery. Name held a value on every row. 12,251 rows "
+                 "describe the internal battery: Name InternalBattery-0, Transport Type Internal, "
+                 "Is Present 1. Max Capacity held 100 on all 12,582 rows. 331 rows, all on "
+                 "ai16_ios26_sysdiag (iOS 26.5.2), describe one Bluetooth accessory: Type "
+                 "'Accessory Source', Transport Type Bluetooth, Accessory Category Watch, Vendor "
+                 "ID 76 and an Accessory Identifier in the 8-4-4-4-12 form of a UUID, with Low "
+                 "Warn Level, Temperature and AdapterDetails in Other Values and no value for Is "
+                 "Present, Raw External Connected, Show Charging UI, Play Charging Chime, Cycle "
+                 "count or Is Finishing Charge. Accessory Identifier, Accessory Category and "
+                 "Vendor ID had no value on any other row, and no tested image held an entry for "
+                 "another kind of accessory, so only that form was exercised. Keys differ by "
+                 "release. Cycle count had no value on the five images from iOS 12.4 to 16.5 and "
+                 "a value on every internal battery row of the eight from iOS 17.1 up. Play "
+                 "Charging Chime had no value on the iOS 12.4 image. Is Finishing Charge had a "
+                 "value on exactly the 5,208 rows where Is Charging was 1, and Is Charged on "
+                 "1,797 rows of 10 images. The log cut 371 internal battery entries off at 1,031 "
+                 "bytes (all 331 on ai16_ios26_sysdiag and 40 of the 45 on dexter_ios18), before "
+                 "or inside the Type line. Type has no value on those rows, what was logged "
+                 "before the cut is still split, and on 71 of them the cut line is in Other "
+                 "Values as 'Type = ' with part of the value. No other entry reached that length. "
+                 "The same listing is logged by more than one process and by more than one "
+                 "controller object, so rows are not one per battery reading: hc_ios17_2 gave "
+                 "2,057 rows from 3 processes and 15 controller addresses. Rows came from "
+                 "SpringBoard (11,758), WidgetRenderer_Default (760), "
+                 "BatteriesAvocadoWidgetExtension (59) and BatteriesWidgetExtension (5). 5 rows "
+                 "on fsfull002_ios17 are dated 1970, the time the logarchive table holds for "
+                 "those entries. The other com.apple.BatteryCenter entries are not selected, and "
+                 "the 'Found device' entries are reported by the Battery Center devices artifact. "
+                 "The logarchive battery state artifact selects other entries: none of its 8,192 "
+                 "rows on these images is a com.apple.BatteryCenter entry.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 250 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 831 rows",
+            "jess_ios15": "iOS 15.0.2 | 1770 rows",
+            "abe_ios16": "iOS 16.5 | 613 rows",
+            "felix23_ios16": "iOS 16.5 | 1747 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1257 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 2057 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 128 rows",
+            "dexter_ios18": "iOS 18.3.2 | 45 rows",
+            "iphone12_ios18": "iOS 18.7 | 2591 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; no com.apple.BatteryCenter entry in the log",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 662 rows",
+            "hc_ios26": "iOS 26.5.2 | 449 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 182 rows",
+        },
+    },
+    "logarchive_battery_center_devices": {
+        "name": "logarchive Battery Center devices",
+        "description": "Unified log entries in which Battery Center listed a device with a "
+                       "battery: its name, vendor, charge percentage, charging and connection "
+                       "values, transport and identifiers as logged",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-09",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Reads the table the logarchive artifacts filter builds, so the logarchive "
+                 "module must run in the same session. Row Number is the entry's row number in "
+                 "the logarchive table. Selects com.apple.BatteryCenter entries containing 'Found "
+                 "device: <BCBatteryDevice:', whose message is a list of 'key = value' pairs "
+                 "separated by '; '. The message is split where '; ' is followed by a word and "
+                 "'='. Columns hold the values as logged, '(null)' included: Name (name), Group "
+                 "Name (groupName), Vendor (vendor), Model Number (modelNumber), Percent Charge "
+                 "(percentCharge), Charging (charging), Connected (connected), Internal "
+                 "(internal), Power Source State (the key is logged as poweredSoureState), "
+                 "Transport Type (transportType), Accessory Identifier (accessoryIdentifier), "
+                 "Accessory Category (accessoryCategory), Identifier (identifier) and Product "
+                 "Identifier (productIdentifier). Every other pair goes to Other Values, and a "
+                 "message of another shape is kept whole there. The meaning of the values is not "
+                 "established here. Howard Oakley describes Battery Center's log entries on macOS "
+                 "in 'How macOS keeps an eye on UPS and wireless devices' "
+                 "(https://eclecticlight.co/2024/06/21/how-macos-keeps-an-eye-on-ups-and-wireless-devices/) "
+                 "and 'Check UPS, batteries and input devices using Unhidden' "
+                 "(https://eclecticlight.co/2024/07/08/check-ups-batteries-and-input-devices-using-unhidden/). "
+                 "His posts do not cover iOS, and they show the power source dictionaries, "
+                 "reported by the Battery Center power sources artifact, and not this entry. "
+                 "Tested on the 14 images in sample_data, iOS 12.4 to 26.6, read from tracev3 "
+                 "data; a 'log show' JSON export was not tested. 13 images gave 12,580 rows, "
+                 "2,591 at most on one image. hc_ios18_7 held no com.apple.BatteryCenter entry "
+                 "among its 726,120 log entries, which is not evidence about its battery. Name "
+                 "held a value on every row, and no entry was cut short (the longest was 568 "
+                 "bytes). 12,249 rows have Internal YES, Group Name InternalBattery-0, Accessory "
+                 "Identifier (null) and Accessory Category Unknown. Their Name held one value per "
+                 "image; whether that is the name set on the device was not checked. 331 rows, "
+                 "all on ai16_ios26_sysdiag (iOS 26.5.2), have Internal NO, Transport Type "
+                 "Bluetooth, Accessory Category Watch and Name equal to Group Name, with the name "
+                 "and the UUID-form Accessory Identifier that the power sources artifact reports "
+                 "on its accessory rows. No tested image held an entry for another kind of "
+                 "accessory, so only that form was exercised. Vendor (Apple), Connected (YES) and "
+                 "Product Identifier (0) held one value on all 12,580 rows. Model Number held "
+                 "(null) on every row except the 250 of the iOS 12.4 image, whose entries have no "
+                 "modelNumber. Transport Type on the internal rows was Internal, except on the "
+                 "iOS 12.4 and 14.3 images, which logged 1 (1,081 rows). Identifier on every row "
+                 "equalled a Power Source ID among the same image's power source rows. Other "
+                 "Values held parts, matchIdentifier, lowBattery and powerSource on every row, "
+                 "lowPowerModeActive on the 11 images from iOS 15.0.2 up, batterySaverModeActive "
+                 "on the iOS 12.4 and 14.3 images, and paused on the three iOS 26 images. The "
+                 "same listing is logged by more than one process and by more than one controller "
+                 "object, so rows are not one per battery reading. hc_ios17_2 and hc_ios26 each "
+                 "gave one row fewer than the power sources artifact. 5 rows on fsfull002_ios17 "
+                 "are dated 1970, the time the logarchive table holds for those entries.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "battery",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 250 rows",
+            "hickman_ios14_sysdiag": "iOS 14.3 | 831 rows",
+            "jess_ios15": "iOS 15.0.2 | 1770 rows",
+            "abe_ios16": "iOS 16.5 | 613 rows",
+            "felix23_ios16": "iOS 16.5 | 1747 rows",
+            "fsfull002_ios17": "iOS 17.1 | 1257 rows",
+            "hc_ios17_2": "iOS 17.2.1 | 2056 rows",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 128 rows",
+            "dexter_ios18": "iOS 18.3.2 | 45 rows",
+            "iphone12_ios18": "iOS 18.7 | 2591 rows",
+            "hc_ios18_7": "iOS 18.7.8 | 0 rows; no com.apple.BatteryCenter entry in the log",
+            "ai16_ios26_sysdiag": "iOS 26.5.2 | 662 rows",
+            "hc_ios26": "iOS 26.5.2 | 448 rows",
+            "hc_ios26_sysdiag": "iOS 26.6 | 182 rows",
+        },
     },
     "logarchive_ui_navigation": {
         "name": "logarchive interface navigation",
@@ -1786,6 +1941,10 @@ def logarchive_artifacts(context):
         -- logarchive_battery_state
         OR event_message LIKE '%Battery capacity change posted%'
         OR event_message LIKE '%battery info changed to%'
+        -- logarchive_battery_center_sources and logarchive_battery_center_devices
+        OR (subsystem = 'com.apple.BatteryCenter'
+            AND (event_message LIKE '%Found power source: {%'
+                 OR event_message LIKE '%Found device: <BCBatteryDevice:%'))
         -- logarchive_ui_navigation
         OR event_message LIKE '%Control Center launched%'
         OR event_message LIKE '%Control Center Visible%'
@@ -2387,6 +2546,162 @@ def logarchive_battery_state(context):
         event_message LIKE '%Battery capacity change posted%'
         OR event_message LIKE '%battery info changed to%'
     ''')
+
+
+# Battery Center writes each power source as an NSDictionary description ('key = value;' lines
+# between braces) and each device as '<BCBatteryDevice: 0x...; key = value; ...>'. The columns
+# are the keys seen on the tested iOS images; any other key goes to Other Values.
+
+_BC_PAIR = re.compile(r'^\s*("(?:[^"\\]|\\.)*"|[^\s=;"]+)\s*=\s*("(?:[^"\\]|\\.)*"|[^;"]*);\s*$')
+_BC_OPEN = re.compile(r'^("(?:[^"\\]|\\.)*"|[^\s=;"]+)\s*=\s*([{(])$')
+_BC_ESCAPE = re.compile(r'\\(U[0-9a-fA-F]{4}|.)', re.DOTALL)
+_BC_ESCAPED = {'n': '\n', 't': '\t', 'r': '\r'}
+_BC_DEVICE = re.compile(r'Found device: <BCBatteryDevice: 0x[0-9a-fA-F]+; (.*?);?\s*>\s*$', re.DOTALL)
+_BC_DEVICE_SPLIT = re.compile(r'; (?=\w+ ?=)')
+_BC_DEVICE_PAIR = re.compile(r'^(\w+) ?= ?(.*)$', re.DOTALL)
+
+_BC_SOURCE_KEYS = ('Name', 'Type', 'Transport Type', 'Power Source State', 'Current Capacity',
+                   'Max Capacity', 'Is Charging', 'Is Charged', 'Is Finishing Charge',
+                   'Is Present', 'Raw External Connected', 'Show Charging UI',
+                   'Play Charging Chime', 'Cycle count', 'Accessory Identifier',
+                   'Accessory Category', 'Vendor ID', 'Power Source ID')
+_BC_DEVICE_KEYS = ('name', 'groupName', 'vendor', 'modelNumber', 'percentCharge', 'charging',
+                   'connected', 'internal', 'poweredSoureState', 'transportType',
+                   'accessoryIdentifier', 'accessoryCategory', 'identifier', 'productIdentifier')
+
+
+def _bc_unquote(text):
+    """A value or key of an NSDictionary description without its quotes and escapes."""
+    text = text.strip()
+    if len(text) < 2 or text[0] != '"' or text[-1] != '"':
+        return text
+
+    def unescape(match):
+        token = match.group(1)
+        if token[0] == 'U' and len(token) == 5:
+            return chr(int(token[1:], 16))
+        return _BC_ESCAPED.get(token, token)
+    return _BC_ESCAPE.sub(unescape, text[1:-1])
+
+
+def _bc_source_pairs(message):
+    """(pairs, leftover) of a 'Found power source: {...}' entry; leftover is what did not parse.
+
+    A value that is itself a dictionary or a list spans several lines. It is kept as one
+    value, its lines as logged, so a key inside it is never read as a key of the power
+    source. The log cuts a long entry short, so the closing brace is not required: what was
+    logged before the cut is still split, and a line cut in half goes to leftover.
+    """
+    start = message.find('{')
+    if start < 0:
+        return [], message.strip()
+    pairs = []
+    leftover = []
+    key = None      # the key of the nested value being read, if any
+    opener = ''
+    depth = 0
+    lines = []
+    for line in message[start + 1:].splitlines():
+        text = line.strip()
+        if not text:
+            continue
+        if key is not None:
+            if text[-1] in '{(':
+                depth += 1
+            elif text.rstrip(';') in ('}', ')'):
+                if depth == 0:
+                    pairs.append((key, opener + ' '.join(lines) + text.rstrip(';')))
+                    key = None
+                    continue
+                depth -= 1
+            lines.append(text)
+            continue
+        if text == '}':
+            break
+        match = _BC_OPEN.match(text)
+        if match:
+            key, opener, depth, lines = _bc_unquote(match.group(1)), match.group(2), 0, []
+            continue
+        match = _BC_PAIR.match(line)
+        if match:
+            pairs.append((_bc_unquote(match.group(1)), _bc_unquote(match.group(2))))
+        else:
+            leftover.append(text)
+    if key is not None:
+        pairs.append((key, opener + ' '.join(lines)))
+    return pairs, ' '.join(leftover)
+
+
+def _bc_device_pairs(message):
+    """(pairs, leftover) of a 'Found device: <BCBatteryDevice: ...>' entry."""
+    match = _BC_DEVICE.search(message)
+    if not match:
+        return [], message.strip()
+    pairs = []
+    leftover = []
+    for piece in _BC_DEVICE_SPLIT.split(match.group(1)):
+        pair = _BC_DEVICE_PAIR.match(piece)
+        if pair:
+            pairs.append((pair.group(1), pair.group(2).strip()))
+        else:
+            leftover.append(piece.strip())
+    return pairs, '; '.join(leftover)
+
+
+def _bc_row(pairs, leftover, shown_keys):
+    """The shown keys' values in order, then every pair not shown and anything unparsed."""
+    shown = {}
+    other = []
+    for key, value in pairs:
+        if key in shown_keys and key not in shown:
+            shown[key] = value
+        else:
+            other.append(f'{key} = {value}')
+    if leftover:
+        other.append(leftover)
+    return tuple(shown.get(key, '') for key in shown_keys) + ('; '.join(other),)
+
+
+def _bc_time(value):
+    """The table's epoch seconds as a UTC datetime; anything else as stored."""
+    if isinstance(value, (int, float)):
+        return datetime.fromtimestamp(value, tz=timezone.utc)
+    return value
+
+
+def _bc_entries(context, where_clause, pairs_of, shown_keys):
+    _headers, records, source_path = _artifacts_table_records(context, where_clause)
+    data_list = []
+    for record in records:
+        pairs, leftover = pairs_of(record['event_message'] or '')
+        data_list.append((_bc_time(record['timestamp']),) + _bc_row(pairs, leftover, shown_keys)
+                         + (record['process_image_path'], record['process_id'],
+                            record['row_number']))
+    return data_list, source_path
+
+
+@artifact_processor
+def logarchive_battery_center_sources(context):
+    data_list, source_path = _bc_entries(context, """
+        subsystem = 'com.apple.BatteryCenter' AND event_message LIKE '%Found power source: {%'
+    """, _bc_source_pairs, _BC_SOURCE_KEYS)
+    data_headers = (('Timestamp', 'datetime'),) + _BC_SOURCE_KEYS + (
+        'Other Values', 'Process Image Path', 'Process ID', 'Row Number')
+    return data_headers, data_list, source_path
+
+
+@artifact_processor
+def logarchive_battery_center_devices(context):
+    data_list, source_path = _bc_entries(context, """
+        subsystem = 'com.apple.BatteryCenter'
+        AND event_message LIKE '%Found device: <BCBatteryDevice:%'
+    """, _bc_device_pairs, _BC_DEVICE_KEYS)
+    data_headers = (('Timestamp', 'datetime'), 'Name', 'Group Name', 'Vendor', 'Model Number',
+                    'Percent Charge', 'Charging', 'Connected', 'Internal', 'Power Source State',
+                    'Transport Type', 'Accessory Identifier', 'Accessory Category', 'Identifier',
+                    'Product Identifier', 'Other Values', 'Process Image Path', 'Process ID',
+                    'Row Number')
+    return data_headers, data_list, source_path
 
 @artifact_processor
 def logarchive_ui_navigation(context):
