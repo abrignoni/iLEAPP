@@ -1162,22 +1162,32 @@ def attach_sqlite_db_readonly(path, db_name):
     return  f'''ATTACH DATABASE "file:{path}?mode=ro" AS {db_name}'''
 
 def get_sqlite_db_records(path, query, attach_query=None):
+    """Yield rows, closing the cursor and connection when exhausted or closed.
+
+    Callers retaining the iterator and stopping early must call close(), or use
+    contextlib.closing. No connection is opened until iteration starts.
+    """
     db = open_sqlite_db_readonly(path)
-    if db:
-        db.row_factory = sqlite3.Row  # For fetching columns by name
+    if db is None:
+        return
+    cursor = None
+    try:
+        db.row_factory = sqlite3.Row
+        cursor = db.cursor()
+        if attach_query:
+            cursor.execute(attach_query)
+        cursor.execute(query)
+        yield from cursor
+    except sqlite3.DatabaseError as e:
+        logfunc(f"Error with {path}:")
+        logfunc(f" - {str(e)}")
+    finally:
         try:
-            cursor = db.cursor()
-            if attach_query:
-                cursor.execute(attach_query)
-            cursor.execute(query)
-            # records = cursor.fetchall()
-            # NOTE: we return the cursor directly, to be iterated by the caller
-            #   to keep it as a generator
-            return cursor
-        except sqlite3.DatabaseError as e:
-            logfunc(f"Error with {path}:")
-            logfunc(f" - {str(e)}")
-    return []
+            if cursor is not None:
+                cursor.close()
+        finally:
+            db.close()
+
 
 def does_column_exist_in_db(path, table_name, col_name):
     '''Checks if a specific col exists'''
