@@ -22,15 +22,15 @@
     }
   },
   "headers": [
+    "Account Join Date",
+    "Last App Close Time",
     "Account Tracking ID",
-    "PIN (as stored)",
+    "shared-pin (as stored)",
     "PIN Type (as stored)",
     "Consecutive Invalid PIN Count",
     "PIN Timeout Remaining (seconds)",
     "Initial App Version Installed",
     "Previous App Version",
-    "Account Join Date",
-    "Last App Close Time",
     "Launch Count",
     "Launch Count Since Update",
     "Install ID",
@@ -39,6 +39,8 @@
   ],
   "data": [
     [
+      1612291588,
+      1613671448,
       "S8a33udpRbS0oFkFJQTiGg",
       "1,2,3,4",
       0,
@@ -46,8 +48,6 @@
       0,
       "10.2.4",
       "10.2.4",
-      1612291588,
-      1613671448,
       8,
       9,
       "DFF5B367-3874-4A9E-9B2E-76134FB1FE8D",
