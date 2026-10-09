@@ -35,6 +35,7 @@ import textwrap
 # Add the correct path to the system path
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 sys.path.append(repo_root)
+from snapshot_metadata import snapshot_author_email
 
 def get_artifact_info(module_name):
     """Dynamically imports an artifact module and retrieves its artifact definitions.
@@ -86,7 +87,7 @@ def get_last_commit_info(file_path):
         return {
             'hash': commit_hash,
             'author_name': author_name,
-            'author_email': author_email,
+            'author_email': snapshot_author_email(author_email),
             'date': commit_date,
             'message': commit_message
         }

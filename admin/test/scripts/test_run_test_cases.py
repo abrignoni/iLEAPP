@@ -10,11 +10,35 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.append(os.path.dirname(__file__))
 
 import run_test_cases as rtc  # noqa: E402  pylint: disable=wrong-import-position
 import test_module  # noqa: E402  pylint: disable=wrong-import-position
+import make_test_data  # noqa: E402  pylint: disable=wrong-import-position
+from snapshot_metadata import snapshot_author_email  # noqa: E402
+
+
+class SnapshotAuthorEmailTests(unittest.TestCase):
+    def test_non_noreply_address_is_redacted(self):
+        self.assertEqual(snapshot_author_email("private@example.net"), "N/A")
+
+    def test_github_noreply_address_is_preserved(self):
+        self.assertEqual(snapshot_author_email("12345+user@users.noreply.github.com"),
+                         "12345+user@users.noreply.github.com")
+
+    def test_result_generator_redacts_non_noreply_author_email(self):
+        log = "abc123|Author|private@example.net|Sat Sep 12 21:35:57 2026 +0100|subject"
+        with patch.object(test_module.subprocess, "check_output", return_value=log):
+            info = test_module.get_last_commit_info("scripts/artifacts/example.py")
+        self.assertEqual(info["author_email"], "N/A")
+
+    def test_case_generator_redacts_non_noreply_author_email(self):
+        log = "abc123|Author|private@example.net|Sat Sep 12 21:35:57 2026 +0100|subject"
+        with patch.object(make_test_data.subprocess, "check_output", return_value=log):
+            info = make_test_data.get_last_commit_info("scripts/artifacts/example.py")
+        self.assertEqual(info["author_email"], "N/A")
 
 
 class ArtifactRunOrderTests(unittest.TestCase):
