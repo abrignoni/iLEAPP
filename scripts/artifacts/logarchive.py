@@ -1208,6 +1208,75 @@ __artifacts_v2__ = {
             "hc_ios26": "iOS 26.5.2 | 590 rows",
         },
     },
+    "logarchive_device_id": {
+        "name": "Logarchive - Device Identifiers",
+        "description": "Unified log entries that carry device identifying details: the model, OS "
+                       "version and build that sharingd logs, and the name, device type, OS "
+                       "build and serial number of each peer that securityd lists in its account "
+                       "state, the examined device among them.",
+        "author": "@Hexordia, @stark4n6",
+        "creation_date": "2026-10-06",
+        "last_update_date": "2026-10-09",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Rows are unified log entries selected by three filters and reported whole; no "
+                 "value is parsed out of the message. Tested on seven images running iOS 12.4, "
+                 "16.5, 17.2.1, 17.3, 18.3.2, 18.7 and 26.5.2; the row counts are in "
+                 "sample_data. The sharingd filter (process /usr/libexec/sharingd, message "
+                 "containing 'Device Information:') matched on all seven. The line has the shape "
+                 "'Device Information: Production: <model name> (<model identifier>), iPhone OS "
+                 "<version> (<build>), <n>% (charging)', or '(not charging)'. It does not hold "
+                 "the device name: on the four images where securityd names the device's own "
+                 "peer, no sharingd row contained that name. 399 of the 411 sharingd rows are "
+                 "'SharingDaemon State' dumps that embed the line. A dump row carries no "
+                 "subsystem and no category, so on the iOS 26.5.2 image, where every row is a "
+                 "dump, Subsystem and Category held no value on any of the 46 rows. The line "
+                 "that sharingd logs on its own was readable on iOS 12.4, 17.2.1 and 17.3 and "
+                 "read 'Device Information: <private>' on every such row of iOS 18.3.2 and 18.7 "
+                 "(2 and 3 rows); iOS 16.5 and 26.5.2 held no such row. The same model and OS "
+                 "string repeats from row to row; only the iOS 26.5.2 image held two different "
+                 "version strings. The securityd filter (process /usr/libexec/securityd, "
+                 "category accountLogState, message containing 'name:') matched on iOS 12.4, "
+                 "16.5, 17.2.1 and 17.3 (8, 12, 18 and 2 rows) and on none of iOS 18.3.2, 18.7 "
+                 "and 26.5.2, where no entry in that category from any process contained "
+                 "'name:'. Each row is one peer record ('PI:') from securityd's Secure Object "
+                 "Sync account state: its fields include a name, a flag group, the device type, "
+                 "an OS build and a serial number. The rows cover every peer listed, not only "
+                 "the examined device: the iOS 16.5 image listed 6 peers, one of them a MacBook "
+                 "Pro, and each of the four images listed one peer of type Unknown. All 40 rows "
+                 "carried a serial value, and two peers can carry the same one: the four images "
+                 "listed 13 peers with 8 distinct serial values, counted per image. The first "
+                 "character of the flag group is 'M' on the examined device's own peer and 'm' "
+                 "on any other (Reference: Apple, Security, SOSPeerInfo.m, boolToChars(isMe, "
+                 "'M', 'm'), "
+                 "https://github.com/apple-oss-distributions/Security/blob/db15acbe6a7f257a859ad9a3bb86097bfe0679d9/keychain/SecureObjectSync/SOSPeerInfo.m#L699 "
+                 "; the same call is in that file at each of the 40 published tags read, "
+                 "Security-58286.1.32 to Security-61439.140.12). Exactly one peer on each of the "
+                 "four images carried 'M'. A peer can appear on more than one row: the iOS 12.4 "
+                 "image held 2 peers on 8 rows. The terminusd filter (process "
+                 "/usr/libexec/terminusd, subsystem com.apple.networkrelay, message containing "
+                 "'Starting terminusd') matched no entry on any of the seven images, and no "
+                 "entry from any process contained 'Starting terminusd', so what those entries "
+                 "hold was not measured here. Only the iOS 17.3 image, a sysdiagnose, held "
+                 "terminusd entries at all (133). The three search terms came from Hexordia "
+                 "research. Process Image Path held one value, /usr/libexec/sharingd, on every "
+                 "row of iOS 18.3.2, 18.7 and 26.5.2, which have sharingd rows only, and Process "
+                 "ID held one value on all 11 rows of the iOS 18.3.2 image. Trace ID held no "
+                 "value on any row of the tested images: rows read from tracev3 data leave it "
+                 "empty, and only a 'log show' JSON export fills it.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "package",
+        "sample_data": {
+            "ctf2020_ios12": "iOS 12.4 | 10 rows; 2 sharingd, 8 securityd, 0 terminusd",
+            "abe_ios16": "iOS 16.5 | 13 rows; 1 sharingd, 12 securityd, 0 terminusd",
+            "hc_ios17_2": "iOS 17.2.1 | 277 rows; 259 sharingd, 18 securityd, 0 terminusd",
+            "rodeo_ios17_sysdiag": "iOS 17.3 | 89 rows; 87 sharingd, 2 securityd, 0 terminusd",
+            "dexter_ios18": "iOS 18.3.2 | 11 rows; 11 sharingd, 0 terminusd",
+            "iphone12_ios18": "iOS 18.7 | 5 rows; 5 sharingd, 0 terminusd",
+            "hc_ios26": "iOS 26.5.2 | 46 rows; 46 sharingd, 0 terminusd",
+        },
+    },
 }
 
 import os
@@ -1587,8 +1656,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%A2DP LinkQualityReport%'
         OR event_message LIKE '%AudioQueueIsPlaying%'
         OR event_message LIKE '%VolumeIncrement%'
-        OR event_message LIKE '%rawVolumeIncreasePress%'
-        OR event_message LIKE '%rawVolumeDecreasePress%'
+        OR event_message LIKE '%VolumeIncreasePress%'
+        OR event_message LIKE '%VolumeDecreasePress%'
         OR event_message LIKE '%Volume active%'
         OR event_message LIKE '%PlaybackQueueInvalidation%'
         OR event_message LIKE '%volumeValueDidChange%'
@@ -1611,6 +1680,7 @@ def logarchive_artifacts(context):
         -- prefix is not matched, so class methods ('+[') are picked up too.
         OR event_message LIKE '%<<<< AVFlashlight >>>>%'
         OR event_message LIKE '%Tethering is now enabled with%'
+        OR event_message LIKE '%Tethering is now disabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
         -- logarchive_navigation. Collected by subsystem rather than by spoken
@@ -1828,6 +1898,10 @@ def logarchive_artifacts(context):
         -- logarchive_app_state
         OR (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+        -- logarchive_device_id
+        OR (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
+        OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
+        OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
     )
     '''
 
@@ -1923,6 +1997,7 @@ def logarchive_tethering(context):
     SELECT *
     FROM logarchive_artifacts
     WHERE event_message LIKE '%Tethering is now enabled with%'
+        OR event_message LIKE '%Tethering is now disabled with%'
         OR event_message LIKE '%Received notification that wireless modem state changed%'
         OR event_message LIKE '%Previous tethering state was%'
     '''
@@ -2095,8 +2170,8 @@ def logarchive_audio_status(context):
     FROM logarchive_artifacts
     WHERE event_message LIKE '%AudioQueueIsPlaying%'
         OR event_message LIKE '%VolumeIncrement%'
-        OR event_message LIKE '%rawVolumeIncreasePress%'
-        OR event_message LIKE '%rawVolumeDecreasePress%'
+        OR event_message LIKE '%VolumeIncreasePress%'
+        OR event_message LIKE '%VolumeDecreasePress%'
         OR event_message LIKE '%Volume active%'
         OR event_message LIKE '%PlaybackQueueInvalidation%'
         OR event_message LIKE '%volumeValueDidChange%'
@@ -2444,4 +2519,12 @@ def logarchive_app_state(context):
     return _artifacts_table_records(context, '''
         (category LIKE 'TransactionLog%' AND subsystem LIKE '%com.apple.appinstallation%' AND process_image_path LIKE '%/usr/libexec/installd%')
         OR (subsystem LIKE '%com.apple.CommCenter%' AND category LIKE '%ct.server%' AND event_message LIKE 'App state%')
+    ''')
+
+@artifact_processor
+def logarchive_device_id(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
+        OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
+        OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
     ''')
