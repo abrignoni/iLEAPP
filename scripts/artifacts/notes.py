@@ -7,9 +7,9 @@ __artifacts_v2__ = {
         "description": "Apple Notes with the note body text decoded and attachment file names and "
                        "metadata; the attachment itself is shown only when its file is present "
                        "beside the staged database",
-        "author": "@any333",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-08",
         "requirements": "none",
         "category": "Notes",
         "notes": "Note body text is decompressed and parsed from the protobuf blob. "
@@ -18,9 +18,9 @@ __artifacts_v2__ = {
                  "shown only when its file is found under Accounts/LocalAccount/Media beside the "
                  "database; the artifact's paths match only NoteStore.sqlite and its sidecars, so "
                  "that file may not be present, and attachments stored under another account "
-                 "folder are named but not shown. The Attachment Size (as stored) column does not "
-                 "show the size as stored: its digits are split into groups of three from the left "
-                 "and joined with dots, so 1234567 is shown as 123.456.7.",
+                 "folder are named but not shown. Attachment Size (as stored) renders the stored "
+                 "value as text without digit grouping or unit conversion. "
+                 "Original Notes parser by @any333.",
         "paths": ('*/NoteStore.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "file-text",
@@ -219,11 +219,12 @@ def process_note_body_blob(blob):
 @artifact_processor
 def notes(context):
     data_headers = (
-        ('Creation Date', 'datetime'), 'Note Title', 'Snippet', 'Note Contents', 'Folder',
-        'Storage Place', ('Last Modified', 'datetime'), 'Password Protected', 'Password Hint',
-        'Marked for Deletion', 'Pinned', ('Attachment', 'media'), 'Attachment Original Filename',
-        'Attachment Storage Folder', 'Attachment Size (as stored)', 'Attachment Type',
-        ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'))
+        ('Creation Date', 'datetime'), ('Last Modified', 'datetime'),
+        ('Attachment Creation Date', 'datetime'), ('Attachment Last Modified', 'datetime'),
+        'Note Title', 'Snippet', 'Note Contents', 'Folder', 'Storage Place',
+        'Password Protected', 'Password Hint', 'Marked for Deletion', 'Pinned',
+        ('Attachment', 'media'), 'Attachment Original Filename', 'Attachment Storage Folder',
+        'Attachment Size (as stored)', 'Attachment Type')
     data_list = []
     sources = []
 
@@ -259,13 +260,13 @@ def notes(context):
                         logfunc(f'Failed to read Notes attachment {attachment_file}: {ex}')
 
             if row[12] is not None:
-                filesize = '.'.join(str(row[12])[i:i + 3] for i in range(0, len(str(row[12])), 3))
+                filesize = str(row[12])
             else:
                 filesize = ''
 
-            data_list.append((row[0], row[1], row[2], text_content, row[3], row[4], row[5],
-                              row[6], row[7], row[8], row[9], media_ref, row[10],
-                              attachment_storage, filesize, row[13], row[14], row[15]))
+            data_list.append((row[0], row[5], row[14], row[15], row[1], row[2], text_content,
+                              row[3], row[4], row[6], row[7], row[8], row[9], media_ref,
+                              row[10], attachment_storage, filesize, row[13]))
 
         sources.append(context.get_relative_path(file_found))
 
