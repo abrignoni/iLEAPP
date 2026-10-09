@@ -92,7 +92,8 @@ __artifacts_v2__ = {
         "last_update_date": "2025-05-25",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "",
+        "notes": "The two tags are matched as message text in any process, with no process, "
+                 "subsystem or category condition.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "sun",
@@ -858,7 +859,11 @@ __artifacts_v2__ = {
                  "documented-only; no transfer occurred in the validation images' log "
                  "windows. The cited research reports that the AirDrop ID is not constant for the "
                  "life of the device and changes often; how long one ID stays in use is not "
-                 "established here.",
+                 "established here. Every term is matched as message text in any process, with no "
+                 "process, subsystem or category condition. 'Scanning mode' and 'startSending' are "
+                 "short strings, and whether components other than AirDrop and the share sheet log "
+                 "them was not measured, so read Process Image Path, Subsystem and Category on each "
+                 "row before attributing it.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "share",
@@ -875,8 +880,10 @@ __artifacts_v2__ = {
         "last_update_date": "2026-08-02",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "NOT YET VALIDATED IN-HOUSE. Every pattern here except 'CarPlay Connection Event' "
-                 "comes from Tim Korver's "
+        "notes": "NOT YET VALIDATED IN-HOUSE. 'CarPlay Connection Event' is a term this module's "
+                 "general filter already carried; it is not in the cited research, no source for it "
+                 "is cited here and what an entry holding it records is not established. Every "
+                 "other pattern here comes from Tim Korver's "
                  "CarPlay handshake research "
                  "(https://thesisfriday.com/thesis-friday-20-project-stark-forensic-reconstruction-of-the-carplay-handshake/), "
                  "which documents the sequence on iOS 26.6 (build 23G71, iPhone 14) after "

@@ -3,11 +3,11 @@ __artifacts_v2__ = {
         "name": "iCloud Photos Metadata",
         "description": "Parses photo metadata returned by iCloud (cloudphotolibrary Metadata.txt), "
                        "including decoded filenames, timestamps, and the GPS, EXIF and TIFF values "
-                       "of the embedded metadata as stored (latitude and longitude are reported "
-                       "without their N/S and E/W reference).",
+                       "of the embedded metadata. Latitude and longitude are signed from the stored "
+                       "LatitudeRef and LongitudeRef values.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "iCloud",
         "notes": 'Each successfully base64-decoded mediaMetaDataEnc value is exported as its original decoded '
@@ -19,11 +19,16 @@ __artifacts_v2__ = {
                  'occurrences; the filename is not a persistent record identifier. An export does not '
                  "establish a valid plist or independently verify its contents. Timestamp is the record's "
                  'originalCreationDate where present and its created timestamp otherwise. The GPS, EXIF and '
-                 'TIFF columns are filled only when the decoded metadata carries a {TIFF} entry. Original '
-                 'contribution credited to @abrignoni. This update only prevents per-occurrence export '
-                 'collisions and records the export path; coordinate/reference, TIFF gating, duplicate '
-                 'filesize projection, date ordering/interpretation, source association and unsupported '
-                 'input-shape policies remain unchanged and unresolved.',
+                 'TIFF columns are each read from their own entry of the decoded metadata ({GPS}, {Exif}, '
+                 '{TIFF}) and are blank when that entry is absent or the metadata does not decode to a '
+                 'dictionary. Latitude and Longitude follow the EXIF convention of an unsigned value with a '
+                 'reference letter: a positive stored Latitude with LatitudeRef S, or a positive stored '
+                 'Longitude with LongitudeRef W, is reported negative; every other value is reported as '
+                 'stored. The signing rule and the reading of GPS without a {TIFF} entry are not exercised '
+                 'on real data: no registered sample is recorded for this artifact. Res Original Filesize '
+                 'is the resOriginalFileSize field; the former Original Filesize column repeated the same '
+                 'field and was removed. Row ID restarts on each line of the input. Original contribution '
+                 'credited to @abrignoni.',
         "paths": ('*/cloudphotolibrary/Metadata.txt',),
         "output_types": ["html", "tsv", "timeline", "lava", "kml"],
         "artifact_icon": "photo"
@@ -37,6 +42,14 @@ import os
 import plistlib
 
 from scripts.ilapfuncs import artifact_processor, logfunc
+
+
+def _signed_coordinate(value, reference, negative_reference):
+    """Negate a positive stored coordinate whose EXIF reference letter is S or W."""
+    if (isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
+            and isinstance(reference, str) and reference.strip().upper() == negative_reference):
+        return -value
+    return value
 
 
 def _convert_cloudkit_ts(value):
@@ -57,7 +70,7 @@ def _convert_cloudkit_ts(value):
 @artifact_processor
 def icloudPhotoMeta(context):
     data_headers = (
-        ('Timestamp', 'datetime'), 'Row ID', 'Record Type', 'Decoded', 'Title', 'Original Filesize',
+        ('Timestamp', 'datetime'), 'Row ID', 'Record Type', 'Decoded', 'Title',
         'Latitude', 'Longitude', 'Altitude', 'GPS Datestamp', 'GPS Time', ('Added Date', 'datetime'),
         'Timezone Offset', 'Decoded TZ', 'Is Deleted?', 'Is Expunged?', ('Import Date', 'datetime'),
         ('Modification Date', 'datetime'), 'Res Original Filesize', 'ID', 'TIFF', 'EXIF', 'Exported Bplist')
@@ -90,7 +103,7 @@ def icloudPhotoMeta(context):
                 created_timestamp = ''
                 latitude = longitude = altitude = datestamp = timestamp = ''
                 decoded = decoded_tz = title = ''
-                is_deleted = is_expunged = org_filesize = res_org_filesize = ''
+                is_deleted = is_expunged = res_org_filesize = ''
                 rec_mod_date = import_date = added_date = timezoneoffse = ''
                 tiff = exif = ''
                 rowid = str(i)
@@ -106,7 +119,6 @@ def icloudPhotoMeta(context):
                     decoded_tz = base64.b64decode(fields.get('timeZoneNameEnc', '')).decode(errors='replace')
                     is_deleted = fields.get('isDeleted', '')
                     is_expunged = fields.get('isExpunged', '')
-                    org_filesize = fields.get('resOriginalFileSize', '')
                     res_org_filesize = fields.get('resOriginalFileSize', '')
 
                     if fields.get('originalCreationDate', ''):
@@ -129,18 +141,23 @@ def icloudPhotoMeta(context):
                             pl = plistlib.loads(decoded_bplist)
                         except (plistlib.InvalidFileException, ValueError):
                             pl = {}
+                        if not isinstance(pl, dict):
+                            pl = {}
                         if pl.get('{TIFF}'):
                             tiff = str(pl.get('{TIFF}'))
+                        if pl.get('{Exif}'):
                             exif = str(pl.get('{Exif}'))
-                            gps = pl.get('{GPS}')
-                            if gps is not None:
-                                latitude = gps.get('Latitude')
-                                longitude = gps.get('Longitude')
-                                altitude = gps.get('Altitude')
-                                datestamp = gps.get('DateStamp')
-                                timestamp = gps.get('TimeStamp')
+                        gps = pl.get('{GPS}')
+                        if isinstance(gps, dict):
+                            latitude = _signed_coordinate(
+                                gps.get('Latitude'), gps.get('LatitudeRef'), 'S')
+                            longitude = _signed_coordinate(
+                                gps.get('Longitude'), gps.get('LongitudeRef'), 'W')
+                            altitude = gps.get('Altitude')
+                            datestamp = gps.get('DateStamp')
+                            timestamp = gps.get('TimeStamp')
 
-                data_list.append((created_timestamp, rowid, recordtype, decoded, title, org_filesize,
+                data_list.append((created_timestamp, rowid, recordtype, decoded, title,
                                   latitude, longitude, altitude, datestamp, timestamp, added_date,
                                   timezoneoffse, decoded_tz, is_deleted, is_expunged, import_date,
                                   rec_mod_date, res_org_filesize, rec_id, tiff, exif, exported_bplist))

@@ -60,10 +60,10 @@ class LinkedInPresenceTests(unittest.TestCase):
             self.assertEqual(rows, expected)
             self.assertEqual(source, paths[0])
 
-    def test_non_dictionary_root_preserves_existing_blank_projection(self):
-        for value in [None, [], '', 0, False, ['list']]:
+    def test_non_dictionary_root_produces_no_row(self):
+        for value in [[], '', 0, False, ['list'], ['voy.authenticatedMemberId']]:
             with self.subTest(value=value):
-                self.assertEqual(self.parse_values([value])[1], [('', '', '', '', '', '')])
+                self.assertEqual(self.parse_values([value])[1], [])
 
 
 if __name__ == '__main__':

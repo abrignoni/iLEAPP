@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "Device.Display.InterfaceOrientation biome stream.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Value is labelled with the UIInterfaceOrientation enumeration (UIKit, defined in "
@@ -28,8 +28,8 @@ __artifacts_v2__ = {
                  "in both enumerations, so the choice of enumeration is not yet confirmed by data: "
                  "the stream name says interface orientation while the System Events plist "
                  "describes it as capturing device orientation. The cited revision of "
-                 "UIApplication.h defines no UIInterfaceOrientation case for 0, so the Unknown "
-                 "label shown for 0 is not sourced from it. A value of 5 or 6 appearing here would "
+                 "UIApplication.h defines no UIInterfaceOrientation case for 0, so the Value "
+                 "column is left empty for 0 and the stored value is in Value (raw). A value of 5 or 6 appearing here would "
                  "indicate the device "
                  "enumeration instead, since UIInterfaceOrientation has no Face Up or Face Down "
                  "case. Enumeration source: Apple UIKit headers UIApplication.h and UIDevice.h, "
@@ -326,8 +326,9 @@ SILENT = {0: 'Ringer On', 1: 'Silent'}
 # the interface right:
 #     UIInterfaceOrientationLandscapeLeft  = UIDeviceOrientationLandscapeRight  (4)
 #     UIInterfaceOrientationLandscapeRight = UIDeviceOrientationLandscapeLeft   (3)
-# Do not copy the 3/4 labels from ORIENTATION in biomeDKEventStreams.py; they are opposite.
-INTERFACE_ORIENTATION = {0: 'Unknown', 1: 'Portrait', 2: 'Portrait Upside Down',
+# These 3/4 labels are the opposite of the UIDeviceOrientation ones. The cited header
+# revision defines no case for 0, so 0 carries no label.
+INTERFACE_ORIENTATION = {1: 'Portrait', 2: 'Portrait Upside Down',
                          3: 'Landscape Right', 4: 'Landscape Left'}
 
 

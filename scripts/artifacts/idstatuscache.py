@@ -11,15 +11,16 @@ __artifacts_v2__ = {
         "description": "Entries of the IdentityServices status cache (idstatuscache.plist): for each service identifier and address, the lookup date and the ID status as stored.",
         "author": "@djangofaiola",
         "creation_date": "2024-07-16",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Identity Lookup Service",
         "notes": "The Application column's identifier-to-name labels are best-effort: "
                  "where the extraction contains Apple's IdentityServices "
                  "ServiceDefinitions plists their DisplayName is used; hardcoded "
                  "labels for private alloy identifiers are descriptive guesses. "
-                 "The Service Type labels are this parser's reading of the URI prefix "
-                 "text (the part before the colon) and are not vendor-documented; the "
+                 "Service Type is the part of the entry key before its first colon, "
+                 "reported as stored, and Partner is the rest of the key; what each "
+                 "prefix denotes is not established here. The "
                  "Location column carries the service identifier and the entry key as "
                  "stored, prefix included.",
         "paths": (
@@ -51,51 +52,6 @@ __artifacts_v2__ = {
 
 from scripts.ilapfuncs import get_plist_file_content, convert_cocoa_core_data_ts_to_utc, \
     artifact_processor, logfunc
-
-
-# Mapping to convert raw service prefixes into human-readable formats
-SERVICE_TYPE_MAP = {
-    # Standard Communications & Protocols
-    'tel': 'Telephone',                   # Standard telephone number URI scheme
-    'e164': 'Telephone (E.164)',          # Internationally formatted telephone number
-                                          # (ITU standard)
-    'mailto': 'Email',                    # Standard email address scheme
-    'sip': 'SIP / VoIP',                  # Session Initiation Protocol, often used for
-                                          # Wi-Fi calling
-    'urn': 'URN',                         # Uniform Resource Name, a generic standard identifier
-    # Apple Communications
-    'sms': 'SMS',                         # Short Message Service routing (Standard carrier texts)
-    'facetime': 'FaceTime',               # Standard FaceTime video call routing
-    'facetime-audio': 'FaceTime Audio',   # FaceTime audio-only routing
-    'imessage': 'iMessage',               # Apple's proprietary end-to-end encrypted messaging
-    # Accounts & Identities
-    'x-apple': 'Apple ID',                # Generic Apple ID associated service or identifier
-    'x-apple-dsid': 'Apple ID (DSID)',    # Destination Sign-In ID
-                                          # (Unique numeric iCloud account ID)
-    'acct': 'Account Identifier',         # Generic internal system account identifier
-    'pseudonym': 'Apple Pseudonym ID',    # Anonymized ID used for "Sign in with Apple" privacy
-                                          # features
-    'mailto-alias': 'Email Alias',        # Often used for Apple's "Hide My Email" generated aliases
-    # System, Hardware & Pairing
-    'token': 'Push Token',                # Apple Push Notification service (APNs) device token
-    'uuid': 'Device UUID',                # Universally Unique Identifier for hardware or pairing
-                                          # sessions
-    'mac': 'MAC Address',                 # Media Access Control address for general network
-                                          # interfaces
-    'bt': 'Bluetooth MAC',                # Bluetooth-specific hardware address
-    'icloud': 'iCloud Service',           # General iCloud syncing, background routing, or CloudKit
-                                          # data
-    'watch': 'Apple Watch',               # Identifiers used during Apple Watch pairing and sync
-                                          # requests
-    'companion': 'Companion Device',      # Linked companion devices (e.g., iPad or Mac via
-                                          # Continuity)
-    # Special Services & Features
-    'gamecenter': 'Game Center',          # Apple Game Center matchmaking and friend routing
-    'vvm': 'Visual Voicemail',            # Carrier-provided visual voicemail syncing service
-    'urn:service:sos': 'Emergency SOS',   # Satellite or cellular emergency routing services
-    'multiplex1': 'Multiplex Stream'      # Internal combined Audio/Video/Data stream
-                                          # (often for AVConference)
-}
 
 
 # Default mapping for system applications and internal daemons.
@@ -348,8 +304,8 @@ DEFAULT_MAP_IDS = {
 
 def get_service_type_and_partner(value: str) -> tuple[str, str]:
     """
-    Extracts the service type and partner from a complex string.
-    Resolves known service labels to human-readable formats.
+    Splits an entry key at its first colon into the service type prefix, as stored,
+    and the partner.
     """
 
     if value and ':' in value:
@@ -357,8 +313,8 @@ def get_service_type_and_partner(value: str) -> tuple[str, str]:
         # e.g. tel:+390771XXXXX
         service_type, partner = value.split(':', 1)
 
-        # Resolves the formatted service label or falls back to the original name
-        return SERVICE_TYPE_MAP.get(service_type, service_type), partner
+        # The prefix is reported as stored: no documented source names these prefixes
+        return service_type, partner
 
     return '', ''
 

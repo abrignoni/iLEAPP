@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "and the media file.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Photos",
         "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
@@ -27,10 +27,11 @@ __artifacts_v2__ = {
                  "EXIF offset tags 36880 to 36882 are not read. The comparisons use wall-clock "
                  "readings and do not establish a zone for any given file. DB Modify Lag is the interval "
                  "from DB Created to DB Modified; its cause is not established. DB Modify Drift is "
-                 "Yes when DB Modify Lag is more than 5 minutes. A stored ZLATITUDE or ZLONGITUDE "
-                 "of -180 is shown as blank in DB Latitude and DB Longitude and is treated as no "
-                 "database coordinates when Coordinate Mismatch is computed. Reading -180 as no "
-                 "stored location is this module's own treatment; Scott Koenig's published queries "
+                 "Yes when DB Modify Lag is more than 5 minutes. DB Latitude and DB Longitude are "
+                 "ZLATITUDE and ZLONGITUDE as stored, including a stored -180; what a stored -180 "
+                 "means is not established here. When the stored latitude is outside -90 to 90 the "
+                 "pair cannot be a position, and Coordinate Mismatch treats it as no database "
+                 "coordinates. Scott Koenig's published queries "
                  "print a stored latitude or longitude of -180.0 as the text -180.0 and give it no "
                  "stated meaning (iOS15_LPL_Phsql_Locations.txt lines 148 to 151, "
                  "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS15/Previous_Queries/iOS15_LPL_Phsql_Locations.txt#L148-L151). "
@@ -95,7 +96,7 @@ from scripts.ilapfuncs import (artifact_processor, check_in_embedded_media, chec
 register_heif_opener()
 
 _EXIF_ERRORS = (OSError, ValueError, KeyError, IndexError, TypeError, AttributeError)
-_NO_LOCATION = -180.0
+_MAX_LATITUDE = 90.0
 _DB_MODIFY_DRIFT_THRESHOLD = timedelta(minutes=5)
 _TIMESTAMP_TOLERANCE = timedelta(seconds=2)
 _MAX_UTC_OFFSET = timedelta(hours=14)
@@ -155,21 +156,18 @@ def isclose(a, b, rel_tol=1e-06, abs_tol=0.0):
 
 
 def _normalize_db_coord(value):
-    """Photos.sqlite uses -180 as a no-location sentinel."""
+    """Return the stored coordinate as a float, or None when it is absent or not a number."""
     if value is None or value == '':
         return None
     try:
-        coord = float(value)
+        return float(value)
     except (TypeError, ValueError):
         return None
-    if abs(coord - _NO_LOCATION) < 1e-6:
-        return None
-    return coord
 
 
 def _format_db_coord(value):
-    coord = _normalize_db_coord(value)
-    return '' if coord is None else coord
+    """Report the coordinate as stored; only SQL NULL becomes a blank cell."""
+    return '' if value is None else value
 
 
 def _parse_exif_datetime(value):
@@ -282,7 +280,10 @@ def _file_vs_db_metrics(file_dt_str, db_created_str):
 def _coordinate_mismatch(db_lat, db_lon, file_lat, file_lon):
     norm_db_lat = _normalize_db_coord(db_lat)
     norm_db_lon = _normalize_db_coord(db_lon)
-    has_db = norm_db_lat is not None and norm_db_lon is not None
+    # A latitude outside -90 to 90 cannot be a position, so such a stored
+    # pair (for example -180, -180) is not compared with the file's GPS.
+    has_db = (norm_db_lat is not None and norm_db_lon is not None
+              and abs(norm_db_lat) <= _MAX_LATITUDE)
     has_file = file_lat != '' and file_lon != ''
     if not has_db and not has_file:
         return 'No'

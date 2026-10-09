@@ -124,13 +124,14 @@ __artifacts_v2__ = {
         "description": "Chat messages, reactions and redaction events from the Reddit app's Matrix rooms cache (Account.db)",
         "author": "@stark4n6",
         "creation_date": "2026-04-28",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Reddit",
         "notes": (
-            "An m.room.message event whose content carries no msgtype is labelled MESSAGE "
-            "DELETED. The Matrix redaction algorithm strips the content keys of a redacted "
-            "m.room.message event, so a redacted message has this shape. Whether anything else "
+            "An m.room.message event whose content carries no msgtype is labelled No msgtype "
+            "stored in Message Type. The Matrix redaction algorithm strips the content keys of a "
+            "redacted m.room.message event, so a redacted message has this shape, but the label "
+            "does not state that the message was deleted. Whether anything else "
             "leaves a message event without a msgtype in this store, and which room version "
             "Reddit's rooms use, is not established here; the Event Type column shows the "
             "redaction events the store holds. Direction compares the sender id with the account "
@@ -303,7 +304,7 @@ def reddit_chats(context):
 		ELSE m.ZEVENTTYPEFIELD
 	END AS 'Event Type',
 	CASE
-		WHEN json_extract(m.ZDATA, '$.content.msgtype') IS NULL AND m.ZEVENTTYPEFIELD = 'm.room.message' THEN 'MESSAGE DELETED'
+		WHEN json_extract(m.ZDATA, '$.content.msgtype') IS NULL AND m.ZEVENTTYPEFIELD = 'm.room.message' THEN 'No msgtype stored'
 		WHEN json_extract(m.ZDATA, '$.content.msgtype') = 'm.text' THEN 'Text'
 		WHEN json_extract(m.ZDATA, '$.content.msgtype') = 'm.image' THEN 'Image'
 		ELSE json_extract(m.ZDATA, '$.content.msgtype')
