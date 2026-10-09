@@ -15,9 +15,10 @@ from scripts import ilapfuncs  # pylint: disable=wrong-import-position
 class RecordsCleanupTests(unittest.TestCase):
     """Connections are closed without waiting for garbage collection."""
     def setUp(self):
-        # unittest exits this context after tearDown, including test failures.
-        self.temp = self.enterContext(
-            tempfile.TemporaryDirectory())  # pylint: disable=consider-using-with
+        # Cleanups run last in, first out, so the folder goes after the connections.
+        temp = tempfile.TemporaryDirectory()  # pylint: disable=consider-using-with
+        self.addCleanup(temp.cleanup)
+        self.temp = temp.name
         self.path = str(pathlib.Path(self.temp) / 'synthetic.sqlite')
         with contextlib.closing(sqlite3.connect(self.path)) as db:
             db.execute('CREATE TABLE sample (value INTEGER)')
