@@ -4,10 +4,11 @@ __artifacts_v2__ = {
         "description": "Lists the gaps in the ROWID sequence of the message table in sms.db: the size of each gap and the timestamps of the rows before and after it. A gap is a run of ROWID values absent from the table. It does not by itself establish that a message was deleted.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2023-03-20",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "SMS & iMessage",
-        "notes": "Number of Missing Rows is the size of the gap. A final row compares the table "
+        "notes": "Number of Missing ROWIDs is the size of the gap: the count of ROWID values absent "
+                 "between the two rows. A final row compares the table "
                  "using its greatest live ROWID record with the message entry in sqlite_sequence. "
                  "Only a positive sequence difference is reported, using that record's date and guid, "
                  "with the text 'Time of Extraction' as its end. This query was the "
@@ -84,7 +85,7 @@ def SMS_Missing_ROWIDs(context):
             WHERE ((SELECT last_rowid FROM LastROWID) - last_live.live_rowid) > 0)
         WHERE "ROWID" IS NOT NULL;'''
     
-    data_headers = (('Beginning Timestamp', 'datetime'), ('Ending Timestamp', 'datetime'), 'Previous guid', 'guid', 'Previous ROWID', 'ROWID', 'Number of Missing Rows')
+    data_headers = (('Beginning Timestamp', 'datetime'), ('Ending Timestamp', 'datetime'), 'Previous guid', 'guid', 'Previous ROWID', 'ROWID', 'Number of Missing ROWIDs')
 
     db_records = get_sqlite_db_records(data_source, query)
     

@@ -575,7 +575,7 @@ class TelegramLocalTest(LocalCorpusTestCase):
             self.assert_plausible_timestamp(row[0])
             self.assert_matches(row[1], r'^\d+$', 'Account ID')
             self.assert_matches(row[2], r'^-?\d+$', 'Chat ID')
-            self.assert_matches(row[5], r'^(Main|Archived)$', 'Folder')
+            self.assert_matches(row[5], r'^(Main|Archived|Group -?\d+ \(as stored\))$', 'Folder')
             self.assert_matches(row[6], r'^(Yes|)$', 'Pinned')
             self.assertIsInstance(row[7], int)      # Messages Stored
             self.assertIsInstance(row[8], int)      # Unread Count

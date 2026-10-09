@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "each picture message points at where the app cached it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-07",
-        "last_update_date": "2026-09-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "TextNow",
         "notes": "One row per row of ZTMOINTERACTION that carries no call identifier, "
@@ -42,8 +42,10 @@ __artifacts_v2__ = {
                  "address with no extension, which matched on the tested images. "
                  "Current SDWebImage (SDDiskCacheFileNameForKey in "
                  "SDWebImage/Core/SDDiskCache.m at 8a1be70a, 2024) appends the "
-                 "address's path extension when it has one, and a file named that way "
-                 "would not be found here. The stored address is a link the app recorded, "
+                 "address's path extension when it has one, so when no file carries the "
+                 "bare MD5 name a file in the same container named with that MD5, a dot "
+                 "and an extension is used. That second form was not present on the "
+                 "tested images. The stored address is a link the app recorded, "
                  "not a match on size or time, and it resolved on 4 of the 4 rows that carry "
                  "thumbnail dimensions. The bytes are checked before anything is "
                  "rendered and only a file carrying an image signature is attached; "
@@ -333,7 +335,13 @@ def _cached_images(files_found):
         path = str(found)
         if os.path.isdir(path) or f'/{_IMAGE_CACHE}/' not in path.replace('\\', '/'):
             continue
-        entries[(_container(path), os.path.basename(path))] = path
+        name = os.path.basename(path)
+        entries[(_container(path), name)] = path
+        # SDWebImage can append '.<extension>' to the MD5 name; keep the part before
+        # the first dot as a second key, never replacing an exact name.
+        stem = name.split('.', 1)[0]
+        if stem != name and len(stem) == 32:
+            entries.setdefault((_container(path), stem + '.'), path)
     return entries
 
 
@@ -402,7 +410,8 @@ def _picture(images, container, url):
     '''
     if not url:
         return ''
-    path = images.get((container, hashlib.md5(url.encode('utf8')).hexdigest()))
+    digest = hashlib.md5(url.encode('utf8')).hexdigest()
+    path = images.get((container, digest)) or images.get((container, digest + '.'))
     if not path:
         return ''
     try:

@@ -110,20 +110,32 @@ class TestWalletField(unittest.TestCase):
                 self.assertEqual(ilapfuncs.identifiers, state)
                 self.assertEqual(len(rows), 1)
                 self.assertEqual(source, str(path.relative_to(root)))
-                self.assertEqual(legacy[2], str(path))
-                self.assertEqual(legacy[1][-3:], [('Last Good IMSI', 'first-imsi'),
-                                                ('Self Registration Update IMSI', 'update-imsi'),
-                                                ('Self Registration Update IMEI', 'update-imei')])
+                self.assertEqual(legacy[2], str(path.relative_to(root)))
+                # Every entry holding a CarrierEntitlements dictionary is reported, its
+                # key in the label because the file holds more than one entry.
+                wallet_rows = [row for row in legacy[1] if '(' in str(row[0])]
+                self.assertEqual(wallet_rows[:3], [
+                    ('Last Good IMSI (wallet "\t\n雪)', 'first-imsi'),
+                    ('Self Registration Update IMSI (wallet "\t\n雪)', 'update-imsi'),
+                    ('Self Registration Update IMEI (wallet "\t\n雪)', 'update-imei')])
+                self.assertEqual(len(wallet_rows), 9)
+                self.assertEqual(wallet_rows[6:], [
+                    ('Last Good IMSI (conflicting)', 'different'),
+                    ('Self Registration Update IMSI (conflicting)', ''),
+                    ('Self Registration Update IMEI (conflicting)', '')])
+                self.assertFalse(any('nonmapping' in str(row[0]) for row in legacy[1]))
                 actual = plistlib.loads(path.read_bytes())['PersonalWallet']
                 envelope = json.loads(rows[0][0])
                 self.assertIs(envelope['present'], True)
                 self.assert_native_equal(actual, decode_node(envelope['value']))
-            # Real legacy calls append equal values, with source and caller but no wallet key.
+            # One device-info value per reported entry per file, with source and caller
+            # but no wallet key.
             stored = ilapfuncs.identifiers['Cellular']['Last Good IMSI']
-            self.assertEqual(len(stored), 2)
-            self.assertEqual([v['value'] for v in stored], ['first-imsi'] * 2)
+            self.assertEqual(len(stored), 6)
+            self.assertEqual([v['value'] for v in stored],
+                             ['first-imsi', 'first-imsi', 'different'] * 2)
             self.assertEqual([v['source_file'] for v in stored],
-                             [str(p.relative_to(root)) for p in paths])
+                             [str(p.relative_to(root)) for p in paths for _ in range(3)])
             self.assertTrue(all(v['artifact'] == 'imeiImsi' for v in stored))
             self.assertTrue(all(set(v) == {'value', 'source_file', 'artifact'} for v in stored))
 
@@ -141,8 +153,12 @@ class TestWalletField(unittest.TestCase):
                 with patch.dict(ilapfuncs.identifiers, {}, clear=True), \
                         patch.object(GlobalContext, '_data_folder', root):
                     legacy = artifact.imeiImsi.__wrapped__(Context(root, paths))
-                self.assertEqual(legacy[2], str(paths[0]))
-                self.assertEqual(legacy[1][-3][1], 'first-imsi' if paths[0] == first else 'second')
+                # IMEI - IMSI reads each matched plist, in the order given.
+                self.assertEqual(legacy[2], '\n'.join(str(p.relative_to(root)) for p in paths))
+                first_values = [row[1] for row in legacy[1]
+                                if str(row[0]).startswith('Last Good IMSI (wallet')]
+                self.assertEqual(first_values, ['first-imsi', 'second'] if paths[0] == first
+                                 else ['second', 'first-imsi'])
                 self.assert_native_equal(plistlib.loads(paths[0].read_bytes())['PersonalWallet'],
                                          decode_node(json.loads(rows[0][0])['value']))
 

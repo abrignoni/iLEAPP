@@ -1,11 +1,11 @@
 __artifacts_v2__ = {
     "teamsMessages": {
         "name": "Teams Messages",
-        "description": "Rows of ZSMESSAGE from one Teams database (the last one matched), with "
+        "description": "Rows of ZSMESSAGE from one Teams database (the first one matched), with "
                        "the first image a message references where the image cache holds it",
         "author": "@abrignoni",
         "creation_date": "2021-03-05",
-        "last_update_date": "2026-06-12",
+        "last_update_date": "2026-10-09",
         "requirements": "nska_deserialize",
         "category": "Microsoft Teams",
         "notes": "",
@@ -200,17 +200,25 @@ def teamsMessages(context):
     data_list = []
     cache_file = None
     db_file = None
+    unread_dbs = 0
     
     # Find required files
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith('.sqlite'):
-            db_file = file_found
+            if db_file is None:
+                db_file = file_found
+            else:
+                unread_dbs += 1
         elif file_found.endswith('CacheFile'):
             cache_file = file_found
     
     if not db_file:
         return (), [], files_found[0]
+
+    if unread_dbs:
+        logfunc(f'Teams Messages: {unread_dbs} other matched .sqlite file(s) not read; '
+                'only the first one matched is read')
     
     # Initialize cache dictionary
     nsplist = {}

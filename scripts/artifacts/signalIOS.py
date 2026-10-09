@@ -4,14 +4,15 @@ __artifacts_v2__ = {
         "description": "Parses the rows of model_TSInteraction in the encrypted Signal database: messages with their direction, author, conversation and body, and other interaction records, which are labelled by their record type.",
         "author": "Alexis Brignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-08-15",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Signal",
         "notes": "Signal encrypts its database with a key held in the iOS keychain. The keychain "
                  "is captured separately from the file system extraction, so supply it with "
                  "--keychain or the keychain field in the GUI. Read, Voice Message, View Once and "
-                 "Remotely Deleted show No where the stored value is 0, empty or the column is "
-                 "absent from this database version. Reference: Signal-iOS, 'SDSRecordType.swift "
+                 "Remotely Deleted show Yes for a stored value other than 0, No for a stored 0, "
+                 "and are blank where the value is NULL or the column is absent from this "
+                 "database version. Reference: Signal-iOS, 'SDSRecordType.swift "
                  "(incomingMessage = 19, outgoingMessage = 21)', "
                  "https://github.com/signalapp/Signal-iOS/blob/"
                  "a9f55ea599561e6d3bcee87d4f1540a7191b28dc/SignalServiceKit/Storage/Database/"
@@ -50,13 +51,15 @@ __artifacts_v2__ = {
         "description": "Parses Signal recipients, including phone numbers and ACI/PNI identifiers.",
         "author": "Alexis Brignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Signal",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
-                 "GUI. Unregistered is Yes where unregisteredAtTimestamp holds a value. Phone "
-                 "Number Discoverable shows No where the stored value is 0, empty or the column "
-                 "is absent from this database version.",
+                 "GUI. Unregistered is Yes where unregisteredAtTimestamp holds a value other "
+                 "than 0, No where it is NULL or 0, and blank where the column is absent from "
+                 "this database version. Phone Number Discoverable shows Yes for a stored value "
+                 "other than 0, No for a stored 0, and is blank where the value is NULL or the "
+                 "column is absent.",
         "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
                   # so a keychain the extraction carries is available to decrypt with
                   '*/extra/KeychainDump/backup_keychain_v2.plist',
@@ -77,14 +80,16 @@ __artifacts_v2__ = {
         "description": "Parses Signal conversations, including the other party, creation time and archived state.",
         "author": "Alexis Brignoni",
         "creation_date": "2026-07-26",
-        "last_update_date": "2026-07-26",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Signal",
         "notes": "Requires the keychain, supplied with --keychain or the keychain field in the "
-                 "GUI. Type is Group where the thread's groupModel column holds a value and One "
-                 "to one otherwise. Conversation With is the thread's contactPhoneNumber or "
-                 "contactUUID and is blank where neither holds a value. Archived and Marked "
-                 "Unread show No where the stored value is 0, empty or the column is absent from "
+                 "GUI. Type is Group where the thread's groupModel column holds a value, One "
+                 "to one where that column is present and empty, and blank where this database "
+                 "version has no groupModel column. Conversation With is the thread's "
+                 "contactPhoneNumber or contactUUID and is blank where neither holds a value. "
+                 "Archived and Marked Unread show Yes for a stored value other than 0, No for a "
+                 "stored 0, and are blank where the value is NULL or the column is absent from "
                  "this database version.",
         "paths": ('*/AppGroup/*/grdb*/signal.sqlite*',
                   # so a keychain the extraction carries is available to decrypt with
@@ -263,6 +268,13 @@ def _select_list(available, table_alias, columns):
                      for column in columns)
 
 
+def _yes_no(value):
+    """Yes or No for a stored flag; blank where nothing is stored (NULL or no column)."""
+    if value is None or value == '':
+        return ''
+    return 'Yes' if value else 'No'
+
+
 @artifact_processor
 def get_signalIOSMessages(context):
     data_list = []
@@ -303,10 +315,10 @@ def get_signalIOSMessages(context):
                 row[3] or '',
                 attachments,
                 len(attachments),
-                'Yes' if row[7] else 'No',
-                'Yes' if row[8] else 'No',
-                'Yes' if row[9] else 'No',
-                'Yes' if row[10] else 'No',
+                _yes_no(row[7]),
+                _yes_no(row[8]),
+                _yes_no(row[9]),
+                _yes_no(row[10]),
                 row[11] or '',
                 row[6] or '',
                 row[14],
@@ -357,9 +369,9 @@ def get_signalIOSContacts(context):
                 row[0] or '',
                 row[1] or '',
                 row[2] or '',
-                'Yes' if row[3] else 'No',
+                ('Yes' if row[3] else 'No') if 'unregisteredAtTimestamp' in columns else '',
                 convert_unix_ts_to_utc(row[3]) if row[3] else '',
-                'Yes' if row[4] else 'No',
+                _yes_no(row[4]),
                 row[6] or '',
             ))
         connection.close()
@@ -400,10 +412,10 @@ def get_signalIOSThreads(context):
             data_list.append((
                 convert_unix_ts_to_utc(row[0]) if row[0] else '',
                 row[1] or row[2] or '',
-                'Group' if row[3] else 'One to one',
+                ('Group' if row[3] else 'One to one') if 'groupModel' in columns else '',
                 row[9],
-                'Yes' if row[4] else 'No',
-                'Yes' if row[5] else 'No',
+                _yes_no(row[4]),
+                _yes_no(row[5]),
                 row[6] or '',
                 convert_unix_ts_to_utc(row[7]) if row[7] else '',
                 row[8] or '',

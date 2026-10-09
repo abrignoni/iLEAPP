@@ -44,10 +44,10 @@ __artifacts_v2__ = {
         "description": "Thread activity messages in the Instagram app's DirectSQLiteDatabase that carry a VOIP title, with the title and video call id as stored.",
         "author": "@AlexisBrignoni",
         "creation_date": "2021-03-09",
-        "last_update_date": "2026-06-05",
+        "last_update_date": "2026-10-09",
         "requirements": "",
         "category": "Instagram",
-        "notes": "",
+        "notes": "Sender Display Label holds the sender's full name where the thread metadata stores one, otherwise the username; it is not a verified username.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*",
         ),
@@ -353,7 +353,7 @@ def instagram_calls(context):
     data_headers = (
         ("Timestamp", "datetime"),
         "Sender ID",
-        "Username",
+        "Sender Display Label",
         "Video Chat Title",
         "Video Chat ID",
     )

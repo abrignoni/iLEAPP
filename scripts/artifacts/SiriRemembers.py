@@ -46,18 +46,16 @@ __artifacts_v2__ = {
         "description": "Call AppIntent data from the siriremembers database",
         "author": "@SQL_McGee (James McGee, Metadata Forensics, LLC)",
         "creation_date": "2024-01-29",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Siri Remembers",
         "notes": "Timestamp is intents.start_date read as Unix seconds and shown in UTC. Only "
                  "the first file whose name ends in siriremembers.sqlite3 is read. Duration is "
-                 "duration_seconds shown as HH:MM:SS. A stored 0 is printed as 'Not Answered or "
-                 "Missed'; that is this artifact's label and it was not compared with call "
-                 "history. It was printed on 9 of 18 rows on abe_ios16, 1 of 2 on dexter_ios18, "
-                 "and on none of the 8 rows on iphone11_ios17 or the 8 on otto_ios17, on runs of "
-                 "3 October 2026. Direction is Outgoing for stored direction 1 and Incoming for "
-                 "2. Direction 0 on a Siri-donated row is also printed Outgoing; no such row was "
-                 "present on those four images. Owner is this artifact's label, not a stored "
+                 "duration_seconds shown as HH:MM:SS, so a stored 0 reads 00:00:00; what a "
+                 "stored 0 means about the call is not established. Direction is Outgoing for "
+                 "stored direction 1 and Incoming for 2, and any other value is shown as stored. "
+                 "On a Siri-donated row whose stored direction is 0 the contact is placed in the "
+                 "Recipient columns; what direction 0 means is not established. Owner is this artifact's label, not a stored "
                  "value. One row is kept per intent: the query groups by intents.uuid. Research: "
                  "James McGee, 'Siri's Memory Lane: Exploring the siriremembers Database', "
                  "https://metadataperspective.com/2024/01/29/"
@@ -85,16 +83,17 @@ __artifacts_v2__ = {
         "description": "Media AppIntent data from the siriremembers database",
         "author": "@SQL_McGee (James McGee, Metadata Forensics, LLC)",
         "creation_date": "2024-01-29",
-        "last_update_date": "2026-06-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Siri Remembers",
         "notes": "Timestamp is intents.start_date read as Unix seconds and shown in UTC. Only "
                  "the first file whose name ends in siriremembers.sqlite3 is read. One row per "
-                 "intent: the query groups by intents.uuid. Where an intent's group holds "
-                 "several entities one of them is shown. Media is the entity's tokens text. "
-                 "Where that text contains 'mediatype' or ' zzz', a MediaSearchItem entity is "
-                 "cut before 'mediatype', an INMediaItem entity is cut before ' zzz', and an "
-                 "entity of any other type is left blank. Research: James McGee, 'Siri's "
+                 "intent and entity in the intent's group, so an intent whose group holds "
+                 "several entities has several rows, and an intent with no entity has one row "
+                 "with Media blank. Media is the entity's tokens text and Entity Type is the "
+                 "entity's type name as stored. A MediaSearchItem entity whose text contains "
+                 "'mediatype' is cut before it, and an INMediaItem entity whose text contains "
+                 "' zzz' is cut before it; any other text is shown whole. Research: James McGee, 'Siri's "
                  "Memory Lane: Exploring the siriremembers Database', "
                  "https://metadataperspective.com/2024/01/29/"
                  "siris-memory-lane-exploring-the-siriremembers-database/",
@@ -534,12 +533,9 @@ COALESCE((
 CASE
     WHEN intents.direction = '1' THEN 'Outgoing'
     WHEN intents.direction = '2' THEN 'Incoming'
-    WHEN intents.direction = '0' AND intents.donated_by_siri = '1' THEN 'Outgoing'
+    ELSE intents.direction
 END as "Direction",
-CASE
-    WHEN intents.duration_seconds = '0' THEN 'Not Answered or Missed'
-    ELSE strftime('%H:%M:%S', intents.duration_seconds, 'unixepoch')
-END as "Duration",
+strftime('%H:%M:%S', intents.duration_seconds, 'unixepoch') as "Duration",
 CASE
     WHEN intents.donated_by_siri = '0' THEN 'No'
     WHEN intents.donated_by_siri = '1' THEN 'Yes'
@@ -563,15 +559,13 @@ _MEDIA_QUERY = '''
 SELECT
 datetime(intents.start_date, 'UNIXEPOCH') as "Timestamp",
 CASE
-    WHEN entities.tokens like '%mediatype%' or entities.tokens like '% zzz%' THEN
-        CASE
-            WHEN entity_types.name = 'MediaSearchItem'
-                THEN SUBSTR(entities.tokens, 1, INSTR(entities.tokens, 'mediatype') - 1)
-            WHEN entity_types.name = 'INMediaItem'
-                THEN SUBSTR(entities.tokens, 1, INSTR(entities.tokens, ' zzz') - 1)
-            END
+    WHEN entity_types.name = 'MediaSearchItem' AND INSTR(LOWER(entities.tokens), 'mediatype') > 0
+        THEN SUBSTR(entities.tokens, 1, INSTR(LOWER(entities.tokens), 'mediatype') - 1)
+    WHEN entity_types.name = 'INMediaItem' AND INSTR(LOWER(entities.tokens), ' zzz') > 0
+        THEN SUBSTR(entities.tokens, 1, INSTR(LOWER(entities.tokens), ' zzz') - 1)
     ELSE entities.tokens
 END AS "Media",
+entity_types.name as "Entity Type",
 apps.bundle_id as "Application Bundle ID",
 CASE
     WHEN intents.donated_by_siri = '0' THEN 'No'
@@ -590,7 +584,8 @@ LEFT OUTER JOIN group_entities on group_entities.group_id = intents.group_id
 LEFT OUTER JOIN entities on entities.id = group_entities.entity_id
 LEFT OUTER JOIN entity_types on entity_types.id = entities.type_id
 WHERE domains.name = 'Media'
-GROUP BY intents.uuid;
+GROUP BY intents.id, entities.id
+ORDER BY intents.id, entities.id;
 '''
 
 
@@ -641,6 +636,6 @@ def siriRemembersCalls(context):
 @artifact_processor
 def siriRemembersMedia(context):
     data_headers = (
-        ('Timestamp', 'datetime'), 'Media', 'Application Bundle ID', 'Donated by Siri',
+        ('Timestamp', 'datetime'), 'Media', 'Entity Type', 'Application Bundle ID', 'Donated by Siri',
         'Application UUID', 'Domain ID', 'Verb ID', 'Intents ID', 'Intents UUID')
     return _run(context, _MEDIA_QUERY, data_headers)

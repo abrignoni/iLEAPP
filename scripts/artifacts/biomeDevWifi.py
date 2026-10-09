@@ -2,15 +2,16 @@ __artifacts_v2__ = {
     "get_biomeDevWifi": {
         "name": "Biome - WiFi Devices",
         "description": "Parses SSID and connection status records from the "
-                       "Device.Wireless.WiFi biome stream. Status reads Connected "
-                       "where the stored value is 1 and Disconnected for any other "
-                       "value; the stored integer is not reported. The same two "
+                       "Device.Wireless.WiFi biome stream. Connect (As Stored) is "
+                       "the integer stored in field 2. Status reads Connected where "
+                       "that value is 1, Disconnected where it is 0, and is blank "
+                       "for any other value. The same two "
                        "status names are listed for this stream in Mattia Epifani, "
                        "'84 Streams Later, Part 2: Inside Apple Biome', "
                        "https://blog.digital-forensics.it/2026/07/84-streams-later-part-2-inside-apple.html",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -70,7 +71,8 @@ def get_biomeDevWifi(context):
                 try:
                     protostuff, _ = blackboxprotobuf.decode_message(record.data, typess)
                     ssid = protostuff['SSID']
-                    status = 'Connected' if protostuff['Connect'] == 1 else 'Disconnected'
+                    connect = protostuff['Connect']
+                    status = {1: 'Connected', 0: 'Disconnected'}.get(connect, '')
                 except (DecodeError, struct.error, KeyError, ValueError, TypeError, IndexError) as ex:
                     # A SEGB v2 file can reuse its data area, leaving slots whose trailer still reads
                     # Written while the data itself has been overwritten; a failed CRC identifies
@@ -85,16 +87,16 @@ def get_biomeDevWifi(context):
                                 f"File: {context.get_relative_path(file_found)} | "
                                 f"Offset: {record.data_start_offset}")
                     continue
-                data_list.append((ts, record.state.name, ssid, status, filename, record.data_start_offset))
+                data_list.append((ts, record.state.name, ssid, status, connect, filename, record.data_start_offset))
 
             elif record.state == EntryState.Deleted:
-                data_list.append((ts, record.state.name, None, None, filename, record.data_start_offset))
+                data_list.append((ts, record.state.name, None, None, None, filename, record.data_start_offset))
 
         if stale_slots:
             logfunc(f"biomeDevWifi: skipped {stale_slots} record(s) with a failed CRC (overwritten "
                     f"data area) in {context.get_relative_path(file_found)}")
 
-    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'SSID', 'Status', 'Filename', 'Offset')
+    data_headers = (('SEGB Timestamp', 'datetime'), 'SEGB State', 'SSID', 'Status', 'Connect (As Stored)', 'Filename', 'Offset')
 
     return data_headers, data_list, '\n'.join(sorted(source_dirs))
 

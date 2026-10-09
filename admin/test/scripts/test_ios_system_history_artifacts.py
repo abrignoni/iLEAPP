@@ -77,6 +77,23 @@ class IOSSystemHistoryArtifactsTest(unittest.TestCase):
         self.assertEqual(rows[1][1], "Lockdownd startup")
         self.assertEqual(source, "lockdownd.log")
 
+    def test_lockdown_upgrade_from_null_keeps_its_own_label(self):
+        path = self.root / "lockdownd.log"
+        path.write_text(
+            "05/23/25 19:35:47.154568 pid=84 "
+            "roll_keys: Detected upgrade from 21A100 to 21B200\n"
+            "05/23/25 19:36:47.154568 pid=84 "
+            "roll_keys: Detected upgrade from (NULL) to 21B200\n",
+            encoding="utf-8",
+        )
+
+        _headers, rows, _source = lockdownEvents.__wrapped__(_Context([path]))
+
+        self.assertEqual([row[1] for row in rows], [
+            "Upgrade detected by lockdownd",
+            "Upgrade detected by lockdownd, from (NULL)",
+        ])
+
     def test_diagnostic_logd_converts_offset_to_utc(self):
         path = self.root / "logd.0.log"
         path.write_text(
