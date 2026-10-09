@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "address and time zone the app held for it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
-        "last_update_date": "2026-09-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "IFTTT",
         "notes": "Read from class_UserRecord in the app's Realm store (Documents/default.realm) "
@@ -35,7 +35,7 @@ __artifacts_v2__ = {
                        "stored with it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
-        "last_update_date": "2026-09-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "IFTTT",
         "notes": "Read from class_LiveConnectionRecord in the app's Realm store, which is where "
@@ -65,7 +65,7 @@ __artifacts_v2__ = {
                        "authenticate.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-02",
-        "last_update_date": "2026-09-02",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "IFTTT",
         "notes": "Read from class_LiveServiceRecord in the app's Realm store. Connected is the "
@@ -162,6 +162,10 @@ def _stores(files_found):
             logfunc(f'IFTTT: {os.path.basename(file_found)} did not parse: {error}')
             continue
         if not any(name in tables for name in _MARKER_CLASSES):
+            # The pattern matches any app's Documents/default.realm, so say which
+            # stores were left out. The last three path parts name the container.
+            shown = '/'.join(file_found.replace('\\', '/').split('/')[-3:])
+            logfunc(f'IFTTT: {shown} carries no IFTTT class, not read')
             continue
         found.append((file_found, tables))
     return found

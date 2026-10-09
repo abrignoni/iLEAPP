@@ -4,15 +4,17 @@ __artifacts_v2__ = {
         'description': 'Statuses with direct visibility cached by the Mastodon application',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Mastodon',
         'notes': "Rows are statuses whose stored ZVISIBILITYRAW value is \"direct\"."
                  " Conversation and Conversation Key are built by this module from the author "
                  "handle and the handles mentioned in the status; they are not a thread id the app "
-                 "stored. From Me compares the author with the account id taken from "
-                 "ZMASTODONAUTHENTICATION or, when that table is empty, from the first "
-                 "ZNOTIFICATION row.",
+                 "stored. From Me is 1 when the author's user id equals any ZUSERID value in "
+                 "ZMASTODONAUTHENTICATION or, when that table gives none, any ZUSERID value "
+                 "in ZNOTIFICATION. The comparison is on the user id alone, without the "
+                 "domain. A store holding more than one such id was not available for "
+                 "testing.",
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Databases/shared.sqlite*',),
         'output_types': 'all',
         'artifact_icon': 'message',
@@ -105,15 +107,19 @@ __artifacts_v2__ = {
     },
     'mastodonAccount': {
         'name': 'Mastodon - Account Information',
-        'description': 'The Mastodon account named by the app\'s authentication table or, when '
-                       'that table is empty, by the user id on the first notification row, with '
-                       'the instance recorded for its domain. One account is reported',
+        'description': 'The Mastodon accounts named by the app\'s authentication table or, when '
+                       'that table gives no user id, by the user ids on the notification rows, '
+                       'with the instance recorded for each account\'s domain',
         'author': '@AlexisBrignoni',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-25',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Mastodon',
-        'notes': 'When the authentication table is empty the account holder is identified from the notification owner ID.',
+        'notes': 'One row is reported for each cached user whose id equals a ZUSERID value in '
+                 'ZMASTODONAUTHENTICATION. When that table gives no user id, the ZUSERID values '
+                 'of ZNOTIFICATION are used, and Identified From says which table was used. The '
+                 'match is on the user id alone, without the domain. A store holding more than '
+                 'one such id was not available for testing; the tested image held one.',
         'paths': ('*/mobile/Containers/Shared/AppGroup/*/Databases/shared.sqlite*',),
         'output_types': 'standard',
         'artifact_icon': 'user',
@@ -214,6 +220,25 @@ def _get_local_user_id(source_path):
     return None
 
 
+def _get_local_user_ids(source_path):
+    """Every distinct signed-in user id, and the table it was read from.
+
+    Same source order as _get_local_user_id, without stopping at the first row,
+    so a store holding more than one account reports each of them.
+    """
+    for table in ('ZMASTODONAUTHENTICATION', 'ZNOTIFICATION'):
+        query = f'SELECT ZUSERID FROM {table} WHERE ZUSERID IS NOT NULL'
+        user_ids = []
+        for record in get_sqlite_db_records(source_path,
+                                            null_absent_columns(source_path, query)):
+            user_id = record['ZUSERID']
+            if user_id and user_id not in user_ids:
+                user_ids.append(user_id)
+        if user_ids:
+            return user_ids, table
+    return [], ''
+
+
 STATUS_QUERY = f'''
 SELECT
     s.ZCREATEDAT,
@@ -272,14 +297,14 @@ def mastodonDirectMessages(context):
     if not source_path:
         return data_headers, data_list, ''
 
-    local_user_id = _get_local_user_id(source_path)
+    local_user_ids, _ = _get_local_user_ids(source_path)
     query = STATUS_QUERY.format(where="WHERE s.ZVISIBILITYRAW = 'direct'")
 
     for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):
         attachment_urls, attachment_descriptions = _parse_attachments(record['attachments'])
         mentions = _parse_mentions(record['mentions'])
         author_id = record['authorId']
-        from_me = 1 if local_user_id and author_id == local_user_id else 0
+        from_me = 1 if author_id in local_user_ids else 0
 
         # A direct status has no thread ID of its own. The people mentioned in
         # it are what makes it one conversation, so key on that set.
@@ -502,14 +527,14 @@ def mastodonAccount(context):
     if not source_path:
         return data_headers, data_list, ''
 
-    local_user_id = _get_local_user_id(source_path)
-    if not local_user_id:
+    local_user_ids, id_table = _get_local_user_ids(source_path)
+    if not local_user_ids:
         return data_headers, data_list, source_path
 
-    auth_records = list(get_sqlite_db_records(
-        source_path,
-        'SELECT ZUSERID FROM ZMASTODONAUTHENTICATION WHERE ZUSERID IS NOT NULL LIMIT 1'))
-    identified_from = 'ZMASTODONAUTHENTICATION' if auth_records else 'ZNOTIFICATION owner ID'
+    identified_from = ('ZMASTODONAUTHENTICATION' if id_table == 'ZMASTODONAUTHENTICATION'
+                       else 'ZNOTIFICATION owner ID')
+    id_list = ', '.join("'" + str(user_id).replace("'", "''") + "'"
+                        for user_id in local_user_ids)
 
     query = f'''
     SELECT
@@ -527,7 +552,7 @@ def mastodonAccount(context):
         i.ZVERSION AS instanceVersion
     FROM ZMASTODONUSER u
     LEFT JOIN ZINSTANCE i ON i.ZDOMAIN = u.ZDOMAIN
-    WHERE u.ZID = '{local_user_id}'
+    WHERE u.ZID IN ({id_list})
     '''
 
     for record in get_sqlite_db_records(source_path, null_absent_columns(source_path, query)):

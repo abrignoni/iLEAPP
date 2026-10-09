@@ -7,27 +7,33 @@ __artifacts_v2__ = {
             "from the local cache database. The Chat/Chat ID columns identify the conversation; "
             "the Author/Author ID columns identify the sender of each individual message. "
             "Direction is Incoming when the stored flags carry the Incoming bit and Outgoing "
-            "otherwise."
+            "otherwise. Account ID is the number in the account folder name the database "
+            "was read from."
         ),
         "author": "Stek29 / Victor Oreshkin, updated by @AlexisBrignoni, @JamesHabben",
         "creation_date": "2023-05-01", # Placeholder, original date unknown
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "Python packages: mmh3",
         "category": "Telegram",
         "notes": "Original Gist: "
                  "https://gist.github.com/stek29/8a7ac0e673818917525ec4031d77a713/"
                  "9cb766ed4f977d55ccd0187024be92eac11b65ba (the newest revision on 3 October "
                  "2026; the revision this module was written from is not recorded). This module "
-                 "reads the db_sqlite file of every account under telegram-data. Rows do not name "
-                 "the account, and peer names and media files are looked up across all accounts "
-                 "read. Media files are linked from the postbox/media directory by file name. A "
-                 "database that raises an SQLite error is skipped without a log line, and the "
-                 "located-at path names only the last database read. In the client's "
-                 "TelegramMediaMap record 'bt' is liveBroadcastingTimeout, which this module "
-                 "prints as Period, and 'hdg' is heading (SyncCore_TelegramMediaMap.swift at "
+                 "reads the db_sqlite file of every account under telegram-data. Account ID "
+                 "is taken from the account folder name. Peer names, referenced media records "
+                 "and media files are looked up inside the same account folder as the message. "
+                 "Media files are linked from that account's postbox/media directory by file "
+                 "name. A database that raises an SQLite error is named in the run log; rows "
+                 "read from it before the error are kept. The located-at path lists every "
+                 "database read. In the client's "
+                 "TelegramMediaMap record 'bt' is liveBroadcastingTimeout, printed here as "
+                 "'bt (liveBroadcastingTimeout)' with the stored number and no unit, and 'hdg' "
+                 "is heading (SyncCore_TelegramMediaMap.swift lines 159 to 189 at "
                  "Telegram-iOS 6ad963e5). A location is labelled Dynamic Location Update when "
-                 "either is present. Venue details are stored under 've' and are not reported by "
-                 "this module. A photo message can reference several representations, each with "
+                 "either is present. Venue details are read from the 've' object of the same "
+                 "record: 'ti' title, 'ad' address, 'pr' provider, 'id' and 'ty' type (same "
+                 "file, lines 82 to 102). The venue reading follows that source and was not "
+                 "exercised on a tested image. A photo message can reference several representations, each with "
                  "its own file name, so every representation of an image is offered to the file "
                  "search rather than the largest alone. When only a file with the _partial suffix "
                  "is found under the names the message references, that file is attached and the "
@@ -70,13 +76,14 @@ __artifacts_v2__ = {
 
 import datetime
 import os
+import re
 import sqlite3
 import io
 import struct
 import enum
 import mmh3
 
-from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media
+from scripts.ilapfuncs import artifact_processor, open_sqlite_db_readonly, check_in_media, logfunc
 
 # Code courtesy of Stek29 / Victor Oreshkin
 # Github: https://gist.github.com/stek29
@@ -98,16 +105,16 @@ def telegramMessages(context):
         'Author ID',
         'Action Data',
         'Forward From',
+        'Account ID',
     ]
-    report_file_path = 'Unknown'
+    source_paths = []
 
     data_list = []
 
     # Initialize caches here to avoid mutable default argument issues
     # These caches will be passed to helper functions
-    peer_cache_global = {}
-    media_cache_global = {}
-    media_index_global = {}   # media file basename -> full path, built once
+    # They are rebuilt for each account so one account's records and files
+    # are never used for another account's messages.
 
     # Inner classes and enums (byteutil, MessageDataFlags, FwdInfoFlags, etc.)
     # These are self-contained and should not need modification for this refactor.
@@ -412,13 +419,26 @@ def telegramMessages(context):
 
             heading = m.get('hdg')
             accuracy = m.get('acc')
-            period_bt = m.get('bt') # Likely the 'period' for live locations
+            period_bt = m.get('bt') # liveBroadcastingTimeout in TelegramMediaMap
 
-            # Fields often found in venue/static locations
-            venue_title = m.get('venue_title') # Key based on common Telegram structures
-            venue_address = m.get('address')   # Key based on common Telegram structures
-            venue_provider = m.get('provider') # Key based on common Telegram structures
-            venue_id = m.get('venue_id')       # Key based on common Telegram structures
+            # MapVenue object, keys per SyncCore_TelegramMediaMap.swift
+            venue = m.get('ve') if isinstance(m.get('ve'), dict) else {}
+            venue_title = venue.get('ti')
+            venue_address = venue.get('ad')
+            venue_provider = venue.get('pr')
+            venue_id = venue.get('id')
+            venue_type = venue.get('ty')
+            venue_details = []
+            if venue_title:
+                venue_details.append(f"Venue: {venue_title}")
+            if venue_address:
+                venue_details.append(f"Address: {venue_address}")
+            if venue_provider:
+                venue_details.append(f"Provider: {venue_provider}")
+            if venue_id:
+                venue_details.append(f"Venue ID: {venue_id}")
+            if venue_type:
+                venue_details.append(f"Venue Type: {venue_type}")
 
 
             # Differentiate based on presence of fields common in live locations vs static/venue
@@ -429,21 +449,13 @@ def telegramMessages(context):
                     details.append(f"Hdg: {heading}°")
                 if accuracy is not None:
                     details.append(f"Acc: {accuracy}m")
-                if period_bt is not None: # 'bt' seems to be 'period' in seconds for live locations
-                    details.append(f"Period: {period_bt}s")
+                if period_bt is not None:
+                    details.append(f"bt (liveBroadcastingTimeout): {period_bt}")
             else:
                 location_type_str = "Static Location"
-                if venue_title:
-                    details.append(f"Venue: {venue_title}")
-                if venue_address:
-                    details.append(f"Address: {venue_address}")
-                if venue_provider: # e.g., "foursquare", "gplaces"
-                    details.append(f"Provider: {venue_provider}")
-                if venue_id:
-                    details.append(f"Venue ID: {venue_id}")
-                # Could also check for 'acc' (accuracy) here for static points if relevant
                 if accuracy is not None:
                     details.append(f"Acc: {accuracy}m")
+            details.extend(venue_details)
 
             text_for_report = f"{location_type_str}: {'; '.join(details)}"
             # No searchable_filename for these location dicts as they aren't separate files
@@ -460,7 +472,7 @@ def telegramMessages(context):
         return {'text_for_report': text_for_report, 'identifiers_for_file_search': identifiers}
 
     def process_message_for_report(idx, msg_data, con_param, peer_cache_param, media_cache_param,
-                                   files_found_param_main, media_index_param):
+                                   media_index_param):
         direction = 'Incoming' if MessageFlags.Incoming in msg_data['flags'] else 'Outgoing'
         ts = datetime.datetime.fromtimestamp(idx.timestamp, tz=datetime.timezone.utc)
         # idx.peerId is the chat/conversation the message belongs to (distinct from the sender).
@@ -508,17 +520,8 @@ def telegramMessages(context):
         media_item_ref_id = ''
 
         if media_search_ids:
-            # Index the media directory once per run instead of walking the
-            # whole file list for every message.
-            if not media_index_param:
-                for f_path_item in files_found_param_main:
-                    current_f_path_str = str(f_path_item)
-                    normalized_f_path = current_f_path_str.replace('\\', '/')
-                    if "/postbox/media/" not in normalized_f_path:
-                        continue
-                    media_index_param[normalized_f_path.rsplit('/', 1)[-1]] = \
-                        current_f_path_str
-
+            # media_index_param holds this account's media files only; it is
+            # built once per account in the main loop.
             found_media_file_path = None
             partial_only = False
             for candidate in media_search_ids:
@@ -1045,11 +1048,25 @@ def telegramMessages(context):
         normalized_db_path = file_found_single_path.replace('\\', '/')
         if (normalized_db_path.endswith('db_sqlite')
                 and '/postbox/media/' not in normalized_db_path):
-            report_file_path = file_found_single_path # This is the source_path for the report
+            report_file_path = file_found_single_path
+            account_root = normalized_db_path.rsplit('/postbox/db/', 1)[0]
+            account_match = re.search(r'/account-(\d+)$', account_root)
+            account_id = account_match.group(1) if account_match else ''
+            peer_cache_global = {}
+            media_cache_global = {}
+            media_index_global = {}   # this account's media file basename -> full path
+            media_prefix = account_root + '/postbox/media/'
+            for f_path_item in context.get_files_found():
+                current_f_path_str = str(f_path_item)
+                normalized_f_path = current_f_path_str.replace('\\', '/')
+                if normalized_f_path.startswith(media_prefix):
+                    media_index_global[normalized_f_path.rsplit('/', 1)[-1]] = \
+                        current_f_path_str
 
             db_connection = None
             try:
                 db_connection = open_sqlite_db_readonly(report_file_path)
+                source_paths.append(report_file_path)
 
                 # Iterate over all messages using the helper
                 for idx, msg_content in get_all_messages(db_connection):
@@ -1057,15 +1074,15 @@ def telegramMessages(context):
                         processed_row = process_message_for_report(
                             idx, msg_content, db_connection,
                             peer_cache_global, media_cache_global,
-                            context.get_files_found(), media_index_global
+                            media_index_global
                         )
-                        data_list.append(processed_row)
+                        data_list.append(processed_row + (account_id,))
 
-            except sqlite3.Error:
-                # print(f"SQLite error processing {report_file_path}: {e}")
-                pass # Or log error appropriately
+            except sqlite3.Error as err:
+                logfunc(f'Telegram messages: error reading {report_file_path}: {err}')
             finally:
                 if db_connection:
                     db_connection.close()
 
-    return data_headers, data_list, report_file_path
+    source_path = '\n'.join(dict.fromkeys(source_paths)) if source_paths else 'Unknown'
+    return data_headers, data_list, source_path

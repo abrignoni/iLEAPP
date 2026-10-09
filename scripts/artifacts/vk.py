@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "VK Messenger messages from the iOS client's messages store",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-22",
-        "last_update_date": "2026-09-22",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "VK",
         "notes": "Read from the message table of messages-store.sqlite in the client's "
@@ -12,7 +12,8 @@ __artifacts_v2__ = {
                  "Each message row carries a data column holding the message as JSON in the clear, and "
                  "the fields here are read from that JSON: Sent is the date value, Unix seconds; "
                  "Message is the text; From ID is the from_id; Direction is Outgoing when the JSON out "
-                 "flag is 1 and Incoming in every other case, including a row with no out flag. "
+                 "flag is 1, Incoming when it is 0, and blank for any other case, including a row "
+                 "with no out flag or with data that does not parse as JSON. "
                  "VK's API reference for the message object gives out as 0 received and 1 sent "
                  "(https://dev.vk.com/en/reference/objects/message); that the client's stored "
                  "JSON follows the API object is not established here. Conversation is the peer "
@@ -121,6 +122,16 @@ def _attachment_types(data):
     return ', '.join(types)
 
 
+def _direction(out_flag):
+    if isinstance(out_flag, bool):
+        out_flag = int(out_flag)
+    if out_flag == 1:
+        return 'Outgoing'
+    if out_flag == 0:
+        return 'Incoming'
+    return ''
+
+
 @artifact_processor
 def vkMessages(context):
     data_headers = (
@@ -150,7 +161,7 @@ def vkMessages(context):
             action = data.get('action') or ''
             data_list.append((
                 convert_unix_ts_to_utc(data.get('date')) if data.get('date') else '',
-                'Outgoing' if data.get('out') == 1 else 'Incoming',
+                _direction(data.get('out')),
                 names.get(from_id_str, ''),
                 titles.get(peer, peer),
                 data.get('text', ''),

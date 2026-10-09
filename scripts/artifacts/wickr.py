@@ -7,7 +7,7 @@ __artifacts_v2__ = {
                        "timestamps, the stored type values and any attached file",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from ZWICKR_MESSAGE in wickrLocal.sqlite, the Core Data store in the Wickr "
@@ -28,7 +28,8 @@ __artifacts_v2__ = {
                  "app's logs carry two further type values, 4006 and 9000, which do not appear in "
                  "this table at all; see the Wickr - App Log Message Events artifact.\n"
                  "Timestamps are read as Cocoa Core Data epoch. Flag columns show Yes for a "
-                 "non-zero stored value and No otherwise, including where the value is null. Read "
+                 "non-zero stored value, No for a stored zero and are blank where the value is "
+                 "null. Read "
                  "Timestamp, Delivery Timestamp and Read Receipt Status are blank where the app "
                  "version has no such column. Where a conversation has no stored group id or a "
                  "sender has no stored hash, the cell shows Convo or User followed by the record "
@@ -54,7 +55,7 @@ __artifacts_v2__ = {
                        "linked to the secure room record",
         "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-08-07",
-        "last_update_date": '2026-10-07',
+        "last_update_date": '2026-10-09',
         "requirements": "none",
         "category": "Wickr",
         "notes": 'Read from ZSECEX_CONVO in wickrLocal.sqlite. The Kind column is the Core Data entity '
@@ -75,8 +76,8 @@ __artifacts_v2__ = {
                  'current query, including repeated join occurrences. The relationship names were not read'
                  ' from the model and no source establishes an administrator role for these linked rows. '
                  'Last Timestamp, Last Sync Timestamp and Message Sync Timestamp are read as Unix seconds.'
-                 ' Flag columns show Yes for a non-zero value and No otherwise, including where the value '
-                 'is null or the column does not exist in that app version. Conversation names and '
+                 ' Flag columns show Yes for a non-zero value, No for a stored zero and are blank where '
+                 'the value is null or the column does not exist in that app version. Conversation names and '
                  'descriptions are stored as encrypted blobs and are not decoded. Original contribution '
                  'credited to Claude.',
         "paths": ('*/wickrLocal.sqlite*',),
@@ -95,7 +96,7 @@ __artifacts_v2__ = {
                        "last activity timestamp",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from ZSECEX_USER in wickrLocal.sqlite. ZUSERNAME, ZUSERALIAS, ZUSERID and "
@@ -103,8 +104,8 @@ __artifacts_v2__ = {
                  "and ZUSERALIASHASH columns are stored in the clear and are reported as stored. "
                  "The Source column is the stored ZSOURCE string, observed as 'ME' on the Wickr "
                  "Me image and 'PRO' on the AWS Wickr image. Flag columns show Yes for a non-zero "
-                 "stored value and No otherwise, including where the value is null or the column "
-                 "does not exist in that app version. Last Activity Time is read as Unix seconds.",
+                 "stored value, No for a stored zero and are blank where the value is null or the "
+                 "column does not exist in that app version. Last Activity Time is read as Unix seconds.",
         "paths": ('*/wickrLocal.sqlite*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -149,7 +150,7 @@ __artifacts_v2__ = {
                        "values",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Wickr",
         "notes": "Read from ZSECEX_ACCOUNT in wickrLocal.sqlite. The account user name, keys and "
@@ -160,9 +161,9 @@ __artifacts_v2__ = {
                  "names ForensicsManager, AntiForencisOperation and "
                  "ManualForensicsSweepOperation; the correspondence is noted, but what the "
                  "feature does to stored data is not established here. Column availability "
-                 "differs between app versions. Flag columns show Yes for a non-zero stored value "
-                 "and No otherwise, including where the value is null or the column does not "
-                 "exist in that app version, so No is not by itself a stored setting. Network "
+                 "differs between app versions. Flag columns show Yes for a non-zero stored value, "
+                 "No for a stored zero and are blank where the value is null or the column does "
+                 "not exist in that app version. Network "
                  "Timestamp is the first ZTIMESTAMP value in ZWICKR_NETWORK read as Unix seconds; "
                  "what it marks is not established.",
         "paths": ('*/wickrLocal.sqlite*',),
@@ -336,6 +337,14 @@ def _text(value):
     return '' if value is None else value
 
 
+def _flag(value):
+    """A stored flag as Yes or No. A null, or a column the app version does not
+    have, is left blank so it is not read as a stored No."""
+    if value is None:
+        return ''
+    return 'Yes' if value else 'No'
+
+
 def _message_type(value):
     """ZFULLTYPE is otherwise undocumented, so only the one value with support is
     labelled and the rest ship as the stored integer. See the artifact notes."""
@@ -407,10 +416,10 @@ def wickr_messages(context):
                 record[5] or (f'User {record[16]}' if record[16] else ''),
                 _message_type(record[6]),
                 record[7],
-                'Yes' if record[8] else 'No',
-                'Yes' if record[9] else 'No',
-                'Yes' if record[10] else 'No',
-                'Yes' if record[11] else 'No',
+                _flag(record[8]),
+                _flag(record[9]),
+                _flag(record[10]),
+                _flag(record[11]),
                 record[12],
                 _cocoa(record[13]),
                 ', '.join(f for f in files_by_message.get(record[0], []) if f),
@@ -471,13 +480,13 @@ def wickr_conversations(context):
                 record[2],
                 ', '.join(members.get(record[0], [])),
                 ', '.join(masters.get(record[0], [])),
-                'Yes' if record[6] else 'No',
-                'Yes' if record[7] else 'No',
-                'Yes' if record[8] else 'No',
+                _flag(record[6]),
+                _flag(record[7]),
+                _flag(record[8]),
                 _text(record[9]),
                 _text(record[10]),
-                'Yes' if record[11] else 'No',
-                'Yes' if record[12] else 'No',
+                _flag(record[11]),
+                _flag(record[12]),
                 _text(record[13]),
             ))
 
@@ -529,15 +538,15 @@ def wickr_users(context):
                 _text(record[2]),
                 _text(record[3]),
                 _text(record[4]),
-                'Yes' if record[5] else 'No',
-                'Yes' if record[6] else 'No',
-                'Yes' if record[7] else 'No',
-                'Yes' if record[8] else 'No',
-                'Yes' if record[9] else 'No',
-                'Yes' if record[10] else 'No',
-                'Yes' if record[11] else 'No',
-                'Yes' if record[12] else 'No',
-                'Yes' if record[13] else 'No',
+                _flag(record[5]),
+                _flag(record[6]),
+                _flag(record[7]),
+                _flag(record[8]),
+                _flag(record[9]),
+                _flag(record[10]),
+                _flag(record[11]),
+                _flag(record[12]),
+                _flag(record[13]),
                 _text(record[14]),
                 record[15],
             ))
@@ -638,17 +647,17 @@ def wickr_account(context):
                 record[0],
                 record[1],
                 record[2],
-                'Yes' if record[3] else 'No',
-                'Yes' if record[4] else 'No',
-                'Yes' if record[5] else 'No',
-                'Yes' if record[6] else 'No',
-                'Yes' if record[7] else 'No',
-                'Yes' if record[8] else 'No',
-                'Yes' if record[9] else 'No',
-                'Yes' if record[10] else 'No',
-                'Yes' if record[11] else 'No',
-                'Yes' if record[12] else 'No',
-                'Yes' if record[13] else 'No',
+                _flag(record[3]),
+                _flag(record[4]),
+                _flag(record[5]),
+                _flag(record[6]),
+                _flag(record[7]),
+                _flag(record[8]),
+                _flag(record[9]),
+                _flag(record[10]),
+                _flag(record[11]),
+                _flag(record[12]),
+                _flag(record[13]),
                 record[14],
                 record[15],
                 record[16],

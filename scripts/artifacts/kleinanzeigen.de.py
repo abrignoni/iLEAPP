@@ -23,14 +23,16 @@ __artifacts_v2__ = {
                  "messages branch. The cache filename alone does not establish app ownership.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2025-02-18",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Kleinanzeigen.de",
         "notes": "sender=0 is read as the local account; no source for that mapping is given here and it was "
                  "not measured on a counted sample. The OUTBOUND boundness value is read as the store spells "
                  "it. A conversation with no cached messages is reported as one row built from its preview: "
                  "the text is the shortened textShortTrimmed value, the time is receivedDate and the "
-                 "Message_ID is blank, so that row is a preview and not a message record. Times are read as "
+                 "Message_ID is blank, so that row is a preview and not a message record. A conversation "
+                 "with no cached messages whose preview keys are missing or whose receivedDate cannot "
+                 "be read produces no row, and the run log names its conversation id. Times are read as "
                  "Cocoa seconds and shown in UTC. The file is matched by name within any app container, so "
                  "the owning app should be confirmed from the source path. No tested image is recorded for "
                  "this artifact. Cache Row Origin is Preview only for rows emitted from an empty messages "
@@ -89,7 +91,7 @@ import json
 import plistlib
 import datetime
 
-from scripts.ilapfuncs import artifact_processor, get_file_path
+from scripts.ilapfuncs import artifact_processor, get_file_path, logfunc
 
 @artifact_processor
 def get_kleinanzeigenmessagecache(context):
@@ -137,8 +139,9 @@ def get_kleinanzeigenmessagecache(context):
                 conv_name = f"{ad_name} ({counter_name})"
                 data_list.append((m_rec, out, m_from, conv_name, m_text, conv_id, ad_id, id_from, m_to, id_to, m_att, m_id, ad_stat, "Preview"))
 
-            except (KeyError, TypeError, ValueError, OverflowError, OSError):
-                pass
+            except (KeyError, TypeError, ValueError, OverflowError, OSError) as ex:
+                logfunc(f'Kleinanzeigen.de message cache: no preview row for conversation '
+                        f'{conv_id}: {type(ex).__name__}: {ex}')
         else:
             for message in elem['messages']:
                 m_id = message['messageId']
