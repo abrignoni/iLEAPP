@@ -80,8 +80,8 @@ __artifacts_v2__ = {
         "name": "Health - Headphone Audio Levels",
         "description": "Headphone audio level samples (data type 173), one row per metadata value "
                        "stored for the sample other than the "
-                       "_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient key. A sample with no "
-                       "metadata value is not reported. Queries are a derivative of research "
+                       "_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient key, and one row for a "
+                       "sample with no metadata value. Queries are a derivative of research "
                        "provided by Heather Mahalik and Jared Barnhart as part of their SANS DFIR "
                        "Summit 2022 talk as well as research provided by Sarah Edwards as part of "
                        "her APOLLO project. https://for585.com/dfirsummit22 - "
@@ -89,10 +89,16 @@ __artifacts_v2__ = {
                        "bd725461fbd22c8ceadd04f0c4ded49b66147439/modules",
         "author": "@KevinPagano3",
         "creation_date": "2022-08-24",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "Quantity (as stored) is quantity_samples.quantity for the sample, reported as "
+                 "stored; earlier versions of this artifact headed the column Decibels, and the "
+                 "unit of the stored number is not established here. A sample with no metadata "
+                 "value is reported once with Bundle Name and Key blank. A sample whose only "
+                 "metadata value has the key _HKPrivateMetadataKeyHeadphoneAudioDataIsTransient is "
+                 "not reported. The sample_data counts were recorded before samples with no "
+                 "metadata value were kept and were not remeasured for that change.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "standard",
         "artifact_icon": "headphones",
@@ -384,10 +390,15 @@ __artifacts_v2__ = {
                        "kilograms, stones, and pounds.",
         "author": "@SQLMcGee",
         "creation_date": "2023-04-04",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "Weight (in Kilograms) is quantity_samples.quantity as stored, with no rounding "
+                 "or cutting of digits; earlier versions of this artifact showed its first five "
+                 "characters. The kilogram unit is the one the original artifact assigned and is "
+                 "not sourced here. Weight (Approximate in Pounds) is the stored quantity "
+                 "multiplied by 2.20462262 and rounded to two decimal places; earlier versions "
+                 "showed the first six characters of the product.",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -451,13 +462,13 @@ __artifacts_v2__ = {
         'description': 'Parses Apple Health Sleep Data from the healthdb_secure.sqlite database',
         'author': '@SQLMcGee for Metadata Forensics, LLC',
         'creation_date': '2024-08-01',
-        'last_update_date': '2025-10-13',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Health',
         'notes': "One row per sleep sample (data type 63) whose provenance names a Watch and whose "
                  "category value is not 0 or 1. Values 2, 3, 4 and 5 are labelled AWAKE, CORE, "
                  "DEEP and REM, the names the cited article gives them; any other value is "
-                 "reported with a blank label. Additional details "
+                 "shown in Sleep State as the stored number, with no label. Additional details "
                  "published within 'Sleepless in Cupertino: A Forensic Dive into Apple Watch Sleep "
                  "Tracking' at "
                  "https://metadataperspective.com/2024/08/01/"
@@ -498,7 +509,14 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-04",
         "requirements": "none",
         "category": "Health",
-        "notes": "",
+        "notes": "The samples read are sleep samples (data type 63) whose provenance names a Watch "
+                 "and whose category value is not 0 or 1. Category values 2, 3, 4 and 5 are "
+                 "counted as awake, core, deep and REM, the names the cited article gives them. A "
+                 "sample with any other category value stays in its period: it counts toward the "
+                 "period span and toward the total each percentage is divided by, and toward no "
+                 "stage duration or stage percentage, so the four percentages of such a period "
+                 "add up to less than 100. Whether a tested image holds such a sample was not "
+                 "measured.",
         "paths": ("*Health/healthdb_secure.sqlite*",),
         "output_types": "standard",
         "artifact_icon": "moon",
@@ -994,11 +1012,13 @@ def health_headphone_audio_levels(context):
     LEFT OUTER JOIN objects ON samples.data_id = objects.data_id
     LEFT OUTER JOIN data_provenances ON objects.provenance = data_provenances.ROWID
     LEFT OUTER JOIN healthdb.source_devices ON healthdb.source_devices.ROWID = data_provenances.device_id
-    WHERE samples.data_type = 173 AND metadata_keys.key != "_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient"
+    WHERE samples.data_type = 173
+        AND (metadata_values.object_id IS NULL
+             OR metadata_keys.key != '_HKPrivateMetadataKeyHeadphoneAudioDataIsTransient')
     '''
 
     data_headers = (
-        ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'), 'Decibels',
+        ('Start Timestamp', 'datetime'), ('End Timestamp', 'datetime'), 'Quantity (as stored)',
         'Bundle Name', 'Device Name', 'Device Manufacturer', 'Device Model',
         'Local Identifier', 'Key', 'Data ID')
 
@@ -1326,7 +1346,7 @@ def health_weight(context):
     query = '''
     SELECT
         samples.start_date AS "Weight Value Timestamp",
-        SUBSTR(quantity_samples.quantity,1,5) AS "Weight (in Kilograms)",
+        quantity_samples.quantity AS "Weight (in Kilograms)",
         CASE
             WHEN SUBSTR(CAST(ROUND(((quantity_samples.quantity / 6.35029317) -
                 CAST(quantity_samples.quantity / 6.35029317 AS INT)) * 14) AS VARCHAR),
@@ -1341,7 +1361,7 @@ def health_weight(context):
                 CAST(quantity_samples.quantity / 6.35029317 AS INT)) * 14) AS VARCHAR), '.')
                 - 1) || ' Pounds'))
             END AS "Weight (in Stones and Pounds)",
-        SUBSTR((quantity_samples.quantity * '2.20462262'),1,6) AS "Weight (Approximate in Pounds)"
+        ROUND(quantity_samples.quantity * 2.20462262, 2) AS "Weight (Approximate in Pounds)"
     FROM samples
     LEFT OUTER JOIN quantity_samples ON samples.data_id = quantity_samples.data_id
     WHERE samples.data_type = '3'
@@ -1444,6 +1464,7 @@ def health_all_watch_sleep_data(context):
             WHEN category_samples.value IS 3 THEN "CORE"
             WHEN category_samples.value IS 4 THEN "DEEP"
             WHEN category_samples.value IS 5 THEN "REM"
+            ELSE CAST(category_samples.value AS TEXT)
         END,
         SAMPLES.END_DATE,
         STRFTIME('%H:%M:%S', (samples.end_date - samples.start_date), 'unixepoch')

@@ -7,13 +7,14 @@ __artifacts_v2__ = {
                        "No registered corpus coverage is recorded for this artifact.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2023-11-21",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Finance",
         "notes": "The four As Stored columns use their SQLite column names and retain the "
                  "selected values without interpretation. Their names do not establish "
                  "attachment presence, transaction status, transaction type or transaction "
-                 "direction. Only the first matched Twint.sqlite is read. "
+                 "direction. Every matched Twint.sqlite is read, and the report's located at "
+                 "line lists each one read. "
                  "Original parser credit: @KefreR (Frank Ressat).",
         "paths": ('*/var/mobile/Containers/Data/Application/*/Library/Application Support/Twint.sqlite*',),
         "output_types": "standard",
@@ -31,8 +32,7 @@ from scripts.ilapfuncs import (
 def twint_transactions(context):
     files_found = context.get_files_found()
     data_list = []
-    db_file = ''
-    db_records = []
+    source_paths = []
 
     query = '''
         SELECT
@@ -61,11 +61,16 @@ def twint_transactions(context):
             ZTRANSACTION.ZMERCHANTCONFIRMATION
         FROM ZTRANSACTION'''
 
+    db_records = []
     for file_found in files_found:
-        if file_found.endswith('Twint.sqlite'):
-            db_file = file_found
-            db_records = get_sqlite_db_records(db_file, query)
-            break
+        file_found = str(file_found)
+        if not file_found.endswith('Twint.sqlite'):
+            continue
+        relative_path = context.get_relative_path(file_found)
+        if relative_path in source_paths:
+            continue
+        source_paths.append(relative_path)
+        db_records.extend(get_sqlite_db_records(file_found, query) or [])
 
     for record in db_records:
         creation_date = convert_cocoa_core_data_ts_to_utc(record[0])
@@ -94,4 +99,4 @@ def twint_transactions(context):
         'ZORDERSTATEVALUE (As Stored)', 'ZORDERTYPEVALUE (As Stored)',
         'ZTRANSACTIONSIDEVALUE (As Stored)', 'Merchant confirmation')
 
-    return data_headers, data_list, context.get_relative_path(db_file)
+    return data_headers, data_list, '\n'.join(source_paths)

@@ -9,16 +9,14 @@ __artifacts_v2__ = {
 ' columns follow Scott Koenig\'s research, described at'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
 ' This field does not state how each label was derived. A stored value with no label'
-' is shown as \'Unknown-New-Value!: \' followed by the value, with five exceptions. The'
-' columns whose headers end in -2, -122, -188 and -659 (decoded from ZCOMPLETE, ZKIND,'
-' ZFAVORITE of ZASSET and ZFAVORITE of ZMEMORY) are blank for such a value, and the'
-' column whose header ends in -167 (decoded from ZDEPTHTYPE) shows \'Portrait: \''
-' followed by any value other than 0. The output has 1,094 columns. The TSV export can'
+' is shown as \'Unknown-New-Value!: \' followed by the value. The only label for'
+' ZDEPTHTYPE is the one for 0, so any other stored value is shown that way and no'
+' meaning is assigned to it. The output has 1,094 columns. The TSV export can'
 ' be filtered in a table viewer such as Eric Zimmerman\'s Timeline Explorer'
 ' (https://ericzimmerman.github.io/#!index.md).',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-09',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -55,16 +53,14 @@ __artifacts_v2__ = {
 ' value labels in the decoded columns follow Scott Koenig\'s research, described at'
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/.'
 ' This field does not state how each label was derived. A stored value with no label'
-' is shown as \'Unknown-New-Value!: \' followed by the value, with five exceptions. The'
-' columns whose headers end in -2, -122, -188 and -659 (decoded from ZCOMPLETE, ZKIND,'
-' ZFAVORITE of ZASSET and ZFAVORITE of ZMEMORY) are blank for such a value, and the'
-' column whose header ends in -167 (decoded from ZDEPTHTYPE) shows \'Portrait: \''
-' followed by any value other than 0. The output has 1,094 columns. The TSV export can'
+' is shown as \'Unknown-New-Value!: \' followed by the value. The only label for'
+' ZDEPTHTYPE is the one for 0, so any other stored value is shown that way and no'
+' meaning is assigned to it. The output has 1,094 columns. The TSV export can'
 ' be filtered in a table viewer such as Eric Zimmerman\'s Timeline Explorer'
 ' (https://ericzimmerman.github.io/#!index.md).',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-09',
 'version': '5.0',
 'date': '2025-01-05',
 'requirements': 'Acquisition that contains Syndication.photoslibrary-database-Photos.sqlite',
@@ -124,6 +120,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZCOMPLETE || ''
 		END AS 'zAsset Complete',
 		zAsset.Z_PK AS 'zAsset-zPK-4QueryStart',
 		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK-4QueryStart',
@@ -490,6 +487,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zAsset.ZKIND
 			WHEN 0 THEN '0-Photo-0'
 			WHEN 1 THEN '1-Video-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZKIND || ''
 		END AS 'zAsset-Kind',
 		CASE zAsset.ZKINDSUBTYPE
 			WHEN 0 THEN '0-Still-Photo-0'
@@ -739,7 +737,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		zCldMast.ZPLACEHOLDERSTATE AS 'zCldMast-Placeholder State',
 		CASE zAsset.ZDEPTHTYPE
 			WHEN 0 THEN '0-Not_Portrait-0_RT'
-			ELSE 'Portrait: ' || zAsset.ZDEPTHTYPE || ''
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZDEPTHTYPE || ''
 		END AS 'zAsset-Depth_Type',
 		zAsset.ZAVALANCHEUUID AS 'zAsset-Avalanche UUID-4TableStart',
 		CASE zAsset.ZAVALANCHEPICKTYPE
@@ -810,6 +808,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zAsset.ZFAVORITE
 			WHEN 0 THEN '0-Asset Not Favorite-0'
 			WHEN 1 THEN '1-Asset Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZFAVORITE || ''
 		END AS 'zAsset-Favorite',
 		CASE zAsset.ZHIDDEN
 			WHEN 0 THEN '0-Asset Not Hidden-0'
@@ -2138,6 +2137,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zMemory.ZFAVORITE
 			WHEN 0 THEN 'Memory Not Favorite-0'
 			WHEN 1 THEN 'Memory Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zMemory.ZFAVORITE || ''
 		END AS 'zMemory-Favorite Memory',
 		zMemory.ZVIEWCOUNT AS 'zMemory-View Count',
 		zMemory.ZPLAYCOUNT AS 'zMemory-Play Count',
@@ -3993,6 +3993,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZCOMPLETE || ''
 		END AS 'zAsset Complete',
 		zAsset.Z_PK AS 'zAsset-zPK-4QueryStart',
 		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK-4QueryStart',
@@ -4359,6 +4360,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zAsset.ZKIND
 			WHEN 0 THEN '0-Photo-0'
 			WHEN 1 THEN '1-Video-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZKIND || ''
 		END AS 'zAsset-Kind',
 		CASE zAsset.ZKINDSUBTYPE
 			WHEN 0 THEN '0-Still-Photo-0'
@@ -4608,7 +4610,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		zCldMast.ZPLACEHOLDERSTATE AS 'zCldMast-Placeholder State',
 		CASE zAsset.ZDEPTHTYPE
 			WHEN 0 THEN '0-Not_Portrait-0_RT'
-			ELSE 'Portrait: ' || zAsset.ZDEPTHTYPE || ''
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZDEPTHTYPE || ''
 		END AS 'zAsset-Depth_Type',
 		zAsset.ZAVALANCHEUUID AS 'zAsset-Avalanche UUID-4TableStart',
 		CASE zAsset.ZAVALANCHEPICKTYPE
@@ -4679,6 +4681,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zAsset.ZFAVORITE
 			WHEN 0 THEN '0-Asset Not Favorite-0'
 			WHEN 1 THEN '1-Asset Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZFAVORITE || ''
 		END AS 'zAsset-Favorite',
 		CASE zAsset.ZHIDDEN
 			WHEN 0 THEN '0-Asset Not Hidden-0'
@@ -6007,6 +6010,7 @@ def Ph097_1iOS17RefforAssetAnalysisPhDaPsql(context):
 		CASE zMemory.ZFAVORITE
 			WHEN 0 THEN 'Memory Not Favorite-0'
 			WHEN 1 THEN 'Memory Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zMemory.ZFAVORITE || ''
 		END AS 'zMemory-Favorite Memory',
 		zMemory.ZVIEWCOUNT AS 'zMemory-View Count',
 		zMemory.ZPLAYCOUNT AS 'zMemory-Play Count',
@@ -7881,6 +7885,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZCOMPLETE || ''
 		END AS 'zAsset Complete',
 		zAsset.Z_PK AS 'zAsset-zPK-4QueryStart',
 		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK-4QueryStart',
@@ -8247,6 +8252,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zAsset.ZKIND
 			WHEN 0 THEN '0-Photo-0'
 			WHEN 1 THEN '1-Video-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZKIND || ''
 		END AS 'zAsset-Kind',
 		CASE zAsset.ZKINDSUBTYPE
 			WHEN 0 THEN '0-Still-Photo-0'
@@ -8496,7 +8502,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		zCldMast.ZPLACEHOLDERSTATE AS 'zCldMast-Placeholder State',
 		CASE zAsset.ZDEPTHTYPE
 			WHEN 0 THEN '0-Not_Portrait-0_RT'
-			ELSE 'Portrait: ' || zAsset.ZDEPTHTYPE || ''
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZDEPTHTYPE || ''
 		END AS 'zAsset-Depth_Type',
 		zAsset.ZAVALANCHEUUID AS 'zAsset-Avalanche UUID-4TableStart',
 		CASE zAsset.ZAVALANCHEPICKTYPE
@@ -8567,6 +8573,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zAsset.ZFAVORITE
 			WHEN 0 THEN '0-Asset Not Favorite-0'
 			WHEN 1 THEN '1-Asset Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZFAVORITE || ''
 		END AS 'zAsset-Favorite',
 		CASE zAsset.ZHIDDEN
 			WHEN 0 THEN '0-Asset Not Hidden-0'
@@ -9895,6 +9902,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zMemory.ZFAVORITE
 			WHEN 0 THEN 'Memory Not Favorite-0'
 			WHEN 1 THEN 'Memory Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zMemory.ZFAVORITE || ''
 		END AS 'zMemory-Favorite Memory',
 		zMemory.ZVIEWCOUNT AS 'zMemory-View Count',
 		zMemory.ZPLAYCOUNT AS 'zMemory-Play Count',
@@ -11750,6 +11758,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		DateTime(zAsset.ZSORTTOKEN + 978307200, 'UNIXEPOCH') AS 'zAsset- SortToken -CameraRoll',
 		CASE zAsset.ZCOMPLETE
 			WHEN 1 THEN '1-Yes-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZCOMPLETE || ''
 		END AS 'zAsset Complete',
 		zAsset.Z_PK AS 'zAsset-zPK-4QueryStart',
 		zAddAssetAttr.Z_PK AS 'zAddAssetAttr-zPK-4QueryStart',
@@ -12116,6 +12125,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zAsset.ZKIND
 			WHEN 0 THEN '0-Photo-0'
 			WHEN 1 THEN '1-Video-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZKIND || ''
 		END AS 'zAsset-Kind',
 		CASE zAsset.ZKINDSUBTYPE
 			WHEN 0 THEN '0-Still-Photo-0'
@@ -12365,7 +12375,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		zCldMast.ZPLACEHOLDERSTATE AS 'zCldMast-Placeholder State',
 		CASE zAsset.ZDEPTHTYPE
 			WHEN 0 THEN '0-Not_Portrait-0_RT'
-			ELSE 'Portrait: ' || zAsset.ZDEPTHTYPE || ''
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZDEPTHTYPE || ''
 		END AS 'zAsset-Depth_Type',
 		zAsset.ZAVALANCHEUUID AS 'zAsset-Avalanche UUID-4TableStart',
 		CASE zAsset.ZAVALANCHEPICKTYPE
@@ -12436,6 +12446,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zAsset.ZFAVORITE
 			WHEN 0 THEN '0-Asset Not Favorite-0'
 			WHEN 1 THEN '1-Asset Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zAsset.ZFAVORITE || ''
 		END AS 'zAsset-Favorite',
 		CASE zAsset.ZHIDDEN
 			WHEN 0 THEN '0-Asset Not Hidden-0'
@@ -13764,6 +13775,7 @@ def Ph097_2iOS17RefforAssetAnalysisSyndPL(context):
 		CASE zMemory.ZFAVORITE
 			WHEN 0 THEN 'Memory Not Favorite-0'
 			WHEN 1 THEN 'Memory Favorite-1'
+			ELSE 'Unknown-New-Value!: ' || zMemory.ZFAVORITE || ''
 		END AS 'zMemory-Favorite Memory',
 		zMemory.ZVIEWCOUNT AS 'zMemory-View Count',
 		zMemory.ZPLAYCOUNT AS 'zMemory-Play Count',

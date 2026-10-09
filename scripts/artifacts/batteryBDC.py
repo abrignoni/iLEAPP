@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Parses battery usage and temps from Battery Data Collection (BDC) logs",
         "author": "@stark4n6, @AlexisBrignoni, Codex",
         "creation_date": "2026-03-18",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Battery",
         "notes": "Temperature scale: the stored Temperature value is centi-Celsius (Celsius x "
@@ -13,9 +13,14 @@ __artifacts_v2__ = {
                  "two test images: dividing by 100 yields 21.7-37.2 C, consistent with an "
                  "operating device and rising while IsCharging is set, while a x1000 scale "
                  "would imply near-freezing temperatures. The reference below states Celsius "
-                 "x 1000, which does not agree with this measurement. This artifact reads "
-                 "columns by position and skips the header row without checking it. Which "
-                 "files' header rows were compared with these positions is not recorded here. "
+                 "x 1000, which does not agree with this measurement. Each file's header row "
+                 "is read: TimeStamp, CurrentCapacity, IsCharging, Temperature, Amperage, "
+                 "Voltage and StateOfCharge are taken from the column carrying that exact "
+                 "name, and from positions 1, 3, 4, 5, 6, 8 and 9 when the header does not "
+                 "carry the name. Watts is read from position 19; the header name of that "
+                 "column is not recorded here. On the abe_ios16 test file the seven names sit "
+                 "at those positions. "
+                 "Data rows too short to hold those columns are skipped with a diagnostic. "
                  "Reference: Kevin Pagano, 'BDC - More Battery Temps & Charging Stats for "
                  "iOS', "
                  "https://www.stark4n6.com/2026/03/bdc-more-battery-temps-charging-stats.html",
@@ -191,6 +196,11 @@ import os
 from scripts.ilapfuncs import artifact_processor, logfunc
 
 
+# BDC_SBC header names with the zero-based position used when a header lacks the name.
+_SBC_COLUMNS = (('timestamp', 0), ('currentcapacity', 2), ('ischarging', 3),
+                ('temperature', 4), ('amperage', 5), ('voltage', 7), ('stateofcharge', 8))
+
+
 def _col(row, index, default=''):
     return row[index] if len(row) > index else default
 
@@ -257,7 +267,14 @@ def battery_bdc(context):
 
         with open(file_found, 'r', encoding='utf-8') as f:
             delimited = csv.reader(f, delimiter=',')
-            next(delimited, None)
+            header = next(delimited, None)
+            if header is None:
+                continue
+            normed = [h.strip().lower() for h in header]
+            # Exact header name where the file carries it, else the fixed position.
+            (i_ts, i_cap, i_chg, i_temp, i_amp, i_volt, i_soc) = [
+                normed.index(name) if name in normed else position
+                for name, position in _SBC_COLUMNS]
             try:
                 first_row = next(delimited)
             except StopIteration:
@@ -270,20 +287,32 @@ def battery_bdc(context):
                 continue
 
             for item in (first_row, *delimited):
-                timestamp = item[0]
-                current_cap = item[2]
-                is_charging = int(item[3])
+                if len(item) < 9:
+                    logfunc(
+                        f"Skipping BDC data row: expected at least 9 columns, "
+                        f"found {len(item)}"
+                    )
+                    continue
+                if len(item) <= max(i_ts, i_cap, i_chg, i_temp, i_amp, i_volt, i_soc):
+                    logfunc(
+                        f"Skipping BDC data row: named columns not present, "
+                        f"found {len(item)} columns"
+                    )
+                    continue
+                timestamp = item[i_ts]
+                current_cap = item[i_cap]
+                is_charging = int(item[i_chg])
                 if is_charging == 0:
                     charging_status = 'No'
                 elif is_charging == 1:
                     charging_status = 'Yes'
                 else:
                     charging_status = is_charging
-                temp = round(float(item[4]) / 100 * 1.8 + 32, 3)
-                temp2 = float(item[4]) / 100
-                amperage = item[5]
-                voltage = item[7]
-                soc = item[8]
+                temp = round(float(item[i_temp]) / 100 * 1.8 + 32, 3)
+                temp2 = float(item[i_temp]) / 100
+                amperage = item[i_amp]
+                voltage = item[i_volt]
+                soc = item[i_soc]
                 watts = _col(item, 18)
 
                 data_list.append((

@@ -125,7 +125,7 @@ class TestZangiRawType(unittest.TestCase):
     def test_new_native_types_and_fanout(self):
         self.check_layout(True)
 
-    def test_multiple_sources_repeats_and_unchanged_media_preference(self):
+    def test_multiple_sources_keep_their_own_group_media(self):
         with tempfile.TemporaryDirectory() as root:
             root = Path(root)
             mains = [root / group / 'zangidb.sqlite' for group in ['A', 'B']]
@@ -143,8 +143,11 @@ class TestZangiRawType(unittest.TestCase):
                 self.assertEqual(source.splitlines(), list(map(str, mains)))
                 self.assertEqual([sum(r[15] == group + '/zangidb.sqlite'
                                       for r in rows) for group in ['A', 'B']], [24, 24])
-                self.assertEqual({r[5] for r in rows if r[5]},
-                                 {media_reference(order[0])})
+                for group, own in zip(['A', 'B'], media):
+                    self.assertEqual(
+                        {r[5] for r in rows
+                         if r[5] and r[15] == group + '/zangidb.sqlite'},
+                        {media_reference(own)})
                 self.assertEqual(sum(r[9] == 'msgId3' for r in rows), 4)
 
     def test_legacy_live_wal(self):

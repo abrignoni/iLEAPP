@@ -5,22 +5,26 @@ __artifacts_v2__ = {
         "author": "C_Peter",
         "creatin_date": "2026-06-01",
         "creation_date": "2026-06-01",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "pillow",
         "category": "Zalo",
         "notes": "Message type mappings are not vendor-documented and no published source for "
                  "them is cited. They were derived from test data that is not recorded here, so "
                  "each label is a reading of the stored type code and not an established meaning. "
                  "Unrecognized types are reported as Unknown, or for type 12 rows with no "
-                 "recognised marker as 'Unknown (12)' or 'Unknown) 12', with the raw Type ID "
+                 "recognised marker as 'Unknown (12)', with the raw Type ID "
                  "column. Outgoing is not a stored flag: it is 1 when the row's SenderId equals "
-                 "the account id taken from the chat_dbs folder name of one of the databases "
-                 "read, and that one id is used for every database. Attachment File is the file "
+                 "the account id taken from the chat_dbs folder name of the database the row was "
+                 "read from. Sender and chat names, media files and attached files are looked up "
+                 "in the app container that holds that database. Attachment File is the file "
                  "the row's LocalPath names where one is stored. Where it is not, media rows are "
                  "matched to a file in the account's media folders whose path holds the chat id "
                  "and whose name without its extension appears in the row's BinNet blob, and file "
                  "rows to a file under Documents/Files whose folder hash and name both appear in "
-                 "the blob; these matches are made by the module. On voice note and link rows "
+                 "the blob; these matches are made by the module and are not a link the store "
+                 "records. Where several files match, a media row keeps the first match that is "
+                 "not a JPEG, or the first match when all are, and a file row keeps the last "
+                 "match. On voice note and link rows "
                  "whose MsgContent is empty, and on media rows with an empty MsgContent, no "
                  "LocalPath and no matched file, Message holds the last web address found in the "
                  "row's BinNet blob. On sticker rows whose MsgContent holds the two sticker "
@@ -177,32 +181,12 @@ def zalo_messages(context):
     """Extracts Zalo Chats and Groupchats"""
     files_found = context.get_files_found()
     data_list = []
-    chat_dbs = [x for x in files_found if "chat_dbs" in x and x.endswith('.db') and "_ext" not in x]
-    chat_dbs = list(set(chat_dbs))
-    first_db = chat_dbs[0]
-    first_db_path = Path(first_db)
-    idx = first_db_path.parts.index("chat_dbs")
-    user_id = first_db_path.parts[idx + 1]
-    #user_id = first_db.split("chat_dbs/")[1].split("/")[0]
-    print(f"Found local user id: {user_id}")
-    db_path_parts = Path(first_db).parts
-    idx = db_path_parts.index("Documents")
-    uuid = db_path_parts[idx - 1]
-    files_found = [x for x in files_found if uuid in x]
-    chat_info = get_file_path(files_found, 'profile.sqlite')
-    group_info = get_file_path(files_found, 'chatgroup.sqlite')
-    media_pattern = re.compile(rf"/(?:Documents|tmp)/{user_id}/\d+/")
-    media_list = [x for x in files_found if media_pattern.search(x.replace("\\", "/"))]
+    all_files = files_found
+    chat_dbs = [x for x in all_files if "chat_dbs" in x and x.endswith('.db') and "_ext" not in x]
+    chat_dbs = sorted(set(chat_dbs))
     file_pattern = re.compile(r"^.*?/Documents/Files/(?P<hash>[a-fA-F0-9]{32})/(?P<filename>[^/]+)$")
-    file_dicts = []
-    for file in files_found:
-        match = file_pattern.match(file.replace("\\", "/"))
-        if match:
-            file_dicts.append({
-                "path": file,
-                "hash": match.group("hash"),
-                "filename": match.group("filename"),
-            })
+    container_cache = {}
+    media_cache = {}
 
     user_query = '''
         SELECT
@@ -232,23 +216,47 @@ def zalo_messages(context):
     '''
 
     source_dirs = set()
-    user_dict = {}
-    user_records = get_sqlite_db_records(chat_info, user_query)
-    for record in user_records:
-        uid = record["userid"]
-        uname = record["displayname"]
-        user_dict[uid] = uname
 
-    group_dict = {}
-    group_records = get_sqlite_db_records(group_info, group_query)
-    for record in group_records:
-        gid = record["groupid"]
-        gname = record["name"]
-        group_dict[gid] = gname
+    def _container(uuid):
+        """Files and name lookups of one app container, read once."""
+        if uuid not in container_cache:
+            container_files = [x for x in all_files if uuid in Path(x).parts]
+            names = {}
+            chat_info = get_file_path(container_files, 'profile.sqlite')
+            if chat_info:
+                for record in get_sqlite_db_records(chat_info, user_query):
+                    names[record["userid"]] = record["displayname"]
+            groups = {}
+            group_info = get_file_path(container_files, 'chatgroup.sqlite')
+            if group_info:
+                for record in get_sqlite_db_records(group_info, group_query):
+                    groups[record["groupid"]] = record["name"]
+            attached = []
+            for file in container_files:
+                match = file_pattern.match(file.replace("\\", "/"))
+                if match:
+                    attached.append({
+                        "path": file,
+                        "hash": match.group("hash"),
+                        "filename": match.group("filename"),
+                    })
+            container_cache[uuid] = (container_files, names, groups, attached)
+        return container_cache[uuid]
 
     for db_file in chat_dbs:
         source_file = db_file
         source_dirs.add(os.path.dirname(db_file))
+        # The account id and the app container are taken from this database's
+        # own path, so a second account or container keeps its own values.
+        db_path_parts = Path(db_file).parts
+        user_id = db_path_parts[db_path_parts.index("chat_dbs") + 1]
+        uuid = db_path_parts[db_path_parts.index("Documents") - 1]
+        files_found, user_dict, group_dict, file_dicts = _container(uuid)
+        if (uuid, user_id) not in media_cache:
+            media_pattern = re.compile(rf"/(?:Documents|tmp)/{re.escape(user_id)}/\d+/")
+            media_cache[(uuid, user_id)] = [
+                x for x in files_found if media_pattern.search(x.replace("\\", "/"))]
+        media_list = media_cache[(uuid, user_id)]
         isgroup = False
         if "group_" in db_file:
             isgroup = True
@@ -328,32 +336,24 @@ def zalo_messages(context):
                 type_groupcall = "recommened.groupcall"
                 type_link = "recommened.link"
                 type_user = "recommened.user"
-                if isinstance(msg_blob, bytes):
-                    if type_call.encode() in msg_blob:
-                        print_type = "Call"
-                    elif type_missed.encode() in msg_blob:
-                        print_type = "Missed Call"
-                    elif type_groupcall.encode() in msg_blob:
-                        print_type = "Groupcall"
-                    elif type_link.encode() in msg_blob:
-                        print_type = "Link"
-                    elif type_user.encode() in msg_blob:
-                        print_type = "User"
-                    else:
-                        print_type = "Unknown (12)"
+                if msg_blob is None:
+                    blob_text = ""
+                elif isinstance(msg_blob, bytes):
+                    blob_text = msg_blob.decode("latin-1")
                 else:
-                    if type_call in msg_blob:
-                        print_type = "Call"
-                    elif type_missed in msg_blob:
-                        print_type = "Missed Call"
-                    elif type_groupcall in msg_blob:
-                        print_type = "Groupcall"
-                    elif type_link in msg_blob:
-                        print_type = "Link"
-                    elif type_user in msg_blob:
-                        print_type = "User"
-                    else:
-                        print_type = "Unknown) 12"
+                    blob_text = msg_blob
+                if type_call in blob_text:
+                    print_type = "Call"
+                elif type_missed in blob_text:
+                    print_type = "Missed Call"
+                elif type_groupcall in blob_text:
+                    print_type = "Groupcall"
+                elif type_link in blob_text:
+                    print_type = "Link"
+                elif type_user in blob_text:
+                    print_type = "User"
+                else:
+                    print_type = "Unknown (12)"
                 if print_type == "Link":
                     if message in ["", None, " "]:
                         message = extract_last_url(msg_blob)

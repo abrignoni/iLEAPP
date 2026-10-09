@@ -157,26 +157,32 @@ __artifacts_v2__ = {
                        "id the companion plist maps it to.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
             "Files are named publish_video_local_<aid>.mp4. "
-            "The owning app of the container is not checked for this artifact, and the "
-            "plist mappings of every matched container are read together. "
+            "A file is reported only when the metadata plist of its container records "
+            "TikTok's bundle id (com.zhiliaoapp.musically) as the owning app, or when the "
+            "container folder is itself named with that bundle id; every file left out is "
+            "named in the run log with the reason. "
             "kAWEPublishLocalVideoCacheFile.plist in the same Documents folder maps each "
-            "aid to a video id and both are reported. The artifact name follows the paper "
+            "aid to a video id and both are reported; a file takes its video id only from "
+            "the plist of its own container. The artifact name follows the paper "
             "cited below, whose wording about this folder was not re-read for this note. "
             "On the tested image both files' aids also appear in the account's watch "
-            "history. File Modified is the modification time of the copy this tool staged "
-            "from the extraction, shown as UTC. Whether it equals the time recorded on "
-            "the device depends on the extraction format and was not checked here. "
+            "history. File Modified is the modification time this tool's file reader "
+            "recorded for the file when it read the extraction, shown as UTC, and is blank "
+            "when the reader recorded none. It is not the time of the staged copy. Whether "
+            "it equals the time recorded on the device depends on the extraction format "
+            "and was not checked here. "
             "Reference: Xiao Hu and Umit Karabiyik, 'Shopping while Watching: An Updated "
             "Forensic Analysis of TikTok on Android and iOS', ISNCC 2024, "
             "https://doi.org/10.1109/ISNCC62547.2024.10759027"
         ),
         "paths": ("*/mobile/Containers/Data/Application/*/Documents/kAWEPublishLocalVideoStorageFolder/*",
-                  "*/mobile/Containers/Data/Application/*/Documents/kAWEPublishLocalVideoCacheFile.plist"),
+                  "*/mobile/Containers/Data/Application/*/Documents/kAWEPublishLocalVideoCacheFile.plist",
+                  "*/mobile/Containers/Data/Application/*/.com.apple.mobile_container_manager.metadata.plist"),
         "output_types": "standard",
         "artifact_icon": "video",
         "sample_data": {
@@ -291,7 +297,7 @@ __artifacts_v2__ = {
 
 import re
 from datetime import datetime, timezone
-from os.path import basename, dirname, getmtime, getsize, isfile, normcase, normpath
+from os.path import basename, dirname, getsize, isfile, normcase, normpath
 
 from scripts.ilapfuncs import (
     artifact_processor,
@@ -780,25 +786,39 @@ def tiktok_published_videos(context):
     data_list = []
     source_path = ""
 
+    # aid -> video id, kept per container so one container's mapping is never
+    # applied to another container's file
     video_ids = {}
     for file_found in files_found:
         file_found = str(file_found)
         if file_found.endswith("kAWEPublishLocalVideoCacheFile.plist"):
             mapping = get_plist_file_content(file_found)
             if isinstance(mapping, dict):
-                video_ids.update({str(k): str(v) for k, v in mapping.items()})
+                video_ids.setdefault(_application_container(file_found), {}).update(
+                    {str(k): str(v) for k, v in mapping.items()})
 
-    for file_found in files_found:
-        file_found = str(file_found)
+    videos = [str(file_found) for file_found in files_found
+              if basename(str(file_found)).startswith("publish_video_local_")
+              and isfile(str(file_found))]
+    seeker = context.get_seeker()
+    for file_found in _tiktok_owned(videos, _container_owners(files_found)):
         name = basename(file_found)
-        if not (name.startswith("publish_video_local_") and isfile(file_found)):
-            continue
         source_path = source_path or file_found
         aid = name.replace("publish_video_local_", "").rsplit(".", 1)[0]
         media_ref = check_in_media(file_found, name)
-        modified = datetime.fromtimestamp(getmtime(file_found), timezone.utc)
+        file_info = seeker.file_infos.get(file_found) if seeker else None
+        recorded = file_info.modification_date if file_info else None
+        try:
+            if isinstance(recorded, datetime):
+                modified = recorded
+            else:
+                modified = (datetime.fromtimestamp(recorded, timezone.utc)
+                            if recorded else "")
+        except (TypeError, ValueError, OSError, OverflowError):
+            modified = ""
+        container_ids = video_ids.get(_application_container(file_found), {})
         data_list.append((
-            modified, media_ref or "", aid, video_ids.get(aid, ""),
+            modified, media_ref or "", aid, container_ids.get(aid, ""),
             getsize(file_found), context.get_relative_path(file_found),
         ))
 

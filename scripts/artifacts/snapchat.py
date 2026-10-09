@@ -11,7 +11,7 @@ __artifacts_v2__ = {
                        "cache_controller.db links to a message is shown in the Media column when its format is "
                        "recognised.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-16", "last_update_date": "2026-09-19",
+        "creation_date": "2026-08-16", "last_update_date": "2026-10-09",
         "requirements": "blackboxprotobuf, nska_deserialize", "category": "Snapchat",
         "notes": "iOS Snapchat keeps conversations in Documents/user_scoped/<account "
                  "hash>/arroyo/arroyo.db; the schema ships the developers' own column comments, and the "
@@ -50,8 +50,8 @@ __artifacts_v2__ = {
                  "13 era files lack sender_id and content_type, an iOS 14 era file lacks only "
                  "quoted_server_message_id, all as observed in tested images); absent columns are "
                  "substituted with NULL under the same name so the remaining columns still report. The "
-                 "affected fields are blank on those rows, except Is Saved and Is Viewed By User, which "
-                 "read NO for a NULL as well as for a stored 0.\n"
+                 "affected fields are blank on those rows. Is Saved and Is Viewed By User read YES for a "
+                 "stored non-zero value, NO for a stored 0 and blank for a NULL or an absent column.\n"
                  "Limits. WAL frames are not parsed, so a message absent here is not evidence it did not "
                  "exist. Reactions and message_state history are not parsed. The run log reports the "
                  "image's WAL frame count.",
@@ -109,7 +109,7 @@ __artifacts_v2__ = {
                        "store in primary.docobjects. WAL frames are not parsed, so absence of a "
                        "conversation here is not evidence it did not exist.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-16", "last_update_date": "2026-08-16",
+        "creation_date": "2026-08-16", "last_update_date": "2026-10-09",
         "requirements": "blackboxprotobuf", "category": "Snapchat",
         "notes": "Record Origin. Live rows come back from a normal read. Recovered rows are "
                  "conversations whose client_conversation_id is present in conversation or "
@@ -125,9 +125,9 @@ __artifacts_v2__ = {
                  "account id from user.plist. A participant missing from the snapchatter store "
                  "shows as a bare UUID, an unresolved identifier rather than a finding.\n"
                  "Conversation Type is reported as stored, since no source for the enum was "
-                 "verified. Tombstoned reads NO both for a stored 0 and when the conversation "
-                 "has no feed_entry row or the tombstoned value is NULL, so NO is not by "
-                 "itself a stored value. Message Count counts conversation_message rows in "
+                 "verified. Tombstoned reads YES for a stored non-zero value and NO for a stored 0, "
+                 "and is blank when the conversation has no feed_entry row or the tombstoned "
+                 "value is NULL. Message Count counts conversation_message rows in "
                  "the matching "
                  "view, not messages exchanged.",
         "paths": ('*/mobile/Containers/Data/Application/*/Documents/user_scoped/*/arroyo/arroyo.db*',
@@ -157,7 +157,7 @@ __artifacts_v2__ = {
                        "usernames, user id and display name, and, where the app's own friends "
                        "list is found, whether it names the user. The table is not a friends list.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-08-16", "last_update_date": "2026-09-21",
+        "creation_date": "2026-08-16", "last_update_date": "2026-10-09",
         "requirements": "none", "category": "Snapchat",
         "notes": "primary.docobjects (Documents/user_scoped/<account hash>/DocObjects/) is a "
                  "SQLite store whose snapchatter table keeps one FlatBuffers document per user "
@@ -182,7 +182,7 @@ __artifacts_v2__ = {
                  "iphone12_ios18 the App Group held none of the three layouts, so In Friends List "
                  "is blank on its 220 rows; on magnet_ios16 the list was present and empty, so In "
                  "Friends List is NO on all 129 rows there. None of the users the lists named "
-                 "lacked a snapchatter row. Mutual Friend (as stored) is IS_MUTUAL_FRIEND shown "
+                 "lacked a snapchatter row. Mutual Friend is IS_MUTUAL_FRIEND shown "
                  "as YES or NO, which "
                  "only the first layout records: YES on 60 and NO on 70 of the 130 users it "
                  "listed, and blank on every other row.\n"
@@ -406,7 +406,7 @@ __artifacts_v2__ = {
                        "Memory row, with location from gallery.encrypteddb and media decrypted from the app's "
                        "caches and stored thumbnails when the keys are available.",
         "author": "@AlexisBrignoni, Claude",
-        "creation_date": "2026-09-19", "last_update_date": "2026-09-21",
+        "creation_date": "2026-09-19", "last_update_date": "2026-10-09",
         "requirements": "nska_deserialize, pycryptodome", "category": "Snapchat",
         "notes": "Sources. Documents/gallery_data_object/<n>/<profile>/scdb-27.sqlite3 is a Core Data "
                  "store with one ZGALLERYSNAP row per Memory. The profile folder name equalled the "
@@ -434,9 +434,9 @@ __artifacts_v2__ = {
                  "whose key is not wrapped decrypts without a keychain. A 48-byte key with a 32-byte IV "
                  "is wrapped: it is the real key and IV encrypted with AES-CBC and PKCS#7 padding under "
                  "the master key in the keychain item com.snapchat.keyservice.persistedkey, and it is "
-                 "unwrapped only when that item is present. Key State says which applied. Private Entry "
-                 "is ZGALLERYENTRY.ZISPRIVATE shown as Yes or No, and blank when the Memory has no entry "
-                 "row; on the tested images each of the 16 Memories "
+                 "unwrapped only when that item is present. Key State says which applied. Private Entry (as stored) "
+                 "is ZGALLERYENTRY.ZISPRIVATE as stored, and blank when the Memory has no entry row "
+                 "or the value is NULL; on the tested images each of the 16 Memories "
                  "whose entry was private and whose key could be read had a wrapped key, and no other "
                  "Memory did.\n"
                  "Media. The Media column shows the best recovered file for the Memory (its full media, "
@@ -1048,6 +1048,11 @@ def _yes_no(value):
     return 'YES' if value else 'NO'
 
 
+def _yes_no_blank(value):
+    """YES or NO for a stored value, and blank where nothing is stored (NULL or no row)."""
+    return '' if value is None else _yes_no(value)
+
+
 def _log_wal_extent(files_found):
     '''Log how much write-ahead log this artifact leaves unparsed, per image.
 
@@ -1169,7 +1174,7 @@ def _message_rows(rows, friends, participants, local_user_id, provenance, media)
             direction, _friend_name(friends, sender_id), text, references or '', origin,
             _friend_name(friends, sender_id, 1), sender_id,
             participants.get(conversation_id, ('', ''))[1], content_type,
-            state, _yes_no(saved), _yes_no(viewed), media_count, quoted_id,
+            state, _yes_no_blank(saved), _yes_no_blank(viewed), media_count, quoted_id,
             conversation_id, client_message_id, server_message_id, method, location))
     return data_list
 
@@ -1209,7 +1214,7 @@ def _conversation_rows(source_path, friends, reader, provenance, only_ids=None):
             counts.get(conversation_id, 0), streak, conversation_type, send_state,
             _friend_name(friends, creator), creator,
             _friend_name(friends, last_sender), last_sender,
-            _yes_no(tombstoned), conversation_id, method, location))
+            _yes_no_blank(tombstoned), conversation_id, method, location))
     return data_list
 
 
@@ -1311,7 +1316,7 @@ def snapchatFriends(context):
             data_list.append((username or '', _display_name(blob, user_id), in_list, mutual,
                               user_id, mutable or '', legacy or '',
                               context.get_relative_path(doc_store)))
-    data_headers = ('Username', 'Display Name', 'In Friends List', 'Mutual Friend (as stored)',
+    data_headers = ('Username', 'Display Name', 'In Friends List', 'Mutual Friend',
                     'User ID', 'Mutable Username', 'Legacy Username', 'Source File')
     return data_headers, data_list, '\n'.join(sorted(source_paths))
 
@@ -1791,7 +1796,7 @@ def _memory_records(scdb_path, reader):
             continue
         entry_id, title, private = entries.get(fields['ZENTRY'], (None, None, None))
         fields.update({'entry_id': entry_id or '', 'title': title or '',
-                       'private': '' if private is None else ('Yes' if private else 'No'),
+                       'private': '' if private is None else private,
                        'caption': captions.get(fields['Z_PK'], ''),
                        'thumbnail': thumbnails.get(snap_id)})
         records[snap_id] = fields

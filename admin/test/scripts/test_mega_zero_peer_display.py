@@ -59,6 +59,9 @@ class Context:
     def get_files_found(self):
         return self.files
 
+    def get_relative_path(self, path):
+        return str(path)
+
 
 class MegaZeroPeerDisplayTest(unittest.TestCase):
     def setUp(self):
@@ -148,10 +151,12 @@ class MegaZeroPeerDisplayTest(unittest.TestCase):
             _, rows, source = module.mega_chats.__wrapped__(
                 Context([target / 'karere-test.db-wal', target / 'karere-test.db', other]))
             self.assertEqual(len(rows), 15)
-            self.assertEqual(source, str(target / 'karere-test.db'))
+            self.assertEqual({row[-1] for row in rows}, {str(target / 'karere-test.db')})
+            self.assertEqual(source, '\n'.join([str(target / 'karere-test.db'), str(other)]))
             self.assertEqual(hashes, {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                                      for p in target.iterdir()})
-            self.assertEqual(module.mega_chats.__wrapped__(Context([other, target / 'karere-test.db']))[1], [])
+            self.assertEqual(
+                len(module.mega_chats.__wrapped__(Context([other, target / 'karere-test.db']))[1]), 15)
             writer.close()
             target.chmod(0o755)
 

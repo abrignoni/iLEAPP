@@ -6,7 +6,7 @@ __artifacts_v2__ = {
                        "aliases, contact methods and identifiers.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Knowledge Graph",
         "notes": "Reads graph.db in Library/IntelligencePlatform. On the tested images "
@@ -22,7 +22,9 @@ __artifacts_v2__ = {
                  "so the labels are the ones that device's ontology.db gives. The columns "
                  "are filled by matching those labels by name; if ontology.db is missing "
                  "or a label is worded differently, the row is still listed with those "
-                 "columns blank. One row "
+                 "columns blank. When ontology.db is missing or gives no predicate "
+                 "labels the run log says so; a label worded differently is not "
+                 "detected. One row "
                  "is emitted per entity. Values are reported as stored. Confidence is the "
                  "highest confidence value among the entity's rows, rounded to four "
                  "places, and Latest Timestamp the newest timestamp among them; neither is "
@@ -64,7 +66,7 @@ __artifacts_v2__ = {
                        "resolved to a name, address and coordinates.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-23",
-        "last_update_date": "2026-09-23",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Knowledge Graph",
         "notes": "Reads the event graph inside IntelligencePlatform/graph.db. On the "
@@ -78,7 +80,9 @@ __artifacts_v2__ = {
                  "(2001-epoch) seconds; the raw "
                  "start-time and end-time objects are stored in a serialized form and are "
                  "not reported. Predicate and class codes "
-                 "are resolved from the ontology.db shipped in the same folder. How the "
+                 "are resolved from the ontology.db shipped in the same folder; when it "
+                 "is missing or gives no predicate labels the run log says so and the "
+                 "label-matched columns are blank. How the "
                  "system produces an event is not established here, so an event is not "
                  "evidence the user was present "
                  "or confirmed it. The location reference is reported as stored (an "
@@ -169,7 +173,7 @@ __artifacts_v2__ = {
     },
 }
 
-from scripts.ilapfuncs import artifact_processor, get_file_path, \
+from scripts.ilapfuncs import artifact_processor, get_file_path, logfunc, \
     open_sqlite_db_readonly, convert_cocoa_core_data_ts_to_utc, does_table_exist_in_db
 
 
@@ -180,9 +184,13 @@ def _load_ontology(files_found):
     classes = {}
     onto_path = get_file_path(files_found, "ontology.db")
     if not onto_path:
+        logfunc('Intelligence Platform: ontology.db not found; predicate and class '
+                'codes are not resolved and label-matched columns are blank')
         return predicates, classes
     db = open_sqlite_db_readonly(onto_path)
     if db is None:
+        logfunc('Intelligence Platform: ontology.db could not be opened; predicate and '
+                'class codes are not resolved and label-matched columns are blank')
         return predicates, classes
     cur = db.cursor()
     if does_table_exist_in_db(onto_path, "predicate"):
@@ -192,6 +200,9 @@ def _load_ontology(files_found):
         for cid, label in cur.execute("select id, label from class"):
             classes[cid] = label
     db.close()
+    if not predicates:
+        logfunc('Intelligence Platform: ontology.db gave no predicate labels; '
+                'label-matched columns are blank')
     return predicates, classes
 
 
@@ -332,8 +343,8 @@ def intelligencePlatformEntities(context):
 
     data_list = []
     source_path = ''
-    # stable_graph holds live entities; expired_stable_graph holds entries the graph
-    # has since retired. Both share the same schema and are reported together, tagged.
+    # Rows of stable_graph and expired_stable_graph share one schema and are reported
+    # together, tagged. What moves an entry into the expired table is not established.
     for table_name, expired in (("stable_graph", "No"), ("expired_stable_graph", "Yes")):
         rows, graph_path = _read_triples(files_found, table_name)
         if graph_path and not source_path:
@@ -391,7 +402,8 @@ def intelligencePlatformEvents(context):
 
     data_list = []
     source_path = ''
-    # event_graph holds live events; expired_event_graph holds retired ones.
+    # event_graph and expired_event_graph are both read and tagged; what moves an
+    # event into the expired table is not established.
     for table_name, expired in (("event_graph", "No"), ("expired_event_graph", "Yes")):
         rows, graph_path = _read_triples(files_found, table_name)
         if graph_path and not source_path:

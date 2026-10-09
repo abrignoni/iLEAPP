@@ -182,7 +182,7 @@ __artifacts_v2__ = {
                        "unexercised, so what the values record is not established.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "United Airlines",
         "sample_data": {'abe_ios16': 'iOS 16.5 | 0 rows'},
@@ -191,14 +191,13 @@ __artifacts_v2__ = {
             'com.united.UnitedCustomerFacingIPhone.plist (.mpd / MOV_* resume keys). On abe_ios16 '
             'the Core Data store is read and its ZUACDINFLIGHTMEDIA table is present with no '
             'rows. The preferences plist was not found on any of the 21 registered corpora whose '
-            'listings were checked. The path pattern matches it only where a folder named '
-            'com.united.UnitedCustomerFacingIPhone sits directly above Library/Preferences, so a '
-            'GUID-named container is not matched. The preferences branch is unexercised.'
+            'listings were checked. The path pattern matches a file of that name directly under any '
+            'Library/Preferences folder, so a container named by GUID is matched as well as one '
+            'named for the bundle id. The preferences branch is unexercised.'
         ),
         "paths": (
             "*/UnitediPhoneCoreData.sqlite*",
-            "*/com.united.UnitedCustomerFacingIPhone/Library/Preferences/"
-            "com.united.UnitedCustomerFacingIPhone.plist",
+            "*/Library/Preferences/com.united.UnitedCustomerFacingIPhone.plist",
         ),
         "output_types": "standard",
         "artifact_icon": "film",
@@ -210,16 +209,19 @@ __artifacts_v2__ = {
                        "not established.",
         "author": "James Habben",
         "creation_date": "2026-07-13",
-        "last_update_date": "2026-07-15",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
             "Source: group.com.united.UnitedCustomerFacingIPhone.plist key "
-            "WatchComplicationsData.WatchData (complicationData / reservations JSON)."
+            "WatchComplicationsData.WatchData (complicationData / reservations JSON). "
+            "The path pattern matches a file of that name directly under any "
+            "Library/Preferences folder, so an app group container named by GUID is matched "
+            "as well as one named for the group id. The GUID-named layout was not exercised "
+            "on a registered corpus."
         ),
         "paths": (
-            "*/group.com.united.UnitedCustomerFacingIPhone/Library/Preferences/"
-            "group.com.united.UnitedCustomerFacingIPhone.plist",
+            "*/Library/Preferences/group.com.united.UnitedCustomerFacingIPhone.plist",
         ),
         "output_types": "standard",
         "artifact_icon": "watch",
@@ -227,19 +229,24 @@ __artifacts_v2__ = {
     "united_imessage_recipients": {
         "name": "United - iMessage Recipients",
         "description": (
-            "Phone numbers cached for the United Airlines iMessage balloon plugin."
+            "Handle keys of the metadata cache kept for the United Airlines iMessage "
+            "balloon plugin."
         ),
         "author": "James Habben",
         "creation_date": "2026-07-16",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "United Airlines",
         "notes": (
             "Source: MobileSMS PluginMetaDataCache plist for "
             "com.united.UnitedCustomerFacingIPhone.UnitedCustomerFacingIMessageExtension. "
-            "Keys of the plugin's metadata cache that are phone numbers starting with +, bare or "
-            "after the iMessage;-; prefix; other keys, such as email handles, are not reported. "
-            "This artifact reports no message content. What the presence of a number records is "
+            "Every string key of the plugin's metadata cache other than localID is reported. "
+            "Handle is the key as stored, with a leading iMessage;-; prefix removed, so a key "
+            "stored both bare and with that prefix gives one row; Key Forms says which forms "
+            "were present. A handle can be a phone number, an email address or another key "
+            "form, and it is not validated. Bare Key Cache ID and iMessage Key Cache ID are the "
+            "values stored under each form. "
+            "This artifact reports no message content. What the presence of a handle records is "
             "not established. "
             "The same cache can also be present under the notification extension domain; both "
             "copies are read where present."
@@ -1341,7 +1348,7 @@ def united_watch_complications(context):
         file_found = str(file_found)
         if not file_found.endswith("group.com.united.UnitedCustomerFacingIPhone.plist"):
             continue
-        if "group.com.united.UnitedCustomerFacingIPhone" not in file_found.replace("\\", "/"):
+        if "Library/Preferences/" not in file_found.replace("\\", "/"):
             continue
         source_path = file_found
         relative = context.get_relative_path(file_found)
@@ -1435,7 +1442,7 @@ def united_imessage_recipients(context):
         relative = context.get_relative_path(file_found)
         local_id = plist.get("localID") or ""
 
-        # Collapse bare +E.164 and iMessage;-;+E.164 keys into one row per number.
+        # Collapse a bare key and its iMessage;-; form into one row per handle.
         by_number = {}
         for key, value in plist.items():
             if key == "localID" or not isinstance(key, str):
@@ -1445,7 +1452,7 @@ def united_imessage_recipients(context):
             if key.startswith(imessage_prefix):
                 handle_type = "iMessage"
                 number = key[len(imessage_prefix):]
-            if not number.startswith("+"):
+            if not number:
                 continue
             entry = by_number.setdefault(
                 number,
@@ -1474,9 +1481,9 @@ def united_imessage_recipients(context):
             entry = by_number[number]
             handle_types = []
             if entry["has_phone"]:
-                handle_types.append("Phone")
+                handle_types.append("Bare")
             if entry["has_imessage"]:
-                handle_types.append("iMessage")
+                handle_types.append("iMessage;-;")
             data_list.append((
                 entry["phone"],
                 ", ".join(handle_types),
@@ -1487,10 +1494,10 @@ def united_imessage_recipients(context):
             ))
 
     data_headers = (
-        ("Phone Number", "phonenumber"),
-        "Handle Types",
-        "Phone Cache ID",
-        "iMessage Cache ID",
+        "Handle",
+        "Key Forms",
+        "Bare Key Cache ID",
+        "iMessage Key Cache ID",
         "Local ID",
         "Source File",
     )

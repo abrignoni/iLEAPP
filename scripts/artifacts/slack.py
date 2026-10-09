@@ -2,8 +2,8 @@ __artifacts_v2__ = {
     "slackModelMessages": {
         "name": "Slack - Messages (ModelDatabase)",
         "description": "Slack chat messages from the newer ModelDatabase (ZCOREDATA*) schema",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "Only the first ModelDatabase/db.sqlite found is read. "
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Slack", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from. "
                                       "Direction is Sent where the message's user row has ZISME 1 "
                                       "and Received where it has 0; that reading comes from the "
                                       "column name and has no published source. Any other ZISME "
@@ -28,8 +28,8 @@ __artifacts_v2__ = {
     "slackModelUsers": {
         "name": "Slack - User Data (ModelDatabase)",
         "description": "Slack users from the newer ModelDatabase (ZCOREDATAUSER) schema",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "Only the first ModelDatabase/db.sqlite found is read.",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Slack", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from.",
         "paths": ('*/mobile/Containers/Shared/AppGroup/*/*/ModelDatabase/db.sqlite*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -39,8 +39,8 @@ __artifacts_v2__ = {
     "slackModelChannels": {
         "name": "Slack - Channel Data (ModelDatabase)",
         "description": "Slack channels/DMs from the newer ModelDatabase schema",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "Only the first ModelDatabase/db.sqlite found is read. "
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Slack", "notes": "Every ModelDatabase/db.sqlite the paths match is read, and Source File names the one a row came from. "
                                       "Channel Type shows Channel where ZTYPE is 0 and Direct "
                                       "Message where it is 2. Those two readings come from "
                                       "values seen on tested data and have no published source; "
@@ -55,8 +55,8 @@ __artifacts_v2__ = {
     "slackMessages": {
         "name": "Slack - Messages",
         "description": "Slack chat messages from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "Only the first main_db found is read. A message is "
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from. A message is "
                                       "reported only where its user and channel both have rows in "
                                       "the store. Shared File is the first identifier in the "
                                       "message's ZFILEIDS list.",
@@ -70,8 +70,8 @@ __artifacts_v2__ = {
     "slackUsers": {
         "name": "Slack - User Data",
         "description": "Slack users from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "Only the first main_db found is read.",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "users",
         "sample_data": {
@@ -82,8 +82,8 @@ __artifacts_v2__ = {
     "slackAttachments": {
         "name": "Slack - Attachments",
         "description": "Slack messages joined to the first file listed in each message's ZFILEIDS (main_db)",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-06-24", "requirements": "none",
-        "category": "Slack", "notes": "Only the first main_db found is read.",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "paperclip",
         "sample_data": {
@@ -94,8 +94,8 @@ __artifacts_v2__ = {
     "slackChannels": {
         "name": "Slack - Channel Data",
         "description": "Slack channels from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "@abrignoni, @AlexisBrignoni, Codex", "creation_date": "2026-06-23", "last_update_date": "2026-10-06", "requirements": "none",
-        "category": "Slack", "notes": "Only the first main_db found is read. Channel SID (as stored) "
+        "author": "@abrignoni, @AlexisBrignoni, Codex", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from. Channel SID (as stored) "
                                       "is the channel row's ZTSID and Channel SID1 (as stored) is "
                                       "its ZTSID1. What separates these identifiers is not established. "
                                       "Latest is ZLATEST read as Unix seconds.",
@@ -109,8 +109,8 @@ __artifacts_v2__ = {
     "slackTeams": {
         "name": "Slack - Team Data",
         "description": "Slack workspaces/teams from main_db (ZSLK*/ZSLKDEPRECATED* schema)",
-        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-07-31", "requirements": "none",
-        "category": "Slack", "notes": "Only the first main_db found is read.",
+        "author": "@abrignoni", "creation_date": "2026-06-23", "last_update_date": "2026-10-09", "requirements": "none",
+        "category": "Slack", "notes": "Every main_db the paths match is read, and Source File names the one a row came from.",
         "paths": ('*/mobile/Containers/Data/Application/*/Library/Application Support/Slack/*/*/main_db*',),
         "output_types": "standard", "artifact_icon": "briefcase",
         "sample_data": {
@@ -123,20 +123,15 @@ __artifacts_v2__ = {
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, does_table_exist_in_db
 
 
-def _find_model_db(context):
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if 'ModelDatabase' in file_found and file_found.endswith('db.sqlite'):
-            return file_found
-    return ''
+def _model_dbs(context):
+    """Every ModelDatabase/db.sqlite matched: the paths match one per workspace folder."""
+    return sorted({str(f) for f in context.get_files_found()
+                   if 'ModelDatabase' in str(f) and str(f).endswith('db.sqlite')})
 
 
-def _find_main_db(context):
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('main_db'):
-            return file_found
-    return ''
+def _main_dbs(context):
+    """Every main_db matched: the paths match one per workspace folder."""
+    return sorted({str(f) for f in context.get_files_found() if str(f).endswith('main_db')})
 
 
 def _slack_prefix(db_path):
@@ -154,29 +149,30 @@ def _slack_prefix(db_path):
 @artifact_processor
 def slackModelMessages(context):
     data_headers = (('Timestamp', 'datetime'), 'Direction', 'Sender Name', 'Channel Name',
-                    'Message', 'Sender ID', 'Conversation ID', 'Group ID')
+                    'Message', 'Sender ID', 'Conversation ID', 'Group ID', 'Source File')
     data_list = []
-    db_path = _find_model_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
+    sources = []
+    for db_path in _model_dbs(context):
+        source = context.get_relative_path(db_path)
+        sources.append(source)
 
-    query = '''
-    SELECT
-        datetime(ZCOREDATAMESSAGE.ZTIMESTAMP, 'unixepoch'),
-        CASE ZCOREDATAUSER.ZISME WHEN 1 THEN 'Sent' WHEN 0 THEN 'Received' ELSE ZCOREDATAUSER.ZISME END,
-        ZCOREDATAUSER.ZREALNAME,
-        ZCOREDATACONVERSATION.ZNAME,
-        ZCOREDATAMESSAGE.ZTEXT,
-        ZCOREDATAMESSAGE.ZUSERID,
-        ZCOREDATAMESSAGE.ZCONVERSATIONID,
-        ZCOREDATACONVERSATION.ZCONTEXTTEAMID
-    FROM ZCOREDATAMESSAGE
-    LEFT OUTER JOIN ZCOREDATAUSER ON ZCOREDATAMESSAGE.ZUSERID = ZCOREDATAUSER.ZTSID
-    LEFT OUTER JOIN ZCOREDATACONVERSATION ON ZCOREDATAMESSAGE.ZCONVERSATIONID = ZCOREDATACONVERSATION.ZTSID
-    '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
-    return data_headers, data_list, context.get_relative_path(db_path)
+        query = '''
+        SELECT
+            datetime(ZCOREDATAMESSAGE.ZTIMESTAMP, 'unixepoch'),
+            CASE ZCOREDATAUSER.ZISME WHEN 1 THEN 'Sent' WHEN 0 THEN 'Received' ELSE ZCOREDATAUSER.ZISME END,
+            ZCOREDATAUSER.ZREALNAME,
+            ZCOREDATACONVERSATION.ZNAME,
+            ZCOREDATAMESSAGE.ZTEXT,
+            ZCOREDATAMESSAGE.ZUSERID,
+            ZCOREDATAMESSAGE.ZCONVERSATIONID,
+            ZCOREDATACONVERSATION.ZCONTEXTTEAMID
+        FROM ZCOREDATAMESSAGE
+        LEFT OUTER JOIN ZCOREDATAUSER ON ZCOREDATAMESSAGE.ZUSERID = ZCOREDATAUSER.ZTSID
+        LEFT OUTER JOIN ZCOREDATACONVERSATION ON ZCOREDATAMESSAGE.ZCONVERSATIONID = ZCOREDATACONVERSATION.ZTSID
+        '''
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row) + (source,))
+    return data_headers, data_list, '\n'.join(sources)
 
 
 @artifact_processor
@@ -184,56 +180,58 @@ def slackModelUsers(context):
     data_headers = ('Server Version (as stored)', 'Real Name', 'First Name', 'Last Name',
                     'User Name', 'Email', 'Phone', 'Team ID', 'Workspace ID', 'User ID',
                     'Local User', 'Owner', 'Admin', 'Bot', 'Timezone', 'Timezone Title',
-                    'Timezone Offset (Hours)', 'Avatar Hash', 'Color String')
+                    'Timezone Offset (Hours)', 'Avatar Hash', 'Color String', 'Source File')
     data_list = []
-    db_path = _find_model_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
+    sources = []
+    for db_path in _model_dbs(context):
+        source = context.get_relative_path(db_path)
+        sources.append(source)
 
-    query = '''
-    SELECT
-        ZSERVERVERSION,
-        ZREALNAME, ZFIRSTNAME, ZLASTNAME, ZNAME, ZEMAIL, ZPHONE, ZTEAMID,
-        ZWORKSPACEORENTERPRISEID, ZTSID,
-        CASE ZISME WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
-        CASE ZISOWNER WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
-        CASE ZISADMIN WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
-        CASE ZISBOT WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
-        ZTIMEZONE, ZTIMEZONETITLE, ZTIMEZONEOFFSET/3600, ZAVATARHASH, ZCOLORSTRING
-    FROM ZCOREDATAUSER
-    '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
-    return data_headers, data_list, context.get_relative_path(db_path)
+        query = '''
+        SELECT
+            ZSERVERVERSION,
+            ZREALNAME, ZFIRSTNAME, ZLASTNAME, ZNAME, ZEMAIL, ZPHONE, ZTEAMID,
+            ZWORKSPACEORENTERPRISEID, ZTSID,
+            CASE ZISME WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
+            CASE ZISOWNER WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
+            CASE ZISADMIN WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
+            CASE ZISBOT WHEN 0 THEN '' WHEN 1 THEN 'Yes' END,
+            ZTIMEZONE, ZTIMEZONETITLE, ZTIMEZONEOFFSET/3600, ZAVATARHASH, ZCOLORSTRING
+        FROM ZCOREDATAUSER
+        '''
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row) + (source,))
+    return data_headers, data_list, '\n'.join(sources)
 
 
 @artifact_processor
 def slackModelChannels(context):
     data_headers = (('Created Timestamp', 'datetime'), ('First Message Timestamp', 'datetime'),
                     'Creator ID', 'Creator Name', 'Channel Name', 'Channel ID', 'DM User ID',
-                    'Channel Description', 'Channel Type')
+                    'Channel Description', 'Channel Type', 'Source File')
     data_list = []
-    db_path = _find_model_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
+    sources = []
+    for db_path in _model_dbs(context):
+        source = context.get_relative_path(db_path)
+        sources.append(source)
 
-    query = '''
-    SELECT
-        datetime(ZCOREDATACONVERSATION.ZCREATED, 'unixepoch'),
-        datetime(ZCOREDATACONVERSATION.ZFIRSTMESSAGETIMESTAMP, 'unixepoch'),
-        ZCOREDATACONVERSATION.ZCREATORID,
-        ZCOREDATAUSER.ZREALNAME,
-        ZCOREDATACONVERSATION.ZNAME,
-        ZCOREDATACONVERSATION.ZTSID,
-        ZCOREDATACONVERSATION.ZIMUSERID,
-        ZCOREDATACONVERSATION.ZPURPOSETEXT,
-        CASE ZCOREDATACONVERSATION.ZTYPE WHEN 0 THEN 'Channel' WHEN 2 THEN 'Direct Message' ELSE ZCOREDATACONVERSATION.ZTYPE END
-    FROM ZCOREDATACONVERSATION
-    LEFT OUTER JOIN ZCOREDATAUSER ON ZCOREDATACONVERSATION.ZCREATORID = ZCOREDATAUSER.ZTSID
-    '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
-    return data_headers, data_list, context.get_relative_path(db_path)
+        query = '''
+        SELECT
+            datetime(ZCOREDATACONVERSATION.ZCREATED, 'unixepoch'),
+            datetime(ZCOREDATACONVERSATION.ZFIRSTMESSAGETIMESTAMP, 'unixepoch'),
+            ZCOREDATACONVERSATION.ZCREATORID,
+            ZCOREDATAUSER.ZREALNAME,
+            ZCOREDATACONVERSATION.ZNAME,
+            ZCOREDATACONVERSATION.ZTSID,
+            ZCOREDATACONVERSATION.ZIMUSERID,
+            ZCOREDATACONVERSATION.ZPURPOSETEXT,
+            CASE ZCOREDATACONVERSATION.ZTYPE WHEN 0 THEN 'Channel' WHEN 2 THEN 'Direct Message' ELSE ZCOREDATACONVERSATION.ZTYPE END
+        FROM ZCOREDATACONVERSATION
+        LEFT OUTER JOIN ZCOREDATAUSER ON ZCOREDATACONVERSATION.ZCREATORID = ZCOREDATAUSER.ZTSID
+        '''
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row) + (source,))
+    return data_headers, data_list, '\n'.join(sources)
 
 
 # ---------------------------------------------------------------------------
@@ -242,63 +240,65 @@ def slackModelChannels(context):
 @artifact_processor
 def slackMessages(context):
     data_headers = (('Timestamp', 'datetime'), 'Sender ID', 'Sender Name', 'Channel Name',
-                    'Message', 'Shared File', 'Channel ID', 'Channel SID', 'Channel SID1', 'User SID')
+                    'Message', 'Shared File', 'Channel ID', 'Channel SID', 'Channel SID1', 'User SID', 'Source File')
     data_list = []
-    db_path = _find_main_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
-    p = _slack_prefix(db_path)
-    if not p:
-        return data_headers, data_list, context.get_relative_path(db_path)
+    sources = []
+    for db_path in _main_dbs(context):
+        source = context.get_relative_path(db_path)
+        sources.append(source)
+        p = _slack_prefix(db_path)
+        if not p:
+            continue
 
-    query = f'''
-    SELECT DISTINCT
-        datetime({p}MESSAGE.ZTIMESTAMP, 'unixepoch'),
-        {p}MESSAGE.ZUSERID,
-        {p}COREDATAUSER.ZREALNAME,
-        {p}BASECHANNEL.ZNAME,
-        {p}MESSAGE.ZTEXT,
-        json_extract(ZFILEIDS, '$[0]'),
-        {p}MESSAGE.ZCHANNELID,
-        {p}BASECHANNEL.ZTSID,
-        {p}BASECHANNEL.ZTSID1,
-        {p}COREDATAUSER.ZTSID
-    FROM {p}MESSAGE, {p}BASECHANNEL, {p}COREDATAUSER
-    WHERE {p}COREDATAUSER.ZTSID = {p}MESSAGE.ZUSERID
-        AND ({p}BASECHANNEL.ZTSID = {p}MESSAGE.ZCHANNELID
-             OR {p}BASECHANNEL.ZTSID1 = {p}MESSAGE.ZCHANNELID)
-    ORDER BY {p}MESSAGE.ZTIMESTAMP
-    '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
-    return data_headers, data_list, context.get_relative_path(db_path)
+        query = f'''
+        SELECT DISTINCT
+            datetime({p}MESSAGE.ZTIMESTAMP, 'unixepoch'),
+            {p}MESSAGE.ZUSERID,
+            {p}COREDATAUSER.ZREALNAME,
+            {p}BASECHANNEL.ZNAME,
+            {p}MESSAGE.ZTEXT,
+            json_extract(ZFILEIDS, '$[0]'),
+            {p}MESSAGE.ZCHANNELID,
+            {p}BASECHANNEL.ZTSID,
+            {p}BASECHANNEL.ZTSID1,
+            {p}COREDATAUSER.ZTSID
+        FROM {p}MESSAGE, {p}BASECHANNEL, {p}COREDATAUSER
+        WHERE {p}COREDATAUSER.ZTSID = {p}MESSAGE.ZUSERID
+            AND ({p}BASECHANNEL.ZTSID = {p}MESSAGE.ZCHANNELID
+                 OR {p}BASECHANNEL.ZTSID1 = {p}MESSAGE.ZCHANNELID)
+        ORDER BY {p}MESSAGE.ZTIMESTAMP
+        '''
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row) + (source,))
+    return data_headers, data_list, '\n'.join(sources)
 
 
 @artifact_processor
 def slackUsers(context):
     data_headers = ('Admin', 'Owner', 'Real Name', 'First Name', 'Last Name', 'Display Name',
                     'Name', 'Phone', 'Timezone', 'Timezone Offset', 'Timezone Title', 'Title',
-                    'SID', 'Team ID')
+                    'SID', 'Team ID', 'Source File')
     data_list = []
-    db_path = _find_main_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
-    p = _slack_prefix(db_path)
-    if not p:
-        return data_headers, data_list, context.get_relative_path(db_path)
+    sources = []
+    for db_path in _main_dbs(context):
+        source = context.get_relative_path(db_path)
+        sources.append(source)
+        p = _slack_prefix(db_path)
+        if not p:
+            continue
 
-    query = f'''
-    SELECT
-        {p}COREDATAUSER.ZADMIN, {p}COREDATAUSER.ZOWNER, {p}COREDATAUSER.ZREALNAME,
-        {p}COREDATAUSER.ZFIRSTNAME, {p}COREDATAUSER.ZLASTNAME, {p}COREDATAUSER.ZDISPLAYNAME,
-        {p}COREDATAUSER.ZNAME, {p}COREDATAUSER.ZPHONE, {p}COREDATAUSER.ZTIMEZONE,
-        {p}COREDATAUSER.ZTIMEZONEOFFSET, {p}COREDATAUSER.ZTIMEZONETITLE, {p}COREDATAUSER.ZTITLE,
-        {p}COREDATAUSER.ZTSID, {p}COREDATAUSER.ZTEAMID
-    FROM {p}COREDATAUSER
-    '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
-    return data_headers, data_list, context.get_relative_path(db_path)
+        query = f'''
+        SELECT
+            {p}COREDATAUSER.ZADMIN, {p}COREDATAUSER.ZOWNER, {p}COREDATAUSER.ZREALNAME,
+            {p}COREDATAUSER.ZFIRSTNAME, {p}COREDATAUSER.ZLASTNAME, {p}COREDATAUSER.ZDISPLAYNAME,
+            {p}COREDATAUSER.ZNAME, {p}COREDATAUSER.ZPHONE, {p}COREDATAUSER.ZTIMEZONE,
+            {p}COREDATAUSER.ZTIMEZONEOFFSET, {p}COREDATAUSER.ZTIMEZONETITLE, {p}COREDATAUSER.ZTITLE,
+            {p}COREDATAUSER.ZTSID, {p}COREDATAUSER.ZTEAMID
+        FROM {p}COREDATAUSER
+        '''
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row) + (source,))
+    return data_headers, data_list, '\n'.join(sources)
 
 
 @artifact_processor
@@ -306,46 +306,47 @@ def slackAttachments(context):
     data_headers = (('Timestamp', 'datetime'), 'Sender ID', 'Sender Name', 'Channel Name',
                     'Message', 'Shared File', 'Mode', 'Title', 'Type', ('File Timestamp', 'datetime'),
                     'Preview', 'Size', 'Private Download URL', 'Permalink URL', 'Channel ID',
-                    'Channel SID', 'Channel SID1', 'User SID')
+                    'Channel SID', 'Channel SID1', 'User SID', 'Source File')
     data_list = []
-    db_path = _find_main_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
-    p = _slack_prefix(db_path)
-    if not p:
-        return data_headers, data_list, context.get_relative_path(db_path)
-    file_ts = 'ZTIMESTAMPNUMBER' if p == 'ZSLKDEPRECATED' else 'ZTIMESTAMP'
+    sources = []
+    for db_path in _main_dbs(context):
+        source = context.get_relative_path(db_path)
+        sources.append(source)
+        p = _slack_prefix(db_path)
+        if not p:
+            continue
+        file_ts = 'ZTIMESTAMPNUMBER' if p == 'ZSLKDEPRECATED' else 'ZTIMESTAMP'
 
-    query = f'''
-    SELECT DISTINCT
-        datetime({p}MESSAGE.ZTIMESTAMP, 'unixepoch'),
-        {p}MESSAGE.ZUSERID,
-        {p}COREDATAUSER.ZREALNAME,
-        {p}BASECHANNEL.ZNAME,
-        {p}MESSAGE.ZTEXT,
-        json_extract(ZFILEIDS, '$[0]') as HasSharedFile,
-        {p}FILE.ZMODESTRING,
-        {p}FILE.ZTITLE,
-        {p}FILE.ZTYPESTRING,
-        datetime({p}FILE.{file_ts}, 'unixepoch'),
-        {p}FILE.ZPREVIEW,
-        {p}FILE.ZSIZE,
-        {p}FILE.ZPRIVATEDOWNLOADURL,
-        {p}FILE.ZPERMALINKURL,
-        {p}MESSAGE.ZCHANNELID,
-        {p}BASECHANNEL.ZTSID,
-        {p}BASECHANNEL.ZTSID1,
-        {p}COREDATAUSER.ZTSID
-    FROM {p}MESSAGE, {p}BASECHANNEL, {p}COREDATAUSER, {p}FILE
-    WHERE {p}COREDATAUSER.ZTSID = {p}MESSAGE.ZUSERID
-        AND ({p}BASECHANNEL.ZTSID = {p}MESSAGE.ZCHANNELID
-             OR {p}BASECHANNEL.ZTSID1 = {p}MESSAGE.ZCHANNELID)
-        AND HasSharedFile = {p}FILE.ZTSID
-    ORDER BY {p}MESSAGE.ZTIMESTAMP
-    '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
-    return data_headers, data_list, context.get_relative_path(db_path)
+        query = f'''
+        SELECT DISTINCT
+            datetime({p}MESSAGE.ZTIMESTAMP, 'unixepoch'),
+            {p}MESSAGE.ZUSERID,
+            {p}COREDATAUSER.ZREALNAME,
+            {p}BASECHANNEL.ZNAME,
+            {p}MESSAGE.ZTEXT,
+            json_extract(ZFILEIDS, '$[0]') as HasSharedFile,
+            {p}FILE.ZMODESTRING,
+            {p}FILE.ZTITLE,
+            {p}FILE.ZTYPESTRING,
+            datetime({p}FILE.{file_ts}, 'unixepoch'),
+            {p}FILE.ZPREVIEW,
+            {p}FILE.ZSIZE,
+            {p}FILE.ZPRIVATEDOWNLOADURL,
+            {p}FILE.ZPERMALINKURL,
+            {p}MESSAGE.ZCHANNELID,
+            {p}BASECHANNEL.ZTSID,
+            {p}BASECHANNEL.ZTSID1,
+            {p}COREDATAUSER.ZTSID
+        FROM {p}MESSAGE, {p}BASECHANNEL, {p}COREDATAUSER, {p}FILE
+        WHERE {p}COREDATAUSER.ZTSID = {p}MESSAGE.ZUSERID
+            AND ({p}BASECHANNEL.ZTSID = {p}MESSAGE.ZCHANNELID
+                 OR {p}BASECHANNEL.ZTSID1 = {p}MESSAGE.ZCHANNELID)
+            AND HasSharedFile = {p}FILE.ZTSID
+        ORDER BY {p}MESSAGE.ZTIMESTAMP
+        '''
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row) + (source,))
+    return data_headers, data_list, '\n'.join(sources)
 
 
 @artifact_processor
@@ -353,46 +354,48 @@ def slackChannels(context):
     data_headers = (('Timestamp Created', 'datetime'), ('Purpose Last Set', 'datetime'),
                     ('Topic Last Set', 'datetime'), ('Latest', 'datetime'), 'Channel Names',
                     'Channel SID (as stored)', 'Channel SID1 (as stored)', 'User ID', 'Creator ID', 'Purpose Creator ID',
-                    'Purpose Text', 'Topic Creator ID', 'Topic Text')
+                    'Purpose Text', 'Topic Creator ID', 'Topic Text', 'Source File')
     data_list = []
-    db_path = _find_main_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
-    p = _slack_prefix(db_path)
-    if not p:
-        return data_headers, data_list, context.get_relative_path(db_path)
+    sources = []
+    for db_path in _main_dbs(context):
+        source = context.get_relative_path(db_path)
+        sources.append(source)
+        p = _slack_prefix(db_path)
+        if not p:
+            continue
 
-    query = f'''
-    SELECT
-        datetime({p}BASECHANNEL.ZCREATED, 'unixepoch'),
-        datetime({p}BASECHANNEL.ZPURPOSELASTSET, 'unixepoch'),
-        datetime({p}BASECHANNEL.ZTOPICLASTSET, 'unixepoch'),
-        datetime({p}BASECHANNEL.ZLATEST, 'unixepoch'),
-        {p}BASECHANNEL.ZNAME, {p}BASECHANNEL.ZTSID, {p}BASECHANNEL.ZTSID1,
-        {p}BASECHANNEL.ZUSERID, {p}BASECHANNEL.ZCREATORID, {p}BASECHANNEL.ZPURPOSECREATORID,
-        {p}BASECHANNEL.ZPURPOSETEXT, {p}BASECHANNEL.ZTOPICCREATORID, {p}BASECHANNEL.ZTOPICTEXT
-    FROM {p}BASECHANNEL
-    '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
-    return data_headers, data_list, context.get_relative_path(db_path)
+        query = f'''
+        SELECT
+            datetime({p}BASECHANNEL.ZCREATED, 'unixepoch'),
+            datetime({p}BASECHANNEL.ZPURPOSELASTSET, 'unixepoch'),
+            datetime({p}BASECHANNEL.ZTOPICLASTSET, 'unixepoch'),
+            datetime({p}BASECHANNEL.ZLATEST, 'unixepoch'),
+            {p}BASECHANNEL.ZNAME, {p}BASECHANNEL.ZTSID, {p}BASECHANNEL.ZTSID1,
+            {p}BASECHANNEL.ZUSERID, {p}BASECHANNEL.ZCREATORID, {p}BASECHANNEL.ZPURPOSECREATORID,
+            {p}BASECHANNEL.ZPURPOSETEXT, {p}BASECHANNEL.ZTOPICCREATORID, {p}BASECHANNEL.ZTOPICTEXT
+        FROM {p}BASECHANNEL
+        '''
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row) + (source,))
+    return data_headers, data_list, '\n'.join(sources)
 
 
 @artifact_processor
 def slackTeams(context):
-    data_headers = ('Name', 'Domain Name', 'Auth User ID', 'SID')
+    data_headers = ('Name', 'Domain Name', 'Auth User ID', 'SID', 'Source File')
     data_list = []
-    db_path = _find_main_db(context)
-    if not db_path:
-        return data_headers, data_list, ''
-    p = _slack_prefix(db_path)
-    if not p:
-        return data_headers, data_list, context.get_relative_path(db_path)
+    sources = []
+    for db_path in _main_dbs(context):
+        source = context.get_relative_path(db_path)
+        sources.append(source)
+        p = _slack_prefix(db_path)
+        if not p:
+            continue
 
-    query = f'''
-    SELECT {p}TEAM.ZNAME, {p}TEAM.ZDOMAIN, {p}TEAM.ZAUTHUSERID, {p}TEAM.ZTSID
-    FROM {p}TEAM
-    '''
-    for row in get_sqlite_db_records(db_path, query):
-        data_list.append(tuple(row))
-    return data_headers, data_list, context.get_relative_path(db_path)
+        query = f'''
+        SELECT {p}TEAM.ZNAME, {p}TEAM.ZDOMAIN, {p}TEAM.ZAUTHUSERID, {p}TEAM.ZTSID
+        FROM {p}TEAM
+        '''
+        for row in get_sqlite_db_records(db_path, query):
+            data_list.append(tuple(row) + (source,))
+    return data_headers, data_list, '\n'.join(sources)

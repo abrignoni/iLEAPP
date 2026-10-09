@@ -20,15 +20,12 @@ This document outlines the various device information collected by LEAPP modules
 | Backup Settings | Last iTunes Backup TZ | backupSettings |
 | Cellular | CDMA Network Phone Number ICCID | celWireless |
 | Cellular | IMEI | celWireless |
-| Cellular | Last Good IMSI | imeiImsi |
 | Cellular | Last Known ICCI | imeiImsi |
 | Cellular | Last Known ICCID | celWireless |
 | Cellular | MEID | celWireless |
 | Cellular | Phone Number | imeiImsi |
 | Cellular | Reported Phone Number | celWireless |
 | Cellular | SIM Cards | subscriberInfo |
-| Cellular | Self Registration Update IMEI | imeiImsi |
-| Cellular | Self Registration Update IMSI | imeiImsi |
 | Device Information | Device Name | deviceName, sdl_preferences |
 | Device Information | Device/Computer Name | preferencesPlist |
 | Device Information | Hardware Model | sdl_preferences |

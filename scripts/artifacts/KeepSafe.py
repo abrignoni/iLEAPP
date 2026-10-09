@@ -85,13 +85,14 @@ __artifacts_v2__ = {
     "keepsafe_account_security": {
         "name": "KeepSafe - Account & PIN Security",
         "description": (
-            "App-level account, install and PIN-security state from "
-            "com.keepsafe.KeepSafe.plist (app container) and "
-            "group.com.keepsafe.KeepSafe.plist (AppGroup, keyed by tracking id)."
+            "Account, install and security fields from app-container and AppGroup preferences. "
+            "Exactly one matching app plist and one matching group plist are combined into one row; "
+            "other nonempty combinations produce separate unpaired rows. "
+            "The group plist own tid selects its invalid-count and timeout keys."
         ),
-        "author": "@Gear-I, Claude",
+        "author": "@Gear-I, Claude, @AlexisBrignoni, Codex",
         "creation_date": "2026-08-23",
-        "last_update_date": "2026-08-23",
+        "last_update_date": "2026-10-08",
         "requirements": "none",
         "category": "KeepSafe",
         "notes": (
@@ -677,7 +678,7 @@ def keepsafe_account_security(context):
 
     data_headers = (
         "Account Tracking ID",
-        "PIN (as stored)",
+        "shared-pin (as stored)",
         "PIN Type (as stored)",
         "Consecutive Invalid PIN Count",
         "PIN Timeout Remaining (seconds)",
@@ -692,4 +693,7 @@ def keepsafe_account_security(context):
         "Source File (Group Prefs)",
     )
 
+    order = (7, 8, 0, 1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13)
+    data_headers = tuple(data_headers[i] for i in order)
+    data_list = [tuple(row[i] for i in order) for row in data_list]
     return data_headers, data_list, "\n".join(sorted(source_files))

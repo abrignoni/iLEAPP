@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Parses app intent entries from biomes",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-10-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Each record is parsed independently: a record that cannot be decoded is logged with"
@@ -19,7 +19,8 @@ __artifacts_v2__ = {
                  " not reported. direction (as stored) reports the decoded plist direction value "
                  "without assigning enum names. A missing direction key remains None in the native "
                  "row; this does not establish communication direction or participant ownership. "
-                 "Donated by Siri reads False when the record has no _donatedBySiri key. Labels "
+                 "Donated by Siri reads True or False from the truth value of the _donatedBySiri key "
+                 "and is blank when the record has no such key. Labels "
                  "inside the Data column (thread, sender, number) are inferred from observed record "
                  "content; the underlying protobuf fields are not documented. Original parser "
                  "credits: @JohnHyla and @mattiaepi (Mattia Epifani).",
@@ -130,7 +131,10 @@ def _parse_record(protostuff, filename, offset):
     enddate = _safe_time_obj(date_interval.get('NS.endDate'))
     durationinterval = date_interval.get('NS.duration')
 
-    donatedbysiri = 'True' if deserialized_plist.get('_donatedBySiri') else 'False'
+    if '_donatedBySiri' in deserialized_plist:
+        donatedbysiri = 'True' if deserialized_plist['_donatedBySiri'] else 'False'
+    else:
+        donatedbysiri = ''
     groupid = deserialized_plist.get('groupIdentifier', '')
 
     direction = deserialized_plist.get('direction')

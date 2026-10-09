@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "in the ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
@@ -33,7 +33,7 @@ __artifacts_v2__ = {
                        "ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
@@ -58,7 +58,7 @@ __artifacts_v2__ = {
                        "ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go.",
@@ -82,7 +82,7 @@ __artifacts_v2__ = {
                        "ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go.",
@@ -106,7 +106,7 @@ __artifacts_v2__ = {
                        "ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
@@ -131,7 +131,7 @@ __artifacts_v2__ = {
                        "ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
@@ -156,7 +156,7 @@ __artifacts_v2__ = {
                        "ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-11",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "Based on research by North Loop Consulting: https://northloopconsulting.com/blog/f/ready-sets-go. "
@@ -182,7 +182,7 @@ __artifacts_v2__ = {
                        "by Apple in the ApplePay.Security.Features Biome database.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-07-11",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "The database is described by North Loop Consulting: "
@@ -227,8 +227,7 @@ def _table_rows(context, table, query):
     if not source_path:
         return [], ''
     if not does_table_exist_in_db(source_path, table):
-        # Table availability varies by iOS version
-        logfunc(f'No {table} table in {source_path} (not populated on this iOS version)')
+        logfunc(f'No {table} table in {source_path}')
         return [], source_path
     return get_sqlite_db_records(source_path, query), source_path
 

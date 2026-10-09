@@ -11,7 +11,7 @@ __artifacts_v2__ = {
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-03",
-        "last_update_date": "2026-08-03",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Telegram",
         "notes": "Key IDs and record layouts are those of the open-source Telegram-iOS "
@@ -23,7 +23,11 @@ __artifacts_v2__ = {
                  "here for the key 2 record or the accounts-metadata JSON layout; their "
                  "field names are reported as stored. "
                  "The update state timestamp is the `state.date` field of the account "
-                 "state record in t0.",
+                 "state record in t0. Access Challenge Data Keys lists the key names of "
+                 "the accessChallengeData object in the accounts-metadata atomic-state "
+                 "file. That object belongs to the file, not to one account, so the same "
+                 "value is repeated on every account row read from that file. What each "
+                 "key name means is not established here.",
         "paths": (
             '*/telegram-data/accounts-metadata/atomic-state',
             '*/telegram-data/account-*/postbox/db/db_sqlite*'
@@ -79,13 +83,13 @@ __artifacts_v2__ = {
         "name": "Telegram Chats",
         "description": (
             "Parses the Telegram chat list from the Postbox chat list table, reporting each "
-            "chat with the time of its most recent message, whether it is pinned, whether it "
-            "sits in the main list or the archive, the number of messages stored for it and "
-            "the unread count."
+            "entry with the time of its top message, whether it is pinned, the group it "
+            "sits in (main list, archive or the stored group id), the number of messages "
+            "stored for it, the unread count and the entry type."
         ),
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-04",
-        "last_update_date": "2026-08-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Telegram",
         "notes": "The chat list is table t9, the Postbox ChatListTable (tableSpec(9) in "
@@ -94,9 +98,13 @@ __artifacts_v2__ = {
                  "peer id and an entry type "
                  "(https://github.com/TelegramMessenger/Telegram-iOS/blob/"
                  "6ad963e5b62d354da79040f388ae2b9132fb17b8/submodules/Postbox/Sources/"
-                 "ChatListTable.swift#L145-L152). The entry type is not read here, so a "
-                 "hole entry (type 2) is listed like a chat. Group id 1 is the archive; "
-                 "every other group id is shown as Main. A "
+                 "ChatListTable.swift#L145-L152). The entry type is the last byte of the "
+                 "key: 1 is a message entry and 2 is a hole entry, per the "
+                 "ChatListEntryType enum in the same file (lines 43 to 46). Entry Type "
+                 "shows Message or Hole, and any other value as stored. A hole entry is "
+                 "kept as a row and is not a chat. Group id 0 is the root group in "
+                 "PeerGroup.swift and is shown as Main, group id 1 is shown as Archived, "
+                 "and any other group id is shown as the stored number. A "
                  "pinning value of 0 means the chat is not pinned. Unread counts come from "
                  "table t14, the MessageHistoryReadStateTable, whose id-based records carry "
                  "the count and a marked-unread flag. Names are resolved from the peer table "
@@ -459,7 +467,7 @@ def telegramAccounts(context):
         'Environment',
         'Master Datacenter',
         'Sort Order',
-        'App Passcode Lock',
+        'Access Challenge Data Keys',
     ]
     data_list = []
     source_paths = []
@@ -718,6 +726,12 @@ def telegramContacts(context):
 
 # --- Telegram Chats ----------------------------------------------------------
 
+# PeerGroupId raw values: 0 is the root group (PeerGroup.swift); 1 is the archive.
+_CHAT_GROUP_NAMES = {0: 'Main', 1: 'Archived'}
+# ChatListEntryType raw values, ChatListTable.swift.
+_CHAT_ENTRY_TYPES = {1: 'Message', 2: 'Hole'}
+
+
 def _read_chat_list_key(key):
     """Unpack a ChatListTable key.
 
@@ -731,7 +745,8 @@ def _read_chat_list_key(key):
     pinning = struct.unpack('>H', key[4:6])[0]
     timestamp = struct.unpack('>i', key[6:10])[0]
     peer_id = struct.unpack('>q', key[15:23])[0]
-    return group_id, pinning, timestamp, peer_id
+    entry_type = struct.unpack('>b', key[23:24])[0] if len(key) >= 24 else ''
+    return group_id, pinning, timestamp, peer_id, entry_type
 
 
 def _read_read_states(db):
@@ -791,6 +806,7 @@ def telegramChats(context):
         'Messages Stored',
         'Unread Count',
         'Marked Unread',
+        'Entry Type',
     ]
     data_list = []
     source_paths = []
@@ -826,7 +842,7 @@ def telegramChats(context):
                 entry = _read_chat_list_key(key)
                 if entry is None:
                     continue
-                group_id, pinning, timestamp, peer_id = entry
+                group_id, pinning, timestamp, peer_id, entry_type = entry
                 unread, marked = read_states.get(peer_id, (0, False))
                 data_list.append((
                     datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
@@ -835,11 +851,12 @@ def telegramChats(context):
                     peer_id,
                     names.get(peer_id, ''),
                     types.get(peer_id, ''),
-                    'Archived' if group_id == 1 else 'Main',
+                    _CHAT_GROUP_NAMES.get(group_id, f'Group {group_id} (as stored)'),
                     'Yes' if pinning else '',
                     counts.get(peer_id, 0),
                     unread,
                     'Yes' if marked else '',
+                    _CHAT_ENTRY_TYPES.get(entry_type, entry_type),
                 ))
             source_paths.append(db_path)
         except sqlite3.Error as err:

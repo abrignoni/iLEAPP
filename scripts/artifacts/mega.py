@@ -2,27 +2,33 @@ __artifacts_v2__ = {
     "mega_chat_messages": {
         "name": "MEGA - Chat Messages",
         "description": "Chat messages from the MEGA (karere) chat store, with the sender resolved to "
-                       "an email where possible, the message text, and shared locations with their "
-                       "map thumbnail",
+                       "an email where possible, the message text, and the coordinates and embedded "
+                       "image stored in a message's JSON body",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "MEGA",
-        "notes": "Read from the history table of the first karere-*.db file found; if an "
-                 "extraction holds more than one, the others are not read. Direction is set by "
+        "notes": "Read from the history table of every karere-*.db file matched; the Source File "
+                 "column names the file each row came from. Sender and Direction are resolved "
+                 "inside that file only. The app, its app group and its extensions can each hold a karere "
+                 "file: a file whose rows equal those of a file already reported is left out, "
+                 "and the located-at line still lists every file read. On hc_ios26 three "
+                 "containers hold a karere file with the same rows, so they are reported once. "
+                 "Direction is set by "
                  "comparing the sender handle to the account's own handle, which the store keeps "
                  "in vars as my_handle. Rows with type 1 hold their text directly. For any row "
                  "that is not type 1, is not flagged encrypted and whose body holds a JSON object, "
-                 "the object's textMessage is reported as Message and Maps URL, and the first "
-                 "'extra' entry's la, lng and img as Latitude, Longitude and thumbnail; the img "
+                 "the object's textMessage is reported under Message and under textMessage (as "
+                 "stored), and the first 'extra' entry's la, lng and img as Latitude, Longitude "
+                 "and Location Map; the img "
                  "value is base64 decoded and checked in as a JPEG. The code does not check the "
                  "type or that the text is a maps link, so another kind of type 104 row would be "
                  "reported the same way. On hc_ios26 the 2 rows this applied to were type 104 and "
                  "each held a maps link, coordinates and a thumbnail; the same was true of 2 rows "
                  "on hc_ios18_7 and 8 rows on iphone11_ios17. On iphone11_ios17 16 type 101 rows "
                  "also held a JSON object, with no textMessage, and are reported with a blank "
-                 "Message and Maps URL. Other type values are reported with "
+                 "Message and textMessage (as stored). Other type values are reported with "
                  "their stored type number. Rows whose is_encrypted value is not 0 are reported "
                  "with '<encrypted>' in place of a body and Yes under Was Encrypted; what each "
                  "non-zero value means is not sourced here. MEGA publishes both vocabularies in "
@@ -47,16 +53,17 @@ __artifacts_v2__ = {
     },
     "mega_chats": {
         "name": "MEGA - Chats",
-        "description": "Chats listed in the first MEGA karere store, with creation time and a peer "
+        "description": "Chats listed in the MEGA karere stores, with creation time and a peer "
                        "display value from a contacts.email lookup or the stored peer rendered as "
                        "text. The value does not establish identity.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-10-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "MEGA",
-        "notes": "Read from the chats table of the first karere-*.db file found; if an extraction "
-                 "holds more than one, the others are not read. Peer Display Value uses a lookup "
+        "notes": "Read from the chats table of every karere-*.db file matched; the Source File "
+                 "column names the file each row came from, and the contact lookup uses that "
+                 "file's own contacts table. Peer Display Value uses a lookup "
                  "of str(peer) against str(contacts.userid). A truthy contacts.email value takes "
                  "precedence; it is not validated as an email or an identity. For duplicate string "
                  "keys the last truthy email read wins, and false values do not replace an earlier "
@@ -78,11 +85,11 @@ __artifacts_v2__ = {
                        "'since' time, read as Unix seconds; what that time marks is not established",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-07",
-        "last_update_date": "2026-08-07",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "MEGA",
-        "notes": "Read from the contacts table of the first karere-*.db file found; if an "
-                 "extraction holds more than one, the others are not read.",
+        "notes": "Read from the contacts table of every karere-*.db file matched; the Source "
+                 "File column names the file each row came from.",
         "paths": ('*/karere-*.db*',),
         "output_types": "standard",
         "artifact_icon": "user",
@@ -103,12 +110,35 @@ from scripts.ilapfuncs import (
 )
 
 
-def _karere_db(files_found):
+def _karere_dbs(files_found):
+    """Every matched karere-*.db file, once each, in the order found."""
+    found = []
     for file_found in files_found:
         file_found = str(file_found)
         if 'karere-' in file_found and file_found.endswith('.db'):
-            return file_found
-    return ''
+            found.append(file_found)
+    return list(dict.fromkeys(found))
+
+
+def _drop_repeated_files(data_list, skip=()):
+    """Rows of each file, leaving out a file whose rows equal those of a file already kept.
+
+    The app, its app group and its extensions can each hold a karere file with the same
+    content. The last cell of a row is its Source File; cells listed in skip (the rendered
+    media cell) are left out of the comparison.
+    """
+    by_file = {}
+    for row in data_list:
+        by_file.setdefault(row[-1], []).append(row)
+    kept, seen = [], []
+    for rows in by_file.values():
+        content = sorted(repr(tuple(cell for index, cell in enumerate(row[:-1]) if index not in skip))
+                         for row in rows)
+        if content in seen:
+            continue
+        seen.append(content)
+        kept.extend(rows)
+    return kept
 
 
 def _own_handle(source_path):
@@ -155,12 +185,34 @@ def _embedded_json(blob):
 
 @artifact_processor
 def mega_chat_messages(context):
-    source_path = _karere_db(context.get_files_found())
     data_list = []
+    sources = _karere_dbs(context.get_files_found())
+    for source_path in sources:
+        _chat_message_rows(context, source_path, data_list)
+    data_list = _drop_repeated_files(data_list, skip=(4,))
 
+    data_headers = (
+        ('Timestamp', 'datetime'),
+        'Direction',
+        'Sender',
+        'Message',
+        ('Location Map', 'media'),
+        'Latitude',
+        'Longitude',
+        'textMessage (as stored)',
+        'Chat ID',
+        'Message Type Value',
+        'Was Encrypted',
+        'Source File',
+    )
+    return data_headers, data_list, '\n'.join(sources)
+
+
+def _chat_message_rows(context, source_path, data_list):
     own = _own_handle(source_path)
     own_email = ''
     emails = _contact_emails(source_path)
+    source_file = context.get_relative_path(source_path)
     for record in get_sqlite_db_records(source_path, "SELECT value FROM vars WHERE name = 'my_email'"):
         own_email = record[0]
 
@@ -180,7 +232,7 @@ def mega_chat_messages(context):
         message = ''
         latitude = ''
         longitude = ''
-        maps_url = ''
+        text_message = ''
         media = ''
         msg_type = record[3]
 
@@ -191,7 +243,7 @@ def mega_chat_messages(context):
         elif record[4]:
             payload = _embedded_json(record[4])
             if isinstance(payload, dict):
-                maps_url = payload.get('textMessage', '')
+                text_message = payload.get('textMessage', '')
                 extra = payload.get('extra')
                 if isinstance(extra, list) and extra and isinstance(extra[0], dict):
                     latitude = extra[0].get('la', '')
@@ -205,7 +257,7 @@ def mega_chat_messages(context):
                                 force_type='image/jpeg', force_extension='jpg') or ''
                         except (ValueError, TypeError):
                             media = ''
-                message = maps_url
+                message = text_message
 
         data_list.append((
             convert_unix_ts_to_utc(record[0]),
@@ -215,49 +267,40 @@ def mega_chat_messages(context):
             media,
             latitude,
             longitude,
-            maps_url,
+            text_message,
             str(record[1]),
             msg_type,
             'Yes' if record[5] else 'No',
+            source_file,
         ))
-
-    data_headers = (
-        ('Timestamp', 'datetime'),
-        'Direction',
-        'Sender',
-        'Message',
-        ('Location Map', 'media'),
-        'Latitude',
-        'Longitude',
-        'Maps URL',
-        'Chat ID',
-        'Message Type Value',
-        'Was Encrypted',
-    )
-    return data_headers, data_list, source_path
 
 
 @artifact_processor
 def mega_chats(context):
-    source_path = _karere_db(context.get_files_found())
     data_list = []
-    emails = _contact_emails(source_path)
+    sources = _karere_dbs(context.get_files_found())
 
     query = '''
     SELECT ts_created, chatid, peer, title, shard, mode
     FROM chats
     ORDER BY ts_created
     '''
-    for record in get_sqlite_db_records(source_path, query):
-        peer_handle = str(record[2])
-        data_list.append((
-            convert_unix_ts_to_utc(record[0]),
-            str(record[1]),
-            emails.get(peer_handle, peer_handle if record[2] is not None else ''),
-            record[3],
-            record[4],
-            record[5],
-        ))
+    for source_path in sources:
+        emails = _contact_emails(source_path)
+        source_file = context.get_relative_path(source_path)
+        for record in get_sqlite_db_records(source_path, query):
+            peer_handle = str(record[2])
+            data_list.append((
+                convert_unix_ts_to_utc(record[0]),
+                str(record[1]),
+                emails.get(peer_handle, peer_handle if record[2] is not None else ''),
+                record[3],
+                record[4],
+                record[5],
+                source_file,
+            ))
+
+    data_list = _drop_repeated_files(data_list)
 
     data_headers = (
         ('Created', 'datetime'),
@@ -266,28 +309,35 @@ def mega_chats(context):
         'Title',
         'Shard',
         'Mode',
+        'Source File',
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sources)
 
 
 @artifact_processor
 def mega_contacts(context):
-    source_path = _karere_db(context.get_files_found())
     data_list = []
+    sources = _karere_dbs(context.get_files_found())
 
     query = 'SELECT since, userid, email, visibility FROM contacts ORDER BY since'
-    for record in get_sqlite_db_records(source_path, query):
-        data_list.append((
-            convert_unix_ts_to_utc(record[0]),
-            str(record[1]),
-            record[2],
-            record[3],
-        ))
+    for source_path in sources:
+        source_file = context.get_relative_path(source_path)
+        for record in get_sqlite_db_records(source_path, query):
+            data_list.append((
+                convert_unix_ts_to_utc(record[0]),
+                str(record[1]),
+                record[2],
+                record[3],
+                source_file,
+            ))
+
+    data_list = _drop_repeated_files(data_list)
 
     data_headers = (
         ('Since', 'datetime'),
         'User ID',
         'Email',
         'Visibility Value',
+        'Source File',
     )
-    return data_headers, data_list, source_path
+    return data_headers, data_list, '\n'.join(sources)

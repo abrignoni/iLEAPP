@@ -1,14 +1,16 @@
 __artifacts_v2__ = {
     "imeiImsi": {
         "name": "IMEI - IMSI",
-        "description": "Lists the keys of the first com.apple.commcenter.plist found, as stored. Under PersonalWallet only the first entry's lastGoodImsi, kEntitlementsSelfRegistrationUpdateImsi and kEntitlementsSelfRegistrationUpdateImei are reported.",
+        "description": "Lists the top-level keys of each com.apple.commcenter.plist found, as stored. Under PersonalWallet the lastGoodImsi, kEntitlementsSelfRegistrationUpdateImsi and kEntitlementsSelfRegistrationUpdateImei values of each entry's CarrierEntitlements are reported; when a file holds more than one entry, each of those labels carries the entry's key in parentheses.",
         "author": "@AlexisBrignoni - @stark4n6",
         "version": "0.3",
         "creation_date": "2023-10-03",
-        "last_update_date": "2025-02-04",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Identifiers",
-        "notes": "",
+        "notes": "Reading more than one matched plist and more than one PersonalWallet entry was not "
+                 "exercised on a tested image. A PersonalWallet entry with no CarrierEntitlements "
+                 "dictionary is logged and not reported.",
         "paths": ('*/wireless/Library/Preferences/com.apple.commcenter.plist'),
         "output_types": ["html", "tsv", "lava"],
         "artifact_icon": "hash",
@@ -40,9 +42,9 @@ __artifacts_v2__ = {
         "category": "Identifiers",
         "notes": "One document-field row is reported for the first selected dictionary-root "
                  "com.apple.commcenter.plist, including when PersonalWallet is absent, null, empty "
-                 "or not a dictionary. This is not a wallet count. The legacy IMEI - IMSI artifact "
-                 "by @AlexisBrignoni and @stark4n6 and its device-info entries are unchanged; this "
-                 "artifact adds no device-info entries. The compact typed JSON keeps decoded "
+                 "or not a dictionary. This is not a wallet count. The IMEI - IMSI artifact "
+                 "by @AlexisBrignoni and @stark4n6 writes the device-info entries; this "
+                 "artifact adds none. The compact typed JSON keeps decoded "
                  "wallet keys, all fields, order, repeated values and key presence. Integer and "
                  "UID values use decimal text, real values use parsed big-endian binary64 "
                  "hexadecimal bits, data uses base64, and dates keep decoded components without "
@@ -50,7 +52,7 @@ __artifacts_v2__ = {
                  "preserves supported plistlib-decoded values, not original plist bytes, XML "
                  "spelling, duplicate dictionary keys collapsed by decoding or binary object "
                  "identity. Original source exports retain byte evidence. Only the first input "
-                 "plist is read; later matched files and legacy malformed-wallet handling remain "
+                 "plist is read; later matched files remain "
                  "outside this artifact. Stored values do not establish active SIM, subscriber "
                  "or device/person ownership, current validity or meanings of unknown keys.",
         "paths": ('*/wireless/Library/Preferences/com.apple.commcenter.plist',),
@@ -66,46 +68,68 @@ __artifacts_v2__ = {
 import base64
 from datetime import datetime
 import json
+import os
 import plistlib
 import struct
 from scripts.ilapfuncs import artifact_processor, device_info, logfunc
 
+_WALLET_FIELDS = (
+    ('Last Good IMSI', 'lastGoodImsi'),
+    ('Self Registration Update IMSI', 'kEntitlementsSelfRegistrationUpdateImsi'),
+    ('Self Registration Update IMEI', 'kEntitlementsSelfRegistrationUpdateImei'),
+)
+
+
 @artifact_processor
 def imeiImsi(context):
+    data_headers = ('Property', 'Property Value')
     data_list = []
-    source_path = str(context.get_files_found()[0])
-    
-    with open(source_path, "rb") as fp:
-        pl = plistlib.load(fp)
+    sources = []
+
+    for file_found in context.get_files_found():
+        file_found = str(file_found)
+        if os.path.isdir(file_found) or not file_found.endswith('com.apple.commcenter.plist'):
+            continue
+        try:
+            with open(file_found, "rb") as fp:
+                pl = plistlib.load(fp)
+        except (plistlib.InvalidFileException, ValueError, OSError) as error:
+            logfunc(f'IMEI - IMSI: {context.get_relative_path(file_found)} did not parse: {error}')
+            continue
+        if not isinstance(pl, dict):
+            logfunc(f'IMEI - IMSI: {context.get_relative_path(file_found)} root is not a dictionary')
+            continue
+        sources.append(context.get_relative_path(file_found))
+
         for key, val in pl.items():
-            if key == 'PersonalWallet':
-                val = (list(val.values())[0])
-                lastgoodimsi = val['CarrierEntitlements'].get('lastGoodImsi','')
-                data_list.append(('Last Good IMSI', lastgoodimsi))
-                device_info("Cellular", "Last Good IMSI", lastgoodimsi, source_path)
-                
-                selfregitrationupdateimsi = val['CarrierEntitlements'].get('kEntitlementsSelfRegistrationUpdateImsi','')
-                data_list.append(('Self Registration Update IMSI', selfregitrationupdateimsi))
-                device_info("Cellular", "Self Registration Update IMSI", selfregitrationupdateimsi, source_path)
-                
-                selfregistrationupdateimei = val['CarrierEntitlements'].get('kEntitlementsSelfRegistrationUpdateImei','')
-                data_list.append(('Self Registration Update IMEI', selfregistrationupdateimei))
-                device_info("Cellular", "Self Registration Update IMEI", selfregistrationupdateimei, source_path)
-                
+            if key == 'PersonalWallet' and isinstance(val, dict):
+                # Every wallet entry is reported. With one entry the labels stay
+                # bare; with more than one each label carries the entry's key.
+                several = len(val) > 1
+                for wallet_key, wallet in val.items():
+                    entitlements = wallet.get('CarrierEntitlements') if isinstance(wallet, dict) else None
+                    if not isinstance(entitlements, dict):
+                        logfunc('IMEI - IMSI: a PersonalWallet entry holds no CarrierEntitlements '
+                                'dictionary, not reported')
+                        continue
+                    for label, field in _WALLET_FIELDS:
+                        value = entitlements.get(field, '')
+                        shown = f'{label} ({wallet_key})' if several else label
+                        data_list.append((shown, value))
+                        device_info("Cellular", label, value, file_found)
+
             elif key == 'LastKnownICCI':
-                lastknownicci = val
-                data_list.append(('Last Known ICCI', lastknownicci))
-                device_info("Cellular", "Last Known ICCI", lastknownicci, source_path)
-                
+                data_list.append(('Last Known ICCI', val))
+                device_info("Cellular", "Last Known ICCI", val, file_found)
+
             elif key == 'PhoneNumber':
                 data_list.append(('Phone Number', val))
-                device_info("Cellular", "Phone Number", val, source_path)
-                
+                device_info("Cellular", "Phone Number", val, file_found)
+
             else:
-                data_list.append((key, val ))
-    
-    data_headers = ('Property', 'Property Value')
-    return data_headers, data_list, source_path
+                data_list.append((key, val))
+
+    return data_headers, data_list, '\n'.join(sources)
 
 
 

@@ -1,22 +1,29 @@
 __artifacts_v2__ = {
     "safariWebsearch": {
         "name": "Safari Browser - Search Terms",
-        "description": "Query text taken from history URLs containing search?q= in the first Safari History.db found",
+        "description": "Query text taken from history URLs containing search?q= in each Safari History.db found",
         "author": "@abrignoni",
         "creation_date": "2026-06-23",
-        "last_update_date": "2026-09-24",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Safari Browser",
         "notes": (
             "The history_visits.origin value is reported as stored. Community documentation "
             "describes 1 as a visit synced from another iCloud device, but no primary source was "
-            "located. Only the first History.db found is read, and the path pattern does not "
-            "match a profile's History.db under Safari/Profiles/. Search Term is the text between "
-            "search?q= and the next &, with + turned into a space and no percent-decoding. A "
+            "located. Every History.db the path patterns match is read, including a profile's "
+            "History.db under Safari/Profiles/. Profile carries the profile directory name for "
+            "those rows and Default for the main history database, and Source Path names the "
+            "file each row came from. Search Term is the text between search?q= and the next &, "
+            "with + turned into a space and percent-encoded bytes decoded as UTF-8; the URL "
+            "column keeps the address as stored. Reading a History.db under Profiles/ was not "
+            "exercised on the images in sample_data. A "
             "matching URL is a page address in history; it does not establish who entered the "
             "query."
         ),
-        "paths": ('**/Safari/History.db*',),
+        "paths": (
+            '**/Safari/History.db*',
+            '**/Safari/Profiles/*/History.db*',
+        ),
         "output_types": "standard",
         "artifact_icon": "search",
         "sample_data": {
@@ -39,23 +46,28 @@ __artifacts_v2__ = {
     }
 }
 
+from urllib.parse import unquote_plus
+
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records
+
+
+def _profile(source_path):
+    parts = source_path.replace('\\', '/').split('/')
+    if len(parts) >= 3 and parts[-3] == 'Profiles':
+        return parts[-2]
+    return 'Default'
 
 
 @artifact_processor
 def safariWebsearch(context):
     data_headers = (('Visit Time', 'datetime'), 'Search Term', 'URL', 'Visit Count', 'Title',
                     'Origin (as stored)', 'Load Successful', 'Visit ID', 'Redirect Source',
-                    'Redirect Destination')
+                    'Redirect Destination', 'Profile', 'Source Path')
     data_list = []
 
-    source_path = ''
-    for file_found in context.get_files_found():
-        file_found = str(file_found)
-        if file_found.endswith('History.db'):
-            source_path = file_found
-            break
-    if not source_path:
+    source_paths = sorted({str(file_found) for file_found in context.get_files_found()
+                           if str(file_found).endswith('History.db')})
+    if not source_paths:
         return data_headers, data_list, ''
 
     # visit_time is Apple absolute (Cocoa) time on iOS <= 18. Untested
@@ -88,10 +100,15 @@ def safariWebsearch(context):
         END,
         history_visits.id
     '''
-    for row in get_sqlite_db_records(source_path, query):
-        url = row[1] or ''
-        search = url.split('search?q=')[1].split('&')[0].replace('+', ' ') if 'search?q=' in url else ''
-        data_list.append((row[0], search, row[1], row[2], row[3], row[4], row[5], row[6], row[7],
-                          row[8]))
+    for source_path in source_paths:
+        relative_path = context.get_relative_path(source_path)
+        profile = _profile(source_path)
+        for row in get_sqlite_db_records(source_path, query):
+            url = row[1] or ''
+            search = (unquote_plus(url.split('search?q=')[1].split('&')[0])
+                      if 'search?q=' in url else '')
+            data_list.append((row[0], search, row[1], row[2], row[3], row[4], row[5], row[6],
+                              row[7], row[8], profile, relative_path))
 
-    return data_headers, data_list, context.get_relative_path(source_path)
+    sources = '\n'.join(context.get_relative_path(path) for path in source_paths)
+    return data_headers, data_list, sources
