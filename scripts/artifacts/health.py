@@ -14,11 +14,18 @@ __artifacts_v2__ = {
                        "https://dfir.pubpub.org/pub/xqvcn3hj/release/1",
         "author": "@KevinPagano3 - @Johann-PLW - @SQLMcGee",
         "creation_date": "2022-08-15",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Health",
         "notes": "The Fahrenheit assumption for HKWeatherTemperature is inherited "
-                 "from community queries and unverified.",
+                 "from community queries and unverified. Activity type labels are the "
+                 "member names of the HKWorkoutActivityType enumeration and Location Type "
+                 "labels (2 Indoor, 3 Outdoor) those of HKWorkoutSessionLocationType, read "
+                 "from HKWorkoutActivityType.h and HKWorkoutConfiguration.h in Apple's "
+                 "macOS 27.0 SDK; any other stored value is shown as stored. The Goal Type "
+                 "labels (0 Open, 1 Distance in meters, 2 Time in seconds, 3 Kilocalories) "
+                 "are not in those public headers and their source is not established "
+                 "here.",
         "paths": ("*Health/healthdb_secure.sqlite*", "*Health/healthdb.sqlite*"),
         "output_types": "all",
         "artifact_icon": "activity",
@@ -650,20 +657,23 @@ def health_workouts(context):
         WHEN 11 THEN "CROSS TRAINING"
         WHEN 12 THEN "CURLING"
         WHEN 13 THEN "CYCLING"
+        WHEN 14 THEN "DANCE"
+        WHEN 15 THEN "DANCE INSPIRED TRAINING"
         WHEN 16 THEN "ELLIPTICAL"
         WHEN 17 THEN "EQUESTRIAN SPORTS"
         WHEN 18 THEN "FENCING"
         WHEN 19 THEN "FISHING"
-        WHEN 20 THEN "FUNCTION STRENGTH TRAINING"
+        WHEN 20 THEN "FUNCTIONAL STRENGTH TRAINING"
         WHEN 21 THEN "GOLF"
         WHEN 22 THEN "GYMNASTICS"
         WHEN 23 THEN "HANDBALL"
         WHEN 24 THEN "HIKING"
         WHEN 25 THEN "HOCKEY"
         WHEN 26 THEN "HUNTING"
-        WHEN 27 THEN "LACROSS"
+        WHEN 27 THEN "LACROSSE"
         WHEN 28 THEN "MARTIAL ARTS"
         WHEN 29 THEN "MIND AND BODY"
+        WHEN 30 THEN "MIXED METABOLIC CARDIO TRAINING"
         WHEN 31 THEN "PADDLE SPORTS"
         WHEN 32 THEN "PLAY"
         WHEN 33 THEN "PREPARATION AND RECOVERY"
@@ -677,7 +687,7 @@ def health_workouts(context):
         WHEN 41 THEN "SOCCER"
         WHEN 42 THEN "SOFTBALL"
         WHEN 43 THEN "SQUASH"
-        WHEN 44 THEN "STAIRSTEPPER"
+        WHEN 44 THEN "STAIR CLIMBING"
         WHEN 45 THEN "SURFING SPORTS"
         WHEN 46 THEN "SWIMMING"
         WHEN 47 THEN "TABLE TENNIS"
@@ -710,10 +720,13 @@ def health_workouts(context):
         WHEN 74 THEN "HAND CYCLING"
         WHEN 75 THEN "DISC SPORTS"
         WHEN 76 THEN "FITNESS GAMING"
-        WHEN 77 THEN "DANCE"
+        WHEN 77 THEN "CARDIO DANCE"
         WHEN 78 THEN "SOCIAL DANCE"
         WHEN 79 THEN "PICKLEBALL"
         WHEN 80 THEN "COOLDOWN"
+        WHEN 82 THEN "SWIM BIKE RUN"
+        WHEN 83 THEN "TRANSITION"
+        WHEN 84 THEN "UNDERWATER DIVING"
         WHEN 3000 THEN "OTHER"
     '''
 

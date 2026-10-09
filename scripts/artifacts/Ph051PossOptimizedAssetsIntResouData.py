@@ -2,8 +2,8 @@ __artifacts_v2__ = {
 'Ph051PossibleOptimizedAssetsIntResouPhDaPsql': {
 'name': 'Ph051-Possible_Optimized_Assets_IntResou-PhDaPsql',
 'description': 'Parses asset records from PhotoData-Photos.sqlite ZINTERNALRESOURCE and other tables'
-' on iOS 14 through iOS 26. No iOS 26 image is recorded in sample_data, so the iOS 26'
-' query is unexercised. Rows are limited to ZINTERNALRESOURCE records where'
+' on iOS 14 through iOS 26. The iOS 26 query was run on hc_ios26 and falken_ios26 and'
+' returned no rows on either, so its output on iOS 26 has not been seen. Rows are limited to ZINTERNALRESOURCE records where'
 ' ZDATASTORESUBTYPE is 1, ZLOCALAVAILABILITY is -1 and ZFINGERPRINT is not null. The'
 ' module labels those two values as the original-size main asset resource and as not'
 ' available locally, and the post by Scott Koenig linked at the end describes this'
@@ -17,7 +17,7 @@ __artifacts_v2__ = {
 ' https://theforensicscooter.com/2024/05/18/ileapp-parsers-photos-sqlite-queries/',
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-09',
 'version': '6.0',
 'date': '2026-05-26',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
@@ -42,6 +42,8 @@ __artifacts_v2__ = {
 'hickman_ios14': 'iOS 14.3 | 24 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+'hc_ios26': 'iOS 26.5.2 | 0 rows',
+'falken_ios26': 'iOS 26.2.1 | 0 rows',
 }
 }
 }

@@ -123,16 +123,17 @@ __artifacts_v2__ = {
                        "own key names.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-08-16",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
             "The record is an NSKeyedArchiver payload inside "
             "Library/Preferences/com.zhiliaoapp.musically.plist; its string, number and "
-            "boolean fields are reported one per row and empty values are skipped. On the "
-            "tested image it carried the account's user id, screen name, sec user id, "
-            "avatar URL, session key, and the phone number and email as the app stores "
-            "them, which is partially masked. The sibling "
+            "boolean fields are reported one per row and empty values are skipped. Of the "
+            "seven images in sample_data, the record carried userID, screenName and "
+            "secUserId on four, sessionKey on five, and avatarURL, mobile and email on "
+            "three each; all six stored mobile and email values held asterisks in place of "
+            "some characters. The sibling "
             "com.toutiao.account.userdefault.user.* scalar keys (login status, dticket, "
             "session ids) are included as rows. Other keys in the same plist "
             "(NHAccountManager*, AWEUserStorageCacheUserKey, kDYA*) are not parsed."
