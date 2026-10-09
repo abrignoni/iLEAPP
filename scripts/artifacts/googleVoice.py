@@ -65,9 +65,9 @@ __artifacts_v2__ = {
         'description': 'Phone numbers stored in the Participant table of the Google Voice '
                        'threading database, with a count and the latest timestamp of the thread '
                        'items that name that number as sender',
-        'author': '@AlexisBrignoni',
+        'author': '@AlexisBrignoni, Codex',
         'creation_date': '2026-07-25',
-        'last_update_date': '2026-07-31',
+        'last_update_date': '2026-10-08',
         'requirements': 'none',
         'category': 'Google Voice',
         'notes': '',
@@ -286,7 +286,7 @@ def googleVoiceContacts(context):
         ))
 
     data_headers = (
-        ('Last Activity', 'datetime'), ('Phone Number', 'phonenumber'), 'Blocked',
-        'Thread Count', 'Item Count')
+        ('Latest Sender-Matched Item Timestamp', 'datetime'), ('Phone Number', 'phonenumber'), 'Blocked',
+        'Thread Count', 'Sender-Matched Item Count')
 
     return data_headers, data_list, source_path
