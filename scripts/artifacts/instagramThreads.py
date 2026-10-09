@@ -6,19 +6,19 @@ __artifacts_v2__ = {
             "conversation": {
                 "conversationDiscriminatorColumn": "Thread ID",
                 "textColumn": "Message",
-                "senderColumn": "Username",
+                "senderColumn": "Sender Display Label",
                 "directionColumn": "Viewer ID equals Sender PK",
                 "directionSentValue": 1,
                 "timeColumn": "Timestamp"
             }
         },
-        "description": "Message records in the Instagram app's DirectSQLiteDatabase, decoded from each row's archive. The Username column holds the sender's full name where stored, otherwise the username. Only the first reaction of a message is reported.",
-        "author": "@AlexisBrignoni",
+        "description": "Message records in the Instagram app's DirectSQLiteDatabase, decoded from each row's archive. The Sender Display Label column holds the sender's full name where stored, otherwise the username. Only the first reaction of a message is reported.",
+        "author": "@AlexisBrignoni, Codex",
         "creation_date": "2021-03-09",
-        "last_update_date": "2026-06-05",
+        "last_update_date": "2026-10-07",
         "requirements": "",
         "category": "Instagram",
-        "notes": "",
+        "notes": "Sender Display Label preserves the existing truthy full-name/username fallback and lookup result; it is not a verified username or ownership identifier. Only the first reaction is reported. Viewer ID equals Sender PK is the stored numeric comparison, not independently verified ownership or direction. Source lists every selected database, including noncontributing files.",
         "paths": (
             "*/mobile/Containers/Data/Application/*/Library/Application Support/DirectSQLiteDatabase/*.db*",
         ),
@@ -272,7 +272,7 @@ def instagram_threads(context):
         ("DM Reaction Server Timestamp", "datetime"),
         ("Shared Media URL Expiration Date", "datetime"),
         "Viewer ID equals Sender PK",
-        "Username",
+        "Sender Display Label",
         "Message",
         "Sender ID",
         "Thread ID",
