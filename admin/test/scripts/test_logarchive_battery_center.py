@@ -155,9 +155,9 @@ class BatteryCenterSelectionTests(unittest.TestCase):
 
     def test_the_table_time_becomes_a_utc_datetime(self):
         self.assertEqual(
-            module._bc_time(1704281051.485265),  # pylint: disable=protected-access
+            module._report_time(1704281051.485265),  # pylint: disable=protected-access
             datetime.datetime(2024, 1, 3, 11, 24, 11, 485265, tzinfo=datetime.timezone.utc))
-        self.assertEqual(module._bc_time(''), '')  # pylint: disable=protected-access
+        self.assertEqual(module._report_time(''), '')  # pylint: disable=protected-access
 
 
 if __name__ == '__main__':
