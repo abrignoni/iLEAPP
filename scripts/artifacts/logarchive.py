@@ -1210,9 +1210,15 @@ __artifacts_v2__ = {
         "last_update_date": "2026-10-06",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
-        "notes": "Search terms provided as part of private R&D work. "
-                 "Query filters on terminusd, sharingd, securityd processes with specific keyword event message filters. "
-                 "securityd filter may surface peer circle information for other devices associated with the same iCloud account.",
+        "notes": "Search terms provided by Hexordia as part of private R&D work. Queries the "
+                 "logarchive_artifacts table for device identifier details across three primary "
+                 "filters: (1) terminusd (/usr/libexec/terminusd) under the com.apple.networkrelay "
+                 "subsystem containing 'Starting terminusd', capturing daemon initialization and "
+                 "system build/OS details; (2) sharingd (/usr/libexec/sharingd) containing "
+                 "'Device Information:', surfacing device model, name, and hardware attributes; "
+                 "and (3) securityd (/usr/libexec/securityd) in the accountLogState category "
+                 "containing 'name:', which may record device serial numbers and peer circle "
+                 "identity information for other hardware associated with the same iCloud account.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "package",
