@@ -1106,6 +1106,52 @@ class RawImageSeekerTest(unittest.TestCase):
         self.assertIn('Not staged', self.log.text())
         self.assertIn('the image ends before the file does', self.log.text())
 
+    def test_a_file_whose_cluster_chain_ends_early_is_named_and_not_staged(self):
+        # a.bin is two clusters stored as one run (NoFatChain). Clearing that
+        # flag hands its allocation to the FAT, and one FAT entry marking the
+        # end of the chain leaves it one cluster where its size needs two.
+        # c.bin is untouched and is the control: it must still stage whole.
+        with open(self.exfat, 'rb') as handle:
+            volume = bytearray(handle.read())
+        boot = struct.unpack_from('<IIIII', volume, 80)
+        fat_offset, _fat_length, heap_offset, _clusters, root = boot
+        sector = 1 << volume[108]
+        cluster = sector << volume[109]
+        at = heap_offset * sector + (root - 2) * cluster
+        streams = [at + i for i in range(0, cluster, 32)
+                   if volume[at + i] == 0xC0
+                   and struct.unpack_from('<I', volume, at + i + 20)[0] == 13
+                   and struct.unpack_from('<Q', volume, at + i + 24)[0] == 8192]
+        self.assertEqual(len(streams), 1)
+        stream = streams[0]
+        self.assertEqual(volume[stream + 1], 0x03)
+        volume[stream + 1] = 0x01
+        struct.pack_into('<I', volume, fat_offset * sector + 13 * 4, 0xFFFFFFFF)
+        # the set's checksum covers the flag, so it is written again
+        first = stream - 32
+        self.assertEqual(volume[first], 0x85)
+        entries = volume[first:first + 32 * (volume[first + 1] + 1)]
+        checksum = 0
+        for index, byte in enumerate(entries):
+            if index not in (2, 3):
+                checksum = (((checksum << 15) | (checksum >> 1)) + byte) & 0xFFFF
+        struct.pack_into('<H', volume, first + 2, checksum)
+        folder = tempfile.mkdtemp(prefix='raw_image_chain_', dir=self.work)
+        image = os.path.join(folder, 'exfat-cut-chain.img')
+        with open(image, 'wb') as out:
+            out.write(volume)
+        seeker = self._seeker(image)
+        seeker.search('*')
+        staged = self._staged_by_source(seeker, 'lba0')
+        self.assertNotIn('a.bin', staged)
+        self.assertEqual(_sha256(staged['c.bin']), self.exfat_hashes['c.bin'])
+        text = self.log.text()
+        self.assertIn('Not staged, lba0/a.bin: the volume records 8,192 bytes for it and a '
+                      'cluster chain that ends after 1 of the 2 clusters that size needs '
+                      '(4,096 bytes read)', text)
+        self.assertNotIn('the reader returned', text)
+        self.assertEqual(text.count('Not staged'), 1)
+
     # ---- edges -------------------------------------------------------------------
 
     def test_an_image_the_reader_cannot_place_has_no_members(self):
