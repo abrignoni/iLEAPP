@@ -8,12 +8,14 @@ __artifacts_v2__ = {
 " run and reports no rows.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-09',
 'version': '6.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains PhotoData-Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': "The iOS 26 query has not been run on a registered image. Coded columns such as Local"
+'notes': "The iOS 26 query was run on hc_ios26 (iOS 26.5.2, 208 rows) and falken_ios26 (iOS 26.2.1,"
+" 254 rows). The hc_ios26 store has no ZISRECENTLYSAVED column on its asset table, and the tool"
+" reports that column empty there. Coded columns such as Local"
 " Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are shown"
 " with labels the module author assigned. The post referenced below says the Recipe ID labels"
 " come from the author's research and testing and that several columns are still being"
@@ -47,6 +49,8 @@ __artifacts_v2__ = {
 'hickman_ios14': 'iOS 14.3 | 336 rows',
 'jess_ios15': 'iOS 15.0.2 | 33 rows',
 'magnet_ios16': 'iOS 16.1.1 | 601 rows',
+'hc_ios26': 'iOS 26.5.2 | 208 rows',
+'falken_ios26': 'iOS 26.2.1 | 254 rows',
 }
 },
 'Ph050_2AssetIntResouSyndPL': {
@@ -60,12 +64,14 @@ __artifacts_v2__ = {
 'creation_date': '2026-05-28',
 'version': '6.0',
 'date': '2026-05-27',
-'last_update_date': '2026-10-07',
+'last_update_date': '2026-10-09',
 'requirements': 'Acquisition that contains Syndication Photo Library Photos.sqlite',
 'category': 'Photos.sqlite',
 'notes': "Original parser and Photos.sqlite research credited to Scott Koenig. Unsupported-version"
 " diagnostics identify Syndication.photoslibrary; query and output behavior are unchanged. "
-"The iOS 26 query has not been run on a registered image. Coded columns such as Local"
+"The iOS 26 query was run on hc_ios26 (iOS 26.5.2, 2 rows) and falken_ios26 (iOS 26.2.1, 28 rows)."
+" The hc_ios26 store has no ZISRECENTLYSAVED column on its asset table, and the tool reports that"
+" column empty there. Coded columns such as Local"
 " Availability, Remote Availability, Resource Type, Datastore Sub-Type and Recipe ID are shown"
 " with labels the module author assigned. The post referenced below says the Recipe ID labels"
 " come from the author's research and testing and that several columns are still being"
@@ -98,6 +104,8 @@ __artifacts_v2__ = {
 'hickman_ios14': 'iOS 14.3 | 0 rows',
 'jess_ios15': 'iOS 15.0.2 | 0 rows',
 'magnet_ios16': 'iOS 16.1.1 | 0 rows',
+'hc_ios26': 'iOS 26.5.2 | 2 rows',
+'falken_ios26': 'iOS 26.2.1 | 28 rows',
 }
 },
 'Ph050_3AssetIntResouGenPlayPsql': {
@@ -110,13 +118,13 @@ __artifacts_v2__ = {
 " query for iOS 14 through 17.",
 'author': 'Scott Koenig',
 'creation_date': '2026-05-28',
-'last_update_date': '2026-10-04',
+'last_update_date': '2026-10-09',
 'version': '2.0',
 'date': '2026-05-27',
 'requirements': 'Acquisition that contains Library GenPlay Photos.sqlite',
 'category': 'Photos.sqlite',
-'notes': "Run on one registered image, dexter_ios18 (iOS 18.3.2). The iOS 26 query has not been run on"
-" a registered image. Coded columns such as Local Availability, Remote Availability, Resource"
+'notes': "Run on one registered image, dexter_ios18 (iOS 18.3.2). The iOS 26 query has not been run:"
+" neither registered iOS 26 image (hc_ios26, falken_ios26) holds this database. Coded columns such as Local Availability, Remote Availability, Resource"
 " Type, Datastore Sub-Type and Recipe ID are shown with labels the module author assigned. The"
 " post referenced below says the Recipe ID labels come from the author's research and testing"
 " and that several columns are still being decoded. The module cites no Apple source for the"

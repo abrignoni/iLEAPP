@@ -13,7 +13,7 @@ __artifacts_v2__ = {
         "the other party are decoded from it.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-17",
-        "last_update_date": "2026-09-19",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "User Activity",
         "notes": "An identifier key holds a keyboard language; a <key>_SETTIME key holds a time "
@@ -42,9 +42,11 @@ __artifacts_v2__ = {
         "newsletter Channel. For every label except Status the local part of the JID is "
         "reported as Chat Party. Only s.whatsapp.net identifiers were present on the two "
         "images measured below, so the other labels have not been exercised on real "
-        "data. The same decode is applied to an identifier of this shape under any "
-        "bundle other than com.facebook.*, and to the mobile/Library/Preferences copy, "
-        "which has no bundle id. Under a com.facebook.* bundle, an identifier of the "
+        "data. The JID decode is applied only where the container's bundle id begins "
+        "with net.whatsapp.; an identifier of the same shape under any other bundle, in "
+        "a container whose metadata plist was not found, or in the "
+        "mobile/Library/Preferences copy, which has no bundle id, is reported undecoded. "
+        "Under a com.facebook.* bundle, an identifier of the "
         "form <account id>_<thread key>_0 is split into Account ID and the thread key, "
         "which Chat Party carries. On the tested images the thread key of each "
         "one-to-one thread equalled the other user's contact id (3 identifiers on 2 "
@@ -142,7 +144,9 @@ MESSENGER_PARTICIPANTS_VIEW = "thread_participant_detail"
 # a group; a group left with two members is not distinguishable here and stays undecoded.
 GROUP_MIN_PARTICIPANTS = 3
 
-# WhatsApp writes the chat's JID: <local part>@<server>.
+# WhatsApp writes the chat's JID: <local part>@<server>. The decode is scoped to WhatsApp
+# bundles so that a JID-shaped identifier written by another app is not labelled.
+WHATSAPP_BUNDLE_PREFIX = "net.whatsapp."
 WHATSAPP_JID = re.compile(r"^([^@]*)@([a-z.]+)$")
 WHATSAPP_SERVER_TYPES = {
     "s.whatsapp.net": "Direct",
@@ -242,8 +246,10 @@ def _decode(identifier, bundle_id, contacts, participant_counts):
     """(chat type, chat party, account id) for an identifier whose form is known."""
     if bundle_id.startswith(MESSENGER_BUNDLE_PREFIX):
         return _decode_messenger(identifier, contacts, participant_counts)
-    chat_type, party = _decode_whatsapp(identifier)
-    return chat_type, party, ""
+    if bundle_id.startswith(WHATSAPP_BUNDLE_PREFIX):
+        chat_type, party = _decode_whatsapp(identifier)
+        return chat_type, party, ""
+    return "", "", ""
 
 
 @artifact_processor
