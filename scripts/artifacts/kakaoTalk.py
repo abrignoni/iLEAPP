@@ -120,16 +120,17 @@ __artifacts_v2__ = {
         "description": "Contact entries in the KakaoTalk iOS client's ZCONTACT table, with the ZUSER value each row stores, where present",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-22",
-        "last_update_date": "2026-09-22",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "KakaoTalk",
         "notes": "Read from the ZCONTACT table of Talk.sqlite. A row records a name and number, not a "
                  "KakaoTalk account. Where the client took the entries from is not established here. "
-                 "Linked User ID is the row's ZUSER value as stored and is blank where none is "
-                 "stored. The "
-                 "name is in the clear and "
-                 "the numbers are not: both number columns were base64 text on every row of the two "
-                 "devices tested and are reported as stored, not decrypted here. A third column, "
+                 "ZUSER (as stored) is the row's ZUSER value and is blank where none is "
+                 "stored; whether it is a KakaoTalk user id or a key into the ZUSER table is not "
+                 "established here. The "
+                 "name is in the clear. ZPHONENUMBER and ZRAWPHONENUMBER are reported as stored: "
+                 "both were base64 text on every row of the two devices tested, and this artifact "
+                 "neither decrypts them nor tests whether they are encrypted. A third column, "
                  "ZORIGINALPHONENUMBER, held a value identical to the "
                  "normalised one on every row of both devices, so it is not reported separately; the "
                  "raw column, where the schema has it, differed from the normalised one on all 15 "
@@ -493,10 +494,10 @@ def kakaoTalkUsers(context):
 def kakaoTalkContacts(context):
     data_headers = (
         'Name',
-        'Phone Number (encrypted, as stored)',
-        'Raw Phone Number (encrypted, as stored)',
+        'ZPHONENUMBER (as stored)',
+        'ZRAWPHONENUMBER (as stored)',
         'Contact ID',
-        'Linked User ID',
+        'ZUSER (as stored)',
         'Source File',
     )
     data_list = []

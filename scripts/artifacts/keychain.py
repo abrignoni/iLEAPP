@@ -42,7 +42,12 @@ __artifacts_v2__ = {
     },
     "keychain_web_passwords": {
         "name": "Keychain Web Passwords",
-        "description": "Parses keychain to extract stored web passwords",
+        "description": "Web form passwords from keychain records with access group "
+                       "com.apple.cfnetwork and authentication type form. Records are read only "
+                       "from an exported keychain (an iTunes backup keychain with its decryption "
+                       "keys, a KeychainDump backup_keychain_v2.plist, or a keychain plist "
+                       "supplied beside the input zip); keychain-2.db by itself is not decrypted, "
+                       "so no rows does not mean the keychain holds none.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",
@@ -77,7 +82,12 @@ __artifacts_v2__ = {
     },
     "keychain_bluetooth_info": {
         "name": "Bluetooth Information",
-        "description": "Parses keychain to extract the device's Bluetooth information",
+        "description": "Bluetooth identity root key and local Bluetooth address from keychain "
+                       "records with access group com.apple.bluetooth, written to Device Info. "
+                       "Records are read only from an exported keychain (an iTunes backup keychain "
+                       "with its decryption keys, a KeychainDump backup_keychain_v2.plist, or a "
+                       "keychain plist supplied beside the input zip); keychain-2.db by itself is "
+                       "not decrypted, so no value does not mean the keychain holds none.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-06-18",
@@ -118,7 +128,11 @@ __artifacts_v2__ = {
                        "com.apple.MobileBluetooth.ledevices.paired.db where found; "
                        "MobileBluetooth records are reported only when "
                        "com.apple.MobileBluetooth.devices.plist is found, and take their name "
-                       "from it. Tombstoned records are included and marked.",
+                       "from it. Records are read only from an exported keychain (an iTunes "
+                       "backup keychain with its decryption keys, a KeychainDump "
+                       "backup_keychain_v2.plist, or a keychain plist supplied beside the input "
+                       "zip); keychain-2.db by itself is not decrypted, so no rows does not mean "
+                       "the keychain holds none. Tombstoned records are included and marked.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",
@@ -155,7 +169,13 @@ __artifacts_v2__ = {
     },
     "keychain_mail_accounts": {
         "name": "Mail Accounts",
-        "description": "Parses keychain to extract stored mail/calDAV/cardDAV account credentials",
+        "description": "Mail, CalDAV and CardDAV account credentials from keychain records "
+                       "with access group apple and a com.apple.account SMTP, IMAP, CardDAV or "
+                       "CalDAV password service. Records are read only from an exported keychain "
+                       "(an iTunes backup keychain with its decryption keys, a KeychainDump "
+                       "backup_keychain_v2.plist, or a keychain plist supplied beside the input "
+                       "zip); keychain-2.db by itself is not decrypted, so no rows does not mean "
+                       "the keychain holds none.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-07-22",

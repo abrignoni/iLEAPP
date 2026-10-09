@@ -88,7 +88,7 @@ __artifacts_v2__ = {
                        "location type, with the venue record where one was attached.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Locations",
         "notes": "One row per row of PilgrimLastVisit and PilgrimBackFillVisit, which share a "
@@ -102,10 +102,11 @@ __artifacts_v2__ = {
                  "rows on the tested images, so the backfill half is code present and was not "
                  "exercised. The venue field is JSON and carries the place's name, identifier, "
                  "category names and a nested address with its own coordinates; where it is absent "
-                 "the row still records a location type. Latitude and Longitude are the venue's "
-                 "address coordinates when a venue record carries them and the arrival fix of the "
-                 "embedded visit otherwise, so on a row with a venue they are the place's position "
-                 "and not a device fix. Location Type and Confidence are reported as stored; the "
+                 "the row still records a location type. Latitude and Longitude are the arrival fix of "
+                 "the embedded visit on every row and are the pair written to KML. Venue Latitude "
+                 "and Venue Longitude are the coordinates in the venue record's address, which are "
+                 "the place's position and not a device fix; they are blank where no venue is "
+                 "attached. Location Type and Confidence are reported as stored; the "
                  "tested rows hold home and venue, and high and med, and nothing available defines "
                  "the full set. The row also embeds a copy of the visit in the same form the "
                  "Location Visits artifact reads, so Arrival and Departure here come from that "
@@ -176,18 +177,19 @@ __artifacts_v2__ = {
         },
     },
     "foursquare_pilgrim_system_visits": {
-        "name": "Foursquare Pilgrim - System Visits",
+        "name": "Foursquare Pilgrim - PilgrimCLVisit Table",
         "description": "Rows of the Foursquare Pilgrim SDK PilgrimCLVisit table, unpopulated on the "
                        "two tested images.",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-09-06",
-        "last_update_date": "2026-09-06",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Locations",
         "notes": "One row per row of PilgrimCLVisit, whose columns the store declares as an arrival "
                  "date, a departure date, a latitude, a longitude, a horizontal accuracy and a "
-                 "visit identifier. The table name and those columns match the shape of the "
-                 "operating system's CLVisit object, which is not sourced here; whether these rows "
+                 "visit identifier. The artifact is named after the table. The table name and "
+                 "those columns resemble the operating system's CLVisit object, but no source "
+                 "was found that says the rows come from it; whether these rows "
                  "come from a different source than the Location Visits rows is not established "
                  "here, so one artifact is not treated as confirming the other. This table returned "
                  "no rows on the two tested images, so the reader is code present and unexercised, "
@@ -464,8 +466,8 @@ def foursquare_pilgrim_resolved_visits(context):
                 data_list.append((
                     _unix_to_utc(start.get('timestamp')), _unix_to_utc(end.get('timestamp')),
                     _text(location_type), _text(confidence), name, venue_id, categories,
-                    address, lat or _text(start.get('latitude')),
-                    lng or _text(start.get('longitude')),
+                    address, lat, lng, _text(start.get('latitude')),
+                    _text(start.get('longitude')),
                     _text(region_lat), _text(region_lng), _text(other_venues),
                     _text(matched_trigger), _text(visit_id), table, app, _text(row_id),
                 ))
@@ -475,7 +477,8 @@ def foursquare_pilgrim_resolved_visits(context):
     data_headers = (
         ('Arrival Time', 'datetime'), ('Departure Time', 'datetime'),
         'Location Type (as stored)', 'Confidence (as stored)', 'Venue Name', 'Venue ID',
-        'Venue Categories', 'Venue Address', 'Latitude', 'Longitude', 'Region Latitude',
+        'Venue Categories', 'Venue Address', 'Venue Latitude', 'Venue Longitude',
+        'Latitude', 'Longitude', 'Region Latitude',
         'Region Longitude', 'Other Possible Venues (as stored)', 'Matched Trigger (as stored)',
         'Visit ID', 'Source Table', 'Container App', 'Row ID',
     )

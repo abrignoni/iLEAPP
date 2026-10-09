@@ -12,7 +12,9 @@ __artifacts_v2__ = {
                  '(Secret Chat) chat label are derived by this parser from byte patterns in the '
                  'media blob; no vendor source or test image is recorded for them, so treat them '
                  'as the parser\'s reading and check the raw row. Message-ID is transformed from '
-                 'the stored mid.',
+                 'the stored mid: a value whose decimal text starts with 8 is cut to the digits '
+                 'after its last 0, and a negative value is decremented and masked to 16 bits. '
+                 'No source is recorded for that transformation, so the cell is not the stored mid.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*',
             '*/mobile/Containers/Shared/AppGroup/*/Documents/files/*',
@@ -38,10 +40,19 @@ __artifacts_v2__ = {
         'description': 'Messages from the Potato Chat channel_messages table, with group names from shareDialogList.db. Blob decoding is based on work by Forrest Cook, https://github.com/Whee30/AppParsers/blob/c4eebc373764eeedccc4d6a73bc9501fb20ed89e/Potato/decode_BLOB.py',
         'author': '@C_Peter',
         'creation_date': '2025-08-21',
-        'last_update_date': '2025-08-30',
+        'last_update_date': '2026-10-09',
         'requirements': 'none',
         'category': 'Potato Chat',
-        'notes': '',
+        'notes': 'Each row is decoded from the data blob of one channel_messages row. Timestamp is '
+                 'the blob field d read as Unix seconds in UTC. From Me is the blob field out, Message '
+                 'the field t, From ID the field fi, and Group-ID the absolute value of the first four '
+                 'bytes of the field ti or ci. Message Type, the reply id, file names and the attachment '
+                 'match are derived by this parser from byte patterns in the blob; no vendor source or '
+                 'test image is recorded for them, so treat them as the parser\'s reading and check the '
+                 'raw row. Message-ID is transformed from the blob field i: a value whose decimal text '
+                 'starts with 8 is cut to the digits after its last 0. No source is recorded for that '
+                 'transformation. A field the blob does not carry gives a blank cell. Sender Name shows '
+                 'the group name when the sender id is not in the users table.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*',
             '*/mobile/Containers/Shared/AppGroup/*/Documents/shareDialogList.db*',
@@ -71,7 +82,11 @@ __artifacts_v2__ = {
         'last_update_date': '2025-08-21',
         'requirements': 'none',
         'category': 'Potato Chat',
-        'notes': '',
+        'notes': 'Rows are the users table of tgdata.db, as stored. Contact is yes when the same uid '
+                 'is also in the contacts table and no otherwise. Last Seen is the last_seen column '
+                 'read as Unix seconds in UTC and is blank when the stored value is 1 or lower; what '
+                 'event sets last_seen is not established here. No test image is recorded for this '
+                 'artifact.',
         'paths': (
             '*/mobile/Containers/Shared/AppGroup/*/Documents/tgdata.db*',
         ),
@@ -534,6 +549,15 @@ def potatochat_group_chats(context):
         reply = ""
         m_type = 'Unknown/System-Message'
         filename = None
+        # Reset per row so a field this blob lacks is blank, not the previous row's value.
+        message = None
+        message_date = ''
+        outgoing = ''
+        user_name = None
+        group_name = ''
+        group_ID = ''
+        message_id = ''
+        user_ID = ''
         while working_offset < blob_length:
             title_length = int.from_bytes(blob_data[working_offset:working_offset + working_length], byteorder='big')
             working_offset += working_length
@@ -681,7 +705,7 @@ def potatochat_group_chats(context):
                     break
             except ValueError:
                 pass
-        if user_name == "None":
+        if user_name is None or user_name == "None":
             user_name = group_name
         if reply != "":
             m_type = "Reply"

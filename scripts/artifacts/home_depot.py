@@ -5,11 +5,11 @@ __artifacts_v2__ = {
         "description": 'Home Depot account profile fields from cached user info, including the parser-selected accountIdentity.logonId value under its stored field name.',
         "author": '@AlexisBrignoni, Codex',
         "creation_date": "2026-06-26",
-        "last_update_date": '2026-10-07',
+        "last_update_date": '2026-10-09',
         "requirements": "nska_deserialize",
         "category": "Home Depot",
         "notes": (
-            "Account data is parsed from three sources when present: USER_INFO_KEY in the first matched file whose path ends with com.thehomedepot.homedepot.plist (the App Group file's name ends the same way, so it can be the file read), SharedUserInfoKey in group.com.thehomedepot.homedepot.plist, and userInfo.txt in the App Group container. Contains PII. In emitted rows, missing or null logonId values, or a non-dictionary parent, remain empty under existing parsing. Other values retain the parser's current representation. The stored field name does not establish an email address, active account or ownership. Original contribution credited to @jameshabben."
+            "Account data is parsed from three sources when present: USER_INFO_KEY in the first matched file named com.thehomedepot.homedepot.plist, SharedUserInfoKey in the first matched file named group.com.thehomedepot.homedepot.plist, and userInfo.txt in the App Group container. Contains PII. In emitted rows, missing or null logonId values, or a non-dictionary parent, remain empty under existing parsing. Other values retain the parser's current representation. The stored field name does not establish an email address, active account or ownership. Original contribution credited to @jameshabben."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',
@@ -24,14 +24,14 @@ __artifacts_v2__ = {
         "description": "Home Depot local store details from cached user info",
         "author": "@jameshabben",
         "creation_date": "2026-06-26",
-        "last_update_date": "2026-06-26",
+        "last_update_date": "2026-10-09",
         "requirements": "nska_deserialize",
         "category": "Home Depot",
         "notes": (
             "Store data is parsed from the same three user-info sources as the account artifact. "
-            "Preferred Store IDs are filled only on the row read from the file matched as "
-            "com.thehomedepot.homedepot.plist; that match tests the end of the path, which the App "
-            "Group file's name also satisfies."
+            "Preferred Store IDs are filled only on the row read from the file named "
+            "com.thehomedepot.homedepot.plist; the file name is matched whole, so the App Group "
+            "file is not read in its place."
         ),
         "paths": (
             '*/Containers/Data/Application/*/Library/Preferences/com.thehomedepot.homedepot.plist',
@@ -209,7 +209,9 @@ _PRODUCT_IMAGE_RE = re.compile(
 def _find_file_by_name(context, filename):
     for file_found in context.get_files_found():
         file_found = str(file_found)
-        if file_found.endswith(filename):
+        # Whole file name, not the end of the path: group.com.thehomedepot.homedepot.plist
+        # ends with com.thehomedepot.homedepot.plist.
+        if file_found.replace('\\', '/').rsplit('/', 1)[-1] == filename:
             return file_found
     return ''
 

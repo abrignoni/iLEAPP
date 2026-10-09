@@ -71,17 +71,18 @@ __artifacts_v2__ = {
     },
     "get_biomeDKDeviceIsLockedImputed": {
         "name": "Biome - Screen Lock Imputed DKEvent",
-        "description": "Parses imputed screen lock state changes from the "
-                       "_DKEvent.Device.IsLockedImputed biome stream.",
+        "description": "Parses records from the _DKEvent.Device.IsLockedImputed biome "
+                       "stream. The stored value is reported in Value (raw) without a "
+                       "Locked or Unlocked label.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "This is the imputed variant of the screen lock stream: what \"imputed\" "
-                 "means for this stream is not documented. No source is cited here for "
-                 "the Locked and Unlocked labels given to values 1 and 0 on this "
-                 "stream; the stored value is reported in Value (raw).",
+        "notes": "What \"imputed\" means for this stream is not documented, and no source "
+                 "was found for what the stored values mean on it. The Value column is "
+                 "left empty for that reason; the stored value is reported in Value "
+                 "(raw).",
         "paths": ('*/streams/*/_DKEvent.Device.IsLockedImputed/local/*',),
         "output_types": "standard",
         "artifact_icon": "lock",
@@ -113,14 +114,17 @@ __artifacts_v2__ = {
     },
     "get_biomeDKDisplayOrientation": {
         "name": "Biome - Display Orientation DKEvent",
-        "description": "Parses device orientation changes from the _DKEvent.Display.Orientation "
-                       "biome stream.",
+        "description": "Parses records from the _DKEvent.Display.Orientation biome stream. "
+                       "The stored value is reported in Value (raw) without an orientation "
+                       "label.",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
-        "notes": "The meaning of the stored value is not established for this stream. On the nine "
+        "notes": "The meaning of the stored value is not established for this stream, so the "
+                 "Value column is left empty and the stored value is reported in Value (raw). "
+                 "On the nine "
                  "tested images (abe_ios16, dexter_ios18, felix_ios17, hc_ios18_7, hc_ios26, "
                  "iphone11_ios17, iphone12_ios18, iphone14plus_ios18, otto_ios17) the stored "
                  "value was 0, 1 or 2 on every written record (163, 139 and 20 rows); 3 to 6 did "
@@ -128,11 +132,11 @@ __artifacts_v2__ = {
                  "APOLLO labels the knowledgeC /display/orientation stream 0 Portrait and 1 "
                  "Landscape "
                  "(https://github.com/mac4n6/APOLLO/blob/bd725461fbd22c8ceadd04f0c4ded49b66147439/modules/knowledge_device_orientation.txt). "
-                 "The Value column applies UIDeviceOrientation names (0 Unknown, 1 Portrait, 2 "
-                 "Portrait Upside Down, 3 Landscape Left, 4 Landscape Right, 5 Face Up, 6 Face "
-                 "Down); that this stream uses that enumeration was not tested. The stored value "
-                 "is in Value (raw). Deleted records carry no value. Enumeration source: Apple "
-                 "UIKit header UIDevice.h, "
+                 "The UIDeviceOrientation enumeration (0 Unknown, 1 Portrait, 2 Portrait Upside "
+                 "Down, 3 Landscape Left, 4 Landscape Right, 5 Face Up, 6 Face Down) is a second "
+                 "candidate reading that disagrees with APOLLO on the value 1; that this stream "
+                 "uses either was not tested, so neither is applied. Deleted records carry no "
+                 "value. UIDeviceOrientation source: Apple UIKit header UIDevice.h, "
                  "mirrored at "
                  "https://github.com/silent0123/OSXDev/blob/c943c2158bcd3a6caa3023e396e653cbe3832ae1/"
                  "uSav-Mac/usavMac/UIKit.framework/Headers/UIDevice.h "
@@ -174,12 +178,12 @@ __artifacts_v2__ = {
     "get_biomeDKSettingsDoNotDisturb": {
         "name": "Biome - Do Not Disturb DKEvent",
         "description": "Parses records from the _DKEvent.Settings.DoNotDisturb biome "
-                       "stream. No source is cited here for the On and Off labels "
-                       "given to values 1 and 0; the stored value is reported in "
-                       "Value (raw).",
+                       "stream. No source was found for what the stored values mean on "
+                       "this stream, so the Value column is left empty and the stored "
+                       "value is reported in Value (raw).",
         "author": "@abrignoni, @mattiaepi (Mattia Epifani)",
         "creation_date": "2026-07-25",
-        "last_update_date": "2026-08-20",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Biome",
         "notes": "",
@@ -230,9 +234,6 @@ TYPESS = {
 }
 
 ON_OFF = {0: 'Off', 1: 'On'}
-LOCKED = {0: 'Unlocked', 1: 'Locked'}
-ORIENTATION = {0: 'Unknown', 1: 'Portrait', 2: 'Portrait Upside Down', 3: 'Landscape Left',
-               4: 'Landscape Right', 5: 'Face Up', 6: 'Face Down'}
 
 
 def _to_str(value):
@@ -355,7 +356,7 @@ def get_biomeDKClockAlarm(context):
 
 @artifact_processor
 def get_biomeDKDeviceIsLockedImputed(context):
-    return _parse(context, 'Screen Lock Imputed DKEvent', LOCKED)
+    return _parse(context, 'Screen Lock Imputed DKEvent', None)
 
 
 @artifact_processor
@@ -365,12 +366,12 @@ def get_biomeDKDeviceLowPowerMode(context):
 
 @artifact_processor
 def get_biomeDKDisplayOrientation(context):
-    return _parse(context, 'Display Orientation DKEvent', ORIENTATION)
+    return _parse(context, 'Display Orientation DKEvent', None)
 
 
 @artifact_processor
 def get_biomeDKSettingsDoNotDisturb(context):
-    return _parse(context, 'Do Not Disturb DKEvent', ON_OFF)
+    return _parse(context, 'Do Not Disturb DKEvent', None)
 
 
 @artifact_processor

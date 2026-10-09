@@ -35,7 +35,7 @@ class TestICloudMetadataExports(unittest.TestCase):
                 get_report_folder=lambda: str(output),
                 get_relative_path=lambda path: Path(path).name)
             headers, rows, source = inspect.unwrap(icloudPhotoMeta)(context)
-            self.assertEqual(len(headers), 23)
+            self.assertEqual(len(headers), 22)
             self.assertEqual(source, 'first.txt, second.txt')
             self.assertEqual(len(rows), 19)
             self.assertEqual([row[1] for row in rows],
@@ -51,13 +51,13 @@ class TestICloudMetadataExports(unittest.TestCase):
                                 f'record-{ordinal:06d}.bplist')
                         expected[name] = value
             self.assertEqual(len(expected), 15)
-            self.assertEqual({row[22] for row in rows if row[22]}, set(expected))
-            self.assertEqual(sum(not row[22] for row in rows), 4)
+            self.assertEqual({row[21] for row in rows if row[21]}, set(expected))
+            self.assertEqual(sum(not row[21] for row in rows), 4)
             self.assertEqual({str(path.relative_to(output)): path.read_bytes()
                               for path in output.rglob('*.bplist')}, expected)
             # Existing caught plist errors still retain the original decoded bytes.
-            self.assertEqual((output / rows[3][22]).read_bytes(), b'not a plist')
-            self.assertEqual((output / rows[4][22]).read_bytes(), b'')
+            self.assertEqual((output / rows[3][21]).read_bytes(), b'not a plist')
+            self.assertEqual((output / rows[4][21]).read_bytes(), b'')
             _, repeated, _ = inspect.unwrap(icloudPhotoMeta)(context)
             self.assertEqual(rows, repeated)
             self.assertEqual({str(path.relative_to(output)): path.read_bytes()
@@ -74,8 +74,43 @@ class TestICloudMetadataExports(unittest.TestCase):
                 get_relative_path=lambda path: Path(path).name)
             _, rows, source = inspect.unwrap(icloudPhotoMeta)(context)
             self.assertEqual(source, 'good.txt')
-            self.assertEqual(rows[0][22],
+            self.assertEqual(rows[0][21],
                              'bplists/input-000002-line-000001-record-000000.bplist')
+
+    def test_gps_is_read_without_tiff_and_signed_from_reference(self):
+        cases = [
+            ({'{GPS}': {'Latitude': 10.5, 'LatitudeRef': 'S', 'Longitude': 20.25,
+                        'LongitudeRef': 'W'}}, (-10.5, -20.25, '', '')),
+            ({'{GPS}': {'Latitude': 10.5, 'LatitudeRef': 'N', 'Longitude': 20.25,
+                        'LongitudeRef': 'E'}, '{TIFF}': {'Make': 'm'}},
+             (10.5, 20.25, "{'Make': 'm'}", '')),
+            ({'{GPS}': {'Latitude': -10.5, 'LatitudeRef': 'S', 'Longitude': 20.25}},
+             (-10.5, 20.25, '', '')),
+            ({'{Exif}': {'ISO': 1}}, ('', '', '', "{'ISO': 1}")),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            records = [{'fields': {'resOriginalFileSize': 7, 'mediaMetaDataEnc': base64.b64encode(
+                plistlib.dumps(value, fmt=plistlib.PlistFormat.FMT_BINARY)).decode()}}
+                for value, _ in cases]
+            records.append({'fields': {'mediaMetaDataEnc': base64.b64encode(
+                plistlib.dumps(['list root'], fmt=plistlib.PlistFormat.FMT_BINARY)).decode()}})
+            source = root / 'Metadata.txt'
+            source.write_text(json.dumps(records) + '\n', encoding='utf-8')
+            context = SimpleNamespace(
+                get_files_found=lambda: [source],
+                get_report_folder=lambda: str(root / 'report'),
+                get_relative_path=lambda path: Path(path).name)
+            headers, rows, _ = inspect.unwrap(icloudPhotoMeta)(context)
+            names = [header[0] if isinstance(header, tuple) else header for header in headers]
+            self.assertNotIn('Original Filesize', names)
+            index = {name: names.index(name) for name in
+                     ('Latitude', 'Longitude', 'TIFF', 'EXIF', 'Res Original Filesize')}
+            for row, (_, expected) in zip(rows, cases):
+                self.assertEqual((row[index['Latitude']], row[index['Longitude']],
+                                  row[index['TIFF']], row[index['EXIF']]), expected)
+                self.assertEqual(row[index['Res Original Filesize']], 7)
+            self.assertEqual((rows[-1][index['Latitude']], rows[-1][index['TIFF']]), ('', ''))
 
 
 if __name__ == '__main__':

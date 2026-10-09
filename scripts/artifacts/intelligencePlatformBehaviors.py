@@ -62,9 +62,10 @@ from scripts.ilapfuncs import artifact_processor, get_file_path, \
 def _category_map(cur):
     """Return {behaviorType: category label}. The behaviorType code is the 1-based
     position of the category in the ordered histogramKey_<name> tables shipped in the
-    database. This was verified against every code that carried data on a tested image,
-    where the position matched the code exactly, so it also names the categories whose
-    table is empty on a given device. Codes past the last table are left unmapped."""
+    database. The position was compared with the code on one image that held rows; the
+    number of codes compared is not recorded. The mapping is applied by position alone,
+    so a category whose table is empty is named the same way. Codes past the last table
+    are left unmapped."""
     tables = [row[0] for row in cur.execute(
         "select name from sqlite_master where type='table' "
         "and name like 'histogramKey\\_%' escape '\\' order by rowid")]

@@ -7,14 +7,15 @@ __artifacts_v2__ = {
         "creation_date": "2024-11-20",
         "version": "0.1",
         "date": "2024-11-19",
-        "last_update_date": "2026-07-31",
+        "last_update_date": "2026-10-09",
         "requirements": "none",
         "category": "Identifiers",
         "notes": "The cited post reports that CellularUsage.db keeps SIM card ICCIDs and "
                  "sometimes the phone number (MSISDN), and warns that the number may be absent "
-                 "and is editable on the SIM. It does not name the columns. Reading subscriber_id "
-                 "as the ICCID and subscriber_mdn as the MSISDN rests on the form of the values "
-                 "on the tested images. Last update time is last_update_time read as Cocoa (2001 "
+                 "and is editable on the SIM. It does not name the columns, so subscriber_id and "
+                 "subscriber_mdn are reported as stored under their column names, here and in the "
+                 "Device Info line. That subscriber_id holds the ICCID and subscriber_mdn the "
+                 "MSISDN is not established here. Last update time is last_update_time read as Cocoa (2001 "
                  "epoch) seconds; no source for that reading is cited. Reference: pr3cur50r (Salt "
                  "Forensics), 'A Few Interesting iOS Forensic Artefacts', "
                  "https://salt4n6.com/2018/05/15/a-few-interesting-ios-forensic-artefacts/",
@@ -68,13 +69,13 @@ def subscriberInfo(context):
     for record in db_records:
         last_update_time = convert_cocoa_core_data_ts_to_utc(record[0])
         data_list.append((last_update_time, record[1], record[2], record[3]))
-        device_info("Cellular", "SIM Cards", f"Slot {record[1]} -> ICCID: {record[2]} | MSISDN: {record[3]} | Last Update: {last_update_time}", db_file)
+        device_info("Cellular", "SIM Cards", f"Slot {record[1]} -> subscriber_id: {record[2]} | subscriber_mdn: {record[3]} | Last Update: {last_update_time}", db_file)
 
     data_headers = (
         ('Last update time', 'datetime'),
         'Slot ID',
-        'ICCID', 
-        'MSISDN', 
+        'subscriber_id (as stored)',
+        'subscriber_mdn (as stored)',
         )
     
     return data_headers, data_list, db_file

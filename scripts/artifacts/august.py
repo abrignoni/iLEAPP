@@ -473,9 +473,10 @@ def _lock_user_entries(path, body):
 def _offline_key_entries(path, body):
     """One identity per provisioned key, so a key seen only in an older body survives.
 
-    The service moves a key between the created, loaded, deleted and loadedhk groups as
-    its state changes, so identity deliberately excludes the group and the reported group
-    is the one from the most recent cached body that carried the key.
+    Identity deliberately excludes the group (created, loaded, deleted or loadedhk), so a
+    key that appears under a different group in another cached body stays one row, and the
+    reported group is the one from the most recent cached body that carried the key.
+    Whether and when the service moves a key between groups is not established here.
     """
     if not _LOCK_DETAIL.search(path + '?') or not isinstance(body, dict):
         return
