@@ -15,8 +15,8 @@ Download a pre-built release — no Python installation required.
 
 | Platform | Download |
 | -------- | -------- |
-| Windows (Intel/AMD) | `iLEAPP-*-windows-x64-setup.exe` (installer) or `iLEAPP-*-windows-x64-portable.zip` |
-| Windows (ARM) | `iLEAPP-*-windows-arm64-setup.exe` or `iLEAPP-*-windows-arm64-portable.zip` |
+| Windows (Intel/AMD) | `iLEAPP-*-windows-x64-portable.zip` |
+| Windows (ARM) | `iLEAPP-*-windows-arm64-portable.zip` |
 | macOS (Apple Silicon) | `iLEAPP-*-macos-arm64.dmg` |
 | macOS (Intel) | `iLEAPP-*-macos-x64.dmg` |
 | Linux (Intel/AMD) | `iLEAPP-*-linux-x64.AppImage` |
@@ -24,14 +24,12 @@ Download a pre-built release — no Python installation required.
 
 Each download holds one program, `ileapp`. `SHA256SUMS.txt` in each release lets you check a download.
 
-**GUI** — open iLEAPP the usual way: from the Start menu after installing on Windows, by
-double-clicking `ileapp.exe` from the portable zip, iLEAPP in Applications on macOS, or
-the AppImage on Linux. Started without arguments, it opens the window; select your input
+**GUI** — open iLEAPP the usual way: by double-clicking `ileapp.exe` from the zip on
+Windows, iLEAPP in Applications on macOS, or the AppImage on Linux. Started without arguments, it opens the window; select your input
 type, source path, output folder, and modules to process.
 
 **CLI** — give `ileapp` arguments in a terminal and it runs as a command line instead. The
-output folder must already exist. On Windows, use the portable `ileapp.exe`, or the
-installed `ileapp.exe`, which stays in its folder with the files beside it.
+output folder must already exist. On Windows, use `ileapp.exe` from the zip.
 
 ```
 ileapp.exe -t zip -i C:\path\to\extraction.zip -o C:\path\to\output\
@@ -285,7 +283,7 @@ The Windows builds are not signed yet. iLEAPP is applying to SignPath Foundation
 signing program for open source projects, and this policy applies to every Windows release
 signed under it.
 
-The Windows executables and installers attached to
+The Windows executables attached to
 [GitHub Releases](https://github.com/abrignoni/iLEAPP/releases) are built from this
 repository by GitHub Actions, on GitHub-hosted runners
 ([`release.yml`](.github/workflows/release.yml)). Under this policy, SignPath signs only

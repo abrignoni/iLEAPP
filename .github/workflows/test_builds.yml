@@ -154,8 +154,9 @@ jobs:
             python packaging/build.py smoke
           fi
 
-      # Windows ships the single-file executable as its portable download; see release.yml.
-      # Nothing here is signed: signing is release.yml's, with SignPath.
+      # Windows ships only the single-file executable, in its portable zip; see release.yml.
+      # The folder build above is still made here, for the frozen log filter check, and
+      # costs no signing. Nothing here is signed: signing is release.yml's, with SignPath.
       - name: Phase 1, the single-file executable (Windows)
         if: runner.os == 'Windows'
         shell: bash
@@ -165,14 +166,6 @@ jobs:
         if: runner.os == 'Windows'
         shell: bash
         run: python packaging/build.py smoke --onefile
-
-      - name: Phase 2, the installer (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          choco install innosetup --no-progress -y
-          python packaging/build.py installer
-          ls -l dist/iLEAPP-Setup-*.exe
 
       - name: Phase 2, the disk image (macOS)
         if: runner.os == 'macOS'
@@ -189,8 +182,7 @@ jobs:
           python packaging/build.py installer
           ls -l dist/iLEAPP-*.AppImage
 
-      # Windows and Linux ship the one-folder build as well as their installer, and Windows
-      # the single-file executable too.
+      # The one-folder build, with Windows' single-file executable and Linux's AppImage.
       - name: Upload the build (Windows, Linux)
         if: runner.os != 'macOS'
         uses: actions/upload-artifact@v7
@@ -199,7 +191,6 @@ jobs:
           path: |
             dist/iLEAPP/
             dist/ileapp.exe
-            dist/iLEAPP-Setup-*.exe
             dist/iLEAPP-*.AppImage
           retention-days: 14
           if-no-files-found: error

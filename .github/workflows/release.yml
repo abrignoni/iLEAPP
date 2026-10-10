@@ -15,14 +15,13 @@ name: Release
 # .dmg is signed, notarised and stapled. A tag refuses to publish an unsigned Mac build;
 # a workflow_dispatch rehearsal without the secrets still builds, unsigned.
 #
-# Windows ships two downloads: an installer around the one-folder build, and the program
-# as a single file for running without installing. Both executables are signed by
-# SignPath when SIGNPATH_API_TOKEN is set: they go up in one signing request between
-# phase 1 and phase 2, come back signed, are verified and smoke-tested again, and only
-# then does Inno Setup build the installer around the signed folder; the installer is
-# signed in a second request. SignPath's test certificate is for rehearsals, so a tag
-# signs only under the release-signing policy and is otherwise built unsigned, as before.
-# The artifact configurations SignPath applies are kept in packaging/signpath/.
+# Windows ships one download, a portable zip holding the program as a single ileapp.exe.
+# No installer: code signing is limited to 48 GB a year across the five LEAPPs, and an
+# installer would be a second file to sign, as well as the folder build inside it.
+# The executable is signed by SignPath when SIGNPATH_API_TOKEN is set, then verified and
+# smoke-tested again. SignPath's test certificate is for rehearsals, so a tag signs only
+# under the release-signing policy and is otherwise built unsigned, as before. The
+# artifact configuration SignPath applies is kept in packaging/signpath/.
 
 on:
   push:
@@ -72,7 +71,7 @@ jobs:
             platform: linux
     name: build (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
-    # Room for two SignPath requests on Windows, each of which can wait for an approval.
+    # Room for a SignPath request on Windows to wait for an approval.
     timeout-minutes: 90
     # SignPath downloads what a Windows leg uploaded for signing, from this run, with the
     # job's own token, and needs actions: read for that.
@@ -179,13 +178,16 @@ jobs:
           if [ "$RUNNER_OS" = "Windows" ]; then PARSER=bin/unifiedlog_iterator.exe; else PARSER=bin/unifiedlog_iterator; fi
           python admin/scripts/make_unifiedlog_notices.py --verify "$PARSER"
 
-      - name: Phase 1, the ileapp executable
+      # macOS and Linux ship the one-folder build, inside the .app and the AppImage.
+      - name: Phase 1, the ileapp executable (macOS, Linux)
+        if: runner.os != 'Windows'
         shell: bash
         run: python packaging/build.py exe
 
       # The same checks test_builds.yml runs. An asset that fails any of them never
       # reaches the release.
-      - name: Smoke test the build
+      - name: Smoke test the build (macOS, Linux)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           if [ "$RUNNER_OS" = "Linux" ]; then
@@ -194,49 +196,43 @@ jobs:
             python packaging/build.py smoke
           fi
 
-      # Windows also ships the program as a single file, the portable download, with no
-      # _internal folder beside it for a user to wonder about. It unpacks itself to %TEMP%
-      # on every start, which is why the installer keeps the folder build: that starts at
-      # once, and runs where AppLocker or WDAC forbid executing from %TEMP%.
-      # dist/ileapp.exe and dist/iLEAPP/ are different names, even on Windows, so this
-      # build leaves the folder build alone.
-      - name: Phase 1, the single-file executable (Windows)
+      # Windows ships the program as a single file, with no _internal folder beside it for a
+      # user to wonder about. It unpacks itself to %TEMP% on every start, so it does not run
+      # where AppLocker or WDAC forbid executing from %TEMP%; the footer sends those users
+      # to the source.
+      - name: Phase 1, the ileapp executable (Windows, a single file)
         if: runner.os == 'Windows'
         shell: bash
         run: python packaging/build.py exe --onefile
 
-      - name: Smoke test the single-file executable (Windows)
+      - name: Smoke test the build (Windows)
         if: runner.os == 'Windows'
         shell: bash
         run: python packaging/build.py smoke --onefile
 
-      # Between the phases, as on macOS: the installer packages dist/iLEAPP/, so its
-      # executable has to be signed before Inno Setup runs. Both executables go to SignPath
-      # in one request, staged under the paths packaging/signpath/executables.xml names,
-      # so release-signing asks for one approval for the two.
-      - name: Windows, stage the executables for signing
+      # Staged under the name packaging/signpath/portable.xml expects.
+      - name: Windows, stage the executable for signing
         if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
         shell: bash
         run: |
-          mkdir -p signing/unsigned-executables/folder signing/unsigned-executables/portable
-          cp dist/iLEAPP/ileapp.exe signing/unsigned-executables/folder/
-          cp dist/ileapp.exe signing/unsigned-executables/portable/
+          mkdir -p signing/unsigned-portable
+          cp dist/ileapp.exe signing/unsigned-portable/
 
       # SignPath signs only what a workflow stored as an artifact of its run: that is how it
       # checks the binary was built here, from this repository, on GitHub's runners.
-      - name: Windows, upload the executables for SignPath
-        id: unsigned-executables
+      - name: Windows, upload the executable for SignPath
+        id: unsigned-portable
         if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
         uses: actions/upload-artifact@v7
         with:
-          name: unsigned-executables-${{ matrix.name }}
-          path: signing/unsigned-executables/
+          name: unsigned-portable-${{ matrix.name }}
+          path: signing/unsigned-portable/
           retention-days: 1
           if-no-files-found: error
 
       # Pinned to a commit rather than a tag: this step holds the signing token, and a tag
       # can be moved to other code.
-      - name: Windows, sign the executables (SignPath)
+      - name: Windows, sign the executable (SignPath)
         if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
         uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092  # v3.0
         with:
@@ -244,18 +240,16 @@ jobs:
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
           project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
           signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY }}
-          artifact-configuration-slug: executables
-          github-artifact-id: ${{ steps.unsigned-executables.outputs.artifact-id }}
+          artifact-configuration-slug: portable
+          github-artifact-id: ${{ steps.unsigned-portable.outputs.artifact-id }}
           wait-for-completion: true
           wait-for-completion-timeout-in-seconds: 1200
-          output-artifact-directory: signing/signed-executables
+          output-artifact-directory: signing/signed-portable
 
-      - name: Windows, put the signed executables in place
+      - name: Windows, put the signed executable in place
         if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
         shell: bash
-        run: |
-          cp signing/signed-executables/folder/ileapp.exe dist/iLEAPP/ileapp.exe
-          cp signing/signed-executables/portable/ileapp.exe dist/ileapp.exe
+        run: cp signing/signed-portable/ileapp.exe dist/ileapp.exe
 
       # A test-signed binary chains to SignPath's test certificate, which no Windows
       # trusts, and `verify` would fail it. This runner, and nothing else, is told to trust
@@ -269,7 +263,7 @@ jobs:
           TEST_CERT: ${{ vars.SIGNPATH_TEST_CERT_B64 }}
         run: |
           if (-not $env:TEST_CERT) {
-            Write-Error 'SIGNPATH_TEST_CERT_B64 is not set; the test-signed executables cannot be verified'
+            Write-Error 'SIGNPATH_TEST_CERT_B64 is not set; the test-signed executable cannot be verified'
             exit 1
           }
           $cer = Join-Path $env:RUNNER_TEMP 'signpath-test.cer'
@@ -278,8 +272,8 @@ jobs:
             Format-List Subject, Thumbprint, NotAfter
 
       # Signing appends to the executable, and the single file finds its own archive by
-      # reading back from its end, so both are run again as signed before anything ships.
-      - name: Windows, verify and smoke test the signed executables
+      # reading back from its end, so it is run again as signed before anything ships.
+      - name: Windows, verify and smoke test the signed executable
         if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
         shell: bash
         env:
@@ -287,8 +281,7 @@ jobs:
         run: |
           args=()
           if [ -n "$SUBJECT" ]; then args=(--subject "$SUBJECT"); fi
-          python packaging/build.py verify dist/iLEAPP/ileapp.exe dist/ileapp.exe "${args[@]}"
-          python packaging/build.py smoke
+          python packaging/build.py verify dist/ileapp.exe "${args[@]}"
           python packaging/build.py smoke --onefile
 
       # A throwaway keychain holding only the Developer ID certificate, deleted by the
@@ -346,59 +339,6 @@ jobs:
         shell: bash
         run: python packaging/build.py smoke
 
-      - name: Phase 2, the installer (Windows)
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          choco install innosetup --no-progress -y
-          python packaging/build.py installer
-
-      # The installer is signed once Inno Setup has made it, in a second request, under a
-      # fixed name for packaging/signpath/installer.xml. Its uninstaller stays unsigned:
-      # Inno Setup signs that only while compiling, through a sign tool on this machine,
-      # and SignPath signs only what a workflow uploaded.
-      - name: Windows, stage the installer for signing
-        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
-        shell: bash
-        run: |
-          mkdir -p signing/unsigned-installer
-          cp "dist/iLEAPP-Setup-$VERSION.exe" signing/unsigned-installer/setup.exe
-
-      - name: Windows, upload the installer for SignPath
-        id: unsigned-installer
-        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
-        uses: actions/upload-artifact@v7
-        with:
-          name: unsigned-installer-${{ matrix.name }}
-          path: signing/unsigned-installer/
-          retention-days: 1
-          if-no-files-found: error
-
-      - name: Windows, sign the installer (SignPath)
-        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
-        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092  # v3.0
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
-          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY }}
-          artifact-configuration-slug: installer
-          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: 1200
-          output-artifact-directory: signing/signed-installer
-
-      - name: Windows, put the signed installer in place and verify it
-        if: runner.os == 'Windows' && env.WINDOWS_SIGN == 'yes'
-        shell: bash
-        env:
-          SUBJECT: ${{ vars.SIGNPATH_CERT_SUBJECT }}
-        run: |
-          cp signing/signed-installer/setup.exe "dist/iLEAPP-Setup-$VERSION.exe"
-          args=()
-          if [ -n "$SUBJECT" ]; then args=(--subject "$SUBJECT"); fi
-          python packaging/build.py verify "dist/iLEAPP-Setup-$VERSION.exe" "${args[@]}"
-
       - name: Phase 2, the disk image (macOS) or the AppImage (Linux)
         if: runner.os != 'Windows'
         shell: bash
@@ -440,9 +380,9 @@ jobs:
           security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
           rm -f "$RUNNER_TEMP/notary.p8" "$RUNNER_TEMP/cert.p12"
 
-      # Release assets are single files: an installer or disk image per platform, and on
-      # Windows a portable zip holding the single-file ileapp.exe, under the name the
-      # docs and the tools that run it use. Linux ships the AppImage alone. The names
+      # Release assets are single files: a disk image on macOS, the AppImage on Linux, and
+      # on Windows a portable zip holding the single-file ileapp.exe, under the name the
+      # docs and the tools that run it use. The names
       # carry the platform and the architecture, because a reader cannot tell from
       # "iLEAPP-2026.5.0.dmg" whether it runs on their Mac. They are gathered
       # in release-assets/, not assets/ as in GLEAPP: iLEAPP's assets/ holds the window's
@@ -457,7 +397,6 @@ jobs:
           case "$RUNNER_OS" in
             Windows)
               powershell -NoProfile -Command "Compress-Archive -Path 'dist/ileapp.exe' -DestinationPath 'release-assets/$STEM-portable.zip'"
-              mv "dist/iLEAPP-Setup-$VERSION.exe" "release-assets/$STEM-setup.exe"
               ;;
             macOS)
               mv "dist/iLEAPP-$VERSION.dmg" "release-assets/$STEM.dmg"
