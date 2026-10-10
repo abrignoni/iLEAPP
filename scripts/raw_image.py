@@ -527,6 +527,20 @@ FREE_SPACE_FOLDER = '$Unallocated'
 FREE_SPACE_SUFFIX = '.unallocated.bin'
 
 
+DELETED_FOLDER = '$Deleted'
+
+
+def names_deleted(filepattern):
+    """True when a pattern asks for the deleted files a reader can recover.
+
+    They are members of a ``$Deleted`` folder in their volume, and only a pattern
+    with that folder name as one of its segments is matched against them. A broad
+    pattern such as ``*`` or ``*/gps.dat*`` never reaches a deleted file, so an
+    artifact gets one only by naming the folder.
+    """
+    return DELETED_FOLDER in filepattern.replace('\\', '/').split('/')
+
+
 def names_free_space(filepattern):
     """True when a pattern's last segment ends in ``.unallocated.bin``, which is how a
     pattern asks for a volume's free space (``*.unallocated.bin``). Only such a
@@ -643,6 +657,10 @@ class FileSeekerRaw(FileSeekerBase):
     a pattern matches. Staging it writes the free runs one after another, with a
     ``.tsv`` beside the copy that maps each run back to its offset in the image.
 
+    The deleted files a flash filesystem's reader can recover are members of a
+    ``$Deleted`` folder in their volume, listed and matched only for a pattern that
+    names that folder (see ``names_deleted``).
+
     ``password`` is what opens the image and the encrypted volumes in it: ImageKeys,
     or a bare password, as earlier callers passed.
     """
@@ -659,6 +677,9 @@ class FileSeekerRaw(FileSeekerBase):
         self.free_list = []
         self.volumes = []
         self._free = {}
+        # deleted files a reader can recover, listed on the first pattern that asks
+        self.deleted_list = None
+        self._deleted = {}
         self._size = 0
         self._entries = {}
         self._image = None
@@ -1015,6 +1036,10 @@ class FileSeekerRaw(FileSeekerBase):
             members = self.name_list + self.stream_list
         if self.free_list and names_free_space(filepattern):
             members = members + self.free_list
+        if names_deleted(filepattern):
+            if self.deleted_list is None:
+                self._list_deleted()
+            members = members + self.deleted_list
         for member in members:
             if pat(root + normcase(member)) is None:
                 continue
@@ -1056,6 +1081,8 @@ class FileSeekerRaw(FileSeekerBase):
         """
         if member in self._free:
             return self._stage_free_space(member)
+        if member in self._deleted:
+            return self._stage_deleted(member)
         intended = self._intended_path(member)
         if member.endswith('/'):
             # Case-variant directories fold into one on a case-insensitive
@@ -1139,6 +1166,79 @@ class FileSeekerRaw(FileSeekerBase):
             except Exception:  # pylint: disable=broad-exception-caught
                 created = 0
         self.file_infos[dest_path] = FileInfo(member, created, modified)
+        return dest_path
+
+    def _list_deleted(self):
+        """List the deleted files each volume's reader can recover, once.
+
+        A reader that offers both ``recover_deleted()`` and ``read_deleted()`` is
+        asked (the flash filesystems: EFS, JFFS2, UBIFS and YAFFS). Each entry it
+        calls recoverable becomes one member:
+
+            <volume>/$Deleted/<folder>/<name>.deleted-<n>
+
+        <folder> is the entry's folder when the reader could place it and
+        ``$NoFolder`` when not; an entry with no name is ``$NoName``; <n> counts
+        the volume's entries in the order the reader gave them, so two versions of
+        one file stay apart. An entry the reader cannot read whole is counted and
+        not listed.
+        """
+        self.deleted_list = []
+        for vol in self.volumes:
+            walker = vol.get('walker')
+            if getattr(walker, 'recover_deleted', None) is None \
+                    or getattr(walker, 'read_deleted', None) is None:
+                continue
+            listed = refused = 0
+            try:
+                for number, entry in enumerate(walker.recover_deleted()):
+                    if not entry.recoverable:
+                        refused += 1
+                        continue
+                    folder = entry.parent_path
+                    folder = '$NoFolder' if folder is None else folder.strip('/')
+                    name = entry.name or '$NoName'
+                    parts = [vol['name'], DELETED_FOLDER, folder, f'{name}.deleted-{number:06d}']
+                    member = '/'.join(part for part in parts if part)
+                    self._deleted[member] = (walker, entry)
+                    self.deleted_list.append(member)
+                    listed += 1
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                # One volume the reader cannot finish must not end the run.
+                logfunc(f"  deleted files of {vol['name']}: the reader raised "
+                        f'{type(exc).__name__}: {exc}')
+            if listed or refused:
+                logfunc(f"  {vol['name']}: {listed:,} deleted files can be read, {refused:,} "
+                        f'are named and cannot')
+
+    def _stage_deleted(self, member):
+        """Copy one recovered deleted file out of the image. Returns the staged
+        path, or None when the reader could not give it."""
+        walker, entry = self._deleted[member]
+        dest_path = self._intended_path(member)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        try:
+            content = walker.read_deleted(entry)
+            with open(dest_path, 'wb') as fout:
+                if isinstance(content, (bytes, bytearray)):
+                    fout.write(content)
+                else:
+                    for chunk in content:
+                        fout.write(chunk)
+        except OSError:
+            self._discard(dest_path)
+            raise
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            self._discard(dest_path)
+            logfunc(f'Not staged, {member}: the reader raised {type(exc).__name__}: {exc}')
+            return None
+        modified = entry.mtime or 0
+        if modified:
+            try:
+                os.utime(dest_path, (modified, modified))
+            except (OSError, OverflowError, ValueError):
+                pass
+        self.file_infos[dest_path] = FileInfo(member, 0, modified)
         return dest_path
 
     def _stage_free_space(self, member):

@@ -36,7 +36,7 @@ sys.path.insert(0, str(REPO_ROOT))
 import scripts.raw_image as raw_image  # pylint: disable=wrong-import-position
 from scripts.raw_image import (  # pylint: disable=wrong-import-position
     RAW_IMAGE_FILESYSTEMS, RAW_IMAGE_SUFFIXES, FileSeekerRaw, names_a_stream,
-    names_an_image_folder, names_free_space, split_image_sibling)
+    names_an_image_folder, names_deleted, names_free_space, split_image_sibling)
 from scripts.vendor import ewfprobe, qnxprobe  # pylint: disable=wrong-import-position
 
 FIXTURES = REPO_ROOT / 'admin' / 'test' / 'data' / 'raw_images'
@@ -797,6 +797,67 @@ class RawImageSeekerTest(unittest.TestCase):
             self.addCleanup(seeker.cleanup)
         self.assertTrue(any('free space' in line for line in log.lines))
 
+    # ---- deleted files a reader can recover ----------------------------------------
+
+    def _with_deleted(self, entries):
+        """A seeker over the FAT32 fixture with one more volume, whose reader
+        recovers `entries`. No fixture here is a flash filesystem, so the reader
+        is a stand-in with the two methods the seeker asks for."""
+        seeker = FileSeekerRaw(self.fat32, tempfile.mkdtemp(dir=self.work))
+        self.addCleanup(seeker.cleanup)
+        seeker.volumes.append({'name': 'flash0', 'walker': _FakeFlashWalker(entries)})
+        return seeker
+
+    def test_deleted_files_are_staged_for_a_pattern_that_names_the_folder(self):
+        entries = [
+            _FakeDeleted('gps.dat', 'var/sysinfo', b'first version', mtime=1700000000),
+            _FakeDeleted('gps.dat', None, b'second version'),
+            _FakeDeleted('', None, b'no name'),
+            _FakeDeleted('lost.dat', 'var', b'', recoverable=False),
+            _FakeDeleted('raises.dat', 'var', None),
+        ]
+        log = _Recorder()
+        with mock.patch.object(raw_image, 'logfunc', log):
+            seeker = self._with_deleted(entries)
+            staged = seeker.search('*/$Deleted/*')
+        by_member = {seeker.file_infos[path].source_path: path for path in staged}
+        self.assertEqual(sorted(by_member), [
+            'flash0/$Deleted/$NoFolder/$NoName.deleted-000002',
+            'flash0/$Deleted/$NoFolder/gps.dat.deleted-000001',
+            'flash0/$Deleted/var/sysinfo/gps.dat.deleted-000000'])
+        first = by_member['flash0/$Deleted/var/sysinfo/gps.dat.deleted-000000']
+        with open(first, 'rb') as handle:
+            self.assertEqual(handle.read(), b'first version')
+        self.assertEqual(seeker.file_infos[first].modification_date, 1700000000)
+        with open(by_member['flash0/$Deleted/$NoFolder/gps.dat.deleted-000001'], 'rb') as handle:
+            self.assertEqual(handle.read(), b'second version')
+        # the one the reader calls unreadable is counted, the one it fails on is named
+        self.assertTrue(any('4 deleted files can be read, 1 are named and cannot' in line
+                            for line in log.lines), log.lines)
+        self.assertTrue(any('Not staged' in line and 'raises.dat' in line
+                            for line in log.lines), log.lines)
+        self.assertFalse(any(name.startswith('raises.dat')
+                             for _root, _dirs, names in os.walk(seeker.data_folder)
+                             for name in names))
+
+    def test_a_pattern_that_does_not_name_the_folder_never_reaches_a_deleted_file(self):
+        seeker = self._with_deleted([_FakeDeleted('gps.dat', 'var', b'x')])
+        for pattern in ('*', '*gps.dat*', '*/var/*', '*.deleted-*'):
+            for path in seeker.search(pattern):
+                self.assertNotIn('$Deleted', seeker.file_infos[path].source_path, pattern)
+        # and the reader was never asked
+        self.assertIsNone(seeker.deleted_list)
+        self.assertEqual(seeker.volumes[-1]['walker'].asked, 0)
+        self.assertEqual(len(seeker.search('*/$Deleted/*gps.dat*')), 1)
+        seeker.search('*/$Deleted/*')
+        self.assertEqual(seeker.volumes[-1]['walker'].asked, 1)
+
+    def test_what_names_deleted(self):
+        for pattern in ('*/$Deleted/*', '*/$Deleted/*/gps.dat*', '$Deleted/x', '*\\$Deleted\\*'):
+            self.assertTrue(names_deleted(pattern), pattern)
+        for pattern in ('*', '*Deleted*', '*/x$Deleted/*', '*/$Deleted.bak/*', '*.deleted-*'):
+            self.assertFalse(names_deleted(pattern), pattern)
+
     def test_what_names_a_stream(self):
         for pattern in ('*:Zone.Identifier', '*/$Extend/$UsnJrnl:$J', '*/:rootstream', '*:*',
                         '*\\x.exe:Zone.Identifier'):
@@ -1383,6 +1444,31 @@ try:
     _HAS_TK = True
 except ImportError:
     _HAS_TK = False
+
+
+class _FakeDeleted:
+    """What a flash reader's recover_deleted() yields, as far as the seeker reads it."""
+
+    def __init__(self, name, parent_path, data, mtime=None, recoverable=True):
+        self.name, self.parent_path, self.data = name, parent_path, data
+        self.mtime, self.recoverable = mtime, recoverable
+
+
+class _FakeFlashWalker:
+    """A reader with the two methods the seeker asks a flash filesystem for."""
+
+    def __init__(self, entries):
+        self.entries, self.asked = entries, 0
+
+    def recover_deleted(self):
+        self.asked += 1
+        yield from self.entries
+
+    @staticmethod
+    def read_deleted(entry):
+        if entry.data is None:
+            raise ValueError('the extent chain no longer resolves')
+        yield entry.data
 
 
 class _FakeLogicalEntry:

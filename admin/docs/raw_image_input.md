@@ -196,6 +196,40 @@ read of the whole image sees.
 What it costs is the write: the free space of every volume a pattern matches goes
 into the data folder, 14.2 GiB in that VLEAPP run.
 
+## Deleted files a flash filesystem still holds
+
+A flash filesystem writes a change to a new place and leaves the old data until its
+block is erased, so a deleted file can still be read. The reader recovers those on
+EFS, JFFS2, UBIFS and YAFFS (`recover_deleted()` and `read_deleted()`), and the
+seeker offers each one it calls recoverable as a member of a `$Deleted` folder in
+its volume:
+
+    <volume>/$Deleted/<folder>/<name>.deleted-<n>
+
+`<folder>` is the file's folder when the reader could place it and `$NoFolder` when
+it could not. A recovered run of extents that no directory entry names is
+`$NoName`. `<n>` is the entry's position in the reader's list for that volume, so
+several versions of one file stay apart.
+
+Only a pattern with `$Deleted` as one of its segments is matched against them
+(`names_deleted()`). `*` and `*/gps.dat*` never reach a deleted file, and the reader
+is not asked to look for any until such a pattern is searched. An artifact that
+wants them names the folder, for example `*/$Deleted/*/gps.dat.deleted-*`, and
+should say in its output that the row came from a deleted file: the member path
+does.
+
+An entry the reader names but cannot read whole is counted in the run log and not
+listed. Its last modified time, where the filesystem kept one, is put on the staged
+copy.
+
+This was measured in VLEAPP, where the change was made (VLEAPP #332), and has not
+been measured in this tool. On two GM OnStar flash images, both EFS (keys
+`xtrmp_item081` and `xtrmp_item027`), the reader gave 3,040 and 901 entries, of
+which 2,983 and 893 were listed and 57 and 8 could not be read whole. Most had no
+folder the reader could place (2,875 and 672). Listing took under a second on each.
+JFFS2, UBIFS and YAFFS go through the same code and were not run there: the tests
+use a stand-in reader.
+
 ## Logical evidence
 
 An EnCase `.L01` or an FTK Imager `.ad1` holds copies of files rather than a disk, so
@@ -234,9 +268,10 @@ for it, so no report field carries a zone the evidence never had.
 
 ## What it does not do
 
-- It reads live files, and a volume's free space for a pattern that asks for it
-  (see Free space above). Deleted records the reader can recover on NTFS, FAT32
-  and exFAT are not staged, nor are the entries an AD1 lists as deleted.
+- It reads live files, a volume's free space for a pattern that asks for it (see
+  Free space above) and the deleted files of a flash filesystem for a pattern that
+  names `$Deleted`. Deleted records the reader can recover on NTFS, FAT32 and exFAT
+  are not staged, nor are the entries an AD1 lists as deleted.
 - It does not re-root a bare partition image. A raw image of an Android
   `userdata` partition has `data/`, `media/` and `system/` at its root rather
   than under `data/`, and an iOS Data volume has `mobile/` and `containers/`
