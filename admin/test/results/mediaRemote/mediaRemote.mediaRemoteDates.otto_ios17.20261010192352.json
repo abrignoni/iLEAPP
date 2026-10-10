@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "module_name": "mediaRemote",
+    "artifact_name": "Media Remote Stored Dates",
+    "function_name": "mediaRemoteDates",
+    "case_number": "otto_ios17",
+    "number_of_columns": 3,
+    "number_of_rows": 6,
+    "total_data_size_bytes": 270,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/mediaRemote/testdata.mediaRemote.mediaRemoteDates.otto_ios17.zip",
+    "start_time": "2026-10-10T19:23:52.379309+00:00",
+    "end_time": "2026-10-10T19:23:52.434293+00:00",
+    "run_time_seconds": 0.0002970695495605469,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T19:23:52.430969",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Timestamp",
+    "Key",
+    "Sub Key"
+  ],
+  "data": [
+    [
+      1720444095,
+      "LastPlayingDate",
+      ""
+    ],
+    [
+      1725077497,
+      "MRDPQPDS.PED",
+      ""
+    ],
+    [
+      1725023901,
+      "PersonalDeviceState",
+      "kMRDPersonalDeviceControllerPersonalDeviceStateDateKey"
+    ],
+    [
+      1696038520,
+      "RecentlySelectedDevices",
+      "08:65:18:D4:87:46"
+    ],
+    [
+      1696444376,
+      "RecentlySelectedDevices",
+      "Speaker"
+    ],
+    [
+      1696444385,
+      "RecentlySelectedDevices",
+      "f8:dc:7a:5e:d7:66"
+    ]
+  ]
+}
