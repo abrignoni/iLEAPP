@@ -1,0 +1,86 @@
+{
+  "metadata": {
+    "module_name": "appleWatchWeatherCities",
+    "artifact_name": "Apple Watch Weather Cities",
+    "function_name": "appleWatchWeatherCities",
+    "case_number": "hickman_ios14",
+    "number_of_columns": 10,
+    "number_of_rows": 4,
+    "total_data_size_bytes": 356,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWatchWeatherCities/testdata.appleWatchWeatherCities.appleWatchWeatherCities.hickman_ios14.zip",
+    "start_time": "2026-10-10T21:13:46.891799+00:00",
+    "end_time": "2026-10-10T21:13:46.964799+00:00",
+    "run_time_seconds": 0.00040602684020996094,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T21:13:46.960752",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "File Last Updated",
+    "Time Zone Last Updated",
+    "Position",
+    "Name",
+    "Country Abbreviation",
+    "Latitude",
+    "Longitude",
+    "Time Zone",
+    "UUID",
+    "Other Keys"
+  ],
+  "data": [
+    [
+      1613665319,
+      1613664666,
+      1,
+      "Holly Springs",
+      "US",
+      "35.65001",
+      "-78.833654",
+      "GMT-0500",
+      "35.650010,-78.833654",
+      ""
+    ],
+    [
+      1613665319,
+      1613664644,
+      2,
+      "Santa Clara",
+      "US",
+      "37.34999084472656",
+      "-121.95000457763672",
+      "GMT-0800",
+      "37.349991,-121.950005",
+      ""
+    ],
+    [
+      1613665319,
+      1613664643,
+      3,
+      "New York",
+      "US",
+      "40.71666717529297",
+      "-74.01667022705078",
+      "GMT-0500",
+      "40.716667,-74.016670",
+      ""
+    ],
+    [
+      1613665319,
+      1613664643,
+      4,
+      "Cupertino",
+      "US",
+      "37.318629",
+      "-122.029259",
+      "GMT-0800",
+      "37.318629,-122.029259",
+      ""
+    ]
+  ]
+}
