@@ -195,7 +195,7 @@ def main():
                               "machine disk, .vhd, .vhdx, .vmdk or .qcow2), read in "
                               "place without mounting (logical evidence, an EnCase .L01 or FTK Imager "
                               ".ad1, is read as the files it holds): its "
-                              "NTFS, FAT32, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, "
+                              "NTFS, FAT32, FAT16, FAT12, exFAT, ext2/3/4, F2FS, HFS+, APFS, QNX6, QNX4, "
                               "ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS volumes "
                               "are searched directly, "
                               "'file' for a single file input."))

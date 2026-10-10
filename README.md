@@ -226,7 +226,7 @@ a split set), or an acquisition and the segments or files beside it (EnCase/EWF
 `.E01`, SMART `.s01`, EWF2 `.Ex01`, AFF `.aff`, AFM `.afm`, any `.aff` in an AFD folder,
 AFF4 `.aff4`, an Apple `.dmg`, with any `.dmgpart` files beside it, `.sparseimage` or
 `.sparsebundle` folder, or a virtual machine disk, `.vhd`, `.vhdx`, `.vmdk` or `.qcow2`), in
-place: no mounting and no administrator rights. Its NTFS, FAT32, exFAT, ext2/3/4,
+place: no mounting and no administrator rights. Its NTFS, FAT32, FAT16, FAT12, exFAT, ext2/3/4,
 F2FS, HFS+, APFS, QNX6, QNX4, ETFS, EFS, SquashFS, JFFS2, UBI/UBIFS, YAFFS and QNX IFS
 volumes are searched directly (and a U-Boot environment or Belkin NVRM store is read as one
 file), and
