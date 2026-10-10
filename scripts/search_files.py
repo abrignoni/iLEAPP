@@ -39,6 +39,7 @@ from functools import lru_cache
 # Yes, this is hazmat, but we're only using it to unwrap existing keys
 import cryptography.hazmat.primitives.keywrap as crypt
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.padding import PKCS7
 
 
 from scripts.ilapfuncs import get_plist_file_content, get_plist_content, logfunc, \
@@ -275,6 +276,24 @@ def decrypt_itunes_backup(directory, passcode):
 
     logfunc(f"Manifest.db was successfully decrypted with passcode {passcode}")
     return (protection_classes, unwrapped_manifest_key), "Decryption successful"
+
+
+def _backup_file_plaintext(decrypted_contents, manifest_size, relative_path):
+    """Return a decrypted backup file without its CBC padding.
+
+    The length comes from the PKCS#7 padding the file was stored with, not from
+    the Size in its Manifest.db record. The two disagree for SQLite databases
+    in both directions, and the stored copy is the one whose header page count
+    matches its own length; cutting it to Size drops pages or leaves the
+    padding block on the end. Size is only used when the padding is not valid.
+    """
+    unpadder = PKCS7(algorithms.AES.block_size).unpadder()
+    try:
+        return unpadder.update(decrypted_contents) + unpadder.finalize()
+    except ValueError:
+        logfunc(f'No valid padding at the end of {relative_path}, '
+                f'writing the {manifest_size} bytes its Manifest.db record gives')
+        return decrypted_contents[0:manifest_size]
 
 
 def _probe_volume_case_insensitive(folder):
@@ -807,9 +826,10 @@ class FileSeekerItunes(FileSeekerBase):
                             decryptor = cipher.decryptor()
                             decrypted_contents = decryptor.update(temp_original_file.read()) + decryptor.finalize()
 
-                            # Write the decrypt into the expected located, only write the expected size, no padding
+                            # Write the decrypt into the expected located, without its padding
                             with open(data_path, "wb") as temp_new_file:
-                                temp_new_file.write(decrypted_contents[0:tmp_file_meta['Size']])
+                                temp_new_file.write(_backup_file_plaintext(
+                                    decrypted_contents, tmp_file_meta['Size'], relative_path))
 
                     # If not encrypted, just copy the thing
                     else:
