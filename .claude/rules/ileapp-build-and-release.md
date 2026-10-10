@@ -157,8 +157,7 @@ A tag refuses to publish without them, and the macOS legs check that first, befo
 building; a dispatched rehearsal builds unsigned. The footer tells users the disk images
 are notarised, which holds only because of that refusal.
 
-Windows is signed by SignPath when the `SIGNPATH_API_TOKEN` secret is set, in the
-`release` environment, whose deployment rule should admit only `main` and `v*` tags. The
+Windows is signed by SignPath when the `SIGNPATH_API_TOKEN` repository secret is set. The
 job carries `actions: read` so SignPath can download the uploaded artifact. Repository
 variables: `SIGNPATH_ORGANIZATION_ID`, `SIGNPATH_PROJECT_SLUG`, `SIGNPATH_SIGNING_POLICY`
 (`test-signing` or `release-signing`), `SIGNPATH_CERT_SUBJECT` (optional, passed to
@@ -170,6 +169,16 @@ builds unsigned and says so in a warning, as releases did before signing was wir
 rehearsal signs under whichever policy is set. When `release-signing` is in place, change
 the footer's "not signed yet" paragraph, and make a tag refuse an unsigned Windows build
 the way macOS does, since the footer will then promise a signature.
+
+A repository secret is usable by a workflow on any branch of this repository, though
+never by a pull request from a fork. Before `release-signing`, SignPath should require a
+manual approval of each request, which shows the branch and commit it came from. The
+owner can go further: rulesets requiring a pull request on `main` and restricting who
+creates `v*` tags, and a `release` environment admitting only those refs, holding the
+token, with `environment: release` on the build job. Neither `main` nor the tags were
+protected on 2026-10-10, so the environment alone would not stop an account with write
+access, and only the owner can create environments and rulesets on this
+personal-account repository.
 
 These names replaced the per-program downloads (`ileappGUI-v*-Windows_x86_64.zip` and the
 like), which leapps.org and the README linked to. Tools such as Autopsy run `ileapp` from a

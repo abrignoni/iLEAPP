@@ -79,9 +79,6 @@ jobs:
     permissions:
       contents: read
       actions: read
-    # SIGNPATH_API_TOKEN is kept in this environment, whose deployment rule admits only the
-    # refs that may sign (main and v* tags), so a workflow on another branch cannot use it.
-    environment: release
     # A step's `if` cannot read `secrets`, so whether a platform can be signed is decided
     # here.
     env:
