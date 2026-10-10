@@ -118,14 +118,11 @@ Measured on 2026-09-27, macOS arm64, Python 3.14.7, PyInstaller 6.22.3: phase 1 
 
 Windows (x64 and ARM64): releases ship only a `--onefile` build, zipped alone as the
 portable download so it keeps the name `ileapp.exe` that the docs and calling tools use.
-There is no installer since 2026-10-10: code signing is limited to 48 GB a year across the
-five LEAPPs, and an installer doubled what each release sent to SignPath (measured on the
-first test run: 166 MB for both executables and 100 MB for both installers, against about
-130 MB for the two single files alone). The cost is that the single file unpacks itself to
-`%TEMP%` on every start, so it is slower to start and blocked where AppLocker or WDAC forbid
-running programs from `%TEMP%`; the footer sends those users to the source. Rehearsals
-dispatched by hand are signed too and count against the same allowance; `test_builds.yml`
-signs nothing. The portable zip used to hold the folder build, whose `_internal`
+There is no installer since 2026-10-10: it was a second file to sign, as well as the
+folder build inside it. The cost is that the single file unpacks itself to `%TEMP%` on
+every start, so it is slower to start and blocked where AppLocker or WDAC forbid running
+programs from `%TEMP%`; the footer sends those users to the source. Rehearsals dispatched
+by hand are signed too; `test_builds.yml` signs nothing. The portable zip used to hold the folder build, whose `_internal`
 directory confused users; the releases before 2026-09-28 were single files too. The
 Inno Setup script and `build.py installer` remain for local builds.
 macOS (Apple silicon and Intel): `.app` and `.dmg`. The `.dmg` is
