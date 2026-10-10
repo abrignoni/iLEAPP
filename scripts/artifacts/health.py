@@ -628,7 +628,7 @@ __artifacts_v2__ = {
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, \
     attach_sqlite_db_readonly, does_table_exist_in_db, convert_cocoa_core_data_ts_to_utc, \
-    does_column_exist_in_db
+    does_column_exist_in_db, logfunc
 
 
 def _record_value(record, index, default=None):
@@ -1055,6 +1055,9 @@ def health_heart_rate(context):
 
     data_list = []
     os_version = context.get_installed_os_version()
+    if not os_version:
+        logfunc('No iOS version had been read when this artifact ran, heart rate samples were not queried')
+        return (), data_list, data_source
 
     attach_query = attach_sqlite_db_readonly(healthdb, 'healthdb')
 

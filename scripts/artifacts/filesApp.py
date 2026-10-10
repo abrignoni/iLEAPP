@@ -45,7 +45,7 @@ __artifacts_v2__ = {
                  "auto_document_count, Number of folders is auto_client_item_count minus "
                  "auto_document_count and Total size in bytes is auto_aggregate_size; what the "
                  "system counts in each is not established. On iOS 18 and later only the library "
-                 "name is reported.",
+                 "name is reported. Nothing is reported when no iOS version has been read.",
         "paths": (
             '*/mobile/Library/Application Support/CloudDocs/session/db/client.db*',
             ),
@@ -253,7 +253,7 @@ __artifacts_v2__ = {
 from packaging import version
 from scripts.ilapfuncs import artifact_processor, get_file_path, \
     attach_sqlite_db_readonly, get_sqlite_db_records, get_plist_content, \
-    convert_bytes_to_unit, convert_unix_ts_to_utc
+    convert_bytes_to_unit, convert_unix_ts_to_utc, logfunc
 
 
 def get_tree_structure(source_path):
@@ -319,6 +319,9 @@ def icloud_application_list(context):
     data_list = []
 
     os_version = context.get_installed_os_version()
+    if not os_version:
+        logfunc('No iOS version had been read when this artifact ran, client.db app libraries were not queried')
+        return ('Application Bundle ID', ), data_list, source_path
     if version.parse(os_version) < version.parse('18'):
         query = '''
         SELECT

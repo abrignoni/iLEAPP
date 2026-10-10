@@ -80,6 +80,9 @@ def Ph026_1SyndicationIDAssetsPhDaPsql(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version from PhotoData-Photos.sqlite for iOS " + iosversion)
         return (), [], source_path
@@ -729,6 +732,9 @@ def Ph026_2SyndicationPLAssetsSyndPL(context):
     if report_folder.endswith('/') or report_folder.endswith('\\'):
         report_folder = report_folder[:-1]
     iosversion = iOS.get_version()
+    if not iosversion:
+        logfunc("No iOS version had been read when this artifact ran, Photos.sqlite was not queried")
+        return (), [], source_path
     if (version.parse(iosversion) <= version.parse("14.8.1")) or (version.parse(iosversion) >= version.parse("27")):
         logfunc("Unsupported version from Syndication.photoslibrary for iOS " + iosversion)
         return (), [], source_path
