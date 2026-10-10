@@ -832,7 +832,7 @@ class RawImageSeekerTest(unittest.TestCase):
         with open(by_member['flash0/$Deleted/$NoFolder/gps.dat.deleted-000001'], 'rb') as handle:
             self.assertEqual(handle.read(), b'second version')
         # the one the reader calls unreadable is counted, the one it fails on is named
-        self.assertTrue(any('4 deleted files can be read, 1 are named and cannot' in line
+        self.assertTrue(any('4 files outside the live tree can be read, 1 are named and cannot' in line
                             for line in log.lines), log.lines)
         self.assertTrue(any('Not staged' in line and 'raises.dat' in line
                             for line in log.lines), log.lines)
