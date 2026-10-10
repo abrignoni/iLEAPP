@@ -657,7 +657,8 @@ class FileSeekerRaw(FileSeekerBase):
     a pattern matches. Staging it writes the free runs one after another, with a
     ``.tsv`` beside the copy that maps each run back to its offset in the image.
 
-    The deleted files a flash filesystem's reader can recover are members of a
+    The files a reader recovers outside the live tree (a flash filesystem's deleted
+    files, exFAT's orphan entries) are members of a
     ``$Deleted`` folder in their volume, listed and matched only for a pattern that
     names that folder (see ``names_deleted``).
 
@@ -1172,7 +1173,8 @@ class FileSeekerRaw(FileSeekerBase):
         """List the deleted files each volume's reader can recover, once.
 
         A reader that offers both ``recover_deleted()`` and ``read_deleted()`` is
-        asked (the flash filesystems: EFS, JFFS2, UBIFS and YAFFS). Each entry it
+        asked (the flash filesystems EFS, JFFS2, UBIFS and YAFFS, and exFAT for its
+        orphan entries). Each entry it
         calls recoverable becomes one member:
 
             <volume>/$Deleted/<folder>/<name>.deleted-<n>
@@ -1208,8 +1210,8 @@ class FileSeekerRaw(FileSeekerBase):
                 logfunc(f"  deleted files of {vol['name']}: the reader raised "
                         f'{type(exc).__name__}: {exc}')
             if listed or refused:
-                logfunc(f"  {vol['name']}: {listed:,} deleted files can be read, {refused:,} "
-                        f'are named and cannot')
+                logfunc(f"  {vol['name']}: {listed:,} files outside the live tree can be read, "
+                        f'{refused:,} are named and cannot')
 
     def _stage_deleted(self, member):
         """Copy one recovered deleted file out of the image. Returns the staged

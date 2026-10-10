@@ -211,6 +211,17 @@ it could not. A recovered run of extents that no directory entry names is
 `$NoName`. `<n>` is the entry's position in the reader's list for that volume, so
 several versions of one file stay apart.
 
+exFAT is asked too, since qnxprobe 1.61, and what it gives is a different thing
+under the same folder name: orphan entries. Those are file entries still marked in
+use, with a valid checksum, in directory clusters the volume marks allocated and the
+directory tree no longer reaches. Nothing in such an entry says the file was deleted,
+so read `$Deleted` there as "outside the live tree". An entry is listed only when
+every cluster it names is allocated and unreached. Measured with VLEAPP on a Ford
+SYNC Gen2 partition image (key `xtrmp_item016`, partition 2), whose `Windows`
+directory lists nothing: 2,858 orphan entries, 2,455 listed, 974 of them with no
+folder the reader could name. Nothing on the volume says which directory those 974
+belonged to.
+
 Only a pattern with `$Deleted` as one of its segments is matched against them
 (`names_deleted()`). `*` and `*/gps.dat*` never reach a deleted file, and the reader
 is not asked to look for any until such a pattern is searched. An artifact that

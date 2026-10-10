@@ -45,7 +45,7 @@ except ImportError:                  # not on sys.path when imported as a module
     except ImportError:
         ewfprobe = None
 
-QNXPROBE_VERSION = "1.60"
+QNXPROBE_VERSION = "1.61"
 
 QNX6_MAGIC     = 0x68191122
 BOOTBLOCK_SIZE = 0x2000
@@ -2617,6 +2617,17 @@ def _exfat_offset(byte):
     return f"{sign}{minutes // 60:02d}:{minutes % 60:02d}"
 
 
+def _exfat_set_checksum(raw):
+    """The checksum of one exFAT directory entry set, as its File entry's
+    SetChecksum field records it: a 16-bit rotate right and add over every
+    byte of the set except the two bytes of the field itself (offsets 2 and 3
+    of the first entry). From Microsoft's exFAT specification."""
+    total = 0
+    for byte in raw[:2] + raw[4:]:
+        total = (((total << 15) | (total >> 1)) + byte) & 0xFFFF
+    return total
+
+
 def _fat_short_name(e):
     # Byte 12 carries Windows NT's case flags for a short name that had no long
     # entry: 0x08 lowercases the base, 0x10 the extension. Honouring them keeps
@@ -2659,6 +2670,7 @@ class ExfatWalker:
         self.fat_start = base + self.fat_off * self.bps
         self.heap_start = base + self.heap_off * self.bps
         self.root = (self.root_clus, 0, True, False)
+        self._orphan_cache = None                    # recover_deleted() fills it once
 
     def _fat_next(self, clus):
         raw = read_at(self.fh, self.fat_start + clus * 4, 4)
@@ -2873,7 +2885,23 @@ class ExfatWalker:
         """The content of a recoverable deleted file, cluster by cluster along
         the chain that was kept or the run the entry declared. Refuses one whose
         clusters have been reused, so overwritten bytes are never presented as
-        the file."""
+        the file. Takes a deleted_files() record or a recover_deleted() one."""
+        if isinstance(entry, FlashDeletedFile):      # an orphan entry
+            if not entry.recoverable:
+                raise NtfsUnreadable(
+                    f"orphan file {entry.name!r} is not recoverable: {entry.reason}")
+            left = entry.size if size is None else min(size, entry.size)
+            for c in entry._plan:                    # pylint: disable=protected-access
+                if left <= 0:
+                    return
+                data = read_at(self.fh, self._cluster_off(c), self.cluster_bytes)
+                if len(data) < self.cluster_bytes:
+                    raise NtfsUnreadable(
+                        f"orphan file {entry.name!r}: cluster {c} lies past the end "
+                        "of the image")
+                yield data[:left]
+                left -= len(data[:left])
+            return
         if not entry.recoverable or entry._node is None:
             raise NtfsUnreadable(
                 f"deleted file {entry.name!r} is not recoverable: {entry.reason}")
@@ -2888,6 +2916,366 @@ class ExfatWalker:
 
     def listdir(self, node):
         return [(name, child) for name, child, _times in self.listdir_records(node)]
+
+    def _first_bitmap(self):
+        """The bytes of the first Allocation Bitmap, or b"" when the root
+        directory names none. A TexFAT volume has two, and BitmapFlags bit 0
+        marks the second."""
+        raw = self._read(self.root_clus, 0, False)
+        for i in range(0, len(raw) - 31, 32):
+            if raw[i] == 0x00:                       # end of the directory
+                break
+            if raw[i] != 0x81:
+                continue
+            if raw[i + 1] & 0x01:                    # the second TexFAT bitmap
+                continue
+            first_clus = struct.unpack_from("<I", raw, i + 20)[0]
+            length = struct.unpack_from("<Q", raw, i + 24)[0]
+            if not first_clus or not length:
+                return b""
+            return self._read(first_clus, length, False)
+        return b""
+
+    # ---- orphan entry sets --------------------------------------------------
+    # A directory cluster can stay allocated after the tree stops reaching it:
+    # the entry that named the directory is gone, or the FAT link that led to
+    # this cluster of it is. The entry sets in such a cluster are still marked
+    # in use and still carry a valid checksum, and the files they name can
+    # still be allocated too. Nothing in the live listing shows them. Measured
+    # on four exFAT partition images (README, "exFAT: orphan directory entries").
+
+    def _orphan_state(self):
+        """(first FAT, reached flags, bitmap bytes, live files) for
+        recover_deleted(), worked out once per walker.
+
+        ``reached`` has one byte per cluster number, set for every cluster the
+        live tree accounts for: the root directory's chain, each directory's
+        clusters, each file's clusters (the run its size needs when NoFatChain
+        is set, else its whole chain in the first FAT), both allocation bitmaps
+        and the up-case table. ``live files`` is the (first cluster, size) of
+        every live file, so an orphan entry that names the same allocation as
+        a live one can say so."""
+        if self._orphan_cache is not None:
+            return self._orphan_cache
+        total = self.cluster_count + 2
+        cb = self.cluster_bytes
+        raw = read_at(self.fh, self.fat_start, total * 4)
+        raw += b"\x00" * (total * 4 - len(raw))      # a truncated image: no links
+        fat = array.array("I")
+        fat.frombytes(raw)
+        if sys.byteorder != "little":
+            fat.byteswap()
+        reached = bytearray(total)
+
+        def run(first, count):
+            if first >= 2:
+                for c in range(first, min(first + count, total)):
+                    reached[c] = 1
+
+        def chain(first):
+            c, seen = first, set()
+            while 2 <= c < total and c not in seen:
+                seen.add(c)
+                reached[c] = 1
+                c = fat[c]
+
+        chain(self.root_clus)
+        root_raw = self._read(self.root_clus, 0, False)
+        for i in range(0, len(root_raw) - 31, 32):
+            if root_raw[i] == 0x00:
+                break
+            if root_raw[i] in (0x81, 0x82):          # allocation bitmap, up-case table
+                first = struct.unpack_from("<I", root_raw, i + 20)[0]
+                length = struct.unpack_from("<Q", root_raw, i + 24)[0]
+                run(first, (length + cb - 1) // cb)
+                chain(first)
+        live = set()
+        stack, seen_dirs = [self.root], {self.root_clus}
+        while stack:
+            node = stack.pop()
+            try:
+                listing = self.listdir_records(node)
+            except (IndexError, struct.error):       # a directory cut short
+                continue
+            for _name, child, _times in listing:
+                first, size, is_dir, contiguous = child
+                need = (size + cb - 1) // cb
+                if is_dir:
+                    if contiguous:
+                        run(first, max(need, 1))
+                    else:
+                        chain(first)
+                    if 2 <= first < total and first not in seen_dirs:
+                        seen_dirs.add(first)
+                        stack.append(child)
+                elif size and first >= 2:
+                    live.add((first, size))
+                    if contiguous:
+                        run(first, need)
+                    else:
+                        chain(first)
+        self._orphan_cache = (fat, reached, self._first_bitmap(), live)
+        return self._orphan_cache
+
+    @staticmethod
+    def _entry_sets(raw, limit):
+        """The in-use file entry sets that start in the first ``limit`` bytes
+        of ``raw``: [(offset, set bytes)], and the offsets of those that run
+        past the end of ``raw``. A set is a 0x85 File entry, its 0xC0 stream
+        extension, and name entries enough for the name's length, with the
+        checksum the File entry records."""
+        sets, cut = [], []
+        types = raw[:limit:32]
+        k = types.find(0x85)
+        while k != -1:
+            at, step = k * 32, 1
+            if at + 2 > len(raw):
+                break
+            secs = raw[at + 1]
+            end = at + 32 * (secs + 1)
+            if 2 <= secs <= 18:
+                if end > len(raw):
+                    cut.append(at)
+                elif raw[at + 32] == 0xC0:
+                    ent = raw[at:end]
+                    names = 0
+                    while names + 2 <= secs and ent[32 * (names + 2)] == 0xC1:
+                        names += 1
+                    if (0 < ent[35] <= 15 * names and _exfat_set_checksum(ent)
+                            == struct.unpack_from("<H", ent, 2)[0]):
+                        sets.append((at, ent))
+                        step = secs + 1
+            k = types.find(0x85, k + step)
+        return sets, cut
+
+    def recover_deleted(self):
+        """Yield a FlashDeletedFile (``kind`` "exfat") for every orphan file
+        entry: an in-use file entry set, checksum valid, in an allocated
+        cluster the live tree does not reach.
+
+        What counts as reached is in _orphan_state(). Every allocated cluster
+        outside it is read and searched for entry sets, a set that runs off
+        the end of its cluster being completed from the cluster the first FAT
+        links next, or the one after it. Entries marked deleted are not
+        included (deleted_files() lists those from live directories), free
+        clusters are not searched, and the second FAT is not followed.
+
+        An orphan directory entry is walked down: the clusters it names that
+        are allocated and unreached are read as its directory, so a file under
+        it has ``parent_path`` set to the names that lead to it, joined with
+        "/", starting at the first orphan directory. A file whose entry sits
+        in a directory cluster no orphan directory entry names has a
+        ``parent_path`` of None: nothing on the volume says what that
+        directory was called. ``parent`` is the cluster the entry set is in.
+
+        A file is ``recoverable`` when its size is not zero and every cluster
+        it names is allocated and unreached: the run its size needs when
+        NoFatChain is set, else a chain in the first FAT that runs to an
+        end-of-chain mark and is long enough for the size. Otherwise
+        ``reason`` says what failed. A cluster a live file or directory holds
+        refuses the read, so a live file's bytes are never given as the
+        orphan's. Two orphan entries can name the same clusters and the volume
+        does not say which wrote last, so both stay recoverable and ``note``
+        says so.
+
+        ``ident`` is the first cluster. ``mtime`` and ``mode`` are None: exFAT
+        stores a wall clock and a UTC offset, and this reader reports both as
+        stored and does not apply one to the other. They are in ``times``, the
+        same readings listdir_records() gives. Entry sets that are byte for
+        byte the same in several clusters are one entry, and ``note`` gives
+        the count. These files are never part of the live listing."""
+        fat, reached, bits, live = self._orphan_state()
+        total = self.cluster_count + 2
+        cb = self.cluster_bytes
+
+        def allocated(c):
+            idx = c - 2
+            return (idx >> 3) < len(bits) and bool(bits[idx >> 3] & (1 << (idx & 7)))
+
+        def orphan(c):
+            return 2 <= c < total and not reached[c] and allocated(c)
+
+        # every allocated, unreached cluster, read in runs
+        by_cluster = {}                              # cluster -> [set bytes]
+        set_starts = {}                              # cluster -> lowest set offset
+        cut = []                                     # (cluster, offset, tail bytes)
+        step = max(1, (1 << 22) // cb)
+        c = 2
+        while c < total and (c - 2) >> 3 < len(bits):
+            if not (c - 2) & 7 and not bits[(c - 2) >> 3]:
+                c += 8                               # eight free clusters
+                continue
+            if not orphan(c):
+                c += 1
+                continue
+            end = c + 1
+            while end < total and end - c < step and orphan(end):
+                end += 1
+            data = read_at(self.fh, self._cluster_off(c), (end - c) * cb)
+            for n in range(len(data) // cb):
+                one = data[n * cb:(n + 1) * cb]
+                sets, tails = self._entry_sets(one, cb)
+                if sets:
+                    by_cluster[c + n] = [ent for _at, ent in sets]
+                    set_starts[c + n] = sets[0][0]
+                cut.extend((c + n, at, one[at:]) for at in tails)
+            c = end
+        for clus, _at, tail in cut:
+            # the rest of the set is in the next cluster of the directory: the
+            # one the first FAT links, or the one after when the directory is a
+            # single run. The checksum decides whether a candidate is right.
+            for nxt in (fat[clus], clus + 1):
+                if not orphan(nxt):
+                    continue
+                more = read_at(self.fh, self._cluster_off(nxt), 32 * 19)
+                sets, _tails = self._entry_sets(tail + more, 32)
+                if sets:
+                    by_cluster.setdefault(clus, []).append(sets[0][1])
+                    set_starts.setdefault(clus, _at)
+                    break
+
+        def fields(ent):
+            name = ""
+            for k in range(2, ent[1] + 1):
+                if ent[32 * k] != 0xC1:
+                    break
+                name += ent[32 * k + 2:32 * k + 32].decode("utf-16-le", "replace")
+            return (name[:ent[35]], struct.unpack_from("<I", ent, 52)[0],
+                    struct.unpack_from("<Q", ent, 56)[0], bool(ent[4] & 0x10),
+                    bool(ent[33] & 0x02))
+
+        def named(first, size, is_dir, contiguous):
+            """(clusters the entry names, whether its FAT chain reached an
+            end-of-chain mark). A run when NoFatChain is set, else the chain."""
+            need = (size + cb - 1) // cb
+            if is_dir:
+                need = max(need, 1)
+            if not 2 <= first < total:
+                return [], True
+            if contiguous:
+                return list(range(first, min(first + need, total))), True
+            out, seen, c = [], set(), first
+            while 2 <= c < total and c not in seen:
+                out.append(c)
+                seen.add(c)
+                c = fat[c]
+            return out, c >= 0xFFFFFFF8
+
+        # which orphan directory clusters an orphan directory entry leads to
+        claimed = set()
+        for sets in by_cluster.values():
+            for ent in sets:
+                _name, first, size, is_dir, contiguous = fields(ent)
+                if is_dir:
+                    for c in named(first, size, True, contiguous)[0]:
+                        if not orphan(c):
+                            break
+                        claimed.add(c)
+        linked = {fat[c] for c in by_cluster if fat[c] in by_cluster and fat[c] != c}
+        heads = sorted(c for c in by_cluster if c not in claimed and c not in linked)
+
+        found = {}                                   # set bytes -> [cluster, path, copies]
+        visited = set()
+
+        def walk(clusters, path):
+            stack = [(clusters, path)]
+            while stack:
+                clusters, path = stack.pop()
+                below = []
+                for clus in clusters:
+                    if clus in visited:
+                        continue
+                    visited.add(clus)
+                    for ent in by_cluster.get(clus, ()):
+                        name, first, size, is_dir, contiguous = fields(ent)
+                        if is_dir:
+                            kids = []
+                            for c in named(first, size, True, contiguous)[0]:
+                                if not orphan(c):
+                                    break
+                                kids.append(c)
+                            if kids:
+                                below.append((kids, name if path is None
+                                              else f"{path}/{name}"))
+                            continue
+                        row = found.get(ent)
+                        if row is None:
+                            found[ent] = [clus, path, 1]
+                        else:
+                            row[2] += 1
+                            if row[1] is None and path is not None:
+                                row[0], row[1] = clus, path
+                stack.extend(reversed(below))
+
+        for head in heads + sorted(by_cluster):
+            if head in visited:
+                continue
+            group, c = [], head
+            while c in by_cluster and c not in visited and c not in group:
+                group.append(c)
+                c = fat[c]
+            walk(group, None)
+
+        entries, users = [], collections.Counter()
+        for ent, (clus, path, copies) in found.items():
+            name, first, size, _is_dir, contiguous = fields(ent)
+            need = (size + cb - 1) // cb
+            clusters, ended = named(first, size, False, contiguous)
+            why = ""
+            if not size:
+                why = "empty"
+            elif first < 2:
+                why = "no cluster recorded"
+            elif not clusters:
+                why = "its first cluster is past the end of the volume"
+            elif (first, size) in live:
+                why = "a live file has the same first cluster and size"
+            elif any(reached[c] for c in clusters):
+                n = sum(1 for c in clusters if reached[c])
+                why = (f"{n:,} of the {len(clusters):,} clusters it names belong to "
+                       "live files or directories")
+            elif not all(allocated(c) for c in clusters):
+                n = sum(1 for c in clusters if not allocated(c))
+                why = (f"{n:,} of the {len(clusters):,} clusters it names are free in "
+                       "the allocation bitmap")
+            elif len(clusters) < need:
+                why = (f"it names {len(clusters):,} of the {need:,} clusters its size "
+                       "needs")
+            elif not ended:
+                why = "its chain in the first FAT does not run to an end-of-chain mark"
+            cre, mod, acc = struct.unpack_from("<III", ent, 8)
+            e = FlashDeletedFile("exfat", first, name, clus, path, size, None, None, 0,
+                                 [] if why else clusters[:need], self)
+            if why:
+                e.recoverable, e.reason = False, why
+            else:
+                users.update(e._plan)                # pylint: disable=protected-access
+            e.times = {
+                "modified": _exfat_stamp(mod, ent[21]),
+                "created": _exfat_stamp(cre, ent[20]),
+                "accessed": _exfat_stamp(acc),
+                "modified utc offset": _exfat_offset(ent[23]),
+                "created utc offset": _exfat_offset(ent[22]),
+                "accessed utc offset": _exfat_offset(ent[24]),
+            }
+            e.note = ("an orphan entry: an in-use file entry set in an allocated "
+                      "directory cluster the live tree does not reach. It is not in "
+                      "the live listing.")
+            if copies > 1:
+                e.note += f" The same entry set is in {copies:,} such clusters."
+            entries.append(e)
+        for e in entries:
+            # a cluster two entries name, or entry sets inside the bytes the
+            # file's size covers (sets in the slack past its end do not count)
+            plan = e._plan                           # pylint: disable=protected-access
+            if any(users[c] > 1 or set_starts.get(c, e.size) < e.size - n * cb
+                   for n, c in enumerate(plan)):
+                e.note += (" Some of its clusters are also named by another orphan "
+                           "entry or hold orphan entry sets themselves, so the bytes "
+                           "may be another file's.")
+        entries.sort(key=lambda e: (e.parent_path is None, e.parent_path or "",
+                                    e.name, e.ident))
+        yield from entries
 
     def free_extents(self, min_bytes=0):
         """[(byte offset, length)] for the runs of space the volume says are free.
@@ -2911,21 +3299,9 @@ class ExfatWalker:
         cluster = self.cluster_bytes
         if not cluster or not self.cluster_count:
             return []
-        first_clus = length = 0
-        raw = self._read(self.root_clus, 0, False)
-        for i in range(0, len(raw) - 31, 32):
-            if raw[i] == 0x00:                       # end of the directory
-                break
-            if raw[i] != 0x81:
-                continue
-            if raw[i + 1] & 0x01:                    # the second TexFAT bitmap
-                continue
-            first_clus = struct.unpack_from("<I", raw, i + 20)[0]
-            length = struct.unpack_from("<Q", raw, i + 24)[0]
-            break
-        if not first_clus or not length:
+        bits = self._first_bitmap()
+        if not bits:
             return []
-        bits = self._read(first_clus, length, False)
         total = min(len(bits) * 8, self.cluster_count)
 
         runs, run_start, pos = [], None, 0
@@ -8143,11 +8519,22 @@ class FlashDeletedFile:
     header index of its first extent. ``note`` always says which kind of entry
     it is, and an entry no directory entry names has an empty ``name`` and
     None for ``mode`` and ``mtime``.
+
+    An exFAT entry (``kind`` "exfat", ExfatWalker.recover_deleted) is not a
+    deleted file. It is an orphan: an in-use file entry set in an allocated
+    directory cluster the live tree does not reach. ``ident`` is its first
+    cluster and ``parent`` the cluster its entry set is in. ``parent_path`` is
+    the chain of orphan directory names that leads to it, or None when no
+    orphan directory entry names its directory cluster. ``mode`` and ``mtime``
+    are None, because exFAT stores a wall clock and not an instant: ``times``
+    holds the readings as stored, as listdir_records() gives them. ``times``
+    is None for every other kind. ``missing`` stays 0 and ``reason`` says why
+    an entry is not recoverable.
     """
 
     __slots__ = ("name", "parent", "parent_path", "is_dir", "size", "mode", "mtime",
-                 "recoverable", "reason", "missing", "ident", "kind", "note", "_plan",
-                 "_walker")
+                 "recoverable", "reason", "missing", "ident", "kind", "note", "times",
+                 "_plan", "_walker")
 
     def __init__(self, kind, ident, name, parent, parent_path, size, mode, mtime,
                  n_missing, plan, walker):
@@ -8162,6 +8549,7 @@ class FlashDeletedFile:
             f"{n_missing:,} {unit}{'s' if n_missing != 1 else ''} of its recorded size "
             "no longer on the flash (erased, or a hole never written)")
         self.note = ""
+        self.times = None
         self._plan, self._walker = plan, walker
 
     def __repr__(self):
@@ -14490,6 +14878,226 @@ def _ntfs_times_check(image_gz):
     return failures, checked
 
 
+def _exfat_orphan_image():
+    """An exFAT volume of forty 512-byte clusters with a live tree and, beside
+    it, directory clusters that are allocated and that nothing links. Returns
+    (image bytes, {name: content written}). The layout, by cluster number:
+
+      2 bitmap, 3 root, 4 up-case table, 5 LIVE.TXT, 6 LIVEDIR, 7 its INNER.TXT
+      10 -> 11   an orphan directory of two clusters, linked in the FAT
+      12, 13     ORPHAN.BIN, one run
+      14         the orphan directory SUB, holding DEEP.TXT (15) and NEST (16)
+      16         the orphan directory NEST, holding LEAF.TXT (17)
+      18 -> 20   CHAIN.BIN, a FAT chain around the free cluster 19
+      21         SHORT.BIN, a chain of one cluster for a size that needs two
+      22         a second copy of the ORPHAN.BIN entry set, and nothing else
+      23         FREE.BIN's cluster, not allocated
+      25         DEL.TXT, deleted from the root, its cluster free
+      30         a free cluster holding a valid entry set, which must be ignored
+
+    The set checksum is written here from the specification's formula and not
+    with the reader's function, so a wrong reader does not pass against itself.
+    """
+    sec, clusters, heap_sector, fat_sector = 512, 40, 8, 4
+    buf = bytearray((heap_sector + clusters) * sec)
+    buf[3:11] = b"EXFAT   "
+    struct.pack_into("<I", buf, 80, fat_sector)
+    struct.pack_into("<I", buf, 84, 1)               # one sector of FAT
+    struct.pack_into("<I", buf, 88, heap_sector)
+    struct.pack_into("<I", buf, 92, clusters)
+    struct.pack_into("<I", buf, 96, 3)               # root directory cluster
+    buf[108], buf[109], buf[110] = 9, 0, 1
+    buf[510:512] = b"\x55\xaa"
+
+    def at(clus):
+        return heap_sector * sec + (clus - 2) * sec
+
+    def entry_set(name, first, size, *, is_dir=False, contiguous=True, in_use=True,
+                  good_sum=True):
+        ent = bytearray(96)
+        ent[0], ent[1] = 0x85, 2
+        ent[4] = 0x10 if is_dir else 0x20
+        struct.pack_into("<I", ent, 12, (22209 << 16) | 24576)   # modified
+        ent[23] = 0x80 | 16                          # its UTC offset field
+        ent[32], ent[33], ent[35] = 0xC0, 0x03 if contiguous else 0x01, len(name)
+        struct.pack_into("<Q", ent, 40, size)
+        struct.pack_into("<I", ent, 52, first)
+        struct.pack_into("<Q", ent, 56, size)
+        ent[64] = 0xC1
+        ent[66:66 + 2 * len(name)] = name.encode("utf-16-le")
+        total = 0
+        for i, byte in enumerate(ent):
+            if i not in (2, 3):
+                total = ((0x8000 if total & 1 else 0) + (total >> 1) + byte) & 0xFFFF
+        struct.pack_into("<H", ent, 2, total if good_sum else total ^ 0x0101)
+        if not in_use:
+            ent[0], ent[32], ent[64] = 0x05, 0x40, 0x41
+        return bytes(ent)
+
+    content = {}
+
+    def data(name, clus_list, size):
+        body = bytes((len(name) * 7 + i * 13) % 251 for i in range(size))
+        content[name] = body
+        for n, clus in enumerate(clus_list):
+            piece = body[n * sec:(n + 1) * sec]
+            buf[at(clus):at(clus) + len(piece)] = piece
+
+    for clus, nxt in ((3, 0xFFFFFFFF), (2, 0xFFFFFFFF), (4, 0xFFFFFFFF),
+                      (6, 0xFFFFFFFF), (10, 11), (11, 0xFFFFFFFF), (14, 0xFFFFFFFF),
+                      (18, 20), (20, 0xFFFFFFFF), (21, 0xFFFFFFFF)):
+        struct.pack_into("<I", buf, fat_sector * sec + clus * 4, nxt)
+    for clus in (2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22):
+        buf[at(2) + ((clus - 2) >> 3)] |= 1 << ((clus - 2) & 7)
+
+    root = bytearray(sec)
+    root[0] = 0x81                                   # allocation bitmap
+    struct.pack_into("<I", root, 20, 2)
+    struct.pack_into("<Q", root, 24, (clusters + 7) // 8)
+    root[32] = 0x82                                  # up-case table
+    struct.pack_into("<I", root, 52, 4)
+    struct.pack_into("<Q", root, 56, sec)
+    root[64:160] = entry_set("LIVE.TXT", 5, sec)
+    root[160:256] = entry_set("LIVEDIR", 6, 0, is_dir=True, contiguous=False)
+    root[256:352] = entry_set("DEL.TXT", 25, 300, in_use=False)
+    buf[at(3):at(3) + sec] = root
+    buf[at(6):at(6) + 96] = entry_set("INNER.TXT", 7, 200)
+    data("INNER.TXT", [7], 200)
+    data("DEL.TXT", [25], 300)
+    # valid, in-use entry sets where the search must not look: in the up-case
+    # table, in a live file's content and in a free cluster
+    buf[at(4):at(4) + 96] = entry_set("UPCASE.X", 12, 700)
+    content["LIVE.TXT"] = entry_set("INLIVE.X", 12, 700) + bytes(sec - 96)
+    buf[at(5):at(5) + sec] = content["LIVE.TXT"]
+    buf[at(30):at(30) + 96] = entry_set("INFREE.X", 12, 700)
+
+    orphan_set = entry_set("ORPHAN.BIN", 12, 700)
+    orphan_dir = (orphan_set
+                  + entry_set("SUB", 14, 0, is_dir=True, contiguous=False)
+                  + entry_set("TAKEN.BIN", 5, 300)
+                  + entry_set("GONE.TXT", 12, 700, in_use=False)
+                  + entry_set("BADSUM.BIN", 12, 700, good_sum=False)
+                  + entry_set("CHAIN.BIN", 18, 900, contiguous=False)   # crosses 10 | 11
+                  + entry_set("SAME.TXT", 5, sec)
+                  + entry_set("FREE.BIN", 23, 100)
+                  + entry_set("SHORT.BIN", 21, 1000, contiguous=False))
+    buf[at(10):at(10) + len(orphan_dir)] = orphan_dir
+    buf[at(14):at(14) + 192] = (entry_set("DEEP.TXT", 15, 100)
+                                + entry_set("NEST", 16, sec, is_dir=True))
+    buf[at(16):at(16) + 96] = entry_set("LEAF.TXT", 17, 10)
+    buf[at(22):at(22) + 96] = orphan_set
+    data("ORPHAN.BIN", [12, 13], 700)
+    data("DEEP.TXT", [15], 100)
+    data("LEAF.TXT", [17], 10)
+    data("CHAIN.BIN", [18, 20], 900)
+    data("SHORT.BIN", [21], 512)
+    data("FREE.BIN", [23], 100)
+    return bytes(buf), content
+
+
+def _exfat_orphan_check():
+    """recover_deleted() on the image above. Returns the problems found."""
+    import io
+    raw, content = _exfat_orphan_image()
+    problems = []
+    w = ExfatWalker(io.BytesIO(raw), 0)
+    live = sorted(n for n, _c in w.listdir(w.root))
+    if live != ["LIVE.TXT", "LIVEDIR"]:
+        problems.append(f"the live root lists {live}")
+    got = [(e.parent_path, e.name, e.recoverable) for e in w.recover_deleted()]
+    want = [("SUB", "DEEP.TXT", True), ("SUB/NEST", "LEAF.TXT", True),
+            (None, "CHAIN.BIN", True), (None, "FREE.BIN", False),
+            (None, "ORPHAN.BIN", True), (None, "SAME.TXT", False),
+            (None, "SHORT.BIN", False), (None, "TAKEN.BIN", False)]
+    if got != want:
+        problems.append(f"recover_deleted() gave {got}")
+        return problems
+    by_name = {e.name: e for e in w.recover_deleted()}
+    for name, e in by_name.items():
+        if e.kind != "exfat" or e.is_dir or "an orphan entry" not in e.note:
+            problems.append(f"{name}: kind {e.kind!r}, note {e.note!r}")
+        if e.recoverable:
+            if b"".join(w.read_deleted(e)) != content[name]:
+                problems.append(f"{name}: read_deleted() is not the bytes written")
+            if b"".join(w.read_deleted(e, 7)) != content[name][:7]:
+                problems.append(f"{name}: read_deleted(size=7) is not the first 7 bytes")
+        else:
+            try:
+                b"".join(w.read_deleted(e))
+                problems.append(f"{name} is refused but read_deleted() read it")
+            except NtfsUnreadable:
+                pass
+    orphan = by_name["ORPHAN.BIN"]
+    if (orphan.ident, orphan.size, orphan.parent, orphan.mtime, orphan.mode) != (
+            12, 700, 10, None, None):
+        problems.append(f"ORPHAN.BIN fields: {orphan.ident}, {orphan.size}, "
+                        f"{orphan.parent}, {orphan.mtime}, {orphan.mode}")
+    if (orphan.times["modified"], orphan.times["modified utc offset"]) != (
+            "2023-06-01 12:00:00", "+04:00"):
+        problems.append(f"ORPHAN.BIN times: {orphan.times}")
+    if "in 2 such clusters" not in orphan.note or "in 2 such" in by_name["DEEP.TXT"].note:
+        problems.append("the copy of the ORPHAN.BIN entry set is not counted once")
+    reasons = {n: by_name[n].reason for n in ("TAKEN.BIN", "SAME.TXT", "FREE.BIN",
+                                              "SHORT.BIN")}
+    if reasons != {
+            "TAKEN.BIN": "1 of the 1 clusters it names belong to live files or directories",
+            "SAME.TXT": "a live file has the same first cluster and size",
+            "FREE.BIN": "1 of the 1 clusters it names are free in the allocation bitmap",
+            "SHORT.BIN": "it names 1 of the 2 clusters its size needs"}:
+        problems.append(f"reasons: {reasons}")
+    # the records deleted_files() gives still read through the same method
+    gone = [e for e in w.deleted_files()]
+    if ([(e.name, e.recoverable, e.first_cluster) for e in gone] != [("DEL.TXT", True, 25)]
+            or b"".join(w.read_deleted(gone[0])) != content["DEL.TXT"]):
+        problems.append("the deleted entry in the live root no longer reads")
+    # Controls. Link the orphan directory into the root and its files are
+    # live, so only the stray copy of one entry set is left, naming a live
+    # file. Free the second cluster of ORPHAN.BIN and it is refused.
+    heap = 8 * 512
+    linked = bytearray(raw)
+    was = bytearray(linked[heap + 512 + 160:heap + 512 + 256])       # LIVEDIR's set
+    struct.pack_into("<I", was, 52, 10)
+    total = 0
+    for i, byte in enumerate(was):
+        if i not in (2, 3):
+            total = ((0x8000 if total & 1 else 0) + (total >> 1) + byte) & 0xFFFF
+    struct.pack_into("<H", was, 2, total)
+    linked[heap + 512 + 256:heap + 512 + 352] = was
+    got = [(e.parent_path, e.name, e.recoverable, e.reason)
+           for e in ExfatWalker(io.BytesIO(bytes(linked)), 0).recover_deleted()]
+    if got != [(None, "ORPHAN.BIN", False,
+                "a live file has the same first cluster and size")]:
+        problems.append(f"with the orphan directory linked into the root: {got}")
+    freed = bytearray(raw)
+    freed[heap + ((13 - 2) >> 3)] &= ~(1 << ((13 - 2) & 7)) & 0xFF
+    got = {e.name: (e.recoverable, e.reason)
+           for e in ExfatWalker(io.BytesIO(bytes(freed)), 0).recover_deleted()}
+    if got.get("ORPHAN.BIN") != (
+            False, "1 of the 2 clusters it names are free in the allocation bitmap"):
+        problems.append(f"with ORPHAN.BIN's second cluster freed: {got.get('ORPHAN.BIN')}")
+    return problems
+
+
+def _exfat_fixture_orphan_check(image_gz):
+    """The exFAT fixture a driver wrote: every in-use file entry in its root
+    directory has to carry the checksum this reader computes, and the volume
+    has to hold no orphan entry. Returns (ok, detail)."""
+    import gzip, io
+    with gzip.open(image_gz, "rb") as gz:
+        w = ExfatWalker(io.BytesIO(gz.read()), 0)
+    raw = w._read(w.root_clus, 0, False)             # pylint: disable=protected-access
+    in_use = 0
+    for i in range(0, len(raw), 32):
+        if raw[i] == 0x00:
+            break
+        in_use += raw[i] == 0x85
+    sets, cut = w._entry_sets(raw, len(raw))         # pylint: disable=protected-access
+    orphans = len(list(w.recover_deleted()))
+    ok = in_use > 0 and len(sets) == in_use and not cut and not orphans
+    return ok, (f"{len(sets)} of {in_use} entry sets match the checksum the driver "
+                f"wrote, {orphans} orphan entries")
+
+
 def _fat_listing_check(image_gz, wcls):
     """print_tree() on a FAT32 or exFAT fixture prints each file's modified
     reading as stored and never 1970-01-01, which is what the zero mtime
@@ -17895,6 +18503,10 @@ def self_test():
                           and _exs_len["RUN"] == EX_FILE_BYTES
                           and chain_shortfall(_exsw, _exs["CUT"]) == (2, 4)
                           and chain_shortfall(object(), _exs["CUT"]) is None)
+        try:
+            exfat_orphan_problems = _exfat_orphan_check()
+        except Exception as exc:                     # pylint: disable=broad-except
+            exfat_orphan_problems = [f"the check raised {type(exc).__name__}: {exc}"]
         # FAT32 keeps the same two records apart. HELLO.TXT is one cluster and
         # its chain is one cluster; recorded as three clusters it is two short.
         _fatw = Fat32Walker(io.BytesIO(bytes(_fatbuf)), 0)
@@ -18122,6 +18734,13 @@ def self_test():
                  exfat_chain_ok),
                 ("an empty exFAT file reads as no bytes, not as a cluster of the "
                  "volume's own", exfat_empty_ok),
+                ("exFAT orphan entries: in-use entry sets in allocated clusters the "
+                 "tree does not reach come back with their directory names and "
+                 "bytes, one that names a live file's clusters, a free cluster or "
+                 "a short chain is refused, and a deleted entry, a bad checksum, "
+                 "the up-case table, a live file's content and a free cluster "
+                 "give none" + "".join(f"; {p}" for p in exfat_orphan_problems),
+                 not exfat_orphan_problems),
                 ("a FAT32 file whose cluster chain ends before its recorded size "
                  "says so, and a whole chain does not", fat_chain_ok),
                 ("a qnx6 volume reads its free blocks out of the bitmap tree, least "
@@ -18920,6 +19539,22 @@ def self_test():
                   f"({fgot} of {fwant}"
                   + (f", {fmiss} missing" if fmiss else "")
                   + (f", {fdiff} different" if fdiff else "") + ")" + fbroke)
+
+        fix = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "tests", "fixtures", "exfat-deleted.img.gz")
+        if os.path.isfile(fix):
+            try:
+                ook, odetail = _exfat_fixture_orphan_check(fix)
+            except Exception as exc:                 # pylint: disable=broad-except
+                ook, odetail = False, f"the check raised {type(exc).__name__}: {exc}"
+            if not ook:
+                ok = False
+            print(f"  [{'PASS' if ook else 'FAIL'}] the exFAT fixture a driver wrote "
+                  f"carries the entry set checksum this reader computes, and has no "
+                  f"orphan entry ({odetail})")
+        else:
+            print("  [SKIP] the exFAT fixture is not beside this script, so the entry "
+                  "set checksum was not held against a driver's")
 
         for label, stem, wcls in (("FAT32", "fat32-deleted", Fat32Walker),
                                   ("exFAT", "exfat-deleted", ExfatWalker)):
