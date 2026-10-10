@@ -1,0 +1,246 @@
+{
+  "metadata": {
+    "module_name": "appleWatchPhotoCollections",
+    "artifact_name": "Apple Watch Photo Collections",
+    "function_name": "appleWatchPhotoCollections",
+    "case_number": "josh_ios17_ffs",
+    "number_of_columns": 9,
+    "number_of_rows": 19,
+    "total_data_size_bytes": 1576,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/appleWatchPhotoCollections/testdata.appleWatchPhotoCollections.appleWatchPhotoCollections.josh_ios17_ffs.zip",
+    "start_time": "2026-10-10T23:09:37.676348+00:00",
+    "end_time": "2026-10-10T23:09:37.747410+00:00",
+    "run_time_seconds": 0.0005419254302978516,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T23:09:37.743154",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Target Type",
+    "Collection ID",
+    "Title",
+    "Subtitle",
+    "Subtype",
+    "Asset ID Count",
+    "Key Asset ID Count",
+    "Other Keys",
+    "Device Registry ID"
+  ],
+  "data": [
+    [
+      "3",
+      "5E255B7E-25A1-47A0-9793-125B264BF7F2",
+      "Denmark",
+      "2023 Trip",
+      "",
+      16,
+      1,
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "04B887F5-CEF6-4BCC-A7D2-9C31D14DAD22",
+      "iOS 16 Album",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "8471FFC9-77A0-4EB9-86F4-2CED3E563D3C",
+      "Snapchat",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "F738E84D-E3E5-44B8-9254-6B7471CC0A31",
+      "WhatsApp",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "D3D77A75-2429-410C-80B0-8CF56390C022",
+      "iOS 15 Shared Album",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "134B2CDC-0DB1-45B6-AD51-DCE083F8BDEA",
+      "TeleGuard",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "6B8FF133-AA82-4950-AF22-E042369DE5F0",
+      "My Shared Album",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "AFE514F7-4162-4E23-9372-141C3C655E3D",
+      "Best Memes",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "3D28BB46-4779-433A-83EF-D3E1E4471E43",
+      "Favorites",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "4445DE60-98D0-4452-9F48-3B1EC79923FC",
+      "Skype",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "BD66818D-E578-4E63-BFAC-2100352B329D",
+      "Imgur",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "46A3A8CB-D414-4566-B032-6714CFB27150",
+      "Twitter",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "BC9DA630-759B-4073-9AC4-63AF77B2CCA0",
+      "iOS 16 Shared Album",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "582ED9A2-570A-4E1F-B37F-0BA5E8A93CCB",
+      "My Memes",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "397510C6-E4FC-46B8-BBCB-ABE0E9815CDC",
+      "Threema Media",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "978DFC7D-89A8-4D82-822D-C975C8B52935",
+      "Recents",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "4",
+      "AB229A36-1F80-4A2B-B865-631974DCCF26",
+      "Family",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "6",
+      "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
+      "",
+      "",
+      "",
+      2,
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ],
+    [
+      "1",
+      "3D28BB46-4779-433A-83EF-D3E1E4471E43",
+      "Favorites",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "48BEB26F-3064-4BEF-A616-AB96D8C5BD15"
+    ]
+  ]
+}
