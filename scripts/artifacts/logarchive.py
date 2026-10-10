@@ -305,9 +305,9 @@ __artifacts_v2__ = {
                        "start and end from callservicesd, Phone app open requests with the "
                        "originating process, Phone app tab changes, and keypad tone "
                        "requests (actionID 1200-1209 map to keypad digits 0-9)",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni & @Hexordia",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-09",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
@@ -320,7 +320,7 @@ __artifacts_v2__ = {
                  "iOS 18.7. The number "
                  "payloads in these particular entries are redacted to <private>; the "
                  "dialed numbers artifact collects the CommCenter call.provider block that "
-                 "carries the number in the clear.",
+                 "carries the number in the clear. Legacy ims query may yield full phone numbers.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "phone",
@@ -332,7 +332,7 @@ __artifacts_v2__ = {
                        "number, the teardown block carrying the same kUuid, the "
                        "Call(StatusUpdate) state chain, and MobilePhone "
                        "ContactSearchManager entries whose message text holds the contents "
-                       "of the Phone app dial field",
+                       "of the Phone app dial field.",
         "author": "@AlexisBrignoni",
         "creation_date": "2026-08-14",
         "last_update_date": "2026-08-14",
@@ -714,15 +714,16 @@ __artifacts_v2__ = {
         "name": "logarchive battery state",
         "description": "Unified log entries recording battery charge level changes posted "
                        "by powerd and battery info updates from PowerUIAgent",
-        "author": "@AlexisBrignoni",
+        "author": "@AlexisBrignoni & @Hexordia",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-09",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Patterns documented by Lionel Notari "
                  "(https://www.ios-unifiedlogs.com/post/ios-unified-logs-parsing-all-my-sql-queries); "
                  "observed on iOS 18.7. Complements the charger-connected entries in the "
-                 "logarchive artifacts filter with a charge-level timeline.",
+                 "logarchive artifacts filter with a charge-level timeline. Found device from PowerSourceController "
+                 "added to further complement the previous battery state patterns.",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "battery-charging",
@@ -999,10 +1000,11 @@ __artifacts_v2__ = {
         "description": "Unified log entries matching AirDrop and share sheet message text: the "
                        "device's AirDrop ID, discoverability "
                        "scanning mode (Everyone/Contacts Only/Off), SharingDaemon state "
-                       "dumps, share sheet activation, and transfer entries",
-        "author": "@AlexisBrignoni",
+                       "dumps, share sheet activation, transfer entries, discoverable mode, and partial sharing hashes "
+                       "for email and phone number",
+        "author": "@AlexisBrignoni & @Hexordia",
         "creation_date": "2026-08-01",
-        "last_update_date": "2026-08-01",
+        "last_update_date": "2026-10-09",
         "requirements": "logarchive module must be executed first",
         "category": "Unified Logs",
         "notes": "Documented by Sarah Edwards "
@@ -1018,7 +1020,8 @@ __artifacts_v2__ = {
                  "process, subsystem or category condition. 'Scanning mode' and 'startSending' are "
                  "short strings, and whether components other than AirDrop and the share sheet log "
                  "them was not measured, so read Process Image Path, Subsystem and Category on each "
-                 "row before attributing it.",
+                 "row before attributing it. Partial sharing hashes was documented by "
+                 "Geraldin Blay (https://gforce4n6.blogspot.com/2022/03/airdropping-some-knowledge-using-rleapp.html) ",
         "paths": None,
         "output_types": "standard",
         "artifact_icon": "share",
@@ -1431,6 +1434,22 @@ __artifacts_v2__ = {
             "iphone12_ios18": "iOS 18.7 | 5 rows; 5 sharingd, 0 terminusd",
             "hc_ios26": "iOS 26.5.2 | 46 rows; 46 sharingd, 0 terminusd",
         },
+    },
+    "logarchive_wake_source": {
+        "name": "logarchive wake source",
+        "description": "Unified log entries that give a source for the screen wake events "
+                       "as reported by Springboard. These events include ACPowerChange, HomeButton, "
+                       "LiftToWake, LockButton, Notification, Touch, and possibly others not yet observed.",
+        "author": "@Hexordia",
+        "creation_date": "2026-10-09",
+        "last_update_date": "2026-10-09",
+        "requirements": "logarchive module must be executed first",
+        "category": "Unified Logs",
+        "notes": "Rows are unified log entries selected by two filters, one on the subsystem of "
+                 "com.apple.SpringBoard and one on the event message for 'wake source'.",
+        "paths": None,
+        "output_types": "standard",
+        "artifact_icon": "sunrise",
     },
 }
 
@@ -1859,6 +1878,7 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%Received trusted open application request%'
         OR event_message LIKE '%Resuming to tab type%'
         OR event_message LIKE '%tab bar tab changed%'
+        OR (event_message LIKE '%Incoming call%' AND category LIKE 'ims')
         -- logarchive_dialed_numbers. The whole call.provider category is collected
         -- rather than a message pattern: the teardown block carries only kActionType
         -- and kUuid, with no distinctive text to anchor on. On the iOS 26.5.2 image
@@ -1941,6 +1961,7 @@ def logarchive_artifacts(context):
         -- logarchive_battery_state
         OR event_message LIKE '%Battery capacity change posted%'
         OR event_message LIKE '%battery info changed to%'
+        OR (event_message LIKE '%Found device%' AND category LIKE 'PowerSourceController')
         -- logarchive_battery_center_sources and logarchive_battery_center_devices
         OR (subsystem = 'com.apple.BatteryCenter'
             AND (event_message LIKE '%Found power source: {%'
@@ -1992,6 +2013,8 @@ def logarchive_artifacts(context):
         OR event_message LIKE '%New incoming transfer%'
         OR event_message LIKE '%alertLog: idx:%'
         OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
+        OR event_message LIKE 'Discoverable mode changed from%'
+        OR event_message LIKE 'Hashes in validation record:%'
         -- logarchive_wifi_status additions (password retrieval, auto-join with
         -- SSID in the clear, link loss, session duration)
         OR event_message LIKE '%Copy password for Network%'
@@ -2061,6 +2084,8 @@ def logarchive_artifacts(context):
         OR (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
         OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
         OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
+        -- logarchive_wake_source
+        OR (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
     )
     '''
 
@@ -2412,6 +2437,7 @@ def logarchive_calls(context):
         OR event_message LIKE '%Received trusted open application request%'
         OR event_message LIKE '%Resuming to tab type%'
         OR event_message LIKE '%tab bar tab changed%'
+        OR (event_message LIKE '%Incoming call%' AND category LIKE 'ims')
         -- Keypad tones: actionID 1200-1209 map to keypad digits 0-9
         OR event_message LIKE '%Incoming Request : actionID 120%'
     ''')
@@ -2572,6 +2598,7 @@ def logarchive_battery_state(context):
     return _artifacts_table_records(context, '''
         event_message LIKE '%Battery capacity change posted%'
         OR event_message LIKE '%battery info changed to%'
+        OR (event_message LIKE '%Found device%' AND category LIKE 'PowerSourceController')
     ''')
 
 
@@ -2785,6 +2812,8 @@ def logarchive_airdrop(context):
         OR event_message LIKE '%New incoming transfer%'
         OR event_message LIKE '%alertLog: idx:%'
         OR event_message LIKE '%Activating com.apple.sharing.sharesheet%'
+        OR event_message LIKE 'Discoverable mode changed from%'
+        OR event_message LIKE 'Hashes in validation record:%'
     ''')
 
 @artifact_processor
@@ -2864,4 +2893,10 @@ def logarchive_device_id(context):
         (subsystem LIKE '%com.apple.networkrelay%' AND process_image_path LIKE '%/usr/libexec/terminusd%' AND event_message LIKE '%Starting terminusd%')
         OR (process_image_path LIKE '%/usr/libexec/sharingd%' AND event_message LIKE '%Device Information:%')
         OR (process_image_path LIKE '%/usr/libexec/securityd%' AND category LIKE '%accountLogState%' AND event_message LIKE '%name:%')
+    ''')
+    
+@artifact_processor
+def logarchive_wake_source(context):
+    return _artifacts_table_records(context, '''
+        (subsystem LIKE '%com.apple.SpringBoard%' AND event_message LIKE 'wake source:%')
     ''')
