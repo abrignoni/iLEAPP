@@ -422,6 +422,20 @@ def main():
         lava_project_path = os.path.join(out_params.output_folder_base, lava_json_name)
         history.record_recent_run(leapp_name.lower(), leapp_version, lava_project_path)
 
+# Artifacts that read the iOS version from the input, in the order they run. last_build and
+# the iTunes backup Info.plist are handled in crunch_artifacts.
+VERSION_READERS = ('system_version_plist', 'Ph087UFEDdevcievaluesplist')
+
+
+def version_readers_first(plugins):
+    """Return the plugins with the version readers among them moved to the front.
+
+    Artifacts that choose a query by iOS version then find it set. Nothing is added,
+    and the rest keep their order."""
+    readers = [plugin for name in VERSION_READERS for plugin in plugins if plugin.name == name]
+    return readers + [plugin for plugin in plugins if plugin.name not in VERSION_READERS]
+
+
 @screen_log_session
 def crunch_artifacts(
         plugins: typing.Sequence[plugin_loader.PluginSpec], extracttype, input_path, out_params, wrap_text,
@@ -491,6 +505,7 @@ def crunch_artifacts(
 
     try:
         # Now ready to run
+        plugins[:] = version_readers_first(plugins)
         # add last_build at the start except for iTunes backups
         if extracttype != 'itunes':
             plugins.insert(0, loader["last_build"])
