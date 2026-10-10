@@ -1,6 +1,6 @@
 {
   "josh_ios17_ffs": {
-    "description": "Assets case is a compact composite: the collectionTargetMap, Photos.sqlite with its -wal and -shm, and only the 17 thumbnail files the listed assets resolve to.",
+    "description": "Assets case is a compact composite: the collectionTargetMap, a reduced Photos.sqlite that holds only the ZASSET table with the 17 rows of the listed assets copied from the image's database, and the 17 thumbnail files those assets resolve to.",
     "maker": "",
     "make_data": {
       "input_data_path": "EXTRACTION_FFS.zip",
@@ -31,7 +31,7 @@
           "*/mobile/Media/PhotoData/Photos.sqlite*",
           "*/mobile/Media/PhotoData/Thumbnails/V2/*"
         ],
-        "file_count": 21,
+        "file_count": 19,
         "expected_output": {
           "headers": [],
           "data": []
