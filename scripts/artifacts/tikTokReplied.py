@@ -30,8 +30,18 @@ __artifacts_v2__ = {
             "Databases in containers owned by any other app, or whose owning app cannot be "
             "established, are skipped and logged. On the tested images every matched "
             "database is in a TikTok-owned container; the exclusion of other containers is "
-            "therefore not exercised by a registered corpus."
-            "On an iTunes backup the seeker reconstructs the AppDomain path, which these patterns match, and the bundle-id container segment attributes the store to TikTok; that was exercised on a constructed backup (admin/test/scripts/test_tiktok_itunes_backup.py), not on a registered backup image (#801). A db.sqlite-backup file sits beside db.sqlite in each recorded path listing that holds a ChatFiles store, with the same modification time; the first pattern matches and stages it, but it is not read and its format was not examined here."
+            "therefore not exercised by a registered corpus. "
+            "On the two encrypted iTunes backups in sample_data (hickman_ios13_itunes_backup, "
+            "hickman_ios14_itunes_backup), which come from the same public image sets as hickman_ios13 and "
+            "hickman_ios14, this artifact returned no rows, as on those two full filesystem "
+            "images. "
+            "The db.sqlite-backup file beside db.sqlite is matched and staged by the first "
+            "pattern and is not read. On those two backups it is under 2 KB and is not a SQLite "
+            "database: it begins with the bytes 00 64 42 6D 53 74, the magic that the repair "
+            "module of Tencent's WCDB library defines for the file it saves sqlite_master "
+            "information to (SQLITERK_SM_MAGIC, "
+            "deprecated/android/addons/repair/sqliterk_output.cpp at commit 17ebdcb). Its body "
+            "was not decoded, and the file was not examined on a full filesystem image."
         ),
         "paths": (
             "*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*",
@@ -52,6 +62,8 @@ __artifacts_v2__ = {
             "abe_ios16": "iOS 16.5 | TikTok 30.0.0 | 0 rows",
             "hickman_ios13": "iOS 13.3.1 | TikTok - Make Your Day 15.4.0 | 0 rows",
             "hickman_ios14": "iOS 14.3 | TikTok 18.4.5 | 0 rows",
+            "hickman_ios13_itunes_backup": "iOS 13.3.1 | encrypted iTunes backup | 0 rows (TIMMessageNewPropertyORM empty, no TIMMessageKVORM)",
+            "hickman_ios14_itunes_backup": "iOS 14.3 | encrypted iTunes backup | 0 rows (TIMMessageNewPropertyORM empty, no TIMMessageKVORM)",
             "magnet_ios16": "iOS 16.1.1 | TikTok 27.0.1 | 0 rows",
         },
     }

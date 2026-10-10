@@ -6,19 +6,23 @@ reconstructs an AppDomain file as
 private/var/mobile/Containers/Data/Application/<bundle id>/<relativePath>, which the
 patterns match, and the artifacts attribute a container named by a bundle id to that app.
 Nothing pinned that, so these tests build an unencrypted backup (Manifest.db, Manifest.plist
-and the hashed files) holding a TikTok chat store, the db.sqlite-backup copy that sits
-beside it on every recorded listing, and an AwemeIM.db, then run the seeker and the
-artifacts the way the runner does.
+and the hashed files) holding a TikTok chat store, the db.sqlite-backup file that sits
+beside it, and an AwemeIM.db, then run the seeker and the artifacts the way the runner does.
 
-The db.sqlite-backup copy is matched and staged but not read; that is asserted here so a
-change to either side of that line shows up.
+The db.sqlite-backup file is matched and staged but not read; that is asserted here so a
+change to either side of that line shows up. It is not a SQLite database: on the two
+registered Hickman iTunes backups it is under 2 KB and begins with the magic WCDB's
+deprecated repair module defines for the file it saves sqlite_master information to
+(SQLITERK_SM_MAGIC), so the stand-in built here is that header and nothing else.
 """
 import hashlib
+import json
 import os
 import pathlib
 import plistlib
 import shutil
 import sqlite3
+import struct
 import sys
 import tempfile
 import types
@@ -32,7 +36,7 @@ from scripts.search_files import FileSeekerItunes  # pylint: disable=wrong-impor
 from scripts.artifacts import tikTok, tikTokReplied  # pylint: disable=wrong-import-position
 
 DOMAIN = 'AppDomain-com.zhiliaoapp.musically'
-ACCOUNT = '6787436503258760198'
+ACCOUNT = '7000000000000000002'
 CONTACT = '7000000000000000001'
 CONTAINER = 'private/var/mobile/Containers/Data/Application/com.zhiliaoapp.musically'
 CHAT_STORE = f'Library/Application Support/ChatFiles/{ACCOUNT}/db.sqlite'
@@ -52,10 +56,16 @@ def build_backup(backup):
             ('m1', 1700000000, 1700000001, {ACCOUNT}, '{{"text":"sent"}}', 'conv1', 0),
             ('m2', 1700000100, 1700000101, {CONTACT}, '{{"text":"received"}}', 'conv1', 0);
     ''')
+    # m2 is a reply to m1: the store keeps its own copy of the replied-to message.
+    hint = json.dumps({'content': json.dumps({'text': 'sent'}), 'refmsg_uid': int(ACCOUNT)})
+    db.execute('INSERT INTO TIMMessageKVORM(belongingMessageID, key, value) VALUES (?,?,?)',
+               ('m2', 'ref', json.dumps({'ref_msg_type': 7, 'ref_msg_id': 'm1', 'hint': hint})))
     db.commit()
     db.close()
-    backup_copy = os.path.join(work, 'db.sqlite-backup')
-    shutil.copy2(chat, backup_copy)
+    backup_file = os.path.join(work, 'db.sqlite-backup')
+    with open(backup_file, 'wb') as f:
+        # magic, version, entity count, 16-byte salt field; no entities follow.
+        f.write(b'\x00dBmSt' + struct.pack('<HI', 1, 0) + bytes(16))
     aweme = os.path.join(work, 'AwemeIM.db')
     db = sqlite3.connect(aweme)
     db.executescript(f'''
@@ -68,7 +78,7 @@ def build_backup(backup):
     db.commit()
     db.close()
 
-    files = [(CHAT_STORE, chat), (CHAT_STORE + '-backup', backup_copy), ('Documents/AwemeIM.db', aweme)]
+    files = [(CHAT_STORE, chat), (CHAT_STORE + '-backup', backup_file), ('Documents/AwemeIM.db', aweme)]
     meta = plistlib.dumps({'Birth': 1700000000, 'LastModified': 1700000200}, fmt=plistlib.PlistFormat.FMT_BINARY)
     manifest = sqlite3.connect(os.path.join(backup, 'Manifest.db'))
     manifest.execute('CREATE TABLE Files(fileID TEXT PRIMARY KEY, domain TEXT, relativePath TEXT, '
@@ -129,7 +139,7 @@ class TikTokITunesBackupTests(unittest.TestCase):
         names = [h[0] if isinstance(h, tuple) else h for h in headers]
         return names, rows, source, files_found
 
-    def test_messages_are_read_from_the_backup_and_the_copy_is_staged_but_not_read(self):
+    def test_messages_are_read_and_the_backup_file_is_staged_but_not_read(self):
         names, rows, source, files_found = self.run_artifact(tikTok, 'tiktok_messages')
 
         staged = sorted(Context.get_relative_path(path) for path in files_found)
@@ -159,10 +169,22 @@ class TikTokITunesBackupTests(unittest.TestCase):
         self.assertEqual({row[names.index('Source File')] for row in rows},
                          {f'{CONTAINER}/Documents/AwemeIM.db'})
 
-    def test_replied_messages_run_over_the_backup_without_rows(self):
-        _, rows, _, _ = self.run_artifact(tikTokReplied, 'tiktok_replied')
+    def test_a_replied_message_is_read_from_the_backup(self):
+        names, rows, _, _ = self.run_artifact(tikTokReplied, 'tiktok_replied')
 
-        self.assertEqual(rows, [])
+        self.assertEqual(len(rows), 1)
+        row = dict(zip(names, rows[0]))
+        self.assertEqual(row['BelongingMessageID'], 'm2')
+        self.assertEqual(row['ref_msg_id'], 'm1')
+        self.assertEqual(row['Referenced Text'], 'sent')
+        self.assertEqual(row['Ref Msg Sender Nickname'], 'The Account')
+        self.assertEqual(row['Reply Text'], 'received')
+        self.assertEqual(row['Reply Sender Nickname'], 'Contact One')
+        self.assertEqual(row['Deleted'], 'False')
+        self.assertEqual(row['Parser Table'], 'TIMMessageKVORM')
+        self.assertEqual(row['Account ID'], ACCOUNT)
+        self.assertEqual(row['Source File'],
+                         f'{CONTAINER}/{CHAT_STORE}; {CONTAINER}/Documents/AwemeIM.db')
 
 
 if __name__ == '__main__':
