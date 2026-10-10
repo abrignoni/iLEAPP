@@ -16,8 +16,7 @@ name: Release
 # a workflow_dispatch rehearsal without the secrets still builds, unsigned.
 #
 # Windows ships one download, a portable zip holding the program as a single ileapp.exe.
-# No installer: code signing is limited to 48 GB a year across the five LEAPPs, and an
-# installer would be a second file to sign, as well as the folder build inside it.
+# No installer: it would be a second file to sign, as well as the folder build inside it.
 # The executable is signed by SignPath when SIGNPATH_API_TOKEN is set, then verified and
 # smoke-tested again. SignPath's test certificate is for rehearsals, so a tag signs only
 # under the release-signing policy and is otherwise built unsigned, as before. The
