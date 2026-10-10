@@ -1,0 +1,78 @@
+{
+  "metadata": {
+    "module_name": "mediaExperience",
+    "artifact_name": "Media Experience State",
+    "function_name": "mediaExperienceState",
+    "case_number": "dexter_ios18",
+    "number_of_columns": 2,
+    "number_of_rows": 12,
+    "total_data_size_bytes": 533,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/mediaExperience/testdata.mediaExperience.mediaExperienceState.dexter_ios18.zip",
+    "start_time": "2026-10-10T19:31:21.270849+00:00",
+    "end_time": "2026-10-10T19:31:21.324677+00:00",
+    "run_time_seconds": 0.00026488304138183594,
+    "last_commit": {
+      "hash": "Uncommitted",
+      "author_name": "N/A",
+      "author_email": "N/A",
+      "date": "2026-10-10T19:31:21.321846",
+      "message": "File not yet committed to git"
+    }
+  },
+  "headers": [
+    "Key",
+    "Value"
+  ],
+  "data": [
+    [
+      "nowPlayingAppDisplayID",
+      "com.apple.Music"
+    ],
+    [
+      "nowPlayingAppDisplayIDStack[0]",
+      "com.espn.ScoreCenter"
+    ],
+    [
+      "nowPlayingAppDisplayIDStack[1]",
+      "com.google.calendar"
+    ],
+    [
+      "nowPlayingAppDisplayIDStack[2]",
+      "com.google.ios.youtube"
+    ],
+    [
+      "nowPlayingAppDisplayIDStack[3]",
+      "com.apple.Music"
+    ],
+    [
+      "nowPlayingAppDisplayIDUponCarPlayDisconnect",
+      "com.apple.Music"
+    ],
+    [
+      "nowPlayingAppHostProcessAttributionBundleID.com.google.ios.youtube",
+      "com.google.ios.youtube"
+    ],
+    [
+      "nowPlayingAppWasPlayingUponCarPlayDisconnect",
+      "True"
+    ],
+    [
+      "silentModeClientType",
+      "1"
+    ],
+    [
+      "silentModeEnabled",
+      "True"
+    ],
+    [
+      "silentModeReason",
+      "Local Ringer Action"
+    ],
+    [
+      "volumeMultiplier.global",
+      "0.5625"
+    ]
+  ]
+}
