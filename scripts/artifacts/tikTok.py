@@ -5,7 +5,7 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok message data from the ChatFiles databases",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-10-04",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -40,7 +40,8 @@ __artifacts_v2__ = {
             "TikTok-owned container; the exclusion of foreign and unattributable containers was "
             "exercised on constructed test data, not on a registered image. "
             "Reference: G. Horsman & L. Shou, 'Case Study: Forensic Analysis of TikTok on iOS', "
-            "DFIR Review 2022, https://dfir.pubpub.org/pub/h6vyh33u"
+            "DFIR Review 2022, https://dfir.pubpub.org/pub/h6vyh33u."
+            "On an iTunes backup the seeker reconstructs the AppDomain path, which these patterns match, and the bundle-id container segment attributes the store to TikTok; that was exercised on a constructed backup (admin/test/scripts/test_tiktok_itunes_backup.py), not on a registered backup image (#801). A db.sqlite-backup file sits beside db.sqlite in each recorded path listing that holds a ChatFiles store, with the same modification time; the first pattern matches and stages it, but it is not read and its format was not examined here."
         ),
         "paths": (
             "*/Application/*/Library/Application Support/ChatFiles/*/db.sqlite*",
@@ -79,7 +80,7 @@ __artifacts_v2__ = {
         "description": "Extracts TikTok contact data from AwemeIM.db",
         "author": "James Habben, John Hyla",
         "creation_date": "2024-11-08",
-        "last_update_date": "2026-08-29",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "TikTok",
         "notes": (
@@ -93,7 +94,11 @@ __artifacts_v2__ = {
             "containers owned by any other app, or whose owning app cannot be established, "
             "are skipped and logged. On the tested images every matched database is in a "
             "TikTok-owned container; the exclusion of foreign and unattributable containers "
-            "was exercised on constructed test data, not on a registered image."
+            "was exercised on constructed test data, not on a registered image. On an iTunes "
+            "backup the seeker reconstructs the AppDomain path, which the pattern matches, and the "
+            "bundle-id container segment attributes the store to TikTok; that was exercised on a "
+            "constructed backup (admin/test/scripts/test_tiktok_itunes_backup.py), not on a "
+            "registered backup image (#801)."
         ),
         "paths": (
             "*AwemeIM.db*",
