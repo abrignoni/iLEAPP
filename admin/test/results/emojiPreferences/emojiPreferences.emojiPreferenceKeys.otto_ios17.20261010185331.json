@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "module_name": "emojiPreferences",
+    "artifact_name": "Emoji Preferences",
+    "function_name": "emojiPreferenceKeys",
+    "case_number": "otto_ios17",
+    "number_of_columns": 2,
+    "number_of_rows": 15,
+    "total_data_size_bytes": 801,
+    "media_checkins": 0,
+    "media_embedded_checkins": 0,
+    "input_zip_path": "admin/test/cases/data/emojiPreferences/testdata.emojiPreferences.emojiPreferenceKeys.otto_ios17.zip",
+    "start_time": "2026-10-10T18:53:31.460562+00:00",
+    "end_time": "2026-10-10T18:53:31.480855+00:00",
+    "run_time_seconds": 0.0004169940948486328,
+    "last_commit": {
+      "hash": "d0e1bc7aaa678b88303c7abfeaae0a138a982b81",
+      "author_name": "ayobamiseun",
+      "author_email": "adegokeayobamiseun@gmail.com",
+      "date": "2026-10-10T13:53:22+01:00",
+      "message": "Add Emoji Recents and Usage and Emoji Preferences artifacts (#1876)"
+    }
+  },
+  "headers": [
+    "Key",
+    "Value"
+  ],
+  "data": [
+    [
+      "DidMigrateToEMF",
+      "True"
+    ],
+    [
+      "EMFDefaultsKey.EMFDidDisplaySkinToneHelpKey",
+      "True"
+    ],
+    [
+      "EMFDefaultsKey.EMFPreviouslyUsedCategoryKey",
+      "EMFEmojiCategoryRecents"
+    ],
+    [
+      "EMFDefaultsKey.EMFRecentSequenceNumberKey",
+      "174"
+    ],
+    [
+      "EMFDefaultsKey.EMFSkinToneBaseKeyPreferences.\u270c\ufe0f",
+      "\u270c\ufe0f"
+    ],
+    [
+      "EMFDefaultsKey.EMFSkinToneBaseKeyPreferences.\ud83d\udc4b",
+      "\ud83d\udc4b"
+    ],
+    [
+      "EMFDefaultsKey.EMFSkinToneBaseKeyPreferences.\ud83d\udc4c",
+      "\ud83d\udc4c\ud83c\udfff"
+    ],
+    [
+      "EMFDefaultsKey.EMFSkinToneBaseKeyPreferences.\ud83d\udc6e",
+      "\ud83d\udc6e"
+    ],
+    [
+      "EMFDefaultsKey.EMFSkinToneBaseKeyPreferences.\ud83d\ude4c",
+      "\ud83d\ude4c"
+    ],
+    [
+      "EMFDefaultsKey.EMFSkinToneBaseKeyPreferences.\ud83d\ude4f",
+      "\ud83d\ude4f"
+    ],
+    [
+      "EMFDefaultsKey.EMFSkinToneBaseKeyPreferences.\ud83e\uddd1\u200d\ud83c\udf73",
+      "\ud83e\uddd1\u200d\ud83c\udf73"
+    ],
+    [
+      "EMFDefaultsKey.EMFTypingNamesKey.\ud83d\udc4b.en-US",
+      "Hola"
+    ],
+    [
+      "EMFDefaultsKey.EMFViewedInCategoryKey.EMFEmojiCategoryFlags",
+      "1"
+    ],
+    [
+      "EMFDefaultsKey.EMFViewedInCategoryKey.EMFEmojiCategoryPeople",
+      "80"
+    ],
+    [
+      "EMFDefaultsKey.EMFViewedInCategoryKey.EMFEmojiCategoryRecents",
+      "11"
+    ]
+  ]
+}
