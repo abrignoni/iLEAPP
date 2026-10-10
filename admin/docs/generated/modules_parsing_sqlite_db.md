@@ -220,6 +220,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | ZangiChats |
 | amazonShopping |
 | appleWalletPasses |
+| appleWatchMailRegistry |
 | applicationStateDB |
 | biomeSetsStores |
 | bluetoothOther |
