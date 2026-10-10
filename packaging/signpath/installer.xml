@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  SignPath artifact configuration "installer", pasted into the iLEAPP project in SignPath
-  under that slug. Kept here so a change to it is reviewed like any other change; SignPath
-  uses its own copy, so edit both.
-
-  release.yml uploads the Inno Setup installer as setup.exe, a fixed name, after it has
-  been built around the already signed one-folder build.
+  SignPath artifact configuration "installer", pasted into the iLEAPP repository.
+  SignPath uses its own copy, so edit both in case of changes.
 -->
 <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
   <zip-file>

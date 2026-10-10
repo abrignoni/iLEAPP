@@ -118,11 +118,13 @@ Measured on 2026-09-27, macOS arm64, Python 3.14.7, PyInstaller 6.22.3: phase 1 
 ## What is and is not wired up
 
 Windows (x64 and ARM64): the folder build, an Inno Setup installer around it, which on
-ARM64 installs only on ARM64, and a `--onefile` build, the portable download. The
+ARM64 installs only on ARM64, and a `--onefile` build, zipped alone as the portable
+download so it keeps the name `ileapp.exe` that the docs and calling tools use. The
 installer keeps the folder build because the single file unpacks itself to `%TEMP%` on
 every start: slower to start, and blocked where AppLocker or WDAC forbid running programs
-from `%TEMP%`. The single file replaced a portable zip of the folder, whose `_internal`
-directory confused users; the releases before 2026-09-28 were single files too. macOS (Apple silicon and Intel): `.app` and `.dmg`. The `.dmg` is
+from `%TEMP%`. The portable zip used to hold the folder build, whose `_internal`
+directory confused users; the releases before 2026-09-28 were single files too.
+macOS (Apple silicon and Intel): `.app` and `.dmg`. The `.dmg` is
 laid out by dmgbuild from `packaging/dmg_settings.py`: the app and an Applications link
 either side of the arrow on `packaging/dmg_background.png`. The settings place the icons
 for that 960x540 image, so a new background keeps its size and its arrow where it is.
@@ -144,7 +146,7 @@ requests that touch packaging.
 
 `release.yml` runs the same steps when a `v*` tag is pushed, refuses a tag that is not
 `v` + `leapp_version`, names the assets `iLEAPP-<version>-<platform>-<arch>` (setup.exe and
-portable.exe on Windows, .dmg on macOS, .AppImage on Linux; no Linux .tar.gz), adds
+portable.zip on Windows, .dmg on macOS, .AppImage on Linux; no Linux .tar.gz), adds
 `SHA256SUMS.txt`, and creates a **draft** release; publishing is a click. Dispatched by
 hand, it builds the assets without creating a release. `.github/release-footer.md` is
 appended to the notes. macOS is signed with a Developer ID, smoke-tested again as signed
@@ -171,6 +173,6 @@ the way macOS does, since the footer will then promise a signature.
 
 These names replaced the per-program downloads (`ileappGUI-v*-Windows_x86_64.zip` and the
 like), which leapps.org and the README linked to. Tools such as Autopsy run `ileapp` from a
-release, and the footer tells them what changed for them: the Windows portable download
-is one file again, the installed and macOS executables need their folder, and `ileappGUI`
+release, and the footer tells them what changed for them: the Windows portable zip
+holds one file again, the installed and macOS executables need their folder, and `ileappGUI`
 is gone. Keep that note while those names are new.

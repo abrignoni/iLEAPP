@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  SignPath artifact configuration "executables", pasted into the iLEAPP project in SignPath
-  under that slug. Kept here so a change to it is reviewed like any other change; SignPath
-  uses its own copy, so edit both.
+  SignPath artifact configuration "executables", pasted into the iLEAPP repository.
+  SignPath uses its own copy, so edit both in case of changes.
 
   release.yml uploads both Windows executables as one GitHub artifact, which GitHub zips:
   folder/ileapp.exe is the one-folder build the installer packages, portable/ileapp.exe the

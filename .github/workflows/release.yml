@@ -444,9 +444,10 @@ jobs:
           rm -f "$RUNNER_TEMP/notary.p8" "$RUNNER_TEMP/cert.p12"
 
       # Release assets are single files: an installer or disk image per platform, and on
-      # Windows the single-file executable as the portable download. Linux ships the
-      # AppImage alone. The names carry the platform and the architecture, because a reader cannot
-      # tell from "iLEAPP-2026.5.0.dmg" whether it runs on their Mac. They are gathered
+      # Windows a portable zip holding the single-file ileapp.exe, under the name the
+      # docs and the tools that run it use. Linux ships the AppImage alone. The names
+      # carry the platform and the architecture, because a reader cannot tell from
+      # "iLEAPP-2026.5.0.dmg" whether it runs on their Mac. They are gathered
       # in release-assets/, not assets/ as in GLEAPP: iLEAPP's assets/ holds the window's
       # images, and a rehearsal published them with the release and listed them in
       # SHA256SUMS.txt.
@@ -458,7 +459,7 @@ jobs:
           STEM="iLEAPP-$VERSION-${{ matrix.platform }}-$ARCH"
           case "$RUNNER_OS" in
             Windows)
-              mv dist/ileapp.exe "release-assets/$STEM-portable.exe"
+              powershell -NoProfile -Command "Compress-Archive -Path 'dist/ileapp.exe' -DestinationPath 'release-assets/$STEM-portable.zip'"
               mv "dist/iLEAPP-Setup-$VERSION.exe" "release-assets/$STEM-setup.exe"
               ;;
             macOS)

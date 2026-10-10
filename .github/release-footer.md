@@ -5,8 +5,8 @@
 
 | Platform | File |
 |---|---|
-| Windows 10 or 11, 64-bit Intel or AMD | `-windows-x64-setup.exe` (installer), or `-windows-x64-portable.exe` to run without installing |
-| Windows 11 on ARM | `-windows-arm64-setup.exe`, or `-windows-arm64-portable.exe` |
+| Windows 10 or 11, 64-bit Intel or AMD | `-windows-x64-setup.exe` (installer), or `-windows-x64-portable.zip` to run without installing |
+| Windows 11 on ARM | `-windows-arm64-setup.exe`, or `-windows-arm64-portable.zip` |
 | macOS, Apple silicon | `-macos-arm64.dmg` |
 | macOS, Intel | `-macos-x64.dmg` |
 | Linux, 64-bit Intel or AMD | `-linux-x64.AppImage` |
@@ -22,12 +22,12 @@ terminal, it is the command line. On macOS the command line is inside the app:
 
 **For tools that run iLEAPP themselves.** The options, output and exit codes of `ileapp`
 are those of earlier releases, but there is no `ileappGUI` any more, since `ileapp`
-without arguments opens the window. On Windows the portable download is the whole
-program in one file: rename it `ileapp.exe` and put it wherever the tool expects it. The
-installed `ileapp.exe`, and the one inside the macOS app, need the folder they came in;
-on Linux the AppImage is the whole program.
+without arguments opens the window. On Windows the portable zip holds the whole program
+as one file, `ileapp.exe`, which can be put wherever the tool expects it. The installed
+`ileapp.exe`, and the one inside the macOS app, need the folder they came in; on Linux
+the AppImage is the whole program.
 
-**The Windows portable executable** unpacks itself to a temporary folder each time it
+**The portable `ileapp.exe` on Windows** unpacks itself to a temporary folder each time it
 starts, so it takes a few seconds longer to start than the installed program, and it does
 not run where a policy (AppLocker, WDAC) forbids running programs from the temporary
 folder. Use the installer there.
