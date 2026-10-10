@@ -158,6 +158,44 @@ looks like. A file that runs past the end of the image is named in the log and
 not staged, because a truncated database parses as a smaller one rather than as
 an error.
 
+## Free space
+
+A volume's free space is a member too, but one only a pattern that asks for it can
+reach. For every volume whose filesystem reports what is free (the reader's
+`free_extents()`: qnx6, F2FS, FAT32, exFAT, NTFS, HFS+ and APFS) the member list
+gains one name, kept apart from the files in `free_list`:
+
+    <volume>/$Unallocated/<image name>.<volume>.unallocated.bin
+
+Only a pattern whose last segment ends in `.unallocated.bin` is matched against it
+(`names_free_space()`), the way only a pattern that names a stream is matched against
+alternate data streams. A broad pattern such as `*` or `*.bin` never stages free
+space, and nothing is read for it until a pattern matches, so a run that selects no
+such artifact costs nothing more than before.
+
+Staging it calls the reader's own `write_unallocated()`, so the copy is what
+`qnxprobe --unallocated` writes: the free runs one after another, and a `.tsv`
+beside the copy that maps each run to its offset in the image. Two neighbours in
+that file were not neighbours on the disk, so an artifact that reads records out of
+it should read the map and never read a record across two runs. A volume whose
+allocation map could not be read, or that reports nothing free, gives no file, and
+the run log says which.
+
+The reason to have it: a rolled or deleted file's blocks are released, not erased.
+This was measured in VLEAPP, where the change was made (VLEAPP #328), and has not
+been measured in this tool. On a 29.1 GiB Ford SYNC 4 image (key `ford_syncg4`),
+whose platform log rolls, the image holds 718,195 log lines and the live log files
+about 107,000 of them; the rest sit in blocks the qnx6 bitmap marks free. A VLEAPP
+run that selected its five platform log artifacts staged 14.2 GiB of free space
+from the storage volume in 5,422 runs (and 27.5 MiB from two small volumes),
+finished in 3 minutes 8 seconds, and gave 2,379 position rows where the live files
+alone give 120. The same artifacts pointed at the whole image file gave 2,381: the
+two more are lines that cross from an allocated block into a free one, which only a
+read of the whole image sees.
+
+What it costs is the write: the free space of every volume a pattern matches goes
+into the data folder, 14.2 GiB in that VLEAPP run.
+
 ## Logical evidence
 
 An EnCase `.L01` or an FTK Imager `.ad1` holds copies of files rather than a disk, so
@@ -196,7 +234,8 @@ for it, so no report field carries a zone the evidence never had.
 
 ## What it does not do
 
-- It reads live files. Deleted records the reader can recover on NTFS, FAT32
+- It reads live files, and a volume's free space for a pattern that asks for it
+  (see Free space above). Deleted records the reader can recover on NTFS, FAT32
   and exFAT are not staged, nor are the entries an AD1 lists as deleted.
 - It does not re-root a bare partition image. A raw image of an Android
   `userdata` partition has `data/`, `media/` and `system/` at its root rather

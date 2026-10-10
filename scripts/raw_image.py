@@ -523,6 +523,19 @@ def names_a_stream(filepattern):
     return ':' in filepattern.replace('\\', '/').rpartition('/')[2]
 
 
+FREE_SPACE_FOLDER = '$Unallocated'
+FREE_SPACE_SUFFIX = '.unallocated.bin'
+
+
+def names_free_space(filepattern):
+    """True when a pattern's last segment ends in ``.unallocated.bin``, which is how a
+    pattern asks for a volume's free space (``*.unallocated.bin``). Only such a
+    pattern is matched against the free space members: a volume's free space can
+    run to many gigabytes, and a broad pattern must never stage it by accident."""
+    last = filepattern.replace('\\', '/').rpartition('/')[2]
+    return last.lower().endswith(FREE_SPACE_SUFFIX)
+
+
 def split_image_sibling(image_path):
     """The next segment of a split image, when this file is one segment of it.
 
@@ -623,6 +636,13 @@ class FileSeekerRaw(FileSeekerBase):
     matched only by a pattern that names a stream (see ``names_a_stream``).
     ``name_list`` is exactly what it was without them, order included.
 
+    A volume's free space is a member too, kept apart in ``free_list`` and matched
+    only by a pattern that asks for it (see ``names_free_space``). It is named
+    ``<volume>/$Unallocated/<image>.<volume>.unallocated.bin``, the name the
+    reader's own free space writer gives the file, and nothing is read for it until
+    a pattern matches. Staging it writes the free runs one after another, with a
+    ``.tsv`` beside the copy that maps each run back to its offset in the image.
+
     ``password`` is what opens the image and the encrypted volumes in it: ImageKeys,
     or a bare password, as earlier callers passed.
     """
@@ -636,7 +656,10 @@ class FileSeekerRaw(FileSeekerBase):
         self.file_infos = {}
         self.name_list = []
         self.stream_list = []
+        self.free_list = []
         self.volumes = []
+        self._free = {}
+        self._size = 0
         self._entries = {}
         self._image = None
         try:
@@ -677,6 +700,7 @@ class FileSeekerRaw(FileSeekerBase):
         self._image = qnxprobe.open_image(self.image_path, segments, password=keys.password,
                                           private_key=keys.private_key)
         size = qnxprobe.image_size(self._image)
+        self._size = size
         if segments:
             logfunc(f'  {len(segments):,} segments joined in order, '
                     f'{os.path.basename(segments[0])} .. '
@@ -735,6 +759,17 @@ class FileSeekerRaw(FileSeekerBase):
             if streams:
                 logfunc(f'    and {streams:,} alternate data streams, matched only by a '
                         f'pattern that names one')
+        image_name = os.path.basename(self.image_path)
+        for vol in self.volumes:
+            if getattr(vol.get('walker'), 'free_extents', None) is None:
+                continue
+            member = (f"{vol['name']}/{FREE_SPACE_FOLDER}/"
+                      f"{image_name}.{vol['name']}{FREE_SPACE_SUFFIX}")
+            self.free_list.append(member)
+            self._free[member] = vol
+        if self.free_list:
+            logfunc(f'  {len(self.free_list):,} volumes can give their free space, to a '
+                    f'pattern that asks for it (*{FREE_SPACE_SUFFIX})')
         logfunc(f'File listing complete - {len(self.name_list):,} members'
                 + (f' and {len(self.stream_list):,} streams' if self.stream_list else ''))
 
@@ -978,6 +1013,8 @@ class FileSeekerRaw(FileSeekerBase):
         members = self.name_list
         if self.stream_list and names_a_stream(filepattern):
             members = self.name_list + self.stream_list
+        if self.free_list and names_free_space(filepattern):
+            members = members + self.free_list
         for member in members:
             if pat(root + normcase(member)) is None:
                 continue
@@ -1017,6 +1054,8 @@ class FileSeekerRaw(FileSeekerBase):
         partial or empty copy is never left where a pattern could find it,
         because a truncated database parses as a smaller one, not as an error.
         """
+        if member in self._free:
+            return self._stage_free_space(member)
         intended = self._intended_path(member)
         if member.endswith('/'):
             # Case-variant directories fold into one on a case-insensitive
@@ -1101,6 +1140,34 @@ class FileSeekerRaw(FileSeekerBase):
                 created = 0
         self.file_infos[dest_path] = FileInfo(member, created, modified)
         return dest_path
+
+    def _stage_free_space(self, member):
+        """Write one volume's free space under the data folder. Returns the staged
+        path, or None when the volume gave none.
+
+        The reader's own writer does the work, so what an examiner gets here is
+        what ``qnxprobe --unallocated`` writes: the free runs in order, a ``.tsv``
+        beside them mapping each run to its offset in the image, a run past the
+        end of a partial image cut there, and nothing written when the volume's
+        allocation map could not be read or reports nothing free.
+        """
+        vol = self._free[member]
+        intended = self._intended_path(member)
+        out_dir = os.path.dirname(intended)
+        os.makedirs(out_dir, exist_ok=True)
+        if os.path.isfile(intended):
+            # a forced second search: the writer never overwrites, and the copy is there
+            return intended
+        records = qnxprobe.write_unallocated(
+            self._image, self._size, [vol], out_dir, os.path.basename(self.image_path),
+            say=logfunc)
+        record = records[0] if records else {}
+        if record.get('status') != 'written':
+            logfunc(f"Not staged, {member}: {record.get('status', 'no free space reported')}")
+            return None
+        staged = os.path.join(out_dir, record['file'])
+        self.file_infos[staged] = FileInfo(member, 0, 0)
+        return staged
 
     @staticmethod
     def _discard(path):
