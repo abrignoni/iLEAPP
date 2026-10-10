@@ -74,19 +74,22 @@ __artifacts_v2__ = {
     },
     "chatgptMediaUploads": {
         "name": "ChatGPT - Media Uploads",
-        "description": "Images from application tmp directories collected alongside ChatGPT research; "
-                       "container attribution is best-effort and media from other apps can appear (see notes)",
+        "description": "Images in the tmp directory of the ChatGPT app container, when a ChatGPT "
+                       "marker file identifies that container",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "ChatGPT",
-        "notes": "Rows are limited to the ChatGPT app container only when a ChatGPT marker file "
-                 "(a conversations-* store or com.openai.chat plist) identifies that container; "
-                 "without a marker, tmp media from other apps matching the path patterns is included, "
-                 "and in sample_data every image that returned rows lists apps other than ChatGPT, "
-                 "while the three images that list ChatGPT returned no rows. Only .png files are "
-                 "reported. A row is not evidence that a file was uploaded to ChatGPT.",
+        "notes": "The tmp patterns match every app container, and a container is only known to be "
+                 "ChatGPT's when a ChatGPT marker file (a conversations-* store or com.openai.chat "
+                 "plist) sits in it. Rows are reported only from that container; with no marker, "
+                 "nothing is reported, because the matched files belong to whichever app owns the "
+                 "container (#1732). Before this, every image in sample_data that returned rows "
+                 "returned tmp images of other apps; those entries now record 0 rows, derived from "
+                 "the absence of a marker rather than from a new run. The three images that hold "
+                 "ChatGPT returned no rows. Only .png files are reported. A row is not evidence "
+                 "that a file was uploaded to ChatGPT.",
         "paths": ('**/Containers/Data/Application/*/tmp/photo-*.png',
                   '**/Containers/Data/Application/*/tmp/*/*.png',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
@@ -96,30 +99,34 @@ __artifacts_v2__ = {
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 0 rows",
-            "fsfull002_ios17": "iOS 17.1 | Text Me - Phone Call + Texting 3.35.9 | 2 rows",
-            "hc_ios18_7": "iOS 18.7.8 | Kik Messaging & Chat App 17.11.3 | 1 row",
-            "iphone11_ios17": "iOS 17.3 | Kik Messaging & Chat App 16.16.1, Imgur: Funny Memes & GIF Maker 2023.23.1, WhatsApp Messenger 24.15.1 | 6 rows",
+            "fsfull002_ios17": "iOS 17.1 | no ChatGPT marker file; tmp images of Text Me - Phone Call + Texting 3.35.9 no longer reported | 0 rows",
+            "hc_ios18_7": "iOS 18.7.8 | no ChatGPT marker file; tmp images of Kik Messaging & Chat App 17.11.3 no longer reported | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | no ChatGPT marker file; tmp images of Kik Messaging & Chat App 16.16.1, Imgur: Funny Memes & GIF Maker 2023.23.1, WhatsApp Messenger 24.15.1 no longer reported | 0 rows",
             "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 0 rows",
-            "abe_ios16": "iOS 16.5 | Clime: NOAA Weather Radar Live 4.39.2, Grindr - Gay Dating & Chat 9.11.1 | 3 rows",
-            "felix23_ios16": "iOS 16.5 | Private Photo Vault - Pic Safe 15.3, SV - Private Photo Vault PRO 15.3 | 4 rows",
-            "hickman_ios13": "iOS 13.3.1 | TextNow: Call + Text Unlimited 20.10.0 | 8 rows",
+            "abe_ios16": "iOS 16.5 | no ChatGPT marker file; tmp images of Clime: NOAA Weather Radar Live 4.39.2, Grindr - Gay Dating & Chat 9.11.1 no longer reported | 0 rows",
+            "felix23_ios16": "iOS 16.5 | no ChatGPT marker file; tmp images of Private Photo Vault - Pic Safe 15.3, SV - Private Photo Vault PRO 15.3 no longer reported | 0 rows",
+            "hickman_ios13": "iOS 13.3.1 | no ChatGPT marker file; tmp images of TextNow: Call + Text Unlimited 20.10.0 no longer reported | 0 rows",
         }
     },
     "chatgptVoicePrompts": {
         "name": "ChatGPT - Voice Prompts",
-        "description": "Audio recordings from application tmp directories associated with the ChatGPT app "
-                       "where identifiable",
+        "description": "Audio recordings in the tmp directory of the ChatGPT app container, when a "
+                       "ChatGPT marker file identifies that container",
         "author": "Evangelos Dragonas (@theAtropos4n6)",
         "creation_date": "2024-07-14",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-10-10",
         "requirements": "none",
         "category": "ChatGPT",
-        "notes": "Rows are limited to the ChatGPT app container only when a ChatGPT marker file "
-                 "(a conversations-* store or com.openai.chat plist) identifies that container; "
-                 "without a marker, tmp media from other apps matching the path patterns is included, "
-                 "and in sample_data the only image that returned rows lists an app other than "
-                 "ChatGPT, while the three images that list ChatGPT returned no rows. A row is an "
-                 ".m4a file under an app tmp folder and is not shown to be a ChatGPT voice prompt.",
+        "notes": "The tmp patterns match every app container, and a container is only known to be "
+                 "ChatGPT's when a ChatGPT marker file (a conversations-* store or com.openai.chat "
+                 "plist) sits in it. Rows are reported only from that container; with no marker, "
+                 "nothing is reported, because the matched files belong to whichever app owns the "
+                 "container. Issue #1732 reported Voice Memos recordings from an iOS 15.8.4 device "
+                 "without ChatGPT appearing here. Before this, the only image in sample_data that "
+                 "returned rows returned tmp audio of another app; that entry now records 0 rows, "
+                 "derived from the absence of a marker rather than from a new run. The three images "
+                 "that hold ChatGPT returned no rows. A row is an .m4a file under the ChatGPT tmp "
+                 "folder and is not shown to be a voice prompt.",
         "paths": ('**/Containers/Data/Application/*/tmp/recordings/*.m4a',
                   '**/Containers/Data/Application/*/tmp/*/*.m4a',
                   '**/Containers/Data/Application/*/Library/Application Support/conversations-*/*.json',
@@ -129,7 +136,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "dexter_ios18": "iOS 18.3.2 | ChatGPT 1.2025.261 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | ChatGPT 1.2024.233 | 0 rows",
-            "iphone12_ios18": "iOS 18.7 | Wire • Secure Messenger 4.10.0 | 2 rows",
+            "iphone12_ios18": "iOS 18.7 | no ChatGPT marker file; tmp audio of Wire • Secure Messenger 4.10.0 no longer reported | 0 rows",
             "otto_ios17": "iOS 17.5.1 | ChatGPT 1.2024.219 | 0 rows",
         }
     }
@@ -320,15 +327,22 @@ def chatgptPreferences(context):
 
 
 def _checkin_tmp_media(context, extension):
-    """Check in tmp media of a given extension belonging to the ChatGPT app container."""
+    """Check in tmp media of a given extension belonging to the ChatGPT app container.
+
+    The tmp patterns match every app container. Without a marker file naming the
+    ChatGPT container, the matched files are some other app's (#1732 reported
+    Voice Memos recordings here), so nothing is reported.
+    """
     app_id = _app_id(context)
     data_list = []
     source_dirs = set()
+    if not app_id:
+        return data_list, ''
     for file_found in context.get_files_found():
         file_found = str(file_found)
         if not (file_found.endswith(extension) and 'tmp' in file_found):
             continue
-        if app_id and app_id not in file_found:
+        if app_id not in file_found:
             continue
         media_ref = check_in_media(file_found, os.path.basename(file_found))
         source_dirs.add(os.path.dirname(file_found))
