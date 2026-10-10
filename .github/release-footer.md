@@ -12,9 +12,9 @@
 | Linux, 64-bit Intel or AMD | `-linux-x64.AppImage` |
 | Linux on ARM | `-linux-arm64.AppImage` |
 
-Every download holds one program, `ileapp`. Started without arguments, from the Start
-menu, the Applications folder or a double-click, it opens the window. Given arguments in a
-terminal, it is the command line. On macOS the command line is inside the app:
+Every download holds one program, `ileapp`. Started without arguments, from the
+Applications folder or a double-click, it opens the window. Given arguments in a terminal,
+it is the command line. On macOS the command line is inside the app:
 
 ```bash
 /Applications/iLEAPP.app/Contents/MacOS/ileapp --help
