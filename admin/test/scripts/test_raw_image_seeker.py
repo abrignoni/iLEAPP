@@ -36,7 +36,7 @@ sys.path.insert(0, str(REPO_ROOT))
 import scripts.raw_image as raw_image  # pylint: disable=wrong-import-position
 from scripts.raw_image import (  # pylint: disable=wrong-import-position
     RAW_IMAGE_FILESYSTEMS, RAW_IMAGE_SUFFIXES, FileSeekerRaw, names_a_stream,
-    names_an_image_folder, split_image_sibling)
+    names_an_image_folder, names_free_space, split_image_sibling)
 from scripts.vendor import ewfprobe, qnxprobe  # pylint: disable=wrong-import-position
 
 FIXTURES = REPO_ROOT / 'admin' / 'test' / 'data' / 'raw_images'
@@ -714,6 +714,88 @@ class RawImageSeekerTest(unittest.TestCase):
         self.assertEqual(len(found), 1)
         with open(found[0], 'rb') as handle:
             self.assertEqual(handle.read(), b'the hidden stream\n')
+
+    # A volume's free space is a member only a pattern that asks for it can reach.
+    # The expected bytes are read from the image file directly, at the offsets the
+    # staged map gives, and the expected total is the fixture's free cluster count.
+
+    def _free_space(self, image):
+        seeker = self._seeker(image)
+        listed = list(seeker.name_list)
+        staged = seeker.search('*.unallocated.bin')
+        return seeker, listed, staged
+
+    def test_free_space_is_staged_for_a_pattern_that_asks_for_it(self):
+        for image in (self.ntfs, self.fat32, self.exfat, self.apfs):
+            with self.subTest(image=os.path.basename(image)):
+                seeker, listed, staged = self._free_space(image)
+                self.assertEqual(len(staged), 1)
+                self.assertEqual(seeker.name_list, listed)
+                name = os.path.basename(image)
+                self.assertEqual(
+                    seeker.file_infos[staged[0]].source_path,
+                    f'lba0/$Unallocated/{name}.lba0.unallocated.bin')
+                with open(image, 'rb') as handle:
+                    disk = handle.read()
+                with open(staged[0], 'rb') as handle:
+                    free = handle.read()
+                with open(staged[0][:-4] + '.tsv', encoding='utf-8') as handle:
+                    rows = [line.split('\t') for line in handle.read().splitlines()[1:]]
+                self.assertTrue(rows)
+                covered = 0
+                for in_file, in_image, length in ((int(a), int(b), int(c))
+                                                  for a, b, c in rows):
+                    self.assertEqual(in_file, covered)
+                    self.assertEqual(free[in_file:in_file + length],
+                                     disk[in_image:in_image + length])
+                    covered += length
+                self.assertEqual(covered, len(free))
+
+    def test_fat32_free_space_is_the_fixture_s_free_clusters(self):
+        # fat32-deleted.img: 512-byte sectors, one sector per cluster, and the FAT
+        # read here by hand, not through the reader under test
+        with open(self.fat32, 'rb') as handle:
+            disk = handle.read()
+        sector, per_cluster, reserved = struct.unpack_from('<HBH', disk, 11)
+        fats = disk[16]
+        fat_sectors = struct.unpack_from('<I', disk, 36)[0]
+        total = struct.unpack_from('<I', disk, 32)[0]
+        clusters = (total - reserved - fats * fat_sectors) // per_cluster
+        fat = disk[reserved * sector:(reserved + fat_sectors) * sector]
+        free = sum(1 for n in range(2, clusters + 2)
+                   if struct.unpack_from('<I', fat, 4 * n)[0] & 0x0FFFFFFF == 0)
+        _seeker, _listed, staged = self._free_space(self.fat32)
+        self.assertEqual(os.path.getsize(staged[0]), free * per_cluster * sector)
+
+    def test_a_pattern_that_does_not_ask_is_never_handed_free_space(self):
+        seeker = self._seeker(self.fat32)
+        for pattern in ('*', '*.bin', '*/$Unallocated/*', '*unallocated*'):
+            with self.subTest(pattern=pattern):
+                self.assertFalse(
+                    [path for path in seeker.search(pattern) if 'unallocated' in path])
+        self.assertFalse(os.path.isdir(os.path.join(seeker.data_folder, 'lba0',
+                                                    '$Unallocated')))
+
+    def test_free_space_is_staged_once(self):
+        seeker = self._seeker(self.fat32)
+        first = seeker.search('*.unallocated.bin')
+        stamp = os.path.getmtime(first[0])
+        self.assertEqual(seeker.search('*.unallocated.bin', force=True), first)
+        self.assertEqual(os.path.getmtime(first[0]), stamp)
+
+    def test_what_names_free_space(self):
+        self.assertTrue(names_free_space('*.unallocated.bin'))
+        self.assertTrue(names_free_space('*/$Unallocated/*.UNALLOCATED.BIN'))
+        self.assertFalse(names_free_space('*'))
+        self.assertFalse(names_free_space('*.bin'))
+        self.assertFalse(names_free_space('*/x.unallocated.bin/*'))
+
+    def test_the_run_log_says_free_space_can_be_asked_for(self):
+        log = _Recorder()
+        with mock.patch.object(raw_image, 'logfunc', log):
+            seeker = FileSeekerRaw(self.fat32, tempfile.mkdtemp(dir=self.work))
+            self.addCleanup(seeker.cleanup)
+        self.assertTrue(any('free space' in line for line in log.lines))
 
     def test_what_names_a_stream(self):
         for pattern in ('*:Zone.Identifier', '*/$Extend/$UsnJrnl:$J', '*/:rootstream', '*:*',
