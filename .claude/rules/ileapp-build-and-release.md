@@ -158,7 +158,11 @@ building; a dispatched rehearsal builds unsigned. The footer tells users the dis
 are notarised, which holds only because of that refusal.
 
 Windows is signed by SignPath when the `SIGNPATH_API_TOKEN` repository secret is set. The
-job carries `actions: read` so SignPath can download the uploaded artifact. Repository
+job carries `actions: read` so SignPath can download the uploaded artifact, and the SignPath
+GitHub App (github.com/apps/signpath) must be installed on the repository: SignPath's
+documentation calls it optional, but without it every request fails with "Failed to
+retrieve GitHub App token" (2026-10-10). Only the owner of this personal-account
+repository can install it. Repository
 variables: `SIGNPATH_ORGANIZATION_ID`, `SIGNPATH_PROJECT_SLUG`, `SIGNPATH_SIGNING_POLICY`
 (`test-signing` or `release-signing`), `SIGNPATH_CERT_SUBJECT` (optional, passed to
 `verify --subject`) and, under `test-signing`, `SIGNPATH_TEST_CERT_B64`, the root of the
